@@ -32,6 +32,7 @@ import lombok.NoArgsConstructor;
 public class ModuleConfig {
 
     private Integer id;
+    private Integer moduleId;
     private String name;
     /**
      * The md5 of the module config

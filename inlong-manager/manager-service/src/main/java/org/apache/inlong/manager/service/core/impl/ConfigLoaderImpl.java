@@ -22,6 +22,8 @@ import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
+import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.AgentTaskConfigEntityMapper;
@@ -32,6 +34,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
@@ -76,6 +80,10 @@ public class ConfigLoaderImpl implements ConfigLoader {
     private ClusterConfigEntityMapper clusterConfigEntityMapper;
     @Autowired
     private AgentTaskConfigEntityMapper agentTaskConfigEntityMapper;
+    @Autowired
+    private ModuleConfigEntityMapper moduleConfigEntityMapper;
+    @Autowired
+    private PackageConfigEntityMapper packageConfigEntityMapper;
 
     @Transactional
     @Override
@@ -193,4 +201,23 @@ public class ConfigLoaderImpl implements ConfigLoader {
         cursor.forEach(agentTaskConfigEntityList::add);
         return agentTaskConfigEntityList;
     }
+
+    @Transactional
+    @Override
+    public List<ModuleConfigEntity> loadAllModuleConfigEntity() {
+        Cursor<ModuleConfigEntity> cursor = moduleConfigEntityMapper.selectAllModuleConfigs();
+        List<ModuleConfigEntity> moduleConfigEntityList = new ArrayList<>();
+        cursor.forEach(moduleConfigEntityList::add);
+        return moduleConfigEntityList;
+    }
+
+    @Transactional
+    @Override
+    public List<PackageConfigEntity> loadAllPackageConfigEntity() {
+        Cursor<PackageConfigEntity> cursor = packageConfigEntityMapper.selectAllPackageConfigs();
+        List<PackageConfigEntity> packageConfigEntityList = new ArrayList<>();
+        cursor.forEach(packageConfigEntityList::add);
+        return packageConfigEntityList;
+    }
+
 }

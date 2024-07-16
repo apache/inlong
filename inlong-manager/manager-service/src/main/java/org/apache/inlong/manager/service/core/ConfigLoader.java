@@ -22,6 +22,8 @@ import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
+import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
@@ -131,5 +133,19 @@ public interface ConfigLoader {
      * @return List of agent task config info
      */
     List<AgentTaskConfigEntity> loadAllAgentTaskConfigEntity();
+
+    /**
+     * Load all module config info
+     *
+     * @return List of module config info
+     */
+    List<ModuleConfigEntity> loadAllModuleConfigEntity();
+
+    /**
+     * Load all package config info
+     *
+     * @return List of package config info
+     */
+    List<PackageConfigEntity> loadAllPackageConfigEntity();
 
 }

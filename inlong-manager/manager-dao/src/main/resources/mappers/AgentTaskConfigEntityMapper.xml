@@ -26,6 +26,7 @@
         <result column="cluster_name" jdbcType="VARCHAR" property="clusterName"/>
         <result column="config_params" jdbcType="VARCHAR" property="configParams"/>
         <result column="task_params" jdbcType="VARCHAR" property="taskParams"/>
+        <result column="module_params" jdbcType="VARCHAR" property="moduleParams"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
@@ -35,15 +36,15 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, agent_ip, cluster_name, config_params, task_params, is_deleted, creator, modifier, create_time, modify_time, version
+        id, agent_ip, cluster_name, config_params, task_params, module_params, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.AgentTaskConfigEntity">
         insert into agent_task_config (id, agent_ip, cluster_name,
-                                 config_params, task_params,
-                                 creator, modifier)
+                                       config_params, task_params, module_params,
+                                       creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{agentIp, jdbcType=VARCHAR}, #{clusterName, jdbcType=VARCHAR},
-                #{configParams, jdbcType=VARCHAR}, #{taskParams, jdbcType=VARCHAR},
+                #{configParams, jdbcType=VARCHAR}, #{taskParams, jdbcType=VARCHAR}, #{moduleParams,jdbcType=VARCHAR},
                 #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
@@ -85,6 +86,9 @@
             </if>
             <if test="taskParams != null">
                 task_params = #{taskParams,jdbcType=VARCHAR},
+            </if>
+            <if test="moduleParams != null">
+                module_params = #{moduleParams,jdbcType=VARCHAR},
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},

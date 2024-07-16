@@ -45,6 +45,8 @@ public class ConfigResult {
      */
     private String md5;
 
+    private Integer version;
+
     /**
      * The list of module config list
      */
