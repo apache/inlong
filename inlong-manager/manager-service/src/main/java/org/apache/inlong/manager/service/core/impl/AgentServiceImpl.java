@@ -282,6 +282,7 @@ public class AgentServiceImpl implements AgentService {
         try {
             Map<String, TaskResult> newTaskConfigMap = new ConcurrentHashMap<>();
             Map<String, AgentConfigInfo> newAgentConfigMap = new ConcurrentHashMap<>();
+            Map<String, ConfigResult> newInstallerConfigMap = new ConcurrentHashMap<>();
             List<AgentTaskConfigEntity> agentTaskConfigEntityList = configLoader.loadAllAgentTaskConfigEntity();
             agentTaskConfigEntityList.forEach(agentTaskConfigEntity -> {
                 try {
@@ -299,6 +300,15 @@ public class AgentServiceImpl implements AgentService {
                         agentConfigInfo.setVersion(agentTaskConfigEntity.getVersion());
                         newAgentConfigMap.putIfAbsent(key, agentConfigInfo);
                     }
+                    ConfigResult configResult =
+                            JsonUtils.parseObject(agentTaskConfigEntity.getModuleParams(), ConfigResult.class);
+                    if (configResult != null) {
+                        configResult.setVersion(agentTaskConfigEntity.getVersion());
+                        newInstallerConfigMap.putIfAbsent(key, configResult);
+                        if (Objects.equals(agentTaskConfigEntity.getAgentIp(), "9.135.95.77")) {
+                            LOGGER.info("Test get md5={}, configresult={}", configResult.getMd5(), configResult);
+                        }
+                    }
                 } catch (Exception e) {
                     LOGGER.error("failed to get agent task config for agent ip={}, cluster name={}",
                             agentTaskConfigEntity.getAgentIp(), agentTaskConfigEntity.getClusterName());
@@ -307,6 +317,7 @@ public class AgentServiceImpl implements AgentService {
             });
             taskConfigMap = newTaskConfigMap;
             agentConfigMap = newAgentConfigMap;
+            installerConfigMap = newInstallerConfigMap;
         } catch (Throwable t) {
             LOGGER.error("failed to reload all agent task config", t);
         }
@@ -316,7 +327,7 @@ public class AgentServiceImpl implements AgentService {
     public void reloadModule() {
         LOGGER.info("start to reload agent task config.");
         try {
-            Map<Integer, ModuleConfig> tempModuleConfigMap = new ConcurrentHashMap<>();
+            Map<Integer, ModuleConfig> newModuleConfigMap = new ConcurrentHashMap<>();
             List<ModuleConfigEntity> moduleConfigEntityList = configLoader.loadAllModuleConfigEntity();
             List<PackageConfigEntity> packageConfigEntityList = configLoader.loadAllPackageConfigEntity();
             Map<Integer, PackageConfigEntity> packageConfigMap = new ConcurrentHashMap<>();
@@ -333,9 +344,9 @@ public class AgentServiceImpl implements AgentService {
                 ModuleDTO moduleDTO = JsonUtils.parseObject(moduleConfigEntity.getExtParams(), ModuleDTO.class);
                 moduleConfig = CommonBeanUtils.copyProperties(moduleDTO, moduleConfig, true);
                 moduleConfig.setProcessesNum(1);
-                tempModuleConfigMap.putIfAbsent(moduleConfigEntity.getId(), moduleConfig);
+                newModuleConfigMap.putIfAbsent(moduleConfigEntity.getId(), moduleConfig);
             });
-            moduleConfigMap = tempModuleConfigMap;
+            moduleConfigMap = newModuleConfigMap;
         } catch (Throwable t) {
             LOGGER.error("fail to reload module config", t);
         }
