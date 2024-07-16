@@ -72,7 +72,7 @@ import java.util.Objects;
 public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentClusterNodeOperator.class);
-
+    private static final Gson GSON = new Gson();
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -83,7 +83,6 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
     private PackageConfigEntityMapper packageConfigEntityMapper;
     @Autowired
     private ModuleConfigEntityMapper moduleConfigEntityMapper;
-    private static final Gson GSON = new Gson();
 
     @Override
     public Boolean accept(String clusterNodeType) {
@@ -177,10 +176,8 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
             configRequest.setClusterName(clusterName);
             ConfigResult configResult = loadModuleConfigs(configRequest);
             AgentTaskConfigEntity existEntity = agentTaskConfigEntityMapper.selectByIdentifier(ip, clusterName);
-            AgentTaskConfigEntity agentTaskConfigEntity = new AgentTaskConfigEntity();
-            if (existEntity != null) {
-                agentTaskConfigEntity = CommonBeanUtils.copyProperties(existEntity, AgentTaskConfigEntity::new, true);
-            }
+            AgentTaskConfigEntity agentTaskConfigEntity = existEntity == null ? new AgentTaskConfigEntity()
+                    : CommonBeanUtils.copyProperties(existEntity, AgentTaskConfigEntity::new, true);
             agentTaskConfigEntity.setAgentIp(ip);
             agentTaskConfigEntity.setClusterName(clusterName);
             agentTaskConfigEntity.setModuleParams(objectMapper.writeValueAsString(configResult));
@@ -229,6 +226,9 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
         }
         for (Integer moduleId : moduleIdList) {
             ModuleConfigEntity moduleConfigEntity = moduleConfigEntityMapper.selectByPrimaryKey(moduleId);
+            if (moduleConfigEntity == null) {
+                continue;
+            }
             ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
             moduleConfig.setId(ModuleType.forType(moduleConfigEntity.getType()).getModuleId());
             moduleConfig.setModuleId(moduleConfigEntity.getId());

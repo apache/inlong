@@ -389,6 +389,9 @@ public class AgentServiceImpl implements AgentService {
                 }
                 for (Integer moduleId : moduleIdList) {
                     ModuleConfig moduleConfig = moduleConfigMap.get(moduleId);
+                    if (moduleConfig == null) {
+                        continue;
+                    }
                     moduleConfig.setRestartTime(restartTime);
                     String moduleStr = GSON.toJson(moduleConfig);
                     String moduleMd5 = DigestUtils.md5Hex(moduleStr);
