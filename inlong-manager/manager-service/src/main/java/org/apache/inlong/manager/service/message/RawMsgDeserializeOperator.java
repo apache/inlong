@@ -60,7 +60,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
             DataTypeOperator dataTypeOperator =
                     dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
             List<FieldInfo> fieldList = dataTypeOperator.parseFields(body, streamInfo);
-            if (!checkIfFilter(request, fieldList)) {
+            if (checkIfFilter(request, fieldList)) {
                 return briefMQMessages;
             }
             BriefMQMessage briefMQMessage = BriefMQMessage.builder()

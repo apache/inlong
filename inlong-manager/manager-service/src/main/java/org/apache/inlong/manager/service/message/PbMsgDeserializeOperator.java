@@ -99,7 +99,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
                 DataTypeOperator dataTypeOperator =
                         dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
                 List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
-                if (!checkIfFilter(request, streamFieldList)) {
+                if (checkIfFilter(request, streamFieldList)) {
                     continue;
                 }
                 BriefMQMessage message = BriefMQMessage.builder()
