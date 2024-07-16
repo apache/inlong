@@ -776,7 +776,7 @@
   "pages.Clusters.Node.SSHKey": "SSH Key",
   "pages.Clusters.Node.Password": "SSH Password",
   "pages.Clusters.Node.SSHPort": "SSH Port",
-  "pages.Clusters.Node.SSHKeyHelper": "Please upload the public key to the ~/.ssh/authorized_keys file of the agent node",
+  "pages.Clusters.Node.SSHKeyHelper": "Please upload the public key to the ~/.ssh/authorized_keys file of the Agent node",
   "pages.Clusters.Node.Status": "Status",
   "pages.Clusters.Node.Status.Normal": "Normal",
   "pages.Clusters.Node.Status.Timeout": "Timeout",
