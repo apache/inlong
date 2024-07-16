@@ -86,8 +86,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                     DataTypeOperator dataTypeOperator =
                             dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
                     List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
-                    boolean ifFilter = checkIfFilter(request, streamFieldList);
-                    if (!ifFilter) {
+                    if (!checkIfFilter(request, streamFieldList)) {
                         return messageList;
                     }
                     BriefMQMessage message = BriefMQMessage.builder()
