@@ -74,6 +74,9 @@ public interface DeserializeOperator {
         boolean ifFilter =
                 StringUtils.isNotBlank(request.getFieldName()) && StringUtils.isNotBlank(request.getOperationType())
                         && StringUtils.isNotBlank(request.getTargetValue());
+        if (!ifFilter) {
+            return false;
+        }
         FieldInfo fieldInfo = streamFieldList.stream()
                 .filter(v -> Objects.equals(v.getFieldName(), request.getFieldName())).findFirst()
                 .orElse(null);
