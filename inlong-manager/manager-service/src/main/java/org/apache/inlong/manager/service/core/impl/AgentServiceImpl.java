@@ -305,9 +305,6 @@ public class AgentServiceImpl implements AgentService {
                     if (configResult != null) {
                         configResult.setVersion(agentTaskConfigEntity.getVersion());
                         newInstallerConfigMap.putIfAbsent(key, configResult);
-                        if (Objects.equals(agentTaskConfigEntity.getAgentIp(), "9.135.95.77")) {
-                            LOGGER.info("Test get md5={}, configresult={}", configResult.getMd5(), configResult);
-                        }
                     }
                 } catch (Exception e) {
                     LOGGER.error("failed to get agent task config for agent ip={}, cluster name={}",
@@ -400,12 +397,12 @@ public class AgentServiceImpl implements AgentService {
                 }
                 String jsonStr = GSON.toJson(configs);
                 String configMd5 = DigestUtils.md5Hex(jsonStr);
-                ConfigResult configResult1 = ConfigResult.builder()
+                ConfigResult newConfigResult = ConfigResult.builder()
                         .moduleList(configs)
                         .md5(configMd5)
                         .code(AgentResponseCode.SUCCESS)
                         .build();
-                if (configResult == null || !Objects.equals(configResult.getMd5(), configResult1.getMd5())) {
+                if (configResult == null || !Objects.equals(configResult.getMd5(), newConfigResult.getMd5())) {
                     agentClusterNodeOperator.updateModuleConfig(ip, clusterName);
                 }
             }
