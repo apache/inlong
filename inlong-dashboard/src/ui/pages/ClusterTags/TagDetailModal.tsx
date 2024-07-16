@@ -104,6 +104,18 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
           showSearch: true,
           allowClear: true,
           mode: 'multiple',
+          maxTagCount: 9,
+          maxTagTextLength: 20,
+          maxTagPlaceholder: omittedValues => {
+            console.log('omittedValues', omittedValues);
+            return (
+              <span>
+                {i18n.t('miscellaneous.total')}
+                {omittedValues.length}
+                {i18n.t('miscellaneous.tenants')}
+              </span>
+            );
+          },
           options: {
             requestTrigger: ['onOpen', 'onSearch'],
             requestService: keyword => ({
@@ -136,6 +148,7 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
 
   return (
     <Modal
+      width={600}
       {...modalProps}
       title={i18n.t(id ? 'basic.Edit' : 'basic.Create') + i18n.t('pages.ClusterTags.Name')}
       onOk={onOk}
