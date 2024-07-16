@@ -166,12 +166,12 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
 
     public void updateModuleConfig(String ip, String clusterName) {
         try {
-            ConfigRequest configRequest = new ConfigRequest();
-            LOGGER.info("begin to update module config for cluster name={}, ip={}", clusterName, ip);
             if (StringUtils.isBlank(clusterName) || StringUtils.isBlank(ip)) {
                 LOGGER.info("no need to update module config when ip or cluster name is null");
                 return;
             }
+            ConfigRequest configRequest = new ConfigRequest();
+            LOGGER.info("begin to update module config for cluster name={}, ip={}", clusterName, ip);
             configRequest.setLocalIp(ip);
             configRequest.setClusterName(clusterName);
             ConfigResult configResult = loadModuleConfigs(configRequest);
