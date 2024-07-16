@@ -117,7 +117,8 @@ public class KafkaOperatorTest extends ServiceBaseTest {
 
     @Test
     void testGetKafkaLatestMessage() {
-        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
+        List<BriefMQMessage> messages =
+                kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
         Assertions.assertEquals(0, messages.size());
     }
 
@@ -125,7 +126,8 @@ public class KafkaOperatorTest extends ServiceBaseTest {
     void testGetKafkaLatestMessage_1() {
         addRecord(Collections.singletonList("inlong"));
 
-        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
+        List<BriefMQMessage> messages =
+                kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
         Assertions.assertEquals(1, messages.size());
         Assertions.assertEquals("inlong", messages.get(0).getBody());
     }
@@ -135,7 +137,8 @@ public class KafkaOperatorTest extends ServiceBaseTest {
         List<String> records = IntStream.range(0, 9).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
 
-        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
+        List<BriefMQMessage> messages =
+                kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
         Assertions.assertEquals(9, messages.size());
     }
 
@@ -143,7 +146,8 @@ public class KafkaOperatorTest extends ServiceBaseTest {
     void testGetKafkaLatestMessage_4() {
         List<String> records = IntStream.range(0, 21).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
-        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
+        List<BriefMQMessage> messages =
+                kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, streamInfo, new QueryMessageRequest());
         Assertions.assertEquals(10, messages.size());
     }
 
