@@ -337,7 +337,7 @@ public class AgentServiceImpl implements AgentService {
             moduleConfigEntityList.forEach(moduleConfigEntity -> {
                 ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
                 moduleConfig.setId(ModuleType.forType(moduleConfigEntity.getType()).getModuleId());
-                moduleConfig.setModuleId(moduleConfigEntity.getId());
+                moduleConfig.setEntityId(moduleConfigEntity.getId());
                 PackageConfigEntity packageConfigEntity = packageConfigMap.get(moduleConfigEntity.getPackageId());
                 moduleConfig
                         .setPackageConfig(CommonBeanUtils.copyProperties(packageConfigEntity, PackageConfig::new));
@@ -384,7 +384,7 @@ public class AgentServiceImpl implements AgentService {
                         restartTime = configResult.getModuleList().get(0).getRestartTime();
                     }
                     for (ModuleConfig moduleConfig : configResult.getModuleList()) {
-                        moduleIdList.add(moduleConfig.getModuleId());
+                        moduleIdList.add(moduleConfig.getEntityId());
                     }
                 }
                 for (Integer moduleId : moduleIdList) {

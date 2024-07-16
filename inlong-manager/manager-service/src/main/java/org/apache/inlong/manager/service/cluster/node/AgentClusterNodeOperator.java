@@ -231,7 +231,7 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
             }
             ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
             moduleConfig.setId(ModuleType.forType(moduleConfigEntity.getType()).getModuleId());
-            moduleConfig.setModuleId(moduleConfigEntity.getId());
+            moduleConfig.setEntityId(moduleConfigEntity.getId());
             PackageConfigEntity packageConfigEntity =
                     packageConfigEntityMapper.selectByPrimaryKey(moduleConfigEntity.getPackageId());
             moduleConfig.setPackageConfig(CommonBeanUtils.copyProperties(packageConfigEntity, PackageConfig::new));
