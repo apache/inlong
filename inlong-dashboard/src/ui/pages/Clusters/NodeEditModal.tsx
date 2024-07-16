@@ -17,9 +17,9 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import i18n from '@/i18n';
-import { Modal, message } from 'antd';
+import { Modal, message, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
@@ -34,6 +34,7 @@ export interface NodeEditModalProps extends ModalProps {
 
 const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...modalProps }) => {
   const [form] = useForm();
+  const [isInstall, setInstallType] = useState(false);
 
   const { data: savedData, run: getData } = useRequest(
     id => ({
@@ -102,6 +103,34 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       },
     },
   );
+
+  const { data: sshKeys, run: getSSHKeys } = useRequest(
+    () => ({
+      url: '/cluster/node/getManagerSSHPublicKey',
+      method: 'GET',
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        form.setFieldValue('sshKey', result);
+      },
+    },
+  );
+
+  const testSSHConnection = async () => {
+    const values = await form.validateFields();
+    const submitData = {
+      ...values,
+      type,
+      parentId: savedData?.parentId || clusterId,
+    };
+    await request({
+      url: '/cluster/node/testSSHConnection',
+      method: 'POST',
+      data: submitData,
+    });
+    message.success(i18n.t('basic.ConnectionSuccess'));
+  };
 
   useUpdateEffect(() => {
     if (modalProps.open) {
@@ -212,6 +241,9 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         hidden: type !== 'AGENT',
         rules: [{ required: true }],
         props: {
+          onChange: ({ target: { value } }) => {
+            setInstallType(value);
+          },
           options: [
             {
               label: i18n.t('pages.Clusters.Node.ManualInstall'),
@@ -220,6 +252,32 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
             {
               label: i18n.t('pages.Clusters.Node.SSHInstall'),
               value: true,
+            },
+          ],
+        },
+      },
+      {
+        type: 'radio',
+        label: i18n.t('pages.Clusters.Node.IdentifyType'),
+        name: 'identifyType',
+        initialValue: 'password',
+        hidden: type !== 'AGENT',
+        visible: values => values?.isInstall,
+        rules: [{ required: true }],
+        props: {
+          onChange: ({ target: { value } }) => {
+            if (value === 'sshKey' && !form.getFieldValue('sshKey')) {
+              getSSHKeys();
+            }
+          },
+          options: [
+            {
+              label: i18n.t('pages.Clusters.Node.Password'),
+              value: 'password',
+            },
+            {
+              label: i18n.t('pages.Clusters.Node.SSHKey'),
+              value: 'sshKey',
             },
           ],
         },
@@ -238,7 +296,20 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'password',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall,
+        visible: values => values?.isInstall && values?.identifyType === 'password',
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.Clusters.Node.SSHKey'),
+        tooltip: i18n.t('pages.Clusters.Node.SSHKeyHelper'),
+        name: 'sshKey',
+        rules: [{ required: true }],
+        hidden: type !== 'AGENT',
+        visible: values => values?.isInstall && values?.identifyType === 'sshKey',
+        props: {
+          readOnly: true,
+          autoSize: true,
+        },
       },
       {
         type: 'input',
@@ -285,7 +356,23 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   }, []);
 
   return (
-    <Modal {...modalProps} title={i18n.t('pages.Clusters.Node.Name')} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={i18n.t('pages.Clusters.Node.Name')}
+      footer={[
+        <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
+          {i18n.t('basic.Cancel')}
+        </Button>,
+        <Button key="save" type="primary" onClick={onOk}>
+          {i18n.t('basic.Save')}
+        </Button>,
+        isInstall && (
+          <Button key="run" type="primary" onClick={testSSHConnection}>
+            {i18n.t('pages.Nodes.TestConnection')}
+          </Button>
+        ),
+      ]}
+    >
       <FormGenerator content={content} form={form} useMaxWidth />
     </Modal>
   );
