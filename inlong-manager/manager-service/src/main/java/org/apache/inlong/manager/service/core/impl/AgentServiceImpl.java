@@ -493,6 +493,11 @@ public class AgentServiceImpl implements AgentService {
         String key = request.getAgentIp() + InlongConstants.UNDERSCORE + request.getClusterName();
         TaskResult taskResult = taskConfigMap.get(key);
         if (taskResult == null) {
+            // When an agent is deployed in a container, tasks do not need to specify an IP address
+            key = "All" + InlongConstants.UNDERSCORE + request.getClusterName();
+            taskResult = taskConfigMap.get(key);
+        }
+        if (taskResult == null) {
             return null;
         }
         if (request.getMd5() == null || !Objects.equals(request.getMd5(), taskResult.getMd5())) {
