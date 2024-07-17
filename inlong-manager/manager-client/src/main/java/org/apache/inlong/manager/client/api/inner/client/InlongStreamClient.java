@@ -303,7 +303,7 @@ public class InlongStreamClient {
     public List<BriefMQMessage> queryMessage(QueryMessageRequest request) {
         Preconditions.expectNotBlank(request.getGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(request.getStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
+        Map<String, Object> requestMap = JsonUtils.parseObject(request,
                 new TypeReference<Map<String, Object>>() {
                 });
         requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));

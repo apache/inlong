@@ -122,6 +122,26 @@ public class JsonUtils {
     }
 
     /**
+     * Parse Object to Java object.
+     * <p/>
+     * This method enhancements to {@link #parseObject(Object, TypeReference)},
+     * as the above method can not solve this situation:
+     *
+     * @param object object
+     * @param typeReference The generic type is actually the parsed java type
+     * @return java object;
+     * @throws JsonException when parse error
+     */
+    public static <T> T parseObject(Object object, TypeReference<T> typeReference) {
+        try {
+            return OBJECT_MAPPER.convertValue(object, typeReference);
+        } catch (Exception e) {
+            log.error("json parse err for: " + object, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
      * Parse JSON string to Java object.
      * <p/>
      * This method enhancements to {@link #parseObject(String, Class)},
