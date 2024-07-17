@@ -712,6 +712,7 @@
   "pages.Approvals.status.Canceled": "已取消",
   "pages.Approvals.status.Ok": "审批通过",
   "pages.Approvals.ApplicationTime": "申请时间",
+  "pages.Approvals.ProcessingTime": "审批时间",
   "pages.Approvals.ApplicationType": "申请类型",
   "pages.Approvals.Approval": "审批",
   "pages.Approvals.Approver": "审批人",

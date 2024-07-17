@@ -712,6 +712,7 @@
   "pages.Approvals.status.Canceled": "Canceled",
   "pages.Approvals.status.Ok": "Approved",
   "pages.Approvals.ApplicationTime": "Time",
+  "pages.Approvals.ProcessingTime": "Processing Time",
   "pages.Approvals.ApplicationType": "Type",
   "pages.Approvals.Approval": "Approval",
   "pages.Approvals.Approver": "Approver",
