@@ -72,10 +72,10 @@ public interface DeserializeOperator {
 
     default Boolean checkIfFilter(QueryMessageRequest request, List<FieldInfo> streamFieldList) {
         boolean ifFilter =
-                StringUtils.isNotBlank(request.getFieldName()) || StringUtils.isNotBlank(request.getOperationType())
-                        || StringUtils.isNotBlank(request.getTargetValue());
-        if (ifFilter) {
-            return true;
+                StringUtils.isNotBlank(request.getFieldName()) && StringUtils.isNotBlank(request.getOperationType())
+                        && StringUtils.isNotBlank(request.getTargetValue());
+        if (!ifFilter) {
+            return false;
         }
         FieldInfo fieldInfo = streamFieldList.stream()
                 .filter(v -> Objects.equals(v.getFieldName(), request.getFieldName())).findFirst()
@@ -83,14 +83,14 @@ public interface DeserializeOperator {
         if (fieldInfo != null) {
             switch (request.getOperationType()) {
                 case "=":
-                    ifFilter = Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
+                    ifFilter = !Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
                     break;
                 case "!=":
-                    ifFilter = !Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
+                    ifFilter = Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
                     break;
                 case "like":
                     ifFilter = fieldInfo.getFieldValue() != null
-                            && fieldInfo.getFieldValue().contains(request.getTargetValue());
+                            && !fieldInfo.getFieldValue().contains(request.getTargetValue());
             }
         }
         return ifFilter;
