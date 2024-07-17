@@ -33,6 +33,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -255,15 +256,9 @@ public class InlongStreamController {
 
     @RequestMapping(value = "/stream/listMessages", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream message")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "messageCount", dataTypeClass = String.class, required = true)
-    })
-    public Response<List<BriefMQMessage>> listMessages(@RequestParam String groupId, @RequestParam String streamId,
-            @RequestParam Integer messageCount) {
+    public Response<List<BriefMQMessage>> listMessages(QueryMessageRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(streamService.listMessages(groupId, streamId, messageCount, username));
+        return Response.success(streamService.listMessages(request, username));
     }
 
 }

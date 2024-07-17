@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
@@ -113,19 +114,19 @@ public class KafkaOperator {
      * Query topic message for the given Kafka cluster.
      */
     public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo clusterInfo, String topicName,
-            String consumeGroup, Integer messageCount, InlongStreamInfo streamInfo) {
+            String consumeGroup, InlongStreamInfo streamInfo, QueryMessageRequest request) {
         LOGGER.debug("begin to query message for topic {} in cluster: {}", topicName, clusterInfo);
 
         Properties properties = getProperties(clusterInfo.getUrl(), consumeGroup);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
-        return getLatestMessage(consumer, topicName, messageCount, streamInfo);
+        return getLatestMessage(consumer, topicName, streamInfo, request);
     }
 
     @VisibleForTesting
     public List<BriefMQMessage> getLatestMessage(Consumer<byte[], byte[]> consumer, String topicName,
-            Integer messageCount, InlongStreamInfo streamInfo) {
+            InlongStreamInfo streamInfo, QueryMessageRequest request) {
         List<BriefMQMessage> messageList = new ArrayList<>();
-
+        Integer messageCount = request.getMessageCount();
         try {
             List<PartitionInfo> partitionInfoList = consumer.partitionsFor(topicName);
             List<TopicPartition> topicPartitionList = partitionInfoList.stream()
@@ -162,7 +163,7 @@ public class KafkaOperator {
                             MessageWrapType.valueOf(Integer.parseInt(headers.get(InlongConstants.MSG_ENCODE_VER)));
                 }
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
-                messageList.addAll(deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
+                deserializeOperator.decodeMsg(streamInfo, messageList, record.value(), headers, index, request);
                 if (messageList.size() >= messageCount) {
                     break;
                 }

@@ -55,6 +55,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -948,15 +949,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator) {
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+    public List<BriefMQMessage> listMessages(QueryMessageRequest request, String operator) {
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getGroupId());
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
-        InlongStreamInfo inlongStreamInfo = get(groupId, streamId);
+        InlongStreamInfo inlongStreamInfo = get(request.getGroupId(), request.getStreamId());
         List<BriefMQMessage> messageList = new ArrayList<>();
         QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupEntity.getMqType());
         try {
-            messageList = queueOperator.queryLatestMessages(groupInfo, inlongStreamInfo, messageCount);
+            messageList = queueOperator.queryLatestMessages(groupInfo, inlongStreamInfo, request);
         } catch (Exception e) {
             LOGGER.error("query message error ", e);
         }

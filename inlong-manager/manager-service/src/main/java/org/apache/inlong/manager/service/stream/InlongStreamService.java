@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -241,12 +242,10 @@ public interface InlongStreamService {
     /**
      * List brief mq message info
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @param messageCount Count of messages to query'
+     * @param request query message request
      * @param operator operator
      * @return list of brief mq message info
      */
-    List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator);
+    List<BriefMQMessage> listMessages(QueryMessageRequest request, String operator);
 
 }
