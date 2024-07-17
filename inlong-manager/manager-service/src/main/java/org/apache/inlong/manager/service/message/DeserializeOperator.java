@@ -72,10 +72,10 @@ public interface DeserializeOperator {
 
     default Boolean checkIfFilter(QueryMessageRequest request, List<FieldInfo> streamFieldList) {
         boolean ifFilter =
-                StringUtils.isNotBlank(request.getFieldName()) && StringUtils.isNotBlank(request.getOperationType())
-                        && StringUtils.isNotBlank(request.getTargetValue());
-        if (!ifFilter) {
-            return false;
+                StringUtils.isNotBlank(request.getFieldName()) || StringUtils.isNotBlank(request.getOperationType())
+                        || StringUtils.isNotBlank(request.getTargetValue());
+        if (ifFilter) {
+            return true;
         }
         FieldInfo fieldInfo = streamFieldList.stream()
                 .filter(v -> Objects.equals(v.getFieldName(), request.getFieldName())).findFirst()
