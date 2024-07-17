@@ -129,7 +129,13 @@ export const getColumns = activedName => [
   {
     title: i18n.t('pages.Approvals.ProcessingTime'),
     dataIndex: 'endTime',
-    render: text => timestampFormat(text),
+    render: (text, record) => {
+      if (record.status === 'PENDING') {
+        return '';
+      } else {
+        return timestampFormat(text);
+      }
+    },
   },
   {
     title: i18n.t('basic.Status'),
