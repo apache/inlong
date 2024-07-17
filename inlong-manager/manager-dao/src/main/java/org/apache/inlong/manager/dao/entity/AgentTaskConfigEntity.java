@@ -36,6 +36,7 @@ public class AgentTaskConfigEntity implements Serializable {
     private String configParams;
 
     private String taskParams;
+    private String moduleParams;
 
     private Integer isDeleted;
     private String creator;

@@ -17,10 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.pojo.module.PackagePageRequest;
 
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,5 +39,9 @@ public interface PackageConfigEntityMapper {
     int updateByIdSelective(PackageConfigEntity record);
 
     List<PackageConfigEntity> selectByCondition(@Param("request") PackagePageRequest request);
+
+    @MultiTenantQuery(with = false)
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<PackageConfigEntity> selectAllPackageConfigs();
 
 }
