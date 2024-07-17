@@ -61,6 +61,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -78,6 +79,7 @@ import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeInstallOp
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
 import org.apache.inlong.manager.service.cmd.CommandExecutor;
+import org.apache.inlong.manager.service.cmd.CommandResult;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 import org.apache.inlong.manager.service.user.InlongRoleService;
@@ -888,6 +890,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         } catch (Exception e) {
             LOGGER.error("get manager ssh public key error", e);
             throw new RuntimeException("get manager ssh public key error", e);
+        }
+    }
+
+    @Override
+    public Boolean testSSHConnection(ClusterNodeRequest request) {
+        AgentClusterNodeRequest nodeRequest = (AgentClusterNodeRequest) request;
+        try {
+            CommandResult commandResult = commandExecutor.execRemote(nodeRequest, "ls");
+            return commandResult.getCode() == 0;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
