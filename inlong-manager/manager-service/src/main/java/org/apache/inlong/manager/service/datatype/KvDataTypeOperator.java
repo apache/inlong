@@ -78,7 +78,7 @@ public class KvDataTypeOperator implements DataTypeOperator {
             separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
         }
         Character escape = null;
-        if (streamInfo.getDataEscapeChar() != null) {
+        if (StringUtils.isNotBlank(streamInfo.getDataEscapeChar())) {
             escape = streamInfo.getDataEscapeChar().charAt(0);
         }
         KvConfig kvConfig = new KvConfig();
