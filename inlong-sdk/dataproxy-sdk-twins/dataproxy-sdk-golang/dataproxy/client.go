@@ -259,6 +259,9 @@ func (c *client) Close() {
 		if c.netClient != nil {
 			_ = c.netClient.Stop()
 		}
+		if c.connPool != nil {
+			c.connPool.Close()
+		}
 	})
 }
 
@@ -289,8 +292,8 @@ func (c *client) OnOpen(conn gnet.Conn) ([]byte, gnet.Action) {
 }
 
 func (c *client) OnClose(conn gnet.Conn, err error) gnet.Action {
-	c.log.Warn("connection closed: ", conn.RemoteAddr(), ", err: ", err)
 	if err != nil {
+		c.log.Warn("connection closed: ", conn.RemoteAddr(), ", err: ", err)
 		c.metrics.incError(errConnClosedByPeer.strCode)
 	}
 	return gnet.None
@@ -320,7 +323,7 @@ func (c *client) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		length, payloadOffset, payloadOffsetEnd, err := c.framer.ReadFrame(buf)
-		if err == framer.ErrIncompleteFrame {
+		if errors.Is(err, framer.ErrIncompleteFrame) {
 			break
 		}
 
