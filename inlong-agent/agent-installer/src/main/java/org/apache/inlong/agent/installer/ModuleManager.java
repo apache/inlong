@@ -264,12 +264,12 @@ public class ModuleManager extends AbstractDaemon {
             JsonElement tmpElement = JsonParser.parseReader(reader).getAsJsonObject();
             ConfigResult curConfig = GSON.fromJson(tmpElement.getAsJsonObject(), ConfigResult.class);
             if (curConfig.getModuleList() != null) {
-            if (curConfig.getMd5() != null) {
-                currentMd5 = curConfig.getMd5();
-            }
-            if (curConfig.getVersion() != null) {
-                currentVersion = curConfig.getVersion();
-            }
+                if (curConfig.getMd5() != null) {
+                    currentMd5 = curConfig.getMd5();
+                }
+                if (curConfig.getVersion() != null) {
+                    currentVersion = curConfig.getVersion();
+                }
                 curConfig.getModuleList().forEach((module) -> {
                     currentModules.put(module.getId(), module);
                 });
