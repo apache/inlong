@@ -19,6 +19,8 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.KafkaSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -60,6 +62,11 @@ public class KafkaIdConfig extends IdConfig {
 
     public static KafkaIdConfig create(DataFlowConfig dataFlowConfig) {
         KafkaSinkConfig sinkConfig = (KafkaSinkConfig) dataFlowConfig.getSinkConfig();
+        DataTypeConfig dataTypeConfig = dataFlowConfig.getSourceConfig().getDataTypeConfig();
+        String separator = DEFAULT_SEPARATOR;
+        if (dataTypeConfig instanceof CsvConfig) {
+            separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
+        }
 
         return KafkaIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
@@ -67,6 +74,7 @@ public class KafkaIdConfig extends IdConfig {
                 .uid(InlongId.generateUid(dataFlowConfig.getInlongGroupId(), dataFlowConfig.getInlongStreamId()))
                 .topic(sinkConfig.getTopicName())
                 .dataType(DataTypeEnum.TEXT)
+                .separator(separator)
                 .build();
     }
 
