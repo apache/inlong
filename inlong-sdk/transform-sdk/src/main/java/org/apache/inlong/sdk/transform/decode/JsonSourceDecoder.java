@@ -34,7 +34,7 @@ import java.util.Map;
  * JsonSourceDecoder
  * 
  */
-public class JsonSourceDecoder implements SourceDecoder {
+public class JsonSourceDecoder implements SourceDecoder<String> {
 
     protected JsonSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();

@@ -30,7 +30,7 @@ import java.util.Map;
  * KvSourceDecoder
  * 
  */
-public class KvSourceDecoder implements SourceDecoder {
+public class KvSourceDecoder implements SourceDecoder<String> {
 
     protected KvSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();
