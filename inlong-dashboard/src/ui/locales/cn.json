@@ -43,6 +43,7 @@
   "meta.Sources.File.Cycle.Day": "天",
   "meta.Sources.File.Cycle.Hour": "小时",
   "meta.Sources.File.Cycle.RealTime": "实时",
+  "meta.Sources.File.Cycle.Minute": "分钟",
   "meta.Sources.File.TimeZone": "时区",
   "meta.Sources.Db.Server": "服务器地址",
   "meta.Sources.Db.Port": "服务器端口",

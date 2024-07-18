@@ -43,6 +43,7 @@
   "meta.Sources.File.Cycle.Day": "Day",
   "meta.Sources.File.Cycle.Hour": "Hour",
   "meta.Sources.File.Cycle.RealTime": "Real time",
+  "meta.Sources.File.Cycle.Minute": "Minute",
   "meta.Sources.File.TimeZone": "Time zone",
   "meta.Sources.Db.Server": "Server",
   "meta.Sources.Db.Port": "Port",
