@@ -1,1 +1,26 @@
-{"md5":"b38c63451ff966a32994a867ec79d259","moduleNum":1,"moduleList":[{"id":1,"name":"inlong-agent","md5":"55175a3b2cb143f31ad3d79e081e794c","version":"1.0","processesNum":1,"startCommand":"cd ~/inlong-agent/bin;sh agent.sh start","stopCommand":"cd ~/inlong-agent/bin;sh agent.sh stop","checkCommand":"ps aux | grep core.AgentMain | grep java | grep -v grep | awk \u0027{print $2}\u0027","installCommand":"cd ~/inlong-agent/bin;sh agent.sh stop;rm -rf ~/inlong-agent/;mkdir ~/inlong-agent;cd /tmp;tar -xzvf apache-inlong-agent-1.12.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent;cd ~/inlong-agent/bin;sh agent.sh start","uninstallCommand":"echo empty uninstall cmd","packageConfig":{"md5":"95648c83b45971dce503d5d844496cfc","fileName":"apache-inlong-agent-1.12.0-SNAPSHOT-bin.tar.gz","downloadUrl":"http://11.151.246.158:8083/inlong/manager/openapi/installer/download?filename\u003dapache-inlong-agent-1.12.0-SNAPSHOT-bin.tar.gz","storagePath":"/tmp"},"state":"INSTALLED"}]}
+{
+  "md5": "b38c63451ff966a32994a867ec79d259",
+  "version": 1,
+  "moduleNum": 1,
+  "moduleList": [
+    {
+      "id": 1,
+      "name": "inlong-agent",
+      "md5": "55175a3b2cb143f31ad3d79e081e794c",
+      "version": "1.0",
+      "processesNum": 1,
+      "startCommand": "cd ~/inlong-agent/bin;sh agent.sh start",
+      "stopCommand": "cd ~/inlong-agent/bin;sh agent.sh stop",
+      "checkCommand": "ps aux | grep core.AgentMain | grep java | grep -v grep | awk \u0027{print $2}\u0027",
+      "installCommand": "cd ~/inlong-agent/bin;sh agent.sh stop;rm -rf ~/inlong-agent/;mkdir ~/inlong-agent;cd /tmp;tar -xzvf apache-inlong-agent-1.13.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent;cd ~/inlong-agent/bin;sh agent.sh start",
+      "uninstallCommand": "echo empty uninstall cmd",
+      "packageConfig": {
+        "md5": "95648c83b45971dce503d5d844496cfc",
+        "fileName": "apache-inlong-agent-1.13.0-SNAPSHOT-bin.tar.gz",
+        "downloadUrl": "http://11.151.246.158:8083/inlong/manager/openapi/installer/download?filename\u003dapache-inlong-agent-1.13.0-SNAPSHOT-bin.tar.gz",
+        "storagePath": "/tmp"
+      },
+      "state": "INSTALLED"
+    }
+  ]
+}

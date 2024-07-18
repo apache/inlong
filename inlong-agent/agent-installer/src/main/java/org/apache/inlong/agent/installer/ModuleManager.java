@@ -136,6 +136,10 @@ public class ModuleManager extends AbstractDaemon {
             LOGGER.error("modules md5 should not be null!");
             return false;
         }
+        if (config.getVersion() == null) {
+            LOGGER.error("modules version should not be null!");
+            return false;
+        }
         if (config.getModuleList().isEmpty()) {
             LOGGER.error("module list should not be empty!");
             return false;
@@ -260,7 +264,7 @@ public class ModuleManager extends AbstractDaemon {
             JsonElement tmpElement = JsonParser.parseReader(reader).getAsJsonObject();
             ConfigResult curConfig = GSON.fromJson(tmpElement.getAsJsonObject(), ConfigResult.class);
             if (curConfig.getMd5() != null && curConfig.getModuleList() != null) {
-                if (curConfig.getMd5() != null && currentVersion != null) {
+                if (curConfig.getMd5() != null && curConfig.getVersion() != null) {
                     currentMd5 = curConfig.getMd5();
                     currentVersion = curConfig.getVersion();
                 }
