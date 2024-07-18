@@ -19,6 +19,8 @@ package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.PulsarSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -62,13 +64,18 @@ public class PulsarIdConfig extends IdConfig {
 
     public static PulsarIdConfig create(DataFlowConfig dataFlowConfig) {
         PulsarSinkConfig sinkConfig = (PulsarSinkConfig) dataFlowConfig.getSinkConfig();
-
+        DataTypeConfig dataTypeConfig = dataFlowConfig.getSourceConfig().getDataTypeConfig();
+        String separator = DEFAULT_SEPARATOR;
+        if (dataTypeConfig instanceof CsvConfig) {
+            separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
+        }
         return PulsarIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
                 .uid(InlongId.generateUid(dataFlowConfig.getInlongGroupId(), dataFlowConfig.getInlongStreamId()))
                 .topic(sinkConfig.getTopic())
                 .dataType(DataTypeEnum.TEXT)
+                .separator(separator)
                 .build();
 
     }
