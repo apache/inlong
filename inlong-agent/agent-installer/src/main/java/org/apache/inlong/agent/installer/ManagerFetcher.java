@@ -124,7 +124,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             while (isRunnable()) {
                 try {
                     ConfigResult config = getConfig();
-                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)) {
+                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)
+                            && manager.getModuleManager().getCurrentVersion() < config.getVersion()) {
                         manager.getModuleManager().submitConfig(config);
                     }
                 } catch (Throwable ex) {
