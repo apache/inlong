@@ -621,7 +621,7 @@ func (p *connPool) getExpectedConnPerEndpoint() int {
 	initialVal := float64(p.connsPerEndpoint)
 	p.log.Info("conns per endpoint of initialization: ", initialVal)
 
-	result := averageVal
+	result := averageVal // nolint:ineffassign
 	if estimatedVal < initialVal {
 		// if estimatedVal is less than initialVal, it indicates new endpoints are added,
 		// we need to add new conn for the newly added endpoints, delete conn for old endpoints,
