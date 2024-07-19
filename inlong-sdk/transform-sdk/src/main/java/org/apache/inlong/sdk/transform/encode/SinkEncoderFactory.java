@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 
-import java.util.List;
+public class SinkEncoderFactory {
 
-/**
- * SinkEncoder
- */
-public interface SinkEncoder<Output> {
+    public static CsvSinkEncoder createCsvEncoder(CsvSinkInfo csvSinkInfo) {
+        return new CsvSinkEncoder(csvSinkInfo);
+    }
 
-    Output encode(SinkData sinkData);
-
-    List<FieldInfo> getFields();
+    public static KvSinkEncoder createKvEncoder(KvSinkInfo kvSinkInfo) {
+        return new KvSinkEncoder(kvSinkInfo);
+    }
 }

@@ -17,15 +17,26 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
-import java.util.Map;
+import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 
-/**
- * SourceDecoder
- */
-public interface SourceDecoder<Input> {
+public class SourceDecoderFactory {
 
-    SourceData decode(byte[] srcBytes, Map<String, Object> extParams);
+    public static CsvSourceDecoder createCsvDecoder(CsvSourceInfo sourceInfo) {
+        return new CsvSourceDecoder(sourceInfo);
+    }
 
-    SourceData decode(Input input, Map<String, Object> extParams);
+    public static KvSourceDecoder createKvDecoder(KvSourceInfo sourceInfo) {
+        return new KvSourceDecoder(sourceInfo);
+    }
 
+    public static JsonSourceDecoder createJsonDecoder(JsonSourceInfo sourceInfo) {
+        return new JsonSourceDecoder(sourceInfo);
+    }
+
+    public static PbSourceDecoder createPbDecoder(PbSourceInfo sourceInfo) {
+        return new PbSourceDecoder(sourceInfo);
+    }
 }
