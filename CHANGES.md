@@ -24,37 +24,37 @@
 
 # Release InLong 1.13.0 - Released (as of 2024-07-18)
 ### Agent
-| <div style="width:200px">ISSUE</div>                                 | <div style="width:950px">Summary</div>                                                                                                                                               |
-|:---------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [INLONG-10094](https://github.com/apache/inlong/issues/10094)        |[Improve][Agent] The task record for data supplementation has not expired|
-| [INLONG-10107](https://github.com/apache/inlong/issues/10107)        |[Improve][Agent] There is a bug in updating the module configuration|
-| [INLONG-10113](https://github.com/apache/inlong/issues/10113)        |[Improve][Agent] Delete useless code|
-| [INLONG-10115](https://github.com/apache/inlong/issues/10115)        |[Improve][Agent] Offset needs to be changed to save in string format because some data sources have non integer positions|
-| [INLONG-10187](https://github.com/apache/inlong/issues/10187)        |[Improve][Agent] Need to handle situations where timeoffset is empty, default to no offset|
-| [INLONG-10189](https://github.com/apache/inlong/issues/10189)        |[Improve][Agent] There is a risk of agent getting stuck after SDK initialization exception|
-| [INLONG-10191](https://github.com/apache/inlong/issues/10191)        |[Improve][Agent] Delete useless code|
-| [INLONG-10210](https://github.com/apache/inlong/issues/10210)        |[Improve][Agent] The installer needs to add a script for environment initialization|
-| [INLONG-10268](https://github.com/apache/inlong/issues/10268)        |[Improve][Agent] Suggest not using task ID as the data version|
-| [INLONG-10281](https://github.com/apache/inlong/issues/10281)        |[Improve][Agent] Real time collection of files with audit data errors|
-| [INLONG-10298](https://github.com/apache/inlong/issues/10298)        |[Improve][Agent] The command related code is no longer useful, it is recommended to delete it|
-| [INLONG-10302](https://github.com/apache/inlong/issues/10302)        |[Improve][Agent] The Task base class needs to add an interface that limits the number of instances obtained|
-| [INLONG-10318](https://github.com/apache/inlong/issues/10318)        |[Feature][Agent] Add PostgreSQL data source for Agent|
-| [INLONG-10319](https://github.com/apache/inlong/issues/10319)        |[Improve][Agent] Agent should get audit id from audit sdk|
-| [INLONG-10384](https://github.com/apache/inlong/issues/10384)        |[Improve][Agent] Add functions to the Store interface to extend new storage plugins|
-| [INLONG-10399](https://github.com/apache/inlong/issues/10399)        |[Improve][Agent] Add global configurations updater|
-| [INLONG-10410](https://github.com/apache/inlong/issues/10410)        |[Improve][Agent] Add ZK plugin to save offset info|
-| [INLONG-10443](https://github.com/apache/inlong/issues/10443)        |[Improve][Agent] Put Rocksdb into the plugins module|
-| [INLONG-10446](https://github.com/apache/inlong/issues/10446)        |[Improve][Agent] Adjusting audit SDK address settings|
-| [INLONG-10476](https://github.com/apache/inlong/issues/10476)        |[Improve][Agent] The audit address should only be obtained from the manager|
-| [INLONG-10535](https://github.com/apache/inlong/issues/10535)        |[Improve][Agent] Support minute level tasks|
-| [INLONG-10542](https://github.com/apache/inlong/issues/10542)        |[Improve][Agent] Remove the deleted watch directions|
-| [INLONG-10547](https://github.com/apache/inlong/issues/10547)        |[Improve][Agent] Provide a clear prompt after the mq type is incorrect|
-| [INLONG-10564](https://github.com/apache/inlong/issues/10564)        |[Improve][Agent] Request configuration with md5 included|
-| [INLONG-10598](https://github.com/apache/inlong/issues/10598)        |[Improve][Agent] Delete excess unit tests|
-| [INLONG-10611](https://github.com/apache/inlong/issues/10611)        |[Improve][Agent] Update configuration only when the version number is increased|
-| [INLONG-10633](https://github.com/apache/inlong/issues/10633)        |[Improve][Agent] The initialization function of AuditUtils needs to pass in the configuration|
-| [INLONG-10645](https://github.com/apache/inlong/issues/10645)        |[Improve][Agent] Installer needs to add process protection|
-| [INLONG-10650](https://github.com/apache/inlong/issues/10650)        |[Improve][Agent] When the installer updates the configuration, it is necessary to first determine the version|
+| ISSUE <style> table th:first-of-type { width: 150px; } </style>        | <div style="width:950px">Summary</div>                                                                                                                                               |
+|:-----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [INLONG-10094](https://github.com/apache/inlong/issues/10094)          |[Improve][Agent] The task record for data supplementation has not expired|
+| [INLONG-10107](https://github.com/apache/inlong/issues/10107)          |[Improve][Agent] There is a bug in updating the module configuration|
+| [INLONG-10113](https://github.com/apache/inlong/issues/10113)          |[Improve][Agent] Delete useless code|
+| [INLONG-10115](https://github.com/apache/inlong/issues/10115)          |[Improve][Agent] Offset needs to be changed to save in string format because some data sources have non integer positions|
+| [INLONG-10187](https://github.com/apache/inlong/issues/10187)          |[Improve][Agent] Need to handle situations where timeoffset is empty, default to no offset|
+| [INLONG-10189](https://github.com/apache/inlong/issues/10189)          |[Improve][Agent] There is a risk of agent getting stuck after SDK initialization exception|
+| [INLONG-10191](https://github.com/apache/inlong/issues/10191)          |[Improve][Agent] Delete useless code|
+| [INLONG-10210](https://github.com/apache/inlong/issues/10210)          |[Improve][Agent] The installer needs to add a script for environment initialization|
+| [INLONG-10268](https://github.com/apache/inlong/issues/10268)          |[Improve][Agent] Suggest not using task ID as the data version|
+| [INLONG-10281](https://github.com/apache/inlong/issues/10281)          |[Improve][Agent] Real time collection of files with audit data errors|
+| [INLONG-10298](https://github.com/apache/inlong/issues/10298)          |[Improve][Agent] The command related code is no longer useful, it is recommended to delete it|
+| [INLONG-10302](https://github.com/apache/inlong/issues/10302)          |[Improve][Agent] The Task base class needs to add an interface that limits the number of instances obtained|
+| [INLONG-10318](https://github.com/apache/inlong/issues/10318)          |[Feature][Agent] Add PostgreSQL data source for Agent|
+| [INLONG-10319](https://github.com/apache/inlong/issues/10319)          |[Improve][Agent] Agent should get audit id from audit sdk|
+| [INLONG-10384](https://github.com/apache/inlong/issues/10384)          |[Improve][Agent] Add functions to the Store interface to extend new storage plugins|
+| [INLONG-10399](https://github.com/apache/inlong/issues/10399)          |[Improve][Agent] Add global configurations updater|
+| [INLONG-10410](https://github.com/apache/inlong/issues/10410)          |[Improve][Agent] Add ZK plugin to save offset info|
+| [INLONG-10443](https://github.com/apache/inlong/issues/10443)          |[Improve][Agent] Put Rocksdb into the plugins module|
+| [INLONG-10446](https://github.com/apache/inlong/issues/10446)          |[Improve][Agent] Adjusting audit SDK address settings|
+| [INLONG-10476](https://github.com/apache/inlong/issues/10476)          |[Improve][Agent] The audit address should only be obtained from the manager|
+| [INLONG-10535](https://github.com/apache/inlong/issues/10535)          |[Improve][Agent] Support minute level tasks|
+| [INLONG-10542](https://github.com/apache/inlong/issues/10542)          |[Improve][Agent] Remove the deleted watch directions|
+| [INLONG-10547](https://github.com/apache/inlong/issues/10547)          |[Improve][Agent] Provide a clear prompt after the mq type is incorrect|
+| [INLONG-10564](https://github.com/apache/inlong/issues/10564)          |[Improve][Agent] Request configuration with md5 included|
+| [INLONG-10598](https://github.com/apache/inlong/issues/10598)          |[Improve][Agent] Delete excess unit tests|
+| [INLONG-10611](https://github.com/apache/inlong/issues/10611)          |[Improve][Agent] Update configuration only when the version number is increased|
+| [INLONG-10633](https://github.com/apache/inlong/issues/10633)          |[Improve][Agent] The initialization function of AuditUtils needs to pass in the configuration|
+| [INLONG-10645](https://github.com/apache/inlong/issues/10645)          |[Improve][Agent] Installer needs to add process protection|
+| [INLONG-10650](https://github.com/apache/inlong/issues/10650)          |[Improve][Agent] When the installer updates the configuration, it is necessary to first determine the version|
 
 ### Dashboard
 | <div style="width:200px">ISSUE</div>                                 | <div style="width:950px">Summary</div>                                               |
