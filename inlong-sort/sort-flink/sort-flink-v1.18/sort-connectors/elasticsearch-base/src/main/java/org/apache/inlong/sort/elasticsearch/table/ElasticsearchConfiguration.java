@@ -103,7 +103,8 @@ public class ElasticsearchConfiguration {
     }
 
     public boolean isBulkFlushBackoffEnabled() {
-        return config.get(ElasticsearchConnectorOptions.BULK_FLUSH_BACKOFF_TYPE_OPTION) != ElasticsearchConnectorOptions.BackOffType.DISABLED;
+        return config.get(
+                ElasticsearchConnectorOptions.BULK_FLUSH_BACKOFF_TYPE_OPTION) != ElasticsearchConnectorOptions.BackOffType.DISABLED;
     }
 
     public Optional<ElasticsearchSinkBase.FlushBackoffType> getBulkFlushBackoffType() {
@@ -122,7 +123,8 @@ public class ElasticsearchConfiguration {
     }
 
     public Optional<Long> getBulkFlushBackoffDelay() {
-        return config.getOptional(ElasticsearchConnectorOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION).map(Duration::toMillis);
+        return config.getOptional(ElasticsearchConnectorOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION)
+                .map(Duration::toMillis);
     }
 
     public boolean isDisableFlushOnCheckpoint() {
