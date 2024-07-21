@@ -18,6 +18,7 @@ package dataproxy
 
 import (
 	"context"
+	"errors"
 	"math/rand"
 	"runtime/debug"
 	"strconv"
@@ -93,8 +94,9 @@ func getErrorCode(err error) string {
 		return errOK.getStrCode()
 	}
 
-	switch t := err.(type) {
-	case *errNo:
+	var t *errNo
+	switch {
+	case errors.As(err, &t):
 		return t.getStrCode()
 	default:
 		return errUnknown.getStrCode()
