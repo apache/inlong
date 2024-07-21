@@ -66,9 +66,13 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       submitData.version = savedData?.version;
     }
     if (type === 'AGENT') {
-      submitData.protocolType = 'http';
+      submitData.protocolType = 'HTTP';
       if (submitData.installer !== undefined) {
-        submitData.moduleIdList = [submitData.moduleIdList].concat(submitData.installer);
+        if (Array.isArray(submitData.moduleIdList)) {
+          submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
+        } else {
+          submitData.moduleIdList = [submitData.moduleIdList].concat(submitData.installer);
+        }
       }
     }
     await request({
