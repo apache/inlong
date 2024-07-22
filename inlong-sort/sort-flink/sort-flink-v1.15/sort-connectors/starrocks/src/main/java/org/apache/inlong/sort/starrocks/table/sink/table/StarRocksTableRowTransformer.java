@@ -161,7 +161,7 @@ public class StarRocksTableRowTransformer implements StarRocksIRowTransformer<Ro
                     try {
                         return JSON.parse(sValue);
                     } catch (Throwable t) {
-                        if (ignoreJsonParseError) {
+                        if (!ignoreJsonParseError) {
                             throw t;
                         }
                         return sValue;
