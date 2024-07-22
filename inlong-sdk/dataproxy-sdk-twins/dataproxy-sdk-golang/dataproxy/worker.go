@@ -18,6 +18,7 @@ package dataproxy
 
 import (
 	"context"
+	"errors"
 	"math/rand"
 	"runtime/debug"
 	"strconv"
@@ -25,11 +26,13 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/panjf2000/gnet/v2"
+	"go.uber.org/atomic"
+
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/syncx"
-	"github.com/panjf2000/gnet/v2"
-	"go.uber.org/atomic"
+	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
 )
 
 const (
@@ -92,8 +95,9 @@ func getErrorCode(err error) string {
 		return errOK.getStrCode()
 	}
 
-	switch t := err.(type) {
-	case *errNo:
+	var t *errNo
+	switch {
+	case errors.As(err, &t):
 		return t.getStrCode()
 	default:
 		return errUnknown.getStrCode()
@@ -114,6 +118,7 @@ type worker struct {
 	pendingBatches     map[string]*batchReq     // pending batches
 	unackedBatches     map[string]*batchReq     // sent but not acknowledged batches
 	sendFailedBatches  chan *sendFailedBatchReq // send failed batches channel
+	updateConnChan     chan error               // update conn channel
 	retryBatches       chan *batchReq           // retry batches  channel
 	responseBatches    chan *batchRsp           // batch response channel
 	batchTimeoutTicker *time.Ticker             // batch timeout ticker
@@ -145,6 +150,7 @@ func newWorker(cli *client, index int, opts *Options) (*worker, error) {
 		pendingBatches:     make(map[string]*batchReq),
 		unackedBatches:     make(map[string]*batchReq),
 		sendFailedBatches:  make(chan *sendFailedBatchReq, opts.MaxPendingMessages),
+		updateConnChan:     make(chan error, 64),
 		retryBatches:       make(chan *batchReq, opts.MaxPendingMessages),
 		responseBatches:    make(chan *batchRsp, opts.MaxPendingMessages),
 		batchTimeoutTicker: time.NewTicker(opts.BatchingMaxPublishDelay),
@@ -166,6 +172,7 @@ func newWorker(cli *client, index int, opts *Options) (*worker, error) {
 	if err != nil {
 		return nil, err
 	}
+	w.log.Debug("use conn: ", conn.RemoteAddr().String())
 	w.setConn(conn)
 
 	// start the worker
@@ -184,7 +191,7 @@ func (w *worker) start() {
 	go func() {
 		defer func() {
 			if rec := recover(); rec != nil {
-				w.log.Errorf("panic:", rec)
+				w.log.Error("panic:", rec)
 				w.log.Error(string(debug.Stack()))
 				w.metrics.incError(errServerPanic.getStrCode())
 			}
@@ -220,6 +227,12 @@ func (w *worker) start() {
 			case <-w.updateConnTicker.C:
 				// update connection periodically
 				w.handleUpdateConn()
+			case e, ok := <-w.updateConnChan:
+				if !ok {
+					continue
+				}
+				// update conn
+				w.updateConn(nil, e)
 			case batch, ok := <-w.sendFailedBatches:
 				// handle send failed batches
 				if !ok {
@@ -366,10 +379,16 @@ func (w *worker) handleSendData(req *sendDataReq) {
 }
 
 func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
+	// check if we have exceeded the max retry
+	if b.retries > w.options.MaxRetries {
+		b.done(errSendTimeout)
+		return
+	}
+
 	b.lastSendTime = time.Now()
 	b.encode()
 
-	//error callback
+	// error callback
 	onErr := func(c gnet.Conn, e error, inCallback bool) {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -380,7 +399,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		}()
 
 		w.metrics.incError(errConnWriteFailed.getStrCode())
-		w.log.Error("send batch failed, err:", e)
+		w.log.Error("send batch failed, err: ", e, ", inCallback: ", inCallback, ", logNum:", len(b.dataReqs))
 
 		// close already
 		if w.getState() == stateClosed {
@@ -388,19 +407,21 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 			return
 		}
 
-		// network error, change a new connection
-		w.updateConn(c, errConnWriteFailed)
-
 		// important：when AsyncWrite() call succeed, the batch will be put into w.unackedBatches,now it failed, we need
 		// to delete from w.unackedBatches, as onErr() is call concurrently in different goroutine, we can not delete it
 		// from this callback directly, or will be panic, so we put into the w.sendFailedBatches channel, and it will be
 		// deleted and retried in handleSendFailed() one by one
 		if inCallback {
+			// can not call w.updateConn() in callback, updateConn() may open new conn, which will call gent.Client.Dial()
+			// gent.Client.Dial() and this callback are run in a same goroutine, it will be blocked
+			w.updateConnAsync(errConnWriteFailed)
 			w.sendFailedBatches <- &sendFailedBatchReq{batch: b, retry: retryOnFail}
 			return
 		}
 
 		// in a same goroutine, retry it directly
+		// network error, change a new connection
+		w.updateConn(c, errConnWriteFailed)
 		if retryOnFail {
 			// w.retryBatches <- b
 			w.backoffRetry(context.Background(), b)
@@ -411,15 +432,18 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 
 	// very important：'cause we use gnet, we must call AsyncWrite to send data in goroutines that are different from gnet.OnTraffic() callback
 	conn := w.getConn()
+	if b.retries > 0 {
+		w.log.Debug("retry batch to conn:", conn.RemoteAddr(), ", workerID:", w.index, ", batchID:", b.batchID, ", logNum:", len(b.dataReqs))
+	}
 	err := conn.AsyncWrite(b.buffer.Bytes(), func(c gnet.Conn, e error) error {
 		if e != nil {
-			onErr(c, e, true) //error callback
+			onErr(c, e, true) // error callback
 		}
 		return nil
 	})
 
 	if err != nil {
-		onErr(conn, err, false) //error callback
+		onErr(conn, err, false) // error callback
 		return
 	}
 
@@ -453,6 +477,7 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 		return
 	}
 
+	batch.retries++
 	go func() {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -462,22 +487,18 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 			}
 		}()
 
-		minBackoff := 100 * time.Millisecond
-		maxBackoff := 10 * time.Second
-		jitterPercent := 0.2
-
-		backoff := time.Duration(batch.retries+1) * minBackoff
-		if backoff > maxBackoff {
-			backoff = maxBackoff
+		// use ExponentialBackoff
+		backoff := util.ExponentialBackoff{
+			InitialInterval: 100 * time.Millisecond,
+			MaxInterval:     10 * time.Second,
+			Multiplier:      2.0,
+			Randomization:   0.2,
 		}
 
-		// rand will be panic in concurrent call, so we create a new one at each call
-		jitterRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-		jitter := jitterRand.Float64() * float64(backoff) * jitterPercent
-		backoff += time.Duration(jitter)
+		waitTime := backoff.Next(batch.retries)
 
 		select {
-		case <-time.After(backoff):
+		case <-time.After(waitTime):
 			// check if the worker is closed again
 			if w.getState() == stateClosed {
 				batch.done(errSendTimeout)
@@ -485,6 +506,7 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 			}
 
 			// put the batch into the retry channel
+			w.log.Debug("put to retry...")
 			w.retryBatches <- batch
 		case <-ctx.Done():
 			// in the case the process exit, just end up the batch sending routine
@@ -494,13 +516,8 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 }
 
 func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
-	batch.retries++
-	if batch.retries >= w.options.MaxRetries {
-		batch.done(errSendTimeout)
-		return
-	}
-
 	// retry
+	w.log.Debug("retry batch...", ", workerID:", w.index, ", batchID:", batch.batchID)
 	w.metrics.incRetry(w.indexStr)
 	w.sendBatch(batch, retryOnFail)
 }
@@ -553,17 +570,23 @@ func (w *worker) handleSendHeartbeat() {
 	bb := w.bufferPool.Get()
 	bytes := hb.encode(bb)
 
-	onErr := func(c gnet.Conn, e error) {
+	onErr := func(c gnet.Conn, e error, inCallback bool) {
 		w.metrics.incError(errConnWriteFailed.getStrCode())
 		w.log.Error("send heartbeat failed, err:", e)
-		w.updateConn(c, errConnWriteFailed)
+		if inCallback {
+			// can not call w.updateConn() in callback, updateConn() may open new conn, which will call gent.Client.Dial()
+			// gent.Client.Dial() and this callback are run in a same goroutine, it will be blocked
+			w.updateConnAsync(errConnWriteFailed)
+		} else {
+			w.updateConn(c, errConnWriteFailed)
+		}
 	}
 
 	// very important：'cause we use gnet, we must call AsyncWrite to send data in goroutines that are different from gnet.OnTraffic() callback
 	conn := w.getConn()
 	err := conn.AsyncWrite(bytes, func(c gnet.Conn, e error) error {
 		if e != nil {
-			onErr(c, e)
+			onErr(c, e, true)
 		}
 		// recycle the buffer
 		w.bufferPool.Put(bb)
@@ -571,7 +594,7 @@ func (w *worker) handleSendHeartbeat() {
 	})
 
 	if err != nil {
-		onErr(conn, err)
+		onErr(conn, err, false)
 		// recycle the buffer
 		w.bufferPool.Put(bb)
 	}
@@ -681,7 +704,9 @@ func (w *worker) handleClose(req *closeReq) {
 		close(w.retryBatches)
 		// close the send failed channel
 		close(w.sendFailedBatches)
-		// close the response channel
+		// close the update conn chan
+		close(w.updateConnChan)
+		// close the response chan
 		close(w.responseBatches)
 		// close the done channel of the close request to notify the close is done
 		close(req.doneCh)
@@ -713,6 +738,18 @@ func (w *worker) handleUpdateConn() {
 	w.updateConn(nil, nil)
 }
 
+func (w *worker) updateConnAsync(err error) {
+	// 已经处于关闭状态
+	if w.getState() == stateClosed {
+		return
+	}
+
+	select {
+	case w.updateConnChan <- err:
+	default:
+	}
+}
+
 func (w *worker) updateConn(old gnet.Conn, err error) {
 	newConn, newErr := w.client.getConn()
 	if newErr != nil {
@@ -726,9 +763,16 @@ func (w *worker) updateConn(old gnet.Conn, err error) {
 		oldConn = w.getConn()
 	}
 
-	w.client.putConn(oldConn, err)
 	ok := w.casConn(oldConn, newConn)
 	if ok {
+		// put back to pool only if there is no error
+		if err == nil {
+			w.client.putConn(oldConn, err)
+		} else { // nolint:staticcheck
+			// if there are some errors, there are basically conn closed by peer，
+			// gnet will call Client.OnClose() to delete it from the pool,
+			// it won't be wrong even though we do not put it back here
+		}
 		w.metrics.incUpdateConn(getErrorCode(err))
 	} else {
 		w.client.putConn(newConn, nil)
@@ -741,6 +785,13 @@ func (w *worker) setConn(conn gnet.Conn) {
 
 func (w *worker) getConn() gnet.Conn {
 	return w.conn.Load().(gnet.Conn)
+}
+
+func (w *worker) onConnClosed(conn gnet.Conn, err error) {
+	oldConn := w.conn.Load().(gnet.Conn)
+	if oldConn == conn {
+		w.updateConnAsync(err)
+	}
 }
 
 func (w *worker) casConn(oldConn, newConn gnet.Conn) bool {

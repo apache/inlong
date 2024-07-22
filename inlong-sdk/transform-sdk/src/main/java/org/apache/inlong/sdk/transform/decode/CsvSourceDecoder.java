@@ -30,7 +30,7 @@ import java.util.Map;
  * CsvSourceDecoder
  * 
  */
-public class CsvSourceDecoder implements SourceDecoder {
+public class CsvSourceDecoder implements SourceDecoder<String> {
 
     protected CsvSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();

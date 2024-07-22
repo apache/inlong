@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * KvSinkEncoder
  */
-public class KvSinkEncoder implements SinkEncoder {
+public class KvSinkEncoder implements SinkEncoder<String> {
 
     protected KvSinkInfo sinkInfo;
     protected Charset sinkCharset = Charset.defaultCharset();

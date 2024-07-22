@@ -303,6 +303,12 @@ public class InlongClusterController {
         return Response.success(clusterService.getManagerSSHPublicKey());
     }
 
+    @PostMapping("/cluster/node/testSSHConnection")
+    @ApiOperation(value = "Test SSH connection for inlong cluster node")
+    public Response<Boolean> testSSHConnection(@RequestBody ClusterNodeRequest request) {
+        return Response.success(clusterService.testSSHConnection(request));
+    }
+
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
     public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {

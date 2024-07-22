@@ -43,6 +43,7 @@
   "meta.Sources.File.Cycle.Day": "Day",
   "meta.Sources.File.Cycle.Hour": "Hour",
   "meta.Sources.File.Cycle.RealTime": "Real time",
+  "meta.Sources.File.Cycle.Minute": "Minute",
   "meta.Sources.File.TimeZone": "Time zone",
   "meta.Sources.Db.Server": "Server",
   "meta.Sources.Db.Port": "Port",
@@ -712,6 +713,7 @@
   "pages.Approvals.status.Canceled": "Canceled",
   "pages.Approvals.status.Ok": "Approved",
   "pages.Approvals.ApplicationTime": "Time",
+  "pages.Approvals.ProcessingTime": "Processing Time",
   "pages.Approvals.ApplicationType": "Type",
   "pages.Approvals.Approval": "Approval",
   "pages.Approvals.Approver": "Approver",
@@ -771,9 +773,12 @@
   "pages.Clusters.Node.IsInstall": "Installation",
   "pages.Clusters.Node.ManualInstall": "Manual",
   "pages.Clusters.Node.SSHInstall": "SSH",
+  "pages.Clusters.Node.IdentifyType": "Identify Type",
   "pages.Clusters.Node.Username": "SSH Username",
+  "pages.Clusters.Node.SSHKey": "SSH Key",
   "pages.Clusters.Node.Password": "SSH Password",
   "pages.Clusters.Node.SSHPort": "SSH Port",
+  "pages.Clusters.Node.SSHKeyHelper": "Please upload the public key to the ~/.ssh/authorized_keys file of the Agent node",
   "pages.Clusters.Node.Status": "Status",
   "pages.Clusters.Node.Status.Normal": "Normal",
   "pages.Clusters.Node.Status.Timeout": "Timeout",
@@ -920,5 +925,7 @@
   "pages.GroupDataTemplate.Modifier":"Modifier",
   "pages.GroupDataTemplate.VisibleRange.All":"Global",
   "pages.GroupDataTemplate.VisibleRange.InCharges":"Owner",
-  "pages.GroupDataTemplate.VisibleRange.Tenant":"Tenant"
+  "pages.GroupDataTemplate.VisibleRange.Tenant":"Tenant",
+  "miscellaneous.total": "... total ",
+  "miscellaneous.tenants": " tenants"
 }

@@ -127,6 +127,17 @@ export const getColumns = activedName => [
     render: text => timestampFormat(text),
   },
   {
+    title: i18n.t('pages.Approvals.ProcessingTime'),
+    dataIndex: 'endTime',
+    render: (text, record) => {
+      if (record.status === 'PENDING') {
+        return '';
+      } else {
+        return timestampFormat(text);
+      }
+    },
+  },
+  {
     title: i18n.t('basic.Status'),
     dataIndex: 'status',
     render: text => genStatusTag(text),
@@ -138,7 +149,7 @@ export const getColumns = activedName => [
       <Link
         to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList?.[0]?.inlongGroupMode}`}
       >
-        {i18n.t('pages.Approvals.Approval')}
+        {record.status === 'PENDING' ? i18n.t('pages.Approvals.Approval') : i18n.t('basic.Detail')}
       </Link>
     ),
   },

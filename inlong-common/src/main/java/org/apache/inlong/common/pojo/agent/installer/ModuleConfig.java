@@ -32,6 +32,10 @@ import lombok.NoArgsConstructor;
 public class ModuleConfig {
 
     private Integer id;
+    /**
+     * The primary key ID of the manager module config table
+     */
+    private Integer entityId;
     private String name;
     /**
      * The md5 of the module config

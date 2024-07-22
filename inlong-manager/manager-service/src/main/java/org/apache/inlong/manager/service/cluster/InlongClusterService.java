@@ -294,6 +294,14 @@ public interface InlongClusterService {
     String getManagerSSHPublicKey();
 
     /**
+     * Test whether the SSH connection can be successfully established using the provided SSH information.
+     *
+     * @param request connection request
+     * @return true or false
+     */
+    Boolean testSSHConnection(ClusterNodeRequest request);
+
+    /**
      * Query data proxy nodes by the given inlong group id and protocol type
      *
      * @param inlongGroupId inlong group id

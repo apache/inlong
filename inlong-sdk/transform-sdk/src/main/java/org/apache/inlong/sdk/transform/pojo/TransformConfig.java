@@ -25,55 +25,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TransformConfig {
 
-    @JsonProperty("sourceInfo")
-    private SourceInfo sourceInfo;
-    @JsonProperty("sinkInfo")
-    private SinkInfo sinkInfo;
     @JsonProperty("transformSql")
     private String transformSql;
 
     @JsonCreator
-    public TransformConfig(
-            @JsonProperty("sourceInfo") SourceInfo sourceInfo,
-            @JsonProperty("sinkInfo") SinkInfo sinkInfo,
-            @JsonProperty("transformSql") String transformSql) {
-        this.sourceInfo = sourceInfo;
-        this.sinkInfo = sinkInfo;
+    public TransformConfig(@JsonProperty("transformSql") String transformSql) {
         this.transformSql = transformSql;
-    }
-
-    /**
-     * get sourceInfo
-     * @return the sourceInfo
-     */
-    @JsonProperty("sourceInfo")
-    public SourceInfo getSourceInfo() {
-        return sourceInfo;
-    }
-
-    /**
-     * set sourceInfo
-     * @param sourceInfo the sourceInfo to set
-     */
-    public void setSourceInfo(SourceInfo sourceInfo) {
-        this.sourceInfo = sourceInfo;
-    }
-
-    /**
-     * get sinkInfo
-     * @return the sinkInfo
-     */
-    @JsonProperty("sinkInfo")
-    public SinkInfo getSinkInfo() {
-        return sinkInfo;
-    }
-
-    /**
-     * set sinkInfo
-     * @param sinkInfo the sinkInfo to set
-     */
-    public void setSinkInfo(SinkInfo sinkInfo) {
-        this.sinkInfo = sinkInfo;
     }
 
     /**

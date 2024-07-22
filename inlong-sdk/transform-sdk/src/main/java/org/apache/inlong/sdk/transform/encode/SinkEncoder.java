@@ -24,9 +24,9 @@ import java.util.List;
 /**
  * SinkEncoder
  */
-public interface SinkEncoder {
+public interface SinkEncoder<Output> {
 
-    String encode(SinkData sinkData);
+    Output encode(SinkData sinkData);
 
     List<FieldInfo> getFields();
 }

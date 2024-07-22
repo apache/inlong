@@ -908,7 +908,8 @@ CREATE TABLE IF NOT EXISTS `agent_task_config`
 (
     `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `config_params`       text          DEFAULT NULL COMMENT 'The agent config params',
-    `task_params`         text          NOT NULL COMMENT 'The agent task config params',
+    `task_params`         text          DEFAULT NULL COMMENT 'The agent task config params',
+    `module_params`       text          DEFAULT NULL COMMENT 'The module config params',
     `agent_ip`            varchar(128)  NOT NULL COMMENT 'agent ip',
     `cluster_name`        varchar(128)  NOT NULL COMMENT 'Inlong cluster name',
     `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',

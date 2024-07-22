@@ -34,6 +34,7 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
@@ -409,16 +410,16 @@ public class PulsarOperator {
      * Query topic message for the given pulsar cluster.
      */
     public List<BriefMQMessage> queryLatestMessage(PulsarClusterInfo pulsarClusterInfo, String topicFullName,
-            Integer messageCount, InlongStreamInfo streamInfo, boolean serial) {
+            QueryMessageRequest request, InlongStreamInfo streamInfo, boolean serial) {
         LOGGER.info("begin to query message for topic {}", topicFullName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
-        for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
+        for (int messageIndex = 0; messageIndex < 100; messageIndex++) {
             int currentPartitionNum = messageIndex % partitionCount;
             int messagePosition = messageIndex / partitionCount + 1;
             String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, currentPartitionNum, serial);
-            messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarClusterInfo, messageIndex,
-                    streamInfo, messagePosition));
+            messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarClusterInfo, messageIndex, streamInfo,
+                    messagePosition, request));
         }
         LOGGER.info("success query message for topic={}", topicFullName);
         return messageList;
@@ -444,8 +445,7 @@ public class PulsarOperator {
      * Query pulsar message.
      */
     private List<BriefMQMessage> queryMessageFromPulsar(String topicPartition, PulsarClusterInfo pulsarClusterInfo,
-            int index,
-            InlongStreamInfo streamInfo, int messagePosition) {
+            int index, InlongStreamInfo streamInfo, int messagePosition, QueryMessageRequest request) {
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try {
             ResponseEntity<byte[]> httpResponse =
@@ -462,8 +462,7 @@ public class PulsarOperator {
                         MessageWrapType.valueOf(Integer.parseInt(headers.get(InlongConstants.MSG_ENCODE_VER)));
             }
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
-            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, messageInfo.getBody(),
-                    headers, index));
+            deserializeOperator.decodeMsg(streamInfo, briefMQMessages, messageInfo.getBody(), headers, index, request);
         } catch (Exception e) {
             LOGGER.warn("query message from pulsar error for groupId = {}, streamId = {}",
                     streamInfo.getInlongGroupId(),

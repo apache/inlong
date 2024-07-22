@@ -63,7 +63,6 @@ public class ClickHouseSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setDbName(ckDatabaseName);
         sinkInfo.setTableName(ckTableName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 

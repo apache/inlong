@@ -34,8 +34,10 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InlongStreamApi {
 
@@ -88,6 +90,5 @@ public interface InlongStreamApi {
     Call<Response<List<StreamField>>> parseFields(@Body ParseFieldRequest parseFieldRequest);
 
     @GET("stream/listMessages")
-    Call<Response<List<BriefMQMessage>>> listMessages(@Query("groupId") String groupId,
-            @Query("streamId") String streamId, @Query("messageCount") Integer messageCount);
+    Call<Response<List<BriefMQMessage>>> listMessages(@QueryMap Map<String, Object> query);
 }

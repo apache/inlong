@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * CsvSinkEncoder
  */
-public class CsvSinkEncoder implements SinkEncoder {
+public class CsvSinkEncoder implements SinkEncoder<String> {
 
     protected CsvSinkInfo sinkInfo;
     protected Charset sinkCharset = Charset.defaultCharset();

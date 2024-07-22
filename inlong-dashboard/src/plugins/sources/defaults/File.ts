@@ -178,6 +178,10 @@ export default class PulsarSource
           value: 'H',
         },
         {
+          label: i18n.t('meta.Sources.File.Cycle.Minute'),
+          value: 'm',
+        },
+        {
           label: i18n.t('meta.Sources.File.Cycle.RealTime'),
           value: 'R',
         },

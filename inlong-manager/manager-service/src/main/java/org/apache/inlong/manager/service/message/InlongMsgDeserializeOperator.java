@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +55,10 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
     }
 
     @Override
-    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, byte[] msgBytes, Map<String, String> headers,
-            int index) {
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, List<BriefMQMessage> messageList,
+            byte[] msgBytes, Map<String, String> headers, int index, QueryMessageRequest request) {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
-        List<BriefMQMessage> messageList = new ArrayList<>();
         InLongMsg inLongMsg = InLongMsg.parseFrom(msgBytes);
         for (String attr : inLongMsg.getAttrs()) {
             Map<String, String> attrMap = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
@@ -87,6 +86,9 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                     DataTypeOperator dataTypeOperator =
                             dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
                     List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
+                    if (checkIfFilter(request, streamFieldList)) {
+                        continue;
+                    }
                     BriefMQMessage message = BriefMQMessage.builder()
                             .id(index)
                             .inlongGroupId(groupId)

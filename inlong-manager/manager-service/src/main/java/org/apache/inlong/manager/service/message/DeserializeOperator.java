@@ -21,10 +21,15 @@ import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Deserialize of message operator
@@ -55,13 +60,38 @@ public interface DeserializeOperator {
      * @param index message index
      * @return list of brief mq message info
      */
-    default List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
+    default List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, List<BriefMQMessage> briefMQMessages,
+            byte[] msgBytes, Map<String, String> headers, int index, QueryMessageRequest request) throws Exception {
         return null;
     }
 
     default DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
         throw new BusinessException(String.format("current type not support DeserializationInfo for wrapType=%s",
                 streamInfo.getWrapType()));
+    }
+
+    default Boolean checkIfFilter(QueryMessageRequest request, List<FieldInfo> streamFieldList) {
+        if (StringUtils.isBlank(request.getFieldName()) || StringUtils.isBlank(request.getOperationType())
+                || StringUtils.isBlank(request.getTargetValue())) {
+            return false;
+        }
+        boolean ifFilter = false;
+        FieldInfo fieldInfo = streamFieldList.stream()
+                .filter(v -> Objects.equals(v.getFieldName(), request.getFieldName())).findFirst()
+                .orElse(null);
+        if (fieldInfo != null) {
+            switch (request.getOperationType()) {
+                case "=":
+                    ifFilter = !Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
+                    break;
+                case "!=":
+                    ifFilter = Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
+                    break;
+                case "like":
+                    ifFilter = fieldInfo.getFieldValue() != null
+                            && !fieldInfo.getFieldValue().contains(request.getTargetValue());
+            }
+        }
+        return ifFilter;
     }
 }

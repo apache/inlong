@@ -216,7 +216,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
             String errMsg = String.format("there is no valid sort config of cluster %s", clusterName);
             log.debug(errMsg);
             return SortConfigResponse.builder()
-                    .code(RESPONSE_CODE_SUCCESS)
+                    .code(RESPONSE_CODE_FAIL)
                     .msg(errMsg)
                     .build();
         }

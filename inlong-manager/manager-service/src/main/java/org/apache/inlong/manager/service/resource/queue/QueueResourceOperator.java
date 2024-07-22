@@ -22,6 +22,7 @@ import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -81,12 +82,12 @@ public interface QueueResourceOperator {
      *
      * @param groupInfo inlong group info
      * @param streamInfo inlong stream info
-     * @param messageCount count of messages to query
+     * @param request query message request
      * @throws Exception any exception if occurred
      * @return query brief mq message info
      */
     default List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            Integer messageCount) throws Exception {
+            QueryMessageRequest request) throws Exception {
         return null;
     }
 

@@ -130,30 +130,58 @@ public class SortConfigMetricReporter {
         Collection<String> intersection = CollectionUtils.intersection(fromTaskConfig.keySet(),
                 fromSortTaskConfig.keySet());
         List<IdConfig> diff = intersection.stream()
-                .filter(k -> !fromTaskConfig.get(k).equals(fromSortTaskConfig.get(k)))
+                .filter(k -> {
+                    IdConfig fromTask = fromTaskConfig.get(k);
+                    IdConfig fromSortTask = fromSortTaskConfig.get(k);
+                    if (fromTask.equals(fromSortTask)) {
+                        return false;
+                    }
+                    log.warn("find different id config, fromTaskConfig={}, fromSortTaskConfig={}", fromTask,
+                            fromSortTask);
+                    return true;
+                })
                 .map(fromSortTaskConfig::get)
                 .collect(Collectors.toList());
+
         // report diff
         diff.forEach(idConfig -> {
             listeners.forEach(listener -> listener.reportClusterDiff(sortClusterName, sortTaskName,
                     idConfig.getInlongGroupId(), idConfig.getInlongStreamId()));
         });
+        log.warn("different id config size = {}", diff.size());
 
         // report miss in sort cluster config
-        fromTaskConfig.forEach((k, v) -> {
-            if (!intersection.contains(k)) {
-                listeners.forEach(listener -> listener.reportMissInSortClusterConfig(sortClusterName, sortTaskName,
-                        v.getInlongGroupId(), v.getInlongStreamId()));
-            }
-        });
+        List<String> missInSortClusterConfig = fromTaskConfig.entrySet().stream()
+                .filter(entry -> {
+                    String k = entry.getKey();
+                    IdConfig v = entry.getValue();
+                    if (!intersection.contains(k)) {
+                        listeners.forEach(listener -> listener.reportMissInSortClusterConfig(sortClusterName,
+                                sortTaskName, v.getInlongGroupId(), v.getInlongStreamId()));
+                        return true;
+                    }
+                    return false;
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
         // report miss in sort config
-        fromSortTaskConfig.forEach((k, v) -> {
-            if (!intersection.contains(k)) {
-                listeners.forEach(listener -> listener.reportMissInSortConfig(sortClusterName, sortTaskName,
-                        v.getInlongGroupId(), v.getInlongStreamId()));
-            }
-        });
+        List<String> missInSortConfig = fromSortTaskConfig.entrySet().stream()
+                .filter(entry -> {
+                    String k = entry.getKey();
+                    IdConfig v = entry.getValue();
+                    if (!intersection.contains(k)) {
+                        listeners.forEach(listener -> listener.reportMissInSortConfig(sortClusterName,
+                                sortTaskName, v.getInlongGroupId(), v.getInlongStreamId()));
+                        return true;
+                    }
+                    return false;
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        log.warn("report cluster diff, intersection={}, missInSortClusterConfig={}, missInSortConfig={}",
+                intersection, missInSortClusterConfig, missInSortConfig);
     }
 
     public static void reportSourceDiff(

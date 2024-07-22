@@ -22,9 +22,10 @@ import java.util.Map;
 /**
  * SourceDecoder
  */
-public interface SourceDecoder {
+public interface SourceDecoder<Input> {
 
     SourceData decode(byte[] srcBytes, Map<String, Object> extParams);
 
-    SourceData decode(String srcString, Map<String, Object> extParams);
+    SourceData decode(Input input, Map<String, Object> extParams);
+
 }

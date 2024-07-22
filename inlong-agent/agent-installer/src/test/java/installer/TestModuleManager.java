@@ -178,7 +178,7 @@ public class TestModuleManager {
                 "echo empty uninstall cmd", "agent-release-1.13.0-SNAPSHOT-bin.tar.gz",
                 "http://11.151.252.111:8083/inlong/manager/openapi/agent/download/agent-release-1.13.0-SNAPSHOT-bin.tar.gz",
                 NEW_MD5));
-        return ConfigResult.builder().moduleList(configs).md5("config-result-md5-193603").build();
+        return ConfigResult.builder().moduleList(configs).md5("config-result-md5-193603").version(1).build();
     }
 
     private ModuleConfig getModuleConfig(int id, String name, String md5, String version, Integer procNum,

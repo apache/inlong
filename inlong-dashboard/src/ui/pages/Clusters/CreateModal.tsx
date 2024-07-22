@@ -69,6 +69,8 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       values.type === 'AGENT' ||
       values.type === 'SORT_CLS' ||
       values.type === 'SORT_ES' ||
+      values.type === 'SORT_CKAFKA' ||
+      values.type === 'SORT_KAFKA' ||
       values.type === 'SORT_PULSAR'
     ) {
       submitData.name = values.displayName;

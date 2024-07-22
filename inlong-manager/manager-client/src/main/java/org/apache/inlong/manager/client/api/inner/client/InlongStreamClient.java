@@ -21,6 +21,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -30,11 +31,15 @@ import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
@@ -295,11 +300,15 @@ public class InlongStreamClient {
         return parseFields(request);
     }
 
-    public List<BriefMQMessage> queryMessage(String groupId, String streamId, Integer messageCount) {
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+    public List<BriefMQMessage> queryMessage(QueryMessageRequest request) {
+        Preconditions.expectNotBlank(request.getGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(request.getStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        Map<String, Object> requestMap = JsonUtils.parseObject(request,
+                new TypeReference<Map<String, Object>>() {
+                });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<List<BriefMQMessage>> response = ClientUtils.executeHttpCall(
-                inlongStreamApi.listMessages(groupId, streamId, messageCount));
+                inlongStreamApi.listMessages(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

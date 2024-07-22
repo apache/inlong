@@ -101,4 +101,12 @@
             </if>
         </where>
     </select>
+    <select id="selectAllModuleConfigs" resultType="org.apache.inlong.manager.dao.entity.ModuleConfigEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from module_config
+        <where>
+            and is_deleted = 0
+        </where>
+    </select>
 </mapper>

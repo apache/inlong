@@ -313,6 +313,10 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             snapshotOffsetState(functionSnapshotContext.getCheckpointId());
             snapshotHistoryRecordsState();
         }
+        if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
+            ((RowDataDebeziumDeserializeSchema) deserializer)
+                    .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
+        }
     }
 
     private void snapshotOffsetState(long checkpointId) throws Exception {
@@ -487,6 +491,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumOffset offset =
                     DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
             changeConsumer.commitOffset(offset);
+            if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
+                RowDataDebeziumDeserializeSchema schema = (RowDataDebeziumDeserializeSchema) deserializer;
+                schema.flushAudit();
+                schema.updateLastCheckpointId(checkpointId);
+            }
         } catch (Exception e) {
             // ignore exception if we are no longer running
             LOG.warn("Ignore error when committing offset to database.", e);

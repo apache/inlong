@@ -90,7 +90,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "code"})
 	err := m.registry.Register(m.errorCounter)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -103,7 +104,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "worker"})
 	err = m.registry.Register(m.retryCounter)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -116,7 +118,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "worker"})
 	err = m.registry.Register(m.timeoutCounter)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -129,7 +132,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "code"})
 	err = m.registry.Register(m.messageCounter)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -142,7 +146,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "code"})
 	err = m.registry.Register(m.updateConnCounter)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -155,7 +160,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "worker"})
 	err = m.registry.Register(m.pendingMessageGauge)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -169,7 +175,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "code"})
 	err = m.registry.Register(m.batchSizeHistogram)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}
@@ -183,7 +190,8 @@ func (m *metrics) init() error {
 	}, []string{"name", "code"})
 	err = m.registry.Register(m.batchTimeHistogram)
 	if err != nil {
-		are, ok := err.(prometheus.AlreadyRegisteredError)
+		var are prometheus.AlreadyRegisteredError
+		ok := errors.As(err, &are)
 		if !ok {
 			return err
 		}

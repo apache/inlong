@@ -43,6 +43,7 @@
   "meta.Sources.File.Cycle.Day": "天",
   "meta.Sources.File.Cycle.Hour": "小时",
   "meta.Sources.File.Cycle.RealTime": "实时",
+  "meta.Sources.File.Cycle.Minute": "分钟",
   "meta.Sources.File.TimeZone": "时区",
   "meta.Sources.Db.Server": "服务器地址",
   "meta.Sources.Db.Port": "服务器端口",
@@ -712,6 +713,7 @@
   "pages.Approvals.status.Canceled": "已取消",
   "pages.Approvals.status.Ok": "审批通过",
   "pages.Approvals.ApplicationTime": "申请时间",
+  "pages.Approvals.ProcessingTime": "审批时间",
   "pages.Approvals.ApplicationType": "申请类型",
   "pages.Approvals.Approval": "审批",
   "pages.Approvals.Approver": "审批人",
@@ -771,9 +773,12 @@
   "pages.Clusters.Node.IsInstall": "安装方式",
   "pages.Clusters.Node.ManualInstall": "手动安装",
   "pages.Clusters.Node.SSHInstall": "SSH 安装",
+  "pages.Clusters.Node.IdentifyType": "认证方式",
   "pages.Clusters.Node.Username": "SSH 用户名",
   "pages.Clusters.Node.Password": "SSH 密码",
+  "pages.Clusters.Node.SSHKey": "SSH 密钥",
   "pages.Clusters.Node.SSHPort": "SSH 端口",
+  "pages.Clusters.Node.SSHKeyHelper": "请将公钥上传至 Agent 节点的 ~/.ssh/authorized_keys 文件中",
   "pages.Clusters.Node.Status": "状态",
   "pages.Clusters.Node.Status.Normal": "正常",
   "pages.Clusters.Node.Status.Timeout": "心跳超时",
@@ -920,5 +925,7 @@
   "pages.GroupDataTemplate.Modifier":"修改人",
   "pages.GroupDataTemplate.VisibleRange.All":"全局",
   "pages.GroupDataTemplate.VisibleRange.InCharges":"责任人",
-  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户"
+  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户",
+  "miscellaneous.total": "... 共",
+  "miscellaneous.tenants": "个租户"
 }

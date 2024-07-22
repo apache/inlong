@@ -30,6 +30,7 @@ import org.apache.inlong.manager.pojo.queue.tubemq.TubeHttpResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeMessageResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeMessageResponse.TubeDataInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
@@ -269,7 +270,7 @@ public class TubeMQOperator {
      * Query topic message for the given tubemq cluster.
      */
     public List<BriefMQMessage> queryLastMessage(TubeClusterInfo tubeCluster, String topicName,
-            Integer msgCount, InlongStreamInfo streamInfo) {
+            InlongStreamInfo streamInfo, QueryMessageRequest request) {
         LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, tubeCluster);
         String masterUrl = tubeCluster.getMasterWebUrl();
         TubeBrokerInfo brokerView = this.getBrokerInfo(masterUrl);
@@ -286,7 +287,8 @@ public class TubeMQOperator {
                 throw new BusinessException("TubeMQ master url or TubeMQ topic cannot be null");
             }
 
-            String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT + msgCount;
+            String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT
+                    + request.getMessageCount();
             TubeMessageResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), TubeMessageResponse.class);
             if (response.getErrCode() != SUCCESS_CODE && response.getErrCode() != 200) {
@@ -310,7 +312,7 @@ public class TubeMQOperator {
                 }
                 byte[] messageData = Base64.getDecoder().decode(tubeDataInfo.getData());
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
-                messageList.addAll(deserializeOperator.decodeMsg(streamInfo, messageData, map, index));
+                deserializeOperator.decodeMsg(streamInfo, messageList, messageData, map, index, request);
             }
 
             LOGGER.info("success query messages for topic={}", topicName);
