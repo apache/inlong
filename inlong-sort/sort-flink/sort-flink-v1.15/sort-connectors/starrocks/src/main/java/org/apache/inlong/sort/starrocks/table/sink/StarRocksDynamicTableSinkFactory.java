@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.DIRTY_IGNORE;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.IGNORE_JSON_PARSE_ERROR;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
