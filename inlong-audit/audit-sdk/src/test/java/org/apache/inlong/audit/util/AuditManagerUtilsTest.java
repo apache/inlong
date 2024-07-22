@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.util;
 
+import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.FlowType;
 
@@ -122,5 +123,12 @@ public class AuditManagerUtilsTest {
         int auditId = AuditManagerUtils.getStartAuditIdForMetric();
         assertTrue(auditId > 0);
         assertTrue(auditId <= (1 << 30));
+    }
+
+    @Test
+    public void getAllMetricInformation() {
+        List<AuditInformation> metricInformationList = AuditOperator.getInstance().getAllMetricInformation();
+        System.out.println(metricInformationList);
+        assertTrue(metricInformationList.size() > 0);
     }
 }

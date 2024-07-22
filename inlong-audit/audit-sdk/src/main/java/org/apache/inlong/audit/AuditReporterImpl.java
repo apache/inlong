@@ -591,6 +591,10 @@ public class AuditReporterImpl implements Serializable {
         return AuditManagerUtils.getAllAuditInformation();
     }
 
+    public List<AuditInformation> getAllMetricInformation() {
+        return AuditManagerUtils.getAllMetricInformation();
+    }
+
     public List<AuditInformation> getAllAuditInformation(String auditType) {
         return AuditManagerUtils.getAllAuditInformation(auditType);
     }
