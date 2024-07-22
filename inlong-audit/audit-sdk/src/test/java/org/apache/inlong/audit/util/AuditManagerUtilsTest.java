@@ -127,8 +127,8 @@ public class AuditManagerUtilsTest {
 
     @Test
     public void getAllMetricInformation() {
-        List<AuditInformation> MetricInformationList = AuditOperator.getInstance().getAllMetricInformation();
-        System.out.println(MetricInformationList);
-        assertTrue(MetricInformationList.size() > 0);
+        List<AuditInformation> metricInformationList = AuditOperator.getInstance().getAllMetricInformation();
+        System.out.println(metricInformationList);
+        assertTrue(metricInformationList.size() > 0);
     }
 }
