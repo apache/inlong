@@ -71,6 +71,7 @@ import static org.apache.flink.connector.pulsar.common.config.PulsarClientFactor
  * messages.
  *
  * @param <OUT> The output message type for flink.
+ * Modify from  {@link org.apache.flink.connector.pulsar.source.reader.PulsarSourceReader}
  */
 @Internal
 public class PulsarSourceReader<OUT>

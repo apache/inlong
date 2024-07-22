@@ -120,6 +120,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * }</pre>
  *
  * @param <OUT> The output type of the source.
+ * Modify from  {@link org.apache.flink.connector.pulsar.source.PulsarSourceBuilder}
  */
 @PublicEvolving
 public final class PulsarSourceBuilder<OUT> {

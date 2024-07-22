@@ -63,6 +63,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
  * <p>See {@link PulsarSourceBuilder} for more details.
  *
  * @param <OUT> The output type of the source.
+ * Modify from  {@link org.apache.flink.connector.pulsar.source.PulsarSource}
  */
 @PublicEvolving
 public final class PulsarSource<OUT>
