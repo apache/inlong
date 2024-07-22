@@ -74,10 +74,12 @@ public class StarRocksTableRowTransformer implements StarRocksIRowTransformer<Ro
     private String[] columnNames;
     private DataType[] columnDataTypes;
     private Map<String, StarRocksDataType> columns;
+    private boolean ignoreJsonParseError;
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    public StarRocksTableRowTransformer(TypeInformation<RowData> rowDataTypeInfo) {
+    public StarRocksTableRowTransformer(TypeInformation<RowData> rowDataTypeInfo, boolean ignoreJsonParseError) {
         this.rowDataTypeInfo = rowDataTypeInfo;
+        this.ignoreJsonParseError = ignoreJsonParseError;
     }
 
     @Override
@@ -156,7 +158,14 @@ public class StarRocksTableRowTransformer implements StarRocksIRowTransformer<Ro
                     // string is "{"a": 1, "b": 2}", and if input it to JSON.toJSONString directly, the
                     // result will be "{\"a\": 1, \"b\": 2}" which will not be recognized as a json in
                     // StarRocks
-                    return JSON.parse(sValue);
+                    try {
+                        return JSON.parse(sValue);
+                    } catch (Throwable t) {
+                        if (ignoreJsonParseError) {
+                            throw t;
+                        }
+                        return sValue;
+                    }
                 }
                 return sValue;
             case DATE:
@@ -273,9 +282,11 @@ public class StarRocksTableRowTransformer implements StarRocksIRowTransformer<Ro
     }
 
 }
+
 final class BinaryStringDataSerializer implements ObjectSerializer, Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
             throws IOException {
@@ -292,6 +303,7 @@ final class BinaryStringDataSerializer implements ObjectSerializer, Serializable
 final class DecimalDataSerializer implements ObjectSerializer, Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
             throws IOException {
@@ -307,6 +319,7 @@ final class DecimalDataSerializer implements ObjectSerializer, Serializable {
 final class TimestampDataSerializer implements ObjectSerializer, Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
             throws IOException {
