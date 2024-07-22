@@ -72,8 +72,9 @@ public class AuditController {
 
     @ApiOperation(value = "Get the audit base info")
     @GetMapping("/audit/getAuditBases")
-    public Response<List<AuditInformation>> getAuditBases() {
-        return Response.success(auditService.getAuditBases());
+    public Response<List<AuditInformation>> getAuditBases(
+            @RequestParam(required = false, defaultValue = "false") boolean isMetric) {
+        return Response.success(auditService.getAuditBases(isMetric));
     }
 
     @GetMapping(value = "/audit/getAuditProxy")

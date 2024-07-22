@@ -226,9 +226,11 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditInformation> getAuditBases() {
-        List<AuditInformation> auditInformations = AuditOperator.getInstance().getAllAuditInformation();
-        return auditInformations;
+    public List<AuditInformation> getAuditBases(Boolean isMetric) {
+        if (isMetric) {
+            return AuditOperator.getInstance().getAllMetricInformation();
+        }
+        return AuditOperator.getInstance().getAllAuditInformation();
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
