@@ -45,7 +45,7 @@ import javax.validation.constraints.NotNull;
 public class OceanBaseDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OceanBaseDataNodeDTO.class);
-    private static final String OceanBase_JDBC_PREFIX = "jdbc:oceanbase://";
+    private static final String OCEANBASE_JDBC_PREFIX = "jdbc:oceanbase://";
 
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
@@ -77,8 +77,8 @@ public class OceanBaseDataNodeDTO {
      */
     public static String convertToJdbcurl(String url) {
         String jdbcUrl = url;
-        if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(OceanBase_JDBC_PREFIX)) {
-            jdbcUrl = OceanBase_JDBC_PREFIX + jdbcUrl;
+        if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(OCEANBASE_JDBC_PREFIX)) {
+            jdbcUrl = OCEANBASE_JDBC_PREFIX + jdbcUrl;
         }
         return jdbcUrl;
     }

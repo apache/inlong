@@ -38,8 +38,8 @@ import java.util.Objects;
  */
 public class OceanBaseJdbcUtils {
 
-    private static final String OceanBase_JDBC_PREFIX = "jdbc:mysql://";
-    private static final String OceanBase_DRIVER_CLASS = "com.oceanbase.jdbc.Driver";
+    private static final String OCEANBASE_JDBC_PREFIX = "jdbc:mysql://";
+    private static final String OCEANBASE_DRIVER_CLASS = "com.oceanbase.jdbc.Driver";
     private static final Logger LOGGER = LoggerFactory.getLogger(OceanBaseJdbcUtils.class);
 
     /**
@@ -52,7 +52,7 @@ public class OceanBaseJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OceanBase_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
         Connection conn = establishDatabaseConnection(url, user, password);
         return conn;
     }
@@ -69,7 +69,7 @@ public class OceanBaseJdbcUtils {
     private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
-            Class.forName(OceanBase_DRIVER_CLASS);
+            Class.forName(OCEANBASE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
             String errorMsg =
