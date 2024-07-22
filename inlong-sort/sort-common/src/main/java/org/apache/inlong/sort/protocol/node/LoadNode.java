@@ -19,23 +19,7 @@ package org.apache.inlong.sort.protocol.node;
 
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
-import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
-import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
-import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
-import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
-import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
-import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
-import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
-import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
-import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
-import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
-import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
-import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
-import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
-import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
-import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.*;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -76,6 +60,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = StarRocksLoadNode.class, name = "starRocksLoad"),
         @JsonSubTypes.Type(value = HudiLoadNode.class, name = "hudiLoad"),
         @JsonSubTypes.Type(value = RedisLoadNode.class, name = "redisLoad"),
+        @JsonSubTypes.Type(value = OceanBaseLoadNode.class, name = "oceanBaseLoad"),
 })
 @NoArgsConstructor
 @Data
