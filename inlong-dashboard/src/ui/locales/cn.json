@@ -888,7 +888,7 @@
   "pages.Tenant.config.CreateTime": "创建时间",
   "pages.ModuleAudit.Ip": "IP 查询",
   "pages.ModuleAudit.Id": "ID 查询",
-  "pages.ModuleAudit.Monitor": "监控 查询",
+  "pages.ModuleAudit.Metric": "指标 查询",
   "pages.ModuleAudit.config.Ip": "机器 IP",
   "pages.ModuleAudit.config.BenchmarkIndicator": "基准指标",
   "pages.ModuleAudit.config.ComparativeIndicators": "对比指标",
