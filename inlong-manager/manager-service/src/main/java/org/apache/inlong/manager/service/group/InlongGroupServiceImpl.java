@@ -255,10 +255,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
-        if (entity == null) {
-            return false;
-        }
-        return isScheduleInfoExist(entity);
+        return entity != null;
     }
 
     private boolean isScheduleInfoExist(InlongGroupEntity entity) {
