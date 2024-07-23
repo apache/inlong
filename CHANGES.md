@@ -104,12 +104,12 @@
 
 
 ### Manager
-| <div style="width:150px">ISSUE</div>                          | <div style="width:950px">Summary</div>                                                             |
-|:--------------------------------------------------------------|:---------------------------------------------------------------------------------------------------|
+| <div style="width:150px">ISSUE</div>                          | <div style="width:950px">Summary</div>                                                            |
+|:--------------------------------------------------------------|:--------------------------------------------------------------------------------------------------|
 | [INLONG-10056](https://github.com/apache/inlong/issues/10056) |[Feature][Manager] Support new manager plugin for flink 1.18|
 | [INLONG-10071](https://github.com/apache/inlong/issues/10071) |[Improve][Manager] Supplementary statement trailing semicolon in apache_inlong_manager.sql|
 | [INLONG-10074](https://github.com/apache/inlong/issues/10074) |[Bug][Manager] Error in querying audit information based on IP address|
-| [INLONG-10076](https://github.com/apache/inlong/issues/10076) |[Bug][[Manager] Data type 'doris' not support|
+| [INLONG-10076](https://github.com/apache/inlong/issues/10076) |[Bug][Manager] Data type 'doris' not support|
 | [INLONG-10096](https://github.com/apache/inlong/issues/10096) |[Improve][Manager] Support installing agents by SSH|
 | [INLONG-10105](https://github.com/apache/inlong/issues/10105) |[Manager][Bug]Fix sort standalone get kafka config error|
 | [INLONG-10135](https://github.com/apache/inlong/issues/10135) |[Improve][Manager] Move inlongCompressType to clustertag configuration|
@@ -175,27 +175,27 @@
 | [INLONG-10459](https://github.com/apache/inlong/issues/10459) |[Feature][Manager] Support schedule instance callback to submit Flink batch job|
 | [INLONG-10472](https://github.com/apache/inlong/issues/10472) |[Improve][Manager] Use audit SDK to obtain audit proxy URL|
 | [INLONG-10474](https://github.com/apache/inlong/issues/10474) |[Feature][Manager] Restrict sortTaskName and sortConsumeName the same with datanodeName when migrate Inlong Group|
-| [INLONG-10484](https://github.com/apache/inlong/issues/10484) |[Improve][Manager] Refactor code in manager-service module|
-| [INLONG-10487](https://github.com/apache/inlong/issues/10487) |[Bug][Manager] Not return success ListenerResult|
-| [INLONG-10495](https://github.com/apache/inlong/issues/10495) |[Bug][Manager] ScanStartupSubStartOffset is set to null in pulsar extranode|
-| [INLONG-10498](https://github.com/apache/inlong/issues/10498) |[Improve][Manager] Template supports modifying associated tenants|
-| [INLONG-10505](https://github.com/apache/inlong/issues/10505) |[Bug][Manager] Data preview cannot recognize null values in the data|
-| [INLONG-10506](https://github.com/apache/inlong/issues/10506) |[Improve][Manager] When obtaining a template, return information such as creator and modifier|
-| [INLONG-10512](https://github.com/apache/inlong/issues/10512) |[Improve][Manager] Support preview of data in kv data type|
-| [INLONG-10514](https://github.com/apache/inlong/issues/10514) |[Feature][Manager] Support built-in schedule engine trigger submitting of Flink batch job |
-| [INLONG-10516](https://github.com/apache/inlong/issues/10516) |[Improve][Manager] Add jdbc connectors on flink 1.15 module to manager image|
-| [INLONG-10520](https://github.com/apache/inlong/issues/10520) |[Bug][Manager] Protocol Type reported by dataproxy not correctly accepted|
-| [INLONG-10543](https://github.com/apache/inlong/issues/10543) |[Improve][Manager] The delimiter and other configurations in CLS and ES sink are obtained from the stream|
-| [INLONG-10558](https://github.com/apache/inlong/issues/10558) |[Improve][Manager] Support determining whether to issue agent tasks based on the MD5 value|
-| [INLONG-10561](https://github.com/apache/inlong/issues/10561) |[Feature][Manager] Support configrations for bounded source|
-| [INLONG-10562](https://github.com/apache/inlong/issues/10562) |[Feature][Manager] SortConfig supports set start and stop consume time|
-| [INLONG-10589](https://github.com/apache/inlong/issues/10589) |[Improve][Manager] Rename OfflineJobSubmitRequest and remove log in controller|
-| [INLONG-10601](https://github.com/apache/inlong/issues/10601) |[Improve][Manager] Optimize the agent task configuration process|
-| [INLONG-10625](https://github.com/apache/inlong/issues/10625) |[Bug][Manager] The responsible person cannot modify the template configuration|
-| [INLONG-10635](https://github.com/apache/inlong/issues/10635) |[Improve][Manager] Optimize the installer configuration process|
-| [INLONG-10638](https://github.com/apache/inlong/issues/10638) |[Improve][Manager] Data preview supports filtering function|
-| [INLONG-10648](https://github.com/apache/inlong/issues/10648) |[Bug][Manager] The get sort config interface returns an error status code|
-| [INLONG-10689](https://github.com/apache/inlong/issues/10689) |[Improve][Manager] Support querying metric information|
+| [INLONG-10484](https://github.com/apache/inlong/issues/10484) | [Improve][Manager] Refactor code in manager-service module                                                      |
+| [INLONG-10487](https://github.com/apache/inlong/issues/10487) | [Bug][Manager] Not return success ListenerResult                                                                |
+| [INLONG-10495](https://github.com/apache/inlong/issues/10495) | [Bug][Manager] ScanStartupSubStartOffset is set to null in pulsar extranode                                     |
+| [INLONG-10498](https://github.com/apache/inlong/issues/10498) | [Improve][Manager] Template supports modifying associated tenants                                               |
+| [INLONG-10505](https://github.com/apache/inlong/issues/10505) | [Bug][Manager] Data preview cannot recognize null values in the data                                            |
+| [INLONG-10506](https://github.com/apache/inlong/issues/10506) | [Improve][Manager] When obtaining a template, return information such as creator and modifier                   |
+| [INLONG-10512](https://github.com/apache/inlong/issues/10512) | [Improve][Manager] Support preview of data in kv data type                                                      |
+| [INLONG-10514](https://github.com/apache/inlong/issues/10514) | [Feature][Manager] Support built-in schedule engine trigger submitting of Flink batch job                       |
+| [INLONG-10516](https://github.com/apache/inlong/issues/10516) | [Improve][Manager] Add jdbc connectors on flink 1.15 module to manager image                                    |
+| [INLONG-10520](https://github.com/apache/inlong/issues/10520) | [Bug][Manager] Protocol Type reported by dataproxy not correctly accepted                                       |
+| [INLONG-10543](https://github.com/apache/inlong/issues/10543) | [Improve][Manager] The delimiter and other configurations in CLS and ES sink are obtained from the stream       |
+| [INLONG-10558](https://github.com/apache/inlong/issues/10558) | [Improve][Manager] Support determining whether to issue agent tasks based on the MD5 value                      |
+| [INLONG-10561](https://github.com/apache/inlong/issues/10561) | [Feature][Manager] Support configrations for bounded source                                                     |
+| [INLONG-10562](https://github.com/apache/inlong/issues/10562) | [Feature][Manager] SortConfig supports set start and stop consume time                                          |
+| [INLONG-10589](https://github.com/apache/inlong/issues/10589) | [Improve][Manager] Rename OfflineJobSubmitRequest and remove log in controller                                  |
+| [INLONG-10601](https://github.com/apache/inlong/issues/10601) | [Improve][Manager] Optimize the agent task configuration process                                                |
+| [INLONG-10625](https://github.com/apache/inlong/issues/10625) | [Bug][Manager] The responsible person cannot modify the template configuration                                  |
+| [INLONG-10635](https://github.com/apache/inlong/issues/10635) | [Improve][Manager] Optimize the installer configuration process                                                 |
+| [INLONG-10638](https://github.com/apache/inlong/issues/10638) | [Improve][Manager] Data preview supports filtering function                                                     |
+| [INLONG-10648](https://github.com/apache/inlong/issues/10648) | [Bug][Manager] The get sort config interface returns an error status code                                       |
+| [INLONG-10689](https://github.com/apache/inlong/issues/10689) | [Improve][Manager] Support querying metric information                                                          |
 
 ### SDK
 | <div style="width:150px">ISSUE</div>                          | <div style="width:950px">Summary</div>          |
