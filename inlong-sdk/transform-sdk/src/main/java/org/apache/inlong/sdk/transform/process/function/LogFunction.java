@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -35,7 +36,7 @@ import java.util.List;
 public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;
-    private ValueParser numberParser;
+    private final ValueParser numberParser;
 
     /**
      * Constructor
@@ -59,11 +60,11 @@ public class LogFunction implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex);
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         if (baseParser != null) {
-            Object baseObj = baseParser.parse(sourceData, rowIndex);
+            Object baseObj = baseParser.parse(sourceData, rowIndex, context);
             BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
             return Math.log(numberValue.doubleValue()) / Math.log(baseValue.doubleValue());
         } else {

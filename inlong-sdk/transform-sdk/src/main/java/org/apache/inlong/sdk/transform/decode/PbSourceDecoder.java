@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.decode;
 
 import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
@@ -89,13 +90,13 @@ public class PbSourceDecoder implements SourceDecoder<byte[]> {
     /**
      * decode
      * @param srcBytes
-     * @param extParams
+     * @param context
      * @return
      * @throws InvalidProtocolBufferException 
      */
     @SuppressWarnings("unchecked")
     @Override
-    public SourceData decode(byte[] srcBytes, Map<String, Object> extParams) {
+    public SourceData decode(byte[] srcBytes, Context context) {
         try {
             // decode
             DynamicMessage.Builder builder = DynamicMessage.newBuilder(rootDesc);

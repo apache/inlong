@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 /**
  * ValueParser
@@ -25,5 +26,5 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
  */
 public interface ValueParser {
 
-    Object parse(SourceData sourceData, int rowIndex);
+    Object parse(SourceData sourceData, int rowIndex, Context context);
 }

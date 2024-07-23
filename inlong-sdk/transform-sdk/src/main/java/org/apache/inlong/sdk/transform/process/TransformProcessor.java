@@ -55,9 +55,9 @@ public class TransformProcessor<I, O> {
 
     private static final Map<String, Object> EMPTY_EXT_PARAMS = ImmutableMap.of();
 
-    private TransformConfig config;
-    private SourceDecoder<I> decoder;
-    private SinkEncoder<O> encoder;
+    private final TransformConfig config;
+    private final SourceDecoder<I> decoder;
+    private final SinkEncoder<O> encoder;
 
     private PlainSelect transformSelect;
     private ExpressionOperator where;
@@ -119,27 +119,38 @@ public class TransformProcessor<I, O> {
     }
 
     public List<O> transform(I input, Map<String, Object> extParams) {
-        SourceData sourceData = this.decoder.decode(input, extParams);
+        Context context = new Context(config.getConfiguration(), extParams);
+
+        // decode
+        SourceData sourceData = this.decoder.decode(input, context);
         if (sourceData == null) {
             return null;
         }
+
         List<O> sinkDatas = new ArrayList<>(sourceData.getRowCount());
         for (int i = 0; i < sourceData.getRowCount(); i++) {
-            if (this.where != null && !this.where.check(sourceData, i)) {
+
+            // where check
+            if (this.where != null && !this.where.check(sourceData, i, context)) {
                 continue;
             }
+
+            // parse value
             SinkData sinkData = new DefaultSinkData();
             for (Entry<String, ValueParser> entry : this.selectItemMap.entrySet()) {
                 String fieldName = entry.getKey();
                 try {
-                    Object fieldValue = entry.getValue().parse(sourceData, i);
+                    ValueParser parser = entry.getValue();
+                    Object fieldValue = parser.parse(sourceData, i, context);
                     sinkData.addField(fieldName, String.valueOf(fieldValue));
                 } catch (Throwable t) {
                     LOG.error(t.getMessage(), t);
                     sinkData.addField(fieldName, "");
                 }
             }
-            sinkDatas.add(this.encoder.encode(sinkData));
+
+            // encode
+            sinkDatas.add(this.encoder.encode(sinkData, context));
         }
         return sinkDatas;
     }
