@@ -20,6 +20,15 @@ package org.apache.inlong.sdk.transform.process;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Transform context.
+ *
+ * <p>configuration</p> is the global configuration when init transform processor
+ * <p>extParams</p> is the ext params of each data
+ * <p>runtimeParams</p> is the runtime outputs when processing by each component
+ *
+ * The priority is runtimeParams > extParams > configuration.
+ */
 public class Context {
 
     private final Map<String, Object> configuration;
