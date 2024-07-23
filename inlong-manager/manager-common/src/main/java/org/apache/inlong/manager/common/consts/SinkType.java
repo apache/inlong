@@ -71,6 +71,9 @@ public class SinkType extends StreamType {
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String TUBEMQ = "TUBEMQ";
 
+    @SupportSortType(sortType = SortType.SORT_FLINK)
+    public static final String OCEANBASE = "OCEANBASE";
+
     /**
      * Tencent cloud log service
      * Details: <a href="https://www.tencentcloud.com/products/cls">CLS</a>
