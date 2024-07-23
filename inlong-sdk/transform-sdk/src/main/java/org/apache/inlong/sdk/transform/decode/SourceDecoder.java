@@ -17,15 +17,15 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
-import java.util.Map;
+import org.apache.inlong.sdk.transform.process.Context;
 
 /**
  * SourceDecoder
  */
 public interface SourceDecoder<Input> {
 
-    SourceData decode(byte[] srcBytes, Map<String, Object> extParams);
+    SourceData decode(byte[] srcBytes, Context context);
 
-    SourceData decode(Input input, Map<String, Object> extParams);
+    SourceData decode(Input input, Context context);
 
 }

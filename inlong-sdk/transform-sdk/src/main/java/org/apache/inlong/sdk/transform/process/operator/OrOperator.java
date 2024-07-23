@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 
@@ -27,8 +28,8 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
  */
 public class OrOperator implements ExpressionOperator {
 
-    private ExpressionOperator left;
-    private ExpressionOperator right;
+    private final ExpressionOperator left;
+    private final ExpressionOperator right;
 
     public OrOperator(OrExpression expr) {
         this.left = OperatorTools.buildOperator(expr.getLeftExpression());
@@ -42,8 +43,8 @@ public class OrOperator implements ExpressionOperator {
      * @return
      */
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return left.check(sourceData, rowIndex) || right.check(sourceData, rowIndex);
+    public boolean check(SourceData sourceData, int rowIndex, Context context) {
+        return left.check(sourceData, rowIndex, context) || right.check(sourceData, rowIndex, context);
     }
 
 }

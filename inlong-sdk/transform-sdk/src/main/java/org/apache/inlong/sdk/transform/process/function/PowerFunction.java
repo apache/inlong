@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -50,9 +51,9 @@ public class PowerFunction implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
-        Object baseObj = baseParser.parse(sourceData, rowIndex);
-        Object exponentObj = exponentParser.parse(sourceData, rowIndex);
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Object baseObj = baseParser.parse(sourceData, rowIndex, context);
+        Object exponentObj = exponentParser.parse(sourceData, rowIndex, context);
         BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
         BigDecimal exponentValue = OperatorTools.parseBigDecimal(exponentObj);
         return Math.pow(baseValue.doubleValue(), exponentValue.doubleValue());

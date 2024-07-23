@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.encode;
 
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,7 +50,7 @@ public class KvSinkEncoder implements SinkEncoder<String> {
      * @return
      */
     @Override
-    public String encode(SinkData sinkData) {
+    public String encode(SinkData sinkData, Context context) {
         builder.delete(0, builder.length());
         if (fields == null || fields.size() == 0) {
             for (String fieldName : sinkData.keyList()) {
