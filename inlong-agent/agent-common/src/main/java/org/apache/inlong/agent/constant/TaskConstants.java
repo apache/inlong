@@ -139,6 +139,21 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_POSTGRES_PLUGIN_NAME = "task.postgreSQLTask.pluginName";
     public static final String TASK_POSTGRES_SNAPSHOT_MODE = "task.postgreSQLTask.snapshotMode";
 
+    // MQTT
+    public static final String JOB_MQTT_USERNAME = "job.mqttJob.userName";
+    public static final String JOB_MQTT_PASSWORD = "job.mqttJob.password";
+    public static final String JOB_MQTT_SERVER_URI = "job.mqttJob.serverURI";
+    public static final String JOB_MQTT_TOPIC = "job.mqttJob.topic";
+    public static final String JOB_MQTT_CONNECTION_TIMEOUT = "job.mqttJob.connectionTimeOut";
+    public static final String JOB_MQTT_KEEPALIVE_INTERVAL = "job.mqttJob.keepAliveInterval";
+    public static final String JOB_MQTT_QOS = "job.mqttJob.qos";
+    public static final String JOB_MQTT_CLEAN_SESSION = "job.mqttJob.cleanSession";
+    public static final String JOB_MQTT_CLIENT_ID_PREFIX = "job.mqttJob.clientIdPrefix";
+    public static final String JOB_MQTT_QUEUE_SIZE = "job.mqttJob.queueSize";
+    public static final String JOB_MQTT_AUTOMATIC_RECONNECT = "job.mqttJob.automaticReconnect";
+    public static final String JOB_MQTT_VERSION = "job.mqttJob.mqttVersion";
+
+
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";

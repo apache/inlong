@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
@@ -106,13 +107,13 @@ public class TestMqttReader {
 
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn(groupId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn(streamId);
-        when(jobProfile.get(eq(MqttReader.JOB_MQTT_USERNAME))).thenReturn(username);
-        when(jobProfile.get(eq(MqttReader.JOB_MQTT_PASSWORD))).thenReturn(password);
-        when(jobProfile.get(eq(MqttReader.JOB_MQTT_SERVER_URI))).thenReturn(serverURI);
-        when(jobProfile.get(eq(MqttReader.JOB_MQTT_QOS))).thenReturn(qos);
-        when(jobProfile.get(eq(MqttReader.JOB_MQTT_CLIENT_ID_PREFIX))).thenReturn(clientIdPrefix);
+        when(jobProfile.get(eq(TaskConstants.JOB_MQTT_USERNAME))).thenReturn(username);
+        when(jobProfile.get(eq(TaskConstants.JOB_MQTT_PASSWORD))).thenReturn(password);
+        when(jobProfile.get(eq(TaskConstants.JOB_MQTT_SERVER_URI))).thenReturn(serverURI);
+        when(jobProfile.get(eq(TaskConstants.JOB_MQTT_QOS))).thenReturn(qos);
+        when(jobProfile.get(eq(TaskConstants.JOB_MQTT_CLIENT_ID_PREFIX))).thenReturn(clientIdPrefix);
         when(jobProfile.getInstanceId()).thenReturn(INSTANCE_ID);
-        when(jobProfile.getInt(eq(MqttReader.JOB_MQTT_QUEUE_SIZE), eq(1000))).thenReturn(1000);
+        when(jobProfile.getInt(eq(TaskConstants.JOB_MQTT_QUEUE_SIZE), eq(1000))).thenReturn(1000);
 
         // mock MqttClient
         whenNew(MqttClient.class).withArguments(anyString(), anyString(), any(MemoryPersistence.class))

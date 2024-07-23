@@ -20,6 +20,8 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
@@ -34,18 +36,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class MqttSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttSource.class);
 
-    private static final String JOB_MQTTJOB_PARAM_PREFIX = "job.mqttJob.";
+    private MqttReader mqttReader;
 
-    private static final String JOB_MQTTJOB_SERVERURI = "";
+    private String topic;
 
-    private static final String JOB_MQTTJOB_CLIENTID = "";
-
-    public static final String JOB_MQTTJOB_TOPICS = "job.mqttJob.topic";
 
     public MqttSource() {
     }
@@ -56,21 +56,20 @@ public class MqttSource extends AbstractSource {
         }
         final List<Reader> result = new ArrayList<>();
         String[] topicList = topics.split(CommonConstants.COMMA);
-        if (Objects.nonNull(topicList)) {
-            Arrays.stream(topicList).forEach(topic -> {
-                MqttReader mqttReader = new MqttReader(topic);
-                mqttReader.setReadSource(instanceId);
-                result.add(mqttReader);
-            });
-        }
+        Arrays.stream(topicList).forEach(topic -> {
+            MqttReader mqttReader = new MqttReader(topic);
+            mqttReader.setReadSource(instanceId);
+            result.add(mqttReader);
+        });
         return result;
     }
 
     @Override
     public List<Reader> split(TaskProfile conf) {
-        String topics = conf.get(JOB_MQTTJOB_TOPICS, StringUtils.EMPTY);
+        String topics = conf.get(TaskConstants.JOB_MQTT_TOPIC, StringUtils.EMPTY);
         List<Reader> readerList = null;
-        if (StringUtils.isNotEmpty(topics)) {
+        if(StringUtils.isNotEmpty(topics)) {
+            readerList = splitSqlJob(topics, instanceId);
         }
         if (CollectionUtils.isNotEmpty(readerList)) {
             sourceMetric.sourceSuccessCount.incrementAndGet();
@@ -87,46 +86,72 @@ public class MqttSource extends AbstractSource {
 
     @Override
     protected void initSource(InstanceProfile profile) {
-
+        try{
+            LOGGER.info("MqttSource init: {}", profile.toJsonStr());
+            topic = profile.get(TaskConstants.JOB_MQTT_TOPIC);
+            instanceId = profile.getInstanceId();
+            mqttReader = new MqttReader(topic);
+            mqttReader.init(profile);
+        } catch (Exception e) {
+            stopRunning();
+        }
     }
 
     @Override
     protected void printCurrentState() {
-
+        LOGGER.info("mqtt topic is {}", topic);
     }
 
     @Override
     protected boolean doPrepareToRead() {
-        return false;
+        return true;
     }
 
     @Override
     protected List<SourceData> readFromSource() {
-        return null;
+        List<SourceData> dataList = new ArrayList<>();
+        try {
+            int size = 0;
+            while (size < BATCH_READ_LINE_TOTAL_LEN) {
+                Message msg = read();
+                if (msg != null) {
+                    SourceData sourceData = new SourceData(msg.getBody(),"0L");
+                    size += sourceData.getData().length;
+                    dataList.add(sourceData);
+                } else {
+                    break;
+                }
+            }
+        } catch (FileException e) {
+            LOGGER.error("read from mqtt error", e);
+        }
+        return dataList;
     }
 
     @Override
     public Message read() {
-        return null;
+        return mqttReader.read();
     }
 
     @Override
     protected boolean isRunnable() {
-        return runnable;
+        return runnable ;
     }
 
     @Override
     protected void releaseSource() {
-
+        if (mqttReader != null) {
+            mqttReader.finishRead();
+        }
     }
 
     @Override
     public boolean sourceFinish() {
-        return false;
+        return mqttReader.isFinished();
     }
 
     @Override
     public boolean sourceExist() {
-        return false;
+        return mqttReader.isSourceExist();
     }
 }
