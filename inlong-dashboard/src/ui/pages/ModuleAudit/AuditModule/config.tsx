@@ -69,10 +69,11 @@ function getAuditLabel(auditId: number, nodeType?: string) {
 }
 
 export const toChartData = (source, sourceDataMap) => {
-  const xAxisData = Object.keys(sourceDataMap);
+  console.log(source, sourceDataMap);
+  const xAxisData = Object.keys(sourceDataMap ? sourceDataMap : '12345');
   return {
     legend: {
-      data: source.map(item => item.auditName),
+      data: source.map(item => item?.auditName),
     },
     tooltip: {
       trigger: 'axis',
@@ -85,9 +86,9 @@ export const toChartData = (source, sourceDataMap) => {
       type: 'value',
     },
     series: source.map(item => ({
-      name: item.auditName,
+      name: item?.auditName ? item?.auditName : '1233',
       type: 'line',
-      data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
+      data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item?.auditId] || 0),
     })),
   };
 };
@@ -157,14 +158,48 @@ export const getSourceDataWithCommas = sourceData => {
 
 let endTimeVisible = true;
 
-export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
+export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => [
+  {
+    type: 'select',
+    label: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
+    name: 'inlongGroupId',
+    props: values => ({
+      dropdownMatchSelectWidth: false,
+      showSearch: true,
+      allowClear: true,
+      options: {
+        requestAuto: true,
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/group/list',
+          method: 'POST',
+          data: {
+            keyword,
+            pageNum: 1,
+            pageSize: 100,
+            inlongGroupMode: 0,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list.map(item => ({
+              label: item.inlongGroupId,
+              value: item.inlongGroupId,
+            })) || [],
+        },
+      },
+    }),
+    rules: [{ required: true }],
+  },
   {
     type: 'select',
     label: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
     name: 'inlongStreamId',
-    props: {
+    props: values => ({
       dropdownMatchSelectWidth: false,
       showSearch: true,
+      allowClear: true,
+      disabled: !Boolean(values.inlongGroupId),
       options: {
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
@@ -175,7 +210,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
             keyword,
             pageNum: 1,
             pageSize: 100,
-            inlongGroupId,
+            inlongGroupId: values.inlongGroupId,
           },
         }),
         requestParams: {
@@ -184,42 +219,12 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
               label: item.inlongStreamId,
               value: item.inlongStreamId,
             })) || [],
-          onSuccess: onDataStreamSuccess,
-        },
-      },
-    },
-    rules: [{ required: true }],
-  },
-  {
-    type: 'select',
-    label: i18n.t('pages.GroupDetail.Audit.Sink'),
-    name: 'sinkId',
-    props: values => ({
-      dropdownMatchSelectWidth: false,
-      showSearch: true,
-      options: {
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: keyword => ({
-          url: '/sink/list',
-          method: 'POST',
-          data: {
-            keyword,
-            pageNum: 1,
-            pageSize: 100,
-            inlongGroupId,
-            inlongStreamId: values.inlongStreamId,
-          },
-        }),
-        requestParams: {
-          formatResult: result =>
-            result?.list.map(item => ({
-              label: item.sinkName + ` ( ${sinks.find(c => c.value === item.sinkType)?.label} )`,
-              value: item.id,
-            })) || [],
         },
       },
     }),
+    rules: [{ required: true }],
   },
+
   {
     type: 'datepicker',
     label: i18n.t('pages.GroupDetail.Audit.StartDate'),
@@ -287,8 +292,9 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   },
   {
     type: 'select',
-    label: i18n.t('pages.GroupDetail.Audit.Item'),
+    label: i18n.t('pages.GroupDetail.Metric.Item'),
     name: 'auditIds',
+    rules: [{ required: true }],
     props: {
       style: {
         width: 200,
@@ -301,7 +307,12 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
         requestAuto: true,
         requestTrigger: ['onOpen'],
         requestService: () => {
-          return request('/audit/getAuditBases');
+          return request({
+            url: '/audit/getAuditBases',
+            params: {
+              isMetric: true,
+            },
+          });
         },
         requestParams: {
           formatResult: result => {
@@ -339,12 +350,13 @@ export const getTableColumns = (source, dim) => {
     title: item.auditName,
     dataIndex: item.auditId,
     render: text => {
+      let color = 'black';
       if (text?.includes('+')) {
-        return <span style={{ color: 'red' }}>{text}</span>;
+        color = 'red';
       } else if (text?.includes('-')) {
-        return <span style={{ color: 'green' }}>{text}</span>;
+        color = 'green';
       }
-      return <span>{text}</span>;
+      return <span style={{ color: color }}>{text}</span>;
     },
   }));
   return [
