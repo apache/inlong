@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.reflections.Reflections.log;
+
 /**
  * Utils for OceanBase JDBC.
  */
@@ -40,6 +42,7 @@ public class OceanBaseJdbcUtils {
 
     private static final String OCEANBASE_JDBC_PREFIX = "jdbc:mysql://";
     private static final String OCEANBASE_DRIVER_CLASS = "com.oceanbase.jdbc.Driver";
+    private static final String AUTO_DESERIALIZE = "autoDeserialize";
     private static final Logger LOGGER = LoggerFactory.getLogger(OceanBaseJdbcUtils.class);
 
     /**
@@ -70,6 +73,14 @@ public class OceanBaseJdbcUtils {
         Connection conn;
         try {
             Class.forName(OCEANBASE_DRIVER_CLASS);
+            if (user.contains(AUTO_DESERIALIZE)) {
+                log.warn("sensitive param : {} in username field is filtered", AUTO_DESERIALIZE);
+                user = user.replace(AUTO_DESERIALIZE, "");
+            }
+            if (password.contains(AUTO_DESERIALIZE)) {
+                log.warn("sensitive param : {} in password field is filtered", AUTO_DESERIALIZE);
+                password = password.replace(AUTO_DESERIALIZE, "");
+            }
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
             String errorMsg =
