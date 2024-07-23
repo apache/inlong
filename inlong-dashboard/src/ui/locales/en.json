@@ -647,7 +647,6 @@
   "pages.GroupDetail.Resource": "Resource detail",
   "pages.GroupDetail.Resource.Info": " Info",
   "pages.GroupDetail.Audit.DataStream": "Data stream",
-  "pages.GroupDetail.Audit.DataGroup": "Data stream Group",
   "pages.GroupDetail.Audit.StartDate": "Start Date",
   "pages.GroupDetail.Audit.EndDate": "End Date",
   "pages.GroupDetail.Audit.AuditIds": "Contents",

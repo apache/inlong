@@ -199,6 +199,7 @@ export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => 
       dropdownMatchSelectWidth: false,
       showSearch: true,
       allowClear: true,
+      disabled: !Boolean(values.inlongGroupId),
       options: {
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
@@ -223,37 +224,7 @@ export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => 
     }),
     rules: [{ required: true }],
   },
-  {
-    type: 'select',
-    label: i18n.t('pages.GroupDetail.Audit.Sink'),
-    name: 'sinkId',
-    props: values => ({
-      dropdownMatchSelectWidth: false,
-      showSearch: true,
-      allowClear: true,
-      options: {
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: keyword => ({
-          url: '/sink/list',
-          method: 'POST',
-          data: {
-            keyword,
-            pageNum: 1,
-            pageSize: 100,
-            inlongStreamId: values.inlongStreamId,
-            inlongGroupId: values.inlongGroupId,
-          },
-        }),
-        requestParams: {
-          formatResult: result =>
-            result?.list.map(item => ({
-              label: item.sinkName + ` ( ${sinks.find(c => c.value === item.sinkType)?.label} )`,
-              value: item.id,
-            })) || [],
-        },
-      },
-    }),
-  },
+
   {
     type: 'datepicker',
     label: i18n.t('pages.GroupDetail.Audit.StartDate'),
@@ -323,6 +294,7 @@ export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => 
     type: 'select',
     label: i18n.t('pages.GroupDetail.Metric.Item'),
     name: 'auditIds',
+    rules: [{ required: true }],
     props: {
       style: {
         width: 200,
