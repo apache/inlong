@@ -66,14 +66,14 @@ jobs:
           java-version: 8
           distribution: adopt
 
-      - name: Set up swapfile path
-        run: |
-          sudo sysctl -w vm.max_map_count=262144
-          sudo sysctl -w fs.file-max=65536
-          sudo fallocate -l 5G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-inlong-ut-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-inlong-ut
 
       - name: Remove unnecessary packages
         run: |
