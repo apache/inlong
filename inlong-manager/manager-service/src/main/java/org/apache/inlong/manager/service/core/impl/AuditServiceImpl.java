@@ -115,7 +115,11 @@ public class AuditServiceImpl implements AuditService {
         try {
             auditIndicatorMap.clear();
             List<AuditInformation> auditInformationList = AuditOperator.getInstance().getAllAuditInformation();
+            List<AuditInformation> metricInformationList = AuditOperator.getInstance().getAllMetricInformation();
             auditInformationList.forEach(v -> {
+                auditItemMap.put(String.valueOf(v.getAuditId()), v.getNameInChinese());
+            });
+            metricInformationList.forEach(v -> {
                 auditItemMap.put(String.valueOf(v.getAuditId()), v.getNameInChinese());
             });
         } catch (Throwable t) {
@@ -226,9 +230,11 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditInformation> getAuditBases() {
-        List<AuditInformation> auditInformations = AuditOperator.getInstance().getAllAuditInformation();
-        return auditInformations;
+    public List<AuditInformation> getAuditBases(Boolean isMetric) {
+        if (isMetric) {
+            return AuditOperator.getInstance().getAllMetricInformation();
+        }
+        return AuditOperator.getInstance().getAllAuditInformation();
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
