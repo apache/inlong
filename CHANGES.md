@@ -111,7 +111,7 @@
 | [INLONG-10074](https://github.com/apache/inlong/issues/10074) |[Bug][Manager] Error in querying audit information based on IP address|
 | [INLONG-10076](https://github.com/apache/inlong/issues/10076) |[Bug][Manager] Data type 'doris' not support|
 | [INLONG-10096](https://github.com/apache/inlong/issues/10096) |[Improve][Manager] Support installing agents by SSH|
-| [INLONG-10105](https://github.com/apache/inlong/issues/10105) |[Manager][Bug]Fix sort standalone get kafka config error|
+| [INLONG-10105](https://github.com/apache/inlong/issues/10105) |[Bug][Manager]Fix sort standalone get kafka config error|
 | [INLONG-10135](https://github.com/apache/inlong/issues/10135) |[Improve][Manager] Move inlongCompressType to clustertag configuration|
 | [INLONG-10136](https://github.com/apache/inlong/issues/10136) |[Improve][Manager] Clean up ElasticSearch and ClickHouse audit source query function|
 | [INLONG-10141](https://github.com/apache/inlong/issues/10141) |[Improve][Manager] Data preview supports returning header and specific field information for inlong msg v1|
@@ -121,7 +121,7 @@
 | [INLONG-10181](https://github.com/apache/inlong/issues/10181) |[Improve][Manager] Remove useless exceptions for DataNodeOperator.getNodeConfig|
 | [INLONG-10197](https://github.com/apache/inlong/issues/10197) |[Improve][Manager] Support OpenAPI for querying audit data|
 | [INLONG-10200](https://github.com/apache/inlong/issues/10200) |[Improve][Manager] Define module type mapping relationships|
-| [INLONG-10204](https://github.com/apache/inlong/issues/10204) |[Manager][Feature]  Kafka sink supports automatic allocation of sort standalone cluster|
+| [INLONG-10204](https://github.com/apache/inlong/issues/10204) |[Feature][Manager]  Kafka sink supports automatic allocation of sort standalone cluster|
 | [INLONG-10233](https://github.com/apache/inlong/issues/10233) |[Improve][Manager] Report heartbeat removal port restriction|
 | [INLONG-10245](https://github.com/apache/inlong/issues/10245) |[Improve][Manager] Support setting audit version for file collection|
 | [INLONG-10247](https://github.com/apache/inlong/issues/10247) |[Feature][Manager] Support schedule information management for offline sync|
