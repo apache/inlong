@@ -169,10 +169,6 @@
                                     <pattern>com.zaxxer</pattern>
                                     <shadedPattern>com.ververica.cdc.connectors.shaded.com.zaxxer</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>io.debezium</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.io.debezium</shadedPattern>
-                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
