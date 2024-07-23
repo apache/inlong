@@ -37,7 +37,7 @@ const tabList = [
     content: <IpModule />,
   },
   {
-    tab: i18n.t('pages.ModuleAudit.Monitor'),
+    tab: i18n.t('pages.ModuleAudit.Metric'),
     key: auditModuleName,
     content: <AuditModule />,
   },

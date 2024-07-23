@@ -321,7 +321,7 @@ export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => 
   },
   {
     type: 'select',
-    label: i18n.t('pages.GroupDetail.Monitor.Item'),
+    label: i18n.t('pages.GroupDetail.Metric.Item'),
     name: 'auditIds',
     props: {
       style: {
