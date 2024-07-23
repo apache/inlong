@@ -66,14 +66,14 @@ jobs:
           java-version: 8
           distribution: adopt
 
-#      - name: Cache Maven packages
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            ~/.m2/repository
-#            !~/.m2/repository/org/apache/inlong
-#          key: ${{ runner.os }}-inlong-ut-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: ${{ runner.os }}-inlong-ut
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-inlong-ut-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-inlong-ut
 
       - name: Remove unnecessary packages
         run: |
