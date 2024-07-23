@@ -85,7 +85,7 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
     public SourceData decode(String srcString, Context context) {
         JsonObject root = gson.fromJson(srcString, JsonObject.class);
         JsonArray childRoot = null;
-        if (CollectionUtils.isEmpty(childNodes)) {
+        if (CollectionUtils.isNotEmpty(childNodes)) {
             JsonElement current = root;
             for (JsonNode node : childNodes) {
                 if (!current.isJsonObject()) {
