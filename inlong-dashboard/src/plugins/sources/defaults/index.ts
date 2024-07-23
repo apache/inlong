@@ -51,6 +51,11 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./MySQLBinlog'),
   },
   {
+    label: 'OceanBase',
+    value: 'OCEANBASE',
+    LoadEntity: () => import('./OceanBaseBinlog'),
+  },
+  {
     label: 'MongoDB',
     value: 'MONGODB',
     LoadEntity: () => import('./Mongodb'),
