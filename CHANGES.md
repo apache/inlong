@@ -253,17 +253,17 @@
 | [INLONG-10311](https://github.com/apache/inlong/issues/10311) |[Feature][Sort] TubeMQ source support report audit information exactly once|
 | [INLONG-10312](https://github.com/apache/inlong/issues/10312) |[Feature][Sort] Iceberg sink support report audit information exactly once|
 | [INLONG-10317](https://github.com/apache/inlong/issues/10317) |[Feature][Sort] Kafka Source support report audit information exactly once|
-| [INLONG-10323](https://github.com/apache/inlong/issues/10323) |[Feature] Support Kv deserialization in sort module|
+| [INLONG-10323](https://github.com/apache/inlong/issues/10323) |[Feature][Sort] Support Kv deserialization in sort module|
 | [INLONG-10338](https://github.com/apache/inlong/issues/10338) |[Bug][Sort] Sqlserver connector's AuditOperator was not serialized |
 | [INLONG-10339](https://github.com/apache/inlong/issues/10339) |[Bug][Sort] PostgreSQL connector's AuditOperator was not serialized|
 | [INLONG-10340](https://github.com/apache/inlong/issues/10340) |[Bug][Sort] MongoDB connector's AuditOperator was not serialized|
 | [INLONG-10355](https://github.com/apache/inlong/issues/10355) |[Feature][Sort] Iceberg source support report audit information exactly once|
 | [INLONG-10357](https://github.com/apache/inlong/issues/10357) |[Feature][Sort] Starrocks sink support report audit information exactly once|
 | [INLONG-10358](https://github.com/apache/inlong/issues/10358) |[Feature][Sort] Pulsar source support report audit information exactly once|
-| [INLONG-10401](https://github.com/apache/inlong/issues/10401) |[Improve] Add metadata for Mysql connector and relocate debezium dependencies |
+| [INLONG-10401](https://github.com/apache/inlong/issues/10401) |[Improve][Sort] Add metadata for Mysql connector and relocate debezium dependencies |
 | [INLONG-10489](https://github.com/apache/inlong/issues/10489) |[Bug][Sort] Mongodb2StarRocksTest sometime occur error when in workflow|
 | [INLONG-10492](https://github.com/apache/inlong/issues/10492) |[Bug][Sort] Init failure of pulsar connector|
-| [INLONG-10508](https://github.com/apache/inlong/issues/10508) |[Bug] Fix pulsar connector flink 1.15 parameter cannot keep consistent with flink 1.13 |
+| [INLONG-10508](https://github.com/apache/inlong/issues/10508) |[Bug][Sort] Fix pulsar connector flink 1.15 parameter cannot keep consistent with flink 1.13 |
 | [INLONG-10526](https://github.com/apache/inlong/issues/10526) |[Improve][Sort] ClsSink support switch metadata acquire mode|
 | [INLONG-10527](https://github.com/apache/inlong/issues/10527) |[Improve][Sort] EsSink support switch metadata acquire mode|
 | [INLONG-10528](https://github.com/apache/inlong/issues/10528) |[Improve][Sort] KafkaSink support switch metadata acquire mode|
@@ -326,7 +326,7 @@
 | [INLONG-10064](https://github.com/apache/inlong/issues/10064) |[Feature][Tool] Support multi-version flinks in inlong-dev-toolkit|
 | [INLONG-10120](https://github.com/apache/inlong/issues/10120) |[Improve][CI] Update the actions/upload-artifact to V4|
 | [INLONG-10124](https://github.com/apache/inlong/issues/10124) |[Bug][deploy] In 1.12 the single-machine deployment fails|
-| [INLONG-10125](https://github.com/apache/inlong/issues/10125) |[Bug] In 1.11 single-machine deployment, the agent module cannot be started|
+| [INLONG-10125](https://github.com/apache/inlong/issues/10125) |[Bug][Script] In 1.11 single-machine deployment, the agent module cannot be started|
 | [INLONG-10138](https://github.com/apache/inlong/issues/10138) |[Improve][CI] Node.js 16 actions are deprecated|
 | [INLONG-10160](https://github.com/apache/inlong/issues/10160) |[Improve][CVE] Elasticsearch vulnerable to Uncontrolled Resource Consumption|
 | [INLONG-10161](https://github.com/apache/inlong/issues/10161) |[Improve][CVE] Golang protojson.Unmarshal function infinite loop when unmarshaling certain forms of invalid JSON|
