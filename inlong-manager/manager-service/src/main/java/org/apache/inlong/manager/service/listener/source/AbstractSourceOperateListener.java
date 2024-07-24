@@ -18,9 +18,7 @@
 package org.apache.inlong.manager.service.listener.source;
 
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -33,15 +31,11 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 
-import com.google.common.collect.Lists;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Event listener of operate resources, such as delete, stop, restart sources.
@@ -67,65 +61,19 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamBriefInfo> streamResponses = streamService.listBriefWithSink(groupId);
-        List<StreamSource> unOperatedSources = Lists.newArrayList();
-        streamResponses.forEach(stream -> operateStreamSources(groupId, stream.getInlongStreamId(),
-                context.getOperator(), unOperatedSources));
-
-        if (CollectionUtils.isNotEmpty(unOperatedSources)) {
-            GroupOperateType operateType = getOperateType(context.getProcessForm());
-            StringBuilder builder = new StringBuilder("Unsupported operate ").append(operateType).append(" for (");
-            unOperatedSources.forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
-            String errMsg = builder.append(")").toString();
-            throw new WorkflowListenerException(errMsg);
-        }
-
+        streamResponses
+                .forEach(stream -> operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator()));
         return ListenerResult.success();
     }
 
     /**
      * Operate stream sources, such as delete, stop, restart.
      */
-    protected void operateStreamSources(String groupId, String streamId, String operator,
-            List<StreamSource> unOperatedSources) {
+    protected void operateStreamSources(String groupId, String streamId, String operator) {
         List<StreamSource> sources = streamSourceService.listSource(groupId, streamId);
         sources.forEach(source -> {
-            if (checkIfOp(source, unOperatedSources)) {
-                operateStreamSource(source.genSourceRequest(), operator);
-            }
+            operateStreamSource(source.genSourceRequest(), operator);
         });
-    }
-
-    /**
-     * Check source status.
-     */
-    @SneakyThrows
-    public boolean checkIfOp(StreamSource streamSource, List<StreamSource> unOperatedSources) {
-        for (int retry = 0; retry < 60; retry++) {
-            int status = streamSource.getStatus();
-            SourceStatus sourceStatus = SourceStatus.forCode(status);
-            // template sources are filtered and processed in corresponding subclass listeners
-            if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_STOP
-                    || sourceStatus == SourceStatus.HEARTBEAT_TIMEOUT
-                    || CollectionUtils.isNotEmpty(streamSource.getDataAddTaskList())) {
-                return true;
-            } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
-                return false;
-            } else {
-                log.warn("stream source={} cannot be operated for status={}", streamSource, sourceStatus);
-                TimeUnit.SECONDS.sleep(5);
-                streamSource = streamSourceService.get(streamSource.getId());
-            }
-        }
-        SourceStatus sourceStatus = SourceStatus.forCode(streamSource.getStatus());
-        if (sourceStatus != SourceStatus.SOURCE_NORMAL
-                && sourceStatus != SourceStatus.SOURCE_STOP
-                && sourceStatus != SourceStatus.SOURCE_DISABLE
-                && sourceStatus != SourceStatus.SOURCE_FAILED
-                && sourceStatus != SourceStatus.HEARTBEAT_TIMEOUT) {
-            log.error("stream source ={} cannot be operated for status={}", streamSource, sourceStatus);
-            unOperatedSources.add(streamSource);
-        }
-        return false;
     }
 
     /**

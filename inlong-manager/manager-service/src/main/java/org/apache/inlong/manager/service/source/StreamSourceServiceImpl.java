@@ -343,11 +343,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                 || SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
             nextStatus = SourceStatus.SOURCE_DISABLE;
         }
-        if (!SourceStatus.isAllowedTransition(curStatus, nextStatus)) {
-            throw new BusinessException(
-                    String.format("current source status=%s for id=%s is not allowed to delete", entity.getStatus(),
-                            entity.getId()));
-        }
 
         entity.setPreviousStatus(curStatus.getCode());
         entity.setStatus(nextStatus.getCode());
