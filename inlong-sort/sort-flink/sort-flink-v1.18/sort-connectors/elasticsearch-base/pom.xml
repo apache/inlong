@@ -32,23 +32,19 @@
         <elasticsearch.version>7.10.2</elasticsearch.version>
     </properties>
     <dependencies>
-        <!-- Core -->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java</artifactId>
-            <version>${flink.version}</version>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-flink-dependencies-v1.18</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- Projects depending on this project won't depend on flink-table-*. -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
-        <!-- Elasticsearch -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.elasticsearch</groupId>
@@ -79,34 +75,8 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime</artifactId>
             <version>${flink.version}</version>
-            <type>test-jar</type>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-base</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Elasticsearch table descriptor testing -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-            <type>test-jar</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Elasticsearch table sink factory testing -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!--
             Including Log4j2 dependencies for tests is required for the
             embedded Elasticsearch nodes used in tests to run correctly.
@@ -123,15 +93,6 @@
             <artifactId>log4j-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-runtime</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>
