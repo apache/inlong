@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Mysql extract node using debezium engine
+ * OceanBase extract node using debezium engine
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oceanbaseExtract")
