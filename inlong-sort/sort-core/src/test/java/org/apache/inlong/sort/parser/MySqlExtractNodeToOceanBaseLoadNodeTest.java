@@ -80,7 +80,7 @@ public class MySqlExtractNodeToOceanBaseLoadNodeTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("phone", new IntFormatInfo()),
                                 new FieldInfo("phone", new IntFormatInfo())));
 
-        // Support delete event (sink.enable-delete='true'), requires Doris table to enable batch delete function
+        // Support delete event (sink.enable-delete='true'), requires OceanBase table to enable batch delete function
         Map<String, String> properties = new HashMap<>();
         properties.put("dirty.side-output.connector", "log");
         properties.put("dirty.ignore", "true");
@@ -108,7 +108,7 @@ public class MySqlExtractNodeToOceanBaseLoadNodeTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is doris {@link OceanBaseLoadNode}
+     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is oceanbase {@link OceanBaseLoadNode}
      */
     @Test
     public void testMySqlExtractNodeToOceanBaseLoadNodeSqlParse() throws Exception {
