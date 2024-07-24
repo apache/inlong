@@ -52,10 +52,10 @@ images:
     tag: 8.0.28
   zookeeper:
     repository: zookeeper
-    tag: 1.13.0
+    tag: latest
   initContainer:
     repository: busybox
-    tag: 1.13.0
+    tag: latest
   pullPolicy: "Always"
 
 ingress:
