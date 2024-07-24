@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.reflections.Reflections.log;
-
 /**
  * Utils for OceanBase JDBC.
  */
@@ -42,7 +40,6 @@ public class OceanBaseJdbcUtils {
 
     private static final String OCEANBASE_JDBC_PREFIX = "jdbc:oceanbase://";
     private static final String OCEANBASE_DRIVER_CLASS = "com.oceanbase.jdbc.Driver";
-    private static final String AUTO_DESERIALIZE = "autoDeserialize";
     private static final Logger LOGGER = LoggerFactory.getLogger(OceanBaseJdbcUtils.class);
 
     /**
