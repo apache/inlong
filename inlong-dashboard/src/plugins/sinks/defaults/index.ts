@@ -82,6 +82,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./MySQL'),
   },
   {
+    label: 'OceanBase',
+    value: 'OCEANBASE',
+    LoadEntity: () => import('./OceanBase'),
+  },
+  {
     label: 'Oracle',
     value: 'ORACLE',
     LoadEntity: () => import('./Oracle'),
