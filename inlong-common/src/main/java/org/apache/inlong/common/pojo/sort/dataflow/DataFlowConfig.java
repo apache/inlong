@@ -40,6 +40,7 @@ public class DataFlowConfig implements Serializable {
     private String auditTag;
     private String inlongGroupId;
     private String inlongStreamId;
+    private String transformSql;
     private SourceConfig sourceConfig;
     private SinkConfig sinkConfig;
     private Map<String, Object> properties;

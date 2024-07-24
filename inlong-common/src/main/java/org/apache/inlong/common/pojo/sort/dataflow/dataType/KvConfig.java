@@ -22,8 +22,8 @@ import lombok.Data;
 @Data
 public class KvConfig implements DataTypeConfig {
 
-    private char entrySplitter;
-    private char kvSplitter;
+    private Character entrySplitter;
+    private Character kvSplitter;
     private Character escapeChar;
     private Character lineSeparator;
 }

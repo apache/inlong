@@ -41,11 +41,11 @@ public class CsvSourceDecoder implements SourceDecoder<String> {
 
     public CsvSourceDecoder(CsvSourceInfo sourceInfo) {
         this.sourceInfo = sourceInfo;
-        if (!StringUtils.isBlank(sourceInfo.getDelimiter())) {
-            this.delimiter = sourceInfo.getDelimiter().charAt(0);
+        if (sourceInfo.getDelimiter() != null) {
+            this.delimiter = sourceInfo.getDelimiter();
         }
-        if (!StringUtils.isBlank(sourceInfo.getEscapeChar())) {
-            this.escapeChar = sourceInfo.getEscapeChar().charAt(0);
+        if (sourceInfo.getEscapeChar() != null) {
+            this.escapeChar = sourceInfo.getEscapeChar();
         }
         if (!StringUtils.isBlank(sourceInfo.getCharset())) {
             this.srcCharset = Charset.forName(sourceInfo.getCharset());

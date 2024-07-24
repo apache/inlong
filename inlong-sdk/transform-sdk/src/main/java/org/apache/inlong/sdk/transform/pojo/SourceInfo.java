@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import java.util.Optional;
         @Type(value = PbSourceInfo.class, name = SourceInfo.PB),
         @Type(value = JsonSourceInfo.class, name = SourceInfo.JSON),
 })
+@SuperBuilder
 public abstract class SourceInfo {
 
     public static final String NODE_PATH_SEPARTOR = ".";
