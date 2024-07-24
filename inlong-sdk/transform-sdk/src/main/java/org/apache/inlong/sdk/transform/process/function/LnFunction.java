@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -48,8 +49,8 @@ public class LnFunction implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex);
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.log(numberValue.doubleValue());
     }

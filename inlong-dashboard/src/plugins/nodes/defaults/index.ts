@@ -67,6 +67,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./MySQL'),
   },
   {
+    label: 'OceanBase',
+    value: 'OCEANBASE',
+    LoadEntity: () => import('./OceanBase'),
+  },
+  {
     label: 'PostgreSQL',
     value: 'POSTGRESQL',
     LoadEntity: () => import('./PostgreSQL'),

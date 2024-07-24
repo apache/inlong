@@ -19,6 +19,9 @@ package org.apache.inlong.sdk.transform.pojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 /**
  * TransformConfig
@@ -28,9 +31,19 @@ public class TransformConfig {
     @JsonProperty("transformSql")
     private String transformSql;
 
+    @JsonProperty("configuration")
+    private Map<String, Object> configuration;
+
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql) {
+        this(transformSql, ImmutableMap.of());
+    }
+
+    @JsonCreator
+    public TransformConfig(@JsonProperty("transformSql") String transformSql,
+            @JsonProperty("configuration") Map<String, Object> configuration) {
         this.transformSql = transformSql;
+        this.configuration = configuration;
     }
 
     /**
@@ -40,6 +53,11 @@ public class TransformConfig {
     @JsonProperty("transformSql")
     public String getTransformSql() {
         return transformSql;
+    }
+
+    @JsonProperty("configuration")
+    public Map<String, Object> getConfiguration() {
+        return configuration;
     }
 
     /**

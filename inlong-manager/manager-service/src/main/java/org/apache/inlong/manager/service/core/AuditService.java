@@ -46,7 +46,7 @@ public interface AuditService {
      */
     List<AuditVO> listAll(AuditRequest request) throws Exception;
 
-    List<AuditInformation> getAuditBases();
+    List<AuditInformation> getAuditBases(Boolean isMetric);
 
     /**
      * Get audit id by type and indicator type.

@@ -19,7 +19,9 @@ package org.apache.inlong.sdk.transform.decode;
 
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.process.Context;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
@@ -45,19 +47,19 @@ public class KvSourceDecoder implements SourceDecoder<String> {
     }
 
     @Override
-    public SourceData decode(byte[] srcBytes, Map<String, Object> extParams) {
+    public SourceData decode(byte[] srcBytes, Context context) {
         String srcString = new String(srcBytes, srcCharset);
-        return this.decode(srcString, extParams);
+        return this.decode(srcString, context);
     }
 
     @Override
-    public SourceData decode(String srcString, Map<String, Object> extParams) {
+    public SourceData decode(String srcString, Context context) {
         List<Map<String, String>> rowValues = KvUtils.splitKv(srcString, '&', '=', '\\', '\"', '\n');
         KvSourceData sourceData = new KvSourceData();
-        if (fields == null || fields.size() == 0) {
+        if (CollectionUtils.isEmpty(fields)) {
             for (Map<String, String> row : rowValues) {
                 sourceData.addRow();
-                row.forEach((k, v) -> sourceData.putField(k, v));
+                row.forEach(sourceData::putField);
             }
             return sourceData;
         }

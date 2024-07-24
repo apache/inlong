@@ -19,7 +19,7 @@ package org.apache.inlong.sort.pulsar.table.source;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -65,7 +65,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean upsertMode;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     private MetricOption metricOption;
 
@@ -94,7 +94,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             keyDeserialization.open(context);
         }
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
         valueDeserialization.open(context);
     }
@@ -117,7 +117,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             return;
         }
         MetricsCollector<RowData> metricsCollector =
-                new MetricsCollector<>(collector, sourceMetricData);
+                new MetricsCollector<>(collector, sourceExactlyMetric);
 
         valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
 
@@ -129,5 +129,23 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
     @Override
     public TypeInformation<RowData> getProducedType() {
         return producedTypeInfo;
+    }
+
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
+        }
     }
 }

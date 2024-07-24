@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.15</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
@@ -168,10 +168,6 @@
                                 <relocation>
                                     <pattern>com.zaxxer</pattern>
                                     <shadedPattern>com.ververica.cdc.connectors.shaded.com.zaxxer</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>io.debezium</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.io.debezium</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

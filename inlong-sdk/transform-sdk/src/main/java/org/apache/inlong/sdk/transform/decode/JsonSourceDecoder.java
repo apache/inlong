@@ -18,17 +18,18 @@
 package org.apache.inlong.sdk.transform.decode;
 
 import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * JsonSourceDecoder
@@ -65,26 +66,26 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
     /**
      * decode
      * @param srcBytes
-     * @param extParams
+     * @param context
      * @return
      */
     @Override
-    public SourceData decode(byte[] srcBytes, Map<String, Object> extParams) {
+    public SourceData decode(byte[] srcBytes, Context context) {
         String srcString = new String(srcBytes, srcCharset);
-        return this.decode(srcString, extParams);
+        return this.decode(srcString, context);
     }
 
     /**
      * decode
      * @param srcString
-     * @param extParams
+     * @param context
      * @return
      */
     @Override
-    public SourceData decode(String srcString, Map<String, Object> extParams) {
+    public SourceData decode(String srcString, Context context) {
         JsonObject root = gson.fromJson(srcString, JsonObject.class);
         JsonArray childRoot = null;
-        if (this.childNodes != null && this.childNodes.size() > 0) {
+        if (CollectionUtils.isNotEmpty(childNodes)) {
             JsonElement current = root;
             for (JsonNode node : childNodes) {
                 if (!current.isJsonObject()) {
@@ -117,7 +118,6 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
             }
             childRoot = current.getAsJsonArray();
         }
-        SourceData sourceData = new JsonSourceData(root, childRoot);
-        return sourceData;
+        return new JsonSourceData(root, childRoot);
     }
 }

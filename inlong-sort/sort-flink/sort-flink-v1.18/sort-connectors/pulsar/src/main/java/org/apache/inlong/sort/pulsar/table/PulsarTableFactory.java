@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.pulsar.table.source.PulsarTableDeserializationSchemaFactory;
 import org.apache.inlong.sort.pulsar.table.source.PulsarTableSource;
 
@@ -129,7 +130,8 @@ public class PulsarTableFactory implements DynamicTableSourceFactory, DynamicTab
                 PulsarSourceOptions.SOURCE_CONFIG_PREFIX,
                 PulsarSourceOptions.CONSUMER_CONFIG_PREFIX,
                 PulsarSinkOptions.PRODUCER_CONFIG_PREFIX,
-                PulsarSinkOptions.SINK_CONFIG_PREFIX);
+                PulsarSinkOptions.SINK_CONFIG_PREFIX,
+                ExtractNode.INLONG_MSG);
 
         validatePrimaryKeyConstraints(
                 context.getObjectIdentifier(), context.getPrimaryKeyIndexes(), helper);

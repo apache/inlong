@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import net.sf.jsqlparser.expression.StringValue;
 
@@ -27,7 +28,7 @@ import net.sf.jsqlparser.expression.StringValue;
  */
 public class StringParser implements ValueParser {
 
-    private String stringValue;
+    private final String stringValue;
 
     public StringParser(StringValue expr) {
         this.stringValue = expr.getValue();
@@ -40,7 +41,7 @@ public class StringParser implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
         return stringValue;
     }
 }

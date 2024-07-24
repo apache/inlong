@@ -136,11 +136,22 @@ public class AuditManagerUtils {
             auditInformationList.addAll(combineAuditInformation(auditIdEnum.getAuditType().value(),
                     auditIdEnum.getFlowType()));
         }
-        for (MetricIdEnum metricIdEnum : MetricIdEnum.values()) {
-            auditInformationList.add(new AuditInformation(metricIdEnum.getValue(), metricIdEnum.getEnglishDescription(),
-                    metricIdEnum.getChineseDescription()));
-        }
         return auditInformationList;
+    }
+
+    /**
+     * Obtain all metric Audit items.
+     * All metric indicators are defined in the MetricIdEnum class.
+     * @return List of AuditInformation objects representing the metric Audit items.
+     */
+    public static List<AuditInformation> getAllMetricInformation() {
+        List<AuditInformation> metricInformationList = new LinkedList<>();
+        for (MetricIdEnum metricIdEnum : MetricIdEnum.values()) {
+            metricInformationList
+                    .add(new AuditInformation(metricIdEnum.getValue(), metricIdEnum.getEnglishDescription(),
+                            metricIdEnum.getChineseDescription()));
+        }
+        return metricInformationList;
     }
 
     public static List<AuditInformation> getAllAuditInformation(String auditType) {

@@ -95,7 +95,7 @@ export const toTableData = (source, sourceDataMap) => {
 export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
   {
     type: 'select',
-    label: i18n.t('pages.GroupDetail.Audit.DataStream'),
+    label: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
     name: 'inlongStreamId',
     props: {
       dropdownMatchSelectWidth: false,
