@@ -360,7 +360,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         sourceFieldMapper.deleteAll(id);
-
+        SourceRequest request = CommonBeanUtils.copyProperties(entity, SourceRequest::new, true);
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
+        sourceOperator.updateAgentTaskConfig(request, operator);
         LOGGER.info("success to delete source for id={} by user={}", id, operator);
         return true;
     }
