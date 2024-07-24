@@ -17,11 +17,10 @@
 
 package org.apache.inlong.sort.jdbc.dialect.jdbc;
 
-import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.connector.jdbc.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.dialect.AbstractDialect;
+import org.apache.flink.connector.jdbc.internal.converter.MySQLRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.slf4j.Logger;
@@ -43,13 +42,9 @@ public class JdbcDialect extends AbstractDialect {
 
     public static final Logger LOG = LoggerFactory.getLogger(JdbcDialect.class);
 
-    // Define MAX/MIN precision of TIMESTAMP type according to ClickHouse docs:
-    // https://clickhouse.com/docs/zh/sql-reference/data-types/datetime64
     private static final int MAX_TIMESTAMP_PRECISION = 8;
     private static final int MIN_TIMESTAMP_PRECISION = 0;
 
-    // Define MAX/MIN precision of DECIMAL type according to ClickHouse docs:
-    // https://clickhouse.com/docs/zh/sql-reference/data-types/decimal/
     private static final int MAX_DECIMAL_PRECISION = 128;
     private static final int MIN_DECIMAL_PRECISION = 32;
     private static final String POINT = ".";
@@ -61,7 +56,7 @@ public class JdbcDialect extends AbstractDialect {
 
     @Override
     public JdbcRowConverter getRowConverter(RowType rowType) {
-        return new ClickHouseRowConverter(rowType);
+        return new MySQLRowConverter(rowType);
     }
 
     @Override
@@ -151,7 +146,7 @@ public class JdbcDialect extends AbstractDialect {
     }
 
     /**
-     * ClickHouse throw exception "Table default.test_user doesn't exist". But jdbc-url have database name.
+     * mysql throw exception "Table default.test_user doesn't exist". But jdbc-url have database name.
      * So we specify database when exec query. This method parse tableName to database and table.
      * @param tableName include database.table
      * @return pair left is database, right is table
