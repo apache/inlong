@@ -57,6 +57,14 @@ public class Context {
         return configuration.get(key);
     }
 
+    public String getStringOrDefault(String key, String defaultValue) {
+        String str = getString(key);
+        if (str == null) {
+            return defaultValue;
+        }
+        return str;
+    }
+
     public String getString(String key) {
         Object obj = this.get(key);
         if (obj != null) {

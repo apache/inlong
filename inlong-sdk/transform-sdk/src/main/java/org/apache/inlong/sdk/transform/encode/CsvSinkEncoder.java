@@ -40,11 +40,11 @@ public class CsvSinkEncoder implements SinkEncoder<String> {
 
     public CsvSinkEncoder(CsvSinkInfo sinkInfo) {
         this.sinkInfo = sinkInfo;
-        if (!StringUtils.isBlank(sinkInfo.getDelimiter())) {
-            this.delimiter = sinkInfo.getDelimiter().charAt(0);
+        if (sinkInfo.getDelimiter() != null) {
+            this.delimiter = sinkInfo.getDelimiter();
         }
-        if (!StringUtils.isBlank(sinkInfo.getEscapeChar())) {
-            this.escapeChar = sinkInfo.getEscapeChar().charAt(0);
+        if (sinkInfo.getDelimiter() != null) {
+            this.escapeChar = sinkInfo.getEscapeChar();
         }
         if (!StringUtils.isBlank(sinkInfo.getCharset())) {
             this.sinkCharset = Charset.forName(sinkInfo.getCharset());
