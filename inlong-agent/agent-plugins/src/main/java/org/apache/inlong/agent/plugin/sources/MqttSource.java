@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MqttSource extends AbstractSource {
 
@@ -46,7 +44,6 @@ public class MqttSource extends AbstractSource {
 
     private String topic;
 
-
     public MqttSource() {
     }
 
@@ -54,23 +51,20 @@ public class MqttSource extends AbstractSource {
         if (StringUtils.isEmpty(topics)) {
             return null;
         }
-        final List<Reader> result = new ArrayList<>();
+        final List<Reader> readers = new ArrayList<>();
         String[] topicList = topics.split(CommonConstants.COMMA);
         Arrays.stream(topicList).forEach(topic -> {
             MqttReader mqttReader = new MqttReader(topic);
             mqttReader.setReadSource(instanceId);
-            result.add(mqttReader);
+            readers.add(mqttReader);
         });
-        return result;
+        return readers;
     }
 
     @Override
     public List<Reader> split(TaskProfile conf) {
         String topics = conf.get(TaskConstants.JOB_MQTT_TOPIC, StringUtils.EMPTY);
-        List<Reader> readerList = null;
-        if(StringUtils.isNotEmpty(topics)) {
-            readerList = splitSqlJob(topics, instanceId);
-        }
+        List<Reader> readerList = splitSqlJob(topics, instanceId);
         if (CollectionUtils.isNotEmpty(readerList)) {
             sourceMetric.sourceSuccessCount.incrementAndGet();
         } else {
@@ -86,10 +80,9 @@ public class MqttSource extends AbstractSource {
 
     @Override
     protected void initSource(InstanceProfile profile) {
-        try{
+        try {
             LOGGER.info("MqttSource init: {}", profile.toJsonStr());
             topic = profile.get(TaskConstants.JOB_MQTT_TOPIC);
-            instanceId = profile.getInstanceId();
             mqttReader = new MqttReader(topic);
             mqttReader.init(profile);
         } catch (Exception e) {
@@ -115,7 +108,7 @@ public class MqttSource extends AbstractSource {
             while (size < BATCH_READ_LINE_TOTAL_LEN) {
                 Message msg = read();
                 if (msg != null) {
-                    SourceData sourceData = new SourceData(msg.getBody(),"0L");
+                    SourceData sourceData = new SourceData(msg.getBody(), "0L");
                     size += sourceData.getData().length;
                     dataList.add(sourceData);
                 } else {
@@ -135,13 +128,13 @@ public class MqttSource extends AbstractSource {
 
     @Override
     protected boolean isRunnable() {
-        return runnable ;
+        return runnable;
     }
 
     @Override
     protected void releaseSource() {
         if (mqttReader != null) {
-            mqttReader.finishRead();
+            mqttReader.destroy();
         }
     }
 
