@@ -22,6 +22,6 @@ import lombok.Data;
 @Data
 public class CsvConfig implements DataTypeConfig {
 
-    private char delimiter;
+    private Character delimiter;
     private Character escapeChar;
 }

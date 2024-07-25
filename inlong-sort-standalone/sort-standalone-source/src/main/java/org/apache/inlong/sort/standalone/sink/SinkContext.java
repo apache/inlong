@@ -19,7 +19,20 @@ package org.apache.inlong.sort.standalone.sink;
 
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.SourceConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.transform.decode.SourceDecoder;
+import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
+import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -29,15 +42,18 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 public class SinkContext {
 
@@ -53,6 +69,7 @@ public class SinkContext {
     protected final String sinkName;
     protected final Context sinkContext;
     protected TaskConfig taskConfig;
+    protected Map<String, TransformProcessor<String, String>> transformMap;
     @Deprecated
     protected SortTaskConfig sortTaskConfig;
     protected final Channel channel;
@@ -74,6 +91,7 @@ public class SinkContext {
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
         this.metricItemSet = new SortMetricItemSet(sinkName);
         this.unifiedConfiguration = CommonPropertiesHolder.useUnifiedConfiguration();
+        this.transformMap = Maps.newConcurrentMap();
         MetricRegister.register(this.metricItemSet);
     }
 
@@ -176,5 +194,48 @@ public class SinkContext {
                 DEFAULT_MAX_BUFFERQUEUE_SIZE_KB);
         BufferQueue<U> dispatchQueue = new BufferQueue<>(maxBufferQueueSizeKb);
         return dispatchQueue;
+    }
+
+    public TransformConfig createTransformConfig(DataFlowConfig dataFlowConfig) {
+        return new TransformConfig(dataFlowConfig.getTransformSql());
+    }
+
+    public SourceDecoder<String> createSourceDecoder(SourceConfig sourceConfig) {
+        DataTypeConfig dataTypeConfig = sourceConfig.getDataTypeConfig();
+        List<FieldInfo> fieldInfoList = sourceConfig.getFieldConfigs()
+                .stream()
+                .map(this::convertToTransformFieldInfo)
+                .collect(Collectors.toList());
+
+        if (dataTypeConfig instanceof CsvConfig) {
+            CsvConfig csvConfig = (CsvConfig) dataTypeConfig;
+            CsvSourceInfo csvSourceInfo = CsvSourceInfo.builder()
+                    .delimiter(csvConfig.getDelimiter())
+                    .escapeChar(csvConfig.getEscapeChar())
+                    .fields(fieldInfoList)
+                    .charset(sourceConfig.getEncodingType())
+                    .build();
+            return SourceDecoderFactory.createCsvDecoder(csvSourceInfo);
+
+        } else if (dataTypeConfig instanceof KvConfig) {
+            KvConfig kvConfig = (KvConfig) dataTypeConfig;
+            KvSourceInfo kvSourceInfo = KvSourceInfo.builder()
+                    .charset(sourceConfig.getEncodingType())
+                    .fields(fieldInfoList)
+                    .kvDelimiter(kvConfig.getKvSplitter())
+                    .entryDelimiter(kvConfig.getEntrySplitter())
+                    .lineDelimiter(kvConfig.getLineSeparator())
+                    .escapeChar(kvConfig.getEscapeChar())
+                    .build();
+            return SourceDecoderFactory.createKvDecoder(kvSourceInfo);
+        } else {
+            throw new IllegalArgumentException("do not support data type=" + dataTypeConfig.getClass().getName());
+        }
+    }
+
+    public FieldInfo convertToTransformFieldInfo(FieldConfig config) {
+        FieldInfo fieldInfo = new FieldInfo();
+        fieldInfo.setName(config.getName());
+        return fieldInfo;
     }
 }

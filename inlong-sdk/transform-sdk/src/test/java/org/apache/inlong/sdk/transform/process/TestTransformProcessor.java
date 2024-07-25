@@ -51,7 +51,7 @@ public class TestTransformProcessor {
         FieldInfo extinfo = new FieldInfo();
         extinfo.setName("extinfo");
         fields.add(extinfo);
-        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", "|", "\\", fields);
+        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
         String transformSql = "select ftime,extinfo from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql);
@@ -75,7 +75,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testCsv2KvNoField() throws Exception {
-        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", "|", "\\", null);
+        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', null);
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", null);
         String transformSql = "select $1 ftime,$2 extinfo from source where $2='ok'";
         TransformConfig config = new TransformConfig(transformSql);
@@ -105,7 +105,7 @@ public class TestTransformProcessor {
         extinfo.setName("extinfo");
         fields.add(extinfo);
         KvSourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select ftime,extinfo from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -127,7 +127,7 @@ public class TestTransformProcessor {
     @Test
     public void testKv2CsvNoField() throws Exception {
         KvSourceInfo kvSource = new KvSourceInfo("UTF-8", null);
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", null);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', null);
         String transformSql = "select ftime,extinfo from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -150,7 +150,7 @@ public class TestTransformProcessor {
     public void testJson2Csv() throws Exception {
         List<FieldInfo> fields = this.getTestFieldList();
         JsonSourceInfo jsonSource = new JsonSourceInfo("UTF-8", "msgs");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -175,7 +175,7 @@ public class TestTransformProcessor {
     public void testJson2CsvForOne() throws Exception {
         List<FieldInfo> fields = this.getTestFieldList();
         JsonSourceInfo jsonSource = new JsonSourceInfo("UTF-8", "");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -200,7 +200,7 @@ public class TestTransformProcessor {
         List<FieldInfo> fields = this.getTestFieldList();
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -264,7 +264,7 @@ public class TestTransformProcessor {
         List<FieldInfo> fields = this.getTestFieldList();
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
@@ -282,7 +282,7 @@ public class TestTransformProcessor {
         List<FieldInfo> fields = this.getTestFieldList();
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,"
                 + "($root.msgs(1).msgTime-$root.msgs(0).msgTime)/$root.packageID field2,"
                 + "$root.packageID*($root.msgs(0).msgTime*$root.packageID+$root.msgs(1).msgTime/$root.packageID)"
@@ -306,7 +306,7 @@ public class TestTransformProcessor {
         List<FieldInfo> fields = this.getTestFieldList();
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$child.msgTime,"
                 + "concat($root.sid,$root.packageID,$child.msgTime,$child.msg) msg,$root.msgs.msgTime.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
@@ -326,7 +326,7 @@ public class TestTransformProcessor {
         List<FieldInfo> fields = this.getTestFieldList();
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select now() from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
