@@ -28,7 +28,6 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.OceanBaseLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ import org.apache.flink.test.util.AbstractTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +78,6 @@ public class MySqlExtractNodeToOceanBaseLoadNodeTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("phone", new IntFormatInfo()),
                                 new FieldInfo("phone", new IntFormatInfo())));
 
-        // Support delete event (sink.enable-delete='true'), requires OceanBase table to enable batch delete function
         Map<String, String> properties = new HashMap<>();
         properties.put("dirty.side-output.connector", "log");
         properties.put("dirty.ignore", "true");
@@ -88,7 +85,6 @@ public class MySqlExtractNodeToOceanBaseLoadNodeTest extends AbstractTestBase {
         properties.put("dirty.side-output.format", "csv");
         properties.put("dirty.side-output.labels",
                 "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=inlong&table=inlong_oceanbase");
-        List<FilterFunction> filters = new ArrayList<>();
         return new OceanBaseLoadNode("2", "mysql_output", fields, fieldRelations, null,
                 null, null, properties, "jdbc:mysql://localhost:2883/test",
                 "root", "123456", "t_ds_user", "id");
@@ -111,7 +107,7 @@ public class MySqlExtractNodeToOceanBaseLoadNodeTest extends AbstractTestBase {
      * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is oceanbase {@link OceanBaseLoadNode}
      */
     @Test
-    public void testMySqlExtractNodeToOceanBaseLoadNodeSqlParse() throws Exception {
+    public void testMySqlExtractNodeToOceanBaseLoadNodeSqlParse() {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
