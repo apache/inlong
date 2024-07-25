@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseTableInfo;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +53,11 @@ public class OceanBaseJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
-        Connection conn = establishDatabaseConnection(url, user, password);
-        return conn;
+        if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(url)&&StringUtils.isNotBlank(password)) {
+            UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
+            return establishDatabaseConnection(url, user, password);
+        }
+        return null;
     }
 
     /**
