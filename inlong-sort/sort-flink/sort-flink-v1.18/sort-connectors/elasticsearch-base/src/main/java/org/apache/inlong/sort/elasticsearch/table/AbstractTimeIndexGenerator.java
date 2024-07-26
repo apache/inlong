@@ -15,15 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.dataType;
+package org.apache.inlong.sort.elasticsearch.table;
 
-import lombok.Data;
+import org.apache.flink.annotation.Internal;
 
-@Data
-public class KvConfig implements DataTypeConfig {
+import java.time.format.DateTimeFormatter;
 
-    private Character entrySplitter;
-    private Character kvSplitter;
-    private Character escapeChar;
-    private Character lineSeparator;
+/** Abstract class for time related {@link IndexGenerator}. */
+@Internal
+abstract class AbstractTimeIndexGenerator extends IndexGeneratorBase {
+
+    private final String dateTimeFormat;
+    protected transient DateTimeFormatter dateTimeFormatter;
+
+    public AbstractTimeIndexGenerator(String index, String dateTimeFormat) {
+        super(index);
+        this.dateTimeFormat = dateTimeFormat;
+    }
+
+    @Override
+    public void open() {
+        this.dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormat);
+    }
 }

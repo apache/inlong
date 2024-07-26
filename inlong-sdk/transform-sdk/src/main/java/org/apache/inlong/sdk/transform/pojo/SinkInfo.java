@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
         @Type(value = CsvSinkInfo.class, name = SourceInfo.CSV),
         @Type(value = KvSinkInfo.class, name = SourceInfo.KV),
 })
+@SuperBuilder
 public abstract class SinkInfo {
 
     @JsonIgnore

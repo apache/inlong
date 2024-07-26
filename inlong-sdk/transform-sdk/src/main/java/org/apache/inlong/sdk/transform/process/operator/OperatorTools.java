@@ -161,6 +161,10 @@ public class OperatorTools {
         }
     }
 
+    public static String parseString(Object value) {
+        return value.toString();
+    }
+
     /**
      * compareValue
      * @param left

@@ -15,15 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.dataType;
+package org.apache.inlong.sort.elasticsearch.table;
 
-import lombok.Data;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.types.Row;
 
-@Data
-public class KvConfig implements DataTypeConfig {
+import java.io.Serializable;
 
-    private Character entrySplitter;
-    private Character kvSplitter;
-    private Character escapeChar;
-    private Character lineSeparator;
+/** This interface is responsible to generate index name from given {@link Row} record. */
+@Internal
+interface IndexGenerator extends Serializable {
+
+    /**
+     * Initialize the index generator, this will be called only once before {@link
+     * #generate(RowData)} is called.
+     */
+    default void open() {
+    }
+
+    /** Generate index name according the the given row. */
+    String generate(RowData row);
 }

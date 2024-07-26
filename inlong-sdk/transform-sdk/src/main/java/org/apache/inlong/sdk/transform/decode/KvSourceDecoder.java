@@ -35,6 +35,11 @@ import java.util.Map;
 public class KvSourceDecoder implements SourceDecoder<String> {
 
     protected KvSourceInfo sourceInfo;
+    private Character entryDelimiter = '&';
+    private Character kvDelimiter = '=';
+    private Character escapeChar = '\\';
+    private Character quoteChar = '\"';
+    private Character lineDelimiter = '\n';
     private Charset srcCharset = Charset.defaultCharset();
     private List<FieldInfo> fields;
 
@@ -43,6 +48,22 @@ public class KvSourceDecoder implements SourceDecoder<String> {
         if (!StringUtils.isBlank(sourceInfo.getCharset())) {
             this.srcCharset = Charset.forName(sourceInfo.getCharset());
         }
+        if (sourceInfo.getEntryDelimiter() != null) {
+            this.entryDelimiter = sourceInfo.getEntryDelimiter();
+        }
+        if (sourceInfo.getKvDelimiter() != null) {
+            this.kvDelimiter = sourceInfo.getKvDelimiter();
+        }
+        if (sourceInfo.getEscapeChar() != null) {
+            this.escapeChar = sourceInfo.getEscapeChar();
+        }
+        if (sourceInfo.getQuoteChar() != null) {
+            this.quoteChar = sourceInfo.getQuoteChar();
+        }
+        if (sourceInfo.getLineDelimiter() != null) {
+            this.lineDelimiter = sourceInfo.getLineDelimiter();
+        }
+
         this.fields = sourceInfo.getFields();
     }
 
@@ -54,7 +75,8 @@ public class KvSourceDecoder implements SourceDecoder<String> {
 
     @Override
     public SourceData decode(String srcString, Context context) {
-        List<Map<String, String>> rowValues = KvUtils.splitKv(srcString, '&', '=', '\\', '\"', '\n');
+        List<Map<String, String>> rowValues = KvUtils.splitKv(srcString, entryDelimiter, kvDelimiter,
+                escapeChar, quoteChar, lineDelimiter);
         KvSourceData sourceData = new KvSourceData();
         if (CollectionUtils.isEmpty(fields)) {
             for (Map<String, String> row : rowValues) {

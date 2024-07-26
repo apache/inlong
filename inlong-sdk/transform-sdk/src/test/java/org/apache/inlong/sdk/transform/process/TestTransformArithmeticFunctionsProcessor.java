@@ -50,7 +50,7 @@ public class TestTransformArithmeticFunctionsProcessor {
         FieldInfo field = new FieldInfo();
         field.setName("result");
         dstFields.add(field);
-        csvSource = new CsvSourceInfo("UTF-8", "|", "\\", srcFields);
+        csvSource = new CsvSourceInfo("UTF-8", '|', '\\', srcFields);
         kvSink = new KvSinkInfo("UTF-8", dstFields);
     }
 

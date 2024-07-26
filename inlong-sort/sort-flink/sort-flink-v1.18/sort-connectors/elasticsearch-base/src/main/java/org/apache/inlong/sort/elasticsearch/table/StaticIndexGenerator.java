@@ -15,15 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.dataType;
+package org.apache.inlong.sort.elasticsearch.table;
 
-import lombok.Data;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.data.RowData;
 
-@Data
-public class KvConfig implements DataTypeConfig {
+/** A static {@link IndexGenerator} which generate fixed index name. */
+@Internal
+final class StaticIndexGenerator extends IndexGeneratorBase {
 
-    private Character entrySplitter;
-    private Character kvSplitter;
-    private Character escapeChar;
-    private Character lineSeparator;
+    public StaticIndexGenerator(String index) {
+        super(index);
+    }
+
+    public String generate(RowData row) {
+        return index;
+    }
 }

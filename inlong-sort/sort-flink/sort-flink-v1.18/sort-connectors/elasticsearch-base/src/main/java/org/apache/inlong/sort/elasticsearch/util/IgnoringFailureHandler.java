@@ -15,15 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.dataType;
+package org.apache.inlong.sort.elasticsearch.util;
 
-import lombok.Data;
+import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
+import org.apache.inlong.sort.elasticsearch.RequestIndexer;
 
-@Data
-public class KvConfig implements DataTypeConfig {
+import org.apache.flink.annotation.Internal;
+import org.elasticsearch.action.ActionRequest;
 
-    private Character entrySplitter;
-    private Character kvSplitter;
-    private Character escapeChar;
-    private Character lineSeparator;
+/** Ignores all kinds of failures and drops the affected {@link ActionRequest}. */
+@Internal
+public class IgnoringFailureHandler implements ActionRequestFailureHandler {
+
+    private static final long serialVersionUID = 1662846593501L;
+
+    @Override
+    public void onFailure(
+            ActionRequest action, Throwable failure, int restStatusCode, RequestIndexer indexer) {
+        // ignore failure
+    }
 }
