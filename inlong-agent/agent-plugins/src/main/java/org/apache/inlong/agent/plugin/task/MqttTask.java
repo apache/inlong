@@ -1,11 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
 import org.apache.inlong.agent.utils.AgentUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MqttTask extends AbstractTask{
+public class MqttTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttTask.class);
 
@@ -29,23 +46,23 @@ public class MqttTask extends AbstractTask{
     @Override
     public boolean isProfileValid(TaskProfile profile) {
         if (!profile.allRequiredKeyExist()) {
-            LOGGER.error("task profile needs all required key");
+            LOGGER.info("task profile needs all required key");
             return false;
         }
-        if (!profile.hasKey(profile.get(TaskConstants.JOB_MQTT_TOPIC))) {
-            LOGGER.error("task profile needs topic");
+        if (!profile.hasKey(TaskConstants.TASK_MQTT_TOPIC)) {
+            LOGGER.info("task profile needs topic");
             return false;
         }
-        if (!profile.hasKey(profile.get(TaskConstants.JOB_MQTT_SERVER_URI))) {
-            LOGGER.error("task profile needs serverUri");
+        if (!profile.hasKey(TaskConstants.TASK_MQTT_SERVER_URI)) {
+            LOGGER.info("task profile needs serverUri");
             return false;
         }
-        if (!profile.hasKey(profile.get(TaskConstants.JOB_MQTT_USERNAME))) {
-            LOGGER.error("task profile needs username");
+        if (!profile.hasKey(TaskConstants.TASK_MQTT_USERNAME)) {
+            LOGGER.info("task profile needs username");
             return false;
         }
-        if (!profile.hasKey(profile.get(TaskConstants.JOB_MQTT_PASSWORD))) {
-            LOGGER.error("task profile needs password");
+        if (!profile.hasKey(TaskConstants.TASK_MQTT_PASSWORD)) {
+            LOGGER.info("task profile needs password");
             return false;
         }
         return true;
@@ -59,7 +76,7 @@ public class MqttTask extends AbstractTask{
     @Override
     protected void initTask() {
         LOGGER.info("Mqtt commonInit: {}", taskProfile.toJsonStr());
-        topic = taskProfile.get(TaskConstants.JOB_MQTT_TOPIC);
+        topic = taskProfile.get(TaskConstants.TASK_MQTT_TOPIC);
     }
 
     @Override
@@ -71,7 +88,7 @@ public class MqttTask extends AbstractTask{
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_MQTT_INSTANCE, topic,
                 CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
-        LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
+        LOGGER.info("taskProfile.createInstanceProfile(mqtt): {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
         this.isAdded = true;
         return list;

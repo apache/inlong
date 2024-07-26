@@ -27,7 +27,6 @@ import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +44,7 @@ public class MqttSource extends AbstractSource {
     private String topic;
 
     public MqttSource() {
+        LOGGER.debug("MqttSource init!!!!!!!!!!!");
     }
 
     private List<Reader> splitSqlJob(String topics, String instanceId) {
@@ -63,13 +63,14 @@ public class MqttSource extends AbstractSource {
 
     @Override
     public List<Reader> split(TaskProfile conf) {
-        String topics = conf.get(TaskConstants.JOB_MQTT_TOPIC, StringUtils.EMPTY);
+        LOGGER.info("splited!!!");
+        String topics = conf.get(TaskConstants.TASK_MQTT_TOPIC, StringUtils.EMPTY);
         List<Reader> readerList = splitSqlJob(topics, instanceId);
-        if (CollectionUtils.isNotEmpty(readerList)) {
-            sourceMetric.sourceSuccessCount.incrementAndGet();
-        } else {
-            sourceMetric.sourceFailCount.incrementAndGet();
-        }
+        // if (CollectionUtils.isNotEmpty(readerList)) {
+        // sourceMetric.sourceSuccessCount.incrementAndGet();
+        // } else {
+        // sourceMetric.sourceFailCount.incrementAndGet();
+        // }
         return readerList;
     }
 
@@ -82,7 +83,7 @@ public class MqttSource extends AbstractSource {
     protected void initSource(InstanceProfile profile) {
         try {
             LOGGER.info("MqttSource init: {}", profile.toJsonStr());
-            topic = profile.get(TaskConstants.JOB_MQTT_TOPIC);
+            topic = profile.get(TaskConstants.TASK_MQTT_TOPIC);
             mqttReader = new MqttReader(topic);
             mqttReader.init(profile);
         } catch (Exception e) {
@@ -118,6 +119,7 @@ public class MqttSource extends AbstractSource {
         } catch (FileException e) {
             LOGGER.error("read from mqtt error", e);
         }
+        LOGGER.info("read from mqtt data size: {}", dataList.size());
         return dataList;
     }
 

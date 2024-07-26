@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -76,22 +77,22 @@ public class MqttReader extends AbstractReader {
      * @param jobConf
      */
     private void setGlobalParamsValue(InstanceProfile jobConf) {
-        mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(TaskConstants.JOB_MQTT_QUEUE_SIZE, 1000));
+        mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(TaskConstants.TASK_MQTT_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
-        userName = jobConf.get(TaskConstants.JOB_MQTT_USERNAME);
-        password = jobConf.get(TaskConstants.JOB_MQTT_PASSWORD);
-        serverURI = jobConf.get(TaskConstants.JOB_MQTT_SERVER_URI);
-        topic = jobConf.get(TaskConstants.JOB_MQTT_TOPIC);
-        clientId = jobConf.get(TaskConstants.JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
-        cleanSession = jobConf.getBoolean(TaskConstants.JOB_MQTT_CLEAN_SESSION, false);
-        automaticReconnect = jobConf.getBoolean(TaskConstants.JOB_MQTT_AUTOMATIC_RECONNECT, true);
-        qos = jobConf.getInt(TaskConstants.JOB_MQTT_QOS, 1);
-        mqttVersion = jobConf.getInt(TaskConstants.JOB_MQTT_VERSION, MqttConnectOptions.MQTT_VERSION_DEFAULT);
+        userName = jobConf.get(TaskConstants.TASK_MQTT_USERNAME);
+        password = jobConf.get(TaskConstants.TASK_MQTT_PASSWORD);
+        serverURI = jobConf.get(TaskConstants.TASK_MQTT_SERVER_URI);
 
+        // topic = jobConf.get(TaskConstants.TASK_MQTT_TOPIC);
+        clientId = jobConf.get(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
+        cleanSession = jobConf.getBoolean(TaskConstants.TASK_MQTT_CLEAN_SESSION, false);
+        automaticReconnect = jobConf.getBoolean(TaskConstants.TASK_MQTT_AUTOMATIC_RECONNECT, true);
+        qos = jobConf.getInt(TaskConstants.TASK_MQTT_QOS, 1);
+        mqttVersion = jobConf.getInt(TaskConstants.TASK_MQTT_VERSION, MqttConnectOptions.MQTT_VERSION_DEFAULT);
         options = new MqttConnectOptions();
         options.setCleanSession(cleanSession);
-        options.setConnectionTimeout(jobConf.getInt(TaskConstants.JOB_MQTT_CONNECTION_TIMEOUT, 10));
-        options.setKeepAliveInterval(jobConf.getInt(TaskConstants.JOB_MQTT_KEEPALIVE_INTERVAL, 20));
+        options.setConnectionTimeout(jobConf.getInt(TaskConstants.TASK_MQTT_CONNECTION_TIMEOUT, 10));
+        options.setKeepAliveInterval(jobConf.getInt(TaskConstants.TASK_MQTT_KEEPALIVE_INTERVAL, 20));
         options.setUserName(userName);
         options.setPassword(password.toCharArray());
         options.setAutomaticReconnect(automaticReconnect);
@@ -102,6 +103,7 @@ public class MqttReader extends AbstractReader {
      * connect to MQTT Broker
      */
     private void connect() {
+
         try {
             synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
@@ -135,6 +137,7 @@ public class MqttReader extends AbstractReader {
                     }
                 });
                 client.connect(options);
+                Thread.sleep(1000);
                 client.subscribe(topic, qos);
             }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
@@ -233,5 +236,27 @@ public class MqttReader extends AbstractReader {
                 destroyed = true;
             }
         }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        final String serverURI = "tcp://broker.hivemq.com:1883";
+        final String username = "test";
+        final String password = "test";
+        final String qos = "0";
+        final String clientIdPrefix = "mqtt_client";
+        final String groupId = "group01";
+        final String streamId = "stream01";
+        MqttReader reader = new MqttReader("test/inlongtest");
+        InstanceProfile jobconf = new InstanceProfile();
+        jobconf.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
+        jobconf.set(CommonConstants.PROXY_INLONG_STREAM_ID, streamId);
+        jobconf.set(TaskConstants.TASK_MQTT_USERNAME, username);
+        jobconf.set(TaskConstants.TASK_MQTT_PASSWORD, password);
+        jobconf.set(TaskConstants.TASK_MQTT_SERVER_URI, serverURI);
+        jobconf.set(TaskConstants.TASK_MQTT_QOS, qos);
+        jobconf.set(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, clientIdPrefix);
+        jobconf.setInstanceId("instanceId");
+        jobconf.set(TaskConstants.TASK_MQTT_QUEUE_SIZE, "1000");
+        reader.init(jobconf);
     }
 }

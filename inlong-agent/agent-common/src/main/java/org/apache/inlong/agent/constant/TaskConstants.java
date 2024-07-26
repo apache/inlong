@@ -140,19 +140,18 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_POSTGRES_SNAPSHOT_MODE = "task.postgreSQLTask.snapshotMode";
 
     // MQTT
-    public static final String JOB_MQTT_USERNAME = "job.mqttJob.userName";
-    public static final String JOB_MQTT_PASSWORD = "job.mqttJob.password";
-    public static final String JOB_MQTT_SERVER_URI = "job.mqttJob.serverURI";
-    public static final String JOB_MQTT_TOPIC = "job.mqttJob.topic";
-    public static final String JOB_MQTT_CONNECTION_TIMEOUT = "job.mqttJob.connectionTimeOut";
-    public static final String JOB_MQTT_KEEPALIVE_INTERVAL = "job.mqttJob.keepAliveInterval";
-    public static final String JOB_MQTT_QOS = "job.mqttJob.qos";
-    public static final String JOB_MQTT_CLEAN_SESSION = "job.mqttJob.cleanSession";
-    public static final String JOB_MQTT_CLIENT_ID_PREFIX = "job.mqttJob.clientIdPrefix";
-    public static final String JOB_MQTT_QUEUE_SIZE = "job.mqttJob.queueSize";
-    public static final String JOB_MQTT_AUTOMATIC_RECONNECT = "job.mqttJob.automaticReconnect";
-    public static final String JOB_MQTT_VERSION = "job.mqttJob.mqttVersion";
-
+    public static final String TASK_MQTT_USERNAME = "task.mqttTask.userName";
+    public static final String TASK_MQTT_PASSWORD = "task.mqttTask.password";
+    public static final String TASK_MQTT_SERVER_URI = "task.mqttTask.serverURI";
+    public static final String TASK_MQTT_TOPIC = "task.mqttTask.topic";
+    public static final String TASK_MQTT_CONNECTION_TIMEOUT = "task.mqttTask.connectionTimeOut";
+    public static final String TASK_MQTT_KEEPALIVE_INTERVAL = "task.mqttTask.keepAliveInterval";
+    public static final String TASK_MQTT_QOS = "task.mqttTask.qos";
+    public static final String TASK_MQTT_CLEAN_SESSION = "task.mqttTask.cleanSession";
+    public static final String TASK_MQTT_CLIENT_ID_PREFIX = "task.mqttTask.clientIdPrefix";
+    public static final String TASK_MQTT_QUEUE_SIZE = "task.mqttTask.queueSize";
+    public static final String TASK_MQTT_AUTOMATIC_RECONNECT = "task.mqttTask.automaticReconnect";
+    public static final String TASK_MQTT_VERSION = "task.mqttTask.mqttVersion";
 
     public static final String TASK_STATE = "task.state";
 
