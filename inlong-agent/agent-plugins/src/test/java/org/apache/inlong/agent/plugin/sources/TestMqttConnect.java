@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
-import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.junit.Ignore;
@@ -46,12 +45,12 @@ public class TestMqttConnect {
     @Ignore
     public void testMqttReader() throws Exception {
         TaskProfile jobProfile = TaskProfile.parseJsonStr("{}");
-        jobProfile.set(TaskConstants.JOB_MQTT_SERVER_URI, "tcp://broker.hivemq.com:1883");
-        jobProfile.set(TaskConstants.JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client");
-        jobProfile.set(TaskConstants.JOB_MQTT_USERNAME, "test");
-        jobProfile.set(TaskConstants.JOB_MQTT_PASSWORD, "test");
-        jobProfile.set(TaskConstants.JOB_MQTT_TOPIC, "testtopic/mqtt/p1/ebr/delivered,testtopic/NARTU2");
-        jobProfile.set(TaskConstants.JOB_MQTT_QOS, "0");
+        jobProfile.set(TaskConstants.TASK_MQTT_SERVER_URI, "tcp://broker.hivemq.com:1883");
+        jobProfile.set(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, "mqtt_client");
+        jobProfile.set(TaskConstants.TASK_MQTT_USERNAME, "test");
+        jobProfile.set(TaskConstants.TASK_MQTT_PASSWORD, "test");
+        jobProfile.set(TaskConstants.TASK_MQTT_TOPIC, "testtopic/mqtt/p1/ebr/delivered,testtopic/NARTU2");
+        jobProfile.set(TaskConstants.TASK_MQTT_QOS, "0");
         jobProfile.set("job.instance.id", "_1");
 
         final MqttSource source = new MqttSource();
