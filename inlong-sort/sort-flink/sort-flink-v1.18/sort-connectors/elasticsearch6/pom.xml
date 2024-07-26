@@ -79,7 +79,6 @@
             <artifactId>log4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -96,8 +95,6 @@
                         <phase>package</phase>
                         <configuration>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-                            <artifactSet>
-                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
