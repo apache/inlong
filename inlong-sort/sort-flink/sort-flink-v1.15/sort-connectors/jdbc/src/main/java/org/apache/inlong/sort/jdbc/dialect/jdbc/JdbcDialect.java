@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 /**
- * JDBC dialect for ClickHouse SQL.
+ * JDBC dialect for SQL.
  */
 public class JdbcDialect extends AbstractDialect {
 
