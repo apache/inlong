@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
@@ -45,6 +43,8 @@ import org.springframework.web.client.HttpClientErrorException.NotFound;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +70,6 @@ public class ElasticsearchApi {
     private static final String FIELD_FORMAT = "format";
 
     private static final String CONTENT_TYPE_VALUE = "application/json;charset=UTF-8";
-
 
     private final Encoder base64Encoder = Base64.getEncoder();
 
