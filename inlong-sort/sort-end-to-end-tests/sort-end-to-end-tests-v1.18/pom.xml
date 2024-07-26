@@ -183,14 +183,6 @@
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
-                        <artifactItem>
-                            <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-elasticsearch7-v1.18</artifactId>
-                            <version>${project.version}</version>
-                            <destFileName>sort-connector-elasticsearch7.jar</destFileName>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                        </artifactItem>
                     </artifactItems>
                 </configuration>
                 <executions>
