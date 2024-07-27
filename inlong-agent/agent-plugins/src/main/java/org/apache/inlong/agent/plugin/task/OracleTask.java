@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.task;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
@@ -29,33 +30,25 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_DBNAME;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_HOSTNAME;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PASSWORD;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PLUGIN_NAME;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PORT;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_TABLE_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_USER;
+import static org.apache.inlong.agent.constant.TaskConstants.*;
 
-public class PostgreSQLTask extends AbstractTask {
+public class OracleTask extends AbstractTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLTask.class);
-    public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
+    private static final Logger LOGGER = LoggerFactory.getLogger(OracleTask.class);
+
+    public static final String DEFAULT_ORACLE_INSTANCE = "org.apache.inlong.agent.plugin.instance.OracleInstance";
+    private AtomicBoolean isAdded = new AtomicBoolean(false);
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
-    private boolean isAdded = false;
-    public static final int DEFAULT_INSTANCE_LIMIT = 1;
 
     private String dbName;
     private String tableName;
     private String instanceId;
 
     @Override
-    protected void initTask() {
-        LOGGER.info("postgres commonInit: {}", taskProfile.toJsonStr());
-        dbName = taskProfile.get(TASK_POSTGRES_DBNAME);
-        tableName = taskProfile.get(TASK_POSTGRES_TABLE_INCLUDE_LIST);
-        instanceId = dbName + "-" + tableName;
+    protected int getInstanceLimit() {
+        return DEFAULT_INSTANCE_LIMIT;
     }
 
     @Override
@@ -64,49 +57,58 @@ public class PostgreSQLTask extends AbstractTask {
             LOGGER.error("task profile needs all required key");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_HOSTNAME))) {
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_HOSTNAME)) {
             LOGGER.error("task profile needs hostname");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_PORT))) {
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_PORT)) {
             LOGGER.error("task profile needs port");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_USER))) {
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_USER)) {
             LOGGER.error("task profile needs username");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_PASSWORD))) {
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_PASSWORD)) {
             LOGGER.error("task profile needs password");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_DBNAME))) {
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_DBNAME)) {
             LOGGER.error("task profile needs DB name");
             return false;
         }
-        if (!profile.hasKey(profile.get(TASK_POSTGRES_PLUGIN_NAME))) {
-            LOGGER.error("task profile needs plugin name");
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_SCHEMA_INCLUDE_LIST)) {
+            LOGGER.error("task profile needs schema name");
+            return false;
+        }
+        if (!profile.hasKey(TaskConstants.TASK_ORACLE_TABLE_INCLUDE_LIST)) {
+            LOGGER.error("task profile needs table list");
             return false;
         }
         return true;
     }
 
     @Override
-    protected List<InstanceProfile> getNewInstanceList() {
-        List<InstanceProfile> list = new ArrayList<>();
-        if (isAdded) {
-            return list;
-        }
-        String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_KAFKA_INSTANCE, instanceId,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
-        list.add(instanceProfile);
-        this.isAdded = true;
-        return list;
+    protected void initTask() {
+        LOGGER.info("oracle commonInit: {}", taskProfile.toJsonStr());
+        dbName = taskProfile.get(TASK_ORACLE_DBNAME);
+        tableName = taskProfile.get(TASK_ORACLE_TABLE_INCLUDE_LIST);
+        instanceId = dbName + "-" + tableName;
     }
 
     @Override
-    protected int getInstanceLimit() {
-        return DEFAULT_INSTANCE_LIMIT;
+    protected List<InstanceProfile> getNewInstanceList() {
+        List<InstanceProfile> list = new ArrayList<>();
+        if (isAdded.get()) {
+            return list;
+        }
+        String dataTime = LocalDateTime.now().format(dateTimeFormatter);
+        InstanceProfile instanceProfile =
+                taskProfile.createInstanceProfile(DEFAULT_ORACLE_INSTANCE, instanceId,
+                        CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
+        list.add(instanceProfile);
+        this.isAdded.set(true);
+        return list;
     }
 }

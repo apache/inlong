@@ -28,6 +28,8 @@ public class OracleTask {
     private String port;
     private String serverName;
     private String dbname;
+    private String tableIncludeList;
+    private String schemaIncludeList;
 
     private OracleTask.Snapshot snapshot;
     private OracleTask.Offset offset;
@@ -58,13 +60,15 @@ public class OracleTask {
     public static class OracleTaskConfig {
 
         private String hostname;
-        private String user;
+        private String username;
         private String password;
         private String port;
-        private String dbname;
-        private String serverName;
+        private String database;
+        private String schemaName;
+        private String tableName;
+        private String primaryKey;
 
-        private String snapshotMode;
+        private String scanStartupMode;
         private String intervalMs;
         private String offsetFilename;
         private String historyFilename;
