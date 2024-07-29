@@ -120,12 +120,6 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
         // if some clusters have the same tag
         List<InlongClusterEntity> clusters =
                 clusterEntityMapper.selectByKey(group.getInlongClusterTag(), null, sortClusterType);
-        if (!CollectionUtils.isEmpty(clusters)) {
-            return clusters.get(rand.nextInt(clusters.size())).getName();
-        }
-
-        // if no cluster with the same tag
-        clusters = clusterEntityMapper.selectByKey(null, null, sortClusterType);
 
         return CollectionUtils.isEmpty(clusters) ? null : clusters.get(rand.nextInt(clusters.size())).getName();
 
