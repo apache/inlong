@@ -53,7 +53,7 @@ public class OceanBaseJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(url)&&StringUtils.isNotBlank(password)) {
+        if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(url) && StringUtils.isNotBlank(password)) {
             UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
             return establishDatabaseConnection(url, user, password);
         }
@@ -79,6 +79,9 @@ public class OceanBaseJdbcUtils {
                     "Failed to get OceanBase connection, please check OceanBase JDBC URL, username, or password!";
             LOGGER.error(errorMsg, e);
             throw new Exception(errorMsg + " Other error message: " + e.getMessage());
+        }
+        if (conn == null) {
+            throw new Exception("get OceanBase connection failed, please contact administrator");
         }
         LOGGER.info("get OceanBase connection success for url={}", url);
         return conn;

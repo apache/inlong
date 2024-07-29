@@ -43,7 +43,7 @@ import java.util.Map;
 public class OceanBaseBinlogSourceDTO {
 
     @ApiModelProperty("Username of the OceanBase server")
-    private String user;
+    private String username;
 
     @ApiModelProperty("Password of the OceanBase server")
     private String password;

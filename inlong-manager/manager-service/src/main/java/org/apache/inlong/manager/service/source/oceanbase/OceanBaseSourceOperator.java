@@ -69,7 +69,6 @@ public class OceanBaseSourceOperator extends AbstractSourceOperator {
             OceanBaseDataNodeInfo dataNodeInfo = (OceanBaseDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.OCEANBASE);
             CommonBeanUtils.copyProperties(dataNodeInfo, OceanBaseBinlogSourceDTO, true);
-            OceanBaseBinlogSourceDTO.setUser(dataNodeInfo.getUsername());
             OceanBaseBinlogSourceDTO.setPassword(dataNodeInfo.getToken());
             OceanBaseBinlogSourceDTO.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
             OceanBaseBinlogSourceDTO.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
@@ -108,7 +107,6 @@ public class OceanBaseSourceOperator extends AbstractSourceOperator {
             OceanBaseDataNodeInfo dataNodeInfo = (OceanBaseDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.OCEANBASE);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
-            dto.setUser(dataNodeInfo.getUsername());
             dto.setPassword(dataNodeInfo.getToken());
             dto.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
             dto.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
