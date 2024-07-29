@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
