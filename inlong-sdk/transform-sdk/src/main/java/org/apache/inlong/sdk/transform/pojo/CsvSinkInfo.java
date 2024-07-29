@@ -40,7 +40,7 @@ public class CsvSinkInfo extends SinkInfo {
             @JsonProperty("delimiter") Character delimiter,
             @JsonProperty("escapeChar") Character escapeChar,
             @JsonProperty("fields") List<FieldInfo> fields) {
-        super(SourceInfo.CSV, charset);
+        super(SinkInfo.CSV, charset);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
         if (fields != null) {

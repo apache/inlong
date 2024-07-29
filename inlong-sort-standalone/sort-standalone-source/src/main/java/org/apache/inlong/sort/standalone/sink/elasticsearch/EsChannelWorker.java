@@ -18,13 +18,17 @@
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * EsChannelWorker
@@ -90,16 +94,27 @@ public class EsChannelWorker extends Thread {
             }
             // to profileEvent
             ProfileEvent profileEvent = (ProfileEvent) event;
-            EsIndexRequest indexRequest = handler.parse(context, profileEvent);
-            // offer queue
-            if (indexRequest != null) {
-                context.offerDispatchQueue(indexRequest);
+            if (!CommonPropertiesHolder.useUnifiedConfiguration()) {
+                EsIndexRequest indexRequest = handler.parse(context, profileEvent);
+                // offer queue
+                if (indexRequest != null) {
+                    context.offerDispatchQueue(indexRequest);
+                } else {
+                    context.addSendFailMetric();
+                    profileEvent.ack();
+                }
+                tx.commit();
             } else {
-                context.addSendFailMetric();
-                profileEvent.ack();
+                List<EsIndexRequest> indexRequestList = handler.parse(
+                        context, profileEvent, context.getTransformProcessor(profileEvent.getUid()));
+                if (CollectionUtils.isNotEmpty(indexRequestList)) {
+                    indexRequestList.forEach(context::offerDispatchQueue);
+                } else {
+                    context.addSendFailMetric();
+                    profileEvent.ack();
+                }
             }
-            tx.commit();
-            return;
+
         } catch (Throwable t) {
             LOG.error("Process event failed!" + this.getName(), t);
             try {

@@ -15,27 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.pojo;
+package org.apache.inlong.sdk.transform.process.converter;
 
-import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
+public interface TypeConverter {
 
-import lombok.Data;
-
-/**
- * FieldInfo
- */
-@Data
-public class FieldInfo {
-
-    private String name;
-    private TypeConverter converter;
-
-    public FieldInfo() {
-
-    }
-
-    public FieldInfo(String name, TypeConverter converter) {
-        this.name = name;
-        this.converter = converter;
-    }
+    Object convert(String value) throws Exception;
 }
