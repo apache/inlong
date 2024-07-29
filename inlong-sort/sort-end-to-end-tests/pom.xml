@@ -34,7 +34,7 @@
     </properties>
 
     <profiles>
-        <!--<profile>
+        <profile>
             <id>v1.13</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -51,12 +51,9 @@
             <modules>
                 <module>sort-end-to-end-tests-v1.15</module>
             </modules>
-        </profile>-->
+        </profile>
         <profile>
             <id>v1.18</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>sort-end-to-end-tests-v1.18</module>
             </modules>
