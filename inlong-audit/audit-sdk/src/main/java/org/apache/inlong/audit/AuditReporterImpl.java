@@ -310,33 +310,40 @@ public class AuditReporterImpl implements Serializable {
         }
         long startTime = System.currentTimeMillis();
         LOGGER.info("Audit flush isolate key {} ", isolateKey);
-        manager.checkFailedData();
-        resetStat();
 
-        summaryExpiredStatMap(isolateKey);
+        try {
+            manager.checkFailedData();
+            resetStat();
 
-        Iterator<Map.Entry<Long, ConcurrentHashMap<String, StatInfo>>> iterator = this.preStatMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, ConcurrentHashMap<String, StatInfo>> entry = iterator.next();
-            if (entry.getValue().isEmpty()) {
-                LOGGER.info("Remove the key of pre stat map: {},isolate key: {} ", entry.getKey(), isolateKey);
-                iterator.remove();
-                continue;
+            summaryExpiredStatMap(isolateKey);
+
+            Iterator<Map.Entry<Long, ConcurrentHashMap<String, StatInfo>>> iterator =
+                    this.preStatMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Long, ConcurrentHashMap<String, StatInfo>> entry = iterator.next();
+                if (entry.getValue().isEmpty()) {
+                    LOGGER.info("Remove the key of pre stat map: {},isolate key: {} ", entry.getKey(), isolateKey);
+                    iterator.remove();
+                    continue;
+                }
+                if (entry.getKey() > isolateKey) {
+                    continue;
+                }
+                summaryPreStatMap(entry.getKey(), entry.getValue());
+                send(entry.getKey());
             }
-            if (entry.getKey() > isolateKey) {
-                continue;
-            }
-            summaryPreStatMap(entry.getKey(), entry.getValue());
-            send(entry.getKey());
 
+            clearExpiredKey(isolateKey);
+        } catch (Exception exception) {
+            LOGGER.error("Flush audit has exception!", exception);
+        } finally {
+            manager.closeSocket();
         }
 
-        clearExpiredKey(isolateKey);
-
-        manager.closeSocket();
-
-        LOGGER.info("Success report {} package, Failed report {} package, total {} message, cost: {} ms",
+        LOGGER.info(
+                "Success report {} package, Failed report {} package, total {} message, memory size {}, cost: {} ms",
                 auditMetric.getSuccessPack(), auditMetric.getFailedPack(), auditMetric.getTotalMsg(),
+                auditMetric.getMemorySize(),
                 System.currentTimeMillis() - startTime);
 
         auditMetric.reset();
@@ -475,12 +482,25 @@ public class AuditReporterImpl implements Serializable {
         for (Map.Entry<String, StatInfo> entry : summaryStatMap.get(isolateKey).entrySet()) {
             // Entry key order: logTime inlongGroupID inlongStreamID auditID auditTag auditVersion
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
-            long logTime = Long.parseLong(keyArray[0]) * PERIOD;
+            if (keyArray.length < 6) {
+                LOGGER.error("Number of keys {} <6", keyArray.length);
+                continue;
+            }
+
+            long logTime;
+            long auditVersion;
+            try {
+                logTime = Long.parseLong(keyArray[0]) * PERIOD;
+                auditVersion = Long.parseLong(keyArray[5]);
+            } catch (NumberFormatException numberFormatException) {
+                LOGGER.error("Failed to parse long from string", numberFormatException);
+                continue;
+            }
+
             String inlongGroupID = keyArray[1];
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
             String auditTag = keyArray[4];
-            long auditVersion = Long.parseLong(keyArray[5]);
             StatInfo value = entry.getValue();
             AuditApi.AuditMessageBody msgBody = AuditApi.AuditMessageBody.newBuilder()
                     .setLogTs(logTime)
@@ -494,6 +514,8 @@ public class AuditReporterImpl implements Serializable {
                     .setAuditVersion(auditVersion)
                     .build();
             requestBuild.addMsgBody(msgBody);
+
+            auditMetric.addMemorySize(msgBody.toByteArray().length);
 
             if (dataId++ >= BATCH_NUM) {
                 dataId = 0;
@@ -614,5 +636,9 @@ public class AuditReporterImpl implements Serializable {
 
     public void setUpdateInterval(int updateInterval) {
         ProxyManager.getInstance().setUpdateInterval(updateInterval);
+    }
+
+    public void setMaxGlobalAuditMemory(long maxGlobalAuditMemory) {
+        SenderManager.setMaxGlobalAuditMemory(maxGlobalAuditMemory);
     }
 }

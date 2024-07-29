@@ -37,6 +37,7 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Audit sender manager
@@ -50,6 +51,12 @@ public class SenderManager {
     private Socket socket = new Socket();
     private static final int PACKAGE_HEADER_LEN = 4;
     private static final int MAX_RESPONSE_LENGTH = 32 * 1024;
+    private static final AtomicLong globalAuditMemory = new AtomicLong(0);
+    private static long maxGlobalAuditMemory = 200 * 1024 * 1024;
+
+    public static void setMaxGlobalAuditMemory(long maxGlobalAuditMemory) {
+        SenderManager.maxGlobalAuditMemory = maxGlobalAuditMemory;
+    }
 
     public SenderManager(AuditConfig config) {
         auditConfig = config;
@@ -179,11 +186,22 @@ public class SenderManager {
         if (failedDataMap.isEmpty()) {
             checkAuditFile();
         }
-        if (failedDataMap.size() > auditConfig.getMaxCacheRow()) {
-            LOGGER.info("Failed cache size: {} > {}", failedDataMap.size(), auditConfig.getMaxCacheRow());
+
+        long failedDataSize = getFailedDataSize();
+        globalAuditMemory.addAndGet(failedDataSize);
+
+        if (failedDataMap.size() > auditConfig.getMaxCacheRow()
+                || globalAuditMemory.get() > maxGlobalAuditMemory) {
+            LOGGER.warn("Failed cache [size: {}, threshold {}], [count {}, threshold: {}]",
+                    globalAuditMemory.get(), maxGlobalAuditMemory,
+                    failedDataMap.size(), auditConfig.getMaxCacheRow());
+
             writeLocalFile();
+
             failedDataMap.clear();
         }
+
+        globalAuditMemory.addAndGet(-failedDataSize);
     }
 
     /**
@@ -255,10 +273,9 @@ public class SenderManager {
                     .readObject();
 
             for (Map.Entry<Long, AuditData> entry : fileData.entrySet()) {
-                if (failedDataMap.size() < (auditConfig.getMaxCacheRow() / 2)) {
-                    failedDataMap.putIfAbsent(entry.getKey(), entry.getValue());
+                if (!sendData(entry.getValue().getDataByte())) {
+                    LOGGER.error("Local file recovery failed: {}", entry.getValue());
                 }
-                sendData(entry.getValue().getDataByte());
                 sleep();
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -293,5 +310,13 @@ public class SenderManager {
      */
     public void setAuditConfig(AuditConfig config) {
         auditConfig = config;
+    }
+
+    private long getFailedDataSize() {
+        long dataSize = 0;
+        for (AuditData auditData : failedDataMap.values()) {
+            dataSize += auditData.getDataByte().length;
+        }
+        return dataSize;
     }
 }
