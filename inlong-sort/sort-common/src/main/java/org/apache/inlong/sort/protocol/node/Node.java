@@ -25,6 +25,7 @@ import org.apache.inlong.sort.protocol.node.extract.IcebergExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OceanBaseExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
@@ -43,6 +44,7 @@ import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
+import org.apache.inlong.sort.protocol.node.load.OceanBaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
@@ -80,6 +82,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
         @JsonSubTypes.Type(value = IcebergExtractNode.class, name = "icebergExtract"),
+        @JsonSubTypes.Type(value = OceanBaseExtractNode.class, name = "oceanbaseExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
@@ -101,6 +104,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = StarRocksLoadNode.class, name = "starRocksLoad"),
         @JsonSubTypes.Type(value = RedisLoadNode.class, name = "redisLoad"),
         @JsonSubTypes.Type(value = KuduLoadNode.class, name = "kuduLoad"),
+        @JsonSubTypes.Type(value = OceanBaseLoadNode.class, name = "oceanBaseLoad"),
 })
 public interface Node {
 
