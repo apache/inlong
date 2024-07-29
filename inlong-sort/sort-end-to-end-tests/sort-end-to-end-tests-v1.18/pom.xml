@@ -36,6 +36,34 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-dist</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-csv</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-inlongmsg-base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-inlongmsg-csv</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-inlongmsg-kv</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
         </dependency>
