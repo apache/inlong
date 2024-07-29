@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MqttTask extends AbstractTask {
 
@@ -37,7 +38,7 @@ public class MqttTask extends AbstractTask {
 
     private String topic;
 
-    private boolean isAdded = false;
+    private AtomicBoolean isAdded = new AtomicBoolean(false);
 
     public static final String DEFAULT_MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
 
@@ -82,7 +83,7 @@ public class MqttTask extends AbstractTask {
     @Override
     protected List<InstanceProfile> getNewInstanceList() {
         List<InstanceProfile> list = new ArrayList<>();
-        if (isAdded) {
+        if (isAdded.get()) {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
@@ -90,7 +91,7 @@ public class MqttTask extends AbstractTask {
                 CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile(mqtt): {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
-        this.isAdded = true;
+        isAdded.set(true);
         return list;
     }
 }
