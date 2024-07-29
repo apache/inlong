@@ -45,7 +45,7 @@ import lombok.experimental.SuperBuilder;
 public class OceanBaseBinlogSource extends StreamSource {
 
     @ApiModelProperty("Username of the OceanBase server")
-    private String user;
+    private String username;
 
     @ApiModelProperty("Password of the OceanBase server")
     private String password;

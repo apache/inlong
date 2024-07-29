@@ -39,7 +39,7 @@ import lombok.ToString;
 public class OceanBaseBinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the DB server")
-    private String user;
+    private String username;
 
     @ApiModelProperty("Password of the DB server")
     private String password;
