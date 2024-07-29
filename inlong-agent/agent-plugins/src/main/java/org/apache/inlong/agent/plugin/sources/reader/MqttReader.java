@@ -18,13 +18,11 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -35,7 +33,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -82,8 +79,6 @@ public class MqttReader extends AbstractReader {
         userName = jobConf.get(TaskConstants.TASK_MQTT_USERNAME);
         password = jobConf.get(TaskConstants.TASK_MQTT_PASSWORD);
         serverURI = jobConf.get(TaskConstants.TASK_MQTT_SERVER_URI);
-
-        // topic = jobConf.get(TaskConstants.TASK_MQTT_TOPIC);
         clientId = jobConf.get(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
         cleanSession = jobConf.getBoolean(TaskConstants.TASK_MQTT_CLEAN_SESSION, false);
         automaticReconnect = jobConf.getBoolean(TaskConstants.TASK_MQTT_AUTOMATIC_RECONNECT, true);
@@ -137,7 +132,6 @@ public class MqttReader extends AbstractReader {
                     }
                 });
                 client.connect(options);
-                Thread.sleep(1000);
                 client.subscribe(topic, qos);
             }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
@@ -236,27 +230,5 @@ public class MqttReader extends AbstractReader {
                 destroyed = true;
             }
         }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        final String serverURI = "tcp://broker.hivemq.com:1883";
-        final String username = "test";
-        final String password = "test";
-        final String qos = "0";
-        final String clientIdPrefix = "mqtt_client";
-        final String groupId = "group01";
-        final String streamId = "stream01";
-        MqttReader reader = new MqttReader("test/inlongtest");
-        InstanceProfile jobconf = new InstanceProfile();
-        jobconf.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
-        jobconf.set(CommonConstants.PROXY_INLONG_STREAM_ID, streamId);
-        jobconf.set(TaskConstants.TASK_MQTT_USERNAME, username);
-        jobconf.set(TaskConstants.TASK_MQTT_PASSWORD, password);
-        jobconf.set(TaskConstants.TASK_MQTT_SERVER_URI, serverURI);
-        jobconf.set(TaskConstants.TASK_MQTT_QOS, qos);
-        jobconf.set(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, clientIdPrefix);
-        jobconf.setInstanceId("instanceId");
-        jobconf.set(TaskConstants.TASK_MQTT_QUEUE_SIZE, "1000");
-        reader.init(jobconf);
     }
 }
