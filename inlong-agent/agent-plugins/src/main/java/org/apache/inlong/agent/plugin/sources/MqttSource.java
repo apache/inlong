@@ -43,7 +43,8 @@ public class MqttSource extends AbstractSource {
 
     private String topic;
 
-    public MqttSource() {}
+    public MqttSource() {
+    }
 
     private List<Reader> splitSqlJob(String topics, String instanceId) {
         if (StringUtils.isEmpty(topics)) {
@@ -61,7 +62,7 @@ public class MqttSource extends AbstractSource {
 
     @Override
     public List<Reader> split(TaskProfile conf) {
-        LOGGER.info("start to split mqtt source, conf:{}",conf);
+        LOGGER.info("start to split mqtt source, conf:{}", conf);
         String topics = conf.get(TaskConstants.TASK_MQTT_TOPIC, StringUtils.EMPTY);
         return splitSqlJob(topics, instanceId);
     }
@@ -80,7 +81,7 @@ public class MqttSource extends AbstractSource {
             mqttReader.init(profile);
         } catch (Exception e) {
             stopRunning();
-            LOGGER.error("error init mqtt reader for {}",topic,e);
+            LOGGER.error("error init mqtt reader for {}", topic, e);
         }
     }
 
