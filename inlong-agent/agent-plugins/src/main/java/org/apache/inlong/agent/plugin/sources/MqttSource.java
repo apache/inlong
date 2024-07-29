@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -43,9 +44,7 @@ public class MqttSource extends AbstractSource {
 
     private String topic;
 
-    public MqttSource() {
-        LOGGER.debug("MqttSource init!!!!!!!!!!!");
-    }
+    public MqttSource() {}
 
     private List<Reader> splitSqlJob(String topics, String instanceId) {
         if (StringUtils.isEmpty(topics)) {
@@ -63,20 +62,14 @@ public class MqttSource extends AbstractSource {
 
     @Override
     public List<Reader> split(TaskProfile conf) {
-        LOGGER.info("splited!!!");
+        LOGGER.info("start to split mqtt source, conf:{}",conf);
         String topics = conf.get(TaskConstants.TASK_MQTT_TOPIC, StringUtils.EMPTY);
-        List<Reader> readerList = splitSqlJob(topics, instanceId);
-        // if (CollectionUtils.isNotEmpty(readerList)) {
-        // sourceMetric.sourceSuccessCount.incrementAndGet();
-        // } else {
-        // sourceMetric.sourceFailCount.incrementAndGet();
-        // }
-        return readerList;
+        return splitSqlJob(topics, instanceId);
     }
 
     @Override
     protected String getThreadName() {
-        return null;
+        return "mqtt-source-" + taskId + "-" + instanceId;
     }
 
     @Override
@@ -88,6 +81,7 @@ public class MqttSource extends AbstractSource {
             mqttReader.init(profile);
         } catch (Exception e) {
             stopRunning();
+            LOGGER.error("error init mqtt reader for {}",topic,e);
         }
     }
 
