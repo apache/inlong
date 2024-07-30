@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
@@ -42,19 +43,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class MqttReader extends AbstractReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttReader.class);
-
-    public static final String JOB_MQTT_USERNAME = "job.mqttJob.userName";
-    public static final String JOB_MQTT_PASSWORD = "job.mqttJob.password";
-    public static final String JOB_MQTT_SERVER_URI = "job.mqttJob.serverURI";
-    public static final String JOB_MQTT_TOPIC = "job.mqttJob.topic";
-    public static final String JOB_MQTT_CONNECTION_TIMEOUT = "job.mqttJob.connectionTimeOut";
-    public static final String JOB_MQTT_KEEPALIVE_INTERVAL = "job.mqttJob.keepAliveInterval";
-    public static final String JOB_MQTT_QOS = "job.mqttJob.qos";
-    public static final String JOB_MQTT_CLEAN_SESSION = "job.mqttJob.cleanSession";
-    public static final String JOB_MQTT_CLIENT_ID_PREFIX = "job.mqttJob.clientIdPrefix";
-    public static final String JOB_MQTT_QUEUE_SIZE = "job.mqttJob.queueSize";
-    public static final String JOB_MQTT_AUTOMATIC_RECONNECT = "job.mqttJob.automaticReconnect";
-    public static final String JOB_MQTT_VERSION = "job.mqttJob.mqttVersion";
 
     private boolean finished = false;
 
@@ -88,22 +76,20 @@ public class MqttReader extends AbstractReader {
      * @param jobConf
      */
     private void setGlobalParamsValue(InstanceProfile jobConf) {
-        mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MQTT_QUEUE_SIZE, 1000));
+        mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(TaskConstants.TASK_MQTT_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
-        userName = jobConf.get(JOB_MQTT_USERNAME);
-        password = jobConf.get(JOB_MQTT_PASSWORD);
-        serverURI = jobConf.get(JOB_MQTT_SERVER_URI);
-        topic = jobConf.get(JOB_MQTT_TOPIC);
-        clientId = jobConf.get(JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
-        cleanSession = jobConf.getBoolean(JOB_MQTT_CLEAN_SESSION, false);
-        automaticReconnect = jobConf.getBoolean(JOB_MQTT_AUTOMATIC_RECONNECT, true);
-        qos = jobConf.getInt(JOB_MQTT_QOS, 1);
-        mqttVersion = jobConf.getInt(JOB_MQTT_VERSION, MqttConnectOptions.MQTT_VERSION_DEFAULT);
-
+        userName = jobConf.get(TaskConstants.TASK_MQTT_USERNAME);
+        password = jobConf.get(TaskConstants.TASK_MQTT_PASSWORD);
+        serverURI = jobConf.get(TaskConstants.TASK_MQTT_SERVER_URI);
+        clientId = jobConf.get(TaskConstants.TASK_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
+        cleanSession = jobConf.getBoolean(TaskConstants.TASK_MQTT_CLEAN_SESSION, false);
+        automaticReconnect = jobConf.getBoolean(TaskConstants.TASK_MQTT_AUTOMATIC_RECONNECT, true);
+        qos = jobConf.getInt(TaskConstants.TASK_MQTT_QOS, 1);
+        mqttVersion = jobConf.getInt(TaskConstants.TASK_MQTT_VERSION, MqttConnectOptions.MQTT_VERSION_DEFAULT);
         options = new MqttConnectOptions();
         options.setCleanSession(cleanSession);
-        options.setConnectionTimeout(jobConf.getInt(JOB_MQTT_CONNECTION_TIMEOUT, 10));
-        options.setKeepAliveInterval(jobConf.getInt(JOB_MQTT_KEEPALIVE_INTERVAL, 20));
+        options.setConnectionTimeout(jobConf.getInt(TaskConstants.TASK_MQTT_CONNECTION_TIMEOUT, 10));
+        options.setKeepAliveInterval(jobConf.getInt(TaskConstants.TASK_MQTT_KEEPALIVE_INTERVAL, 20));
         options.setUserName(userName);
         options.setPassword(password.toCharArray());
         options.setAutomaticReconnect(automaticReconnect);
@@ -114,6 +100,7 @@ public class MqttReader extends AbstractReader {
      * connect to MQTT Broker
      */
     private void connect() {
+
         try {
             synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
