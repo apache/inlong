@@ -20,6 +20,12 @@
 
 BASE_DIR=$(pwd)
 
+# Check if dataproxy-sdk-cpp directory exists in the parent directory
+if [ ! -d "../dataproxy-sdk-cpp" ]; then
+    echo "Error: dataproxy-sdk-cpp directory not found in the parent directory."
+    exit 1
+fi
+
 # Check CMake version
 CMAKE_VERSION=$(cmake --version | head -n 1 | cut -d " " -f 3)
 CMAKE_REQUIRED="3.5"
@@ -45,14 +51,19 @@ cmake --build . --config Release --target check
 make check -j 4
 cd $BASE_DIR
 
-# Clone and build dataproxy-sdk-cpp
-git clone https://github.com/apache/inlong.git
-mv ./inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp ./
-rm -r ./inlong
-cd ./dataproxy-sdk-cpp
-chmod +x ./build.sh
-./build.sh
-cd $BASE_DIR
+# Build dataproxy-sdk-cpp(Optional)
+read -p "Have you already built dataproxy-sdk-cpp before? (y/n): " user_choice
+
+if [ "$user_choice" != "y" ] || [ "$user_choice" != "Y" ]; then
+    cp -r ../dataproxy-sdk-cpp ./
+    cd ./dataproxy-sdk-cpp
+    chmod +x ./build.sh
+    ./build.sh
+    cd $BASE_DIR
+else
+    cp -r ../dataproxy-sdk-cpp ./
+    echo "Skipped build dataproxy-sdk-cpp"
+fi
 
 # Build Python SDK
 if [ -d "./build" ]; then
