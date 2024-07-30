@@ -81,7 +81,7 @@ public class MqttSource extends AbstractSource {
             mqttReader.init(profile);
         } catch (Exception e) {
             stopRunning();
-            LOGGER.error("error init mqtt reader for {}", topic, e);
+            throw new FileException("error init stream for {}" + topic, e);
         }
     }
 
