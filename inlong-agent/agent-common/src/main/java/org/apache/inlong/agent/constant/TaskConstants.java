@@ -153,6 +153,18 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_MQTT_AUTOMATIC_RECONNECT = "task.mqttTask.automaticReconnect";
     public static final String TASK_MQTT_VERSION = "task.mqttTask.mqttVersion";
 
+    // SQLServer task
+    public static final String TASK_SQLSERVER_HOSTNAME = "task.sqlserverTask.hostname";
+    public static final String TASK_SQLSERVER_PORT = "task.sqlserverTask.port";
+    public static final String TASK_SQLSERVER_USER = "task.sqlserverTask.user";
+    public static final String TASK_SQLSERVER_PASSWORD = "task.sqlserverTask.password";
+    public static final String TASK_SQLSERVER_DBNAME = "task.sqlserverTask.dbname";
+    public static final String TASK_SQLSERVER_SNAPSHOT_MODE = "task.sqlserverTask.snapshot.mode";
+    public static final String TASK_SQLSERVER_SERVER_NAME = "task.sqlserverTask.serverName";
+    public static final String TASK_SQLSERVER_SCHEMA_NAME = "task.sqlserverTask.schemaName";
+    public static final String TASK_SQLSERVER_TABLE_NAME = "task.sqlserverTask.tableName";
+
+
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";
