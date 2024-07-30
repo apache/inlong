@@ -51,10 +51,8 @@ cmake --build . --config Release --target check
 make check -j 4
 cd $BASE_DIR
 
-# Build dataproxy-sdk-cpp(Optional)
-read -p "Have you already built dataproxy-sdk-cpp before? (y/n): " user_choice
-
-if [ "$user_choice" != "y" ] || [ "$user_choice" != "Y" ]; then
+# Build dataproxy-sdk-cpp(If the dataproxy-sdk-cpp has been compiled, this step will be skipped)
+if [ ! -e "../dataproxy-sdk-cpp/release/lib/libdataproxy_sdk.a" ]; then
     cp -r ../dataproxy-sdk-cpp ./
     cd ./dataproxy-sdk-cpp
     chmod +x ./build.sh
