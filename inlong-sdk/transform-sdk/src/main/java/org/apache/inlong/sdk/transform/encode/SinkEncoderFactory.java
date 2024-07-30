@@ -18,8 +18,8 @@
 package org.apache.inlong.sdk.transform.encode;
 
 import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
-import org.apache.inlong.sdk.transform.pojo.EsMapSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
 
 public class SinkEncoderFactory {
 
@@ -31,7 +31,7 @@ public class SinkEncoderFactory {
         return new KvSinkEncoder(kvSinkInfo);
     }
 
-    public static EsMapSinkEncoder createEsMapEncoder(EsMapSinkInfo esMapSinkInfo) {
-        return new EsMapSinkEncoder(esMapSinkInfo);
+    public static MapSinkEncoder createMapEncoder(MapSinkInfo mapSinkInfo) {
+        return new MapSinkEncoder(mapSinkInfo);
     }
 }

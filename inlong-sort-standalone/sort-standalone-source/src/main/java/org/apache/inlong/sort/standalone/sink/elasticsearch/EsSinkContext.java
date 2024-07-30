@@ -24,10 +24,10 @@ import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.sdk.transform.encode.EsMapSinkEncoder;
+import org.apache.inlong.sdk.transform.encode.MapSinkEncoder;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
-import org.apache.inlong.sdk.transform.pojo.EsMapSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -256,7 +256,7 @@ public class EsSinkContext extends SinkContext {
         }
     }
 
-    private EsMapSinkEncoder createEsSinkEncoder(SinkConfig sinkConfig) {
+    private MapSinkEncoder createEsSinkEncoder(SinkConfig sinkConfig) {
         if (!(sinkConfig instanceof EsSinkConfig)) {
             throw new IllegalArgumentException("sinkInfo must be an instance of EsMapSinkInfo");
         }
@@ -266,8 +266,8 @@ public class EsSinkContext extends SinkContext {
                 .map(config -> new FieldInfo(config.getName(), deriveTypeConverter(config.getFormatInfo())))
                 .collect(Collectors.toList());
 
-        EsMapSinkInfo sinkInfo = new EsMapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
-        return SinkEncoderFactory.createEsMapEncoder(sinkInfo);
+        MapSinkInfo sinkInfo = new MapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
+        return SinkEncoderFactory.createMapEncoder(sinkInfo);
     }
 
     private void reloadClientsFromNodeConfig(EsNodeConfig esNodeConfig) {

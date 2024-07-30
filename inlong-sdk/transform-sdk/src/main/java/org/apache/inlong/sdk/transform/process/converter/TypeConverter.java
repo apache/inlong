@@ -17,7 +17,21 @@
 
 package org.apache.inlong.sdk.transform.process.converter;
 
+/**
+ * Converter to convert the transform intermediate string value to the given data type
+ */
 public interface TypeConverter {
 
+    /**
+     *
+     * @param value String source value
+     * @return Converted type value
+     * @throws Exception Convert exception
+     */
     Object convert(String value) throws Exception;
+
+    static TypeConverter DefaultTypeConverter() {
+        return value -> value;
+    }
+
 }

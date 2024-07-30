@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.inlong.sdk.transform.pojo.EsMapSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 
@@ -30,16 +30,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class EsMapSinkEncoder implements SinkEncoder<Map<String, Object>> {
+public class MapSinkEncoder implements SinkEncoder<Map<String, Object>> {
 
-    private final EsMapSinkInfo sinkInfo;
+    private final MapSinkInfo sinkInfo;
     private final Map<String, TypeConverter> converters;
 
-    public EsMapSinkEncoder(EsMapSinkInfo sinkInfo) {
+    public MapSinkEncoder(MapSinkInfo sinkInfo) {
         this.sinkInfo = sinkInfo;
         this.converters = sinkInfo.getFields()
                 .stream()
-                .collect(Collectors.toMap(FieldInfo::getName, FieldInfo::getConverter));
+                .collect(Collectors.toMap(FieldInfo::getName,
+                        info -> info.getConverter() == null ? TypeConverter.DefaultTypeConverter()
+                                : info.getConverter()));
     }
 
     @Override
@@ -49,6 +51,11 @@ public class EsMapSinkEncoder implements SinkEncoder<Map<String, Object>> {
             String fieldName = fieldInfo.getName();
             String strValue = sinkData.getField(fieldName);
             TypeConverter converter = converters.get(fieldName);
+            if (converter == null) {
+                esMap.put(fieldName, strValue);
+                continue;
+            }
+
             try {
                 esMap.put(fieldName, converter.convert(strValue));
             } catch (Throwable t) {

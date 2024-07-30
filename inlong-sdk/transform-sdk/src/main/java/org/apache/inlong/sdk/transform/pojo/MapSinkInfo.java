@@ -28,16 +28,16 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuperBuilder
 @Data
-public class EsMapSinkInfo extends SinkInfo {
+public class MapSinkInfo extends SinkInfo {
 
     private List<FieldInfo> fields;
 
-    public EsMapSinkInfo(
+    public MapSinkInfo(
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
         super(SinkInfo.ES_MAP, charset);
         if (CollectionUtils.isEmpty(fields)) {
-            throw new IllegalArgumentException("failed to init es map sink info, fieldInfos is empty");
+            throw new IllegalArgumentException("failed to init map sink info, fieldInfos is empty");
         }
         this.fields = fields;
     }
