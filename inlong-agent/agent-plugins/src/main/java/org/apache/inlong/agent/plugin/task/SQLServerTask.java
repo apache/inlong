@@ -52,7 +52,7 @@ public class SQLServerTask extends AbstractTask {
     @Override
     protected void initTask() {
         LOGGER.info("SQLServer commonInit: {}", taskProfile.toJsonStr());
-        dbName = taskProfile.get(TaskConstants.TASK_SQLSERVER_DBNAME);
+        dbName = taskProfile.get(TaskConstants.TASK_SQLSERVER_DB_NAME);
         tableName = taskProfile.get(TaskConstants.TASK_SQLSERVER_TABLE_NAME);
         schemaName = taskProfile.get(TaskConstants.TASK_SQLSERVER_SCHEMA_NAME);
         instanceId = dbName + "-" + tableName;
@@ -80,7 +80,7 @@ public class SQLServerTask extends AbstractTask {
             LOGGER.error("task profile needs password");
             return false;
         }
-        if (!profile.hasKey(TaskConstants.TASK_SQLSERVER_DBNAME)) {
+        if (!profile.hasKey(TaskConstants.TASK_SQLSERVER_DB_NAME)) {
             LOGGER.error("task profile needs DB name");
             return false;
         }

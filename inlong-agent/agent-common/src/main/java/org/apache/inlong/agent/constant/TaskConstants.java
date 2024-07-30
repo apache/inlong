@@ -158,7 +158,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SQLSERVER_PORT = "task.sqlserverTask.port";
     public static final String TASK_SQLSERVER_USER = "task.sqlserverTask.user";
     public static final String TASK_SQLSERVER_PASSWORD = "task.sqlserverTask.password";
-    public static final String TASK_SQLSERVER_DBNAME = "task.sqlserverTask.dbname";
+    public static final String TASK_SQLSERVER_DB_NAME = "task.sqlserverTask.dbname";
     public static final String TASK_SQLSERVER_SNAPSHOT_MODE = "task.sqlserverTask.snapshot.mode";
     public static final String TASK_SQLSERVER_SERVER_NAME = "task.sqlserverTask.serverName";
     public static final String TASK_SQLSERVER_SCHEMA_NAME = "task.sqlserverTask.schemaName";

@@ -72,7 +72,7 @@ public class SQLServerSource extends AbstractSource {
             LOGGER.info("SQLServerSource init: {}", profile.toJsonStr());
             debeziumQueue = new LinkedBlockingQueue<>(DEBEZIUM_QUEUE_SIZE);
 
-            dbName = profile.get(TaskConstants.TASK_SQLSERVER_DBNAME);
+            dbName = profile.get(TaskConstants.TASK_SQLSERVER_DB_NAME);
             schemaName = profile.get(TaskConstants.TASK_SQLSERVER_SCHEMA_NAME);
             tableName = profile.get(TaskConstants.TASK_SQLSERVER_TABLE_NAME);
 
@@ -108,7 +108,7 @@ public class SQLServerSource extends AbstractSource {
             props.setProperty(String.valueOf(SqlServerConnectorConfig.PASSWORD),
                     profile.get(TaskConstants.TASK_SQLSERVER_PASSWORD));
             props.setProperty(String.valueOf(SqlServerConnectorConfig.DATABASE_NAME),
-                    profile.get(TaskConstants.TASK_SQLSERVER_DBNAME));
+                    profile.get(TaskConstants.TASK_SQLSERVER_DB_NAME));
             props.setProperty(String.valueOf(SqlServerConnectorConfig.SNAPSHOT_MODE),
                     profile.get(TaskConstants.TASK_SQLSERVER_SNAPSHOT_MODE, SqlServerConstants.INITIAL));
             props.setProperty(String.valueOf(SqlServerConnectorConfig.SERVER_NAME),

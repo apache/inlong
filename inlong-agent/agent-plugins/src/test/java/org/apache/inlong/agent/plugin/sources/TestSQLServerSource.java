@@ -144,7 +144,7 @@ public class TestSQLServerSource {
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_PASSWORD, password);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_HOSTNAME, hostname);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_PORT, port);
-        instanceProfile.set(TaskConstants.TASK_SQLSERVER_DBNAME, dbName);
+        instanceProfile.set(TaskConstants.TASK_SQLSERVER_DB_NAME, dbName);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_SCHEMA_NAME, schemaName);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_TABLE_NAME, tableName);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_SERVER_NAME, serverName);
