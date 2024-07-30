@@ -38,6 +38,8 @@ public class MqttTask extends AbstractTask {
 
     private String topic;
 
+    private int instanceLimit = DEFAULT_INSTANCE_LIMIT;
+
     private AtomicBoolean isAdded = new AtomicBoolean(false);
 
     public static final String DEFAULT_MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
@@ -69,9 +71,13 @@ public class MqttTask extends AbstractTask {
         return true;
     }
 
+    protected void setInstanceLimit(int instanceLimit) {
+        this.instanceLimit = instanceLimit;
+    }
+
     @Override
     protected int getInstanceLimit() {
-        return DEFAULT_INSTANCE_LIMIT;
+        return instanceLimit;
     }
 
     @Override
