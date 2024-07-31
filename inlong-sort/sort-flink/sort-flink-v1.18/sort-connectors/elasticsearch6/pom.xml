@@ -31,6 +31,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <elasticsearch.version>6.8.17</elasticsearch.version>
+        <elasticsearch.connector.version>3.0.1-1.17</elasticsearch.connector.version>
     </properties>
 
     <dependencies>
@@ -43,7 +44,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-elasticsearch6</artifactId>
-            <version>3.0.1-1.17</version>
+            <version>${elasticsearch.connector.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
