@@ -959,6 +959,15 @@ License : https://github.com/apache/flink/blob/master/LICENSE
 Source  : org.apache.flink:flink-connector-elasticsearch-base-3.0.1-1.17.jar (Please note that the software have been modified.)
 License : https://github.com/apache/flink/blob/master/LICENSE
 
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6Configuration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6Configuration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6Configuration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/Elasticsearch6ApiCallBridge.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/Elasticsearch6BulkProcessorIndexer.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/ElasticsearchSink.java
+Source  : org.apache.flink:flink-connector-elasticsearch6-3.0.1-1.17.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
+
 
 =======================================================================
 Apache InLong Subcomponents:
