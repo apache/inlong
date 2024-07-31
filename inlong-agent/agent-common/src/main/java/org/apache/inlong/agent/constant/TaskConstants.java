@@ -164,7 +164,6 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SQLSERVER_SCHEMA_NAME = "task.sqlserverTask.schemaName";
     public static final String TASK_SQLSERVER_TABLE_NAME = "task.sqlserverTask.tableName";
 
-
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";
