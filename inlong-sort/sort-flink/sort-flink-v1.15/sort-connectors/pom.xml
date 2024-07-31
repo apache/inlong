@@ -45,6 +45,7 @@
         <module>kafka</module>
         <module>redis</module>
         <module>jdbc</module>
+        <module>elasticsearch-base</module>
     </modules>
 
     <properties>
