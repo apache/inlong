@@ -18,7 +18,20 @@
 
 #!/bin/bash
 
-BASE_DIR=$(pwd)
+BASE_DIR=`dirname "$0"`
+PY_SDK_DIR=`cd "$BASE_DIR";pwd`
+
+echo "The python sdk directory is: $PY_SDK_DIR"
+
+# Check if dataproxy-sdk-cpp directory exists in the parent directory
+if [ ! -d "$PY_SDK_DIR/../dataproxy-sdk-cpp" ]; then
+    echo "Error: cannot find the dataproxy-cpp-sdk directory! The dataproxy-cpp-sdk directory must be located in the same directory as the dataproxy-python-sdk directory."
+    exit 1
+fi
+
+CPP_SDK_DIR=`cd "$PY_SDK_DIR/../dataproxy-sdk-cpp";pwd`
+
+echo "The cpp sdk directory is: $CPP_SDK_DIR"
 
 # Check CMake version
 CMAKE_VERSION=$(cmake --version | head -n 1 | cut -d " " -f 3)
@@ -37,37 +50,36 @@ if [ "$(printf '%s\n' "$PYTHON_REQUIRED" "$PYTHON_VERSION" | sort -V | head -n1)
 fi
 
 # Clone and build pybind11
-git clone https://github.com/pybind/pybind11.git
-cd pybind11
-mkdir build && cd build
-cmake ..
-cmake --build . --config Release --target check
+git clone https://github.com/pybind/pybind11.git $PY_SDK_DIR/pybind11
+mkdir $PY_SDK_DIR/pybind11/build && cd $PY_SDK_DIR/pybind11/build
+cmake $PY_SDK_DIR/pybind11
+cmake --build $PY_SDK_DIR/pybind11/build --config Release --target check
 make check -j 4
-cd $BASE_DIR
 
-# Clone and build dataproxy-sdk-cpp
-git clone https://github.com/apache/inlong.git
-mv ./inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp ./
-rm -r ./inlong
-cd ./dataproxy-sdk-cpp
-chmod +x ./build.sh
-./build.sh
-cd $BASE_DIR
+# Build dataproxy-sdk-cpp(If the dataproxy-sdk-cpp has been compiled, this step will be skipped)
+if [ ! -e "$CPP_SDK_DIR/release/lib/dataproxy_sdk.a" ]; then
+    chmod +x $CPP_SDK_DIR/build.sh
+    cd $CPP_SDK_DIR
+    . $CPP_SDK_DIR/build.sh
+    cp -r $CPP_SDK_DIR $PY_SDK_DIR
+else
+    cp -r $CPP_SDK_DIR $PY_SDK_DIR
+    echo "Skipped build dataproxy-sdk-cpp"
+fi
 
 # Build Python SDK
-if [ -d "./build" ]; then
-    rm -r ./build
+if [ -d "$PY_SDK_DIR/build" ]; then
+    rm -r $PY_SDK_DIR/build
 fi
-mkdir build && cd build
-cmake ..
+mkdir $PY_SDK_DIR/build && cd $PY_SDK_DIR/build
+cmake $PY_SDK_DIR
 make
-cd $BASE_DIR
 
 # Get Python site-packages directory
 SITE_PACKAGES_DIR=$(python -c "import site; print(site.getsitepackages()[0])")
 
 # Copy generated .so file to site-packages directory
-find ./build -name "*.so" -print0 | xargs -0 -I {} bash -c 'rm -f $0/$1; cp $1 $0' $SITE_PACKAGES_DIR {}
+find $PY_SDK_DIR/build -name "*.so" -print0 | xargs -0 -I {} bash -c 'rm -f $0/$1; cp $1 $0' $SITE_PACKAGES_DIR {}
 
 # Clean
-rm -r ./pybind11 ./dataproxy-sdk-cpp
+rm -r $PY_SDK_DIR/pybind11 $PY_SDK_DIR/dataproxy-sdk-cpp
