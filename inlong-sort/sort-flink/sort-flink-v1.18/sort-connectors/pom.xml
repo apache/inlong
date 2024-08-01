@@ -35,6 +35,7 @@
         <module>jdbc</module>
         <module>elasticsearch-base</module>
         <module>elasticsearch6</module>
+        <module>elasticsearch7</module>
     </modules>
 
     <properties>
