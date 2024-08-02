@@ -29,6 +29,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DateFormatFunction
@@ -39,6 +41,7 @@ public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;
     private ValueParser formatParser;
+    private static final Map<String, SimpleDateFormat> SIMPLE_DATE_FORMATS = new ConcurrentHashMap<>();
 
     /**
      * Constructor
@@ -64,9 +67,24 @@ public class DateFormatFunction implements ValueParser {
         Object formatObj = formatParser.parse(sourceData, rowIndex, context);
         BigDecimal timestamp = OperatorTools.parseBigDecimal(timestampObj);
         String format = OperatorTools.parseString(formatObj);
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        SimpleDateFormat sdf = getSimpleDateFormat(format);
         // the timestamp is in seconds, multiply 1000 to get milliseconds
         Date date = new Date(timestamp.longValue() * 1000);
         return sdf.format(date);
+    }
+
+    /**
+     * getSimpleDateFormat
+     *
+     * @param pattern
+     * @return
+     */
+    private SimpleDateFormat getSimpleDateFormat(String pattern) {
+        SimpleDateFormat sdf = SIMPLE_DATE_FORMATS.get(pattern);
+        if (sdf == null) {
+            sdf = new SimpleDateFormat(pattern);
+            SIMPLE_DATE_FORMATS.put(pattern, sdf);
+        }
+        return sdf;
     }
 }
