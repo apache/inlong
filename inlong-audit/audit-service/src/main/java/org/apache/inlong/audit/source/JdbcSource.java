@@ -140,7 +140,7 @@ public class JdbcSource {
             StartEndTime statCycle = new StartEndTime();
             statCycle.setStartTime(dateFormat.format(calendar.getTime()));
 
-            calendar.set(Calendar.MINUTE, minute + dataCycle - 1);
+            calendar.set(Calendar.MINUTE, minute + dataCycle);
             calendar.set(Calendar.SECOND, 0);
             statCycle.setEndTime(dateFormat.format(calendar.getTime()));
             statCycleList.add(statCycle);

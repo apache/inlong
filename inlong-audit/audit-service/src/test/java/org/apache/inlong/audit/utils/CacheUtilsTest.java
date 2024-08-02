@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package utils;
-
-import org.apache.inlong.audit.utils.CacheUtils;
+package org.apache.inlong.audit.utils;
 
 import org.junit.Test;
 
