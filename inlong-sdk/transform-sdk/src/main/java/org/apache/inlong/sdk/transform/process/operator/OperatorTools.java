@@ -19,14 +19,18 @@ package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
+import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
+import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
@@ -85,6 +89,10 @@ public class OperatorTools {
         functionMap.put("log2", Log2Function::new);
         functionMap.put("log", LogFunction::new);
         functionMap.put("exp", ExpFunction::new);
+        functionMap.put("substring", SubstringFunction::new);
+        functionMap.put("locate", LocateFunction::new);
+        functionMap.put("to_date", ToDateFunction::new);
+        functionMap.put("date_format", DateFormatFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
