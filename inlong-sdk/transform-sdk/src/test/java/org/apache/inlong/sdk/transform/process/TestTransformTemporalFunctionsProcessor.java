@@ -25,11 +25,13 @@ import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * TestTransformTemporalFunctionsProcessor
@@ -57,6 +59,11 @@ public class TestTransformTemporalFunctionsProcessor {
         dstFields.add(field);
         csvSource = new CsvSourceInfo("UTF-8", '|', '\\', srcFields);
         kvSink = new KvSinkInfo("UTF-8", dstFields);
+    }
+
+    @Before
+    public void setUp() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
     }
 
     @Test
