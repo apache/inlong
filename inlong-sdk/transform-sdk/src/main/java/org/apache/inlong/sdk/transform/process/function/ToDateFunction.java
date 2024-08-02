@@ -28,6 +28,8 @@ import net.sf.jsqlparser.expression.Function;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ToDateFunction
@@ -37,6 +39,8 @@ public class ToDateFunction implements ValueParser {
 
     private ValueParser stringParser1;
     private ValueParser stringParser2;
+    private static final Map<String, DateTimeFormatter> INPUT_FORMATTERS = new ConcurrentHashMap<>();
+    private static final DateTimeFormatter OUTPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      * Constructor
@@ -68,9 +72,22 @@ public class ToDateFunction implements ValueParser {
             Object stringObj2 = stringParser2.parse(sourceData, rowIndex, context);
             str2 = OperatorTools.parseString(stringObj2);
         }
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(str2);
-        LocalDate date = LocalDate.parse(str1, inputFormatter);
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return date.format(outputFormatter);
+        LocalDate date = LocalDate.parse(str1, getDateTimeFormatter(str2));
+        return date.format(OUTPUT_FORMATTER);
+    }
+
+    /**
+     * getDateTimeFormatter
+     *
+     * @param pattern
+     * @return
+     */
+    private DateTimeFormatter getDateTimeFormatter(String pattern) {
+        DateTimeFormatter formatter = INPUT_FORMATTERS.get(pattern);
+        if (formatter == null) {
+            formatter = DateTimeFormatter.ofPattern(pattern);
+            INPUT_FORMATTERS.put(pattern, formatter);
+        }
+        return formatter;
     }
 }
