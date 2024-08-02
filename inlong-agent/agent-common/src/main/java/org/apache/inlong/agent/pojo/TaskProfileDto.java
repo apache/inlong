@@ -54,6 +54,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
     public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
     public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
+    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -343,6 +344,9 @@ public class TaskProfileDto {
         sqlServerTask.setPort(config.getPort());
         sqlServerTask.setServerName(config.getSchemaName());
         sqlServerTask.setDbname(config.getDatabase());
+        sqlServerTask.setSchemaName(config.getSchemaName());
+        sqlServerTask.setTableName(config.getSchemaName() + "." + config.getTableName());
+        sqlServerTask.setServerTimezone(config.getServerTimezone());
 
         SqlServerTask.Offset offset = new SqlServerTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -495,6 +499,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
+                task.setTaskClass(DEFAULT_SQLSERVER_TASK);
                 SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
                 task.setSqlserverTask(sqlserverTask);
                 task.setSource(SQLSERVER_SOURCE);
