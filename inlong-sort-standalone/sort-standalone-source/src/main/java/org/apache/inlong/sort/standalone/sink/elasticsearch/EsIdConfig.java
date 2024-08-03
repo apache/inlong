@@ -28,6 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -71,6 +72,7 @@ public class EsIdConfig extends IdConfig {
     private int fieldOffset = 2; // for ftime,extinfo
     private int contentOffset = 0;// except for boss + tab(1)
     private List<String> fieldList;
+    private Charset charset;
 
     public static EsIdConfig create(DataFlowConfig dataFlowConfig) {
         EsSinkConfig sinkConfig = (EsSinkConfig) dataFlowConfig.getSinkConfig();
@@ -86,6 +88,7 @@ public class EsIdConfig extends IdConfig {
                 .separator(sinkConfig.getSeparator())
                 .indexNamePattern(sinkConfig.getIndexNamePattern())
                 .fieldList(fields)
+                .charset(Charset.forName(sinkConfig.getEncodingType()))
                 .build();
     }
 

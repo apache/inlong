@@ -124,7 +124,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         EsIdConfig idConfig = context.getIdConfig(uid);
         String indexName = idConfig.parseIndexName(event.getRawLogTime());
         byte[] bodyBytes = event.getBody();
-        String strContext = new String(bodyBytes, Charset.defaultCharset());
+        String strContext = new String(bodyBytes, idConfig.getCharset());
         // build
         List<Map<String, Object>> esData = processor.transform(strContext);
         return esData.stream()
