@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.pojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -42,7 +43,7 @@ public class TransformConfig {
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql,
             @JsonProperty("configuration") Map<String, Object> configuration) {
-        this.transformSql = transformSql;
+        this.transformSql = Preconditions.checkNotNull(transformSql, "transform sql should not be null");
         this.configuration = configuration;
     }
 

@@ -251,7 +251,8 @@ public class EsSinkContext extends SinkContext {
                     createSourceDecoder(dataFlowConfig.getSourceConfig()),
                     createEsSinkEncoder(dataFlowConfig.getSinkConfig()));
         } catch (Exception e) {
-            LOG.error("failed to reload transform of dataflow={}", dataFlowConfig.getDataflowId(), e);
+            LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
+                    e.getMessage());
             return null;
         }
     }

@@ -51,6 +51,7 @@ import org.apache.flume.Context;
 import org.slf4j.Logger;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -201,10 +202,10 @@ public class SinkContext {
     }
 
     public Map<String, Object> globalConfiguration() {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        builder.putAll(CommonPropertiesHolder.get());
-        builder.putAll(sinkContext.getParameters());
-        return builder.build();
+        Map<String, Object> globalConfiguration = new HashMap<>();
+        globalConfiguration.putAll(CommonPropertiesHolder.get());
+        globalConfiguration.putAll(sinkContext.getParameters());
+        return ImmutableMap.copyOf(globalConfiguration);
     }
 
     public SourceDecoder<String> createSourceDecoder(SourceConfig sourceConfig) {
