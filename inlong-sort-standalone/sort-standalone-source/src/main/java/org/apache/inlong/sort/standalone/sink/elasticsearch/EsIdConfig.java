@@ -27,6 +27,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Slf4j
 public class EsIdConfig extends IdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
@@ -80,6 +82,15 @@ public class EsIdConfig extends IdConfig {
                 .stream()
                 .map(FieldConfig::getName)
                 .collect(Collectors.toList());
+        Charset charset;
+        try {
+            charset = Charset.forName(sinkConfig.getEncodingType());
+        } catch (Throwable t) {
+            log.warn("do not support encoding type={}, dataflow id={}",
+                    sinkConfig.getEncodingType(), dataFlowConfig.getDataflowId());
+            charset = Charset.defaultCharset();
+        }
+
         return EsIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
@@ -88,7 +99,7 @@ public class EsIdConfig extends IdConfig {
                 .separator(sinkConfig.getSeparator())
                 .indexNamePattern(sinkConfig.getIndexNamePattern())
                 .fieldList(fields)
-                .charset(Charset.forName(sinkConfig.getEncodingType()))
+                .charset(charset)
                 .build();
     }
 
