@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.pojo;
-
-import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
-
-import lombok.Data;
+package org.apache.inlong.sdk.transform.process.converter;
 
 /**
- * FieldInfo
+ * Converter to convert the transform intermediate string value to the given data type
  */
-@Data
-public class FieldInfo {
+public interface TypeConverter {
 
-    private String name;
-    private TypeConverter converter;
+    /**
+     *
+     * @param value String source value
+     * @return Converted type value
+     * @throws Exception Convert exception
+     */
+    Object convert(String value) throws Exception;
 
-    public FieldInfo() {
-
+    static TypeConverter DefaultTypeConverter() {
+        return value -> value;
     }
 
-    public FieldInfo(String name, TypeConverter converter) {
-        this.name = name;
-        this.converter = converter;
-    }
 }

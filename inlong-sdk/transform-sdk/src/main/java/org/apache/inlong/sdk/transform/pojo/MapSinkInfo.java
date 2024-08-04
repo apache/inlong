@@ -17,53 +17,28 @@
 
 package org.apache.inlong.sdk.transform.pojo;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * KvSinkInfo
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Data
 @SuperBuilder
-public class KvSinkInfo extends SinkInfo {
+@Data
+public class MapSinkInfo extends SinkInfo {
 
-    private Character kvDelimiter;
-    private Character entryDelimiter;
     private List<FieldInfo> fields;
 
-    @JsonCreator
-    public KvSinkInfo(
+    public MapSinkInfo(
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
-        super(SinkInfo.KV, charset);
-        if (fields != null) {
-            this.fields = fields;
-        } else {
-            this.fields = new ArrayList<>();
+        super(SinkInfo.ES_MAP, charset);
+        if (CollectionUtils.isEmpty(fields)) {
+            throw new IllegalArgumentException("failed to init map sink info, fieldInfos is empty");
         }
-    }
-
-    /**
-     * get fields
-     * @return the fields
-     */
-    @JsonProperty("fields")
-    public List<FieldInfo> getFields() {
-        return fields;
-    }
-
-    /**
-     * set fields
-     * @param fields the fields to set
-     */
-    public void setFields(List<FieldInfo> fields) {
         this.fields = fields;
     }
 }

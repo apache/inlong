@@ -27,7 +27,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Slf4j
 public class EsIdConfig extends IdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
@@ -71,6 +74,7 @@ public class EsIdConfig extends IdConfig {
     private int fieldOffset = 2; // for ftime,extinfo
     private int contentOffset = 0;// except for boss + tab(1)
     private List<String> fieldList;
+    private Charset charset;
 
     public static EsIdConfig create(DataFlowConfig dataFlowConfig) {
         EsSinkConfig sinkConfig = (EsSinkConfig) dataFlowConfig.getSinkConfig();
@@ -78,6 +82,15 @@ public class EsIdConfig extends IdConfig {
                 .stream()
                 .map(FieldConfig::getName)
                 .collect(Collectors.toList());
+        Charset charset;
+        try {
+            charset = Charset.forName(sinkConfig.getEncodingType());
+        } catch (Throwable t) {
+            log.warn("do not support encoding type={}, dataflow id={}",
+                    sinkConfig.getEncodingType(), dataFlowConfig.getDataflowId());
+            charset = Charset.defaultCharset();
+        }
+
         return EsIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
@@ -86,6 +99,7 @@ public class EsIdConfig extends IdConfig {
                 .separator(sinkConfig.getSeparator())
                 .indexNamePattern(sinkConfig.getIndexNamePattern())
                 .fieldList(fields)
+                .charset(charset)
                 .build();
     }
 

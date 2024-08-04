@@ -18,8 +18,11 @@
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -28,11 +31,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * 
  * DefaultEvent2IndexRequestHandler
  */
+@Slf4j
 public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHandler {
 
     public static final String KEY_EXTINFO = "extinfo";
@@ -103,6 +108,32 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         }
         indexRequest.source(fieldMap);
         return indexRequest;
+    }
+
+    @Override
+    public List<EsIndexRequest> parse(
+            EsSinkContext context,
+            ProfileEvent event,
+            TransformProcessor<String, Map<String, Object>> processor) {
+        if (processor == null) {
+            log.error("find no any transform processor for es sink");
+            return null;
+        }
+
+        String uid = event.getUid();
+        EsIdConfig idConfig = context.getIdConfig(uid);
+        String indexName = idConfig.parseIndexName(event.getRawLogTime());
+        byte[] bodyBytes = event.getBody();
+        String strContext = new String(bodyBytes, idConfig.getCharset());
+        // build
+        List<Map<String, Object>> esData = processor.transform(strContext);
+        return esData.stream()
+                .map(data -> {
+                    EsIndexRequest indexRequest = new EsIndexRequest(indexName, event);
+                    indexRequest.source(data);
+                    return indexRequest;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

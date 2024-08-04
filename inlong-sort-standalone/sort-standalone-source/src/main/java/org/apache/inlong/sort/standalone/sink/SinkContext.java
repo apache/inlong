@@ -25,6 +25,8 @@ import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.BasicFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
@@ -32,7 +34,7 @@ import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
-import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -42,13 +44,14 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -69,7 +72,6 @@ public class SinkContext {
     protected final String sinkName;
     protected final Context sinkContext;
     protected TaskConfig taskConfig;
-    protected Map<String, TransformProcessor<String, String>> transformMap;
     @Deprecated
     protected SortTaskConfig sortTaskConfig;
     protected final Channel channel;
@@ -91,7 +93,6 @@ public class SinkContext {
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
         this.metricItemSet = new SortMetricItemSet(sinkName);
         this.unifiedConfiguration = CommonPropertiesHolder.useUnifiedConfiguration();
-        this.transformMap = Maps.newConcurrentMap();
         MetricRegister.register(this.metricItemSet);
     }
 
@@ -197,7 +198,14 @@ public class SinkContext {
     }
 
     public TransformConfig createTransformConfig(DataFlowConfig dataFlowConfig) {
-        return new TransformConfig(dataFlowConfig.getTransformSql());
+        return new TransformConfig(dataFlowConfig.getTransformSql(), globalConfiguration());
+    }
+
+    public Map<String, Object> globalConfiguration() {
+        Map<String, Object> globalConfiguration = new HashMap<>();
+        globalConfiguration.putAll(CommonPropertiesHolder.get());
+        globalConfiguration.putAll(sinkContext.getParameters());
+        return ImmutableMap.copyOf(globalConfiguration);
     }
 
     public SourceDecoder<String> createSourceDecoder(SourceConfig sourceConfig) {
@@ -234,8 +242,14 @@ public class SinkContext {
     }
 
     public FieldInfo convertToTransformFieldInfo(FieldConfig config) {
-        FieldInfo fieldInfo = new FieldInfo();
-        fieldInfo.setName(config.getName());
-        return fieldInfo;
+        return new FieldInfo(config.getName(), deriveTypeConverter(config.getFormatInfo()));
+    }
+
+    public TypeConverter deriveTypeConverter(FormatInfo formatInfo) {
+
+        if (formatInfo instanceof BasicFormatInfo) {
+            return value -> ((BasicFormatInfo<?>) formatInfo).deserialize(value);
+        }
+        return value -> value;
     }
 }
