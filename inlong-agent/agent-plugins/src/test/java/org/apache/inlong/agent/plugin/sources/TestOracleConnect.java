@@ -41,13 +41,14 @@ public class TestOracleConnect {
     @Ignore
     public void testOracle() {
         InstanceProfile jobProfile = new InstanceProfile();
-        jobProfile.set("job.oracleJob.hostname", "localhost");
-        jobProfile.set("job.oracleJob.port", "1521");
-        jobProfile.set("job.oracleJob.user", "c##dbzuser");
-        jobProfile.set("job.oracleJob.password", "dbz");
-        jobProfile.set("job.oracleJob.sid", "ORCLCDB");
-        jobProfile.set("job.oracleJob.dbname", "ORCLCDB");
+        jobProfile.set("job.oracleJob.hostname", "192.168.101.11");
+        jobProfile.set("job.oracleJob.port", "49161");
+        jobProfile.set("job.oracleJob.user", "c##admin");
+        jobProfile.set("job.oracleJob.password", "inlong");
+        jobProfile.set("job.oracleJob.sid", "xe");
+        jobProfile.set("job.oracleJob.dbname", "xe");
         jobProfile.set("job.oracleJob.serverName", "server1");
+        jobProfile.set("instance.id", "instance_test");
         jobProfile.set(TaskConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());

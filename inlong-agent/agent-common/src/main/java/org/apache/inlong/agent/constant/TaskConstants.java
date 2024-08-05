@@ -127,6 +127,17 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_MONGO_SSL_ENABLE = "task.mongoTask.sslEnabled";
     public static final String TASK_MONGO_POLL_INTERVAL = "task.mongoTask.pollIntervalInMs";
 
+    // Oracle task
+    public static final String TASK_ORACLE_HOSTNAME = "task.oracleTask.hostname";
+    public static final String TASK_ORACLE_PORT = "task.oracleTask.port";
+    public static final String TASK_ORACLE_USER = "task.oracleTask.user";
+    public static final String TASK_ORACLE_PASSWORD = "task.oracleTask.password";
+    public static final String TASK_ORACLE_DBNAME = "task.oracleTask.dbname";
+    public static final String TASK_ORACLE_SERVERNAME = "task.oracleTask.serverName";
+    public static final String TASK_ORACLE_SCHEMA_INCLUDE_LIST = "task.oracleTask.schemaIncludeList";
+    public static final String TASK_ORACLE_TABLE_INCLUDE_LIST = "task.oracleTask.tableIncludeList";
+    public static final String TASK_ORACLE_SNAPSHOT_MODE = "task.oracleTask.snapshotMode";
+
     // PostgreSQL task
     public static final String TASK_POSTGRES_HOSTNAME = "task.postgreSQLTask.hostname";
     public static final String TASK_POSTGRES_PORT = "task.postgreSQLTask.port";
