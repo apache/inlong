@@ -21,6 +21,7 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.core.AgentStatusManager;
 import org.apache.inlong.agent.message.file.SenderMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
@@ -154,7 +155,7 @@ public class SenderManager {
     }
 
     public void Start() throws Exception {
-        createMessageSender(inlongGroupId);
+        createMessageSender();
         EXECUTOR_SERVICE.execute(flushResendQueue());
         started = true;
     }
@@ -194,10 +195,8 @@ public class SenderManager {
 
     /**
      * createMessageSender
-     *
-     * @param tagName we use group id as tag name
      */
-    private void createMessageSender(String tagName) throws Exception {
+    private void createMessageSender() throws Exception {
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(managerAddr, inlongGroupId, authSecretId,
                 authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
@@ -359,6 +358,8 @@ public class SenderManager {
                         dataTime, message.getMsgCnt(), message.getTotalSize(), auditVersion);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME, groupId, streamId,
                         AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize(), auditVersion);
+                AgentStatusManager.sendPackageCount.addAndGet(message.getMsgCnt());
+                AgentStatusManager.sendDataLen.addAndGet(message.getTotalSize());
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
