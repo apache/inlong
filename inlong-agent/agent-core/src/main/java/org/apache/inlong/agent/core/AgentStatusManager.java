@@ -68,7 +68,7 @@ public class AgentStatusManager {
     public static final String INLONG_AGENT_SYSTEM = "inlong_agent_system";
     public static final String INLONG_AGENT_STATUS = "inlong_agent_status";
 
-    private static AgentStatusManager heartbeatManager = null;
+    private static AgentStatusManager manager = null;
     private final AgentConfiguration conf;
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 设置格式
     private Runtime runtime = Runtime.getRuntime();
@@ -94,21 +94,21 @@ public class AgentStatusManager {
     }
 
     public static AgentStatusManager getInstance(AgentManager agentManager) {
-        if (heartbeatManager == null) {
+        if (manager == null) {
             synchronized (AgentStatusManager.class) {
-                if (heartbeatManager == null) {
-                    heartbeatManager = new AgentStatusManager(agentManager);
+                if (manager == null) {
+                    manager = new AgentStatusManager(agentManager);
                 }
             }
         }
-        return heartbeatManager;
+        return manager;
     }
 
     public static AgentStatusManager getInstance() {
-        if (heartbeatManager == null) {
+        if (manager == null) {
             throw new RuntimeException("HeartbeatManager has not been initialized by agentManager");
         }
-        return heartbeatManager;
+        return manager;
     }
 
     public void sendStatusMsg(List<String> fields) {
