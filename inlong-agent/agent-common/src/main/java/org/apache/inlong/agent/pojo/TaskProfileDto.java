@@ -350,6 +350,7 @@ public class TaskProfileDto {
         sqlServerTask.setSchemaName(config.getSchemaName());
         sqlServerTask.setTableName(config.getSchemaName() + "." + config.getTableName());
         sqlServerTask.setServerTimezone(config.getServerTimezone());
+        sqlServerTask.setUnixTimestampFormatEnable(config.getUnixTimestampFormatEnable());
 
         SqlServerTask.Offset offset = new SqlServerTask.Offset();
         offset.setFilename(config.getOffsetFilename());

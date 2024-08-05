@@ -31,6 +31,7 @@ public class SqlServerTask {
     private String schemaName;
     private String tableName;
     private String serverTimezone;
+    private String unixTimestampFormatEnable;
 
     private SqlServerTask.Snapshot snapshot;
     private SqlServerTask.Offset offset;
@@ -68,6 +69,7 @@ public class SqlServerTask {
         private String schemaName;
         private String tableName;
         private String serverTimezone;
+        private String unixTimestampFormatEnable;
 
         private String snapshotMode;
         private String intervalMs;

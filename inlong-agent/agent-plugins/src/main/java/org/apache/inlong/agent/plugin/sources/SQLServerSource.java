@@ -91,13 +91,15 @@ public class SQLServerSource extends AbstractSource {
             props.setProperty("value.converter.schemas.enable", "false");
             // ignore ddl
             props.setProperty("include.schema.changes", "false");
-            // convert time to formatted string
-            props.setProperty("converters", "datetime");
-            props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.SQLServerTimeConverter");
-            props.setProperty("datetime.format.date", "yyyy-MM-dd");
-            props.setProperty("datetime.format.time", "HH:mm:ss");
-            props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
-            props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+            if (Boolean.parseBoolean(profile.get(TaskConstants.TASK_SQLSERVER_UNIX_TIMESTAMP_FORMAT_ENABLE, "true"))) {
+                // convert time to formatted string
+                props.setProperty("converters", "datetime");
+                props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.SQLServerTimeConverter");
+                props.setProperty("datetime.format.date", "yyyy-MM-dd");
+                props.setProperty("datetime.format.time", "HH:mm:ss");
+                props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
+                props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+            }
 
             props.setProperty(String.valueOf(SqlServerConnectorConfig.HOSTNAME),
                     profile.get(TaskConstants.TASK_SQLSERVER_HOSTNAME));
