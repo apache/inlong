@@ -106,9 +106,6 @@ public class OffsetManager extends AbstractDaemon {
      * get taskPositionManager singleton
      */
     public static OffsetManager getInstance() {
-        if (offsetManager == null) {
-            throw new RuntimeException("task position manager has not been initialized by agentManager");
-        }
         return offsetManager;
     }
 
