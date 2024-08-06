@@ -75,7 +75,7 @@ public class AgentStatusManager {
     final long GB = 1024 * 1024 * 1024;
     private OperatingSystemMXBean osMxBean;
     private ThreadMXBean threadBean;
-    private long INVALID_CPU = -1;
+    private final long INVALID_CPU = -1;
     private RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
     private ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
     private AgentManager agentManager;
@@ -117,7 +117,9 @@ public class AgentStatusManager {
         if (sender == null) {
             LOGGER.error("sender is null");
             createMessageSender();
-            return;
+            if (sender == null) {
+                return;
+            }
         }
         SendResult ret = sender.sendMessage(
                 StringUtils.join(fields, ",").getBytes(StandardCharsets.UTF_8),
