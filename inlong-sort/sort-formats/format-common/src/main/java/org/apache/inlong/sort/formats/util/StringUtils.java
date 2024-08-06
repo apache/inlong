@@ -81,6 +81,10 @@ public class StringUtils {
         Map<String, String> fields = new HashMap<>();
         List<Map<String, String>> lines = new ArrayList<>();
 
+        if (text == null) {
+            return lines;
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         String key = "";

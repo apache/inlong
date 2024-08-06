@@ -95,6 +95,7 @@ public class KafkaSeeker implements Seeker {
         if (offsetAndTimestamp == null) {
             LOGGER.info("tp {} has null offsetAndTimestamp, reset to end", tp);
             endOffsetsTopicPartitions.add(tp);
+            return;
         }
         long expected = offsetAndTimestamp.offset();
         long last = consumer.position(tp);

@@ -76,10 +76,12 @@ public class ProxyEvent extends SdkEvent {
     public ProxyEvent(String inlongGroupId, String inlongStreamId, MessageObj obj) {
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
-        super.setBody(obj.getBody().toByteArray());
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        this.msgTime = obj.getMsgTime();
-        this.sourceIp = obj.getSourceIp();
+        if (obj != null) {
+            super.setBody(obj.getBody().toByteArray());
+            this.msgTime = obj.getMsgTime();
+            this.sourceIp = obj.getSourceIp();
+        }
         Map<String, String> headers = super.getHeaders();
         headers.put(EventConstants.INLONG_GROUP_ID, inlongGroupId);
         headers.put(EventConstants.INLONG_STREAM_ID, inlongStreamId);

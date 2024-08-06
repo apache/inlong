@@ -97,7 +97,9 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (storeConfig.isJdbc()) {
             jdbcService.start();
         }
-        mqConsume.start();
+        if (mqConsume != null) {
+            mqConsume.start();
+        }
     }
 
     /**
