@@ -255,8 +255,8 @@ public class TcpChannelGroup {
                 ChannelFuture future = client.connect(tcpChannel.getIpPort().addr).await();
                 Channel newChannel = future.getChannel();
                 tcpChannel.setChannel(newChannel);
-                newChannel.setAttachment(oldChannel.getAttachment());
                 if (oldChannel != null) {
+                    newChannel.setAttachment(oldChannel.getAttachment());
                     oldChannel.disconnect();
                     oldChannel.close();
                 }

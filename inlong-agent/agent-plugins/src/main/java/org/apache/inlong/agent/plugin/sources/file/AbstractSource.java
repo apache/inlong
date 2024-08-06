@@ -178,12 +178,14 @@ public abstract class AbstractSource implements Source {
                 continue;
             }
             emptyCount = 0;
-            for (int i = 0; i < lines.size(); i++) {
-                boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).getData().length);
-                if (!suc4Queue) {
-                    break;
+            if (lines != null) {
+                for (int i = 0; i < lines.size(); i++) {
+                    boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).getData().length);
+                    if (!suc4Queue) {
+                        break;
+                    }
+                    putIntoQueue(lines.get(i));
                 }
-                putIntoQueue(lines.get(i));
             }
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {

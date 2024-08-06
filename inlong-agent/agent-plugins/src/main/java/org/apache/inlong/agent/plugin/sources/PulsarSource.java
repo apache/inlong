@@ -132,7 +132,7 @@ public class PulsarSource extends AbstractSource {
             }
             return consumer;
         } catch (PulsarClientException | IllegalArgumentException e) {
-            if (consumer == null) {
+            if (consumer != null) {
                 try {
                     consumer.close();
                 } catch (PulsarClientException ex) {

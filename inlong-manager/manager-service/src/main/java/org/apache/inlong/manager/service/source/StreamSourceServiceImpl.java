@@ -294,7 +294,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
         if (groupEntity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupEntity.getInlongGroupId()));
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
         // Remove id in sourceField when save
