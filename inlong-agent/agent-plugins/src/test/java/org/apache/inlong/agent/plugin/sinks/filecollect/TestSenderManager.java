@@ -87,7 +87,7 @@ public class TestSenderManager {
         try {
             profile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(profile.getInstanceId()));
             SenderManager senderManager = PowerMockito.spy(new SenderManager(profile, "inlongGroupId", "sourceName"));
-            PowerMockito.doNothing().when(senderManager, "createMessageSender", Mockito.anyString());
+            PowerMockito.doNothing().when(senderManager, "createMessageSender");
 
             PowerMockito.doAnswer(invocation -> {
                 SendMessageCallback cb = invocation.getArgument(0);

@@ -84,10 +84,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private String uuid;
     private String clusterTag;
     private String clusterName;
-    private String taskResultMd5;
-    private Integer taskResultVersion = -1;
-    private String agentConfigMd5;
-    private Integer agentConfigVersion = -1;
 
     public ManagerFetcher(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -167,7 +163,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     public TaskRequest getTaskRequest() {
         TaskRequest request = new TaskRequest();
-        request.setMd5(taskResultMd5);
+        request.setMd5(agentManager.getTaskManager().getTaskResultMd5());
         request.setAgentIp(localIp);
         request.setUuid(uuid);
         request.setClusterName(clusterName);
@@ -178,7 +174,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     public AgentConfigRequest getAgentConfigInfoRequest() {
         AgentConfigRequest request = new AgentConfigRequest();
-        request.setMd5(agentConfigMd5);
+        if (AgentManager.getAgentConfigInfo() != null) {
+            request.setMd5(AgentManager.getAgentConfigInfo().getMd5());
+        }
         request.setClusterTag(clusterTag);
         request.setClusterName(clusterName);
         request.setIp(localIp);
@@ -197,22 +195,22 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                 try {
                     TaskResult taskResult = getStaticConfig();
                     if (taskResult != null && taskResult.getCode().equals(AgentResponseCode.SUCCESS)
-                            && taskResultVersion < taskResult.getVersion()) {
+                            && agentManager.getTaskManager().getTaskResultVersion() < taskResult.getVersion()) {
                         List<TaskProfile> taskProfiles = new ArrayList<>();
                         taskResult.getDataConfigs().forEach((config) -> {
                             TaskProfile profile = TaskProfile.convertToTaskProfile(config);
                             taskProfiles.add(profile);
                         });
                         agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
-                        taskResultMd5 = taskResult.getMd5();
-                        taskResultVersion = taskResult.getVersion();
+                        agentManager.getTaskManager().setTaskResultMd5(taskResult.getMd5());
+                        agentManager.getTaskManager().setTaskResultVersion(taskResult.getVersion());
                     }
                     AgentConfigInfo config = getAgentConfigInfo();
-                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)
-                            && agentConfigVersion < config.getVersion()) {
-                        agentManager.subNewAgentConfigInfo(config);
-                        agentConfigMd5 = config.getMd5();
-                        agentConfigVersion = config.getVersion();
+                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)) {
+                        if (AgentManager.getAgentConfigInfo() == null
+                                || AgentManager.getAgentConfigInfo().getVersion() < config.getVersion()) {
+                            agentManager.subNewAgentConfigInfo(config);
+                        }
                     }
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);

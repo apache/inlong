@@ -80,6 +80,8 @@ public class TaskManager extends AbstractDaemon {
     private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     // instance profile queue.
     private final BlockingQueue<TaskAction> actionQueue;
+    private String taskResultMd5;
+    private Integer taskResultVersion = -1;
 
     private class TaskPrintStat {
 
@@ -527,6 +529,22 @@ public class TaskManager extends AbstractDaemon {
 
     public TaskProfile getTaskProfile(String taskId) {
         return taskStore.getTask(taskId);
+    }
+
+    public String getTaskResultMd5() {
+        return taskResultMd5;
+    }
+
+    public void setTaskResultMd5(String taskResultMd5) {
+        this.taskResultMd5 = taskResultMd5;
+    }
+
+    public Integer getTaskResultVersion() {
+        return taskResultVersion;
+    }
+
+    public void setTaskResultVersion(Integer taskResultVersion) {
+        this.taskResultVersion = taskResultVersion;
     }
 
     @Override

@@ -179,6 +179,10 @@ public class OffsetManager extends AbstractDaemon {
         }
     }
 
+    public int getRunningInstanceCount() {
+        return instanceStore.getRunningInstanceCount();
+    }
+
     @Override
     public void start() throws Exception {
         submitWorker(coreThread());

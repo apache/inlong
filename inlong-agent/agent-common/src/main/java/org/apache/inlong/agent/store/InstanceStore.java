@@ -20,6 +20,7 @@ package org.apache.inlong.agent.store;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.common.enums.InstanceStateEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,17 @@ public class InstanceStore {
             instanceList.add(entity.getAsInstanceProfile());
         }
         return instanceList;
+    }
+
+    public int getRunningInstanceCount() {
+        List<KeyValueEntity> result = this.store.findAll(store.getUniqueKey());
+        int count = 0;
+        for (KeyValueEntity entity : result) {
+            if (entity.getAsInstanceProfile().getState() == InstanceStateEnum.DEFAULT) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**

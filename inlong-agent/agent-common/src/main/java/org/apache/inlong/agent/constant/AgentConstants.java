@@ -56,6 +56,7 @@ public class AgentConstants {
     public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
     public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
     public static final String AGENT_CLUSTER_IN_CHARGES = "agent.cluster.inCharges";
+    public static final String AGENT_INSTALL_PLATFORM = "agent.install.platform";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
     public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
