@@ -128,7 +128,7 @@ public class AgentStatusManager {
 
     private static AgentStatusManager manager = null;
     private final AgentConfiguration conf;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 设置格式
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Runtime runtime = Runtime.getRuntime();
     final long GB = 1024 * 1024 * 1024;
     private OperatingSystemMXBean osMxBean;
@@ -140,7 +140,7 @@ public class AgentStatusManager {
     public static AtomicLong sendDataLen = new AtomicLong();
     public static AtomicLong sendPackageCount = new AtomicLong();
     private String processStartupTime = format.format(runtimeMXBean.getStartTime());
-    private String systemStartupTime = ExcuteLinux.exeCmd("who -b|awk '{print $(NF-1), $NF}'").replaceAll("\r|\n", "");
+    private String systemStartupTime = ExcuteLinux.exeCmd("uptime -s").replaceAll("\r|\n", "");
 
     private AgentStatusManager(AgentManager agentManager) {
         this.agentManager = agentManager;
