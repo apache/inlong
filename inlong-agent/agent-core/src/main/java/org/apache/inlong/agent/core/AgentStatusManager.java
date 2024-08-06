@@ -83,6 +83,8 @@ public class AgentStatusManager {
     public static AtomicLong sendPackageCount = new AtomicLong();
     private DefaultMessageSender sender;
     private List<String> statusFieldsPre = Lists.newArrayList();
+    private String processStartupTime = format.format(runtimeMXBean.getStartTime());
+    private String systemStartupTime = ExcuteLinux.exeCmd("who -b|awk '{print $(NF-1), $NF}'").replaceAll("\r|\n", "");
 
     private AgentStatusManager(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -201,7 +203,7 @@ public class AgentStatusManager {
         fields.add(conf.get(AGENT_CLUSTER_NAME));
         fields.add(conf.get(AGENT_CLUSTER_TAG));
         fields.add(TaskManager.class.getPackage().getImplementationVersion());
-        fields.add(format.format(runtimeMXBean.getStartTime()));
+        fields.add(processStartupTime);
         fields.add(String.valueOf(runtime.availableProcessors()));
         fields.add(String.valueOf(twoDecimal(getProcessCpu())));
         fields.add(String.valueOf(twoDecimal((double) runtime.freeMemory() / GB)));
@@ -220,7 +222,7 @@ public class AgentStatusManager {
         fields.add(agentManager.getTaskManager().getTaskResultMd5());
         fields.add(String.valueOf(agentManager.getTaskManager().getTaskStore().getTasks().size()));
         fields.add(String.valueOf(OffsetManager.getInstance().getRunningInstanceCount()));
-        fields.add(ExcuteLinux.exeCmd("who -b|awk '{print $(NF-1), $NF}'").replaceAll("\r|\n", ""));
+        fields.add(systemStartupTime);
         fields.add(String.valueOf(sendPackageCount.getAndSet(0)));
         fields.add(String.valueOf(sendDataLen.getAndSet(0)));
         fields.add(String.valueOf(MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_SOURCE_PERMIT)));

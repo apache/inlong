@@ -60,7 +60,6 @@ public class InstanceStore {
         int count = 0;
         for (KeyValueEntity entity : result) {
             if (entity.getAsInstanceProfile().getState() == InstanceStateEnum.DEFAULT) {
-                LOGGER.info("test123 {}", entity.getAsInstanceProfile().getInstanceId());
                 count++;
             }
         }
