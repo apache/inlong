@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.message;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.RawDeserializationConfig;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
@@ -80,6 +82,13 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
             log.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+    }
+
+    @Override
+    public DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
+        RawDeserializationConfig rawDeserializationConfig = new RawDeserializationConfig();
+        rawDeserializationConfig.setStreamId(streamInfo.getInlongStreamId());
+        return rawDeserializationConfig;
     }
 
 }
