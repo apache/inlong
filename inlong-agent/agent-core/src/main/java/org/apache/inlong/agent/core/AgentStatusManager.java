@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
 import java.math.BigDecimal;
@@ -131,7 +130,6 @@ public class AgentStatusManager {
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Runtime runtime = Runtime.getRuntime();
     final long GB = 1024 * 1024 * 1024;
-    private OperatingSystemMXBean osMxBean;
     private ThreadMXBean threadBean;
     private final long INVALID_CPU = -1;
     private RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
@@ -145,7 +143,6 @@ public class AgentStatusManager {
     private AgentStatusManager(AgentManager agentManager) {
         this.agentManager = agentManager;
         this.conf = AgentConfiguration.getAgentConf();
-        osMxBean = ManagementFactory.getOperatingSystemMXBean();
         threadBean = ManagementFactory.getThreadMXBean();
     }
 

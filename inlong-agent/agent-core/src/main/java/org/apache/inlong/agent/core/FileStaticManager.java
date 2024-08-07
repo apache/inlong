@@ -90,8 +90,6 @@ public class FileStaticManager {
     protected final Integer CACHE_QUEUE_SIZE = 10000;
     private static FileStaticManager manager = null;
     private final AgentConfiguration conf;
-
-    private List<String> statusFieldsPre = Lists.newArrayList();
     protected BlockingQueue<FileStatic> queue;
 
     private FileStaticManager(AgentManager agentManager) {
