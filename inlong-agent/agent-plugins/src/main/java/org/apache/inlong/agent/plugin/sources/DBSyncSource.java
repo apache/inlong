@@ -20,24 +20,12 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
-/**
- * binlog source, split binlog source job into multi readers
- */
-public class BinlogSource extends AbstractSource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSource.class);
-
-    public BinlogSource() {
-    }
+public class DBSyncSource extends AbstractSource {
 
     @Override
-    public List<Reader> split(JobProfile conf) {
+    public List<Reader> split(JobProfile profile) {
         return null;
     }
-
 }

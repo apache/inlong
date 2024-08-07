@@ -22,12 +22,10 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-import org.apache.inlong.agent.plugin.sources.reader.RedisReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,11 +41,7 @@ public class RedisSource extends AbstractSource {
 
     @Override
     public List<Reader> split(TaskProfile conf) {
-        RedisReader redisReader = new RedisReader();
-        List<Reader> readerList = new ArrayList<>();
-        readerList.add(redisReader);
-        sourceMetric.sourceSuccessCount.incrementAndGet();
-        return readerList;
+        return null;
     }
 
     @Override
