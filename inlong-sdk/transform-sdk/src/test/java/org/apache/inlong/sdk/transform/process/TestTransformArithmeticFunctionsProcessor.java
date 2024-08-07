@@ -205,4 +205,80 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=7.38905609893065");
     }
+
+    @Test
+    public void testCeilFunction() throws Exception {
+        String transformSql = "select ceil(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1: ceil(1.23)
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor.transform("1.23|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=2.0");
+        // case2: ceil(3)
+        List<String> output2 = processor.transform("3|-2|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=3.0");
+        // case3: ceil(-5.67)
+        List<String> output3 = processor.transform("-5.67|0.5|6|8", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-5.0");
+    }
+
+    @Test
+    public void testFloorFunction() throws Exception {
+        String transformSql = "select floor(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1: floor(1.23)
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor.transform("1.23|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=1.0");
+        // case2: floor(3)
+        List<String> output2 = processor.transform("3|-2|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=3.0");
+        // case3: floor(-5.67)
+        List<String> output3 = processor.transform("-5.67|0.5|6|8", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-6.0");
+    }
+
+    @Test
+    public void testSinFunction() throws Exception {
+        String transformSql = "select sin(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: sin(0)
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.0");
+    }
+
+    @Test
+    public void testSinhFunction() throws Exception {
+        String transformSql = "select sinh(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: sinh(0)
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.0");
+        // case2: sinh(1)
+        List<String> output2 = processor.transform("1|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1.1752011936438014");
+        // case3: sinh(2)
+        List<String> output3 = processor.transform("2|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=3.626860407847019");
+    }
 }

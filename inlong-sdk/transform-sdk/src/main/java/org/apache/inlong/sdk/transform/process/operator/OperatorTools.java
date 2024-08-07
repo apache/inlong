@@ -18,9 +18,11 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
+import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
+import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
 import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
@@ -28,6 +30,8 @@ import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.SinFunction;
+import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
@@ -93,6 +97,10 @@ public class OperatorTools {
         functionMap.put("locate", LocateFunction::new);
         functionMap.put("to_date", ToDateFunction::new);
         functionMap.put("date_format", DateFormatFunction::new);
+        functionMap.put("ceil", CeilFunction::new);
+        functionMap.put("floor", FloorFunction::new);
+        functionMap.put("sin", SinFunction::new);
+        functionMap.put("sinh", SinhFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
