@@ -104,6 +104,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,11 +222,35 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            constrainStartAndEndTime(request);
             scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
         }
 
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
+    }
+
+    /**
+     * Add constraints to the start and end time of the offline synchronization group.
+     * 1. startTime must >= current time
+     * 2. endTime must >= startTime
+     * */
+    private void constrainStartAndEndTime(InlongGroupRequest request) {
+        Timestamp startTime = request.getStartTime();
+        Timestamp endTime = request.getEndTime();
+        Preconditions.expectTrue(startTime != null && endTime != null, "start time or end time cannot be empty");
+        long currentTime = System.currentTimeMillis();
+        if (startTime.getTime() < currentTime) {
+            Timestamp newStartTime = new Timestamp(currentTime);
+            request.setStartTime(newStartTime);
+            LOGGER.warn("start time is less than current time, re-set to current time for groupId={}, "
+                    + "startTime={}, newStartTime={}", request.getInlongGroupId(), startTime, newStartTime);
+        }
+        if (request.getStartTime().getTime() > endTime.getTime()) {
+            request.setEndTime(request.getStartTime());
+            LOGGER.warn("end time is less than start time, re-set end time to start time for groupId={}, "
+                    + "endTime={}, newEndTime={}", request.getInlongGroupId(), endTime, request.getEndTime());
+        }
     }
 
     @Override
@@ -498,6 +523,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            constrainStartAndEndTime(request);
             scheduleOperator.updateAndRegister(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new),
                     operator);
         }
