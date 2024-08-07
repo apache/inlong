@@ -19,10 +19,12 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +39,13 @@ public class BinlogSource extends AbstractSource {
 
     @Override
     public List<Reader> split(JobProfile conf) {
-        return null;
+        super.init(conf);
+        BinlogReader binlogReader = new BinlogReader();
+        binlogReader.setReadSource(conf.getInstanceId());
+        List<Reader> readerList = new ArrayList<>();
+        readerList.add(binlogReader);
+        sourceMetric.sourceSuccessCount.incrementAndGet();
+        return readerList;
     }
 
 }
