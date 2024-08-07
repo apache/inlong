@@ -20,11 +20,9 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 
 import io.debezium.connector.oracle.OracleConnector;
@@ -75,11 +73,6 @@ public class OracleSource extends AbstractSource {
     private String schema;
 
     public OracleSource() {
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 
     @Override

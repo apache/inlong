@@ -18,9 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 
 import org.slf4j.Logger;
@@ -37,11 +35,6 @@ public class RedisSource extends AbstractSource {
 
     public RedisSource() {
 
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 
     @Override
