@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sources.file;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
@@ -30,7 +29,6 @@ import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.file.Source;
 import org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -404,10 +402,5 @@ public abstract class AbstractSource implements Source {
     @Override
     public boolean sourceFinish() {
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 }

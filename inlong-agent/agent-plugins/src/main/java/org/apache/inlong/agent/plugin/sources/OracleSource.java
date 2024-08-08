@@ -20,13 +20,10 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
 
 import io.debezium.connector.oracle.OracleConnector;
 import io.debezium.connector.oracle.OracleConnectorConfig;
@@ -49,7 +46,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.agent.constant.TaskConstants.*;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_DBNAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_HOSTNAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_PASSWORD;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_PORT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_SCHEMA_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_SNAPSHOT_MODE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_TABLE_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ORACLE_USER;
 
 /**
  * Oracle SQL source
@@ -69,15 +73,6 @@ public class OracleSource extends AbstractSource {
     private String schema;
 
     public OracleSource() {
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        Reader oracleReader = new OracleReader();
-        List<Reader> readerList = new ArrayList<>();
-        readerList.add(oracleReader);
-        sourceMetric.sourceSuccessCount.incrementAndGet();
-        return readerList;
     }
 
     @Override

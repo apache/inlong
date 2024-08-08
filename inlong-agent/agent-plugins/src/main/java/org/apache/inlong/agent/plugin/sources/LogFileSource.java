@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.FileStaticManager;
@@ -27,7 +26,6 @@ import org.apache.inlong.agent.core.FileStaticManager.FileStatic;
 import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -313,11 +311,6 @@ public class LogFileSource extends AbstractSource {
     @Override
     public boolean sourceExist() {
         return fileExist;
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile jobConf) {
-        return null;
     }
 
     @Override
