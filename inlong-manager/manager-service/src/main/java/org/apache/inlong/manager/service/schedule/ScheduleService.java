@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.schedule;
 
 import org.apache.inlong.manager.common.enums.ScheduleStatus;
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 
