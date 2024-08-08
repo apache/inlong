@@ -95,22 +95,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public Boolean update(ScheduleInfoRequest request, String operator) {
-        return doUpdate(request, operator, true);
-    }
-
-    @Override
-    public Boolean updateWithoutCheck(ScheduleInfoRequest request, String operator) {
-        return doUpdate(request, operator, false);
-    }
-
-    private Boolean doUpdate(ScheduleInfoRequest request, String operator, boolean checkVersion) {
         LOGGER.debug("begin to update schedule info={}", request);
         String groupId = request.getInlongGroupId();
         ScheduleEntity entity = getScheduleEntity(groupId);
         String errMsg =
                 String.format("schedule info has already been updated with groupId=%s, curVersion=%s, expectVersion=%s",
                         entity.getInlongGroupId(), request.getVersion(), entity.getVersion());
-        if (checkVersion && !Objects.equals(entity.getVersion(), request.getVersion())) {
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

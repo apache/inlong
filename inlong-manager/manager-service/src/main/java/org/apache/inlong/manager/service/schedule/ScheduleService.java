@@ -64,17 +64,6 @@ public interface ScheduleService {
             String operator);
 
     /**
-     * Modify schedule information without check the version of schedule info.
-     * In case of update group info, the version of {@link InlongGroupRequest} is the version of group, so the
-     * version of schedule info will be ignored.
-     * @param request schedule request that needs to be modified
-     * @param operator name of operator
-     * @return whether succeed
-     */
-    Boolean updateWithoutCheck(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest request,
-            String operator);
-
-    /**
      * Update status of schedule info.
      *
      * @param groupId group to update schedule status

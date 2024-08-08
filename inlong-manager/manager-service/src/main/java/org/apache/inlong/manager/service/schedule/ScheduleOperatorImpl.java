@@ -107,7 +107,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean updateOpt(ScheduleInfoRequest request, String operator, Boolean checkVersion) {
+    public Boolean updateOpt(ScheduleInfoRequest request, String operator) {
         // if the inlong group exist without schedule info
         // then, save the new schedule info when updating inlong group
         if (!scheduleInfoExist(request.getInlongGroupId())) {
@@ -120,9 +120,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
             return false;
         }
         // update schedule info
-        boolean res = checkVersion
-                ? scheduleService.update(request, operator)
-                : scheduleService.updateWithoutCheck(request, operator);
+        boolean res = scheduleService.update(request, operator);
         // update status
         scheduleService.updateStatus(request.getInlongGroupId(), UPDATED, operator);
         return res;
@@ -131,16 +129,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean updateAndRegister(ScheduleInfoRequest request, String operator) {
-        if (updateOpt(request, operator, true)) {
-            return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
-        }
-        return false;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public Boolean updateAndRegisterWithoutCheck(ScheduleInfoRequest request, String operator) {
-        if (updateOpt(request, operator, false)) {
+        if (updateOpt(request, operator)) {
             return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
         }
         return false;

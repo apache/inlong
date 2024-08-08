@@ -519,9 +519,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
             constrainStartAndEndTime(request);
             ScheduleInfoRequest scheduleRequest = CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new);
-            // do not take version, since this is the version for group, may not equal to schedule version
-            scheduleRequest.setVersion(null);
-            scheduleOperator.updateAndRegisterWithoutCheck(scheduleRequest, operator);
+            if (scheduleOperator.scheduleInfoExist(groupId)) {
+                scheduleRequest.setVersion(scheduleOperator.getScheduleInfo(groupId).getVersion());
+            }
+            scheduleOperator.updateAndRegister(scheduleRequest, operator);
         }
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
