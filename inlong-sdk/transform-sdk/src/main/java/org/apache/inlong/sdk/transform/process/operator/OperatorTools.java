@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.transform.process.operator;
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
@@ -37,6 +38,7 @@ import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
+import org.apache.inlong.sdk.transform.process.parser.DateParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
 import org.apache.inlong.sdk.transform.process.parser.LongParser;
 import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
@@ -45,6 +47,7 @@ import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
@@ -67,6 +70,7 @@ import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,6 +105,12 @@ public class OperatorTools {
         functionMap.put("floor", FloorFunction::new);
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
+        functionMap.put("year", func -> new DateExtractFunction(1, func));
+        functionMap.put("quarter", func -> new DateExtractFunction(2, func));
+        functionMap.put("month", func -> new DateExtractFunction(3, func));
+        functionMap.put("week", func -> new DateExtractFunction(4, func));
+        functionMap.put("dayofyear", func -> new DateExtractFunction(5, func));
+        functionMap.put("dayofmonth", func -> new DateExtractFunction(6, func));
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
@@ -145,6 +155,8 @@ public class OperatorTools {
             return new MultiplicationParser((Multiplication) expr);
         } else if (expr instanceof Division) {
             return new DivisionParser((Division) expr);
+        } else if (expr instanceof DateValue) {
+            return new DateParser((DateValue) expr);
         } else if (expr instanceof Function) {
             String exprString = expr.toString();
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
@@ -179,6 +191,14 @@ public class OperatorTools {
 
     public static String parseString(Object value) {
         return value.toString();
+    }
+
+    public static Date parseDate(Object value) {
+        if (value instanceof Date) {
+            return (Date) value;
+        } else {
+            return Date.valueOf(String.valueOf(value));
+        }
     }
 
     /**
