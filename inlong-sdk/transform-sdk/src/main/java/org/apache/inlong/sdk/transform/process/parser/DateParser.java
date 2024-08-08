@@ -26,7 +26,7 @@ import java.sql.Date;
 
 /**
  * DateParser
- *
+ * description: parse the sql expression to a java.sql.Date object
  */
 public class DateParser implements ValueParser {
 

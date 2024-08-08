@@ -51,6 +51,7 @@ public class DateExtractFunction implements ValueParser {
     /**
      * Constructor
      *
+     * @param type the type of date extract function(1->year, 2->quarter, 3->month, 4->week, 5->dayofyear, 6->dayofmonth)
      * @param expr
      */
     public DateExtractFunction(int type, Function expr) {
@@ -64,6 +65,7 @@ public class DateExtractFunction implements ValueParser {
      *
      * @param sourceData
      * @param rowIndex
+     * @param context
      * @return
      */
     @Override
