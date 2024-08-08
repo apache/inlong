@@ -21,7 +21,7 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
 
 /**
- * Source can be split into multiple reader.
+ * The source class is used to collect data from a data source
  */
 public interface Source {
 
