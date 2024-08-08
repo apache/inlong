@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.schedule;
 
 import org.apache.inlong.manager.common.enums.ScheduleStatus;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 
@@ -60,6 +61,17 @@ public interface ScheduleService {
      * @return whether succeed
      */
     Boolean update(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest request,
+            String operator);
+
+    /**
+     * Modify schedule information without check the version of schedule info.
+     * In case of update group info, the version of {@link InlongGroupRequest} is the version of group, so the
+     * version of schedule info will be ignored.
+     * @param request schedule request that needs to be modified
+     * @param operator name of operator
+     * @return whether succeed
+     */
+    Boolean updateWithoutCheck(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest request,
             String operator);
 
     /**

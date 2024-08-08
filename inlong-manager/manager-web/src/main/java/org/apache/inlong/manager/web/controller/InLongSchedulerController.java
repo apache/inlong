@@ -73,7 +73,7 @@ public class InLongSchedulerController {
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SCHEDULE)
     @ApiOperation(value = "Update schedule info")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ScheduleInfoRequest request) {
-        return Response.success(scheduleOperator.updateOpt(request, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(scheduleOperator.updateOpt(request, LoginUserUtils.getLoginUser().getName(), true));
     }
 
     @RequestMapping(value = "/schedule/updateAndRegister", method = RequestMethod.POST)

@@ -309,24 +309,18 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setSortConf(sortConf);
         if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
             // get schedule info and set into group info
-            addScheduleInfo(entity, groupInfo);
+            fillInScheduleInfo(entity, groupInfo);
         }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }
 
-    private void addScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
-        checkOfflineSyncScheduleExist(entity);
-        ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
-        CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
-    }
-
-    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity) {
-        // check schedule info for offline sync
-        if (!isScheduleInfoExist(entity)) {
-            String errorMsg = String.format("Schedule info not found for groupId=%s", entity.getInlongGroupId());
-            LOGGER.error(errorMsg);
-            throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND, errorMsg);
+    private void fillInScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
+        if (isScheduleInfoExist(entity)) {
+            ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
+            int groupVersion = groupInfo.getVersion();
+            CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
+            groupInfo.setVersion(groupVersion);
         }
     }
 
@@ -524,8 +518,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
             constrainStartAndEndTime(request);
-            scheduleOperator.updateAndRegister(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new),
-                    operator);
+            ScheduleInfoRequest scheduleRequest = CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new);
+            // do not take version, since this is the version for group, may not equal to schedule version
+            scheduleRequest.setVersion(null);
+            scheduleOperator.updateAndRegisterWithoutCheck(scheduleRequest, operator);
         }
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.schedule;
 
 import org.apache.inlong.common.bounded.Boundaries;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -66,9 +67,10 @@ public interface ScheduleOperator {
      * - 2. update schedule info directly(inlong group has been already exist)
      * @param request schedule request that needs to be modified
      * @param operator name of operator
+     * @param checkVersion whether check version
      * @return whether succeed
      */
-    Boolean updateOpt(ScheduleInfoRequest request, String operator);
+    Boolean updateOpt(ScheduleInfoRequest request, String operator, Boolean checkVersion);
 
     /**
      * Register schedule information
@@ -77,6 +79,16 @@ public interface ScheduleOperator {
      * @return whether succeed
      */
     Boolean updateAndRegister(ScheduleInfoRequest request, String operator);
+
+    /**
+     * Register schedule information without check version.
+     * In case of update group info, the version of {@link InlongGroupRequest} is the version of group, so the
+     * version of schedule info will be ignored.
+     * @param request schedule request that needs to be modified
+     * @param operator name of operator
+     * @return whether succeed
+     */
+    Boolean updateAndRegisterWithoutCheck(ScheduleInfoRequest request, String operator);
 
     /**
      * Delete schedule info for groupId.
