@@ -403,7 +403,6 @@ public class StringUtils {
         return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter, null);
     }
 
-
     /**
      * Splits the csv text, which may contains multiple lines of data.
      *
@@ -457,7 +456,7 @@ public class StringUtils {
                         fields.add(field);
                         stringBuilder.setLength(0);
 
-                        splittedSize ++;
+                        splittedSize++;
                         // if the last field, mark the last filed start index
                         if (maxFieldSize != null && splittedSize == maxFieldSize - 1) {
                             if (i + 1 < text.length()) {
