@@ -38,9 +38,6 @@ public class StringUtils {
     private static final int STATE_ESCAPING = 8;
     private static final int STATE_QUOTING = 16;
 
-    // means that the split process is finished, the remainder will be treated as a single field
-    private static final int STATE_FINISH = 32;
-
     /**
      * @see StringUtils#splitKv(String, Character, Character, Character,Character, Character)
      */
