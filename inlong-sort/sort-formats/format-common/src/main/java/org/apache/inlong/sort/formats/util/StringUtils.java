@@ -403,6 +403,7 @@ public class StringUtils {
         return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter, null);
     }
 
+
     /**
      * Splits the csv text, which may contains multiple lines of data.
      *
@@ -456,7 +457,7 @@ public class StringUtils {
                         fields.add(field);
                         stringBuilder.setLength(0);
 
-                        splittedSize++;
+                        splittedSize ++;
                         // if the last field, mark the last filed start index
                         if (maxFieldSize != null && splittedSize == maxFieldSize - 1) {
                             if (i + 1 < text.length()) {
@@ -504,8 +505,10 @@ public class StringUtils {
                         String field = stringBuilder.toString();
                         fields.add(field);
 
+                        // if the max field size < the real field size,
+                        // remove the extra fields and copy the latest field from lastFieldStartIndex to current index
                         if (maxFieldSize != null && fields.size() > maxFieldSize) {
-                            replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, i);
+                            fields = replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, i);
                         }
                         // reset the lastFieldStartIndex for new line
                         lastFieldStartIndex = i + 1;
@@ -539,7 +542,7 @@ public class StringUtils {
                 fields.add(field);
 
                 if (maxFieldSize != null && fields.size() > maxFieldSize) {
-                    replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, text.length());
+                    fields = replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, text.length());
                 }
 
                 lines.add(fields.toArray(new String[0]));
@@ -564,15 +567,16 @@ public class StringUtils {
      * @param lastFieldStartIndex Start index of last field
      * @param lastFieldEndIndex End index of last field
      */
-    private static void replaceLastField(
+    private static List<String> replaceLastField(
             List<String> fields,
             int maxFieldSize,
             String text,
             int lastFieldStartIndex,
             int lastFieldEndIndex) {
-        fields = fields.subList(0, maxFieldSize - 1);
+        List<String> newField = fields.subList(0, maxFieldSize - 1);
         String last = text.substring(lastFieldStartIndex, lastFieldEndIndex);
-        fields.add(last);
+        newField.add(last);
+        return newField;
     }
 
     /**
