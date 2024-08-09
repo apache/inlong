@@ -21,6 +21,7 @@ import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
+import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
@@ -105,12 +106,12 @@ public class OperatorTools {
         functionMap.put("floor", FloorFunction::new);
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
-        functionMap.put("year", func -> new DateExtractFunction(1, func));
-        functionMap.put("quarter", func -> new DateExtractFunction(2, func));
-        functionMap.put("month", func -> new DateExtractFunction(3, func));
-        functionMap.put("week", func -> new DateExtractFunction(4, func));
-        functionMap.put("dayofyear", func -> new DateExtractFunction(5, func));
-        functionMap.put("dayofmonth", func -> new DateExtractFunction(6, func));
+        functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
+        functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
+        functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
+        functionMap.put("week", func -> new DateExtractFunction(DateExtractFunctionType.WEEK, func));
+        functionMap.put("dayofyear", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_YEAR, func));
+        functionMap.put("dayofmonth", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_MONTH, func));
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {

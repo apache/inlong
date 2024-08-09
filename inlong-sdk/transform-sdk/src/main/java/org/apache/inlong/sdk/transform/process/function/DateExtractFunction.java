@@ -44,17 +44,21 @@ import java.util.Locale;
  */
 public class DateExtractFunction implements ValueParser {
 
-    private int type;
+    private DateExtractFunctionType type;
     private ValueParser dateParser;
     private static final TemporalField weekOfYearField = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
+
+    public enum DateExtractFunctionType {
+        YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH
+    }
 
     /**
      * Constructor
      *
-     * @param type the type of date extract function(1->year, 2->quarter, 3->month, 4->week, 5->dayofyear, 6->dayofmonth)
+     * @param type the type of date extract function(YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH)
      * @param expr
      */
-    public DateExtractFunction(int type, Function expr) {
+    public DateExtractFunction(DateExtractFunctionType type, Function expr) {
         this.type = type;
         List<Expression> expressions = expr.getParameters().getExpressions();
         dateParser = OperatorTools.buildParser(expressions.get(0));
@@ -75,22 +79,22 @@ public class DateExtractFunction implements ValueParser {
         LocalDate localDate = date.toLocalDate();
         switch (type) {
             // year
-            case 1:
+            case YEAR:
                 return localDate.getYear();
             // quarter(between 1 and 4)
-            case 2:
+            case QUARTER:
                 return (localDate.getMonthValue() - 1) / 3 + 1;
             // month(between 1 and 12)
-            case 3:
+            case MONTH:
                 return localDate.getMonthValue();
             // week(between 1 and 53)
-            case 4:
+            case WEEK:
                 return localDate.get(weekOfYearField);
             // dayofyear(between 1 and 366)
-            case 5:
+            case DAY_OF_YEAR:
                 return localDate.getDayOfYear();
             // dayofmonth(between 1 and 31)
-            case 6:
+            case DAY_OF_MONTH:
                 return localDate.getDayOfMonth();
             default:
                 return null;
