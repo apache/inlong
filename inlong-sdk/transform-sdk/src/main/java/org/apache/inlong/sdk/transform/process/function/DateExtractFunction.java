@@ -52,26 +52,12 @@ public class DateExtractFunction implements ValueParser {
         YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH
     }
 
-    /**
-     * Constructor
-     *
-     * @param type the type of date extract function(YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH)
-     * @param expr
-     */
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {
         this.type = type;
         List<Expression> expressions = expr.getParameters().getExpressions();
         dateParser = OperatorTools.buildParser(expressions.get(0));
     }
 
-    /**
-     * parse
-     *
-     * @param sourceData
-     * @param rowIndex
-     * @param context
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object dateObj = dateParser.parse(sourceData, rowIndex, context);
