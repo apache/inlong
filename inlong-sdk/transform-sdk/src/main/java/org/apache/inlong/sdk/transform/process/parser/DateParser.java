@@ -36,13 +36,6 @@ public class DateParser implements ValueParser {
         this.dateValue = Date.valueOf(expr.getValue().toLocalDate());
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @param context
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         return dateValue;
