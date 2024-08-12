@@ -558,6 +558,7 @@
   "components.Layout.UserManual": "User manual",
   "components.Layout.Feedback": "Feedback",
   "components.HighSelect.Customize": "Customize",
+  "components.HighRadio.Customize": "Customize (ascii code)",
   "components.HighSelect.SearchPlaceholder": "Please enter keyword...",
   "components.NodeSelect.Create": "Create node",
   "components.FieldList.SinkFieldName": "Sink field name",
