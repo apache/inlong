@@ -36,6 +36,7 @@ import org.apache.inlong.sdk.transform.process.function.SinFunction;
 import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
+import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
@@ -72,6 +73,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +114,14 @@ public class OperatorTools {
         functionMap.put("week", func -> new DateExtractFunction(DateExtractFunctionType.WEEK, func));
         functionMap.put("dayofyear", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_YEAR, func));
         functionMap.put("dayofmonth", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_MONTH, func));
+        functionMap.put("hour",
+                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.HOUR, func));
+        functionMap.put("minute",
+                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.MINUTE,
+                        func));
+        functionMap.put("second",
+                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
+                        func));
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
@@ -199,6 +209,14 @@ public class OperatorTools {
             return (Date) value;
         } else {
             return Date.valueOf(String.valueOf(value));
+        }
+    }
+
+    public static Timestamp parseTimestamp(Object value) {
+        if (value instanceof Timestamp) {
+            return (Timestamp) value;
+        } else {
+            return Timestamp.valueOf(String.valueOf(value));
         }
     }
 
