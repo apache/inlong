@@ -19,8 +19,7 @@
 
 #!/bin/bash
 
-rm -r build
-mkdir build
-cd build
-cmake ../
-make -j4
+cd third_party
+cmake .
+make clean
+make -j1
