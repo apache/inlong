@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgFormatFactory;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.flink.api.common.functions.util.ListCollector;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
 import org.apache.inlong.sort.formats.base.FormatDescriptorValidator;
 

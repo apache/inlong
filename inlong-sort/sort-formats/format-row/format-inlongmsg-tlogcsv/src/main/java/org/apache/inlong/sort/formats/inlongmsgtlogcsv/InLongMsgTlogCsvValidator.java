@@ -22,7 +22,7 @@ import org.apache.inlong.sort.formats.base.TextFormatDescriptorValidator;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateInLongMsgSchema;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.validateInLongMsgSchema;
 
 /**
  * The validator for {@link InLongMsgTlogCsv}.

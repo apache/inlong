@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgDeserializationSchema.MetadataConverter;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;

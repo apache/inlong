@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
 import com.google.common.base.Objects;
 import org.apache.flink.api.common.functions.util.ListCollector;
@@ -152,7 +153,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
         return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
 
-    interface MetadataConverter extends Serializable {
+    public interface MetadataConverter extends Serializable {
 
         Object read(InLongMsgHead head);
     }

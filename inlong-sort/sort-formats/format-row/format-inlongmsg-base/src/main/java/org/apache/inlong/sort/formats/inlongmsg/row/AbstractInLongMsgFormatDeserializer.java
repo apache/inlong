@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
