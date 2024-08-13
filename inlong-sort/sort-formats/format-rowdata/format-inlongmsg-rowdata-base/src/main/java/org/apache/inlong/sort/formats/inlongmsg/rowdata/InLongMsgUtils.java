@@ -20,11 +20,6 @@ package org.apache.inlong.sort.formats.inlongmsg.rowdata;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata;
-import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
@@ -38,6 +33,11 @@ import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarCharType;
+import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
 
 import javax.annotation.Nullable;
 
