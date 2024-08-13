@@ -35,12 +35,12 @@ import java.util.Locale;
 /**
  * DateExtractFunction
  * description:
- * - year(date)--returns the year from SQL date date
- * - quarter(date)--returns the quarter of a year (an integer between 1 and 4) from SQL date date
- * - month(date)--returns the month of a year (an integer between 1 and 12) from SQL date date
- * - week(date)--returns the week of a year (an integer between 1 and 53) from SQL date date
- * - dayofyear(date)--returns the day of a year (an integer between 1 and 366) from SQL date date
- * - dayofmonth(date)--returns the day of a month (an integer between 1 and 31) from SQL date date
+ * - year(date)--returns the year from SQL date
+ * - quarter(date)--returns the quarter of a year (an integer between 1 and 4) from SQL date
+ * - month(date)--returns the month of a year (an integer between 1 and 12) from SQL date
+ * - week(date)--returns the week of a year (an integer between 1 and 53) from SQL date
+ * - dayofyear(date)--returns the day of a year (an integer between 1 and 366) from SQL date
+ * - dayofmonth(date)--returns the day of a month (an integer between 1 and 31) from SQL date
  */
 public class DateExtractFunction implements ValueParser {
 

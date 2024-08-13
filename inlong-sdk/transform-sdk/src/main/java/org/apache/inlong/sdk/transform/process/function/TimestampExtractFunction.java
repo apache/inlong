@@ -32,8 +32,8 @@ import java.util.List;
 /**
  * TimestampExtractFunction
  * description:
- * - hour(timestamp)--returns the hour of a day (an integer between 0 and 23) from SQL timestamp timestamp
- * - minute(timestamp)--returns the minute of an hour (an integer between 0 and 59) from SQL timestamp timestamp
+ * - hour(timestamp)--returns the hour of a day (an integer between 0 and 23) from SQL timestamp
+ * - minute(timestamp)--returns the minute of an hour (an integer between 0 and 59) from SQL timestamp
  * - second(timestamp)--returns the second of a minute (an integer between 0 and 59) from SQL timestamp
  */
 public class TimestampExtractFunction implements ValueParser {
