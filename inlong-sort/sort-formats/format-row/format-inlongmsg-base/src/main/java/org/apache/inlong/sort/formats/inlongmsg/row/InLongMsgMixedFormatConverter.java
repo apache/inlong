@@ -15,23 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
-import javax.annotation.Nonnull;
+import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
+import org.apache.flink.types.Row;
 
 /**
- * The base for all inlongmsg mixed format deserializers.
+ * The converter for a mixed inlongmsg format.
  */
-public abstract class AbstractInLongMsgMixedFormatDeserializer
+public interface InLongMsgMixedFormatConverter
         extends
-            AbstractInLongMsgFormatDeserializer {
+            FlatMapFunction<Row, Row>,
+            ResultTypeQueryable<Row> {
 
-    @Deprecated
-    public AbstractInLongMsgMixedFormatDeserializer(@Nonnull Boolean ignoreErrors) {
-        this(InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
-    }
-
-    public AbstractInLongMsgMixedFormatDeserializer(@Nonnull FailureHandler failureHandler) {
-        super(failureHandler);
-    }
 }

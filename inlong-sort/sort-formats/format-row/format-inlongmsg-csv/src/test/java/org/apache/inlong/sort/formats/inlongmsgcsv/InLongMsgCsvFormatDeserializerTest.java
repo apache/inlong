@@ -44,8 +44,8 @@ import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER;
 import static org.junit.Assert.assertEquals;
 

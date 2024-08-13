@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.row;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
@@ -27,6 +27,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
