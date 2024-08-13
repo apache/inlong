@@ -175,7 +175,7 @@ const Comp: React.FC = () => {
       {
         type: 'select',
         name: 'inlongGroupMode',
-        label: i18n.t('类型'),
+        label: i18n.t('meta.Synchronize.SyncType'),
         initialValue: defaultValues.inlongGroupMode,
         props: {
           allowClear: true,
