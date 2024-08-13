@@ -47,6 +47,7 @@ import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
 import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
 import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
+import org.apache.inlong.sdk.transform.process.parser.TimestampParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.DateValue;
@@ -56,6 +57,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NotExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
 import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
@@ -168,6 +170,8 @@ public class OperatorTools {
             return new DivisionParser((Division) expr);
         } else if (expr instanceof DateValue) {
             return new DateParser((DateValue) expr);
+        } else if (expr instanceof TimestampValue) {
+            return new TimestampParser((TimestampValue) expr);
         } else if (expr instanceof Function) {
             String exprString = expr.toString();
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
