@@ -33,7 +33,6 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.data.binary.BinaryStringData;
 import org.apache.flink.table.factories.utils.FactoryMocks;
 import org.apache.flink.table.runtime.connector.source.ScanRuntimeProviderContext;
-import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgFormatFactory;
 import org.junit.Test;
 
 import java.io.IOException;

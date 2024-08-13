@@ -15,18 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.row;
+package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
-import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.util.StringUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;

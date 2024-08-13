@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.row;
+package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.sort.formats.base.FormatDescriptorValidator;
 
@@ -23,7 +23,7 @@ import org.apache.flink.table.descriptors.DescriptorProperties;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
-import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.validateInLongMsgSchema;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateInLongMsgSchema;
 
 /**
  * The validator for the properties of {@link AbstractInLongMsgMixedFormatConverter}s.
