@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.rowdata;
-
-import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+package org.apache.inlong.sort.formats.inlongmsg;
 
 import javax.annotation.Nonnull;
 

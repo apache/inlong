@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.rowdata;
+package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
@@ -33,11 +33,6 @@ import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarCharType;
-import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata;
-import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
-import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
 
 import javax.annotation.Nullable;
 
@@ -217,15 +212,15 @@ public class InLongMsgUtils {
         // Metadata
         final List<InLongMsgMetadata.ReadableMetadata> readableMetadata = metadataKeys.stream()
                 .map(k -> Stream.of(InLongMsgMetadata.ReadableMetadata.values())
-                        .filter(rm -> rm.getKey().equals(k))
+                        .filter(rm -> rm.key.equals(k))
                         .findFirst()
                         .orElseThrow(IllegalStateException::new))
                 .collect(Collectors.toList());
 
         for (InLongMsgMetadata.ReadableMetadata rm : readableMetadata) {
             // TODO : avoid name conflict?
-            fieldNames.add(rm.getKey());
-            fieldTypes.add(rm.getDataType().getLogicalType());
+            fieldNames.add(rm.key);
+            fieldTypes.add(rm.dataType.getLogicalType());
         }
 
         RowType rowType = RowType.of(fieldTypes.toArray(new LogicalType[0]), fieldNames.toArray(new String[0]));
@@ -324,15 +319,15 @@ public class InLongMsgUtils {
         // Metadata
         final List<InLongMsgMetadata.ReadableMetadata> readableMetadata = metadataKeys.stream()
                 .map(k -> Stream.of(InLongMsgMetadata.ReadableMetadata.values())
-                        .filter(rm -> rm.getKey().equals(k))
+                        .filter(rm -> rm.key.equals(k))
                         .findFirst()
                         .orElseThrow(IllegalStateException::new))
                 .collect(Collectors.toList());
 
         for (InLongMsgMetadata.ReadableMetadata rm : readableMetadata) {
             // TODO : avoid name conflict?
-            fieldNames.add(rm.getKey());
-            fieldTypes.add(rm.getDataType().getLogicalType());
+            fieldNames.add(rm.key);
+            fieldTypes.add(rm.dataType.getLogicalType());
         }
 
         RowType rowType = RowType.of(fieldTypes.toArray(new LogicalType[0]), fieldNames.toArray(new String[0]));

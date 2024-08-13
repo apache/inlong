@@ -43,13 +43,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_ID;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_TID;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.getPredefinedFields;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.parseAttr;
-import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.parseEpochTime;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_ID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_TID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
 
 /**
  * Utilities for InLongMsgBinlog.

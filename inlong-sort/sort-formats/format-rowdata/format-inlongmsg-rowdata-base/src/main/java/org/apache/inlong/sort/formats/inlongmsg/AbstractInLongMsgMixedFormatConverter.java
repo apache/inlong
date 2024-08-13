@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.rowdata;
+package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.table.data.RowData;

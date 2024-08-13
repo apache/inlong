@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg.rowdata;
+package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgWrap;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
