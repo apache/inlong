@@ -25,6 +25,7 @@ import EditableTable from '@/ui/components/EditableTable';
 import { fieldTypes as sourceFieldsTypes } from '@/plugins/sinks/common/sourceFields';
 import { statusList, genStatusTag } from './status';
 import { timestampFormat } from '@/core/utils';
+import HighRadio from '@/ui/components/HighRadio';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -173,10 +174,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataEncoding: string;
 
   @FieldDecorator({
-    type: 'radio',
+    type: HighRadio,
+    initialValue: '124',
     props: values => ({
       disabled: [110].includes(values?.status),
-      initialValue: '124',
       options: [
         {
           label: i18n.t('meta.Stream.DataSeparator.Space'),
@@ -203,6 +204,21 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: '34',
         },
       ],
+      useInput: true,
+      useInputProps: {
+        style:
+          i18n?.language === 'cn'
+            ? {
+                width: 80,
+              }
+            : {
+                width: 80,
+                position: 'absolute',
+                left: 180,
+                bottom: 0,
+              },
+        placeholder: 'ASCII',
+      },
     }),
     rules: [
       {
