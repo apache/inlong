@@ -59,8 +59,8 @@ import static org.apache.flink.table.api.DataTypes.STRING;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata.ReadableMetadata.STREAMID;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**

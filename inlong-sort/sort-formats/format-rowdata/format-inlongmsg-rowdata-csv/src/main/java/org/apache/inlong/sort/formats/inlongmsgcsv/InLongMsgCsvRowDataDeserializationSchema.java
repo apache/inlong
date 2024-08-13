@@ -18,8 +18,8 @@
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgDeserializationSchema;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.rowdata.AbstractInLongMsgDeserializationSchema;
+import org.apache.inlong.sort.formats.inlongmsg.rowdata.AbstractInLongMsgFormatDeserializer;
 
 import org.apache.flink.annotation.PublicEvolving;
 
@@ -32,8 +32,8 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_E
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_NULL_LITERAL;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_QUOTE_CHARACTER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
 /**
  * Deserialization schema from InLongMsg-CSV to Flink Table & SQL internal data structures.

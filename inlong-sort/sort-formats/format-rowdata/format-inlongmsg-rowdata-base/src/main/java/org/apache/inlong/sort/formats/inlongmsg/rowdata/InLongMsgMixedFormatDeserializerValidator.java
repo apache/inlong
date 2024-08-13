@@ -15,28 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.rowdata;
 
 import org.apache.inlong.sort.formats.base.FormatDescriptorValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateInLongMsgSchema;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
 
 /**
- * The validator for the properties of {@link AbstractInLongMsgMixedFormatConverter}s.
+ * Validator for mixed InLongMsg formats.
  */
-public class InLongMsgMixedFormatConverterValidator extends FormatDescriptorValidator {
+public class InLongMsgMixedFormatDeserializerValidator extends FormatDescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
         super.validate(properties);
 
-        properties.validateString(FORMAT_NULL_LITERAL, true);
+        properties.validateString(FORMAT_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_ENTRY_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_KV_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_ESCAPE_CHARACTER, true, 1, 1);
+        properties.validateString(FORMAT_QUOTE_CHARACTER, true, 1, 1);
         properties.validateBoolean(FORMAT_IGNORE_ERRORS, true);
-
-        validateInLongMsgSchema(properties);
     }
 }

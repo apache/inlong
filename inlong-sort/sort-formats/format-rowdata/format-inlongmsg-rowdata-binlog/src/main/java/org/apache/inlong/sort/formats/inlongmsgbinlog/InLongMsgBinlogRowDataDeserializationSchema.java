@@ -18,15 +18,15 @@
 package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgDeserializationSchema;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.rowdata.AbstractInLongMsgDeserializationSchema;
+import org.apache.inlong.sort.formats.inlongmsg.rowdata.AbstractInLongMsgFormatDeserializer;
 
 import org.apache.flink.annotation.PublicEvolving;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_INCLUDE_UPDATE_BEFORE;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_METADATA_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.rowdata.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
 /**
  * Deserialization schema from inlong-msg-binlog to Flink Table & SQL internal data structures.

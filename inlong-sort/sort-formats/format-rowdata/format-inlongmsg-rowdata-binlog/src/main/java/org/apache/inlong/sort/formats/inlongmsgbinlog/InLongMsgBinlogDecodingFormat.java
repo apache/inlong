@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgDecodingFormat;
+import org.apache.inlong.sort.formats.inlongmsg.rowdata.AbstractInLongMsgDecodingFormat;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.configuration.ReadableConfig;

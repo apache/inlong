@@ -15,9 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsg;
+package org.apache.inlong.sort.formats.inlongmsg.rowdata;
 
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgWrap;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
