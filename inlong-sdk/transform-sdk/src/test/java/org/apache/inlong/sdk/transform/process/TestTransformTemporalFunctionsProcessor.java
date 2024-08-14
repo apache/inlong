@@ -183,4 +183,37 @@ public class TestTransformTemporalFunctionsProcessor {
         Assert.assertEquals(1, output6.size());
         Assert.assertEquals(output6.get(0), "result=29");
     }
+
+    @Test
+    public void testTimestampExtractFunction() throws Exception {
+        String transformSql1 = "select hour(string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: hour(2024-08-12 12:23:34)
+        List<String> output1 = processor1.transform("2024-08-12 12:23:34", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=12");
+
+        String transformSql2 = "select minute(string1) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: minute(2024-08-12 12:23:34)
+        List<String> output2 = processor2.transform("2024-08-12 12:23:34", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=23");
+
+        String transformSql3 = "select second(string1) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case3: second(2024-08-12 12:23:34)
+        List<String> output3 = processor3.transform("2024-08-12 12:23:34", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=34");
+    }
 }
