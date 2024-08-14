@@ -41,6 +41,8 @@ static const int32_t kSendBufSize = 10240000;
 static const int32_t kRecvBufSize = 10240000;
 static const uint32_t kMaxGroupIdNum = 50;
 static const uint32_t kMaxStreamIdNum = 100;
+static const uint32_t kMaxCacheNum = 10;
+static const uint32_t kMaxInstance = 30;
 
 static const int32_t kDispatchIntervalZip = 8;
 static const int32_t kDispatchIntervalSend = 10;

@@ -50,6 +50,9 @@ private:
   uint32_t send_buf_size_; // Send buf size, bid granularity
   uint32_t max_group_id_num_; // Send buf size, bid granularity
   uint32_t max_stream_id_num_; // Send buf size, bid granularity
+  uint32_t max_cache_num_;
+  uint32_t max_instance_;
+  uint32_t instance_num_;
 
   // thread parameters
   uint32_t per_groupid_thread_nums_; // Sending thread per groupid
