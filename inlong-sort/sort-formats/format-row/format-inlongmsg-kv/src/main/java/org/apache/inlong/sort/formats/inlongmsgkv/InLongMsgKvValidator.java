@@ -24,7 +24,7 @@ import org.apache.flink.table.descriptors.DescriptorProperties;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LINE_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateInLongMsgSchema;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.validateInLongMsgSchema;
 
 /**
  * The validator for {@link InLongMsgKv}.
