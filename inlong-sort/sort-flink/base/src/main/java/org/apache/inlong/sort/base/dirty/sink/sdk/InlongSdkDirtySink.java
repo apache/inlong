@@ -135,7 +135,7 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
     }
 
     private String formatRowData(RowData data, LogicalType rowType,
-                                 Map<String, String> labels) throws JsonProcessingException {
+            Map<String, String> labels) throws JsonProcessingException {
         String value;
         switch (options.getFormat()) {
             case "csv":
