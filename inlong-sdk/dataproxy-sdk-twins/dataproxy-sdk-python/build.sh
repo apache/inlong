@@ -58,8 +58,10 @@ make check -j 4
 
 # Build dataproxy-sdk-cpp(If the dataproxy-sdk-cpp has been compiled, this step will be skipped)
 if [ ! -e "$CPP_SDK_DIR/release/lib/dataproxy_sdk.a" ]; then
+    chmod +x $CPP_SDK_DIR/build_third_party.sh
     chmod +x $CPP_SDK_DIR/build.sh
     cd $CPP_SDK_DIR
+    . $CPP_SDK_DIR/build_third_party.sh
     . $CPP_SDK_DIR/build.sh
     cp -r $CPP_SDK_DIR $PY_SDK_DIR
 else
@@ -83,3 +85,5 @@ find $PY_SDK_DIR/build -name "*.so" -print0 | xargs -0 -I {} bash -c 'rm -f $0/$
 
 # Clean
 rm -r $PY_SDK_DIR/pybind11 $PY_SDK_DIR/dataproxy-sdk-cpp
+
+echo "Build Python SDK successfully"
