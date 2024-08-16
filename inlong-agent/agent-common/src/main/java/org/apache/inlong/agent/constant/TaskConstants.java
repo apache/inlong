@@ -177,6 +177,16 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SQLSERVER_UNIX_TIMESTAMP_FORMAT_ENABLE =
             "task.sqlserverTask.unixTimestampFormatEnable";
 
+    // Redis task
+    public static final String TASK_REDIS_PORT = "task.redisTask.port";
+    public static final String TASK_REDIS_HOSTNAME = "task.redisTask.hostname";
+    public static final String TASK_REDIS_SSL = "task.redisTask.ssl";
+    public static final String TASK_REDIS_AUTHUSER = "task.redisTask.authUser";
+    public static final String TASK_REDIS_AUTHPASSWORD = "task.redisTask.authPassword";
+    public static final String TASK_REDIS_READTIMEOUT = "task.redisTask.readTimeout";
+    public static final String TASK_REDIS_QUEUE_SIZE = "task.redisTask.queueSize";
+    public static final String TASK_REDIS_REPLID = "task.redisTask.replId";
+    public static final String TASK_REDIS_OFFSET = "task.redisTask.offset";
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";

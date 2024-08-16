@@ -53,6 +53,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
     public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
+    public static final String DEFAULT_REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
     public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
     public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
     public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
@@ -518,6 +519,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case REDIS:
+                task.setTaskClass(DEFAULT_REDIS_TASK);
                 RedisTask redisTask = getRedisTask(dataConfig);
                 task.setRedisTask(redisTask);
                 task.setSource(REDIS_SOURCE);
