@@ -28,8 +28,10 @@
 #include "../utils/utils.h"
 
 namespace inlong {
-SdkConfig *SdkConfig::instance_ = new SdkConfig();
-SdkConfig *SdkConfig::getInstance() { return SdkConfig::instance_; }
+SdkConfig *SdkConfig::getInstance() {
+  static SdkConfig instance;
+  return &instance;
+}
 
 bool SdkConfig::ParseConfig(const std::string &config_path) {
   // Ensure the data consistency of each sdk instance

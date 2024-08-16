@@ -29,7 +29,6 @@
 namespace inlong {
 class ProxyManager {
 private:
-  static ProxyManager *instance_;
   uint32_t timeout_;
   read_write_mutex groupid_2_cluster_id_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
@@ -59,7 +58,10 @@ private:
 public:
   ProxyManager(){};
   ~ProxyManager();
-  static ProxyManager *GetInstance() { return instance_; }
+  static ProxyManager *GetInstance() {
+    static ProxyManager instance;
+    return &instance;
+  }
   int32_t CheckBidConf(const std::string &inlong_group_id, bool is_inited);
   void Update();
   void DoUpdate();
