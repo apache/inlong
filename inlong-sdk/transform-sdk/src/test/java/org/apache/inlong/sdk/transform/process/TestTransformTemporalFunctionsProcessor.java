@@ -98,25 +98,43 @@ public class TestTransformTemporalFunctionsProcessor {
 
     @Test
     public void testDateFormatFunction() throws Exception {
-        String transformSql = "select date_format(numeric1, string1) from source";
-        TransformConfig config = new TransformConfig(transformSql);
+        String transformSql1 = "select date_format(string1, 'yyyy-MM-dd HH:mm:ss') from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: date_format(1722524216, 'yyyy-MM-dd HH:mm:ss')
-        List<String> output1 = processor1.transform("yyyy-MM-dd HH:mm:ss|apple|cloud|1722524216|1|3", new HashMap<>());
+        // case1: date_format('2024-08-01 22:56:56', 'yyyy-MM-dd HH:mm:ss')
+        List<String> output1 = processor1.transform("2024-08-01 22:56:56", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=2024-08-01 22:56:56");
-        // case2: date_format(1722524216, 'yyyy-MM-dd')
-        List<String> output2 = processor1.transform("yyyy-MM-dd|apple|cloud|1722524216|1|3", new HashMap<>());
+
+        String transformSql2 = "select date_format(string1, 'yyyy-MM-dd') from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: date_format('2024-08-01 22:56:56', 'yyyy-MM-dd')
+        List<String> output2 = processor2.transform("2024-08-01 22:56:56", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=2024-08-01");
-        // case3: date_format(1722524216, 'yyyyMMddHHmmss')
-        List<String> output3 = processor1.transform("yyyyMMddHHmmss|apple|cloud|1722524216|1|3", new HashMap<>());
+
+        String transformSql3 = "select date_format(string1, 'yyyyMMddHHmmss') from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case3: date_format('2024-08-01 22:56:56', 'yyyyMMddHHmmss')
+        List<String> output3 = processor3.transform("2024-08-01 22:56:56", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=20240801225656");
-        // case4: date_format(1722524216, 'yyyy/MM/dd HH:mm:ss')
-        List<String> output4 = processor1.transform("yyyy/MM/dd HH:mm:ss|apple|cloud|1722524216|1|3", new HashMap<>());
+
+        String transformSql4 = "select date_format(string1, 'yyyy/MM/dd HH:mm:ss') from source";
+        TransformConfig config4 = new TransformConfig(transformSql4);
+        TransformProcessor<String, String> processor4 = TransformProcessor
+                .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case4: date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss')
+        List<String> output4 = processor4.transform("2024-08-01 22:56:56", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=2024/08/01 22:56:56");
     }
