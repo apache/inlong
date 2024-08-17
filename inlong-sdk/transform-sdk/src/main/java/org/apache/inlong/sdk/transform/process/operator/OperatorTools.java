@@ -17,27 +17,8 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.function.AbsFunction;
-import org.apache.inlong.sdk.transform.process.function.CeilFunction;
-import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
-import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
+import org.apache.inlong.sdk.transform.process.function.*;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
-import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
-import org.apache.inlong.sdk.transform.process.function.ExpFunction;
-import org.apache.inlong.sdk.transform.process.function.FloorFunction;
-import org.apache.inlong.sdk.transform.process.function.LnFunction;
-import org.apache.inlong.sdk.transform.process.function.LocateFunction;
-import org.apache.inlong.sdk.transform.process.function.Log10Function;
-import org.apache.inlong.sdk.transform.process.function.Log2Function;
-import org.apache.inlong.sdk.transform.process.function.LogFunction;
-import org.apache.inlong.sdk.transform.process.function.NowFunction;
-import org.apache.inlong.sdk.transform.process.function.PowerFunction;
-import org.apache.inlong.sdk.transform.process.function.SinFunction;
-import org.apache.inlong.sdk.transform.process.function.SinhFunction;
-import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
-import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
-import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
-import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -124,6 +105,8 @@ public class OperatorTools {
         functionMap.put("second",
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
+        // TODO Add Function
+        functionMap.put("round", RoundFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
