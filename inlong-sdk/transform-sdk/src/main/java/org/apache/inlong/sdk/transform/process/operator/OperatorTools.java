@@ -32,6 +32,7 @@ import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.RoundFunction;
 import org.apache.inlong.sdk.transform.process.function.SinFunction;
 import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
@@ -124,6 +125,8 @@ public class OperatorTools {
         functionMap.put("second",
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
+        // TODO Add Function
+        functionMap.put("round", RoundFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
