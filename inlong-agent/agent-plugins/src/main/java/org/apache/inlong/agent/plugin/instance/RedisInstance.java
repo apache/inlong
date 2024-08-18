@@ -14,15 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.agent.plugin.instance;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
 
+public class RedisInstance extends CommonInstance {
 
-public class RedisInstance extends CommonInstance{
     @Override
-    public void setInodeInfo(InstanceProfile profile){
+    public void setInodeInfo(InstanceProfile profile) {
         profile.set(TaskConstants.INODE_INFO, "");
     }
 }

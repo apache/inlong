@@ -17,6 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import org.apache.inlong.agent.common.AgentThreadFactory;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -28,14 +34,14 @@ import com.moilioncircle.redis.replicator.cmd.CommandName;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
 import com.moilioncircle.redis.replicator.cmd.parser.DefaultCommandParser;
 import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
-import com.moilioncircle.redis.replicator.rdb.datatype.*;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueHash;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueList;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueSet;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueString;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueZSet;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
+import com.moilioncircle.redis.replicator.rdb.datatype.ZSetEntry;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.agent.common.AgentThreadFactory;
-import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +50,11 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 /**
  * Redis source
  */
@@ -102,7 +111,6 @@ public class RedisSource extends AbstractSource {
         }
     }
 
-
     private Runnable startRedisReplicator() {
         return () -> {
             AgentThreadFactory.nameThread(getThreadName() + "redis replicator");
@@ -118,7 +126,8 @@ public class RedisSource extends AbstractSource {
 
     @Override
     protected void printCurrentState() {
-        LOGGER.info("redis replicator is {} on source {}", redisReplicator != null ? "running" : "free",hostName+":"+port);
+        LOGGER.info("redis replicator is {} on source {}", redisReplicator != null ? "running" : "free",
+                hostName + ":" + port);
     }
 
     @Override
@@ -162,7 +171,7 @@ public class RedisSource extends AbstractSource {
                 } catch (IOException e) {
                     LOGGER.error("Redis reader close failed.");
                 }
-                destroyed=true;
+                destroyed = true;
             }
         }
     }
@@ -204,7 +213,6 @@ public class RedisSource extends AbstractSource {
         }
         return sb.toString();
     }
-
 
     private void initReplicator() {
         DefaultCommandParser defaultCommandParser = new DefaultCommandParser();
@@ -331,47 +339,47 @@ public class RedisSource extends AbstractSource {
     private void initGson() {
         gson = new GsonBuilder().registerTypeAdapter(KeyStringValueHash.class, new TypeAdapter<KeyStringValueHash>() {
 
-                    @Override
-                    public void write(JsonWriter out, KeyStringValueHash kv) throws IOException {
-                        out.beginObject();
-                        out.name("DB").beginObject();
-                        out.name("dbNumber").value(kv.getDb().getDbNumber());
-                        out.name("dbSize").value(kv.getDb().getDbsize());
-                        out.name("expires").value(kv.getDb().getExpires());
-                        out.endObject();
-                        out.name("valueRdbType").value(kv.getValueRdbType());
-                        out.name("key").value(new String(kv.getKey()));
-                        out.name("value").beginObject();
-                        for (byte[] b : kv.getValue().keySet()) {
-                            out.name(new String(b)).value(new String(kv.getValue().get(b)));
-                        }
-                        out.endObject();
-                        out.endObject();
-                    }
+            @Override
+            public void write(JsonWriter out, KeyStringValueHash kv) throws IOException {
+                out.beginObject();
+                out.name("DB").beginObject();
+                out.name("dbNumber").value(kv.getDb().getDbNumber());
+                out.name("dbSize").value(kv.getDb().getDbsize());
+                out.name("expires").value(kv.getDb().getExpires());
+                out.endObject();
+                out.name("valueRdbType").value(kv.getValueRdbType());
+                out.name("key").value(new String(kv.getKey()));
+                out.name("value").beginObject();
+                for (byte[] b : kv.getValue().keySet()) {
+                    out.name(new String(b)).value(new String(kv.getValue().get(b)));
+                }
+                out.endObject();
+                out.endObject();
+            }
 
-                    @Override
-                    public KeyStringValueHash read(JsonReader in) throws IOException {
-                        return null;
-                    }
-                }).registerTypeAdapter(DefaultCommand.class, new TypeAdapter<DefaultCommand>() {
+            @Override
+            public KeyStringValueHash read(JsonReader in) throws IOException {
+                return null;
+            }
+        }).registerTypeAdapter(DefaultCommand.class, new TypeAdapter<DefaultCommand>() {
 
-                    @Override
-                    public void write(JsonWriter out, DefaultCommand dc) throws IOException {
-                        out.beginObject();
-                        out.name("key").value(new String(dc.getCommand()));
-                        out.name("value").beginArray();
-                        for (byte[] bytes : dc.getArgs()) {
-                            out.value(new String(bytes));
-                        }
-                        out.endArray();
-                        out.endObject();
-                    }
+            @Override
+            public void write(JsonWriter out, DefaultCommand dc) throws IOException {
+                out.beginObject();
+                out.name("key").value(new String(dc.getCommand()));
+                out.name("value").beginArray();
+                for (byte[] bytes : dc.getArgs()) {
+                    out.value(new String(bytes));
+                }
+                out.endArray();
+                out.endObject();
+            }
 
-                    @Override
-                    public DefaultCommand read(JsonReader in) throws IOException {
-                        return null;
-                    }
-                })
+            @Override
+            public DefaultCommand read(JsonReader in) throws IOException {
+                return null;
+            }
+        })
                 .registerTypeAdapter(KeyStringValueList.class, new TypeAdapter<KeyStringValueList>() {
 
                     @Override
