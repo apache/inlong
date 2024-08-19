@@ -430,6 +430,7 @@
   "meta.Synchronize.ScheduleUnit.Single": "单次",
   "meta.Synchronize.ScheduleInterval": "调度周期",
   "meta.Synchronize.ValidTime": "有效时间",
+  "meta.Synchronize.CronExpression": "crontab表达式",
   "meta.Synchronize.DependConfiguration": "依赖配置",
   "meta.Synchronize.SelfDependence": "自身依赖",
   "meta.Synchronize.Alone": "单实例运行",

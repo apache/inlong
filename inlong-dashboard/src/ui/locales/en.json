@@ -430,6 +430,7 @@
   "meta.Synchronize.ScheduleUnit.Single": "Single",
   "meta.Synchronize.ScheduleInterval": "Schedule Interval",
   "meta.Synchronize.ValidTime": "Valid Time",
+  "meta.Synchronize.CronExpression": "Cron Expression",
   "meta.Synchronize.DependConfiguration": "Depend Configuration",
   "meta.Synchronize.SelfDependence": "Self Dependence",
   "meta.Synchronize.Alone": "Alone",

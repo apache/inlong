@@ -224,7 +224,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [{ required: true }],
     props: {},
   })
-  @I18n('crontab表达式')
+  @I18n('meta.Synchronize.CronExpression')
   crontabExpression: string;
 
   @FieldDecorator({
