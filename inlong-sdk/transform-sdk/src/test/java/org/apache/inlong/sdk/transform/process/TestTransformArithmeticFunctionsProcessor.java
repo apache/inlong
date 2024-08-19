@@ -289,7 +289,7 @@ public class TestTransformArithmeticFunctionsProcessor {
         TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case: sin(0)
+        // case: cos(0)
         List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=1.0");
