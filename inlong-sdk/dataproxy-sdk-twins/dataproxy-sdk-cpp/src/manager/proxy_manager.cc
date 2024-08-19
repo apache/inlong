@@ -44,6 +44,7 @@ void ProxyManager::Init() {
   timeout_ = SdkConfig::getInstance()->manager_url_timeout_;
   last_update_time_ = Utils::getCurrentMsTime();
   if (__sync_bool_compare_and_swap(&inited_, false, true)) {
+    ReadLocalCache();
     update_conf_thread_ = std::thread(&ProxyManager::Update, this);
   }
 }

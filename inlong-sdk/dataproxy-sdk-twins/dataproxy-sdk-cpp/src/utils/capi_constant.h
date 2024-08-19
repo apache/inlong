@@ -108,6 +108,7 @@ static const int32_t kWeight[30] = {1,  1,  1,  1,  1,  2,  2,  2,   2,   2,
 static const char kCacheFile[] = ".proxy_list.ini";
 static const char kCacheTmpFile[] = ".proxy_list.ini.tmp";
 const int MAX_RETRY = 10;
+static const int kMetricIntervalMinutes = 1;
 
 } // namespace constants
 } // namespace inlong

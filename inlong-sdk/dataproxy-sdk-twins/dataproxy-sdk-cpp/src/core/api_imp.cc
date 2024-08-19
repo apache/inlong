@@ -25,6 +25,8 @@
 #include <iostream>
 #include <signal.h>
 
+#include "metric_manager.h"
+
 namespace inlong {
 int32_t ApiImp::InitApi(const char *config_file_path) {
   if (!__sync_bool_compare_and_swap(&inited_, false, true)) {
@@ -104,7 +106,7 @@ int32_t ApiImp::DoInit() {
   LOG_INFO("inlong dataproxy cpp sdk Init complete!");
 
   ProxyManager::GetInstance()->Init();
-  ProxyManager::GetInstance()->ReadLocalCache();
+  MetricManager::GetInstance()->Init();
 
   for (int i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size(); i++) {
     LOG_INFO("DoInit CheckConf inlong_group_id:"
