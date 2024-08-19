@@ -125,7 +125,6 @@ public class OperatorTools {
         functionMap.put("second",
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
-        // TODO Add Function
         functionMap.put("round", RoundFunction::new);
     }
 
