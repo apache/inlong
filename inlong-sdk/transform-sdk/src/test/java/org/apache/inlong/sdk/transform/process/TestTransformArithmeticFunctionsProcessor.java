@@ -281,4 +281,17 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=3.626860407847019");
     }
+
+    @Test
+    public void testCosFunction() throws Exception {
+        String transformSql = "select cos(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: cos(0)
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=1.0");
+    }
 }

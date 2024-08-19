@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.transform.process.operator;
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.CosFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
@@ -113,6 +114,7 @@ public class OperatorTools {
         functionMap.put("floor", FloorFunction::new);
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
+        functionMap.put("cos", CosFunction::new);
         functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
         functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
         functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
