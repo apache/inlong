@@ -163,16 +163,14 @@ public class RedisSource extends AbstractSource {
     @Override
     protected void releaseSource() {
         LOGGER.info("releasing redis source");
-        synchronized (this) {
-            if (!destroyed) {
-                try {
-                    executor.shutdown();
-                    redisReplicator.close();
-                } catch (IOException e) {
-                    LOGGER.error("Redis reader close failed.");
-                }
-                destroyed = true;
+        if (!destroyed) {
+            try {
+                executor.shutdown();
+                redisReplicator.close();
+            } catch (IOException e) {
+                LOGGER.error("Redis reader close failed.");
             }
+            destroyed = true;
         }
     }
 
