@@ -29,7 +29,6 @@
 namespace inlong {
 class SdkConfig {
 private:
-  static SdkConfig *instance_;
   std::string config_path_;
   std::mutex mutex_;
   void InitThreadParam(const rapidjson::Value &doc);
@@ -41,6 +40,7 @@ private:
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
   bool GetLocalIPV4Address(std::string& err_info, std::string& localhost);
+  SdkConfig() { defaultInit(); };
 
       public:
   // cache parameter
@@ -115,8 +115,6 @@ private:
 
   void defaultInit();
   static SdkConfig *getInstance();
-
-  SdkConfig() { defaultInit(); }
 
   bool ParseConfig(const std::string &config_path);
   void ShowClientConfig();

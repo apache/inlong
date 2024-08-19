@@ -28,17 +28,17 @@
 
 namespace inlong {
 const uint64_t MINUTE = 60000;
-ProxyManager *ProxyManager::instance_ = new ProxyManager();
 ProxyManager::~ProxyManager() {
-  if (update_conf_thread_.joinable()) {
-    update_conf_thread_.join();
-  }
-
+  LOG_INFO("~ProxyManager");
   exit_flag_ = true;
   std::unique_lock<std::mutex> con_lck(cond_mutex_);
   update_flag_ = true;
   con_lck.unlock();
   cond_.notify_one();
+
+  if (update_conf_thread_.joinable()) {
+    update_conf_thread_.join();
+  }
 }
 void ProxyManager::Init() {
   timeout_ = SdkConfig::getInstance()->manager_url_timeout_;
