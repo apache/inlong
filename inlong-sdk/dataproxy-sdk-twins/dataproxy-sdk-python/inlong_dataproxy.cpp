@@ -74,6 +74,6 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             py::gil_scoped_release release;
-            return self.CloseApi(max_waitms);
+            return self.CloseApi(10000);
         });
 }
