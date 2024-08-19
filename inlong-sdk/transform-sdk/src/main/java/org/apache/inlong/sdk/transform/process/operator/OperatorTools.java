@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.Date
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
+import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
 import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
@@ -38,6 +39,8 @@ import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
 import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
+import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -124,6 +127,9 @@ public class OperatorTools {
         functionMap.put("second",
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
+        functionMap.put("from_unixtime", FromUnixTimeFunction::new);
+        functionMap.put("unix_timestamp", UnixTimestampFunction::new);
+        functionMap.put("to_timestamp", ToTimestampFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
