@@ -30,34 +30,34 @@ InLong Dataproxy Python SDK is a wrapper over the existing [C++ SDK](https://git
 
 ## Build
 
-1. Build the C++ SDK
+### Build the C++ SDK
 
-   Go to the `dataproxy-sdk-cpp` root directory, and run the following commands:
-   
-   ```bash
-   chmod +x ./build_third_party.sh && chmod +x ./build.sh
-   ./build_third_party.sh
-   ./build.sh
-   ```
+Go to the `dataproxy-sdk-cpp` root directory, and run the following commands:
 
-   If you have already built the C++ SDK, you can skip this step.
+```bash
+chmod +x ./build_third_party.sh && chmod +x ./build.sh
+./build_third_party.sh
+./build.sh
+```
 
-2. Build the Python SDK
+If you have already built the C++ SDK, you can skip this step.
 
-   Go to the `dataproxy-sdk-python` root directory, and run the following commands:
-   
-   ```bash
-   chmod +x ./build.sh
-   ./build.sh
-   ```
-   When the .so file is generated, you will see the following message, you can choose to enter the target directory for the .so files. By default, the .so file will be copied to the system python site-packages directory:
+### Build the Python SDK
 
-   ```txt
-   Your system's Python site-packages directory is: xxx/xxx
-   Enter the target directory for the .so files (Press Enter to use the default site-packages directory):
-   ```
+Go to the `dataproxy-sdk-python` root directory, and run the following commands:
 
-   After the build process finished, you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
+```bash
+chmod +x ./build.sh
+./build.sh
+```
+When the .so file is generated, you will see the following message, you can choose to enter the target directory for the .so files. By default, the .so file will be copied to the system python site-packages directory:
+
+```txt
+Your system's Python site-packages directory is: xxx/xxx
+Enter the target directory for the .so files (Press Enter to use the default site-packages directory):
+```
+
+After the build process finished, you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
 
 > **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it by the above steps.
 
