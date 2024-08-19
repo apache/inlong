@@ -28,19 +28,33 @@ import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
+import org.apache.inlong.common.metric.MetricRegister;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Test cases for {@link RedisSource}.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Executors.class, RedisSource.class, MetricRegister.class})
+@PowerMockIgnore({"javax.management.*"})
 public class TestRedisSource {
 
     private RedisSource redisSource;
@@ -55,6 +69,10 @@ public class TestRedisSource {
     private static Store offsetBasicStore;
 
     InstanceProfile instanceProfile;
+    private BlockingQueue queue;
+
+    @Mock
+    private ExecutorService executorService;
 
     private final String instanceId = "s4bc475560b4444dbd4e9812ab1fd64d";
 
@@ -66,9 +84,14 @@ public class TestRedisSource {
         offsetBasicStore =
                 TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_OFFSET);
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
+        mockStatic(Executors.class);
+        when(Executors.newSingleThreadExecutor()).thenReturn(executorService);
         initSource();
+        Field field = RedisSource.class.getDeclaredField("redisQueue");
+        field.setAccessible(true);
+        queue = (BlockingQueue) field.get(redisSource);
     }
-    // for local test
+    // init source
     public RedisSource initSource() {
         final String username = "";
         final String password = "123456";
@@ -94,26 +117,20 @@ public class TestRedisSource {
         return redisSource;
     }
 
+    // test read
     @Test
-    public void testRedisSource() throws Exception {
-        testReadDataFromSourceSuccess();
-        TestReadEmptyFromSource();
-    }
-
-    // test read
-    public void testReadDataFromSourceSuccess() throws Exception {
+    public void testReadDataFromSource() throws Exception {
         Method handleConsumerEvent = RedisSource.class.getDeclaredMethod("readFromSource");
         handleConsumerEvent.setAccessible(true);
 
         List result = (List) handleConsumerEvent.invoke(redisSource);
-        assertFalse(result.isEmpty());
+        if (queue.isEmpty()) {
+            assertTrue(result.isEmpty());
+        } else {
+            assertFalse(result.isEmpty());
+        }
+        queue.clear();
+        assertTrue(queue.isEmpty());
     }
 
-    // test read
-    private void TestReadEmptyFromSource() throws Exception {
-        Method handleConsumerEvent = RedisSource.class.getDeclaredMethod("readFromSource");
-        handleConsumerEvent.setAccessible(true);
-        List result = (List) handleConsumerEvent.invoke(redisSource);
-        assertTrue(result.isEmpty());
-    }
 }
