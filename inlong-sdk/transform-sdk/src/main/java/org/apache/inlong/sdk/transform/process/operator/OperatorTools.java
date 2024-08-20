@@ -183,19 +183,18 @@ public class OperatorTools {
         if (right == null) {
             return 1;
         }
-        if (left instanceof String) {
-            if (right instanceof String) {
-                return ObjectUtils.compare(left, right);
-            } else {
-                BigDecimal leftValue = parseBigDecimal(left);
-                return ObjectUtils.compare(leftValue, right);
-            }
+
+        if (((Object) left).getClass() == ((Object) right).getClass()) {
+            return ObjectUtils.compare(left, right);
         } else {
-            if (right instanceof String) {
+            try {
+                BigDecimal leftValue = parseBigDecimal(left);
                 BigDecimal rightValue = parseBigDecimal(right);
-                return ObjectUtils.compare(left, rightValue);
-            } else {
-                return ObjectUtils.compare(left, right);
+                return ObjectUtils.compare(leftValue, rightValue);
+            } catch (Exception e) {
+                String leftValue = parseString(left);
+                String rightValue = parseString(right);
+                return ObjectUtils.compare(leftValue, rightValue);
             }
         }
     }

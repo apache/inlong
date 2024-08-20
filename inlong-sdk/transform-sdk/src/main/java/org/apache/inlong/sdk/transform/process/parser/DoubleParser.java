@@ -24,6 +24,7 @@ import net.sf.jsqlparser.expression.DoubleValue;
 
 /**
  * LongParser
+ *
  */
 public class DoubleParser implements ValueParser {
 
