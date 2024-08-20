@@ -325,4 +325,26 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=1.0");
     }
+
+    @Test
+    public void testTanFunction() throws Exception {
+        String transformSql = "select tan(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: tan(0)
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.0");
+        // case: tan(1)
+        List<String> output2 = processor.transform("1|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1.5574077246549023");
+        // case: tan(2)
+        List<String> output3 = processor.transform("2|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-2.185039863261519");
+    }
+
 }
