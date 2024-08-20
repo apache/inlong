@@ -29,8 +29,10 @@ namespace py = pybind11;
 
 std::map<inlong::UserCallBack, py::function> g_py_callbacks;
 std::atomic<bool> stop_callbacks(false);
+std::mutex callback_mutex;
 
 int UserCallBackBridge(const char *a, const char *b, const char *c, int32_t d, const int64_t e, const char *f) {
+    std::unique_lock<std::mutex> lock(callback_mutex);
     if (stop_callbacks) {
         return -1;
     }
@@ -68,10 +70,8 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
             py::gil_scoped_release release;
             int result = self.CloseApi(timeout_ms);
             stop_callbacks = true;
-            if (PyGILState_Check()) {
-                py::gil_scoped_release release;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::unique_lock<std::mutex> lock(callback_mutex);
+            py::gil_scoped_acquire acquire;
             return result;
         });
 }
