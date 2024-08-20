@@ -141,6 +141,7 @@ void SdkConfig::defaultInit() {
   need_auth_ = constants::kNeedAuth;
   max_instance_ = constants::kMaxInstance;
   instance_num_ = 1;
+  enable_share_msg_ = constants::kEnableShareMsg;
 }
 
 void SdkConfig::InitThreadParam(const rapidjson::Value &doc) {
@@ -228,6 +229,13 @@ void SdkConfig::InitCacheParam(const rapidjson::Value &doc) {
     max_cache_num_ = obj.GetInt();
   } else {
     max_cache_num_ = constants::kMaxCacheNum;
+  }
+
+  if (doc.HasMember("enable_share_msg") && doc["enable_share_msg"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_share_msg"];
+    enable_share_msg_ = obj.GetBool();
+  } else {
+    enable_share_msg_ = constants::kEnableShareMsg;
   }
 }
 
