@@ -56,13 +56,19 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
     m.doc() = "Python bindings for InLong SDK API";
     py::class_<inlong::InLongApi>(m, "InLongApi")
         .def(py::init<>())
-        .def("init_api", &inlong::InLongApi::InitApi)
+        .def("init_api", [](inlong::InLongApi& self, const char* config_path) {
+            stop_callbacks = false;
+            g_py_callbacks.clear();
+            py::gil_scoped_release release;
+            int result = self.InitApi(config_path);
+            return result;
+        })
         .def("add_bid", &inlong::InLongApi::AddBid)
         .def("send", [](inlong::InLongApi& self, const char* groupId, const char* streamId, const char* msg, int32_t msgLen, py::object pyCallback = py::none()) {
             if (!pyCallback.is(py::none())) {
                 g_py_callbacks[UserCallBackBridge] = pyCallback.cast<py::function>();
-                int result = self.Send(groupId, streamId, msg, msgLen, UserCallBackBridge);
                 py::gil_scoped_release release;
+                int result = self.Send(groupId, streamId, msg, msgLen, UserCallBackBridge);
                 return result;
             } else {
                 int result = self.Send(groupId, streamId, msg, msgLen, nullptr);
