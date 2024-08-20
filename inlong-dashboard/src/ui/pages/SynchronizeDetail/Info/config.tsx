@@ -17,12 +17,14 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { useLoadMeta, SyncMetaType } from '@/plugins';
 import { excludeObjectArray } from '@/core/utils';
-
+import dayjs from 'dayjs';
+import { range } from 'lodash';
+const conventionalTimeFormat = 'YYYY-MM-DD HH:mm';
 export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
   const { Entity } = useLoadMeta<SyncMetaType>('sync', mqType);
 
@@ -48,6 +50,21 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
       })
     : fields.map(item => {
         const t = transType(editing, item);
+        if (item.name === 'time' || item.name === 'delayTime') {
+          return {
+            ...item,
+            props: values => ({
+              format: conventionalTimeFormat,
+              showTime: true,
+              disabledTime: (date: dayjs.Dayjs, type, info: { from?: dayjs.Dayjs }) => {
+                return {
+                  disabledSeconds: () => range(0, 60),
+                };
+              },
+              disabled: !editing,
+            }),
+          };
+        }
         return {
           ...item,
           type: t,
@@ -62,13 +79,58 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
           rules: t === 'text' ? undefined : item.rules,
         };
       });
+  const isScKey = useCallback(
+    formName => {
+      const defaultGroupKeysI18nMap = Entity?.I18nMap || {};
+      return (
+        !defaultGroupKeysI18nMap[formName] ||
+        [
+          'scheduleType',
+          'time',
+          'crontabExpression',
+          'scheduledCycle',
+          'scheduleUnit',
+          'scheduleInterval',
+          'delayTime',
+        ].includes(formName)
+      );
+    },
+    [Entity?.I18nMap],
+  );
+
+  const isSrKey = useCallback(
+    formName => {
+      const defaultGroupKeysI18nMap = Entity?.I18nMap || {};
+      return (
+        !defaultGroupKeysI18nMap[formName] || ['selfDepend', 'taskParallelism'].includes(formName)
+      );
+    },
+    [Entity?.I18nMap],
+  );
+
+  const groupFormContent = formContent.filter(item => !isScKey(item.name));
+  const baseFormContent = groupFormContent.filter(item => !isSrKey(item.name));
+  const scFormContent = formContent.filter(item => isScKey(item.name));
+  const srFormContent = formContent.filter(item => isSrKey(item.name));
 
   return [
     {
       type: <Divider orientation="left">{i18n.t('pages.GroupDetail.Info.Basic')}</Divider>,
       col: 24,
     },
-    ...formContent,
+    ...baseFormContent,
+    {
+      visible: values => values.inlongGroupMode === 2,
+      type: <Divider orientation="left">{i18n.t('meta.Synchronize.SchedulingRules')}</Divider>,
+      col: 24,
+    },
+    ...scFormContent,
+    {
+      visible: values => values.inlongGroupMode === 2,
+      type: <Divider orientation="left">{i18n.t('meta.Synchronize.DependConfiguration')}</Divider>,
+      col: 24,
+    },
+    ...srFormContent,
   ];
 };
 
@@ -87,6 +149,12 @@ function transType(editing: boolean, conf) {
         'ttl',
         'retentionTime',
         'retentionSize',
+        'scheduleType',
+        'scheduleUnit',
+        'scheduleInterval',
+        'crontabExpression',
+        'selfDepend',
+        'taskParallelism',
       ],
       as: 'text',
       active: !editing,
@@ -99,6 +167,9 @@ function transType(editing: boolean, conf) {
   if (map.has(conf.name)) {
     const item = map.get(conf.name);
     return item.active ? item.as : conf.type;
+  }
+  if (conf.name === 'time' || conf.name === 'delayTime') {
+    return conf.type;
   }
 
   return 'text';
