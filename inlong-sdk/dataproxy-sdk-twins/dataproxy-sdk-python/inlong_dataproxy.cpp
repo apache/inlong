@@ -42,6 +42,9 @@ int UserCallBackBridge(const char *a, const char *b, const char *c, int32_t d, c
             return -1;
         }
         py::gil_scoped_acquire acquire;
+        if (stop_callbacks) {
+            return -1;
+        }
         int result = it->second(a, b, c, d, e, f).cast<int>();
         py::gil_scoped_release release;
         return result;
