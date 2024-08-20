@@ -26,28 +26,22 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
-
+/**
+ * ReplicateFunction
+ * description: replicate(string, numeric)--Repeat the string numeric times and return a new string
+ */
 public class ReplicateFunction implements ValueParser {
 
     private ValueParser stringParser;
 
     private ValueParser countParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public ReplicateFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         stringParser = OperatorTools.buildParser(expressions.get(0));
         countParser = OperatorTools.buildParser(expressions.get(1));
     }
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
+
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
@@ -57,18 +51,20 @@ public class ReplicateFunction implements ValueParser {
         return repeat(str, count);
     }
     private String repeat(String str, double count) {
-        String repeatString = "";
-        if (count == 0)
+        if (count == 0) {
             return "";
-        if (count == 1)
+        }
+        if (count == 1) {
             return str;
+        }
+        StringBuilder repeatedStr = new StringBuilder();
         while (count > 0) {
             if (count % 2 != 0) {
-                repeatString += str;
+                repeatedStr.append(str);
             }
             count = Math.floor(count / 2);
             str += str;
         }
-        return repeatString;
+        return repeatedStr.toString();
     }
 }

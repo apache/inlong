@@ -24,28 +24,21 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
+/**
+ * TrimFunction
+ * description: trim(string)--Remove Spaces before and after the string.
+ */
 public class TrimFunction implements ValueParser {
 
     private ValueParser stringParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public TrimFunction(Function expr) {
         stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        String str = OperatorTools.parseString(stringObj);
-        return str.trim();
+        return OperatorTools.parseString(stringObj).trim();
     }
 }
