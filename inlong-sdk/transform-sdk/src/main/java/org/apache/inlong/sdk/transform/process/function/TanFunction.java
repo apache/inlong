@@ -25,24 +25,18 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
-
+/**
+ * TanFunction
+ * description: tan(numeric)--returns the tangent of numeric
+ */
 public class TanFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public TanFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
+
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
