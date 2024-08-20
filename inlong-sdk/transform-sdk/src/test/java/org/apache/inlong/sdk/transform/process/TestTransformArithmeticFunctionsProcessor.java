@@ -41,6 +41,7 @@ public class TestTransformArithmeticFunctionsProcessor {
     private static final List<FieldInfo> dstFields = new ArrayList<>();
     private static final CsvSourceInfo csvSource;
     private static final KvSinkInfo kvSink;
+
     static {
         for (int i = 1; i < 5; i++) {
             FieldInfo field = new FieldInfo();
@@ -52,6 +53,36 @@ public class TestTransformArithmeticFunctionsProcessor {
         dstFields.add(field);
         csvSource = new CsvSourceInfo("UTF-8", '|', '\\', srcFields);
         kvSink = new KvSinkInfo("UTF-8", dstFields);
+    }
+
+    @Test
+    public void testRoundFunction() throws Exception {
+        String transformSql = "select round(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1: round(3.14159265358979323846)
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor.transform("3.14159265358979323846|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=3");
+        // case2: round(3.5)
+        List<String> output2 = processor.transform("3.5|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=4");
+
+        transformSql = "select round(numeric1,numeric2) from source";
+        config = new TransformConfig(transformSql);
+        // case3: round(3.14159265358979323846,10)
+        processor = TransformProcessor.create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor.transform("3.14159265358979323846|10|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=3.1415926536");
+        // case4: round(13.14159265358979323846,-1)
+        List<String> output4 = processor.transform("13.14159265358979323846|-1|6|8");
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=10.0");
     }
 
     @Test
