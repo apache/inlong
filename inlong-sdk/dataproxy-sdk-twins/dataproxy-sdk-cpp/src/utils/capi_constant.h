@@ -50,6 +50,7 @@ static const int32_t kLoadBalanceInterval = 300000;
 static const int32_t kHeartBeatInterval = 60000;
 static const bool kEnableBalance = true;
 static const bool kEnableLocalCache = true;
+static const bool kEnableShareMsg = true;
 
 static const bool kEnablePack = true;
 static const uint32_t kPackSize = 409600;

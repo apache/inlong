@@ -48,6 +48,7 @@ struct SdkMsg {
         data_pack_format_attr_(attr),
         inlong_group_id_(inlong_group_id),
         inlong_stream_id_(inlong_stream_id){}
+  SdkMsg() {};
 };
 using SdkMsgPtr = std::shared_ptr<SdkMsg>;
 
