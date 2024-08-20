@@ -28,16 +28,20 @@
 namespace py = pybind11;
 
 std::map<inlong::UserCallBack, py::function> g_py_callbacks;
-// The number of unfinished callbacks
-std::atomic<int> unfinished_callbacks(0);
+std::atomic<bool> stop_callbacks(false);
 
 int UserCallBackBridge(const char *a, const char *b, const char *c, int32_t d, const int64_t e, const char *f) {
+    if (stop_callbacks) {
+        return -1;
+    }
     auto it = g_py_callbacks.find(UserCallBackBridge);
     if (it != g_py_callbacks.end()) {
-        // Before callback is called, acquire GIL
+        if (stop_callbacks) {
+            return -1;
+        }
         py::gil_scoped_acquire acquire;
         int result = it->second(a, b, c, d, e, f).cast<int>();
-        unfinished_callbacks--;
+        py::gil_scoped_release release;
         return result;
     }
     return -1;
@@ -49,31 +53,25 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
         .def(py::init<>())
         .def("init_api", &inlong::InLongApi::InitApi)
         .def("add_bid", &inlong::InLongApi::AddBid)
-        .def("send", [](inlong::InLongApi& self, const char* inlong_group_id, const char* inlong_stream_id, const char* msg, int32_t msg_len, py::object pyCallback = py::none()) {
+        .def("send", [](inlong::InLongApi& self, const char* groupId, const char* streamId, const char* msg, int32_t msgLen, py::object pyCallback = py::none()) {
             if (!pyCallback.is(py::none())) {
                 g_py_callbacks[UserCallBackBridge] = pyCallback.cast<py::function>();
-                unfinished_callbacks++;
-                int result = self.Send(inlong_group_id, inlong_stream_id, msg, msg_len, UserCallBackBridge);
-                // When callback is called, release GIL
+                int result = self.Send(groupId, streamId, msg, msgLen, UserCallBackBridge);
                 py::gil_scoped_release release;
                 return result;
             } else {
-                int result = self.Send(inlong_group_id, inlong_stream_id, msg, msg_len, nullptr);
+                int result = self.Send(groupId, streamId, msg, msgLen, nullptr);
                 return result;
             }
         })
-        .def("close_api", [](inlong::InLongApi& self, int32_t max_waitms) {
-            auto start = std::chrono::high_resolution_clock::now();
-            while (unfinished_callbacks > 0) {
-                auto now = std::chrono::high_resolution_clock::now();
-                auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-                if (elapsed_ms.count() >= max_waitms) {
-                    std::cout << "Maximum wait time reached" << std::endl;
-                    break;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
+        .def("close_api", [](inlong::InLongApi& self, int32_t timeout_ms) {
             py::gil_scoped_release release;
-            return self.CloseApi(10000);
+            int result = self.CloseApi(timeout_ms);
+            stop_callbacks = true;
+            if (PyGILState_Check()) {
+                py::gil_scoped_release release;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            return result;
         });
 }
