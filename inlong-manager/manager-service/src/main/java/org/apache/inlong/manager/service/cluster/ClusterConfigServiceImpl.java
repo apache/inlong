@@ -69,6 +69,9 @@ public class ClusterConfigServiceImpl implements ClusterConfigService {
                     .typeList(Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA))
                     .build();
             List<InlongClusterEntity> clusterEntityList = clusterEntityMapper.selectByCondition(request);
+            if (CollectionUtils.isEmpty(clusterEntityList)) {
+                throw new BusinessException("Current cluster tag not contain MQ clusters");
+            }
             List<String> typeList = clusterEntityList.stream().map(InlongClusterEntity::getType).distinct().collect(
                     Collectors.toList());
             if (CollectionUtils.isNotEmpty(typeList) && typeList.size() > 1) {
