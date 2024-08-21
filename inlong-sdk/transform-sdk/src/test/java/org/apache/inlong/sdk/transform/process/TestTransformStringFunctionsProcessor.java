@@ -184,7 +184,6 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(output3.get(0), "result=in long");
     }
 
-
     @Test
     public void testToBase64Function() throws Exception {
         String transformSql = "select to_base64(string1) from source";
