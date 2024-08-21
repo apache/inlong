@@ -137,6 +137,10 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly status: string;
 
   @ColumnDecorator()
+  @I18n('meta.Sources.ClusterName')
+  readonly inlongClusterName: string;
+
+  @ColumnDecorator()
   @IngestionField()
   @I18n('basic.Creator')
   readonly creator: string;
