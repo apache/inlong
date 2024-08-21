@@ -164,7 +164,7 @@ void TcpClient::BeginWrite() {
   }
   last_update_time_ = Utils::getCurrentMsTime();
   status_ = kWriting;
-  asio::async_write(*socket_, asio::buffer(sendBuffer_->content(), sendBuffer_->len()),
+  asio::async_write(*socket_, asio::buffer(sendBuffer_->GetData(), sendBuffer_->GetDataLen()),
                     std::bind(&TcpClient::OnWroten, this, std::placeholders::_1, std::placeholders::_2));
 }
 void TcpClient::OnWroten(const asio::error_code error, std::size_t bytes_transferred) {
@@ -390,8 +390,8 @@ void TcpClient::ParseHeartBeat(size_t total_length) {
 
 void TcpClient::ParseGenericResponse() {
   if (sendBuffer_ != nullptr) {
-    std::string stat_key = sendBuffer_->getGroupId() + kStatJoiner + sendBuffer_->getStreamId();
-    stat_map_[stat_key].AddSendSuccessMsgNum(sendBuffer_->msgCnt());
+    std::string stat_key = sendBuffer_->GetInlongGroupId() + kStatJoiner + sendBuffer_->GetInlongStreamId();
+    stat_map_[stat_key].AddSendSuccessMsgNum(sendBuffer_->GetMsgCnt());
     stat_map_[stat_key].AddSendSuccessPackNum(1);
     stat_map_[stat_key].AddTimeCost(Utils::getCurrentMsTime() - last_update_time_);
 
@@ -448,8 +448,8 @@ void TcpClient::ResetSendBuffer() {
   }
   retry_times_++;
   if (retry_times_ > SdkConfig::getInstance()->retry_times_) {
-    std::string stat_key = sendBuffer_->getGroupId() + kStatJoiner + sendBuffer_->getStreamId();
-    stat_map_[stat_key].AddSendFailMsgNum(sendBuffer_->msgCnt());
+    std::string stat_key = sendBuffer_->GetInlongGroupId() + kStatJoiner + sendBuffer_->GetInlongStreamId();
+    stat_map_[stat_key].AddSendFailMsgNum(sendBuffer_->GetMsgCnt());
     stat_map_[stat_key].AddSendFailPackNum(1);
     stat_map_[stat_key].AddTimeCost(Utils::getCurrentMsTime() - last_update_time_);
 

@@ -83,6 +83,7 @@ static const uint32_t kTcpDetectionInterval = 60000;
 static const uint32_t kMaxRetryIntervalMs= 3000;
 static const uint32_t kRetryIntervalMs= 200;
 static const int32_t kRetryTimes = 1;
+static const uint32_t kProxyRepeatTimes = 1;
 
 static const char kSerIP[] = "127.0.0.1";
 static const uint32_t kSerPort = 46801;

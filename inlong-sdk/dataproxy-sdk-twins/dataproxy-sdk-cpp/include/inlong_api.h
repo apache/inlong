@@ -26,8 +26,8 @@
 
 namespace inlong {
 
-typedef int (*UserCallBack)(const char *, const char *, const char *, int32_t,
-                            const int64_t, const char *);
+typedef  int (*UserCallBack)(const char *, const char *, const char *, int32_t,
+                             const int64_t, const char *);
 
 class ApiImp;
 
@@ -37,7 +37,7 @@ class InLongApi {
   ~InLongApi();
   int32_t InitApi(const char *config_path);
 
-  int32_t AddGroupId(const std::vector<std::string> &group_ids);
+  int32_t AddInLongGroupId(const std::vector<std::string> &group_ids);
 
   int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                UserCallBack call_back = nullptr);

@@ -96,7 +96,7 @@ private:
   bool enable_balance_;
   bool enable_local_cache_;
   uint32_t retry_times_;
-
+  uint32_t proxy_repeat_times_;
 
   // auth settings
   bool need_auth_;

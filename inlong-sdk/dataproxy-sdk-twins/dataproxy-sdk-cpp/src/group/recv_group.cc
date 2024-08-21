@@ -352,15 +352,15 @@ std::shared_ptr<SendBuffer> RecvGroup::BuildSendBuf(std::vector<SdkMsgPtr> &msgs
     uniq_id_ = 0;
   }
 
-  if (!PackMsg(msgs, send_buffer->content(), len) || len == 0) {
+  if (!PackMsg(msgs, send_buffer->GetData(), len) || len == 0) {
     LOG_ERROR("failed to write data to send buf from pack queue, sendQueue");
     return nullptr;
   }
 
-  send_buffer->setLen(len);
-  send_buffer->setMsgCnt(msg_cnt);
-  send_buffer->setInlongGroupId(msgs[0]->inlong_group_id_);
-  send_buffer->setStreamId(msgs[0]->inlong_stream_id_);
+  send_buffer->SetDataLen(len);
+  send_buffer->SetMsgCnt(msg_cnt);
+  send_buffer->SetInlongGroupId(msgs[0]->inlong_group_id_);
+  send_buffer->SetInlongStreamId(msgs[0]->inlong_stream_id_);
   for (const auto &it : msgs) {
     if(it->cb_){
       send_buffer->addUserMsg(it);
