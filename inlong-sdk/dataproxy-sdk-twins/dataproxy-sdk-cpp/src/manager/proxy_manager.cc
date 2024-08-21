@@ -217,8 +217,8 @@ int32_t ProxyManager::GetProxy(const std::string &key,
   return GetProxyByClusterId(key, proxy_info_vec);
 }
 
-int32_t ProxyManager::CheckBidConf(const std::string &inlong_group_id,
-                                   bool is_inited) {
+int32_t ProxyManager::CheckGroupIdConf(const std::string &inlong_group_id,
+                                       bool is_inited) {
   {
     unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
     auto it = groupid_2_cluster_id_map_.find(inlong_group_id);
@@ -379,7 +379,7 @@ void ProxyManager::WriteLocalCache() {
   } catch (...) {
     LOG_ERROR("WriteLocalCache error!");
   }
-  LOG_INFO("WriteLocalCache bid number:" << groupid_count);
+  LOG_INFO("WriteLocalCache getGroupId number:" << groupid_count);
 }
 
 std::string ProxyManager::RecoverFromLocalCache(const std::string &groupid) {

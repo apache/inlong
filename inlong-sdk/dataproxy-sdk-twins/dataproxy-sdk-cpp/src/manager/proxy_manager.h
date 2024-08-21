@@ -62,7 +62,7 @@ public:
     static ProxyManager instance;
     return &instance;
   }
-  int32_t CheckBidConf(const std::string &inlong_group_id, bool is_inited);
+  int32_t CheckGroupIdConf(const std::string &inlong_group_id, bool is_inited);
   void Update();
   void DoUpdate();
   void Init();

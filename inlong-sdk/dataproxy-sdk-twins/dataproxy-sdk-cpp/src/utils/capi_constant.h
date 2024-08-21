@@ -22,6 +22,7 @@
 
 #include "string.h"
 #include <stdint.h>
+#include <limits>
 
 namespace inlong {
 namespace constants {
@@ -79,6 +80,9 @@ static const uint32_t kReserveProxyNum = 2;
 static const bool kEnableTCPNagle = true;
 static const uint32_t kTcpIdleTime = 600000;
 static const uint32_t kTcpDetectionInterval = 60000;
+static const uint32_t kMaxRetryIntervalMs= 3000;
+static const uint32_t kRetryIntervalMs= 200;
+static const int32_t kRetryTimes = 1;
 
 static const char kSerIP[] = "127.0.0.1";
 static const uint32_t kSerPort = 46801;
@@ -87,6 +91,7 @@ static const uint32_t kMsgType = 7;
 static const bool kEnableSetAffinity = false;
 static const uint32_t kMaskCPUAffinity = 0xff;
 static const uint16_t kExtendField = 0;
+static const uint64_t kMaxSnowFlake = std::numeric_limits<uint64_t>::max();
 
 // http basic auth
 static const char kBasicAuthHeader[] = "Authorization:";

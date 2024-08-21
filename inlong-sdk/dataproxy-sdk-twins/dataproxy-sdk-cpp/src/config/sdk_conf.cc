@@ -436,6 +436,13 @@ void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
   } else {
     enable_balance_ = constants::kEnableBalance;
   }
+
+  if (doc.HasMember("retry_times") && doc["retry_times"].IsInt() && doc["retry_times"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["retry_times"];
+    retry_times_ = obj.GetInt();
+  } else {
+    retry_times_ = constants::kRetryTimes;
+  }
 }
 void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
   // auth settings
