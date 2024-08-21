@@ -37,6 +37,13 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     return !!inlongGroupId;
   }, [inlongGroupId]);
 
+  const [sortOption, setSortOption] = useState({
+    inlongGroupId: inlongGroupId,
+    inlongStreamId: '',
+    pageSize: 5,
+    pageNum: 1,
+  });
+
   const { data, run: getData } = useRequest(`/group/detail/${inlongGroupId}`, {
     ready: isUpdate,
     refreshDeps: [inlongGroupId],
@@ -44,6 +51,20 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
       ...data,
     }),
   });
+
+  const { data: sortData, run: getSortData } = useRequest(
+    {
+      url: '/sink/listDetail',
+      method: 'post',
+      data: sortOption,
+    },
+    {
+      refreshDeps: [sortOption],
+      formatResult: data => ({
+        ...data,
+      }),
+    },
+  );
 
   useEffect(() => {
     getData();
@@ -82,7 +103,6 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     for (const item in data) {
       if (
         data[item] !== null &&
-        item !== 'SortInfo' &&
         item !== 'PULSAR' &&
         item !== 'TUBEMQ' &&
         item !== 'inlongClusterTag'
@@ -92,31 +112,24 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     }
     return info;
   };
-
-  const [current, setCurrent] = useState(1);
-  const [options, setOptions] = useState({
-    streamId: '',
-  });
+  const onChange = ({ current: pageNum, pageSize }) => {
+    setSortOption(pre => ({ ...pre, pageNum: pageNum, pageSize: pageSize }));
+  };
 
   const pagination = {
     pageSize: 5,
-    current: current,
-    total:
-      options.streamId !== ''
-        ? data?.SortInfo.filter(item => item.inlongStreamId.includes(options.streamId)).length
-        : data?.SortInfo?.length,
-  };
-  const onChange = ({ current: pageNum, pageSize }) => {
-    setCurrent(pageNum);
+    current: sortOption.pageNum,
+    total: sortData?.total,
   };
 
   const onFilter = allValues => {
-    setOptions({
-      streamId: allValues.streamId,
-    });
+    setSortOption(pre => ({
+      ...pre,
+      inlongStreamId: allValues.streamId,
+    }));
   };
 
-  const content = defaultValues => [
+  const content = () => [
     {
       type: 'inputsearch',
       label: 'Stream Id',
@@ -199,7 +212,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
           </Divider>
           <HighTable
             filterForm={{
-              content: content(options),
+              content: content(),
               onFilter,
             }}
             table={{
@@ -210,10 +223,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
                 { title: 'topoName', dataIndex: 'inlongClusterName' },
               ],
               style: { marginTop: 20 },
-              dataSource:
-                options.streamId !== ''
-                  ? data?.SortInfo.filter(item => item.inlongStreamId.includes(options.streamId))
-                  : data?.SortInfo,
+              dataSource: sortData?.list,
               pagination,
               rowKey: 'name',
               onChange,
