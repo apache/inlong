@@ -95,6 +95,7 @@ private:
   uint32_t tcp_detection_interval_; // tcp-client detection interval
   bool enable_balance_;
   bool enable_local_cache_;
+  uint32_t retry_times_;
 
 
   // auth settings

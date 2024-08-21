@@ -72,8 +72,8 @@ public:
   void setMsgCnt(const int32_t &msg_cnt) { msg_cnt_ = msg_cnt; }
   uint32_t len() { return len_; }
   void setLen(const uint32_t len) { len_ = len; }
-  std::string bid() { return inlong_group_id_; }
-  std::string tid() { return inlong_stream_id_; }
+  std::string getGroupId() { return inlong_group_id_; }
+  std::string getStreamId() { return inlong_stream_id_; }
   void setInlongGroupId(const std::string &inlong_group_id) {
     inlong_group_id_ = inlong_group_id;
   }

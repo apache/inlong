@@ -48,7 +48,16 @@ struct SdkMsg {
         data_pack_format_attr_(attr),
         inlong_group_id_(inlong_group_id),
         inlong_stream_id_(inlong_stream_id){}
-  SdkMsg() {};
+  SdkMsg(){};
+  void setMsg(const std::string &msg) { msg_ = msg; }
+  void setClientIp(const std::string &clientIp) { client_ip_ = clientIp; }
+  void setReportTime(uint64_t reportTime) { report_time_ = reportTime; }
+  void setCb(UserCallBack cb) { cb_ = cb;}
+  void setUserReportTime(uint64_t userReportTime) { user_report_time_ = userReportTime; }
+  void setUserClientIp(const std::string &userClientIp) { user_client_ip_ = userClientIp; }
+  void setDataPackFormatAttr(const std::string &dataPackFormatAttr) { data_pack_format_attr_ = dataPackFormatAttr; }
+  void setGroupId(const std::string &inlong_group_id) { inlong_group_id_ = inlong_group_id; }
+  void setStreamId(const std::string &inlong_stream_id) { inlong_stream_id_ = inlong_stream_id; }
 };
 using SdkMsgPtr = std::shared_ptr<SdkMsg>;
 
