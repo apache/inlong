@@ -443,6 +443,12 @@ void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
   } else {
     retry_times_ = constants::kRetryTimes;
   }
+  if (doc.HasMember("proxy_repeat_times") && doc["proxy_repeat_times"].IsInt() && doc["proxy_repeat_times"].GetInt() >= 0) {
+    const rapidjson::Value &obj = doc["proxy_repeat_times"];
+    proxy_repeat_times_ = obj.GetInt();
+  } else {
+    proxy_repeat_times_ = constants::kProxyRepeatTimes;
+  }
 }
 void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
   // auth settings
