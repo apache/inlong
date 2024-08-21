@@ -205,32 +205,30 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
           ></Table>
         </>
       )}
-      {data?.hasOwnProperty('SortInfo') && (
-        <>
-          <Divider orientation="left" style={{ marginTop: 60 }}>
-            Sort {t('pages.GroupDetail.Resource.Info')}
-          </Divider>
-          <HighTable
-            filterForm={{
-              content: content(),
-              onFilter,
-            }}
-            table={{
-              columns: [
-                { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
-                { title: 'dataflowId', dataIndex: 'id' },
-                { title: 'sinkName', dataIndex: 'sinkName' },
-                { title: 'topoName', dataIndex: 'inlongClusterName' },
-              ],
-              style: { marginTop: 20 },
-              dataSource: sortData?.list,
-              pagination,
-              rowKey: 'name',
-              onChange,
-            }}
-          />
-        </>
-      )}
+      <>
+        <Divider orientation="left" style={{ marginTop: 60 }}>
+          Sort {t('pages.GroupDetail.Resource.Info')}
+        </Divider>
+        <HighTable
+          filterForm={{
+            content: content(),
+            onFilter,
+          }}
+          table={{
+            columns: [
+              { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
+              { title: 'dataflowId', dataIndex: 'id' },
+              { title: 'sinkName', dataIndex: 'sinkName' },
+              { title: 'topoName', dataIndex: 'inlongClusterName' },
+            ],
+            style: { marginTop: 20 },
+            dataSource: sortData?.list,
+            pagination,
+            rowKey: 'name',
+            onChange,
+          }}
+        />
+      </>
     </div>
   );
 };
