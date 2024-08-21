@@ -27,14 +27,28 @@ import net.sf.jsqlparser.expression.Function;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * ToBase64Function
+ * description: to_base64(string1)--returns the base64-encoded result from string1
+ */
 public class ToBase64Function implements ValueParser {
 
     private final ValueParser stringParser;
 
+    /**
+     * Constructor
+     * @param expr
+     */
     public ToBase64Function(Function expr) {
         stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
+    /**
+     * parse
+     * @param sourceData
+     * @param rowIndex
+     * @return
+     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
