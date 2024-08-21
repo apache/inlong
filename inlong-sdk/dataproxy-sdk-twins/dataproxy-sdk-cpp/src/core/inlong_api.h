@@ -39,10 +39,10 @@ class InLongApi {
 
   int32_t AddGroupId(const std::vector<std::string> &group_ids);
 
-  int32_t Send(const char *business_id, const char *table_id, const char *msg, int32_t msg_len,
+  int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                UserCallBack call_back = nullptr);
 
-  int32_t Send(const char *business_id, const char *table_id, const char *msg, int32_t msg_len,
+  int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                int64_t data_time, UserCallBack call_back = nullptr);
 
   int32_t CloseApi(int32_t max_waitms);

@@ -46,31 +46,31 @@ int32_t ApiImp::InitApi(const char *config_file_path) {
   return DoInit();
 }
 
-int32_t ApiImp::Send(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len,
+int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                      UserCallBack call_back) {
-  int32_t code=ValidateParams(group_id, stream_id, msg, msg_len);
+  int32_t code=ValidateParams(inlong_group_id, inlong_stream_id, msg, msg_len);
   if(code !=SdkCode::kSuccess){
     return code;
   }
 
-  return this->SendBase(group_id, stream_id, {msg, msg_len}, call_back);
+  return this->SendBase(inlong_group_id, inlong_stream_id, {msg, msg_len}, call_back);
 }
-int32_t ApiImp::Send(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len,
+int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                      int64_t data_time, UserCallBack call_back) {
-  int32_t code=ValidateParams(group_id, stream_id, msg, msg_len);
+  int32_t code=ValidateParams(inlong_group_id, inlong_stream_id, msg, msg_len);
   if(code !=SdkCode::kSuccess){
     return code;
   }
 
-  return this->SendBase(group_id, stream_id, {msg, msg_len}, call_back, data_time);
+  return this->SendBase(inlong_group_id, inlong_stream_id, {msg, msg_len}, call_back, data_time);
 }
 
-int32_t ApiImp::ValidateParams(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len){
+int32_t ApiImp::ValidateParams(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len){
   if (msg_len > max_msg_length_) {
-    MetricManager::GetInstance()->AddTooLongMsgCount(group_id,stream_id,1);
+    MetricManager::GetInstance()->AddTooLongMsgCount(inlong_group_id, inlong_stream_id, 1);
     return SdkCode::kMsgTooLong;
   }
-  if (group_id == nullptr || stream_id == nullptr || msg == nullptr || msg_len <= 0) {
+  if (inlong_group_id == nullptr || inlong_stream_id == nullptr || msg == nullptr || msg_len <= 0) {
     return SdkCode::kInvalidInput;
   }
 
@@ -80,9 +80,9 @@ int32_t ApiImp::ValidateParams(const char *group_id, const char *stream_id, cons
   return SdkCode::kSuccess;
 }
 
-int32_t ApiImp::SendBase(const std::string& inlong_group_id, const std::string& stream_id, const std::string& msg,
+int32_t ApiImp::SendBase(const std::string& inlong_group_id, const std::string& inlong_stream_id, const std::string& msg,
                          UserCallBack call_back, int64_t report_time) {
-  int32_t check_ret = CheckData(inlong_group_id, stream_id, msg);
+  int32_t check_ret = CheckData(inlong_group_id, inlong_stream_id, msg);
   if (check_ret != SdkCode::kSuccess) {
     return check_ret;
   }
@@ -91,11 +91,11 @@ int32_t ApiImp::SendBase(const std::string& inlong_group_id, const std::string& 
 
   auto recv_group = recv_manager_->GetRecvGroup(inlong_group_id);
   if (recv_group == nullptr) {
-    LOG_ERROR("fail to get pack queue, group id:" << inlong_group_id << ",getStreamId:" << stream_id);
+    LOG_ERROR("fail to get pack queue, group id:" << inlong_group_id << ",getStreamId:" << inlong_stream_id);
     return SdkCode::kFailGetRevGroup;
   }
 
-  return recv_group->SendData(msg, inlong_group_id, stream_id, report_time, call_back);
+  return recv_group->SendData(msg, inlong_group_id, inlong_stream_id, report_time, call_back);
 }
 
 int32_t ApiImp::CloseApi(int32_t max_waitms) {
@@ -125,19 +125,19 @@ int32_t ApiImp::DoInit() {
   return InitManager();
 }
 
-int32_t ApiImp::CheckData(const std::string& group_id, const std::string& stream_id, const std::string& msg) {
+int32_t ApiImp::CheckData(const std::string& inlong_group_id, const std::string& inlong_stream_id, const std::string& msg) {
   if (init_succeed_ == 0 || user_exit_flag_.get() == 1) {
     LOG_ERROR("capi has been closed, Init first and then send");
     return SdkCode::kSendAfterClose;
   }
 
-  if (msg.empty() || group_id.empty() || stream_id.empty()) {
-    LOG_ERROR("invalid input, group id:" << group_id << " stream id:" << stream_id << "msg" << msg);
+  if (msg.empty() || inlong_group_id.empty() || inlong_stream_id.empty()) {
+    LOG_ERROR("invalid input, group id:" << inlong_group_id << " stream id:" << inlong_stream_id << "msg" << msg);
     return SdkCode::kInvalidInput;
   }
 
   if (msg.size() > SdkConfig::getInstance()->max_msg_size_) {
-    MetricManager::GetInstance()->AddTooLongMsgCount(group_id,stream_id,1);
+    MetricManager::GetInstance()->AddTooLongMsgCount(inlong_group_id, inlong_stream_id, 1);
     LOG_ERROR("msg DataLen is too long, cur msg_len" << msg.size() << " ext_pack_size"
                                                      << SdkConfig::getInstance()->max_msg_size_);
     return SdkCode::kMsgTooLong;

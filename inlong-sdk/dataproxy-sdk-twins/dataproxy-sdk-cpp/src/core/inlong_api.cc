@@ -24,14 +24,14 @@ InLongApi::~InLongApi() { api_impl_->CloseApi(10); }
 
 int32_t InLongApi::InitApi(const char *config_path) { return api_impl_->InitApi(config_path); }
 
-int32_t InLongApi::Send(const char *business_id, const char *table_id, const char *msg, int32_t msg_len,
+int32_t InLongApi::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                         UserCallBack call_back) {
-  return api_impl_->Send(business_id, table_id, msg, msg_len, call_back);
+  return api_impl_->Send(inlong_group_id, inlong_stream_id, msg, msg_len, call_back);
 }
 
-int32_t InLongApi::Send(const char *business_id, const char *table_id, const char *msg, int32_t msg_len,
+int32_t InLongApi::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                         int64_t data_time, UserCallBack call_back) {
-  return api_impl_->Send(business_id, table_id, msg, msg_len, data_time, call_back);
+  return api_impl_->Send(inlong_group_id, inlong_stream_id, msg, msg_len, data_time, call_back);
 }
 
 int32_t InLongApi::CloseApi(int32_t max_waitms) { return api_impl_->CloseApi(max_waitms); }

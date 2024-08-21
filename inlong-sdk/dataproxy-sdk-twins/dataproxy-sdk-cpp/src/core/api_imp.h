@@ -34,10 +34,10 @@ class ApiImp {
   ~ApiImp();
   int32_t InitApi(const char *config_file_path);
 
-  int32_t Send(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len,
+  int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                UserCallBack call_back = nullptr);
 
-  int32_t Send(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len,
+  int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                int64_t report_time, UserCallBack call_back = nullptr);
   int32_t CloseApi(int32_t max_waitms);
 
@@ -46,12 +46,12 @@ class ApiImp {
  private:
   int32_t DoInit();
   int32_t InitManager();
-  int32_t SendBase(const std::string& inlong_group_id, const std::string& stream_id, const std::string& msg, UserCallBack call_back,
+  int32_t SendBase(const std::string& inlong_group_id, const std::string& inlong_stream_id, const std::string& msg, UserCallBack call_back,
                    int64_t report_time = 0);
 
-  int32_t CheckData(const std::string& group_id, const std::string& stream_id, const std::string& msg);
+  int32_t CheckData(const std::string& inlong_group_id, const std::string& inlong_stream_id, const std::string& msg);
 
-  int32_t ValidateParams(const char *group_id, const char *stream_id, const char *msg, int32_t msg_len);
+  int32_t ValidateParams(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len);
 
   AtomicInt user_exit_flag_{0};
   volatile bool init_flag_ = false;
