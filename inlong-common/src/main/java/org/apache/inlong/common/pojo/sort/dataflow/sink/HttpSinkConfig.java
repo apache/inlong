@@ -15,13 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.constant;
+package org.apache.inlong.common.pojo.sort.dataflow.sink;
 
-public class DataNodeType {
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-    public static final String KAFKA = "KAFKA";
-    public static final String PULSAR = "PULSAR";
-    public static final String CLS = "CLS";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String HTTP = "HTTP";
+import java.util.Map;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class HttpSinkConfig extends SinkConfig {
+
+    private String path;
+    private String method;
+    private Map<String, String> headers;
+    private Integer maxRetryTimes;
 }
