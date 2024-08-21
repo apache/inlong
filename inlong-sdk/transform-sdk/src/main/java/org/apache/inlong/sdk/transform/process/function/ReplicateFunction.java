@@ -58,12 +58,13 @@ public class ReplicateFunction implements ValueParser {
             return str;
         }
         StringBuilder repeatedStr = new StringBuilder();
+        StringBuilder originStr = new StringBuilder(str);
         while (count > 0) {
             if (count % 2 != 0) {
-                repeatedStr.append(str);
+                repeatedStr.append(originStr);
             }
             count = Math.floor(count / 2);
-            str += str;
+            originStr.append(originStr);
         }
         return repeatedStr.toString();
     }
