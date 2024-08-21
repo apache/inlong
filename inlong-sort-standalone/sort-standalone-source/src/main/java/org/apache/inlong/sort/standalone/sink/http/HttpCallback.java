@@ -44,17 +44,7 @@ public class HttpCallback implements FutureCallback<HttpResponse> {
 
         // is fail
         if (statusCode != 200) {
-            context.addSendResultMetric(event, context.getTaskName(), false, sendTime);
-            // if reach the max retry times, release the request
-            int remainRetryTimes = requestItem.getRemainRetryTimes();
-            if (remainRetryTimes == 1) {
-                context.releaseDispatchQueue(requestItem);
-                return;
-            }
-            if (remainRetryTimes > 1) {
-                requestItem.setRemainRetryTimes(remainRetryTimes - 1);
-            }
-            context.backDispatchQueue(requestItem);
+            handleFailedRequest(event, sendTime);
         } else {
             context.addSendResultMetric(event, context.getTaskName(), true, sendTime);
             context.releaseDispatchQueue(requestItem);
@@ -64,24 +54,27 @@ public class HttpCallback implements FutureCallback<HttpResponse> {
 
     @Override
     public void failed(Exception e) {
-        LOG.error("Http request failed,errorMsg:" + e.getMessage(), e);
+        LOG.error("Http request failed,errorMsg:{}", e.getMessage(), e);
         ProfileEvent event = requestItem.getEvent();
         long sendTime = requestItem.getSendTime();
+        handleFailedRequest(event, sendTime);
+    }
+
+    @Override
+    public void cancelled() {
+        LOG.info("Request cancelled");
+    }
+
+    private void handleFailedRequest(ProfileEvent event, long sendTime) {
         int remainRetryTimes = requestItem.getRemainRetryTimes();
         context.addSendResultMetric(event, context.getTaskName(), false, sendTime);
         // if reach the max retry times, release the request
         if (remainRetryTimes == 1) {
             context.releaseDispatchQueue(requestItem);
             return;
-        }
-        if (remainRetryTimes > 1) {
+        } else if (remainRetryTimes > 1) {
             requestItem.setRemainRetryTimes(remainRetryTimes - 1);
         }
         context.backDispatchQueue(requestItem);
-    }
-
-    @Override
-    public void cancelled() {
-        LOG.info("Request cancelled");
     }
 }

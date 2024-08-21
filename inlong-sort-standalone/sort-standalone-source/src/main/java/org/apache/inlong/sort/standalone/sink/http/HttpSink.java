@@ -79,7 +79,7 @@ public class HttpSink extends AbstractSink implements Configurable {
 
     @Override
     public void configure(Context context) {
-        LOG.info("start to configure:{}, context:{}.", this.getName(), context.toString());
+        LOG.info("Start to configure:{}, context:{}.", this.getName(), context.toString());
         this.parentContext = context;
     }
 

@@ -64,7 +64,7 @@ public class HttpSinkContext extends SinkContext {
     public static final String KEY_SOCKET_TIMEOUT = "socketTimeout";
     public static final String KEY_MAX_REDIRECTS = "maxRedirects";
     public static final String KEY_LOG_MAX_LENGTH = "logMaxLength";
-    public static final String KEY_EVENT_HTTPREQUEST_HANDLER = "httpRequestHandler";
+    public static final String KEY_EVENT_HTTP_REQUEST_HANDLER = "httpRequestHandler";
 
     public static final boolean DEFAULT_ENABLE_CREDENTIAL = false;
     public static final int DEFAULT_MAX_CONNECT_TOTAL = 1000;
@@ -138,7 +138,7 @@ public class HttpSinkContext extends SinkContext {
             }
             SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
             // log
-            LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
+            LOG.info("End to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
                     objectMapper.writeValueAsString(idConfigMap));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -386,14 +386,13 @@ public class HttpSinkContext extends SinkContext {
 
     public IEvent2HttpRequestHandler createHttpRequestHandler() {
         // IEvent2HttpRequestHandler
-        String httpRequestHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HTTPREQUEST_HANDLER,
+        String httpRequestHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HTTP_REQUEST_HANDLER,
                 DefaultEvent2HttpRequestHandler.class.getName());
         try {
             Class<?> handlerClass = ClassUtils.getClass(httpRequestHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
             if (handlerObject instanceof IEvent2HttpRequestHandler) {
-                IEvent2HttpRequestHandler handler = (IEvent2HttpRequestHandler) handlerObject;
-                return handler;
+                return (IEvent2HttpRequestHandler) handlerObject;
             }
         } catch (Throwable t) {
             LOG.error("Fail to init IEvent2HttpRequestHandler,handlerClass:{},error:{}",

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandler {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(DefaultEvent2HttpRequestHandler.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public HttpRequest parse(HttpSinkContext context, ProfileEvent event)
@@ -81,7 +82,7 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
             uriString = "http://" + uriString;
         }
         URI uri = new URI(uriString);
-        String jsonData = new ObjectMapper().writeValueAsString(fieldMap);
+        String jsonData;
         HttpUriRequest request;
         switch (idConfig.getMethod().toUpperCase()) {
             case "GET":
@@ -109,6 +110,7 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 }
                 request.setHeader("InlongGroupID", idConfig.getInlongGroupId());
                 request.setHeader("InlongStreamID", idConfig.getInlongStreamId());
+                jsonData = objectMapper.writeValueAsString(fieldMap);
                 setEntity((HttpEntityEnclosingRequestBase) request, jsonData);
                 break;
             case "PUT":
@@ -118,6 +120,7 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 }
                 request.setHeader("InlongGroupID", idConfig.getInlongGroupId());
                 request.setHeader("InlongStreamID", idConfig.getInlongStreamId());
+                jsonData = objectMapper.writeValueAsString(fieldMap);
                 setEntity((HttpEntityEnclosingRequestBase) request, jsonData);
                 break;
             default:

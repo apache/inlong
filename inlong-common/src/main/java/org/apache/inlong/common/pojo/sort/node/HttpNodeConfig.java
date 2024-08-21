@@ -27,4 +27,5 @@ public class HttpNodeConfig extends NodeConfig {
     private String username;
     private String password;
     private Integer maxConnect;
+    private String NodeType;
 }

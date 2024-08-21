@@ -46,12 +46,13 @@ public class HttpChannelWorker extends Thread {
     @Override
     public void run() {
         status = LifecycleState.START;
-        LOG.info("start to HttpChannelWorker:{},status:{},index:{}", context.getTaskName(), status, workerIndex);
+        LOG.info("Starting HttpChannelWorker:{},status:{},index:{}", context.getTaskName(), status, workerIndex);
         while (status == LifecycleState.START) {
             try {
                 this.doRun();
             } catch (Throwable t) {
-                LOG.error(t.getMessage(), t);
+                LOG.error("Error occurred while starting HttpChannelWorker:{},status:{},index:{}",
+                        context.getTaskName(), status, workerIndex, t);
             }
         }
     }
