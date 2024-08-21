@@ -24,20 +24,22 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
+/**
+ * ReverseFunction
+ * description: reverse(string)--returns the string with the order of the characters reversed.
+ * returns NULL if string is a empty string.
+ */
 public class ReverseFunction implements ValueParser {
 
     private ValueParser stringParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public ReverseFunction(Function expr) {
         stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     /**
      * parse
+     * Parse and reverse string by reverse() in StringBuilder.
      * @param sourceData
      * @param rowIndex
      * @param context
@@ -48,7 +50,6 @@ public class ReverseFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         String str = OperatorTools.parseString(stringObj);
-        String reversed = new StringBuilder(str).reverse().toString();
-        return reversed;
+        return new StringBuilder(str).reverse().toString();
     }
 }
