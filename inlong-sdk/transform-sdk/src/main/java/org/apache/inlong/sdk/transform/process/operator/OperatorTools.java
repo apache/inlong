@@ -41,6 +41,7 @@ import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
 import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
+import org.apache.inlong.sdk.transform.process.function.ToBase64Function;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.TrimFunction;
@@ -138,6 +139,7 @@ public class OperatorTools {
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
+        functionMap.put("to_base64", ToBase64Function::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
