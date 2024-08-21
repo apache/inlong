@@ -128,11 +128,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
       temp['headers'] = previewData?.[i]?.headers;
       temp['body'] = previewData?.[i]?.body;
       temp['dt'] = dayjs(previewData?.[i]?.dt).format('YYYY-MM-DD HH:mm:ss');
-      console.log(
-        previewData?.[i]?.dt,
-        dayjs(previewData?.[i]?.dt).format('YYYY-MM-DD HH:mm:ss'),
-        temp['dt'],
-      );
       result.push(temp);
     }
     return result;
