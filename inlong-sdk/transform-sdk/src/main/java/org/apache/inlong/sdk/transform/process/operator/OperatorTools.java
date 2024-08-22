@@ -43,6 +43,7 @@ import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.FactorialFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -54,6 +55,7 @@ import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.TimestampParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+
 
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;

@@ -175,6 +175,41 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testFactorialFunction() throws Exception {
+        String transformSql = "select factorial(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: 测试非负整数的阶乘
+        List<String> output1 = processor.transform("5|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=120");
+
+        // case2: 测试0的阶乘
+        List<String> output2 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1");
+
+        // case3: 测试带有小数的输入，应抛出异常
+        try {
+            List<String> output3 = processor.transform("5.5|4|6|8");
+            Assert.fail("Expected an exception for non-integer input");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
+        }
+
+        // case4: 测试负数的输入，应抛出异常
+        try {
+            List<String> output4 = processor.transform("-5|4|6|8");
+            Assert.fail("Expected an exception for negative input");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
+        }
+    }
+}
+
+    @Test
     public void testLog2Function() throws Exception {
         String transformSql = "select log2(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
