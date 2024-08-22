@@ -99,12 +99,13 @@ public class HttpOutputChannel extends Thread {
     @Override
     public void run() {
         status = LifecycleState.START;
-        LOG.info("start to HttpOutputChannel:{},status:{}", context.getTaskName(), status);
+        LOG.info("Starting HttpOutputChannel:{},status:{}", context.getTaskName(), status);
         while (status == LifecycleState.START) {
             try {
                 send();
             } catch (Throwable t) {
-                LOG.error(t.getMessage(), t);
+                LOG.error("Error occurred while starting HttpOutputChannel:{},status:{}", context.getTaskName(), status,
+                        t);
             }
         }
     }
@@ -129,7 +130,7 @@ public class HttpOutputChannel extends Thread {
             httpClient.execute(httpRequest.getRequest(), new HttpCallback(context, httpRequest));
             context.addSendMetric(httpRequest.getEvent(), context.getTaskName());
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to send HttpRequest '{}': {}", httpRequest, e.getMessage(), e);
             if (httpRequest != null) {
                 context.backDispatchQueue(httpRequest);
                 context.addSendResultMetric(httpRequest.getEvent(), context.getTaskName(), false,
@@ -138,7 +139,7 @@ public class HttpOutputChannel extends Thread {
             try {
                 Thread.sleep(context.getProcessInterval());
             } catch (InterruptedException e1) {
-                LOG.error(e1.getMessage(), e1);
+                LOG.error("Thread interrupted while sleeping, error: {}", e1.getMessage(), e1);
             }
         }
     }

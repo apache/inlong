@@ -47,6 +47,10 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(DefaultEvent2HttpRequestHandler.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String HTTP_PREFIX = "http://";
+    public static final String HTTPS_PREFIX = "https://";
+    public static final String INLONG_GROUP_ID_HEADER = "inlongGroupId";
+    public static final String INLONG_STREAM_ID_HEADER = "inlongStreamId";
 
     @Override
     public HttpRequest parse(HttpSinkContext context, ProfileEvent event)
@@ -78,19 +82,20 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
 
         // build
         String uriString = context.getBaseUrl() + idConfig.getPath();
-        if (!uriString.startsWith("http://") && !uriString.startsWith("https://")) {
-            uriString = "http://" + uriString;
+        if (!uriString.startsWith(HTTP_PREFIX) && !uriString.startsWith(HTTPS_PREFIX)) {
+            uriString = HTTP_PREFIX + uriString;
         }
         URI uri = new URI(uriString);
         String jsonData;
         HttpUriRequest request;
-        switch (idConfig.getMethod().toUpperCase()) {
+        String requestMethod = idConfig.getMethod().toUpperCase();
+        switch (requestMethod) {
             case "GET":
                 String params = fieldMap.entrySet().stream()
                         .map(entry -> {
                             try {
-                                return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name()) + "="
-                                        + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
+                                return URLEncoder.encode(entry.getKey() + "=" + entry.getValue(),
+                                        StandardCharsets.UTF_8.name());
                             } catch (UnsupportedEncodingException e) {
                                 throw new RuntimeException(e);
                             }
@@ -100,16 +105,16 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 for (Map.Entry<String, String> entry : idConfig.getHeaders().entrySet()) {
                     request.setHeader(entry.getKey(), entry.getValue());
                 }
-                request.setHeader("InlongGroupID", idConfig.getInlongGroupId());
-                request.setHeader("InlongStreamID", idConfig.getInlongStreamId());
+                request.setHeader(INLONG_GROUP_ID_HEADER, idConfig.getInlongGroupId());
+                request.setHeader(INLONG_STREAM_ID_HEADER, idConfig.getInlongStreamId());
                 break;
             case "POST":
                 request = new HttpPost(uri);
                 for (Map.Entry<String, String> entry : idConfig.getHeaders().entrySet()) {
                     request.setHeader(entry.getKey(), entry.getValue());
                 }
-                request.setHeader("InlongGroupID", idConfig.getInlongGroupId());
-                request.setHeader("InlongStreamID", idConfig.getInlongStreamId());
+                request.setHeader(INLONG_GROUP_ID_HEADER, idConfig.getInlongGroupId());
+                request.setHeader(INLONG_STREAM_ID_HEADER, idConfig.getInlongStreamId());
                 jsonData = objectMapper.writeValueAsString(fieldMap);
                 setEntity((HttpEntityEnclosingRequestBase) request, jsonData);
                 break;
@@ -118,13 +123,13 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 for (Map.Entry<String, String> entry : idConfig.getHeaders().entrySet()) {
                     request.setHeader(entry.getKey(), entry.getValue());
                 }
-                request.setHeader("InlongGroupID", idConfig.getInlongGroupId());
-                request.setHeader("InlongStreamID", idConfig.getInlongStreamId());
+                request.setHeader(INLONG_GROUP_ID_HEADER, idConfig.getInlongGroupId());
+                request.setHeader(INLONG_STREAM_ID_HEADER, idConfig.getInlongStreamId());
                 jsonData = objectMapper.writeValueAsString(fieldMap);
                 setEntity((HttpEntityEnclosingRequestBase) request, jsonData);
                 break;
             default:
-                LOG.error("Unsupported method: {}", idConfig.getMethod().toUpperCase());
+                LOG.error("Unsupported request method: {}", requestMethod);
                 return null;
         }
         return new HttpRequest(request, event, idConfig.getMaxRetryTimes());

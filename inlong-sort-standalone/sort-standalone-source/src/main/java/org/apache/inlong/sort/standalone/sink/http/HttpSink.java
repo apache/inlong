@@ -58,7 +58,7 @@ public class HttpSink extends AbstractSink implements Configurable {
             this.outputChannel.init();
             this.outputChannel.start();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to start HttpSink '{}': {}", this.getName(), e.getMessage());
         }
     }
 
@@ -73,7 +73,7 @@ public class HttpSink extends AbstractSink implements Configurable {
             this.workers.clear();
             this.outputChannel.close();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to stop HttpSink '{}': {}", this.getName(), e.getMessage());
         }
     }
 
