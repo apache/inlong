@@ -50,6 +50,8 @@ RecvGroup::RecvGroup(const std::string &group_key, std::shared_ptr<SendManager> 
   last_pack_time_ = Utils::getCurrentMsTime();
   max_recv_size_ = SdkConfig::getInstance()->recv_buf_size_;
   local_ip_ = SdkConfig::getInstance()->local_ip_;
+  group_id_key_ = SdkConfig::getInstance()->extend_report_ ? "bid=" : "groupId=";
+  stream_id_key_ = SdkConfig::getInstance()->extend_report_ ? "&tid=" : "&streamId=";
   LOG_INFO("RecvGroup:" << group_key_ << ",data_capacity:" << data_capacity_ << ",max_recv_size:" << max_recv_size_);
 }
 
@@ -224,8 +226,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,uint32_t &
         streamId_num_ == 0) {
       groupId_num = 0;
       streamId_num = 0;
-      groupId_streamId_char = "groupId=" + msgs[0]->inlong_group_id_ +
-          "&streamId=" + msgs[0]->inlong_stream_id_;
+      groupId_streamId_char = group_id_key_ + msgs[0]->inlong_group_id_ + stream_id_key_ + msgs[0]->inlong_stream_id_;
       char_groupId_flag = 0x4;
     } else {
       groupId_num = groupId_num_;
@@ -245,7 +246,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,uint32_t &
             "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
             "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
     } else {
-      attr = "groupId=" + msgs[0]->inlong_group_id_ +
+      attr = group_id_key_ + msgs[0]->inlong_group_id_ +
           "&streamId=" + msgs[0]->inlong_stream_id_;
     }
     *(uint16_t *)bodyBegin = htons(attr.size());
@@ -296,8 +297,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,uint32_t &
 
     // attr
     std::string attr;
-    attr = "groupId=" + msgs[0]->inlong_group_id_ +
-        "&streamId=" + msgs[0]->inlong_stream_id_;
+    attr = group_id_key_ + msgs[0]->inlong_group_id_ + stream_id_key_ + msgs[0]->inlong_stream_id_;
 
     attr += "&dt=" + std::to_string(data_time_);
     attr += "&mid=" + std::to_string(uniq_id_);

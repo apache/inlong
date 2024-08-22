@@ -93,6 +93,7 @@ static const bool kEnableSetAffinity = false;
 static const uint32_t kMaskCPUAffinity = 0xff;
 static const uint16_t kExtendField = 0;
 static const uint64_t kMaxSnowFlake = std::numeric_limits<uint64_t>::max();
+static const bool kExtendReport = false;
 
 // http basic auth
 static const char kBasicAuthHeader[] = "Authorization:";
