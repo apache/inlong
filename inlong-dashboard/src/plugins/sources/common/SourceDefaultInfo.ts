@@ -118,6 +118,10 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @I18n('meta.Sources.Name')
   sourceName: string;
 
+  @ColumnDecorator()
+  @I18n('meta.Sources.ClusterName')
+  readonly inlongClusterName: string;
+
   @FieldDecorator({
     type: 'select',
     props: {
@@ -127,10 +131,6 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     },
     visible: false,
   })
-  @ColumnDecorator()
-  @I18n('meta.Sources.ClusterName')
-  readonly inlongClusterName: string;
-
   @ColumnDecorator({
     render: text => genStatusTag(text),
   })
