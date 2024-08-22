@@ -37,6 +37,7 @@ import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.ReplaceFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
 import org.apache.inlong.sdk.transform.process.function.RoundFunction;
@@ -156,6 +157,7 @@ public class OperatorTools {
         functionMap.put("mod", ModuloFunction::new);
         functionMap.put("to_base64", ToBase64Function::new);
         functionMap.put("length", LengthFunction::new);
+        functionMap.put("replace", ReplaceFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
