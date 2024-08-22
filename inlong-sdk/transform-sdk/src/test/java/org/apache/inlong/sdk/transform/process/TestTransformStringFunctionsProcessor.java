@@ -118,6 +118,73 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=null");
     }
+  
+    @Test
+    public void testReplicateFunction() throws Exception {
+        String transformSql1 = "select replicate(string1, numeric1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: replicate('apple', 2)
+        List<String> output1 = processor1.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=appleapple");
+        String transformSql2 = "select replicate(string2, numeric2) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: replicate('banana', 3)
+        List<String> output2 = processor2.transform("apple|banana|cloud|1|3|3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=bananabananabanana");
+        // case3: replicate('banana', 1)
+        List<String> output3 = processor2.transform("apple|banana|cloud|1|1|3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output3.get(0), "result=banana");
+        // case3: replicate('cloud', 0)
+        String transformSql3 = "select replicate(string3, numeric3) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output4 = processor3.transform("apple|banana|cloud|2|1|0", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=");
+    }
+
+    @Test
+    public void testTrimFunction() throws Exception {
+        String transformSql1 = "select trim(string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: trim(' in long')
+        List<String> output1 = processor1.transform(" in long|in long | in long ", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=in long");
+        String transformSql2 = "select trim(string2) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: trim('in long ')
+        List<String> output2 = processor2.transform(" in long|in long | in long ", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=in long");
+        String transformSql3 = "select trim(string2) from source";
+        TransformConfig config3 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case3: trim(' in long ')
+        List<String> output3 = processor3.transform(" in long|in long | in long ", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=in long");
+    }
+  
 
     @Test
     public void testReverseFunction() throws Exception {
@@ -143,5 +210,4 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output3 = processor1.transform("12345|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=54321");
-    }
 }

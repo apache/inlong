@@ -34,6 +34,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = EsSinkConfig.class, name = SinkType.ELASTICSEARCH),
         @JsonSubTypes.Type(value = PulsarSinkConfig.class, name = SinkType.PULSAR),
         @JsonSubTypes.Type(value = KafkaSinkConfig.class, name = SinkType.KAFKA),
+        @JsonSubTypes.Type(value = HttpSinkConfig.class, name = SinkType.HTTP),
 })
 public abstract class SinkConfig implements Serializable {
 

@@ -53,6 +53,7 @@ private:
   uint32_t max_cache_num_;
   uint32_t max_instance_;
   uint32_t instance_num_;
+  bool enable_share_msg_;
 
   // thread parameters
   uint32_t per_groupid_thread_nums_; // Sending thread per groupid
@@ -94,7 +95,8 @@ private:
   uint32_t tcp_detection_interval_; // tcp-client detection interval
   bool enable_balance_;
   bool enable_local_cache_;
-
+  uint32_t retry_times_;
+  uint32_t proxy_repeat_times_;
 
   // auth settings
   bool need_auth_;
