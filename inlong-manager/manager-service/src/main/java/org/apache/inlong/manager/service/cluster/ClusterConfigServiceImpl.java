@@ -17,15 +17,23 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
+import org.apache.inlong.common.pojo.sort.mq.TubeClusterConfig;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Cluster config service layer implementation
@@ -46,28 +56,64 @@ public class ClusterConfigServiceImpl implements ClusterConfigService {
     @Autowired
     private ClusterConfigEntityMapper clusterConfigEntityMapper;
     @Autowired
-    private InlongClusterService clusterService;
+    private InlongClusterEntityMapper clusterEntityMapper;
+    @Autowired
+    private InlongClusterOperatorFactory clusterOperatorFactory;
 
     @Override
     public boolean refresh(String clusterTag, String operator) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
-            List<PulsarClusterConfig> list = new ArrayList<>();
-            ClusterConfigEntity existEntity = clusterConfigEntityMapper.selectByClusterTag(clusterTag);
-            for (ClusterInfo clusterInfo : clusterInfos) {
-                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-                PulsarClusterConfig pulsarClusterConfig = CommonBeanUtils.copyProperties(pulsarCluster,
-                        PulsarClusterConfig::new);
-                pulsarClusterConfig.setVersion(pulsarCluster.getVersion());
-                pulsarClusterConfig.setClusterName(pulsarCluster.getName());
-                pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
-                list.add(pulsarClusterConfig);
+            ClusterPageRequest request = ClusterPageRequest.builder()
+                    .clusterTag(clusterTag)
+                    .typeList(Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA))
+                    .build();
+            List<InlongClusterEntity> clusterEntityList = clusterEntityMapper.selectByCondition(request);
+            if (CollectionUtils.isEmpty(clusterEntityList)) {
+                throw new BusinessException("Current cluster tag not contain MQ clusters");
             }
+            List<String> typeList = clusterEntityList.stream().map(InlongClusterEntity::getType).distinct().collect(
+                    Collectors.toList());
+            if (CollectionUtils.isNotEmpty(typeList) && typeList.size() > 1) {
+                throw new BusinessException("Current cluster tag can not contain multiple MQ types");
+            }
+            ClusterConfigEntity existEntity = clusterConfigEntityMapper.selectByClusterTag(clusterTag);
             ClusterConfigEntity clusterConfigEntity = existEntity == null ? new ClusterConfigEntity() : existEntity;
-            clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));
+            if (CollectionUtils.isNotEmpty(clusterEntityList)) {
+                String clusterType = clusterEntityList.get(0).getType();
+                InlongClusterOperator clusterOperator = clusterOperatorFactory.getInstance(clusterType);
+                List<MqClusterConfig> list = new ArrayList<>();
+                for (InlongClusterEntity clusterInfo : clusterEntityList) {
+                    switch (clusterType) {
+                        case ClusterType.PULSAR:
+                            PulsarClusterInfo pulsarCluster =
+                                    (PulsarClusterInfo) clusterOperator.getFromEntity(clusterInfo);
+                            PulsarClusterConfig pulsarClusterConfig = CommonBeanUtils.copyProperties(pulsarCluster,
+                                    PulsarClusterConfig::new, true);
+                            pulsarClusterConfig.setVersion(pulsarCluster.getVersion());
+                            pulsarClusterConfig.setClusterName(pulsarCluster.getName());
+                            pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
+                            list.add(pulsarClusterConfig);
+                            break;
+                        case ClusterType.TUBEMQ:
+                            TubeClusterInfo tubeClusterInfo =
+                                    (TubeClusterInfo) clusterOperator.getFromEntity(clusterInfo);
+                            TubeClusterConfig tubeClusterConfig = CommonBeanUtils.copyProperties(tubeClusterInfo,
+                                    TubeClusterConfig::new, true);
+                            tubeClusterConfig.setVersion(tubeClusterInfo.getVersion());
+                            tubeClusterConfig.setClusterName(tubeClusterInfo.getName());
+                            tubeClusterConfig.setMasterAddress(tubeClusterInfo.getUrl());
+                            list.add(tubeClusterConfig);
+                            break;
+                        default:
+                            throw new BusinessException(
+                                    String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), clusterType));
+                    }
+                }
+                clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));
+                clusterConfigEntity.setClusterType(clusterType);
+            }
             clusterConfigEntity.setClusterTag(clusterTag);
-            clusterConfigEntity.setClusterType(ClusterType.PULSAR);
             clusterConfigEntity.setModifier(operator);
             if (existEntity == null) {
                 clusterConfigEntity.setCreator(operator);
