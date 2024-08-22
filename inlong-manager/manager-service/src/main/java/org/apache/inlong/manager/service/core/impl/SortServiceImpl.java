@@ -25,6 +25,7 @@ import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
+import org.apache.inlong.common.pojo.sort.mq.TubeClusterConfig;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.util.Utils;
@@ -244,6 +245,11 @@ public class SortServiceImpl implements SortService, PluginBinder {
                         JsonUtils.parseArray(clusterConfigEntity.getConfigParams(),
                                 PulsarClusterConfig.class);
                 List<MqClusterConfig> list = new ArrayList<>(pulsarClusterConfigs);
+                tempMqClusterMap.putIfAbsent(clusterTag, list);
+            } else if (ClusterType.TUBEMQ.equals(clusterConfigEntity.getClusterType())) {
+                List<TubeClusterConfig> tubeClusterConfigs =
+                        JsonUtils.parseArray(clusterConfigEntity.getConfigParams(), TubeClusterConfig.class);
+                List<MqClusterConfig> list = new ArrayList<>(tubeClusterConfigs);
                 tempMqClusterMap.putIfAbsent(clusterTag, list);
             }
         });

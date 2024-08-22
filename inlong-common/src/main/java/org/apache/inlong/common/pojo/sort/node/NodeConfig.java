@@ -33,6 +33,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = EsNodeConfig.class, name = DataNodeType.ELASTICSEARCH),
         @JsonSubTypes.Type(value = PulsarNodeConfig.class, name = DataNodeType.PULSAR),
         @JsonSubTypes.Type(value = KafkaNodeConfig.class, name = DataNodeType.KAFKA),
+        @JsonSubTypes.Type(value = HttpNodeConfig.class, name = DataNodeType.HTTP),
 })
 public abstract class NodeConfig implements Serializable {
 

@@ -18,44 +18,69 @@
  */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include <inlong_api.h>
+#include <atomic>
+#include <thread>
+#include <iostream>
 
 namespace py = pybind11;
-using namespace inlong;
 
-class PyInLongApi : public InLongApi {
-public:
-    int32_t PySend(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len, py::function callback_func) {
-        py_callback = callback_func;
-        return Send(inlong_group_id, inlong_stream_id, msg, msg_len, &PyInLongApi::CallbackFunc);
+std::map<inlong::UserCallBack, py::function> g_py_callbacks;
+std::atomic<bool> stop_callbacks(false);
+std::mutex callback_mutex;
+
+int UserCallBackBridge(const char *a, const char *b, const char *c, int32_t d, const int64_t e, const char *f) {
+    std::unique_lock<std::mutex> lock(callback_mutex);
+    if (stop_callbacks) {
+        return -1;
     }
-
-private:
-    static py::function py_callback;
-
-    static int CallbackFunc(const char *a, const char *b, const char *c, int32_t d, const int64_t e, const char *f) {
-        if (py_callback) {
-            try {
-                return py_callback(a, b, c, d, e, f).cast<int>();
-            } catch (const py::error_already_set &e) {
-                // Handle Python exception
-                return -1;
-            }
+    auto it = g_py_callbacks.find(UserCallBackBridge);
+    if (it != g_py_callbacks.end()) {
+        if (stop_callbacks) {
+            return -1;
         }
-        return 0;
+        py::gil_scoped_acquire acquire;
+        if (stop_callbacks) {
+            return -1;
+        }
+        int result = it->second(a, b, c, d, e, f).cast<int>();
+        py::gil_scoped_release release;
+        return result;
     }
-};
-
-py::function PyInLongApi::py_callback;
+    return -1;
+}
 
 PYBIND11_MODULE(inlong_dataproxy, m) {
-    m.doc() = "This module provides InLong dataproxy api to send message to InLong dataproxy.";
-
-    py::class_<PyInLongApi>(m, "InLongApi")
+    m.doc() = "Python bindings for InLong SDK API";
+    py::class_<inlong::InLongApi>(m, "InLongApi")
         .def(py::init<>())
-        .def("init_api", &PyInLongApi::InitApi, py::arg("config_path"))
-        .def("add_bid", &PyInLongApi::AddBid, py::arg("group_ids"))
-        .def("send", &PyInLongApi::PySend, py::arg("inlong_group_id"), py::arg("inlong_stream_id"), py::arg("msg"), py::arg("msg_len"), py::arg("callback_func") = nullptr)
-        .def("close_api", &PyInLongApi::CloseApi, py::arg("max_waitms"));
+        .def("init_api", [](inlong::InLongApi& self, const char* config_path) {
+            stop_callbacks = false;
+            g_py_callbacks.clear();
+            py::gil_scoped_release release;
+            int result = self.InitApi(config_path);
+            return result;
+        })
+        .def("add_bid", &inlong::InLongApi::AddBid)
+        .def("send", [](inlong::InLongApi& self, const char* groupId, const char* streamId, const char* msg, int32_t msgLen, py::object pyCallback = py::none()) {
+            if (!pyCallback.is(py::none())) {
+                g_py_callbacks[UserCallBackBridge] = pyCallback.cast<py::function>();
+                py::gil_scoped_release release;
+                int result = self.Send(groupId, streamId, msg, msgLen, UserCallBackBridge);
+                return result;
+            } else {
+                int result = self.Send(groupId, streamId, msg, msgLen, nullptr);
+                return result;
+            }
+        })
+        .def("close_api", [](inlong::InLongApi& self, int32_t timeout_ms) {
+            py::gil_scoped_release release;
+            int result = self.CloseApi(timeout_ms);
+            stop_callbacks = true;
+            std::unique_lock<std::mutex> lock(callback_mutex);
+            py::gil_scoped_acquire acquire;
+            return result;
+        });
 }

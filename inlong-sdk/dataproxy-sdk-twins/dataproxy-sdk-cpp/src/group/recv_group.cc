@@ -1,49 +1,58 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 #include "recv_group.h"
 
-#include "../protocol/msg_protocol.h"
-#include "../utils/capi_constant.h"
-#include "../utils/utils.h"
-#include "api_code.h"
-#include <cstdlib>
 #include <functional>
+#include "../core/api_code.h"
+#include "../manager/buffer_manager.h"
+#include "../utils/utils.h"
+#include "../manager/msg_manager.h"
+#include "../manager/metric_manager.h"
 
 namespace inlong {
 const uint32_t DEFAULT_PACK_ATTR = 400;
-const uint64_t LOG_SAMPLE=100;
-RecvGroup::RecvGroup(const std::string &group_key,std::shared_ptr<SendManager> send_manager)
-    : cur_len_(0), groupId_num_(0), streamId_num_(0),
+const uint64_t LOG_SAMPLE = 100;
+RecvGroup::RecvGroup(const std::string &group_key, std::shared_ptr<SendManager> send_manager)
+    : cur_len_(0),
+      group_key_(group_key),
+      groupId_num_(0),
+      streamId_num_(0),
       msg_type_(SdkConfig::getInstance()->msg_type_),
-      data_capacity_(SdkConfig::getInstance()->buf_size_),
-      send_manager_(send_manager),group_key_(group_key),
-      log_stat_(0){
-  data_capacity_ = std::max(SdkConfig::getInstance()->max_msg_size_,
-                            SdkConfig::getInstance()->pack_size_);
+      data_capacity_(SdkConfig::getInstance()->recv_buf_size_),
+      send_manager_(send_manager),
+      log_stat_(0),
+      send_group_(nullptr),
+      max_msg_size_(0),
+      uniq_id_(0) {
+  data_capacity_ = std::max(SdkConfig::getInstance()->max_msg_size_, SdkConfig::getInstance()->pack_size_);
   data_capacity_ = data_capacity_ + DEFAULT_PACK_ATTR;
 
   pack_buf_ = new char[data_capacity_];
   memset(pack_buf_, 0x0, data_capacity_);
-  data_time_ = 0;
+  data_time_ = Utils::getCurrentMsTime();
   last_pack_time_ = Utils::getCurrentMsTime();
   max_recv_size_ = SdkConfig::getInstance()->recv_buf_size_;
-
-  LOG_INFO("RecvGroup:"<<group_key_<<",data_capacity:"<<data_capacity_<<",max_recv_size:"<<max_recv_size_);
+  local_ip_ = SdkConfig::getInstance()->local_ip_;
+  group_id_key_ = SdkConfig::getInstance()->extend_report_ ? "bid=" : "groupId=";
+  stream_id_key_ = SdkConfig::getInstance()->extend_report_ ? "&tid=" : "&streamId=";
+  LOG_INFO("RecvGroup:" << group_key_ << ",data_capacity:" << data_capacity_ << ",max_recv_size:" << max_recv_size_);
 }
 
 RecvGroup::~RecvGroup() {
@@ -53,136 +62,108 @@ RecvGroup::~RecvGroup() {
   }
 }
 
-int32_t RecvGroup::SendData(const std::string &msg, const std::string &groupId,
-                            const std::string &streamId,
-                            const std::string &client_ip, uint64_t report_time,
-                            UserCallBack call_back) {
+int32_t RecvGroup::SendData(const std::string &msg, const std::string &inlong_group_id_, const std::string &inlong_stream_id_,
+                            uint64_t report_time, UserCallBack call_back) {
   std::lock_guard<std::mutex> lck(mutex_);
-
   if (msg.size() + cur_len_ > max_recv_size_) {
+    MetricManager::GetInstance()->AddReceiveBufferFullCount(inlong_group_id_,inlong_stream_id_,1);
     return SdkCode::kRecvBufferFull;
   }
 
-  AddMsg(msg, client_ip, report_time, call_back,groupId,streamId);
+  uint64_t data_time = (report_time == 0) ? data_time_ : report_time;
+
+  std::string data_pack_format_attr =
+      "__addcol1__reptime=" + Utils::getFormatTime(data_time) + "&__addcol2__ip=" + local_ip_;
+  max_msg_size_ = std::max(max_msg_size_, msg.size());
+  auto it = recv_queue_.find(inlong_group_id_ + inlong_stream_id_);
+  if (it == recv_queue_.end()) {
+    std::queue<SdkMsgPtr> tmp;
+    it = recv_queue_.insert(recv_queue_.begin(), std::make_pair(inlong_group_id_ + inlong_stream_id_, tmp));
+  }
+  SdkMsgPtr msg_ptr = MsgManager::GetInstance()->GetMsg();
+  if(nullptr == msg_ptr){
+    it->second.emplace(std::make_shared<SdkMsg>(msg, local_ip_, data_time, call_back, data_pack_format_attr, local_ip_, data_time, inlong_group_id_, inlong_stream_id_));
+  }else{
+    msg_ptr->setMsg(msg);
+    msg_ptr->setClientIp(local_ip_);
+    msg_ptr->setReportTime(data_time);
+    msg_ptr->setCb(call_back);
+    msg_ptr->setDataPackFormatAttr(data_pack_format_attr);
+    msg_ptr->setUserClientIp(local_ip_);
+    msg_ptr->setUserReportTime(data_time);
+    msg_ptr->setGroupId(inlong_group_id_);
+    msg_ptr->setStreamId(inlong_stream_id_);
+    it->second.emplace(msg_ptr);
+  }
+
+  cur_len_ = cur_len_ + msg.size() + constants::ATTR_LENGTH;
 
   return SdkCode::kSuccess;
 }
 
-int32_t RecvGroup::DoDispatchMsg() {
+void RecvGroup::DoDispatchMsg() {
+  if (!CanDispatch()) {
+    return;
+  }
   last_pack_time_ = Utils::getCurrentMsTime();
-  std::lock_guard<std::mutex> lck(mutex_);
-  if (group_key_.empty()) {
-    if (log_stat_++ > LOG_SAMPLE) {
-      LOG_ERROR("groupId  is empty, check!!");
-      log_stat_ = 0;
+  data_time_ = last_pack_time_;
+  while (!fail_queue_.empty()) {
+    SendBufferPtrT tmp_ptr = fail_queue_.front();
+    if (SdkCode::kSuccess != send_group_->PushData(tmp_ptr)) {
+      return;
     }
-    return SdkCode::kInvalidInput;
-  }
-  if (msgs_.empty()) {
-    if (log_stat_++ > LOG_SAMPLE) {
-      LOG_ERROR("no msg in msg_set, check!");
-      log_stat_ = 0;
-    }
-    return SdkCode::kMsgEmpty;
-  }
-  auto send_group = send_manager_->GetSendGroup(group_key_);
-  if (send_group == nullptr) {
-    if (log_stat_++ > LOG_SAMPLE) {
-      LOG_ERROR("failed to get send_buf, something gets wrong, checkout!");
-      log_stat_ = 0;
-    }
-    return SdkCode::kFailGetSendBuf;
-  }
-  if (!send_group->IsAvailable()) {
-    if (log_stat_++ > LOG_SAMPLE) {
-      LOG_ERROR("failed to get send group! group_key:"
-                << group_key_ << " send group is not available!");
-      log_stat_ = 0;
-    }
-    return SdkCode::kFailGetConn;
-  }
-  if (send_group->IsFull()) {
-    if (log_stat_++ > LOG_SAMPLE) {
-      LOG_ERROR("failed to get send group! group_key:"
-                << group_key_ << " send group is full!");
-      log_stat_ = 0;
-    }
-    return SdkCode::kSendBufferFull;
+    fail_queue_.pop();
   }
 
-  uint32_t total_length = 0;
-  uint64_t max_tid_size = 0;
-  std::unordered_map<std::string, std::vector<SdkMsgPtr>> msgs_to_dispatch;
-  std::unordered_map<std::string, uint64_t> tid_stat;
-  while (!msgs_.empty()) {
-    SdkMsgPtr msg = msgs_.front();
-    if (msg->msg_.size() + max_tid_size + constants::ATTR_LENGTH > SdkConfig::getInstance()->pack_size_) {
-      if (!msgs_to_dispatch.empty()) {
-        break;
+  {
+    std::lock_guard<std::mutex> lck(mutex_);
+    recv_queue_.swap(dispatch_queue_);
+  }
+
+  for (auto &it : dispatch_queue_) {
+    std::vector<SdkMsgPtr> msg_vec;
+    uint64_t msg_size = 0;
+    while (!it.second.empty()) {
+      SdkMsgPtr msg = it.second.front();
+      msg_vec.push_back(msg);
+      msg_size = msg_size + msg->msg_.size() + constants::ATTR_LENGTH;
+      it.second.pop();
+
+      if ((msg_size + max_msg_size_) >= SdkConfig::getInstance()->pack_size_) {
+        uint32_t ret = ParseMsg(msg_vec);
+        if (SdkCode::kBufferManagerFull == ret) {
+          for (const auto &it_msg : msg_vec) {
+            it.second.emplace(it_msg);
+          }
+          return;
+        }
+        UpdateCurrentMsgLen(msg_size);
+        msg_size = 0;
+
+        if (SdkCode::kSuccess != ret) {
+          return;
+        }
+        std::vector<SdkMsgPtr>().swap(msg_vec);
       }
     }
-    std::string msg_key = msg->inlong_group_id_ + msg->inlong_stream_id_;
-    msgs_to_dispatch[msg_key].push_back(msg);
-    msgs_.pop();
+    if (!msg_vec.empty()) {
+      uint32_t ret = ParseMsg(msg_vec);
+      if (SdkCode::kBufferManagerFull == ret) {
+        for (const auto &it_msg : msg_vec) {
+          it.second.emplace(it_msg);
+        }
+        return;
+      }
+      UpdateCurrentMsgLen(msg_size);
 
-    total_length = msg->msg_.size() + total_length + constants::ATTR_LENGTH;
-
-    if (tid_stat.find(msg_key) == tid_stat.end()) {
-      tid_stat[msg_key] = 0;
-    }
-    tid_stat[msg_key] = tid_stat[msg_key] + msg->msg_.size() + constants::ATTR_LENGTH;
-
-    max_tid_size = std::max(tid_stat[msg_key], max_tid_size);
-  }
-
-  cur_len_ = cur_len_ - total_length;
-
-  for (auto it : msgs_to_dispatch) {
-    std::shared_ptr<SendBuffer> send_buffer = BuildSendBuf(it.second);
-
-    ResetPackBuf();
-
-    if (send_buffer == nullptr) {
-      CallbalkToUsr(it.second);
-      continue;
-    }
-
-    int ret = send_group->PushData(send_buffer);
-    if (ret != SdkCode::kSuccess) {
-      CallbalkToUsr(it.second);
+      if (SdkCode::kSuccess != ret) {
+        return;
+      }
     }
   }
-
-  return SdkCode::kSuccess;
 }
 
-void RecvGroup::AddMsg(const std::string &msg, std::string client_ip,
-                       int64_t report_time, UserCallBack call_back,const std::string &groupId,
-                       const std::string &streamId) {
-  if (Utils::isLegalTime(report_time))
-    data_time_ = report_time;
-  else {
-    data_time_ = Utils::getCurrentMsTime();
-  }
-
-  std::string user_client_ip = client_ip;
-  int64_t user_report_time = report_time;
-
-  if (client_ip.empty()) {
-    client_ip = "127.0.0.1";
-  }
-  std::string data_pack_format_attr =
-      "__addcol1__reptime=" + Utils::getFormatTime(data_time_) +
-      "&__addcol2__ip=" + client_ip;
-  msgs_.push(std::make_shared<SdkMsg>(msg, client_ip, data_time_, call_back,
-                                      data_pack_format_attr, user_client_ip,
-                                      user_report_time,groupId,streamId));
-
-  cur_len_ += msg.size() + constants::ATTR_LENGTH;
-}
-
-bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
-                        uint32_t &out_len, uint32_t uniq_id) {
+bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,uint32_t &out_len) {
   if (pack_data == nullptr) {
     LOG_ERROR("nullptr, failed to allocate memory for buf");
     return false;
@@ -196,7 +177,6 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
     memcpy(&pack_buf_[idx], it->msg_.data(), it->msg_.size());
     idx += static_cast<uint32_t>(it->msg_.size());
 
-    // add attrlen|attr
     if (SdkConfig::getInstance()->isAttrDataPackFormat()) {
       *(uint32_t *)(&pack_buf_[idx]) = htonl(it->data_pack_format_attr_.size());
       idx += sizeof(uint32_t);
@@ -246,8 +226,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
         streamId_num_ == 0) {
       groupId_num = 0;
       streamId_num = 0;
-      groupId_streamId_char = "groupId=" + msgs[0]->inlong_group_id_ +
-                              "&streamId=" + msgs[0]->inlong_stream_id_;
+      groupId_streamId_char = group_id_key_ + msgs[0]->inlong_group_id_ + stream_id_key_ + msgs[0]->inlong_stream_id_;
       char_groupId_flag = 0x4;
     } else {
       groupId_num = groupId_num_;
@@ -261,14 +240,14 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
     if (SdkConfig::getInstance()->enableTraceIP()) {
       if (groupId_streamId_char.empty())
         attr = "node1ip=" + SdkConfig::getInstance()->local_ip_ +
-               "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
+            "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
       else
         attr = groupId_streamId_char +
-               "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
-               "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
+            "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
+            "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
     } else {
-      attr = "groupId=" + msgs[0]->inlong_group_id_ +
-             "&streamId=" + msgs[0]->inlong_stream_id_;
+      attr = group_id_key_ + msgs[0]->inlong_group_id_ +
+          "&streamId=" + msgs[0]->inlong_stream_id_;
     }
     *(uint16_t *)bodyBegin = htons(attr.size());
     bodyBegin += sizeof(uint16_t);
@@ -294,7 +273,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
     p += 4;
     *(uint16_t *)p = htons(cnt);
     p += 2;
-    *(uint32_t *)p = htonl(uniq_id);
+    *(uint32_t *)p = htonl(uniq_id_);
 
     out_len = total_len + 4;
   } else {
@@ -318,11 +297,10 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
 
     // attr
     std::string attr;
-    attr = "groupId=" + msgs[0]->inlong_group_id_ +
-           "&streamId=" + msgs[0]->inlong_stream_id_;
+    attr = group_id_key_ + msgs[0]->inlong_group_id_ + stream_id_key_ + msgs[0]->inlong_stream_id_;
 
     attr += "&dt=" + std::to_string(data_time_);
-    attr += "&mid=" + std::to_string(uniq_id);
+    attr += "&mid=" + std::to_string(uniq_id_);
     if (isSnappy)
       attr += "&cp=snappy";
     attr += "&cnt=" + std::to_string(cnt);
@@ -352,56 +330,97 @@ bool RecvGroup::IsZipAndOperate(std::string &res, uint32_t real_cur_len) {
 }
 
 void RecvGroup::DispatchMsg(bool exit) {
-  if (cur_len_ <= constants::ATTR_LENGTH || msgs_.empty())
-    return;
+  if (cur_len_ <= constants::ATTR_LENGTH) return;
   bool len_enough = cur_len_ > SdkConfig::getInstance()->pack_size_;
-  bool time_enough = (Utils::getCurrentMsTime() - last_pack_time_) >
-                     SdkConfig::getInstance()->pack_timeout_;
+  bool time_enough = (Utils::getCurrentMsTime() - last_pack_time_) > SdkConfig::getInstance()->pack_timeout_;
   if (len_enough || time_enough) {
     DoDispatchMsg();
   }
 }
-std::shared_ptr<SendBuffer>
-RecvGroup::BuildSendBuf(std::vector<SdkMsgPtr> &msgs) {
+std::shared_ptr<SendBuffer> RecvGroup::BuildSendBuf(std::vector<SdkMsgPtr> &msgs) {
   if (msgs.empty()) {
-    LOG_ERROR("pack msgs is empty.");
     return nullptr;
   }
-  std::shared_ptr<SendBuffer> send_buffer =
-      std::make_shared<SendBuffer>(data_capacity_);
+  std::shared_ptr<SendBuffer> send_buffer = BufferManager::GetInstance()->GetSendBuffer();
   if (send_buffer == nullptr) {
-    LOG_ERROR("make send buffer failed.");
     return nullptr;
   }
-  uint32_t len = 0;
-  int32_t msg_cnt = msgs.size();
-  uint32_t uniq_id = g_send_msgid.incrementAndGet();
 
-  if (!PackMsg(msgs, send_buffer->content(), len, uniq_id) || len == 0) {
-    LOG_ERROR("failed to write data to send buf from pack queue, sendQueue "
-              "id:%d, buf id:%d");
+  uint32_t len = 0;
+  uint32_t msg_cnt = msgs.size();
+  if (++uniq_id_ >= constants::kMaxSnowFlake) {
+    uniq_id_ = 0;
+  }
+
+  if (!PackMsg(msgs, send_buffer->GetData(), len) || len == 0) {
+    LOG_ERROR("failed to write data to send buf from pack queue, sendQueue");
     return nullptr;
   }
-  send_buffer->setLen(len);
-  send_buffer->setMsgCnt(msg_cnt);
-  send_buffer->setInlongGroupId(msgs[0]->inlong_group_id_);
-  send_buffer->setStreamId(msgs[0]->inlong_stream_id_);
-  send_buffer->setUniqId(uniq_id);
-  send_buffer->setIsPacked(true);
-  for (auto it : msgs) {
-    send_buffer->addUserMsg(it);
+
+  send_buffer->SetDataLen(len);
+  send_buffer->SetMsgCnt(msg_cnt);
+  send_buffer->SetInlongGroupId(msgs[0]->inlong_group_id_);
+  send_buffer->SetInlongStreamId(msgs[0]->inlong_stream_id_);
+  for (const auto &it : msgs) {
+    if(it->cb_){
+      send_buffer->addUserMsg(it);
+    }
   }
 
   return send_buffer;
 }
 
-void RecvGroup::CallbalkToUsr(std::vector<SdkMsgPtr> &msgs) {
-  for (auto &it : msgs) {
-    if (it->cb_) {
-      it->cb_(it->inlong_group_id_.data(), it->inlong_stream_id_.data(),
-              it->msg_.data(), it->msg_.size(), it->user_report_time_,
-              it->user_client_ip_.data());
-    }
+uint32_t RecvGroup::ParseMsg(std::vector<SdkMsgPtr> &msg_vec) {
+  if (msg_vec.empty()) {
+    return SdkCode::kSuccess;
   }
+
+  std::shared_ptr<SendBuffer> send_buffer = BuildSendBuf(msg_vec);
+
+  if (send_buffer == nullptr) {
+    return SdkCode::kBufferManagerFull;
+  }
+
+  uint32_t ret = send_group_->PushData(send_buffer);
+  if (ret != SdkCode::kSuccess) {
+    fail_queue_.push(send_buffer);
+  }
+  return ret;
 }
-} // namespace inlong
+bool RecvGroup::CanDispatch() {
+  if (group_key_.empty()) {
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("Group key is empty!");
+      log_stat_ = 0;
+    }
+    return false;
+  }
+  if (nullptr == send_group_) {
+    send_group_ = send_manager_->GetSendGroup(group_key_);
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send group! group_key:" << group_key_);
+      log_stat_ = 0;
+    }
+    return false;
+  }
+  if (!send_group_->IsAvailable()) {
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send group! group_key:" << group_key_ << " is not available!");
+      log_stat_ = 0;
+    }
+    return false;
+  }
+  if (send_group_->IsFull()) {
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send group! group_key:" << group_key_ << " is full!");
+      log_stat_ = 0;
+    }
+    return false;
+  }
+  return true;
+}
+void RecvGroup::UpdateCurrentMsgLen(uint64_t msg_size) {
+  std::lock_guard<std::mutex> lck(mutex_);
+  cur_len_ = cur_len_ - msg_size;
+}
+}  // namespace inlong

@@ -35,14 +35,18 @@ import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.RoundFunction;
 import org.apache.inlong.sdk.transform.process.function.SinFunction;
 import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
+import org.apache.inlong.sdk.transform.process.function.TanFunction;
 import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
+import org.apache.inlong.sdk.transform.process.function.ToBase64Function;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.TrimFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
@@ -111,6 +115,8 @@ public class OperatorTools {
         functionMap.put("log", LogFunction::new);
         functionMap.put("exp", ExpFunction::new);
         functionMap.put("substring", SubstringFunction::new);
+        functionMap.put("trim", TrimFunction::new);
+        functionMap.put("replicate", ReplicateFunction::new);
         functionMap.put("locate", LocateFunction::new);
         functionMap.put("to_date", ToDateFunction::new);
         functionMap.put("date_format", DateFormatFunction::new);
@@ -119,6 +125,7 @@ public class OperatorTools {
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
         functionMap.put("cos", CosFunction::new);
+        functionMap.put("tan", TanFunction::new);
         functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
         functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
         functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
@@ -138,6 +145,7 @@ public class OperatorTools {
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
         functionMap.put("mod", ModuloFunction::new);
+        functionMap.put("to_base64", ToBase64Function::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
