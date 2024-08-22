@@ -127,6 +127,10 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     },
     visible: false,
   })
+  @ColumnDecorator()
+  @I18n('meta.Sources.ClusterName')
+  readonly inlongClusterName: string;
+
   @ColumnDecorator({
     render: text => genStatusTag(text),
   })
@@ -135,10 +139,6 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @SyncMoveDbField()
   @I18n('basic.Status')
   readonly status: string;
-
-  @ColumnDecorator()
-  @I18n('meta.Sources.ClusterName')
-  readonly inlongClusterName: string;
 
   @ColumnDecorator()
   @IngestionField()
