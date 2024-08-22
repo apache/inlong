@@ -57,7 +57,7 @@
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR},  #{sshPort,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
-                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{operateLog,jdbcType=LONGVARCHAR}
+                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{operateLog,jdbcType=LONGVARCHAR},
                 #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
                 #{modifier,jdbcType=VARCHAR})
     </insert>
