@@ -57,6 +57,7 @@ import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction
 import org.apache.inlong.sdk.transform.process.function.ToBase64Function;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.TranslateFunction;
 import org.apache.inlong.sdk.transform.process.function.TrimFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.UpperFunction;
@@ -109,7 +110,7 @@ import java.util.Map;
 
 /**
  * OperatorTools
- * 
+ *
  */
 public class OperatorTools {
 
@@ -175,6 +176,7 @@ public class OperatorTools {
         functionMap.put("replace", ReplaceFunction::new);
         functionMap.put("left", LeftFunction::new);
         functionMap.put("right", RightFunction::new);
+        functionMap.put("translate", TranslateFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
