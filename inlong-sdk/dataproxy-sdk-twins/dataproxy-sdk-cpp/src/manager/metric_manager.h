@@ -24,6 +24,7 @@
 #include "../config/sdk_conf.h"
 #include "../metric/environment.h"
 #include "../metric/metric.h"
+#include "../utils/logger.h"
 
 #ifndef INLONG_METRIC_MANAGER_H
 #define INLONG_METRIC_MANAGER_H
@@ -40,10 +41,6 @@ class MetricManager {
   Environment environment_;
   std::string coreParma_;
 
-  MetricManager() {
-
-  }
-
  public:
   static MetricManager *GetInstance() {
     static MetricManager instance;
@@ -54,23 +51,35 @@ class MetricManager {
   void PrintMetric();
   void Run();
   void UpdateMetric(const std::string &stat_key, Metric &stat) {
+    if(!running_){
+      return;
+    }
     std::lock_guard<std::mutex> lck(mutex_);
     stat_map_[stat_key].Update(stat);
   }
 
   void AddReceiveBufferFullCount(const std::string &inlong_group_id, const std::string &inlong_stream_id,uint64_t count) {
+    if(!running_){
+      return;
+    }
     std::lock_guard<std::mutex> lck(mutex_);
     std::string stat_key= BuildStatKey(inlong_group_id,inlong_stream_id);
     stat_map_[stat_key].AddReceiveBufferFullCount(count);
   }
 
   void AddTooLongMsgCount(const std::string &inlong_group_id, const std::string &inlong_stream_id,uint64_t count) {
+    if (!running_) {
+      return;
+    }
     std::lock_guard<std::mutex> lck(mutex_);
     std::string stat_key= BuildStatKey(inlong_group_id,inlong_stream_id);
     stat_map_[stat_key].AddTooLongMsgCount(count);
   }
 
   void AddMetadataFailCount(const std::string &inlong_group_id, const std::string &inlong_stream_id,uint64_t count) {
+    if (!running_) {
+      return;
+    }
     std::lock_guard<std::mutex> lck(mutex_);
     std::string stat_key= BuildStatKey(inlong_group_id,inlong_stream_id);
     stat_map_[stat_key].AddMetadataFailCount(count);
@@ -87,6 +96,7 @@ class MetricManager {
     if (update_thread_.joinable()) {
       update_thread_.join();
     }
+    LOG_INFO("Metric manager exited");
   }
 };
 }  // namespace inlong

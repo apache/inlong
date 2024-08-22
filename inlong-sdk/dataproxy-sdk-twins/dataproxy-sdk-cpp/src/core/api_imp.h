@@ -53,11 +53,10 @@ class ApiImp {
 
   int32_t ValidateParams(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len);
 
-  AtomicInt user_exit_flag_{0};
-  volatile bool init_flag_ = false;
   volatile bool inited_ = false;
   volatile bool init_succeed_ = false;
-  AtomicInt buf_full_{0};
+  volatile bool exit_flag_ = false;
+
   uint32_t max_msg_length_;
   std::string local_ip_;
 

@@ -34,8 +34,6 @@ int32_t ApiImp::InitApi(const char *config_file_path) {
     return SdkCode::kMultiInit;
   }
 
-  user_exit_flag_.getAndSet(0);
-
   if (!SdkConfig::getInstance()->ParseConfig(config_file_path)) {
     return SdkCode::kErrorInit;
   }
@@ -48,6 +46,9 @@ int32_t ApiImp::InitApi(const char *config_file_path) {
 
 int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                      UserCallBack call_back) {
+  if (inited_ == false || exit_flag_) {
+    return SdkCode::kSendBeforeInit;
+  }
   int32_t code=ValidateParams(inlong_group_id, inlong_stream_id, msg, msg_len);
   if(code !=SdkCode::kSuccess){
     return code;
@@ -57,6 +58,9 @@ int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id, 
 }
 int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                      int64_t data_time, UserCallBack call_back) {
+  if (inited_ == false || exit_flag_) {
+    return SdkCode::kSendBeforeInit;
+  }
   int32_t code=ValidateParams(inlong_group_id, inlong_stream_id, msg, msg_len);
   if(code !=SdkCode::kSuccess){
     return code;
@@ -72,10 +76,6 @@ int32_t ApiImp::ValidateParams(const char *inlong_group_id, const char *inlong_s
   }
   if (inlong_group_id == nullptr || inlong_stream_id == nullptr || msg == nullptr || msg_len <= 0) {
     return SdkCode::kInvalidInput;
-  }
-
-  if (inited_ == false) {
-    return SdkCode::kSendBeforeInit;
   }
   return SdkCode::kSuccess;
 }
@@ -99,10 +99,7 @@ int32_t ApiImp::SendBase(const std::string& inlong_group_id, const std::string& 
 }
 
 int32_t ApiImp::CloseApi(int32_t max_waitms) {
-  if (!__sync_bool_compare_and_swap(&init_flag_, false, true)) {
-    LOG_ERROR("sdk has been closed! .");
-    return SdkCode::kMultiExits;
-  }
+  exit_flag_ = true;
   std::this_thread::sleep_for(std::chrono::milliseconds(max_waitms));
   return SdkCode::kSuccess;
 }
@@ -126,8 +123,7 @@ int32_t ApiImp::DoInit() {
 }
 
 int32_t ApiImp::CheckData(const std::string& inlong_group_id, const std::string& inlong_stream_id, const std::string& msg) {
-  if (init_succeed_ == 0 || user_exit_flag_.get() == 1) {
-    LOG_ERROR("capi has been closed, Init first and then send");
+  if (!init_succeed_) {
     return SdkCode::kSendAfterClose;
   }
 
@@ -154,14 +150,13 @@ int32_t ApiImp::InitManager() {
 
   recv_manager_ = std::make_shared<RecvManager>(send_manager_);
   if (!recv_manager_) {
-    LOG_ERROR("fail to Init global packqueue");
     return SdkCode::kErrorInit;
   }
   init_succeed_ = true;
   return SdkCode::kSuccess;
 }
 int32_t ApiImp::AddInLongGroupId(const std::vector<std::string> &group_ids) {
-  if (inited_ == false) {
+  if (!inited_) {
     return SdkCode::kSendBeforeInit;
   }
   for (auto group_id : group_ids) {

@@ -21,6 +21,7 @@
 
 #include "api_code.h"
 #include <fstream>
+#include <curl/curl.h>
 
 #include "../config/ini_help.h"
 #include "../utils/capi_constant.h"
@@ -41,11 +42,14 @@ ProxyManager::~ProxyManager() {
   if (update_conf_thread_.joinable()) {
     update_conf_thread_.join();
   }
+
+  curl_global_cleanup();
 }
 void ProxyManager::Init() {
   timeout_ = SdkConfig::getInstance()->manager_url_timeout_;
   last_update_time_ = Utils::getCurrentMsTime();
   if (__sync_bool_compare_and_swap(&inited_, false, true)) {
+    curl_global_init(CURL_GLOBAL_ALL);
     ReadLocalCache();
     update_conf_thread_ = std::thread(&ProxyManager::Update, this);
   }
