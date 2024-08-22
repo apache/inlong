@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sdk.transform.process.parser;
 
-import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 
 import java.math.BigDecimal;
 

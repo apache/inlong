@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
@@ -68,6 +67,7 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
