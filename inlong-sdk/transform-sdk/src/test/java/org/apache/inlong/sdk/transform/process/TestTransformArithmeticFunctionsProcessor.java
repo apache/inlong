@@ -56,6 +56,37 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testModuloFunction() throws Exception {
+        String transformFunctionSql = "select mod(numeric1,100) from source";
+        String transformExpressionSql = "select numeric1 % 100 from source";
+        TransformConfig functionConfig = new TransformConfig(transformFunctionSql);
+        TransformProcessor<String, String> functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        TransformConfig expressionConfig = new TransformConfig(transformExpressionSql);
+        TransformProcessor<String, String> expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: "3.1415926|4a|4|8"
+        String data = "3.1415926|4a|4|8";
+        List<String> output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=3.1415926", output1.get(0));
+        List<String> output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=3.1415926", output2.get(0));
+
+        // case2: "-3.1415926|4a|4|8"
+        data = "-3.1415926|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3.1415926", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3.1415926", output2.get(0));
+    }
+
+    @Test
     public void testRoundFunction() throws Exception {
         String transformSql = "select round(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);

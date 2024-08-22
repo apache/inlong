@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
@@ -32,6 +33,7 @@ import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
+import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
 import org.apache.inlong.sdk.transform.process.function.RoundFunction;
@@ -48,6 +50,7 @@ import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
 import org.apache.inlong.sdk.transform.process.parser.LongParser;
+import org.apache.inlong.sdk.transform.process.parser.ModuloParser;
 import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
 import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
 import org.apache.inlong.sdk.transform.process.parser.StringParser;
@@ -86,7 +89,7 @@ import java.util.Map;
 
 /**
  * OperatorTools
- * 
+ *
  */
 public class OperatorTools {
 
@@ -134,6 +137,7 @@ public class OperatorTools {
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
+        functionMap.put("mod", ModuloFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
@@ -178,6 +182,8 @@ public class OperatorTools {
             return new MultiplicationParser((Multiplication) expr);
         } else if (expr instanceof Division) {
             return new DivisionParser((Division) expr);
+        } else if (expr instanceof Modulo) {
+            return new ModuloParser((Modulo) expr);
         } else if (expr instanceof DateValue) {
             return new DateParser((DateValue) expr);
         } else if (expr instanceof TimestampValue) {
