@@ -27,6 +27,7 @@
 #include <vector>
 
 namespace inlong {
+using GroupId2ClusterIdMap = std::unordered_map<std::string, int32_t>;
 class ProxyManager {
 private:
   uint32_t timeout_;
@@ -53,7 +54,7 @@ private:
   uint64_t last_update_time_;
 
   int32_t ParseAndGet(const std::string &key, const std::string &meta_data,
-                      ProxyInfoVec &proxy_info_vec);
+                      ProxyInfoVec &proxy_info_vec,GroupId2ClusterIdMap &group_id_2_cluster_id);
 
 public:
   ProxyManager(){};
