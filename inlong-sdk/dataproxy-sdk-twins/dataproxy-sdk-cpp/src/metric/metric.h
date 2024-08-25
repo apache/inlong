@@ -130,7 +130,7 @@ class Metric {
     metric << "msg[" << send_success_msg_num_ << "] ";
     metric << "failed-pack[" << send_failed_pack_num_ << "] ";
     metric << "msg[" << send_failed_msg_num_ << "] ";
-    metric << "trans[" << getTransTime() << "] ";
+    metric << "trans[" << getTransTime() << "]";
     return metric.str();
   }
   std::string ToString() const {
@@ -142,7 +142,7 @@ class Metric {
     metric << "trans[" << getTransTime() << "] ";
     metric << "buffer full[" << receive_buffer_full_count_ << "] ";
     metric << "too long msg[" << too_long_msg_count_ << "] ";
-    metric << "metadata fail[" << metadata_fail_count_ << "] ";
+    metric << "metadata fail[" << metadata_fail_count_ << "]";
     return metric.str();
   }
 };

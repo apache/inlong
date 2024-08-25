@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.constant;
+package org.apache.inlong.common.pojo.sort.node;
 
-public class DataNodeType {
+import lombok.Data;
 
-    public static final String KAFKA = "KAFKA";
-    public static final String PULSAR = "PULSAR";
-    public static final String CLS = "CLS";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String HTTP = "HTTP";
+@Data
+public class HttpNodeConfig extends NodeConfig {
+
+    private String baseUrl;
+    private Boolean enableCredential;
+    private String username;
+    private String password;
+    private Integer maxConnect;
 }

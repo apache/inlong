@@ -40,7 +40,7 @@ def main():
     # step1. init api
     init_status = inlong_api.init_api(sys.argv[1])
     if init_status:
-        print("init error, error code is: " + init_status)
+        print("init error, error code is: " + str(init_status))
         return
 
     print("---->start sdk successfully")
@@ -62,12 +62,12 @@ def main():
     for i in range(count):
         send_status = inlong_api.send(inlong_group_id, inlong_stream_id, msg, len(msg), callback_func)
         if send_status:
-            print("tc_api_send error, error code is: " + send_status)
+            print("tc_api_send error, error code is: " + str(send_status))
 
     # step3. close api
     close_status = inlong_api.close_api(10000)
     if close_status:
-        print("close sdk error, error code is: " + close_status)
+        print("close sdk error, error code is: " + str(close_status))
     else:
         print("---->close sdk successfully")
 

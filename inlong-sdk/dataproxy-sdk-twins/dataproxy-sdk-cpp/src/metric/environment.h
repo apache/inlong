@@ -27,6 +27,7 @@ class Environment {
   std::string version_;
   std::string ip_;
   uint64_t pid_;
+  bool extend_report_;
   const std::string &getType() const { return type_; }
   void setType(const std::string &type) { type_ = type; }
   std::string getVersion() { return version_; }
@@ -35,12 +36,14 @@ class Environment {
   void setIp(const std::string &ip) { ip_ = ip; }
   uint64_t getPid() const { return pid_; }
   void setPid(uint64_t pid) { pid_ = pid; }
+  void SetExtendReport(bool extend_report) {extend_report_ = extend_report;}
 
   std::string ToString() const {
     std::stringstream metric;
     metric << "local ip[" << ip_ << "] ";
-    metric << "version [" << version_ << "] ";
-    metric << "pid [" << pid_ << "] ";
+    metric << "version[" << version_ << "] ";
+    metric << "pid[" << pid_ << "] ";
+    metric << "extend report[" << extend_report_ << "]";
     return metric.str();
   }
 };
