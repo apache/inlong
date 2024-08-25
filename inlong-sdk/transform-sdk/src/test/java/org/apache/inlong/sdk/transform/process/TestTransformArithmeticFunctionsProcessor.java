@@ -59,6 +59,8 @@ public class TestTransformArithmeticFunctionsProcessor {
     public void testModuloFunction() throws Exception {
         String transformFunctionSql = "select mod(numeric1,100) from source";
         String transformExpressionSql = "select numeric1 % 100 from source";
+        List<String> output1, output2;
+        String data;
         TransformConfig functionConfig = new TransformConfig(transformFunctionSql);
         TransformProcessor<String, String> functionProcessor = TransformProcessor
                 .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
@@ -67,23 +69,137 @@ public class TestTransformArithmeticFunctionsProcessor {
         TransformProcessor<String, String> expressionProcessor = TransformProcessor
                 .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: "3.1415926|4a|4|8"
-        String data = "3.1415926|4a|4|8";
-        List<String> output1 = functionProcessor.transform(data);
+
+        // case1: "mod(3.1415926,100)" and "3.1415926 % 100"
+        data = "3.1415926|4a|4|8";
+        output1 = functionProcessor.transform(data);
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=3.1415926", output1.get(0));
-        List<String> output2 = expressionProcessor.transform(data);
-        Assert.assertEquals(1, output1.size());
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
         Assert.assertEquals("result=3.1415926", output2.get(0));
 
-        // case2: "-3.1415926|4a|4|8"
+        // case2: "mod(-3.1415926,100)" and "-3.1415926 % 100"
         data = "-3.1415926|4a|4|8";
         output1 = functionProcessor.transform(data);
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=-3.1415926", output1.get(0));
         output2 = expressionProcessor.transform(data);
-        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(1, output2.size());
         Assert.assertEquals("result=-3.1415926", output2.get(0));
+
+        // case3: "mod(320,100)" and "320 % 100"
+        data = "320|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=20", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=20", output2.get(0));
+
+        // case4: "mod(-320,100)" and "-320 % 100"
+        data = "-320|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-20", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-20", output2.get(0));
+
+        transformFunctionSql = "select mod(numeric1,-10) from source";
+        transformExpressionSql = "select numeric1 % -10 from source";
+        functionConfig = new TransformConfig(transformFunctionSql);
+        functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        expressionConfig = new TransformConfig(transformExpressionSql);
+        expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case5: "mod(9,-10)" and "9 % -10"
+        data = "9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=9", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=9", output2.get(0));
+
+        // case6: "mod(-13,-10)" and "-13 % -10"
+        data = "-13|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-3", output2.get(0));
+
+        // case7: "mod(-13.14,-10)" and "-13.14 % -10"
+        data = "-13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3.14", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-3.14", output2.get(0));
+
+        // case8: "mod(13.14,-10)" and "13.14 % -10"
+        data = "13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=3.14", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=3.14", output2.get(0));
+
+        transformFunctionSql = "select mod(numeric1,-3.14) from source";
+        transformExpressionSql = "select numeric1 % -3.14 from source";
+        functionConfig = new TransformConfig(transformFunctionSql);
+        functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        expressionConfig = new TransformConfig(transformExpressionSql);
+        expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case9: "mod(9,-3.14)" and "9 % -3.14"
+        data = "9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=2.72", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=2.72", output2.get(0));
+
+        // case10: "mod(-9,-3.14)" and "-9 % -3.14"
+        data = "-9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-2.72", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-2.72", output2.get(0));
+
+        // case11: "mod(-13.14,-3.14)" and "-13.14 % -3.14"
+        data = "-13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-0.58", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-0.58", output2.get(0));
+
+        // case12: "mod(13.14,-3.14)" and "13.14 % -3.14"
+        data = "13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=0.58", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=0.58", output2.get(0));
+
     }
 
     @Test
