@@ -215,4 +215,21 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=");
     }
+
+    @Test
+    public void testToBase64Function() throws Exception {
+        String transformSql = "select to_base64(string1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // to_base64('app-fun')
+        List<String> output1 = processor1.transform("app-fun", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=YXBwLWZ1bg==");
+        // to_base64('hello world')
+        List<String> output2 = processor1.transform("hello world", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=aGVsbG8gd29ybGQ=");
+    }
 }

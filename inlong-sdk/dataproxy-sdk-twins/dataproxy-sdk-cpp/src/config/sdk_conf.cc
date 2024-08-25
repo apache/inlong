@@ -121,8 +121,6 @@ void SdkConfig::defaultInit() {
 
   // manager parameters
   manager_url_ = constants::kManagerURL;
-  enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
-  manager_cluster_url_ = constants::kManagerClusterURL;
   manager_update_interval_ = constants::kManagerUpdateInterval;
   manager_url_timeout_ = constants::kManagerTimeout;
   max_proxy_num_ = constants::kMaxProxyNum;
@@ -329,22 +327,7 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
   } else {
     manager_url_ = constants::kManagerURL;
   }
-  // manager cluster url
-  if (doc.HasMember("manager_cluster_url") &&
-      doc["manager_cluster_url"].IsString()) {
-    const rapidjson::Value &obj = doc["manager_cluster_url"];
-    manager_cluster_url_ = obj.GetString();
-  } else {
-    manager_cluster_url_ = constants::kManagerClusterURL;
-  }
-  // enable manager from cluster
-  if (doc.HasMember("enable_manager_url_from_cluster") &&
-      doc["enable_manager_url_from_cluster"].IsBool()) {
-    const rapidjson::Value &obj = doc["enable_manager_url_from_cluster"];
-    enable_manager_url_from_cluster_ = obj.GetBool();
-  } else {
-    enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
-  }
+
   // manager update interval
   if (doc.HasMember("manager_update_interval") &&
       doc["manager_update_interval"].IsInt() &&
@@ -522,6 +505,13 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   } else {
     max_instance_ = constants::kMaxInstance;
   }
+
+  if (doc.HasMember("extend_report") && doc["extend_report"].IsBool()) {
+    const rapidjson::Value &obj = doc["extend_report"];
+    extend_report_ = obj.GetBool();
+  } else {
+    extend_report_ = constants::kExtendReport;
+  }
 }
 
 bool SdkConfig::GetLocalIPV4Address(std::string &err_info, std::string &localhost) {
@@ -589,11 +579,6 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("log_level: " << log_level_);
   LOG_INFO("log_path: " << log_path_.c_str());
   LOG_INFO("manager_url: " << manager_url_.c_str());
-  LOG_INFO("manager_cluster_url: " << manager_cluster_url_.c_str());
-  LOG_INFO(
-      "enable_manager_url_from_cluster: " << enable_manager_url_from_cluster_
-      ? "true"
-      : "false");
   LOG_INFO("manager_update_interval:  minutes" << manager_update_interval_);
   LOG_INFO("manager_url_timeout: " << manager_url_timeout_);
   LOG_INFO("max_tcp_num: " << max_proxy_num_);

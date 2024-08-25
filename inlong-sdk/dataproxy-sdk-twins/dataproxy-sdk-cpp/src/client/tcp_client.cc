@@ -307,7 +307,7 @@ void TcpClient::UpdateMetric() {
     stat.Update(it.second);
     it.second.ResetStat();
   }
-  LOG_INFO(stat.ToString() << CLIENT_INFO);
+  LOG_INFO(stat.GetSendMetricInfo() << CLIENT_INFO);
 }
 
 void TcpClient::HeartBeat(bool only_heart_heat) {

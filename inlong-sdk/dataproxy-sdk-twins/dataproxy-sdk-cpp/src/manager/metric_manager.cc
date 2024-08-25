@@ -39,6 +39,7 @@ void MetricManager::InitEnvironment() {
   environment_.setVersion(constants::kVersion);
   environment_.setPid(getpid());
   environment_.setIp(SdkConfig::getInstance()->local_ip_);
+  environment_.SetExtendReport(SdkConfig::getInstance()->extend_report_);
 }
 void MetricManager::Run() {
   prctl(PR_SET_NAME, "metric-manager");

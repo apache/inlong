@@ -32,6 +32,7 @@ class MsgManager {
   mutable std::mutex mutex_;
   uint32_t queue_limit_;
   bool enable_share_msg_;
+  bool exit_= false;
   MsgManager() {
     uint32_t data_capacity_ = std::max(SdkConfig::getInstance()->max_msg_size_, SdkConfig::getInstance()->pack_size_);
     uint32_t buffer_num = SdkConfig::getInstance()->recv_buf_size_ / data_capacity_;
@@ -48,6 +49,11 @@ class MsgManager {
       AddMsg(msg_ptr);
     }
   }
+  ~MsgManager(){
+    std::lock_guard<std::mutex> lck(mutex_);
+    exit_ = true;
+    LOG_INFO("Msg manager exited");
+  }
 
  public:
   static MsgManager *GetInstance() {
@@ -55,7 +61,7 @@ class MsgManager {
     return &instance;
   }
   SdkMsgPtr GetMsg() {
-    if (!enable_share_msg_) {
+    if (!enable_share_msg_ || exit_) {
       return nullptr;
     }
     std::lock_guard<std::mutex> lck(mutex_);
@@ -67,7 +73,7 @@ class MsgManager {
     return buf;
   }
   void AddMsg(const SdkMsgPtr &msg_ptr) {
-    if (nullptr == msg_ptr || !enable_share_msg_) {
+    if (nullptr == msg_ptr || !enable_share_msg_ || exit_) {
       return;
     }
     std::lock_guard<std::mutex> lck(mutex_);
@@ -78,7 +84,7 @@ class MsgManager {
   }
 
   void AddMsg(const std::vector<SdkMsgPtr> &user_msg_vector) {
-    if (!enable_share_msg_) {
+    if (!enable_share_msg_ || exit_) {
       return;
     }
     std::lock_guard<std::mutex> lck(mutex_);

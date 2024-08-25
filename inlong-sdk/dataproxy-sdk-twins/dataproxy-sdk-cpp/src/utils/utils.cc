@@ -309,7 +309,6 @@ int32_t Utils::requestUrl(const std::string &url, std::string &urlByDNS,
   }
 
   CURL *curl = NULL;
-  curl_global_init(CURL_GLOBAL_ALL);
 
   curl = curl_easy_init();
   if (!curl) {
@@ -330,9 +329,7 @@ int32_t Utils::requestUrl(const std::string &url, std::string &urlByDNS,
   LOG_INFO("request from tdm:" << res);
   if (ret != 0) {
     LOG_ERROR("failed to request data from " << urlByDNS);
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    if (curl) curl_easy_cleanup(curl);
 
     return SdkCode::kErrorCURL;
   }
@@ -341,25 +338,17 @@ int32_t Utils::requestUrl(const std::string &url, std::string &urlByDNS,
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
   if (code != 200) {
     LOG_ERROR("tdm responsed with code " << code);
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
-
+    if (curl) curl_easy_cleanup(curl);
     return SdkCode::kErrorCURL;
   }
 
   if (res.empty()) {
     LOG_ERROR("tdm return empty data");
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
-
+    if (curl) curl_easy_cleanup(curl);
     return SdkCode::kErrorCURL;
   }
 
-  if (curl)
-    curl_easy_cleanup(curl);
-  curl_global_cleanup();
+  if (curl) curl_easy_cleanup(curl);
 
   return 0;
 }
@@ -406,8 +395,6 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   CURL *curl = NULL;
   struct curl_slist *list = NULL;
 
-  curl_global_init(CURL_GLOBAL_ALL);
-
   curl = curl_easy_init();
   if (!curl) {
     LOG_ERROR("failed to init curl object");
@@ -415,8 +402,7 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   }
 
   // http header
-  list = curl_slist_append(list,
-                           "Content-Type: application/x-www-form-urlencoded");
+  list = curl_slist_append(list,"Content-Type: application/x-www-form-urlencoded");
 
   if (request->need_auth && !request->auth_id.empty() &&
       !request->auth_key.empty()) {
@@ -446,9 +432,7 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   if (ret != 0) {
     LOG_ERROR(curl_easy_strerror(ret));
     LOG_ERROR("failed to request data from " << request->url.c_str());
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    if (curl) curl_easy_cleanup(curl);
 
     return SdkCode::kErrorCURL;
   }
@@ -456,26 +440,20 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   int32_t code;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
   if (code != 200) {
-    LOG_ERROR("tdm responsed with code " << code);
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    if (curl) curl_easy_cleanup(curl);
 
     return SdkCode::kErrorCURL;
   }
 
   if (res.empty()) {
-    LOG_ERROR("tdm return empty data");
-    if (curl)
-      curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    LOG_ERROR("Empty response");
+    if (curl) curl_easy_cleanup(curl);
 
     return SdkCode::kErrorCURL;
   }
 
-  // clean work
+  // Clean work
   curl_easy_cleanup(curl);
-  curl_global_cleanup();
 
   return 0;
 }

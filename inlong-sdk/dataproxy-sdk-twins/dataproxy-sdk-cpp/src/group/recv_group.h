@@ -63,6 +63,9 @@ class RecvGroup {
   std::unordered_map<std::string, std::queue<SdkMsgPtr>> dispatch_queue_;
   std::queue<SendBufferPtrT> fail_queue_;
 
+  std::string group_id_key_;
+  std::string stream_id_key_;
+
   void DoDispatchMsg();
   bool IsZipAndOperate(std::string& res, uint32_t real_cur_len);
   inline void ResetPackBuf() { memset(pack_buf_, 0x0, data_capacity_); }

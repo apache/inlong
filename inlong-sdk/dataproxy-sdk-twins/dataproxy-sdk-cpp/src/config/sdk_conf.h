@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <atomic>
+#include "../utils/capi_constant.h"
 
 namespace inlong {
 class SdkConfig {
@@ -40,7 +42,7 @@ private:
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
   bool GetLocalIPV4Address(std::string& err_info, std::string& localhost);
-  SdkConfig() { defaultInit(); };
+  SdkConfig():extend_report_(false) { defaultInit(); };
 
       public:
   // cache parameter
@@ -80,8 +82,6 @@ private:
 
   // manager parameters
   std::string manager_url_;
-  bool enable_manager_url_from_cluster_;
-  std::string manager_cluster_url_;
   uint32_t manager_update_interval_; // Automatic update interval, minutes
   uint32_t manager_url_timeout_;     // URL parsing timeout, seconds
   uint64_t max_proxy_num_;
@@ -114,6 +114,7 @@ private:
   uint32_t buf_size_;
 
   volatile bool parsed_ = false;
+  bool extend_report_;
 
   void defaultInit();
   static SdkConfig *getInstance();

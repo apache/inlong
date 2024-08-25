@@ -31,6 +31,7 @@ class BufferManager {
   std::queue<SendBufferPtrT> buffer_queue_;
   mutable std::mutex mutex_;
   uint32_t queue_limit_;
+  bool exit_= false;
   BufferManager() {
     uint32_t data_capacity_ = std::max(SdkConfig::getInstance()->max_msg_size_,
                                        SdkConfig::getInstance()->pack_size_);
@@ -54,6 +55,11 @@ class BufferManager {
       AddSendBuffer(send_buffer);
     }
   }
+  ~BufferManager(){
+    std::lock_guard<std::mutex> lck(mutex_);
+    exit_ = true;
+    LOG_INFO("Buffer manager exited");
+  }
 
  public:
   static BufferManager *GetInstance() {
@@ -61,6 +67,9 @@ class BufferManager {
     return &instance;
   }
   SendBufferPtrT GetSendBuffer() {
+    if(exit_){
+      return nullptr;
+    }
     std::lock_guard<std::mutex> lck(mutex_);
     if (buffer_queue_.empty()) {
       return nullptr;
@@ -70,7 +79,7 @@ class BufferManager {
     return buf;
   }
   void AddSendBuffer(const SendBufferPtrT &send_buffer) {
-    if (nullptr == send_buffer) {
+    if (nullptr == send_buffer || exit_) {
       return;
     }
     send_buffer->releaseBuf();
