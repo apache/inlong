@@ -207,7 +207,6 @@ public class TestTransformArithmeticFunctionsProcessor {
             Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
         }
     }
-}
 
     @Test
     public void testLog2Function() throws Exception {
