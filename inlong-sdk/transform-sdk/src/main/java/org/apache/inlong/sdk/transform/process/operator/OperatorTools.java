@@ -192,7 +192,7 @@ public class OperatorTools {
                 // TODO
                 Function func = (Function) expr;
                 java.util.function.Function<Function, ValueParser> valueParserConstructor = 
-                functionMap.get(func.getName().toLowerCase());
+                        functionMap.get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {
