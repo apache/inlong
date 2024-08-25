@@ -56,7 +56,6 @@ import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.TimestampParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
@@ -96,7 +95,7 @@ public class OperatorTools {
 
     public static final String CHILD_KEY = "$child";
 
-    private static final Map<String, java.util.function.Function<Function, ValueParser>> functionMap = new HashMap<>();
+    private static final Map<String, java.util.function.Function<java.util.function.Function<T, R>, ValueParser>> functionMap = new HashMap<>();
 
     static {
         functionMap.put("concat", ConcatFunction::new);
@@ -133,6 +132,7 @@ public class OperatorTools {
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
         functionMap.put("round", RoundFunction::new);
+        functionMap.put("factorial", FactorialFunction::new);
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
@@ -191,8 +191,8 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor =
-                        functionMap.get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
+                        .get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {
@@ -205,6 +205,7 @@ public class OperatorTools {
 
     /**
      * parseBigDecimal
+     * 
      * @param value
      * @return
      */
@@ -238,6 +239,7 @@ public class OperatorTools {
 
     /**
      * compareValue
+     * 
      * @param left
      * @param right
      * @return

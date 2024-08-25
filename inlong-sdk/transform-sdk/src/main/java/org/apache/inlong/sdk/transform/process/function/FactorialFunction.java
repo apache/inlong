@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
