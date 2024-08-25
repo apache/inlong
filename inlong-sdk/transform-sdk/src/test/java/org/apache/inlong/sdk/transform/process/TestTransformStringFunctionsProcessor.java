@@ -210,7 +210,7 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output3 = processor1.transform("12345|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=54321");
-        // 4: reverse(null)
+        // case4: reverse(null)
         List<String> output4 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=");
