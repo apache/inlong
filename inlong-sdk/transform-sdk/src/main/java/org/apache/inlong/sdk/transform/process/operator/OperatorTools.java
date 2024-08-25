@@ -95,7 +95,7 @@ public class OperatorTools {
 
     public static final String CHILD_KEY = "$child";
 
-    private static final Map<String, java.util.function.Function<java.util.function.Function<T, R>, ValueParser>> functionMap = new HashMap<>();
+    private static final Map<String, java.util.function.Function<Function, ValueParser>> functionMap = new HashMap<>();
 
     static {
         functionMap.put("concat", ConcatFunction::new);
@@ -191,8 +191,8 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
-                        .get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = 
+                functionMap.get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {
