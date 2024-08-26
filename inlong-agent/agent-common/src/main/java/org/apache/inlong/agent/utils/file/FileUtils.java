@@ -68,7 +68,7 @@ public class FileUtils {
         try {
             lastModify = Files.getLastModifiedTime(Paths.get(fileName)).toMillis();
         } catch (IOException e) {
-            LOGGER.error("getFileLastModifyTime error {}", e);
+            LOGGER.error("getFileLastModifyTime error.", e);
         }
         return lastModify;
     }
