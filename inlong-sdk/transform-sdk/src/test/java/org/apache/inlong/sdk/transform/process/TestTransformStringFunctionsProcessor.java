@@ -748,4 +748,28 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals("result=1278", output5.get(0));
     }
 
+
+    @Test
+    public void testFromBase64Function() throws Exception {
+        String transformSql = "select from_base64(string1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: from_base64('aGVsbG8gd29ybGQ=') -> 'hello world'
+        List<String> output1 = processor.transform("aGVsbG8gd29ybGQ=|apple|banana|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=hello world");
+
+        // case2: from_base64('') -> ''
+        List<String> output2 = processor.transform("|apple|banana|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: from_base64('QXBhY2hlIEluTG9uZw==') -> 'Apache InLong'
+        List<String> output3 = processor.transform("QXBhY2hlIEluTG9uZw==|apple|banana|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=Apache InLong");
+    }
 }
