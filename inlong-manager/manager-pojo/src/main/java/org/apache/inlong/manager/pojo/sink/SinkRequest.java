@@ -71,6 +71,9 @@ public abstract class SinkRequest {
     @Pattern(regexp = "^[a-zA-Z0-9_.-]{1,100}$", message = "sinkName only supports letters, numbers, '.', '-', or '_'")
     private String sinkName;
 
+    @ApiModelProperty("Transform sql")
+    private String transformSql;
+
     @ApiModelProperty("Sink description")
     @Length(max = 500, message = "length must be less than or equal to 500")
     private String description;
