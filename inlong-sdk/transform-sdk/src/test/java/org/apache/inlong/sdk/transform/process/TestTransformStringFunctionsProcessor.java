@@ -66,7 +66,7 @@ public class TestTransformStringFunctionsProcessor {
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: lower(ApPlE)
+        // case1: lower("ApPlE")
         List<String> output1 = processor1.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=apple");
@@ -75,6 +75,16 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output2 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: lower(null)
+        String transformSql2 = "select lower(xxd) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor2.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=null");
     }
 
     @Test
@@ -84,15 +94,25 @@ public class TestTransformStringFunctionsProcessor {
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: lower(ApPlE)
+        // case1: upper("ApPlE")
         List<String> output1 = processor1.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=APPLE");
 
-        // case2: lower("")
+        // case2: upper("")
         List<String> output2 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: upper(null)
+        String transformSql2 = "select upper(xxd) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor2.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=null");
     }
 
     @Test

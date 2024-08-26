@@ -40,7 +40,7 @@ public class LowerFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         if (stringObj == null)
-            throw new NullPointerException("Please check if the fields are correct");
+            return null;
         return stringObj.toString().toLowerCase();
     }
 }
