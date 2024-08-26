@@ -347,4 +347,26 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(output3.get(0), "result=-2.185039863261519");
     }
 
+    @Test
+    public void testBinFunction() throws Exception {
+        String transformSql1 = "select bin(numeric1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: bin(4)
+        List<String> output1 = processor1.transform("4|5|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=100");
+        String transformSql2 = "select bin() from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: bin()
+        List<String> output2 = processor2.transform("1|2|3|4", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output2.get(0), "result=null");
+    }
+
 }
