@@ -22,7 +22,6 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.HttpSinkConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -32,9 +31,7 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.http.HttpDataNodeDTO;
-import org.apache.inlong.manager.pojo.node.http.HttpDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -52,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -117,20 +113,6 @@ public class HttpSinkOperator extends AbstractSinkOperator {
         List<SinkField> sinkFields = getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
-    }
-
-    @Override
-    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
-            DataNodeInfo dataNodeInfo) {
-        Map<String, String> params = super.parse2IdParams(streamSink, fields, dataNodeInfo);
-        HttpSinkDTO httpSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), HttpSinkDTO.class);
-        HttpDataNodeInfo httpDataNodeInfo = (HttpDataNodeInfo) dataNodeInfo;
-        StringBuilder fieldNames = new StringBuilder();
-        for (String field : fields) {
-            fieldNames.append(field).append(InlongConstants.BLANK);
-        }
-        params.computeIfAbsent(KEY_FIELDS, k -> fieldNames.toString());
-        return params;
     }
 
     @Override
