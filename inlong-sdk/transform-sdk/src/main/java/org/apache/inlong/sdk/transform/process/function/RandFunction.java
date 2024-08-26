@@ -22,9 +22,11 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -36,10 +38,15 @@ public class RandFunction implements ValueParser {
 
     private ValueParser seedParser;
 
+    private Random random;
+
     public RandFunction(Function expr) {
-        try {
-            seedParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
-        } catch (NullPointerException ignored) {
+        random = new Random();
+        if (expr.getParameters() != null) {
+            List<Expression> expressions = expr.getParameters().getExpressions();
+            if (expressions != null && !expressions.isEmpty()) {
+                seedParser = OperatorTools.buildParser(expressions.get(0));
+            }
         }
     }
     @Override
@@ -47,8 +54,8 @@ public class RandFunction implements ValueParser {
         if (seedParser != null) {
             Object seedObj = seedParser.parse(sourceData, rowIndex, context);
             BigDecimal seedValue = OperatorTools.parseBigDecimal(seedObj);
-            return new Random(seedValue.intValue()).nextDouble();
+            random.setSeed(seedValue.intValue());
         }
-        return new Random().nextDouble();
+        return random.nextDouble();
     }
 }
