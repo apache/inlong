@@ -44,7 +44,7 @@ public class RandFunction implements ValueParser {
         random = new Random();
         if (expr.getParameters() != null) {
             List<Expression> expressions = expr.getParameters().getExpressions();
-            if (expressions != null && !expressions.isEmpty()) {
+            if (expressions != null && expressions.size() == 1) {
                 seedParser = OperatorTools.buildParser(expressions.get(0));
             }
         }
