@@ -34,6 +34,7 @@
         <debezium.version>1.8.0.Final</debezium.version>
         <ojdbc.version>19.3.0.0</ojdbc.version>
         <darwinsys.version>1.5.1</darwinsys.version>
+        <jedis.version>4.3.1</jedis.version>
     </properties>
 
     <dependencies>
@@ -41,6 +42,11 @@
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>${ojdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>

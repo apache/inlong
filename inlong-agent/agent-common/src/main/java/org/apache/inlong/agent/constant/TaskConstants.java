@@ -187,6 +187,11 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_REDIS_QUEUE_SIZE = "task.redisTask.queueSize";
     public static final String TASK_REDIS_REPLID = "task.redisTask.replId";
     public static final String TASK_REDIS_OFFSET = "task.redisTask.offset";
+    public static final String TASK_REDIS_DB_NUMBER = "task.redisTask.dbNumber";
+    public static final String TASK_REDIS_COMMAND = "task.redisTask.command";
+    public static final String TASK_REDIS_KEYS = "task.redisTask.keys";
+    public static final String TASK_REDIS_FIELD_OR_NUMBER = "task.redisTask.fieldOrMember";
+
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";

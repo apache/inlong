@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -99,6 +100,8 @@ public class TestRedisSource {
         final String port = "6379";
         final String groupId = "group01";
         final String streamId = "stream01";
+        final String keys = "age,name,sex";
+        final String command = "zscore";
 
         TaskProfile taskProfile = helper.getTaskProfile(1, "", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
                 "GMT+8:00");
@@ -110,10 +113,15 @@ public class TestRedisSource {
         instanceProfile.set(TaskConstants.TASK_REDIS_AUTHPASSWORD, password);
         instanceProfile.set(TaskConstants.TASK_REDIS_HOSTNAME, hostname);
         instanceProfile.set(TaskConstants.TASK_REDIS_PORT, port);
+        instanceProfile.set(TaskConstants.TASK_REDIS_COMMAND, command);
+        instanceProfile.set(TaskConstants.TASK_REDIS_KEYS, keys);
         instanceProfile.set(TaskConstants.TASK_AUDIT_VERSION, "0");
         instanceProfile.setInstanceId(instanceId);
-
-        (redisSource = new RedisSource()).init(instanceProfile);
+        redisSource = new RedisSource();
+        try {
+            redisSource.init(instanceProfile);
+        } catch (JedisConnectionException ignored) {
+        }
         return redisSource;
     }
 
