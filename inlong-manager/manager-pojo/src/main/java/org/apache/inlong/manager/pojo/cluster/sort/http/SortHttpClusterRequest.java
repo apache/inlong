@@ -15,29 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+package org.apache.inlong.manager.pojo.cluster.sort.http;
+
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterRequest;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-/**
- * The base parameter class of StreamSink, support user extend their own business params.
- */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ApiModel("Base info of stream sink")
-public class BaseStreamSink {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.SORT_HTTP)
+@ApiModel("Inlong cluster request for Sort http")
+public class SortHttpClusterRequest extends BaseSortClusterRequest {
 
-    @ApiModelProperty("Transform sql")
-    private String transformSql;
-
-    @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
-    private String startConsumeTime;
-
-    @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
-    private String stopConsumeTime;
+    public SortHttpClusterRequest() {
+        this.setType(ClusterType.SORT_HTTP);
+    }
 }

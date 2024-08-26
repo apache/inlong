@@ -15,29 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+package org.apache.inlong.manager.pojo.node.http;
+
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * The base parameter class of StreamSink, support user extend their own business params.
+ * Cloud log service data node request
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ApiModel("Base info of stream sink")
-public class BaseStreamSink {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = DataNodeType.HTTP)
+@ApiModel("Http service data node request")
+public class HttpDataNodeRequest extends DataNodeRequest {
 
-    @ApiModelProperty("Transform sql")
-    private String transformSql;
+    @ApiModelProperty("HTTP base url")
+    private String baseUrl;
 
-    @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
-    private String startConsumeTime;
+    @ApiModelProperty("Whether to enable credential")
+    private Boolean enableCredential;
 
-    @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
-    private String stopConsumeTime;
+    @ApiModelProperty("Max connect count")
+    private Integer maxConnect;
+
+    public HttpDataNodeRequest() {
+        this.setType(DataNodeType.HTTP);
+    }
+
 }

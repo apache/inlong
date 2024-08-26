@@ -15,29 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+package org.apache.inlong.manager.pojo.sink.http;
+
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.Map;
 
 /**
- * The base parameter class of StreamSink, support user extend their own business params.
+ * Http sink request.
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ApiModel("Base info of stream sink")
-public class BaseStreamSink {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "Http sink request")
+@JsonTypeDefine(value = SinkType.HTTP)
+public class HttpSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Transform sql")
-    private String transformSql;
+    @ApiModelProperty("HTTP path")
+    private String path;
 
-    @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
-    private String startConsumeTime;
+    @ApiModelProperty("HTTP method, like POST, GET")
+    private String method;
 
-    @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
-    private String stopConsumeTime;
+    @ApiModelProperty("HTTP headers")
+    private Map<String, String> headers;
+
+    @ApiModelProperty("Max retry times")
+    private Integer maxRetryTimes;
+
 }

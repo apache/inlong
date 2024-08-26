@@ -37,6 +37,7 @@ public class DataNodeType {
     public static final String SQLSERVER = "SQLSERVER";
     public static final String MONGODB = "MONGODB";
     public static final String DORIS = "DORIS";
+    public static final String HTTP = "HTTP";
     public static final String OCEANBASE = "OCEANBASE";
 
     /**
