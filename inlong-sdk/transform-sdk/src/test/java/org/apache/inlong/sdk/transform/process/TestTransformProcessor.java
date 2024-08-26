@@ -173,7 +173,8 @@ public class TestTransformProcessor {
         List<FieldInfo> fields2 = this.getTestFieldList2();
         JsonSourceInfo jsonSource2 = new JsonSourceInfo("UTF-8", "items");
         CsvSinkInfo csvSink2 = new CsvSinkInfo("UTF-8", '|', '\\', fields2);
-        String transformSql2 = "select $root.id,$child.itemId,$child.subItems(0).subItemId,$child.subItems(1).msg from source";
+        String transformSql2 =
+                "select $root.id,$child.itemId,$child.subItems(0).subItemId,$child.subItems(1).msg from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createJsonDecoder(jsonSource2),
