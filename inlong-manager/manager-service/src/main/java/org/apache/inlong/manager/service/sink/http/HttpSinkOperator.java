@@ -58,11 +58,6 @@ import java.util.stream.Collectors;
 public class HttpSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpSinkOperator.class);
-    private static final String KEY_FIELDS = "fieldNames";
-    private static final String SECRET_KEY = "secretKey";
-    private static final String SECRET_ID = "secretId";
-    private static final String END_POINT = "endpoint";
-    private static final String TOPIC_ID = "topicId";
 
     @Autowired
     private ObjectMapper objectMapper;
