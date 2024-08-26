@@ -39,6 +39,8 @@ public class LowerFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null)
+            throw new NullPointerException("Please check if the fields are correct");
         return stringObj.toString().toLowerCase();
     }
 }
