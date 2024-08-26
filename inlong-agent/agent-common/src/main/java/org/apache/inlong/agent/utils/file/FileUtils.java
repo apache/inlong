@@ -58,7 +58,7 @@ public class FileUtils {
             creationTime = Files.readAttributes(Paths.get(fileName), BasicFileAttributes.class).creationTime()
                     .toMillis();
         } catch (IOException e) {
-            LOGGER.error("getFileCreationTime error {}", e);
+            LOGGER.error("getFileCreationTime error.", e);
         }
         return creationTime;
     }
