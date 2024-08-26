@@ -48,4 +48,7 @@ public class HttpSinkRequest extends SinkRequest {
     @ApiModelProperty("HTTP headers")
     private Map<String, String> headers;
 
+    @ApiModelProperty("Max retry times")
+    private Integer maxRetryTimes;
+
 }

@@ -52,6 +52,9 @@ public class HttpSinkDTO extends BaseStreamSink {
     @ApiModelProperty("HTTP headers")
     private Map<String, String> headers;
 
+    @ApiModelProperty("Max retry times")
+    private Integer maxRetryTimes;
+
     /**
      * Get the dto instance from the request
      */

@@ -50,6 +50,9 @@ public class HttpSink extends StreamSink {
     @ApiModelProperty("HTTP headers")
     private Map<String, String> headers;
 
+    @ApiModelProperty("Max retry times")
+    private Integer maxRetryTimes;
+
     public HttpSink() {
         this.setSinkType(SinkType.HTTP);
     }
