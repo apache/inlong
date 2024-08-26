@@ -347,4 +347,25 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(output3.get(0), "result=-2.185039863261519");
     }
 
+    @Test
+    public void testHexFunction() throws Exception {
+        String transformSql1 = "select hex(numeric1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: hex(1007)
+        List<String> output1 = processor1.transform("1007|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=3EF");
+        // case: hex(255)
+        List<String> output2 = processor1.transform("255|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=FF");
+        // case: hex(abc)
+        List<String> output3 = processor1.transform("abc|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=616263");
+    }
+
 }

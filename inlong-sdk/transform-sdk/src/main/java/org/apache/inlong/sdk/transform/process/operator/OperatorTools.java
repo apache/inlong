@@ -27,6 +27,7 @@ import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
+import org.apache.inlong.sdk.transform.process.function.HexFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
 import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
@@ -123,6 +124,7 @@ public class OperatorTools {
         functionMap.put("sinh", SinhFunction::new);
         functionMap.put("cos", CosFunction::new);
         functionMap.put("tan", TanFunction::new);
+        functionMap.put("hex", HexFunction::new);
         functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
         functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
         functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
