@@ -63,7 +63,6 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
             int result = self.InitApi(config_path);
             return result;
         })
-        .def("add_bid", &inlong::InLongApi::AddBid)
         .def("send", [](inlong::InLongApi& self, const char* groupId, const char* streamId, const char* msg, int32_t msgLen, py::object pyCallback = py::none()) {
             if (!pyCallback.is(py::none())) {
                 g_py_callbacks[UserCallBackBridge] = pyCallback.cast<py::function>();
