@@ -50,6 +50,7 @@ import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
 import org.apache.inlong.sdk.transform.process.function.TanFunction;
+import org.apache.inlong.sdk.transform.process.function.TimestampAddFunction;
 import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.ToBase64Function;
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
@@ -169,6 +170,7 @@ public class OperatorTools {
         functionMap.put("upper", UpperFunction::new);
         functionMap.put("length", LengthFunction::new);
         functionMap.put("replace", ReplaceFunction::new);
+        functionMap.put("timestampadd", TimestampAddFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
