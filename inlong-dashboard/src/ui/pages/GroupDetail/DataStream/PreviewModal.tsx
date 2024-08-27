@@ -107,7 +107,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
   ].concat(
     (getColumn() ? getColumn() : []).concat([
       {
-        title: 'operation',
+        title: i18n.t('basic.Operating'),
         key: 'operation',
         fixed: 'right',
         width: 100,
