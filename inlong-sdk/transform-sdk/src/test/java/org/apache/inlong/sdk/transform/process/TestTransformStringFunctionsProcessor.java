@@ -200,4 +200,27 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=aGVsbG8gd29ybGQ=");
     }
+
+    @Test
+    public void testLengthFunction() throws Exception {
+        String transformSql = "select length(string1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: length('hello world')
+        List<String> output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=11", output1.get(0));
+
+        transformSql = "select length(xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: length(null)
+        output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
+    }
 }
