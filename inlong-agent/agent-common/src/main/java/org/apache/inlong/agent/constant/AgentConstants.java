@@ -73,7 +73,7 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
 
     public static final String AGENT_ENABLE_OOM_EXIT = "agent.enable.oom.exit";
-    public static final boolean DEFAULT_ENABLE_OOM_EXIT = true;
+    public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
 
     // pulsar sink config
     public static final String PULSAR_CLIENT_IO_TREHAD_NUM = "agent.sink.pulsar.client.io.thread.num";
