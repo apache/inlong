@@ -51,6 +51,15 @@ if [ "$(printf '%s\n' "$PYTHON_REQUIRED" "$PYTHON_VERSION" | sort -V | head -n1)
     exit 1
 fi
 
+# Install Python packages from requirements.txt
+if [ -f $PY_SDK_DIR/requirements.txt ]; then
+    echo "Installing Python packages from requirements.txt..."
+    pip install -r $PY_SDK_DIR/requirements.txt
+else
+    echo "Error: cannot find requirements.txt!"
+    exit 1
+fi
+
 # Build pybind11(If the pybind11 has been compiled, this step will be skipped)
 if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
     if [ -d "$PY_SDK_DIR/pybind11" ]; then
@@ -58,9 +67,16 @@ if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
     fi
     git clone https://github.com/pybind/pybind11.git $PY_SDK_DIR/pybind11
     mkdir $PY_SDK_DIR/pybind11/build && cd $PY_SDK_DIR/pybind11/build
+
+    # Add a trap command to delete the pybind11 folder if an error occurs
+    trap 'echo "Error occurred during pybind11 build. Deleting pybind11 folder..."; cd $PY_SDK_DIR; rm -r pybind11; exit 1' ERR
+
     cmake $PY_SDK_DIR/pybind11
     cmake --build $PY_SDK_DIR/pybind11/build --config Release --target check
     make -j 4
+
+    # Remove the trap command if the build is successful
+    trap - ERR
 else
     echo "Skipped build pybind11"
 fi
