@@ -115,7 +115,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
-            String startCmd = agentInstallPath + INSTALLER_START_CMD;
+            String startCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, startCmd);
         } catch (Exception e) {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
