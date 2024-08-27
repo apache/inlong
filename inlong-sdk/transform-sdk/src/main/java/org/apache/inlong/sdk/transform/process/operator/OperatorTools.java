@@ -31,6 +31,7 @@ import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LengthFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.LocalTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
@@ -115,6 +116,8 @@ public class OperatorTools {
     static {
         functionMap.put("concat", ConcatFunction::new);
         functionMap.put("now", NowFunction::new);
+        functionMap.put("localtime", LocalTimeFunction::new);
+        functionMap.put("currenttime", LocalTimeFunction::new);
         functionMap.put("power", PowerFunction::new);
         functionMap.put("abs", AbsFunction::new);
         functionMap.put("sqrt", SqrtFunction::new);
