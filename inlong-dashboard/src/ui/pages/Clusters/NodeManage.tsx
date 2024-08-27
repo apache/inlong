@@ -29,6 +29,7 @@ import NodeEditModal from './NodeEditModal';
 import request from '@/core/utils/request';
 import { timestampFormat } from '@/core/utils';
 import { genStatusTag } from './status';
+import HeartBeatModal from '@/ui/pages/Clusters/HeartBeatModal';
 
 const getFilterFormContent = defaultValues => [
   {
@@ -55,6 +56,9 @@ const Comp: React.FC = () => {
   const [nodeEditModal, setNodeEditModal] = useState<Record<string, unknown>>({
     open: false,
   });
+  const [heartModal, setHeartModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
 
   const {
     data,
@@ -77,6 +81,9 @@ const Comp: React.FC = () => {
     setNodeEditModal({ open: true, id });
   };
 
+  const openHeartModal = ({ type, ip }) => {
+    setHeartModal({ open: true, type: type, ip: ip });
+  };
   const onDelete = useCallback(
     ({ id }) => {
       Modal.confirm({
@@ -154,7 +161,9 @@ const Comp: React.FC = () => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
-        width: 120,
+        key: 'operation',
+        fixed: 'right',
+        width: 340,
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
@@ -163,6 +172,11 @@ const Comp: React.FC = () => {
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
+            {type === 'AGENT' && (
+              <Button type="link" onClick={() => openHeartModal(record)}>
+                {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
+              </Button>
+            )}
           </>
         ),
       },
@@ -191,7 +205,14 @@ const Comp: React.FC = () => {
         }
         table={{
           columns:
-            type === 'AGENT' ? columns.filter(item => item.dataIndex !== 'enabledOnline') : columns,
+            type === 'AGENT'
+              ? columns.filter(
+                  item =>
+                    item.dataIndex !== 'enabledOnline' &&
+                    item.dataIndex !== 'port' &&
+                    item.dataIndex !== 'protocolType',
+                )
+              : columns,
           rowKey: 'id',
           dataSource: data?.list,
           pagination,
@@ -210,6 +231,15 @@ const Comp: React.FC = () => {
           setNodeEditModal({ open: false });
         }}
         onCancel={() => setNodeEditModal({ open: false })}
+      />
+      <HeartBeatModal
+        {...heartModal}
+        open={heartModal.open as boolean}
+        onOk={async () => {
+          await getList();
+          setHeartModal({ open: false });
+        }}
+        onCancel={() => setHeartModal({ open: false })}
       />
     </PageContainer>
   );
