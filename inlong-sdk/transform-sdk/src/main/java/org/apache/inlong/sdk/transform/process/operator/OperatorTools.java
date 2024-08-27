@@ -38,6 +38,7 @@ import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.RandFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplaceFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
@@ -131,6 +132,7 @@ public class OperatorTools {
         functionMap.put("to_date", ToDateFunction::new);
         functionMap.put("date_format", DateFormatFunction::new);
         functionMap.put("ceil", CeilFunction::new);
+        functionMap.put("rand", RandFunction::new);
         functionMap.put("floor", FloorFunction::new);
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
