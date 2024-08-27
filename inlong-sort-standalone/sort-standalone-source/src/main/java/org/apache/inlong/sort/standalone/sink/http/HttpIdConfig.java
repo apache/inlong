@@ -27,7 +27,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Slf4j
 public class HttpIdConfig extends IdConfig {
 
     private String path;
@@ -45,6 +48,8 @@ public class HttpIdConfig extends IdConfig {
     private Integer maxRetryTimes;
     private String separator = "|";
     private List<String> fieldList;
+    private Charset sourceCharset;
+    private Charset sinkCharset;
 
     public static HttpIdConfig create(DataFlowConfig dataFlowConfig) {
         HttpSinkConfig sinkConfig = (HttpSinkConfig) dataFlowConfig.getSinkConfig();
@@ -52,6 +57,21 @@ public class HttpIdConfig extends IdConfig {
                 .stream()
                 .map(FieldConfig::getName)
                 .collect(Collectors.toList());
+        Charset sourceCharset, sinkCharset;
+        try {
+            sinkCharset = Charset.forName(sinkConfig.getEncodingType());
+        } catch (Throwable t) {
+            log.warn("do not support field encoding type={}, dataflow id={}",
+                    sinkConfig.getEncodingType(), dataFlowConfig.getDataflowId());
+            sinkCharset = Charset.defaultCharset();
+        }
+        try {
+            sourceCharset = Charset.forName(dataFlowConfig.getSourceConfig().getEncodingType());
+        } catch (Throwable t) {
+            log.warn("do not support context encoding type={}, dataflow id={}",
+                    dataFlowConfig.getSourceConfig().getEncodingType(), dataFlowConfig.getDataflowId());
+            sourceCharset = Charset.defaultCharset();
+        }
         return HttpIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
@@ -61,6 +81,8 @@ public class HttpIdConfig extends IdConfig {
                 .maxRetryTimes(sinkConfig.getMaxRetryTimes())
                 .separator("|")
                 .fieldList(fields)
+                .sinkCharset(sinkCharset)
+                .sourceCharset(sourceCharset)
                 .build();
     }
 }

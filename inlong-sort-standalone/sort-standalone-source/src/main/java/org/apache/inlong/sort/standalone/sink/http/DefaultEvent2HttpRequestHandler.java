@@ -36,8 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +64,7 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
         char cDelimiter = delimiter.charAt(0);
         // for tab separator
         byte[] bodyBytes = event.getBody();
-        String strContext = new String(bodyBytes, Charset.defaultCharset());
+        String strContext = new String(bodyBytes, idConfig.getSourceCharset());
         // unescape
         List<String> columnValues = UnescapeHelper.toFiledList(strContext, cDelimiter);
         int valueLength = columnValues.size();
@@ -94,8 +92,8 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 String params = fieldMap.entrySet().stream()
                         .map(entry -> {
                             try {
-                                return URLEncoder.encode(entry.getKey() + "=" + entry.getValue(),
-                                        StandardCharsets.UTF_8.name());
+                                return entry.getKey() + "="
+                                        + URLEncoder.encode(entry.getValue(), idConfig.getSinkCharset().name());
                             } catch (UnsupportedEncodingException e) {
                                 throw new RuntimeException(e);
                             }
