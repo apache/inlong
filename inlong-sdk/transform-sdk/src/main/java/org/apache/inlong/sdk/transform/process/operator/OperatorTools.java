@@ -34,6 +34,7 @@ import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
+import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
@@ -53,24 +54,30 @@ import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
+import org.apache.inlong.sdk.transform.process.parser.DoubleParser;
 import org.apache.inlong.sdk.transform.process.parser.LongParser;
+import org.apache.inlong.sdk.transform.process.parser.ModuloParser;
 import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
 import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
+import org.apache.inlong.sdk.transform.process.parser.SignParser;
 import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.TimestampParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NotExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -92,7 +99,7 @@ import java.util.Map;
 
 /**
  * OperatorTools
- * 
+ *
  */
 public class OperatorTools {
 
@@ -144,6 +151,7 @@ public class OperatorTools {
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
+        functionMap.put("mod", ModuloFunction::new);
         functionMap.put("to_base64", ToBase64Function::new);
         functionMap.put("length", LengthFunction::new);
     }
@@ -180,6 +188,10 @@ public class OperatorTools {
             return new StringParser((StringValue) expr);
         } else if (expr instanceof LongValue) {
             return new LongParser((LongValue) expr);
+        } else if (expr instanceof DoubleValue) {
+            return new DoubleParser((DoubleValue) expr);
+        } else if (expr instanceof SignedExpression) {
+            return new SignParser((SignedExpression) expr);
         } else if (expr instanceof Parenthesis) {
             return new ParenthesisParser((Parenthesis) expr);
         } else if (expr instanceof Addition) {
@@ -190,6 +202,8 @@ public class OperatorTools {
             return new MultiplicationParser((Multiplication) expr);
         } else if (expr instanceof Division) {
             return new DivisionParser((Division) expr);
+        } else if (expr instanceof Modulo) {
+            return new ModuloParser((Modulo) expr);
         } else if (expr instanceof DateValue) {
             return new DateParser((DateValue) expr);
         } else if (expr instanceof TimestampValue) {
