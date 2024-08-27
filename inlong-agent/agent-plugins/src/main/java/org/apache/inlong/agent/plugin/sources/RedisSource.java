@@ -100,15 +100,41 @@ public class RedisSource extends AbstractSource {
         this.instanceId = profile.getInstanceId();
         this.redisQueue = new LinkedBlockingQueue<>(profile.getInt(TaskConstants.TASK_REDIS_QUEUE_SIZE, 10000));
         String uri = getRedisUri();
+        this.jedis = new Jedis(uri);
         try {
             redisReplicator = new RedisReplicator(uri);
-            this.jedis = new Jedis(uri);
+            startJedisSynchronize();
             initReplicator();
             executor = Executors.newSingleThreadExecutor();
             executor.execute(startRedisReplicator());
         } catch (URISyntaxException | IOException e) {
             sourceMetric.pluginReadFailCount.addAndGet(1);
             LOGGER.error("Connect to redis {}:{} failed.", hostName, port);
+        }
+    }
+
+    private void startJedisSynchronize() {
+        for (String key : keys) {
+            String data = jedisExecuteCommand(redisCommand, key, fieldOrMember);
+            synchronizeData(data);
+        }
+    }
+
+    private void synchronizeData(String data) {
+        try {
+            if (!StringUtils.isEmpty(data)) {
+                SourceData sourceData = new SourceData(data.getBytes(StandardCharsets.UTF_8), "0L");
+                boolean offerSuc = false;
+                while (isRunnable() && !offerSuc) {
+                    offerSuc = redisQueue.offer(sourceData, 1, TimeUnit.SECONDS);
+                }
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                        System.currentTimeMillis(), 1, data.length());
+                sourceMetric.pluginReadCount.incrementAndGet();
+            }
+        } catch (InterruptedException e) {
+            sourceMetric.pluginReadFailCount.incrementAndGet();
+            LOGGER.error("Read redis data error", e);
         }
     }
 
@@ -218,31 +244,17 @@ public class RedisSource extends AbstractSource {
 
     private void initReplicator() {
         redisReplicator.addEventListener((replicator, event) -> {
-            try {
-                if (event instanceof KeyValuePair<?, ?>) {
-                    KeyValuePair<?, ?> kvEvent = (KeyValuePair<?, ?>) event;
-                    String key = kvEvent.getKey().toString();
-                    if (keys.contains(key)) {
-                        String data = jedisExecuteCommand(redisCommand, key, fieldOrMember);
-                        if (!StringUtils.isEmpty(data)) {
-                            SourceData sourceData = new SourceData(data.getBytes(StandardCharsets.UTF_8), "0L");
-                            boolean offerSuc = false;
-                            while (isRunnable() && !offerSuc) {
-                                offerSuc = redisQueue.offer(sourceData, 1, TimeUnit.SECONDS);
-                            }
-                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                                    System.currentTimeMillis(), 1, data.length());
-                            sourceMetric.pluginReadCount.incrementAndGet();
-                        }
-                    }
+            if (event instanceof KeyValuePair<?, ?>) {
+                KeyValuePair<?, ?> kvEvent = (KeyValuePair<?, ?>) event;
+                String key = kvEvent.getKey().toString();
+                if (keys.contains(key)) {
+                    String data = jedisExecuteCommand(redisCommand, key, fieldOrMember);
+                    synchronizeData(data);
                 }
-                if (event instanceof PostRdbSyncEvent) {
-                    this.snapShot = String.valueOf(replicator.getConfiguration().getReplOffset());
-                    LOGGER.info("after rdb snapShot is: {}", snapShot);
-                }
-            } catch (InterruptedException e) {
-                sourceMetric.pluginReadFailCount.incrementAndGet();
-                LOGGER.error("Read redis data error", e);
+            }
+            if (event instanceof PostRdbSyncEvent) {
+                this.snapShot = String.valueOf(replicator.getConfiguration().getReplOffset());
+                LOGGER.info("after rdb snapShot is: {}", snapShot);
             }
         });
     }
