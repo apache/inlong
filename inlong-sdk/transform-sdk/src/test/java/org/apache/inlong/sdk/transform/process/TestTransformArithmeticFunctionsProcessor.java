@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * TestArithmeticFunctionsTransformProcessor
@@ -535,6 +536,33 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output2 = processor2.transform("1|2|3|4", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output2.get(0), "result=null");
+    }
+
+    @Test
+    public void testRandFunction() throws Exception {
+        String transformSql1 = "select rand(numeric1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: rand(1)
+        List<String> output1 = processor1.transform("1|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=" + new Random(1).nextDouble());
+        // case: rand(2)
+        List<String> output2 = processor1.transform("2|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=" + new Random(2).nextDouble());
+        String transformSql2 = "select rand() from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: rand()
+        List<String> output3 = processor2.transform("|||", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        double result = Double.parseDouble(output3.get(0).substring(7));
+        Assert.assertTrue(result >= 0.0 && result < 1.0);
     }
 
     @Test

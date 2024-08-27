@@ -32,13 +32,16 @@ import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.HexFunction;
 import org.apache.inlong.sdk.transform.process.function.LengthFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.LocalTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LocateFunction;
 import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
+import org.apache.inlong.sdk.transform.process.function.LowerFunction;
 import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.RandFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplaceFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
@@ -54,6 +57,7 @@ import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.TrimFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.UpperFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -116,6 +120,8 @@ public class OperatorTools {
     static {
         functionMap.put("concat", ConcatFunction::new);
         functionMap.put("now", NowFunction::new);
+        functionMap.put("localtime", LocalTimeFunction::new);
+        functionMap.put("currenttime", LocalTimeFunction::new);
         functionMap.put("power", PowerFunction::new);
         functionMap.put("abs", AbsFunction::new);
         functionMap.put("sqrt", SqrtFunction::new);
@@ -132,6 +138,7 @@ public class OperatorTools {
         functionMap.put("to_date", ToDateFunction::new);
         functionMap.put("date_format", DateFormatFunction::new);
         functionMap.put("ceil", CeilFunction::new);
+        functionMap.put("rand", RandFunction::new);
         functionMap.put("floor", FloorFunction::new);
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
@@ -160,6 +167,8 @@ public class OperatorTools {
         functionMap.put("to_timestamp", ToTimestampFunction::new);
         functionMap.put("mod", ModuloFunction::new);
         functionMap.put("to_base64", ToBase64Function::new);
+        functionMap.put("lower", LowerFunction::new);
+        functionMap.put("upper", UpperFunction::new);
         functionMap.put("length", LengthFunction::new);
         functionMap.put("replace", ReplaceFunction::new);
     }
