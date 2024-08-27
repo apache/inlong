@@ -98,6 +98,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
         try {
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             deployInstaller(request, operator);
+            String startCmd = agentInstallPath + INSTALLER_START_CMD;
+            commandExecutor.execRemote(request, startCmd);
         } catch (Exception e) {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
             String errMsg = String.format("install agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
@@ -115,8 +117,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
-            String startCmd = agentInstallPath + INSTALLER_START_CMD;
-            commandExecutor.execRemote(request, startCmd);
+            String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
+            commandExecutor.execRemote(request, reStartCmd);
         } catch (Exception e) {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
             String errMsg = String.format("reInstall agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
