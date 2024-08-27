@@ -53,6 +53,7 @@ import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.TrimFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.FactorialFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -153,6 +154,7 @@ public class OperatorTools {
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
         functionMap.put("round", RoundFunction::new);
+        functionMap.put("factorial", FactorialFunction::new);
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
@@ -221,7 +223,7 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor =
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = 
                         functionMap.get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
@@ -235,6 +237,7 @@ public class OperatorTools {
 
     /**
      * parseBigDecimal
+     * 
      * @param value
      * @return
      */
@@ -268,6 +271,7 @@ public class OperatorTools {
 
     /**
      * compareValue
+     * 
      * @param left
      * @param right
      * @return
