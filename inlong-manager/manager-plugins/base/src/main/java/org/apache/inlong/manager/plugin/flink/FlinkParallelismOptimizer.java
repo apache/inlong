@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import org.apache.inlong.audit.AuditIdEnum;
+import org.apache.inlong.audit.entity.FlowType;
+import org.apache.inlong.manager.pojo.audit.AuditInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -27,10 +32,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.audit.AuditIdEnum;
-import org.apache.inlong.audit.entity.FlowType;
-import org.apache.inlong.manager.pojo.audit.AuditInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +44,6 @@ import java.util.StringJoiner;
 
 import static org.apache.inlong.audit.consts.OpenApiConstants.*;
 import static org.apache.inlong.manager.common.consts.InlongConstants.*;
-
 
 /**
  *     This class is used to calculate the recommended parallelism based on the maximum message per second per core.
@@ -66,11 +66,11 @@ public class FlinkParallelismOptimizer {
     private static final String AUDIT_CYCLE_REALTIME = "1";
     // maxmimum data scale counting range in hours
     private static final int DATA_SCALE_COUNTING_RANGE_IN_HOURS = 1;
-    private static final String AUDIT_QUERY_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"; //sample time format: 2024-08-23T22:47:38.866
+    private static final String AUDIT_QUERY_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"; // sample time format:
+                                                                                            // 2024-08-23T22:47:38.866
 
     private static final String LOGTS_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String TIMEZONE_REGEX = "([+-])(\\d):";
-
 
     /**
      * Calculate recommended parallelism based on maximum message per second per core
@@ -89,7 +89,8 @@ public class FlinkParallelismOptimizer {
             averageDataVolume = DEFAULT_ERROR_DATA_VOLUME;
         }
         int newParallelism = (int) (averageDataVolume / maximumMessagePerSecondPerCore);
-        newParallelism = Math.max(newParallelism, DEFAULT_PARALLELISM); // Ensure parallelism is at least the default value
+        newParallelism = Math.max(newParallelism, DEFAULT_PARALLELISM); // Ensure parallelism is at least the default
+                                                                        // value
         newParallelism = Math.min(newParallelism, MAX_PARALLELISM); // Ensure parallelism is at most MAX_PARALLELISM
         log.info("Calculated parallelism: {} for data volume: {}", newParallelism, averageDataVolume);
         return newParallelism;
@@ -102,7 +103,8 @@ public class FlinkParallelismOptimizer {
      */
     public void setMaximumMessagePerSecondPerCore(Integer maximumMessagePerSecondPerCore) {
         if (maximumMessagePerSecondPerCore == null || maximumMessagePerSecondPerCore <= 0) {
-            log.error("Illegal flink.maxpercore property, must be nonnull and positive, using default value: {}", maximumMessagePerSecondPerCore);
+            log.error("Illegal flink.maxpercore property, must be nonnull and positive, using default value: {}",
+                    maximumMessagePerSecondPerCore);
         } else {
             this.maximumMessagePerSecondPerCore = maximumMessagePerSecondPerCore;
         }
@@ -187,7 +189,8 @@ public class FlinkParallelismOptimizer {
 
         ZonedDateTime minLogTs = null;
         ZonedDateTime maxLogTs = null;
-        DateTimeFormatter logTsFormatter = DateTimeFormatter.ofPattern(LOGTS_DATE_TIME_FORMAT).withZone(ZoneId.systemDefault());
+        DateTimeFormatter logTsFormatter =
+                DateTimeFormatter.ofPattern(LOGTS_DATE_TIME_FORMAT).withZone(ZoneId.systemDefault());
         long totalCount = 0L;
         for (AuditInfo auditData : auditInfoArray) {
             if (auditData != null) {

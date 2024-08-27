@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_DAY_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_AUDIT_PROXY_PATH;
@@ -83,7 +84,6 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_INLONG_STRE
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_IP;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_START_TIME;
 import static org.apache.inlong.audit.consts.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
-import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.ApiType.DAY;
 import static org.apache.inlong.audit.entities.ApiType.GET_AUDIT_PROXY;
 import static org.apache.inlong.audit.entities.ApiType.GET_IDS;

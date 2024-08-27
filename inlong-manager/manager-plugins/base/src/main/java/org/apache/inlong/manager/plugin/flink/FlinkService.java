@@ -17,6 +17,15 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
+import org.apache.inlong.manager.plugin.util.ApplicationContextProvider;
+import org.apache.inlong.manager.plugin.util.FlinkUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
@@ -31,14 +40,6 @@ import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
-import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
-import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
-import org.apache.inlong.manager.plugin.flink.enums.Constants;
-import org.apache.inlong.manager.plugin.util.ApplicationContextProvider;
-import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -78,7 +79,11 @@ public class FlinkService {
         flinkConfig = FlinkUtils.getFlinkConfigFromFile();
         parallelism = flinkConfig.getParallelism();
         savepointDirectory = flinkConfig.getSavepointDirectory();
-        flinkParallelismOptimizer = ApplicationContextProvider.getContext().getBean(FlinkParallelismOptimizer.class); // let spring inject the bean
+        flinkParallelismOptimizer = ApplicationContextProvider.getContext().getBean(FlinkParallelismOptimizer.class); // let
+                                                                                                                      // spring
+                                                                                                                      // inject
+                                                                                                                      // the
+                                                                                                                      // bean
     }
 
     private static class FlinkServiceHolder {
