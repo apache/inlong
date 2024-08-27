@@ -57,6 +57,27 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testSignFunction() throws Exception {
+        String transformSql = "select sign(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1: sign(3.14159265358979323846)
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor.transform("3.14159265358979323846|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=1");
+        // case2: sign(-3.5)
+        List<String> output2 = processor.transform("-3.5|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=-1");
+        // case3: sign(0)
+        List<String> output3 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=0");
+    }
+
+    @Test
     public void testModuloFunction() throws Exception {
         String transformFunctionSql = "select mod(numeric1,100) from source";
         String transformExpressionSql = "select numeric1 % 100 from source";
