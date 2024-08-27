@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
+import org.apache.inlong.sdk.transform.process.function.BinFunction;
 import org.apache.inlong.sdk.transform.process.function.CeilFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
 import org.apache.inlong.sdk.transform.process.function.CosFunction;
@@ -123,6 +124,7 @@ public class OperatorTools {
         functionMap.put("sinh", SinhFunction::new);
         functionMap.put("cos", CosFunction::new);
         functionMap.put("tan", TanFunction::new);
+        functionMap.put("bin", BinFunction::new);
         functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
         functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
         functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
