@@ -163,7 +163,7 @@ const Comp: React.FC = () => {
         dataIndex: 'action',
         key: 'operation',
         fixed: 'right',
-        width: 340,
+        width: 400,
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
