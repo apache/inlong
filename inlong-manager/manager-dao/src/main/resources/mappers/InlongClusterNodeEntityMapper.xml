@@ -32,6 +32,7 @@
         <result column="protocol_type" jdbcType="VARCHAR" property="protocolType"/>
         <result column="node_load" jdbcType="INTEGER" property="nodeLoad"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="operate_log" jdbcType="LONGVARCHAR" property="operateLog"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -42,8 +43,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, parent_id, type, ip, port, username, password, ssh_port, protocol_type, node_load, ext_params, description,
-        status, is_deleted, creator, modifier, create_time, modify_time, version
+        id, parent_id, type, ip, port, username, password, ssh_port, protocol_type, node_load, ext_params, operate_log, description, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -51,13 +51,15 @@
         insert into inlong_cluster_node (id, parent_id, type,
                                          ip, port, username,
                                          password, ssh_port, protocol_type,
-                                         node_load, ext_params, description,
-                                         status, creator, modifier)
+                                         node_load, ext_params, operate_log,
+                                         description, status, creator,
+                                         modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR},  #{sshPort,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
-                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{operateLog,jdbcType=LONGVARCHAR},
+                #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
@@ -173,6 +175,7 @@
             protocol_type = #{protocolType,jdbcType=VARCHAR},
             node_load     = #{nodeLoad,jdbcType=INTEGER},
             ext_params    = #{extParams,jdbcType=LONGVARCHAR},
+            operate_log    = #{operateLog,jdbcType=LONGVARCHAR},
             description   = #{description,jdbcType=VARCHAR},
             status        = #{status,jdbcType=INTEGER},
             is_deleted    = #{isDeleted,jdbcType=INTEGER},
@@ -214,6 +217,9 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
+            <if test="operateLog != null">
+                operate_log = #{operateLog,jdbcType=LONGVARCHAR},
+            </if>
             <if test="description != null">
                 description = #{description,jdbcType=VARCHAR},
             </if>
@@ -247,6 +253,12 @@
                 and id = #{id,jdbcType=INTEGER}
             </if>
         </where>
+    </update>
+    <update id="updateOperateLogById">
+        update inlong_cluster_node
+        set operate_log = #{operateLog,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0
     </update>
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete

@@ -28,6 +28,7 @@ import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
 import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
@@ -70,6 +71,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     private PackageConfigEntityMapper packageConfigEntityMapper;
     @Autowired
     private UserEntityMapper userEntityMapper;
+    @Autowired
+    private InlongClusterNodeEntityMapper clusterNodeEntityMapper;
 
     @Value("${agent.install.path:inlong/inlong-installer/}")
     private String agentInstallPath;
@@ -114,6 +117,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             commandExecutor.execRemote(request, startCmd);
 
         } catch (Exception e) {
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
             String errMsg = String.format("install installer failed for ip=%s", clusterNodeRequest.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
