@@ -39,4 +39,7 @@ public interface CommandExecutor {
             throws Exception;
 
     CommandResult mkdir(AgentClusterNodeRequest clusterNodeRequest, String path) throws Exception;
+
+    CommandResult rmDir(AgentClusterNodeRequest clusterNodeRequest, String path) throws Exception;
+
 }
