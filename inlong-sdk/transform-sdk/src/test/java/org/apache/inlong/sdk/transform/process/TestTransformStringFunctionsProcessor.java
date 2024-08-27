@@ -255,4 +255,40 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=null", output1.get(0));
     }
+    @Test
+    public void testReplaceFunction() throws Exception {
+        String transformSql = "select replace(string1, string2, string3) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: replace('hooray', 'oray', 'lly')
+        List<String> output1 = processor.transform("hooray|oray|lly", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=holly");
+        // case2: replace('hooray', 'hook', 'hoor')
+        List<String> output2 = processor.transform("hooray|hook|hoor", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=hooray");
+        // case3: replace('Hello World', 'World', '')
+        List<String> output3 = processor.transform("Hello World|World|", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=Hello ");
+        // case4: replace('Hello World', '', 'J')
+        List<String> output4 = processor.transform("Hello World||J", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=JHJeJlJlJoJ JWJoJrJlJdJ");
+        // case5: replace('', '', '')
+        List<String> output5 = processor.transform("||", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=");
+        // case6: replace('abababab', 'ab', 'cd')
+        List<String> output6 = processor.transform("abababab|ab|cd", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=cdcdcdcd");
+        // case7: replace('aaa', 'aa', 'd')
+        List<String> output7 = processor.transform("aaa|aa|d", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=da");
+    }
 }
