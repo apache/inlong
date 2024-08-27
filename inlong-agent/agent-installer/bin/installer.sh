@@ -23,12 +23,12 @@ CONSOLE_OUTPUT_FILE="${LOG_DIR}/agent-out.log"
 
 function help() {
   echo "Usage: agent.sh {status|start|stop|restart|clean}" >&2
-  echo "       status:     the status of inlong agent"
-  echo "       start:      start the inlong agent"
-  echo "       stop:       stop the inlong agent"
-  echo "       restart:    restart the inlong agent"
+  echo "       status:     the status of agent installer"
+  echo "       start:      start the agent installer"
+  echo "       stop:       stop the agent installer"
+  echo "       restart:    restart the agent installer"
   echo "       clean:      unregister this node in manager"
-  echo "       help:       get help from inlong agent"
+  echo "       help:       get help from agent installer"
 }
 
 function running() {
