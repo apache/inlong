@@ -25,6 +25,7 @@
   "basic.SuccessfullyRestart": "Successfully restart",
   "basic.SuccessfullyStop": "Successfully stop",
   "meta.Sources.Name": "Source name",
+  "meta.Sources.ClusterName": "Cluster Name",
   "meta.Sources.NameRule": "Only English letters, numbers, dots(.), minus(-), and underscores(_)",
   "meta.Sources.Type": "Type",
   "meta.Sources.File.SerializationType": "File type",

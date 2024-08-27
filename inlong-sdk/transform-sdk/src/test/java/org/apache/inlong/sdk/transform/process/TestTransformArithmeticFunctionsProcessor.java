@@ -56,6 +56,153 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testModuloFunction() throws Exception {
+        String transformFunctionSql = "select mod(numeric1,100) from source";
+        String transformExpressionSql = "select numeric1 % 100 from source";
+        List<String> output1, output2;
+        String data;
+        TransformConfig functionConfig = new TransformConfig(transformFunctionSql);
+        TransformProcessor<String, String> functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        TransformConfig expressionConfig = new TransformConfig(transformExpressionSql);
+        TransformProcessor<String, String> expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: "mod(3.1415926,100)" and "3.1415926 % 100"
+        data = "3.1415926|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=3.1415926", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=3.1415926", output2.get(0));
+
+        // case2: "mod(-3.1415926,100)" and "-3.1415926 % 100"
+        data = "-3.1415926|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3.1415926", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-3.1415926", output2.get(0));
+
+        // case3: "mod(320,100)" and "320 % 100"
+        data = "320|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=20", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=20", output2.get(0));
+
+        // case4: "mod(-320,100)" and "-320 % 100"
+        data = "-320|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-20", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-20", output2.get(0));
+
+        transformFunctionSql = "select mod(numeric1,-10) from source";
+        transformExpressionSql = "select numeric1 % -10 from source";
+        functionConfig = new TransformConfig(transformFunctionSql);
+        functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        expressionConfig = new TransformConfig(transformExpressionSql);
+        expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case5: "mod(9,-10)" and "9 % -10"
+        data = "9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=9", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=9", output2.get(0));
+
+        // case6: "mod(-13,-10)" and "-13 % -10"
+        data = "-13|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-3", output2.get(0));
+
+        // case7: "mod(-13.14,-10)" and "-13.14 % -10"
+        data = "-13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-3.14", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-3.14", output2.get(0));
+
+        // case8: "mod(13.14,-10)" and "13.14 % -10"
+        data = "13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=3.14", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=3.14", output2.get(0));
+
+        transformFunctionSql = "select mod(numeric1,-3.14) from source";
+        transformExpressionSql = "select numeric1 % -3.14 from source";
+        functionConfig = new TransformConfig(transformFunctionSql);
+        functionProcessor = TransformProcessor
+                .create(functionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        expressionConfig = new TransformConfig(transformExpressionSql);
+        expressionProcessor = TransformProcessor
+                .create(expressionConfig, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case9: "mod(9,-3.14)" and "9 % -3.14"
+        data = "9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=2.72", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=2.72", output2.get(0));
+
+        // case10: "mod(-9,-3.14)" and "-9 % -3.14"
+        data = "-9|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-2.72", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-2.72", output2.get(0));
+
+        // case11: "mod(-13.14,-3.14)" and "-13.14 % -3.14"
+        data = "-13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=-0.58", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=-0.58", output2.get(0));
+
+        // case12: "mod(13.14,-3.14)" and "13.14 % -3.14"
+        data = "13.14|4a|4|8";
+        output1 = functionProcessor.transform(data);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=0.58", output1.get(0));
+        output2 = expressionProcessor.transform(data);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=0.58", output2.get(0));
+
+    }
+
+    @Test
     public void testRoundFunction() throws Exception {
         String transformSql = "select round(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
@@ -345,6 +492,28 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output3 = processor.transform("2|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=-2.185039863261519");
+    }
+
+    @Test
+    public void testBinFunction() throws Exception {
+        String transformSql1 = "select bin(numeric1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: bin(4)
+        List<String> output1 = processor1.transform("4|5|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=100");
+        String transformSql2 = "select bin() from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: bin()
+        List<String> output2 = processor2.transform("1|2|3|4", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output2.get(0), "result=null");
     }
 
 }
