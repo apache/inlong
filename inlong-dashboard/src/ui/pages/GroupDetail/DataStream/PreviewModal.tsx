@@ -24,6 +24,7 @@ import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { SortOrder } from 'antd/es/table/interface';
 
 export interface Props extends ModalProps {
   inlongGroupId: string;
@@ -87,6 +88,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     }
     return;
   };
+  const timestampSorter = (a, b) => {
+    const dateA = dayjs(a.dt, 'YYYY-MM-DD HH:mm:ss');
+    const dateB = dayjs(b.dt, 'YYYY-MM-DD HH:mm:ss');
+    return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
+  };
+  const sortOrder: SortOrder = 'descend';
 
   const detailColumns: ColumnsType<DataType> = [
     {
@@ -94,11 +101,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
       key: 'dt',
       width: 200,
       dataIndex: 'dt',
+      sorter: timestampSorter,
+      defaultSortOrder: sortOrder,
     },
   ].concat(
     (getColumn() ? getColumn() : []).concat([
       {
-        title: 'operation',
+        title: i18n.t('basic.Operating'),
         key: 'operation',
         fixed: 'right',
         width: 100,
