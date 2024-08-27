@@ -24,6 +24,10 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Optional;
+
 /**
  * HexFunction
  * description: If the input argument is a numeric value (such as an integer), the HEX function converts the value to the corresponding hexadecimal string.
@@ -41,14 +45,49 @@ public class HexFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object valueObj = valueParser.parse(sourceData, rowIndex, context);
         try {
-            return Integer.toHexString(OperatorTools.parseBigDecimal(valueObj).intValue()).toUpperCase();
+            return hex(OperatorTools.parseBigDecimal(valueObj)).toUpperCase();
         } catch (NumberFormatException e) {
-            StringBuilder hexString = new StringBuilder();
-            String str = OperatorTools.parseString(valueObj);
-            for (char character : str.toCharArray()) {
-                hexString.append(Integer.toHexString(character).toUpperCase());
-            }
-            return hexString.toString();
+            return hex(OperatorTools.parseString(valueObj));
+        }
+    }
+
+    // Handle Integer type
+    private String hex(int number) {
+        return Integer.toHexString(number).toUpperCase();
+    }
+
+    // Handle long type
+    private String hex(long number) {
+        return Long.toHexString(number).toUpperCase();
+    }
+
+    // Handle String type
+    private String hex(String input) {
+        StringBuilder hexString = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            hexString.append(Integer.toHexString((int) c).toUpperCase());
+        }
+        return hexString.toString();
+    }
+
+    // Handle BigDecimal type
+    private String hex(BigDecimal number) {
+        // keep the integer part
+        BigDecimal integerValue = number.setScale(0, RoundingMode.DOWN);
+        return tryConvert(integerValue, BigDecimal::intValueExact, this::hex)
+                // If it cannot convert to integer, try converting to long
+                .orElseGet(() -> tryConvert(integerValue, BigDecimal::longValueExact, this::hex)
+                        .orElseThrow(() -> new IllegalArgumentException("Number out of range")));
+    }
+
+    // Common conversion and processing methods
+    private <T> Optional<String> tryConvert(BigDecimal number, java.util.function.Function<BigDecimal, T> converter,
+            java.util.function.Function<T, String> handler) {
+        try {
+            T value = converter.apply(number);
+            return Optional.ofNullable(handler.apply(value));
+        } catch (ArithmeticException e) {
+            return Optional.empty();
         }
     }
 }

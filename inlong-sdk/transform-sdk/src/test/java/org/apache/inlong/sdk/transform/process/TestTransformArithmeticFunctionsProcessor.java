@@ -358,14 +358,22 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output1 = processor1.transform("1007|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=3EF");
-        // case: hex(255)
-        List<String> output2 = processor1.transform("255|4|6|8", new HashMap<>());
+        // case: hex(3.14)
+        List<String> output2 = processor1.transform("3.14|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "result=FF");
-        // case: hex(abc)
-        List<String> output3 = processor1.transform("abc|4|6|8", new HashMap<>());
+        Assert.assertEquals(output2.get(0), "result=3");
+        // case: hex(3.141592653589793)
+        List<String> output3 = processor1.transform("3.141592653589793|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=616263");
+        Assert.assertEquals(output3.get(0), "result=3");
+        // case: hex(9223372036854775807)
+        List<String> output4 = processor1.transform("-9223372036854775808|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=8000000000000000");
+        // case: hex(abc)
+        List<String> output5 = processor1.transform("abc|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=616263");
     }
 
 }
