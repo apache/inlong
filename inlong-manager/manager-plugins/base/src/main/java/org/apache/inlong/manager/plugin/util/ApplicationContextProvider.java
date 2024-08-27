@@ -15,33 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink.dto;
+package org.apache.inlong.manager.plugin.util;
 
-import lombok.Data;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
- * Flink config, including address, port, job manager port, etc.
+ * Get the Spring ApplicationContext
+ * instantiate class with Spring in non-Spring managed environment
  */
-@Data
-public class FlinkConfig {
+@Component
+public class ApplicationContextProvider implements ApplicationContextAware {
 
-    private String address;
+    private static ApplicationContext context;
 
-    private Integer port;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        context = applicationContext;
+    }
 
-    private Integer jobManagerPort;
-
-    private String savepointDirectory;
-
-    private Integer parallelism;
-
-    private boolean drain;
-
-    // flink version
-    private String version;
-
-    private Integer maxpercore;
-
-    // whether to enable dynamic parallelism
-    private Boolean dynamicParallelism;
+    public static ApplicationContext getContext() {
+        return context;
+    }
 }
