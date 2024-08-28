@@ -30,10 +30,12 @@ import java.util.Optional;
 
 /**
  * HexFunction
- * description: If the input argument is a numeric value (such as an integer), the HEX function converts the value to the corresponding hexadecimal string.
- *              If the input argument is a string, the HEX function converts each character in the string to its corresponding hexadecimal ASCII encoding and returns the hexadecimal representation of the entire string.
+ * description:
+ * - If the input argument is a numeric value (such as an integer), the HEX function converts the value to the corresponding hexadecimal string.
+ * - If the input argument is a string, the HEX function converts each character in the string to its corresponding hexadecimal ASCII encoding and returns the hexadecimal representation of the entire string.
  */
-public class HexFunction implements ValueParser {
+@TransformFunction(names = {"hex"})
+ class HexFunction implements ValueParser {
 
     private ValueParser valueParser;
 
