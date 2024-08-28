@@ -23,6 +23,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.sdk.transform.decode.SplitUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,10 +48,17 @@ public class CsvDataTypeOperator implements DataTypeOperator {
             if (StringUtils.isNotBlank(streamInfo.getDataSeparator())) {
                 separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
             }
-            String[] bodys = StringUtils.split(str, separator);
-            for (int i = 0; i < bodys.length; i++) {
-                if (i < fields.size()) {
-                    fields.get(i).setFieldValue(bodys[i]);
+            Character escapeChar = null;
+            if (StringUtils.isNotBlank(streamInfo.getDataEscapeChar())) {
+                escapeChar = streamInfo.getDataEscapeChar().charAt(0);
+            }
+            String[][] rowValues = SplitUtils.splitCsv(str, separator, escapeChar, '\"', '\n', true);
+            for (int i = 0; i < rowValues.length; i++) {
+                String[] fieldValues = rowValues[i];
+                for (int j = 0; j < fieldValues.length; j++) {
+                    if (i + j < fields.size()) {
+                        fields.get(i + j).setFieldValue(fieldValues[j]);
+                    }
                 }
             }
         } catch (Exception e) {
