@@ -47,6 +47,7 @@ import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
 import org.apache.inlong.sdk.transform.process.function.RightFunction;
 import org.apache.inlong.sdk.transform.process.function.RoundFunction;
+import org.apache.inlong.sdk.transform.process.function.SignFunction;
 import org.apache.inlong.sdk.transform.process.function.SinFunction;
 import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
@@ -134,6 +135,7 @@ public class OperatorTools {
         functionMap.put("reverse", ReverseFunction::new);
         functionMap.put("substring", SubstringFunction::new);
         functionMap.put("trim", TrimFunction::new);
+        functionMap.put("sign", SignFunction::new);
         functionMap.put("replicate", ReplicateFunction::new);
         functionMap.put("locate", LocateFunction::new);
         functionMap.put("to_date", ToDateFunction::new);
