@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * AcosFunction
  * description: acos(numeric)--returns the arc cosine of numeric
  */
+@TransformFunction(names = {"acos"})
 public class AcosFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * description: date_format(timestamp,format)--converts timestamp(in seconds) to a value of string in the format
  * specified by the date format string. The format string is compatible with Java’s SimpleDateFormat
  */
+@TransformFunction(names = {"date_format"})
 public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;

@@ -34,6 +34,7 @@ import java.util.Random;
  * description: Rand()--Returns a pseudo-random double precision value in the range [0.0, 1.0)
  *              Rand(Integer)--Returns a pseudo-random double precision value in the range [0.0, 1.0) with an initial seed of Integer.
  */
+@TransformFunction(names = {"rand"})
 public class RandFunction implements ValueParser {
 
     private ValueParser seedParser;

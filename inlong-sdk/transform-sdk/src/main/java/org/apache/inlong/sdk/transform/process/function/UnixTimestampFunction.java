@@ -38,6 +38,7 @@ import java.util.List;
  * unix_timestamp(string1[, string2]): converts date time string string1 in format string2
  * (by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds)
  */
+@TransformFunction(names = {"unix_timestamp"})
 public class UnixTimestampFunction implements ValueParser {
 
     private ValueParser stringParser;

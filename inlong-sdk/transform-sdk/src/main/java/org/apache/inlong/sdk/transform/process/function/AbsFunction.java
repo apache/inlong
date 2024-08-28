@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * AbsFunction
  * description: abs(numeric)--returns the absolute value of numeric
  */
+@TransformFunction(names = {"abs"})
 public class AbsFunction implements ValueParser {
 
     private ValueParser numberParser;

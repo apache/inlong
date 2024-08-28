@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * CosFunction
  * description: cos(numeric)--returns the cosine of numeric
  */
+@TransformFunction(names = {"cos"})
 public class CosFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -31,6 +31,7 @@ import java.util.Base64;
  * ToBase64Function
  * description: to_base64(string1)--returns the base64-encoded result from string1
  */
+@TransformFunction(names = {"to_base64"})
 public class ToBase64Function implements ValueParser {
 
     private final ValueParser stringParser;
