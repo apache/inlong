@@ -41,20 +41,22 @@ function stop_agent() {
     exit 1
   fi
   count=0
-  pid=$(ps -aux | grep 'java' | grep 'inlong-agent' | grep "$check_agent_uniq" | awk '{print $2}')
   while running;
   do
     (( count++ ))
-    echo "$time oom stopping agent $count times" >> $CONSOLE_OUTPUT_FILE
+    time=$(date "+%Y-%m-%d %H:%M:%S")
+    pid=$(ps -aux | grep 'java' | grep 'inlong-agent' | grep "$check_agent_uniq" | awk '{print $2}')
     if [ "${count}" -gt 10 ]; then
-        echo "kill -9 $pid"
+        echo "$time oom kill -9 $pid" >> $CONSOLE_OUTPUT_FILE
         kill -9 "${pid}"
     else
+        echo "$time oom kill $pid" >> $CONSOLE_OUTPUT_FILE
         kill "${pid}"
     fi
     sleep 6;
   done
-  echo "$time oom stop agent successfully." >> $CONSOLE_OUTPUT_FILE
+  time=$(date "+%Y-%m-%d %H:%M:%S")
+  echo "$time oom stop agent($pid) successfully." >> $CONSOLE_OUTPUT_FILE
 }
 
 stop_agent;
