@@ -18,7 +18,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, message, Dropdown, Space } from 'antd';
 import i18n from '@/i18n';
 import { parse } from 'qs';
 import HighTable from '@/ui/components/HighTable';
@@ -31,6 +31,8 @@ import { timestampFormat } from '@/core/utils';
 import { genStatusTag } from './status';
 import HeartBeatModal from '@/ui/pages/Clusters/HeartBeatModal';
 import LogModal from '@/ui/pages/Clusters/LogModal';
+import { DownOutlined } from '@ant-design/icons';
+import { MenuProps } from 'antd/es/menu';
 
 const getFilterFormContent = defaultValues => [
   {
@@ -185,6 +187,50 @@ const Comp: React.FC = () => {
     total: data?.total,
   };
 
+  const items: MenuProps['items'] = [
+    {
+      label: <Button type="link">{i18n.t('pages.Cluster.Node.Install')}</Button>,
+      key: '0',
+    },
+    {
+      label: <Button type="link">{i18n.t('pages.Nodes.Restart')}</Button>,
+      key: '1',
+    },
+    {
+      label: <Button type="link">{i18n.t('pages.Cluster.Node.Unload')}</Button>,
+      key: '2',
+    },
+    {
+      label: <Button type="link">{i18n.t('pages.Cluster.Node.InstallLog')}</Button>,
+      key: '3',
+    },
+    {
+      label: <Button type="link">{i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}</Button>,
+      key: '4',
+    },
+  ];
+  const handleMenuClick = (key, record) => {
+    console.log(key, record);
+    switch (key) {
+      case '0':
+        onInstall(record);
+        break;
+      case '1':
+        onRestart(record);
+        break;
+      case '2':
+        onUnload(record);
+        break;
+      case '3':
+        onLog(record);
+        break;
+      case '4':
+        openHeartModal(record);
+        break;
+      default:
+        break;
+    }
+  };
   const columns = useMemo(() => {
     return [
       {
@@ -223,35 +269,25 @@ const Comp: React.FC = () => {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
         key: 'operation',
-        fixed: 'right',
-        width: type === 'AGENT' ? 400 : 200,
+        width: 200,
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
               {i18n.t('basic.Edit')}
             </Button>
-            {type === 'AGENT' && (
-              <>
-                <Button type="link" onClick={() => onInstall(record)}>
-                  {i18n.t('pages.Cluster.Node.Install')}
-                </Button>
-                <Button type="link" onClick={() => onRestart(record)}>
-                  {i18n.t('pages.Nodes.Restart')}
-                </Button>
-                <Button type="link" onClick={() => onUnload(record)}>
-                  {i18n.t('pages.Cluster.Node.Unload')}
-                </Button>
-                <Button type="link" onClick={() => onLog(record)}>
-                  {i18n.t('pages.Cluster.Node.InstallLog')}
-                </Button>
-                <Button type="link" onClick={() => openHeartModal(record)}>
-                  {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
-                </Button>
-              </>
-            )}
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
+            {type === 'AGENT' && (
+              <Dropdown menu={{ items, onClick: ({ key }) => handleMenuClick(key, record) }}>
+                <a onClick={e => e.preventDefault()}>
+                  <Space>
+                    {i18n.t('pages.Cluster.Node.More')}
+                    <DownOutlined />
+                  </Space>
+                </a>
+              </Dropdown>
+            )}
           </>
         ),
       },
