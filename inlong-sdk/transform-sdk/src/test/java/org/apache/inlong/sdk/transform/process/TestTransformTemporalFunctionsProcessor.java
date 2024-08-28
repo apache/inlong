@@ -28,6 +28,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +47,7 @@ public class TestTransformTemporalFunctionsProcessor {
     private static final List<FieldInfo> dstFields = new ArrayList<>();
     private static final CsvSourceInfo csvSource;
     private static final KvSinkInfo kvSink;
+
     static {
         for (int i = 1; i < 4; i++) {
             FieldInfo field = new FieldInfo();
@@ -200,6 +205,16 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output6 = processor6.transform("2024-02-29", new HashMap<>());
         Assert.assertEquals(1, output6.size());
         Assert.assertEquals(output6.get(0), "result=29");
+
+        String transformSql7 = "select dayofweek(string1) from source";
+        TransformConfig config7 = new TransformConfig(transformSql7);
+        TransformProcessor<String, String> processor7 = TransformProcessor
+                .create(config7, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case7: dayofweek(2024-02-29) (Thursday)
+        List<String> output7 = processor7.transform("2024-02-29", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=5");
     }
 
     @Test
@@ -361,5 +376,87 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output4 = processor4.transform("1970-01-01", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=1970-01-01 00:00:00.0");
+    }
+
+    @Test
+    public void testLocalTimeFunction() throws Exception {
+        String transformSql1 = "select localTime() from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        DateTimeFormatter fomatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        // case1: localTime()
+        List<String> output1 = processor1.transform("", new HashMap<>());
+        LocalTime expectedTime1 = LocalTime.now().withNano(0);
+        LocalTime actualTime1 = LocalTime.parse(output1.get(0).split("=")[1], fomatter);
+        Duration duration1 = Duration.between(expectedTime1, actualTime1);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertTrue(duration1.getSeconds() < 1);
+
+        // case2: currentTime("UTC")
+        String transformSql2 = "select currentTime('UTC') from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output2 = processor2.transform("", new HashMap<>());
+        LocalTime expectedTime2 = LocalTime.now(ZoneId.of("UTC")).withNano(0);
+        LocalTime actualTime2 = LocalTime.parse(output2.get(0).split("=")[1], fomatter);
+        Duration duration2 = Duration.between(expectedTime2, actualTime2);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertTrue(duration2.getSeconds() < 1);
+
+        // case 3: localTime("America/New_York")
+        String transformSql3 = "select localTime('America/New_York') from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor3.transform("", new HashMap<>());
+        LocalTime expectedTime3 = LocalTime.now(ZoneId.of("America/New_York")).withNano(0);
+        LocalTime actualTime3 = LocalTime.parse(output3.get(0).split("=")[1], fomatter);
+        Duration duration3 = Duration.between(expectedTime3, actualTime3);
+        Assert.assertEquals(1, output3.size());
+        Assert.assertTrue(duration3.getSeconds() < 1);
+    }
+
+    @Test
+    public void testTimestampAdd() throws Exception {
+        String transformSql1 = "select timestampadd('day',string2,string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: timestampadd('day',3,'1970-01-01')
+        List<String> output1 = processor1.transform("1970-01-01|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=1970-01-04", output1.get(0));
+
+        // case2: timestampadd('day',-3,'1970-01-01 00:00:44')
+        List<String> output2 = processor1.transform("1970-01-01 00:00:44|-3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=1969-12-29 00:00:44", output2.get(0));
+
+        String transformSql2 = "select timestampadd('MINUTE',string2,string1) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case3: timestampadd('MINUTE',3,'1970-01-01 00:00:44')
+        List<String> output3 = processor2.transform("1970-01-01 00:00:44|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals("result=1970-01-01 00:03:44", output3.get(0));
+
+        // case4: timestampadd('MINUTE',-3,'1970-01-01 00:00:44')
+        List<String> output4 = processor2.transform("1970-01-01 00:00:44|-3", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals("result=1969-12-31 23:57:44", output4.get(0));
+
+        // case5: timestampadd('MINUTE',-3,'1970-01-01')
+        List<String> output5 = processor2.transform("1970-01-01|-3", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals("result=1969-12-31 23:57:00", output5.get(0));
     }
 }

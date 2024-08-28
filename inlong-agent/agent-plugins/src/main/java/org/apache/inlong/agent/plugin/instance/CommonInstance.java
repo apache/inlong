@@ -114,6 +114,7 @@ public abstract class CommonInstance extends Instance {
             doRun();
         } catch (Throwable e) {
             LOGGER.error("do run error: ", e);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
         }
         running = false;
     }
