@@ -175,7 +175,6 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=null");
     }
-
     @Test
     public void testReplicateFunction() throws Exception {
         String transformSql1 = "select replicate(string1, numeric1) from source";
@@ -371,5 +370,101 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output7 = processor.transform("aaa|aa|d", new HashMap<>());
         Assert.assertEquals(1, output7.size());
         Assert.assertEquals(output7.get(0), "result=da");
+    }
+
+    @Test
+    public void testRightFunction() throws Exception {
+        String transformSql = "select right(string1,numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: right('hello world',5)
+        String data = "hello world|banana|cloud|5|3|3";
+        List<String> output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=world", output1.get(0));
+
+        // case2: right('hello world',-15)
+        data = "hello world|banana|cloud|-15|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=", output1.get(0));
+
+        // case3: right('hello world',100)
+        data = "hello world|banana|cloud|100|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=hello world", output1.get(0));
+
+        // case4: right(null,5)
+        transformSql = "select right(xxd,numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|banana|cloud|5|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
+
+        // case5: right('hello world',null)
+        transformSql = "select right(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|banana|cloud|5|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
+    }
+
+    @Test
+    public void testLeftFunction() throws Exception {
+        String transformSql = "select left(string1,numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: left('hello world',5)
+        String data = "hello world|banana|cloud|5|3|3";
+        List<String> output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=hello", output1.get(0));
+
+        // case2: left('hello world',-15)
+        data = "hello world|banana|cloud|-15|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=", output1.get(0));
+
+        // case3: left('hello world',100)
+        data = "hello world|banana|cloud|100|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=hello world", output1.get(0));
+
+        // case4: left(null,5)
+        transformSql = "select left(xxd,numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|banana|cloud|5|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
+
+        // case5: left('hello world',null)
+        transformSql = "select left(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|banana|cloud|5|3|3";
+        output1 = processor1.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
     }
 }
