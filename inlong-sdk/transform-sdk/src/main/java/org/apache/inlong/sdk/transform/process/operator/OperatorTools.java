@@ -29,6 +29,7 @@ import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
+import org.apache.inlong.sdk.transform.process.function.LeftFunction;
 import org.apache.inlong.sdk.transform.process.function.LengthFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
 import org.apache.inlong.sdk.transform.process.function.LocalTimeFunction;
@@ -44,7 +45,9 @@ import org.apache.inlong.sdk.transform.process.function.RandFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplaceFunction;
 import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
 import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
+import org.apache.inlong.sdk.transform.process.function.RightFunction;
 import org.apache.inlong.sdk.transform.process.function.RoundFunction;
+import org.apache.inlong.sdk.transform.process.function.SignFunction;
 import org.apache.inlong.sdk.transform.process.function.SinFunction;
 import org.apache.inlong.sdk.transform.process.function.SinhFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
@@ -107,7 +110,7 @@ import java.util.Map;
 
 /**
  * OperatorTools
- *
+ * 
  */
 public class OperatorTools {
 
@@ -133,6 +136,7 @@ public class OperatorTools {
         functionMap.put("reverse", ReverseFunction::new);
         functionMap.put("substring", SubstringFunction::new);
         functionMap.put("trim", TrimFunction::new);
+        functionMap.put("sign", SignFunction::new);
         functionMap.put("replicate", ReplicateFunction::new);
         functionMap.put("locate", LocateFunction::new);
         functionMap.put("to_date", ToDateFunction::new);
@@ -170,6 +174,8 @@ public class OperatorTools {
         functionMap.put("upper", UpperFunction::new);
         functionMap.put("length", LengthFunction::new);
         functionMap.put("replace", ReplaceFunction::new);
+        functionMap.put("left", LeftFunction::new);
+        functionMap.put("right", RightFunction::new);
         functionMap.put("timestampadd", TimestampAddFunction::new);
     }
 
