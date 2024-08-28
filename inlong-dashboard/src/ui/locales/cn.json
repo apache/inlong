@@ -806,6 +806,7 @@
   "pages.Clusters.Node.ProtocolType": "协议类型",
   "pages.Clusters.Node.Agent": "Agent",
   "pages.Clusters.Node.Agent.Version": "版本",
+  "pages.Cluster.Node.More": "更多",
   "pages.Cluster.Node.Install": "重新安装",
   "pages.Nodes.Restart": "重启",
   "pages.Cluster.Node.InstallTitle": "确认重新安装吗？",
