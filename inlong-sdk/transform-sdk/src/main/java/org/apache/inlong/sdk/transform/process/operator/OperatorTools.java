@@ -158,6 +158,7 @@ public class OperatorTools {
         functionMap.put("week", func -> new DateExtractFunction(DateExtractFunctionType.WEEK, func));
         functionMap.put("dayofyear", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_YEAR, func));
         functionMap.put("dayofmonth", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_MONTH, func));
+        functionMap.put("dayofweek", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_WEEK, func));
         functionMap.put("hour",
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.HOUR, func));
         functionMap.put("minute",

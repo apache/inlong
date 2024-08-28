@@ -41,6 +41,7 @@ import java.util.Locale;
  * - week(date)--returns the week of a year (an integer between 1 and 53) from SQL date
  * - dayofyear(date)--returns the day of a year (an integer between 1 and 366) from SQL date
  * - dayofmonth(date)--returns the day of a month (an integer between 1 and 31) from SQL date
+ * - dayofweek(date)--returns the day of a week (an integer between 1(Sunday) and 7(Saturday)) from SQL date
  */
 public class DateExtractFunction implements ValueParser {
 
@@ -49,7 +50,7 @@ public class DateExtractFunction implements ValueParser {
     private static final TemporalField weekOfYearField = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
 
     public enum DateExtractFunctionType {
-        YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH
+        YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH, DAY_OF_WEEK
     }
 
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {
@@ -82,6 +83,9 @@ public class DateExtractFunction implements ValueParser {
             // dayofmonth(between 1 and 31)
             case DAY_OF_MONTH:
                 return localDate.getDayOfMonth();
+            // dayofweek(between 1 and 7)
+            case DAY_OF_WEEK:
+                return localDate.getDayOfWeek().getValue() % 7 + 1;
             default:
                 return null;
         }

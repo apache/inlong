@@ -205,6 +205,16 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output6 = processor6.transform("2024-02-29", new HashMap<>());
         Assert.assertEquals(1, output6.size());
         Assert.assertEquals(output6.get(0), "result=29");
+
+        String transformSql7 = "select dayofweek(string1) from source";
+        TransformConfig config7 = new TransformConfig(transformSql7);
+        TransformProcessor<String, String> processor7 = TransformProcessor
+                .create(config7, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case7: dayofweek(2024-02-29) (Thursday)
+        List<String> output7 = processor7.transform("2024-02-29", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=5");
     }
 
     @Test
