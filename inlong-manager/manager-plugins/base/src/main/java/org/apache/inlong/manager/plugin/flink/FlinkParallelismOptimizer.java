@@ -59,15 +59,14 @@ public class FlinkParallelismOptimizer {
 
     private static final int MAX_PARALLELISM = 2048;
     private long maximumMessagePerSecondPerCore = 1000L;
-    private static final int DEFAULT_PARALLELISM = 1;
     private static final long DEFAULT_ERROR_DATA_VOLUME = 0L;
     private static final FlowType DEFAULT_FLOWTYPE = FlowType.OUTPUT;
     private static final String DEFAULT_AUDIT_TYPE = "DataProxy";
     private static final String AUDIT_CYCLE_REALTIME = "1";
     // maxmimum data scale counting range in hours
     private static final int DATA_SCALE_COUNTING_RANGE_IN_HOURS = 1;
-    private static final String AUDIT_QUERY_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"; // sample time format:
-                                                                                            // 2024-08-23T22:47:38.866
+    // sample time format: 2024-08-23T22:47:38.866
+    private static final String AUDIT_QUERY_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     private static final String LOGTS_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String TIMEZONE_REGEX = "([+-])(\\d):";
@@ -89,9 +88,8 @@ public class FlinkParallelismOptimizer {
             averageDataVolume = DEFAULT_ERROR_DATA_VOLUME;
         }
         int newParallelism = (int) (averageDataVolume / maximumMessagePerSecondPerCore);
-        newParallelism = Math.max(newParallelism, DEFAULT_PARALLELISM); // Ensure parallelism is at least the default
-                                                                        // value
-        newParallelism = Math.min(newParallelism, MAX_PARALLELISM); // Ensure parallelism is at most MAX_PARALLELISM
+        // Ensure parallelism is at most MAX_PARALLELISM
+        newParallelism = Math.min(newParallelism, MAX_PARALLELISM);
         log.info("Calculated parallelism: {} for data volume: {}", newParallelism, averageDataVolume);
         return newParallelism;
     }

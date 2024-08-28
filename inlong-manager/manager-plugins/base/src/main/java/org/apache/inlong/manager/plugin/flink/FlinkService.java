@@ -63,7 +63,7 @@ public class FlinkService {
     private static final Pattern IP_PORT_PATTERN = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
     private final FlinkConfig flinkConfig;
-    private final Integer parallelism;
+    private Integer parallelism;
     private final String savepointDirectory;
     // map endpoint to Configuration
     private final Map<String, Configuration> configurations = new HashMap<>();
@@ -79,11 +79,8 @@ public class FlinkService {
         flinkConfig = FlinkUtils.getFlinkConfigFromFile();
         parallelism = flinkConfig.getParallelism();
         savepointDirectory = flinkConfig.getSavepointDirectory();
-        flinkParallelismOptimizer = ApplicationContextProvider.getContext().getBean(FlinkParallelismOptimizer.class); // let
-                                                                                                                      // spring
-                                                                                                                      // inject
-                                                                                                                      // the
-                                                                                                                      // bean
+        // let spring inject the bean
+        flinkParallelismOptimizer = ApplicationContextProvider.getContext().getBean(FlinkParallelismOptimizer.class);
     }
 
     private static class FlinkServiceHolder {
@@ -221,6 +218,22 @@ public class FlinkService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
 
         Configuration configuration = getFlinkConfiguration(flinkInfo.getEndpoint());
+        log.debug("flink info: {}", flinkInfo);
+        if (flinkConfig.getDynamicParallelismEnable()) {
+            flinkParallelismOptimizer.setMaximumMessagePerSecondPerCore(flinkConfig.getMaxDataPercore());
+            // get stream info list for auditing
+            int recommendedParallelism =
+                    flinkParallelismOptimizer.calculateRecommendedParallelism(flinkInfo.getInlongStreamInfoList());
+            // Ensure parallelism is at least the default value
+            if (recommendedParallelism < parallelism) {
+                recommendedParallelism = parallelism;
+            }
+            if (recommendedParallelism != parallelism) {
+                log.info("switched to recommended parallelism: {}", recommendedParallelism);
+                parallelism = recommendedParallelism;
+            }
+        }
+        log.info("current parallelism: {}", parallelism);
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)

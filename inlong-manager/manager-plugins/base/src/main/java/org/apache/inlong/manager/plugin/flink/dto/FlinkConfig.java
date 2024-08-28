@@ -40,8 +40,9 @@ public class FlinkConfig {
     // flink version
     private String version;
 
-    private Integer maxpercore;
+    // max data count per core per second
+    private Integer maxDataPercore;
 
     // whether to enable dynamic parallelism
-    private Boolean dynamicParallelism;
+    private Boolean dynamicParallelismEnable;
 }

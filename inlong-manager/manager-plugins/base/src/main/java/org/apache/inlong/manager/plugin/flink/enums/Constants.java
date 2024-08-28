@@ -43,9 +43,9 @@ public class Constants {
 
     public static final String FLINK_VERSION = "flink.version";
 
-    public static final String FLINK_MAXPERCORE = "flink.maxpercore";
+    public static final String FLINK_MAX_DATA_PERCORE = "flink.max.data.percore";
 
-    public static final String FLINK_DYNAMIC_PARALLELISM = "flink.dynamicParallelism";
+    public static final String FLINK_DYNAMIC_PARALLELISM_ENABLE = "flink.dynamic.parallelism.enable";
 
     // dataflow
     public static final String SOURCE_INFO = "source_info";
