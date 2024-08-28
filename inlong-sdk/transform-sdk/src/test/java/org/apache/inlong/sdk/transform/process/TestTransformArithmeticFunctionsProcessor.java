@@ -57,6 +57,27 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testSignFunction() throws Exception {
+        String transformSql = "select sign(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1: sign(3.14159265358979323846)
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor.transform("3.14159265358979323846|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=1");
+        // case2: sign(-3.5)
+        List<String> output2 = processor.transform("-3.5|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=-1");
+        // case3: sign(0)
+        List<String> output3 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=0");
+    }
+
+    @Test
     public void testModuloFunction() throws Exception {
         String transformFunctionSql = "select mod(numeric1,100) from source";
         String transformExpressionSql = "select numeric1 % 100 from source";
@@ -201,6 +222,39 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals("result=0.58", output2.get(0));
 
+    }
+
+    @Test
+    public void testMd5Function() throws Exception {
+        String transformSql = "select md5(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: md5("1")
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=c4ca4238a0b923820dcc509a6f75849b", output1.get(0));
+
+        // case2: md5("-1")
+        List<String> output2 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=6bb61e3b7bce0931da574d19d1d82c88", output2.get(0));
+
+        // case3: md5("")
+        List<String> output3 = processor.transform("|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals("result=d41d8cd98f00b204e9800998ecf8427e", output3.get(0));
+
+        // case4: md5(null)
+        transformSql = "select md5(numericxx) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output4 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals("result=null", output4.get(0));
     }
 
     @Test
