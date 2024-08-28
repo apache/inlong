@@ -835,6 +835,7 @@
   "pages.Clusters.Node.Status.Normal": "正常",
   "pages.Clusters.Node.Status.Timeout": "心跳超时",
   "pages.Clusters.Node.LastModifier": "最后操作",
+  "pages.Clusters.Node.Creator": "创建人",
   "pages.Clusters.Node.Create": "新建节点",
   "pages.Clusters.Node.IpRule": "请输入正确的IP地址",
   "pages.Clusters.Node.PortRule": "请输入正确的端口",

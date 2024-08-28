@@ -256,6 +256,16 @@ const Comp: React.FC = () => {
         render: text => genStatusTag(text),
       },
       {
+        title: i18n.t('pages.Clusters.Node.Creator'),
+        dataIndex: 'creator',
+        render: (text, record: any) => (
+          <>
+            <div>{text}</div>
+            <div>{record.createTime && timestampFormat(record.createTime)}</div>
+          </>
+        ),
+      },
+      {
         title: i18n.t('pages.Clusters.Node.LastModifier'),
         dataIndex: 'modifier',
         render: (text, record: any) => (
