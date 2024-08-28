@@ -34,12 +34,27 @@ function running() {
   fi
 }
 
-time=$(date "+%Y%m%d-%H%M%S")
-if ! running; then
-  echo "$time oom agent is not running." >> $CONSOLE_OUTPUT_FILE
-  exit 1
-fi
-pid=$(ps -aux | grep 'java' | grep 'inlong-agent' | grep "$check_agent_uniq" | awk '{print $2}')
-kill -9 "${pid}"
-echo "$time oom stop agent successfully."  >> $CONSOLE_OUTPUT_FILE
+function stop_agent() {
+  time=$(date "+%Y-%m-%d %H:%M:%S")
+  if ! running; then
+    echo "$time oom agent is not running." >> $CONSOLE_OUTPUT_FILE
+    exit 1
+  fi
+  count=0
+  pid=$(ps -aux | grep 'java' | grep 'inlong-agent' | grep "$check_agent_uniq" | awk '{print $2}')
+  while running;
+  do
+    (( count++ ))
+    echo "$time oom stopping agent $count times" >> $CONSOLE_OUTPUT_FILE
+    if [ "${count}" -gt 10 ]; then
+        echo "kill -9 $pid"
+        kill -9 "${pid}"
+    else
+        kill "${pid}"
+    fi
+    sleep 6;
+  done
+  echo "$time oom stop agent successfully." >> $CONSOLE_OUTPUT_FILE
+}
 
+stop_agent;
