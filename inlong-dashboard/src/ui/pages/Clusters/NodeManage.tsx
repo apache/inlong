@@ -30,6 +30,7 @@ import request from '@/core/utils/request';
 import { timestampFormat } from '@/core/utils';
 import { genStatusTag } from './status';
 import HeartBeatModal from '@/ui/pages/Clusters/HeartBeatModal';
+import LogModal from '@/ui/pages/Clusters/LogModal';
 
 const getFilterFormContent = defaultValues => [
   {
@@ -56,6 +57,9 @@ const Comp: React.FC = () => {
   const [nodeEditModal, setNodeEditModal] = useState<Record<string, unknown>>({
     open: false,
   });
+  const [logModal, setLogModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
   const [heartModal, setHeartModal] = useState<Record<string, unknown>>({
     open: false,
   });
@@ -80,7 +84,65 @@ const Comp: React.FC = () => {
   const onEdit = ({ id }) => {
     setNodeEditModal({ open: true, id });
   };
+  const onUnload = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('pages.Cluster.Node.UnloadTitle'),
+        onOk: async () => {
+          await request({
+            url: `/cluster/node/unload/${id}`,
+            method: 'DELETE',
+          });
+          await getList();
+          message.success(i18n.t('basic.OperatingSuccess'));
+        },
+      });
+    },
+    [getList],
+  );
+  const onRestart = useCallback(
+    record => {
+      Modal.confirm({
+        title: i18n.t('pages.Cluster.Node.RestartTitle'),
+        onOk: async () => {
+          record.agentRestartTime = record?.agentRestartTime + 1;
+          delete record.isInstall;
+          await request({
+            url: `/cluster/node/update`,
+            method: 'POST',
+            data: record,
+          });
+          await getList();
+          message.success(i18n.t('basic.OperatingSuccess'));
+        },
+      });
+    },
+    [getList],
+  );
+  const onInstall = useCallback(
+    record => {
+      Modal.confirm({
+        title: i18n.t('pages.Cluster.Node.InstallTitle'),
+        onOk: async () => {
+          await request({
+            url: `/cluster/node/update`,
+            method: 'POST',
+            data: {
+              ...record,
+              isInstall: true,
+            },
+          });
+          await getList();
+          message.success(i18n.t('basic.OperatingSuccess'));
+        },
+      });
+    },
+    [getList],
+  );
 
+  const onLog = ({ id }) => {
+    setLogModal({ open: true, id });
+  };
   const openHeartModal = ({ type, ip }) => {
     setHeartModal({ open: true, type: type, ip: ip });
   };
@@ -150,7 +212,6 @@ const Comp: React.FC = () => {
       {
         title: i18n.t('pages.Clusters.Node.LastModifier'),
         dataIndex: 'modifier',
-        width: 150,
         render: (text, record: any) => (
           <>
             <div>{text}</div>
@@ -163,20 +224,34 @@ const Comp: React.FC = () => {
         dataIndex: 'action',
         key: 'operation',
         fixed: 'right',
-        width: 400,
+        width: type === 'AGENT' ? 400 : 200,
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
               {i18n.t('basic.Edit')}
             </Button>
+            {type === 'AGENT' && (
+              <>
+                <Button type="link" onClick={() => onInstall(record)}>
+                  {i18n.t('pages.Cluster.Node.Install')}
+                </Button>
+                <Button type="link" onClick={() => onRestart(record)}>
+                  {i18n.t('pages.Nodes.Restart')}
+                </Button>
+                <Button type="link" onClick={() => onUnload(record)}>
+                  {i18n.t('pages.Cluster.Node.Unload')}
+                </Button>
+                <Button type="link" onClick={() => onLog(record)}>
+                  {i18n.t('pages.Cluster.Node.InstallLog')}
+                </Button>
+                <Button type="link" onClick={() => openHeartModal(record)}>
+                  {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
+                </Button>
+              </>
+            )}
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
-            {type === 'AGENT' && (
-              <Button type="link" onClick={() => openHeartModal(record)}>
-                {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
-              </Button>
-            )}
           </>
         ),
       },
@@ -231,6 +306,15 @@ const Comp: React.FC = () => {
           setNodeEditModal({ open: false });
         }}
         onCancel={() => setNodeEditModal({ open: false })}
+      />
+      <LogModal
+        {...logModal}
+        open={logModal.open as boolean}
+        onOk={async () => {
+          await getList();
+          setLogModal({ open: false });
+        }}
+        onCancel={() => setLogModal({ open: false })}
       />
       <HeartBeatModal
         {...heartModal}
