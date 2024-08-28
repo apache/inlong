@@ -332,6 +332,9 @@ public class LogFileSource extends AbstractSource {
                 data.setReadBytes(String.valueOf(bytePosition));
                 data.setReadLines(String.valueOf(linePosition));
                 OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
+                if (offsetProfile == null) {
+                    return;
+                }
                 data.setSendLines(offsetProfile.getOffset());
                 FileStaticManager.getInstance().putStaticMsg(data);
                 randomAccessFile.close();

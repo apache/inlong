@@ -25,6 +25,7 @@ export OTEL_LOGS_EXPORTER=otlp
 export ENABLE_OBSERVABILITY=false
 # OTEL_EXPORTER_OTLP_ENDPOINT must be configured as a URL when ENABLE_OBSERVABILITY=true.
 export OTEL_EXPORTER_OTLP_ENDPOINT=
+export TDW_SECURITY_URL_NULL
 
 #project directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
@@ -45,17 +46,19 @@ else
 fi
 
 if [ -z "$AGENT_JVM_HEAP_OPTS" ]; then
-  HEAP_OPTS="-Xmx512m -Xss512k"
+  HEAP_OPTS=" -Xmx2048m -Xms512m -Xss512k "
 else
   HEAP_OPTS="$AGENT_JVM_HEAP_OPTS"
 fi
-GC_OPTS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=60 -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"
-LOG_OPTS="-Xloggc:$BASE_DIR/logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M"
+
+GVM_OPTS=" -Djava.net.preferIPv4Stack=true  -Dfile.encoding=UTF-8 "
+OOM_HANDLER=" -XX:OnOutOfMemoryError=$BASE_DIR/bin/oom.sh"
+GC_OPTS=" -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+TraceClassLoading -XX:InitiatingHeapOccupancyPercent=45 -XX:G1HeapRegionSize=16m -XX:G1MixedGCCountTarget=16 -XX:G1HeapWastePercent=10 -XX:+PrintGCDetails -XX:+PrintGCDateStamps"
+LOG_OPTS=" -Xloggc:$BASE_DIR/logs/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M"
 if [ -n "$NEED_TRACK_NATIVE_MEMORY" ] && [ "$NEED_TRACK_NATIVE_MEMORY" = "true" ]; then
     GC_OPTS="$GC_OPTS -XX:NativeMemoryTracking"
 fi
-AGENT_JVM_ARGS="$HEAP_OPTS $GC_OPTS $LOG_OPTS"
-
+AGENT_JVM_ARGS="$HEAP_OPTS $GVM_OPTS $GC_OPTS $LOG_OPTS $OOM_HANDLER"
 # Add Agent Rmi Args when necessary
 AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
