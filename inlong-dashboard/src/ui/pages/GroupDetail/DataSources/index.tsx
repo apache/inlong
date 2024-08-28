@@ -209,6 +209,8 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
+        fixed: 'right',
+        width: 200,
         render: (text, record) =>
           readonly ? (
             '-'
@@ -235,7 +237,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
       },
     ]);
   }, [entityColumns, onDelete, onEdit, readonly]);
-
+  const scroll = { x: 850 };
   return (
     <>
       <Card
@@ -330,6 +332,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               pagination,
               loading,
               onChange,
+              scroll,
             }}
           />
         )}

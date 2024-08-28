@@ -691,6 +691,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
+            request.setId(id);
             InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
                     request.getType());
             clusterNodeInstallOperator.install(request, operator);

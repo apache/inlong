@@ -139,4 +139,9 @@ public class CommandExecutorImpl implements CommandExecutor {
         return execRemote(clusterNodeRequest, "mkdir " + path);
     }
 
+    @Override
+    public CommandResult rmDir(AgentClusterNodeRequest clusterNodeRequest, String path) throws Exception {
+        return execRemote(clusterNodeRequest, "rm -rf " + path);
+    }
+
 }

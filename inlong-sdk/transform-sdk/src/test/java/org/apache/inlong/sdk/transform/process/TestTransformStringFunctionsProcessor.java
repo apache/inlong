@@ -41,6 +41,7 @@ public class TestTransformStringFunctionsProcessor {
     private static final List<FieldInfo> dstFields = new ArrayList<>();
     private static final CsvSourceInfo csvSource;
     private static final KvSinkInfo kvSink;
+
     static {
         for (int i = 1; i < 4; i++) {
             FieldInfo field = new FieldInfo();
@@ -57,6 +58,62 @@ public class TestTransformStringFunctionsProcessor {
         dstFields.add(field);
         csvSource = new CsvSourceInfo("UTF-8", '|', '\\', srcFields);
         kvSink = new KvSinkInfo("UTF-8", dstFields);
+    }
+
+    @Test
+    public void testLowerFunction() throws Exception {
+        String transformSql1 = "select lower(string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: lower("ApPlE")
+        List<String> output1 = processor1.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=apple");
+
+        // case2: lower("")
+        List<String> output2 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: lower(null)
+        String transformSql2 = "select lower(xxd) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor2.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=null");
+    }
+
+    @Test
+    public void testUpperFunction() throws Exception {
+        String transformSql1 = "select upper(string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: upper("ApPlE")
+        List<String> output1 = processor1.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=APPLE");
+
+        // case2: upper("")
+        List<String> output2 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: upper(null)
+        String transformSql2 = "select upper(xxd) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor2.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=null");
     }
 
     @Test
@@ -118,6 +175,7 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=null");
     }
+
     @Test
     public void testReplicateFunction() throws Exception {
         String transformSql1 = "select replicate(string1, numeric1) from source";
@@ -185,6 +243,36 @@ public class TestTransformStringFunctionsProcessor {
     }
 
     @Test
+    public void testReverseFunction() throws Exception {
+        String transformSql1 = "select reverse(string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: reverse('apple')
+        List<String> output1 = processor1.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=elppa");
+        // case2: reverse('ban ana ')
+        String transformSql2 = "select reverse(string2) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output2 = processor2.transform("apple|ban ana |cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result= ana nab");
+        // case3: reverse(12345)
+        List<String> output3 = processor1.transform("12345|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=54321");
+        // case4: reverse(null)
+        List<String> output4 = processor1.transform("|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=");
+    }
+
+    @Test
     public void testToBase64Function() throws Exception {
         String transformSql = "select to_base64(string1) from source";
         TransformConfig config = new TransformConfig(transformSql);
@@ -223,5 +311,65 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output3 = processor.transform("QXBhY2hlIEluTG9uZw==|apple|banana|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=Apache InLong");
+    }
+
+    @Test
+    public void testLengthFunction() throws Exception {
+        String transformSql = "select length(string1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: length('hello world')
+        List<String> output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=11", output1.get(0));
+
+        transformSql = "select length(xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: length(null)
+        output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=null", output1.get(0));
+    }
+  
+    @Test
+    public void testReplaceFunction() throws Exception {
+        String transformSql = "select replace(string1, string2, string3) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: replace('hooray', 'oray', 'lly')
+        List<String> output1 = processor.transform("hooray|oray|lly", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=holly");
+        // case2: replace('hooray', 'hook', 'hoor')
+        List<String> output2 = processor.transform("hooray|hook|hoor", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=hooray");
+        // case3: replace('Hello World', 'World', '')
+        List<String> output3 = processor.transform("Hello World|World|", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=Hello ");
+        // case4: replace('Hello World', '', 'J')
+        List<String> output4 = processor.transform("Hello World||J", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=JHJeJlJlJoJ JWJoJrJlJdJ");
+        // case5: replace('', '', '')
+        List<String> output5 = processor.transform("||", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=");
+        // case6: replace('abababab', 'ab', 'cd')
+        List<String> output6 = processor.transform("abababab|ab|cd", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=cdcdcdcd");
+        // case7: replace('aaa', 'aa', 'd')
+        List<String> output7 = processor.transform("aaa|aa|d", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=da");
     }
 }

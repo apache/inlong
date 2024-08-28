@@ -40,6 +40,14 @@ public interface InlongClusterNodeInstallOperator {
     boolean install(ClusterNodeRequest clusterNodeRequest, String operator);
 
     /**
+     * ReInstalling cluster nodes.
+     *
+     * @param clusterNodeRequest cluster request
+     * @param operator operator
+     */
+    boolean reInstall(ClusterNodeRequest clusterNodeRequest, String operator);
+
+    /**
      * Uninstalling cluster nodes.
      *
      * @param clusterNodeEntity cluster entity
