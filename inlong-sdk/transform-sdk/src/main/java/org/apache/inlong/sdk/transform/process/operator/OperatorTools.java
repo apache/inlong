@@ -65,7 +65,7 @@ import java.sql.Timestamp;
 
 /**
  * OperatorTools
- * 
+ *
  */
 public class OperatorTools {
 
