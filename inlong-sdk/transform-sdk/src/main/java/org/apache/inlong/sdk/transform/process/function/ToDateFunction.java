@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ToDateFunction
  * description: to_date(string1[, string2])--converts a date string string1 with format string2 (by default ‘yyyy-MM-dd’) to a date
  */
+@TransformFunction(names = {"to_date"})
 public class ToDateFunction implements ValueParser {
 
     private ValueParser stringParser1;

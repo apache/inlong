@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * Log10Function
  * description: log10(numeric)--returns the base 10 logarithm of numeric
  */
+@TransformFunction(names = {"log10"})
 public class Log10Function implements ValueParser {
 
     private final ValueParser numberParser;

@@ -28,6 +28,7 @@ import net.sf.jsqlparser.expression.Function;
  * description: reverse(string)--returns the string with the order of the characters reversed.
  * returns NULL if string is a empty string.
  */
+@TransformFunction(names = {"reverse"})
 public class ReverseFunction implements ValueParser {
 
     private ValueParser stringParser;

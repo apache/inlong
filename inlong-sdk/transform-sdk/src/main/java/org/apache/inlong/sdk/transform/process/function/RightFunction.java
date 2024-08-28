@@ -34,6 +34,7 @@ import java.util.List;
  * - return "" if it is less than or equal to zero
  * - return a substring of length starting from the right side of the string.
  */
+@TransformFunction(names = {"right"})
 public class RightFunction implements ValueParser {
 
     private final ValueParser stringParser;

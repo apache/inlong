@@ -32,6 +32,7 @@ import java.util.List;
  * ModuloFunction
  * description: MOD(NUMERIC1, NUMERIC2) : Return the remainder of numeric1 divided by numeric2.
  */
+@TransformFunction(names = {"mod"})
 public class ModuloFunction implements ValueParser {
 
     private ValueParser dividendParser;

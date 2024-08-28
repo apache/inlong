@@ -33,6 +33,7 @@ import java.time.ZoneId;
  *  localTime([string1]) returns the current time in the specified time zone.
  *  (by default: the current time in the system time zone)
  */
+@TransformFunction(names = {"localtime", "current_time"})
 public class LocalTimeFunction implements ValueParser {
 
     private ValueParser stringParser;

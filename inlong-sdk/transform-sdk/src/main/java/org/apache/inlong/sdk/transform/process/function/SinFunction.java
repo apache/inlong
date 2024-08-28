@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * SinFunction
  * description: sin(numeric)--returns the sine of numeric
  */
+@TransformFunction(names = {"sin"})
 public class SinFunction implements ValueParser {
 
     private ValueParser numberParser;

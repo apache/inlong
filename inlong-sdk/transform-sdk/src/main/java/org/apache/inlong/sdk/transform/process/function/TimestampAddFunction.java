@@ -36,6 +36,7 @@ import java.util.List;
  *  The unit of the time interval is specified by the unit parameter, which should be one of the following values:
  *  FRAC_SECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR.
  */
+@TransformFunction(names = {"timestamp_add"})
 public class TimestampAddFunction implements ValueParser {
 
     private ValueParser intervalParser;
