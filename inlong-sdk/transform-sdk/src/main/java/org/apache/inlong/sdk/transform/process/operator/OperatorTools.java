@@ -39,6 +39,7 @@ import org.apache.inlong.sdk.transform.process.function.Log10Function;
 import org.apache.inlong.sdk.transform.process.function.Log2Function;
 import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.LowerFunction;
+import org.apache.inlong.sdk.transform.process.function.Md5Function;
 import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
@@ -179,6 +180,7 @@ public class OperatorTools {
         functionMap.put("left", LeftFunction::new);
         functionMap.put("right", RightFunction::new);
         functionMap.put("timestampadd", TimestampAddFunction::new);
+        functionMap.put("md5", Md5Function::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
