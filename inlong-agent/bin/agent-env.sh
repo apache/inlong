@@ -53,8 +53,8 @@ fi
 
 GVM_OPTS=" -Djava.net.preferIPv4Stack=true  -Dfile.encoding=UTF-8 "
 OOM_HANDLER=" -XX:OnOutOfMemoryError=$BASE_DIR/bin/oom.sh"
-GC_OPTS=" -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+TraceClassLoading -XX:InitiatingHeapOccupancyPercent=45 -XX:G1HeapRegionSize=16m -XX:G1MixedGCCountTarget=16 -XX:G1HeapWastePercent=10"
-LOG_OPTS=" -Xloggc:$BASE_DIR/logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M"
+GC_OPTS=" -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+TraceClassLoading -XX:InitiatingHeapOccupancyPercent=45 -XX:G1HeapRegionSize=16m -XX:G1MixedGCCountTarget=16 -XX:G1HeapWastePercent=10 -XX:+PrintGCDetails -XX:+PrintGCDateStamps"
+LOG_OPTS=" -Xloggc:$BASE_DIR/logs/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M"
 if [ -n "$NEED_TRACK_NATIVE_MEMORY" ] && [ "$NEED_TRACK_NATIVE_MEMORY" = "true" ]; then
     GC_OPTS="$GC_OPTS -XX:NativeMemoryTracking"
 fi
