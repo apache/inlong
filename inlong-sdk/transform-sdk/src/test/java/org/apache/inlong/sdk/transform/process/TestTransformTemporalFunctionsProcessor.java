@@ -47,6 +47,7 @@ public class TestTransformTemporalFunctionsProcessor {
     private static final List<FieldInfo> dstFields = new ArrayList<>();
     private static final CsvSourceInfo csvSource;
     private static final KvSinkInfo kvSink;
+
     static {
         for (int i = 1; i < 4; i++) {
             FieldInfo field = new FieldInfo();
@@ -408,5 +409,44 @@ public class TestTransformTemporalFunctionsProcessor {
         Duration duration3 = Duration.between(expectedTime3, actualTime3);
         Assert.assertEquals(1, output3.size());
         Assert.assertTrue(duration3.getSeconds() < 1);
+    }
+
+    @Test
+    public void testTimestampAdd() throws Exception {
+        String transformSql1 = "select timestampadd('day',string2,string1) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: timestampadd('day',3,'1970-01-01')
+        List<String> output1 = processor1.transform("1970-01-01|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=1970-01-04", output1.get(0));
+
+        // case2: timestampadd('day',-3,'1970-01-01 00:00:44')
+        List<String> output2 = processor1.transform("1970-01-01 00:00:44|-3", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=1969-12-29 00:00:44", output2.get(0));
+
+        String transformSql2 = "select timestampadd('MINUTE',string2,string1) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case3: timestampadd('MINUTE',3,'1970-01-01 00:00:44')
+        List<String> output3 = processor2.transform("1970-01-01 00:00:44|3", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals("result=1970-01-01 00:03:44", output3.get(0));
+
+        // case4: timestampadd('MINUTE',-3,'1970-01-01 00:00:44')
+        List<String> output4 = processor2.transform("1970-01-01 00:00:44|-3", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals("result=1969-12-31 23:57:44", output4.get(0));
+
+        // case5: timestampadd('MINUTE',-3,'1970-01-01')
+        List<String> output5 = processor2.transform("1970-01-01|-3", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals("result=1969-12-31 23:57:00", output5.get(0));
     }
 }
