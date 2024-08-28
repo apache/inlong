@@ -17,34 +17,15 @@
 
 package org.apache.inlong.sdk.transform.process.function;
 
-import org.apache.inlong.sdk.transform.decode.SourceData;
-import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import net.sf.jsqlparser.expression.Function;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * NowFunction
- * 
- */
-@TransformFunction(names = {"now"})
-public class NowFunction implements ValueParser {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface TransformFunction {
 
-    /**
-     * Constructor
-     * @param expr
-     */
-    public NowFunction(Function expr) {
-    }
-
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
-    @Override
-    public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        return String.valueOf(System.currentTimeMillis());
-    }
+    String[] names();
 }

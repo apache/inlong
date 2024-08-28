@@ -43,7 +43,7 @@ import java.util.Locale;
  * - dayofmonth(date)--returns the day of a month (an integer between 1 and 31) from SQL date
  * - dayofweek(date)--returns the day of a week (an integer between 1(Sunday) and 7(Saturday)) from SQL date
  */
-public class DateExtractFunction implements ValueParser {
+public abstract class DateExtractFunction implements ValueParser {
 
     private DateExtractFunctionType type;
     private ValueParser dateParser;
@@ -51,6 +51,54 @@ public class DateExtractFunction implements ValueParser {
 
     public enum DateExtractFunctionType {
         YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH, DAY_OF_WEEK
+    }
+
+    @TransformFunction(names = {"year"})
+    public static class YearExtractFunction extends DateExtractFunction {
+
+        public YearExtractFunction(Function expr) {
+            super(DateExtractFunctionType.YEAR, expr);
+        }
+    }
+
+    @TransformFunction(names = {"quarter"})
+    public static class QuarterExtractFunction extends DateExtractFunction {
+
+        public QuarterExtractFunction(Function expr) {
+            super(DateExtractFunctionType.QUARTER, expr);
+        }
+    }
+
+    @TransformFunction(names = {"month"})
+    public static class MonthExtractFunction extends DateExtractFunction {
+
+        public MonthExtractFunction(Function expr) {
+            super(DateExtractFunctionType.MONTH, expr);
+        }
+    }
+
+    @TransformFunction(names = {"week"})
+    public static class WeekExtractFunction extends DateExtractFunction {
+
+        public WeekExtractFunction(Function expr) {
+            super(DateExtractFunctionType.WEEK, expr);
+        }
+    }
+
+    @TransformFunction(names = {"day_of_year"})
+    public static class DayOfYearExtractFunction extends DateExtractFunction {
+
+        public DayOfYearExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_YEAR, expr);
+        }
+    }
+
+    @TransformFunction(names = {"day_of_month"})
+    public static class DayOfMonthExtractFunction extends DateExtractFunction {
+
+        public DayOfMonthExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_MONTH, expr);
+        }
     }
 
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {

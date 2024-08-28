@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * FloorFunction
  * description: floor(numeric)--rounds numeric down, and returns the largest number that is less than or equal to numeric
  */
+@TransformFunction(names = {"floor"})
 public class FloorFunction implements ValueParser {
 
     private ValueParser numberParser;

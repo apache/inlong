@@ -28,6 +28,7 @@ import net.sf.jsqlparser.expression.Function;
  * LowerFunction
  * description: LOWER(s): Convert all letters of the string s to lowercase letters
  */
+@TransformFunction(names = {"lower"})
 public class LowerFunction implements ValueParser {
 
     private ValueParser stringParser;

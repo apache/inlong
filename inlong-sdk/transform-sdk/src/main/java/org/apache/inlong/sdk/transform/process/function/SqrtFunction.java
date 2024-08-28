@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * SqrtFunction
  * description: sqrt(numeric)--returns the square root of numeric
  */
+@TransformFunction(names = {"sqrt"})
 public class SqrtFunction implements ValueParser {
 
     private ValueParser numberParser;

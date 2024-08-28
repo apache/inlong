@@ -30,6 +30,7 @@ import net.sf.jsqlparser.expression.Function;
  * - return the length of the string
  * - return NULL if the string is NULL
  */
+@TransformFunction(names = {"length"})
 public class LengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

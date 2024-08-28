@@ -17,52 +17,7 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.function.AbsFunction;
-import org.apache.inlong.sdk.transform.process.function.AcosFunction;
-import org.apache.inlong.sdk.transform.process.function.BinFunction;
-import org.apache.inlong.sdk.transform.process.function.CeilFunction;
-import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
-import org.apache.inlong.sdk.transform.process.function.CosFunction;
-import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
-import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
-import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
-import org.apache.inlong.sdk.transform.process.function.ExpFunction;
-import org.apache.inlong.sdk.transform.process.function.FloorFunction;
-import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
-import org.apache.inlong.sdk.transform.process.function.LeftFunction;
-import org.apache.inlong.sdk.transform.process.function.LengthFunction;
-import org.apache.inlong.sdk.transform.process.function.LnFunction;
-import org.apache.inlong.sdk.transform.process.function.LocalTimeFunction;
-import org.apache.inlong.sdk.transform.process.function.LocateFunction;
-import org.apache.inlong.sdk.transform.process.function.Log10Function;
-import org.apache.inlong.sdk.transform.process.function.Log2Function;
-import org.apache.inlong.sdk.transform.process.function.LogFunction;
-import org.apache.inlong.sdk.transform.process.function.LowerFunction;
-import org.apache.inlong.sdk.transform.process.function.Md5Function;
-import org.apache.inlong.sdk.transform.process.function.ModuloFunction;
-import org.apache.inlong.sdk.transform.process.function.NowFunction;
-import org.apache.inlong.sdk.transform.process.function.PowerFunction;
-import org.apache.inlong.sdk.transform.process.function.RandFunction;
-import org.apache.inlong.sdk.transform.process.function.ReplaceFunction;
-import org.apache.inlong.sdk.transform.process.function.ReplicateFunction;
-import org.apache.inlong.sdk.transform.process.function.ReverseFunction;
-import org.apache.inlong.sdk.transform.process.function.RightFunction;
-import org.apache.inlong.sdk.transform.process.function.RoundFunction;
-import org.apache.inlong.sdk.transform.process.function.SignFunction;
-import org.apache.inlong.sdk.transform.process.function.SinFunction;
-import org.apache.inlong.sdk.transform.process.function.SinhFunction;
-import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
-import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
-import org.apache.inlong.sdk.transform.process.function.TanFunction;
-import org.apache.inlong.sdk.transform.process.function.TimestampAddFunction;
-import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction;
-import org.apache.inlong.sdk.transform.process.function.ToBase64Function;
-import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
-import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
-import org.apache.inlong.sdk.transform.process.function.TranslateFunction;
-import org.apache.inlong.sdk.transform.process.function.TrimFunction;
-import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
-import org.apache.inlong.sdk.transform.process.function.UpperFunction;
+import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DateParser;
@@ -107,82 +62,16 @@ import org.apache.commons.lang.ObjectUtils;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * OperatorTools
- *
+ * 
  */
 public class OperatorTools {
 
     public static final String ROOT_KEY = "$root";
 
     public static final String CHILD_KEY = "$child";
-
-    private static final Map<String, java.util.function.Function<Function, ValueParser>> functionMap = new HashMap<>();
-
-    static {
-        functionMap.put("concat", ConcatFunction::new);
-        functionMap.put("now", NowFunction::new);
-        functionMap.put("localtime", LocalTimeFunction::new);
-        functionMap.put("currenttime", LocalTimeFunction::new);
-        functionMap.put("power", PowerFunction::new);
-        functionMap.put("abs", AbsFunction::new);
-        functionMap.put("sqrt", SqrtFunction::new);
-        functionMap.put("ln", LnFunction::new);
-        functionMap.put("log10", Log10Function::new);
-        functionMap.put("log2", Log2Function::new);
-        functionMap.put("log", LogFunction::new);
-        functionMap.put("exp", ExpFunction::new);
-        functionMap.put("reverse", ReverseFunction::new);
-        functionMap.put("substring", SubstringFunction::new);
-        functionMap.put("trim", TrimFunction::new);
-        functionMap.put("sign", SignFunction::new);
-        functionMap.put("replicate", ReplicateFunction::new);
-        functionMap.put("locate", LocateFunction::new);
-        functionMap.put("to_date", ToDateFunction::new);
-        functionMap.put("date_format", DateFormatFunction::new);
-        functionMap.put("ceil", CeilFunction::new);
-        functionMap.put("rand", RandFunction::new);
-        functionMap.put("floor", FloorFunction::new);
-        functionMap.put("sin", SinFunction::new);
-        functionMap.put("sinh", SinhFunction::new);
-        functionMap.put("cos", CosFunction::new);
-        functionMap.put("acos", AcosFunction::new);
-        functionMap.put("tan", TanFunction::new);
-        functionMap.put("bin", BinFunction::new);
-        functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
-        functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
-        functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
-        functionMap.put("week", func -> new DateExtractFunction(DateExtractFunctionType.WEEK, func));
-        functionMap.put("dayofyear", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_YEAR, func));
-        functionMap.put("dayofmonth", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_MONTH, func));
-        functionMap.put("dayofweek", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_WEEK, func));
-        functionMap.put("hour",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.HOUR, func));
-        functionMap.put("minute",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.MINUTE,
-                        func));
-        functionMap.put("second",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
-                        func));
-        functionMap.put("round", RoundFunction::new);
-        functionMap.put("from_unixtime", FromUnixTimeFunction::new);
-        functionMap.put("unix_timestamp", UnixTimestampFunction::new);
-        functionMap.put("to_timestamp", ToTimestampFunction::new);
-        functionMap.put("mod", ModuloFunction::new);
-        functionMap.put("to_base64", ToBase64Function::new);
-        functionMap.put("lower", LowerFunction::new);
-        functionMap.put("upper", UpperFunction::new);
-        functionMap.put("length", LengthFunction::new);
-        functionMap.put("replace", ReplaceFunction::new);
-        functionMap.put("left", LeftFunction::new);
-        functionMap.put("right", RightFunction::new);
-        functionMap.put("timestampadd", TimestampAddFunction::new);
-        functionMap.put("md5", Md5Function::new);
-        functionMap.put("translate", TranslateFunction::new);
-    }
 
     public static ExpressionOperator buildOperator(Expression expr) {
         if (expr instanceof AndExpression) {
@@ -241,15 +130,7 @@ public class OperatorTools {
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
                 return new ColumnParser((Function) expr);
             } else {
-                // TODO
-                Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor =
-                        functionMap.get(func.getName().toLowerCase());
-                if (valueParserConstructor != null) {
-                    return valueParserConstructor.apply(func);
-                } else {
-                    return new ColumnParser(func);
-                }
+                return FunctionTools.getTransformFunction((Function) expr);
             }
         }
         return null;

@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * TanFunction
  * description: tan(numeric)--returns the tangent of numeric
  */
+@TransformFunction(names = {"tan"})
 public class TanFunction implements ValueParser {
 
     private ValueParser numberParser;

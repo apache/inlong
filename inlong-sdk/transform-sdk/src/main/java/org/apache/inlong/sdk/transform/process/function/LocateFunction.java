@@ -34,6 +34,7 @@ import java.util.List;
  * - returns 0 if not found
  * - returns NULL if any of arguments is NULL
  */
+@TransformFunction(names = {"locate"})
 public class LocateFunction implements ValueParser {
 
     private ValueParser stringParser1;

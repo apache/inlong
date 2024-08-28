@@ -31,6 +31,7 @@ import java.util.List;
  * ReplaceFunction
  * description: replace(s, s1, s2)--replace string s1 in string s with string s2.
  */
+@TransformFunction(names = {"replace"})
 public class ReplaceFunction implements ValueParser {
 
     private ValueParser stringParser;

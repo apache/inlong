@@ -33,6 +33,7 @@ import java.util.List;
  * RoundFunction
  * description: ROUND(x [,y]) -- Return the nearest integer to x, with optional parameter y indicating the number of decimal places to be rounded. If omitted, return the integer.
  */
+@TransformFunction(names = {"round"})
 public class RoundFunction implements ValueParser {
 
     private ValueParser numberParser;
