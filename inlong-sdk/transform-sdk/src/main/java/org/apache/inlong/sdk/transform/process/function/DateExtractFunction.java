@@ -101,6 +101,13 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
+    @TransformFunction(names = {"day_of_week"})
+    public static class DayOfWeekExtractFunction extends DateExtractFunction {
+        public DayOfWeekExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_WEEK, expr);
+        }
+    }
+
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {
         this.type = type;
         List<Expression> expressions = expr.getParameters().getExpressions();

@@ -206,7 +206,7 @@ public class TestTransformTemporalFunctionsProcessor {
         Assert.assertEquals(1, output6.size());
         Assert.assertEquals(output6.get(0), "result=29");
 
-        String transformSql7 = "select dayofweek(string1) from source";
+        String transformSql7 = "select day_of_week(string1) from source";
         TransformConfig config7 = new TransformConfig(transformSql7);
         TransformProcessor<String, String> processor7 = TransformProcessor
                 .create(config7, SourceDecoderFactory.createCsvDecoder(csvSource),
