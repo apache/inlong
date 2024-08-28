@@ -584,7 +584,7 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output3 = processor1.transform("3.141592653589793|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=3");
-        // case: hex(9223372036854775807)
+        // case: hex(-9223372036854775808)
         List<String> output4 = processor1.transform("-9223372036854775808|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=8000000000000000");
