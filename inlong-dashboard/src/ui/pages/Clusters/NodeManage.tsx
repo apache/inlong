@@ -186,7 +186,31 @@ const Comp: React.FC = () => {
     current: +options.pageNum,
     total: data?.total,
   };
+  const [operationType, setOperationType] = useState('');
 
+  const { data: nodeData, run: getNodeData } = useRequest(
+    id => ({
+      url: `/cluster/node/get/${id}`,
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        switch (operationType) {
+          case 'onRestart':
+            onRestart(result);
+            break;
+          case 'onUnload':
+            onUnload(result);
+            break;
+          case 'onInstall':
+            onInstall(result);
+            break;
+          default:
+            break;
+        }
+      },
+    },
+  );
   const items: MenuProps['items'] = [
     {
       label: <Button type="link">{i18n.t('pages.Cluster.Node.Install')}</Button>,
@@ -210,16 +234,15 @@ const Comp: React.FC = () => {
     },
   ];
   const handleMenuClick = (key, record) => {
-    console.log(key, record);
     switch (key) {
       case '0':
-        onInstall(record);
+        getNodeData(record.id).then(() => setOperationType('onInstall'));
         break;
       case '1':
-        onRestart(record);
+        getNodeData(record.id).then(() => setOperationType('onRestart'));
         break;
       case '2':
-        onUnload(record);
+        getNodeData(record.id).then(() => setOperationType('onUnload'));
         break;
       case '3':
         onLog(record);
