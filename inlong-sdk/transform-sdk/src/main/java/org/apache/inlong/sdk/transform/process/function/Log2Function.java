@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * Log2Function
  * description: log2(numeric)--returns the base 2 logarithm of numeric
  */
+@TransformFunction(names = {"log2"})
 public class Log2Function implements ValueParser {
 
     private final ValueParser numberParser;

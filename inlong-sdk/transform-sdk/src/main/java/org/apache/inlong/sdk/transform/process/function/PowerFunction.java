@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * PowerFunction
  * description: power(numeric1, numeric2)--returns numeric1.power(numeric2)
  */
+@TransformFunction(names = {"power"})
 public class PowerFunction implements ValueParser {
 
     private ValueParser baseParser;

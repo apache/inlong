@@ -31,6 +31,7 @@ import java.util.List;
  * BinFunction
  * description: bin(integer)--Returns a string representation of an integer in binary format. If the integer is NULL, NULL is returned.
  */
+@TransformFunction(names = {"bin"})
 public class BinFunction implements ValueParser {
 
     private ValueParser valueParser;

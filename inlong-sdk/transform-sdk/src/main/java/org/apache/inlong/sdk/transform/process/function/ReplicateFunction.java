@@ -30,6 +30,7 @@ import java.util.List;
  * ReplicateFunction
  * description: replicate(string, numeric)--Repeat the string numeric times and return a new string
  */
+@TransformFunction(names = {"replicate"})
 public class ReplicateFunction implements ValueParser {
 
     private ValueParser stringParser;

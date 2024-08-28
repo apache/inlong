@@ -28,6 +28,7 @@ import net.sf.jsqlparser.expression.Function;
  * UpperFunction
  * description: UPPER(s): Convert a string to uppercase
  */
+@TransformFunction(names = {"upper"})
 public class UpperFunction implements ValueParser {
 
     private ValueParser stringParser;

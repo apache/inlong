@@ -33,6 +33,7 @@ import java.util.List;
  * description: log(numeric) or log(numeric1, numeric2)--When called with one argument, returns the natural logarithm
  * of numeric. When called with two arguments, this function returns the logarithm of numeric2 to the base numeric1
  */
+@TransformFunction(names = {"log"})
 public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;

@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * SignFunction
  * description: sign(x): Return the sign of x, where x is a negative number, 0, and positive numbers return -1, 0, and 1, respectively
  */
+@TransformFunction(names = {"sign"})
 public class SignFunction implements ValueParser {
 
     private ValueParser numberParser;

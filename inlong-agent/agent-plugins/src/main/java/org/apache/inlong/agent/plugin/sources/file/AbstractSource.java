@@ -32,6 +32,7 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Source;
 import org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import lombok.AllArgsConstructor;
@@ -153,6 +154,7 @@ public abstract class AbstractSource implements Source {
                 doRun();
             } catch (Throwable e) {
                 LOGGER.error("do run error maybe file deleted: ", e);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
             }
             running = false;
         };
