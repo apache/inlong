@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -419,6 +420,47 @@ public class TestTransformTemporalFunctionsProcessor {
         Duration duration3 = Duration.between(expectedTime3, actualTime3);
         Assert.assertEquals(1, output3.size());
         Assert.assertTrue(duration3.getSeconds() < 1);
+    }
+
+    @Test
+    public void testLocalDateFunction() throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // case1: localDate() - default system time zone
+        String transformSql1 = "select localdate() from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor1.transform("", new HashMap<>());
+        LocalDate expectedDate1 = LocalDate.now(ZoneId.systemDefault());
+        LocalDate actualDate1 = LocalDate.parse(output1.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(expectedDate1, actualDate1);
+
+        // case2: localDate("UTC")
+        String transformSql2 = "select localdate('UTC') from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output2 = processor2.transform("", new HashMap<>());
+        LocalDate expectedDate2 = LocalDate.now(ZoneId.of("UTC"));
+        LocalDate actualDate2 = LocalDate.parse(output2.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(expectedDate2, actualDate2);
+
+        // case3: localDate("UTC-12")
+        String transformSql3 = "select localdate('UTC-12') from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor3.transform("", new HashMap<>());
+        LocalDate expectedDate3 = LocalDate.now(ZoneId.of("UTC-12"));
+        LocalDate actualDate3 = LocalDate.parse(output3.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(expectedDate3, actualDate3);
     }
 
     @Test
