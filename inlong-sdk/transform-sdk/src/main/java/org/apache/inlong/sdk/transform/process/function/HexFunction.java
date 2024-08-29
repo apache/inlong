@@ -35,7 +35,7 @@ import java.util.Optional;
  * - If the input argument is a string, the HEX function converts each character in the string to its corresponding hexadecimal ASCII encoding and returns the hexadecimal representation of the entire string.
  */
 @TransformFunction(names = {"hex"})
- class HexFunction implements ValueParser {
+class HexFunction implements ValueParser {
 
     private ValueParser valueParser;
 
