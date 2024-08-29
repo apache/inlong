@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -114,10 +116,19 @@ public class RedisSource extends AbstractSource {
     }
 
     private void startJedisSynchronize() {
-        for (String key : keys) {
-            String data = jedisExecuteCommand(redisCommand, key, fieldOrMember);
-            synchronizeData(data);
-        }
+        int cursor = 0;
+        // Each scan processes up to 100 keys
+        ScanParams scanParams = new ScanParams().count(100);
+        do {
+            ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
+            for (String key : scanResult.getResult()) {
+                if (!keys.contains(key)) {
+                    String data = jedisExecuteCommand(redisCommand, key, fieldOrMember);
+                    synchronizeData(data);
+                }
+            }
+            cursor = scanResult.getCursor();
+        } while (cursor != 0);
     }
 
     private void synchronizeData(String data) {
