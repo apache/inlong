@@ -33,10 +33,10 @@ public class ParserTools {
                     if (value==null) {
                         continue;
                     }
-                    parserMap.compute(value, (name, former) -> {
+                    parserMap.compute(value, (key, former) -> {
                         if (former != null) {
-                            log.warn("find a conflict parser named [{}], the former one is [{}], new one is [{}]",
-                                    name, former.getName(), clazz.getName());
+                            log.warn("find a conflict for parser class [{}], the former one is [{}], new one is [{}]",
+                                    key, former.getName(), clazz.getName());
                         }
                         return clazz;
                     });
