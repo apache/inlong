@@ -619,4 +619,147 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertTrue(result >= 0.0 && result < 1.0);
     }
 
+    @Test
+    public void testCotFunction() throws Exception {
+        String transformSql = "select cot(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: cot(1)
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.6420926159343306");
+
+        // case2: cot(0.5)
+        List<String> output2 = processor.transform("0.5|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1.830487721712452");
+
+        // case3: cot(-1)
+        List<String> output3 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-0.6420926159343306");
+    }
+
+    @Test
+    public void testTanhFunction() throws Exception {
+        String transformSql = "select tanh(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: tanh(1)
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.7615941559557649");
+
+        // case2: tanh(0)
+        List<String> output2 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=0.0");
+
+        // case3: tanh(-1)
+        List<String> output3 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-0.7615941559557649");
+    }
+
+    @Test
+    public void testCoshFunction() throws Exception {
+        String transformSql = "select cosh(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: cosh(1)
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=1.543080634815244");
+
+        // case2: cosh(0)
+        List<String> output2 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1.0");
+
+        // case3: cosh(-1)
+        List<String> output3 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=1.543080634815244");
+    }
+
+    @Test
+    public void testAsinFunction() throws Exception {
+        String transformSql = "select asin(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: asin(0.5)
+        List<String> output1 = processor.transform("0.5|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.5235987755982989");
+
+        // case2: asin(0)
+        List<String> output2 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=0.0");
+
+        // case3: asin(-0.5)
+        List<String> output3 = processor.transform("-0.5|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-0.5235987755982989");
+    }
+
+    @Test
+    public void testAtanFunction() throws Exception {
+        String transformSql = "select atan(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: atan(1)
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.7853981633974483");
+
+        // case2: atan(0)
+        List<String> output2 = processor.transform("0|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=0.0");
+
+        // case3: atan(-1)
+        List<String> output3 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=-0.7853981633974483");
+    }
+
+    @Test
+    public void testAtan2Function() throws Exception {
+        String transformSql = "select atan2(numeric1, numeric2) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: atan2(1, 1)
+        List<String> output1 = processor.transform("1|1|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.7853981633974483");
+
+        // case2: atan2(1, 0)
+        List<String> output2 = processor.transform("1|0|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=1.5707963267948966");
+
+        // case3: atan2(0, -1)
+        List<String> output3 = processor.transform("0|-1|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=3.141592653589793");
+    }
 }
