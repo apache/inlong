@@ -30,9 +30,6 @@ public class ParserTools {
                 }
                 Class<? extends Expression>[] values = annotation.value();
                 for (Class<? extends Expression> value : values) {
-                    if (value==null) {
-                        continue;
-                    }
                     parserMap.compute(value, (key, former) -> {
                         if (former != null) {
                             log.warn("find a conflict for parser class [{}], the former one is [{}], new one is [{}]",
