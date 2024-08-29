@@ -43,7 +43,7 @@ public class Constants {
 
     public static final String FLINK_VERSION = "flink.version";
 
-    public static final String FLINK_MAX_DATA_PERCORE = "flink.max.data.percore";
+    public static final String FLINK_MAX_MSG_RATE_PERCORE = "flink.max.msg.rate.percore";
 
     public static final String FLINK_DYNAMIC_PARALLELISM_ENABLE = "flink.dynamic.parallelism.enable";
 

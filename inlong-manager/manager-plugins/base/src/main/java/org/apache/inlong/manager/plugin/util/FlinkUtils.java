@@ -220,7 +220,7 @@ public class FlinkUtils {
         flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
         flinkConfig.setDynamicParallelismEnable(Boolean.parseBoolean(properties.getProperty(
                 Constants.FLINK_DYNAMIC_PARALLELISM_ENABLE)));
-        flinkConfig.setMaxDataPercore(Integer.valueOf(properties.getProperty(Constants.FLINK_MAX_DATA_PERCORE)));
+        flinkConfig.setMaxMsgRatePerCore(Integer.valueOf(properties.getProperty(Constants.FLINK_MAX_MSG_RATE_PERCORE)));
         return flinkConfig;
     }
 

@@ -220,7 +220,7 @@ public class FlinkService {
         Configuration configuration = getFlinkConfiguration(flinkInfo.getEndpoint());
         log.debug("flink info: {}", flinkInfo);
         if (flinkConfig.getDynamicParallelismEnable()) {
-            flinkParallelismOptimizer.setMaximumMessagePerSecondPerCore(flinkConfig.getMaxDataPercore());
+            flinkParallelismOptimizer.setMaximumMessagePerSecondPerCore(flinkConfig.getMaxMsgRatePerCore());
             // get stream info list for auditing
             int recommendedParallelism =
                     flinkParallelismOptimizer.calculateRecommendedParallelism(flinkInfo.getInlongStreamInfoList());
