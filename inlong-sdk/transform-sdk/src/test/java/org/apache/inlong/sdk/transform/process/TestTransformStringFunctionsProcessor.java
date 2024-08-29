@@ -175,6 +175,44 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=null");
     }
+
+    @Test
+    public void testSpaceFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select space(numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: space(5)
+        data = "hello world|banana|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=     ", output.get(0));
+
+        // case2: space(-1)
+        data = "hello world|banana|cloud|-1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        // case3: space(null)
+        transformSql = "select space(xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|banana|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+    }
+
     @Test
     public void testReplicateFunction() throws Exception {
         String transformSql1 = "select replicate(string1, numeric1) from source";
@@ -334,7 +372,7 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=null", output1.get(0));
     }
-  
+
     @Test
     public void testReplaceFunction() throws Exception {
         String transformSql = "select replace(string1, string2, string3) from source";
