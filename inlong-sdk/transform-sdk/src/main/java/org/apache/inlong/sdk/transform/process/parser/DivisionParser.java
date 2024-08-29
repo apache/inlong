@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * DivisionParser
  * 
  */
+@TransformParser(Division.class)
 public class DivisionParser implements ValueParser {
 
     private ValueParser left;

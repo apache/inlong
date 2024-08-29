@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * MultiplicationParser
  * 
  */
+@TransformParser(Multiplication.class)
 public class MultiplicationParser implements ValueParser {
 
     private final ValueParser left;

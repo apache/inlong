@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * SignParser
  * 
  */
+@TransformParser(SignedExpression.class)
 public class SignParser implements ValueParser {
 
     private final Integer sign;

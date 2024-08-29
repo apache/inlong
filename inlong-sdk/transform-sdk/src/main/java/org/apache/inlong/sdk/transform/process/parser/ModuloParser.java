@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * ModuloParser
  * description: analyze the % expression
  */
+@TransformParser(Modulo.class)
 public class ModuloParser implements ValueParser {
 
     private ValueParser left;

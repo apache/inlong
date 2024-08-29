@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.LongValue;
  * LongParser
  * 
  */
+@TransformParser(LongValue.class)
 public class LongParser implements ValueParser {
 
     private final Long value;
