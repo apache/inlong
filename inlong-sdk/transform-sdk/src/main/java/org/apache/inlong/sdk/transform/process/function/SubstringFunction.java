@@ -32,7 +32,7 @@ import java.util.List;
  * description: substring(string FROM INT1 [ FOR INT2 ])--returns a substring of STRING starting from position INT1 with
  * length INT2 (to the end by default)
  */
-@TransformFunction(names = {"substring"})
+@TransformFunction(names = {"substring", "substr"})
 public class SubstringFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -41,6 +41,7 @@ public class SubstringFunction implements ValueParser {
 
     /**
      * Constructor
+     *
      * @param expr
      */
     public SubstringFunction(Function expr) {
@@ -55,6 +56,7 @@ public class SubstringFunction implements ValueParser {
 
     /**
      * parse
+     *
      * @param sourceData
      * @param rowIndex
      * @return
