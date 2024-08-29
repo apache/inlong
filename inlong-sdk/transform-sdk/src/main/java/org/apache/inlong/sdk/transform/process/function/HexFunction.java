@@ -27,6 +27,7 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * HexFunction
@@ -37,6 +38,8 @@ import java.util.Optional;
 @TransformFunction(names = {"hex"})
 class HexFunction implements ValueParser {
 
+    private static final Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$");
+
     private ValueParser valueParser;
 
     public HexFunction(Function expr) {
@@ -46,11 +49,21 @@ class HexFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object valueObj = valueParser.parse(sourceData, rowIndex, context);
-        try {
+        if (isBigDecimal(valueObj)) {
             return hex(OperatorTools.parseBigDecimal(valueObj)).toUpperCase();
-        } catch (NumberFormatException e) {
-            return hex(OperatorTools.parseString(valueObj));
         }
+        return hex(OperatorTools.parseString(valueObj)).toUpperCase();
+    }
+
+    private boolean isBigDecimal(Object valueObj) {
+        if (valueObj instanceof BigDecimal) {
+            return true;
+        }
+        if (valueObj instanceof String) {
+            String str = (String) valueObj;
+            return BIG_DECIMAL_PATTERN.matcher(str).matches();
+        }
+        return false;
     }
 
     // Handle Integer type
