@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
+import org.apache.inlong.sdk.transform.process.function.FunctionTools;
+import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
+import org.apache.inlong.sdk.transform.process.parser.ParserTools;
+import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.NotExpression;
@@ -30,10 +35,6 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.inlong.sdk.transform.process.function.FunctionTools;
-import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
-import org.apache.inlong.sdk.transform.process.parser.ParserTools;
-import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import java.math.BigDecimal;
 import java.sql.Date;
