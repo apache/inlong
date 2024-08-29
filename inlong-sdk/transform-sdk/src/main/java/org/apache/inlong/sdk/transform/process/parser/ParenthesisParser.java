@@ -27,7 +27,7 @@ import net.sf.jsqlparser.expression.Parenthesis;
  * ParenthesisParser
  * 
  */
-@TransformParser(Parenthesis.class)
+@TransformParser(values = Parenthesis.class)
 public class ParenthesisParser implements ValueParser {
 
     private final ValueParser node;

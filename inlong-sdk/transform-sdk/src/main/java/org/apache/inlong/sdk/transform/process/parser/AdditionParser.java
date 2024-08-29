@@ -29,7 +29,7 @@ import java.math.BigDecimal;
  * AdditionParser
  * 
  */
-@TransformParser(Addition.class)
+@TransformParser(values = Addition.class)
 public class AdditionParser implements ValueParser {
 
     private final ValueParser left;

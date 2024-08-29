@@ -27,7 +27,7 @@ import net.sf.jsqlparser.schema.Column;
  * ColumnParser
  * 
  */
-@TransformParser(Column.class)
+@TransformParser(values = Column.class)
 public class ColumnParser implements ValueParser {
 
     private final String fieldName;

@@ -29,5 +29,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface TransformParser {
 
-    Class<? extends Expression>[] value();
+    Class<? extends Expression>[] values();
 }

@@ -46,7 +46,7 @@ public class ParserTools {
                 if (annotation == null) {
                     continue;
                 }
-                Class<? extends Expression>[] values = annotation.value();
+                Class<? extends Expression>[] values = annotation.values();
                 for (Class<? extends Expression> value : values) {
                     parserMap.compute(value, (key, former) -> {
                         if (former != null) {
