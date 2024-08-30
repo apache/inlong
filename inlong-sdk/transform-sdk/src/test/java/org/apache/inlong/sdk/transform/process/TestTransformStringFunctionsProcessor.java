@@ -411,6 +411,48 @@ public class TestTransformStringFunctionsProcessor {
     }
 
     @Test
+    public void testStrcmpFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select strcmp(string1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: strcmp('hello world','banana')
+        data = "hello world|banana|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case2: strcmp('hello world','hello world')
+        data = "hello world|hello world|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+
+        // case3: strcmp('hello world','zzzzz')
+        data = "hello world|zzzzz|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=-1", output.get(0));
+
+        // case4: strcmp('hello world',null)
+        transformSql = "select strcmp(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "hello world|zzzzz|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testRightFunction() throws Exception {
         String transformSql = "select right(string1,numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
