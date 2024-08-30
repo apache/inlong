@@ -84,7 +84,6 @@ public class FlinkParallelismOptimizer {
             log.info("Retrieved data volume: {}", averageDataVolume);
         } catch (Exception e) {
             log.error("Error retrieving data volume: {}", e.getMessage(), e);
-            log.warn("Using default data volume: {}", DEFAULT_ERROR_DATA_VOLUME);
             averageDataVolume = DEFAULT_ERROR_DATA_VOLUME;
         }
         int newParallelism = (int) (averageDataVolume / maximumMessagePerSecondPerCore);
@@ -101,8 +100,9 @@ public class FlinkParallelismOptimizer {
      */
     public void setMaximumMessagePerSecondPerCore(Integer maximumMessagePerSecondPerCore) {
         if (maximumMessagePerSecondPerCore == null || maximumMessagePerSecondPerCore <= 0) {
-            log.error("Illegal flink.maxpercore property, must be nonnull and positive, using default value: {}",
-                    maximumMessagePerSecondPerCore);
+            log.error(
+                    "Illegal flink.max.msg.rate.percore property, must be nonnull and positive, using default value: {}",
+                    this.maximumMessagePerSecondPerCore);
         } else {
             this.maximumMessagePerSecondPerCore = maximumMessagePerSecondPerCore;
         }
@@ -134,8 +134,8 @@ public class FlinkParallelismOptimizer {
         StringJoiner urlParameters = new StringJoiner(AMPERSAND)
                 .add(PARAMS_START_TIME + EQUAL + startTime.format(formatter))
                 .add(PARAMS_END_TIME + EQUAL + endTime.format(formatter))
-                .add(PARAMS_INLONG_GROUP_Id + EQUAL + streamInfo.getInlongGroupId())
-                .add(PARAMS_INLONG_STREAM_Id + EQUAL + streamInfo.getInlongStreamId())
+                .add(PARAMS_INLONG_GROUP_ID + EQUAL + streamInfo.getInlongGroupId())
+                .add(PARAMS_INLONG_STREAM_ID + EQUAL + streamInfo.getInlongStreamId())
                 .add(PARAMS_AUDIT_ID + EQUAL + auditId)
                 .add(PARAMS_AUDIT_CYCLE + EQUAL + AUDIT_CYCLE_REALTIME);
 

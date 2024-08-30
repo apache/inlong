@@ -225,9 +225,8 @@ public class FlinkService {
             int recommendedParallelism =
                     flinkParallelismOptimizer.calculateRecommendedParallelism(flinkInfo.getInlongStreamInfoList());
             // Ensure parallelism is at least the default value
-            if (recommendedParallelism < parallelism) {
-                recommendedParallelism = parallelism;
-            }
+            recommendedParallelism = recommendedParallelism < parallelism ? parallelism : recommendedParallelism;
+
             if (recommendedParallelism != parallelism) {
                 log.info("switched to recommended parallelism: {}", recommendedParallelism);
                 parallelism = recommendedParallelism;
