@@ -298,7 +298,6 @@ public class FieldInfoUtils {
                     formatInfo = new TimeFormatInfo();
                 }
                 break;
-            case TIMESTAMPTZ:
             case TIMESTAMP:
             case DATETIME:
                 if (StringUtils.isNotBlank(format)) {
@@ -307,6 +306,7 @@ public class FieldInfoUtils {
                     formatInfo = new TimestampFormatInfo();
                 }
                 break;
+            case TIMESTAMPTZ:
             case LOCAL_ZONE_TIMESTAMP:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new LocalZonedTimestampFormatInfo(convertTimestampOrDataFormat(format), 2);
