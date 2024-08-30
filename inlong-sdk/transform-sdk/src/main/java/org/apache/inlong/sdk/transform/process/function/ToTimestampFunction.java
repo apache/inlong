@@ -41,6 +41,7 @@ import java.util.List;
  * to_timestamp(string1[, string2])--converts date time string string1 in format string2
  * (by default: yyyy-MM-dd HH:mm:ss if not specified) under the ‘UTC+0’ time zone to a timestamp
  */
+@TransformFunction(names = {"to_timestamp"})
 public class ToTimestampFunction implements ValueParser {
 
     private ValueParser stringParser;

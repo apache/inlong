@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
  * Md5Function
  * description: MD5(string): Return the MD5 hash value of a string in the form of a 32-bit hexadecimal digit string; If the string is NULL, return NULL.
  */
+@TransformFunction(names = {"md5"})
 public class Md5Function implements ValueParser {
 
     private ValueParser msgParser;

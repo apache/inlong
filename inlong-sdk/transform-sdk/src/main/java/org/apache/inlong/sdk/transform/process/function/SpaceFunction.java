@@ -24,35 +24,36 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
-import java.math.BigDecimal;
-
 /**
- * SinhFunction
- * description: sinh(numeric)--returns the hyperbolic sine of numeric
+ * SpaceFunction
+ * description: SPACE(N)
+ * - return NULL if N is NULL.
+ * - return "" if N is less than or equal to 0
+ * - return a string consisting of N space characters
  */
-@TransformFunction(names = {"sinh"})
-public class SinhFunction implements ValueParser {
+@TransformFunction(names = {"space"})
+public class SpaceFunction implements ValueParser {
 
-    private ValueParser numberParser;
+    private final ValueParser cntParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
-    public SinhFunction(Function expr) {
-        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public SpaceFunction(Function expr) {
+        cntParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.sinh(numberValue.doubleValue());
+        Object cntObj = cntParser.parse(sourceData, rowIndex, context);
+        if (cntObj == null) {
+            return null;
+        }
+        int cnt = OperatorTools.parseBigDecimal(cntObj).intValue();
+        if (cnt <= 0) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(cnt);
+        for (int i = 0; i < cnt; i++) {
+            builder.append(" ");
+        }
+        return builder.toString();
     }
 }

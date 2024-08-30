@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * LnFunction
  * description: ln(numeric)--returns the natural logarithm (base e) of numeric
  */
+@TransformFunction(names = {"ln"})
 public class LnFunction implements ValueParser {
 
     private ValueParser numberParser;

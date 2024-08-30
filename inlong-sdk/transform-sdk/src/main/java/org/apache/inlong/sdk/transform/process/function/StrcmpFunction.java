@@ -28,36 +28,40 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * RightFunction
- * description: right(string,length)
- * - return null if either string or length is null
- * - return "" if it is less than or equal to zero
- * - return a substring of length starting from the right side of the string.
+ * StrcmpFunction
+ * description:  strcmp(s1,s2)
+ * return NULL if either argument is NULL
+ * return 0 if the strings are the same
+ * return -1 if the first argument is smaller than the second according to the current sort order
+ * return 1 otherwise
  */
-@TransformFunction(names = {"right"})
-public class RightFunction implements ValueParser {
+@TransformFunction(names = {"strcmp"})
+public class StrcmpFunction implements ValueParser {
 
-    private final ValueParser stringParser;
-    private final ValueParser lengthParser;
+    private final ValueParser leftStringParser;
+    private final ValueParser rightStringParser;
 
-    public RightFunction(Function expr) {
+    public StrcmpFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
-        stringParser = OperatorTools.buildParser(expressions.get(0));
-        lengthParser = OperatorTools.buildParser(expressions.get(1));
+        leftStringParser = OperatorTools.buildParser(expressions.get(0));
+        rightStringParser = OperatorTools.buildParser(expressions.get(1));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        Object lengthObj = lengthParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null || lengthObj == null) {
+        Object leftStringObj = leftStringParser.parse(sourceData, rowIndex, context);
+        Object rightStringObj = rightStringParser.parse(sourceData, rowIndex, context);
+        if (leftStringObj == null || rightStringObj == null) {
             return null;
         }
-        String str = OperatorTools.parseString(stringObj);
-        int len = Integer.parseInt(OperatorTools.parseString(lengthObj));
-        if (len <= 0) {
-            return "";
+        String leftString = OperatorTools.parseString(leftStringObj);
+        String rightString = OperatorTools.parseString(rightStringObj);
+        int cmp = OperatorTools.compareValue(leftString, rightString);
+        if (cmp > 0) {
+            return 1;
+        } else if (cmp < 0) {
+            return -1;
         }
-        return str.substring(Math.max(str.length() - len, 0));
+        return 0;
     }
 }

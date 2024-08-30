@@ -24,35 +24,33 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
- * SinhFunction
- * description: sinh(numeric)--returns the hyperbolic sine of numeric
+ *  LocalDateFunction
+ *  description:
+ *  localDate([string1]) returns the current date in the specified time zone.
+ *  (by default: the current date in the system time zone)
  */
-@TransformFunction(names = {"sinh"})
-public class SinhFunction implements ValueParser {
+@TransformFunction(names = {"localdate", "currentdate", "current_date", "curdate"})
+public class LocalDateFunction implements ValueParser {
 
-    private ValueParser numberParser;
+    private ValueParser stringParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
-    public SinhFunction(Function expr) {
-        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public LocalDateFunction(Function expr) {
+        if (expr.getParameters() != null) {
+            stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        }
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.sinh(numberValue.doubleValue());
+        if (stringParser != null) {
+            String zoneString = OperatorTools.parseString(stringParser.parse(sourceData, rowIndex, context));
+            return LocalDate.now(ZoneId.of(zoneString));
+        } else {
+            return LocalDate.now(ZoneId.systemDefault());
+        }
     }
 }

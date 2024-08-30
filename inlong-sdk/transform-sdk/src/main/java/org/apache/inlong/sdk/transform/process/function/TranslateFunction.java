@@ -49,6 +49,7 @@ import java.util.Map;
  *      case1: translate(email, '@', '.') -> original_expression: harry@inlong.com  target_expression: harry.inlong.com
  *      case2: translate(hello WorD, 'WD', 'wd') -> original_expression: hello WorD  target_expression: hello word
  */
+@TransformFunction(names = {"translate"})
 public class TranslateFunction implements ValueParser {
 
     private ValueParser originalStrParser;
