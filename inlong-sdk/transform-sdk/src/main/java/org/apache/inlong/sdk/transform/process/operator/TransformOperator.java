@@ -17,33 +17,15 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.decode.SourceData;
-import org.apache.inlong.sdk.transform.process.Context;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import net.sf.jsqlparser.expression.NotExpression;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * NotOperator
- * 
- */
-@TransformOperator(values = NotExpression.class)
-public class NotOperator implements ExpressionOperator {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface TransformOperator {
 
-    private final ExpressionOperator node;
-
-    public NotOperator(NotExpression expr) {
-        this.node = OperatorTools.buildOperator(expr.getExpression());
-    }
-
-    /**
-     * check
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
-    @Override
-    public boolean check(SourceData sourceData, int rowIndex, Context context) {
-        return !this.node.check(sourceData, rowIndex, context);
-    }
-
+    Class<?>[] values();
 }

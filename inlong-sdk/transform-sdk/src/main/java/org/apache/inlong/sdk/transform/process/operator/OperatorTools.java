@@ -22,55 +22,82 @@ import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ParserTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.NotExpression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import org.apache.commons.lang.ObjectUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 
+import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * OperatorTools
  * 
  */
+@Slf4j
 public class OperatorTools {
+
+    private static final String OPERATOR_PATH = "org.apache.inlong.sdk.transform.process.operator";
+    private final static Map<Class<?>, Class<?>> operatorMap = Maps.newConcurrentMap();
 
     public static final String ROOT_KEY = "$root";
 
     public static final String CHILD_KEY = "$child";
 
+    static {
+        init();
+    }
+
+    private static void init() {
+        Reflections reflections = new Reflections(OPERATOR_PATH, Scanners.TypesAnnotated);
+        Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformOperator.class);
+        for (Class<?> clazz : clazzSet) {
+            if (ExpressionOperator.class.isAssignableFrom(clazz)) {
+                TransformOperator annotation = clazz.getAnnotation(TransformOperator.class);
+                if (annotation == null) {
+                    continue;
+                }
+                Class<?>[] values = annotation.values();
+                for (Class<?> value : values) {
+                    operatorMap.compute(value, (key, former) -> {
+                        if (former != null) {
+                            log.warn("find a conflict for parser class [{}], the former one is [{}], new one is [{}]",
+                                    key, former.getName(), clazz.getName());
+                        }
+                        return clazz;
+                    });
+                }
+            }
+        }
+    }
+
+    public static ExpressionOperator getTransformOperator(Expression expr) {
+        Class<?> clazz = operatorMap.get(expr.getClass());
+        if (clazz == null) {
+            return null;
+        }
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(expr.getClass());
+            return (ExpressionOperator) constructor.newInstance(expr);
+        } catch (NoSuchMethodException e) {
+            log.error("transform operator {} needs one constructor that accept one params whose type is {}",
+                    clazz.getName(), expr.getClass().getName(), e);
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static ExpressionOperator buildOperator(Expression expr) {
-        if (expr instanceof AndExpression) {
-            return new AndOperator((AndExpression) expr);
-        } else if (expr instanceof OrExpression) {
-            return new OrOperator((OrExpression) expr);
-        } else if (expr instanceof Parenthesis) {
-            return new ParenthesisOperator((Parenthesis) expr);
-        } else if (expr instanceof NotExpression) {
-            return new NotOperator((NotExpression) expr);
-        } else if (expr instanceof EqualsTo) {
-            return new EqualsToOperator((EqualsTo) expr);
-        } else if (expr instanceof NotEqualsTo) {
-            return new NotEqualsToOperator((NotEqualsTo) expr);
-        } else if (expr instanceof GreaterThan) {
-            return new GreaterThanOperator((GreaterThan) expr);
-        } else if (expr instanceof GreaterThanEquals) {
-            return new GreaterThanEqualsOperator((GreaterThanEquals) expr);
-        } else if (expr instanceof MinorThan) {
-            return new MinorThanOperator((MinorThan) expr);
-        } else if (expr instanceof MinorThanEquals) {
-            return new MinorThanEqualsOperator((MinorThanEquals) expr);
+        if (expr != null) {
+            return getTransformOperator(expr);
         }
         return null;
     }

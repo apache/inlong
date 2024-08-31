@@ -27,6 +27,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
  * EqualsToOperator
  * 
  */
+@TransformOperator(values = EqualsTo.class)
 public class EqualsToOperator implements ExpressionOperator {
 
     private final ValueParser left;
