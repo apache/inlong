@@ -45,6 +45,7 @@ import java.util.Set;
 public class OperatorTools {
 
     private static final String OPERATOR_PATH = "org.apache.inlong.sdk.transform.process.operator";
+
     private final static Map<Class<?>, Class<?>> operatorMap = Maps.newConcurrentMap();
 
     public static final String ROOT_KEY = "$root";
