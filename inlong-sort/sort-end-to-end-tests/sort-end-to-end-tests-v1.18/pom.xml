@@ -157,39 +157,6 @@
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
-                        <dependency>
-                            <groupId>mysql</groupId>
-                            <artifactId>mysql-connector-java</artifactId>
-                            <version>${mysql.jdbc.version}</version>
-                            <destFileName>mysql-driver.jar</destFileName>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                        </dependency>
-
-                        <artifactItem>
-                            <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
-                            <version>${project.version}</version>
-                            <destFileName>sort-connector-postgres-cdc.jar</destFileName>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-elasticsearch6-v1.18</artifactId>
-                            <version>${project.version}</version>
-                            <destFileName>sort-connector-elasticsearch6.jar</destFileName>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-elasticsearch7-v1.18</artifactId>
-                            <version>${project.version}</version>
-                            <destFileName>sort-connector-elasticsearch7.jar</destFileName>
-                            <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                        </artifactItem>
                     </artifactItems>
                 </configuration>
                 <executions>
