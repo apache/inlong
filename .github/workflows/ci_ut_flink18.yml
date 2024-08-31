@@ -67,12 +67,12 @@ jobs:
           restore-keys: ${{ runner.os }}-inlong-flink18
 
       - name: Build for Flink 1.18 with Maven
-        run: mvn --update-snapshots -e -V clean install -U -pl :sort-core,:sort-end-to-end-tests-v1.18 -am -Pv1.18 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        run: mvn --update-snapshots -e -V clean install -U -pl :sort-end-to-end-tests-v1.18 -am -Pv1.18 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
         env:
           CI: false
 
       - name: Unit test for Flink 1.18 with Maven
-        run: mvn --update-snapshots -e -V verify -pl :sort-core,:sort-end-to-end-tests-v1.18 -am -Pv1.18
+        run: mvn --update-snapshots -e -V verify -pl :sort-end-to-end-tests-v1.18 -am -Pv1.18
         env:
           CI: false
 
