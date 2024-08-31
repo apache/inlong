@@ -110,6 +110,14 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
+    @TransformFunction(names = {"day_name", "dayname"})
+    public static class DayNameExtractFunction extends DateExtractFunction {
+
+        public DayNameExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_NAME, expr);
+        }
+    }
+
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {
         this.type = type;
         List<Expression> expressions = expr.getParameters().getExpressions();
