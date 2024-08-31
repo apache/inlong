@@ -15,34 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink.dto;
+package org.apache.inlong.sdk.transform.process.parser;
 
-import lombok.Data;
+import net.sf.jsqlparser.expression.Expression;
 
-/**
- * Flink config, including address, port, job manager port, etc.
- */
-@Data
-public class FlinkConfig {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    private String address;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-    private Integer port;
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface TransformParser {
 
-    private Integer jobManagerPort;
-
-    private String savepointDirectory;
-
-    private Integer parallelism;
-
-    private boolean drain;
-
-    // flink version
-    private String version;
-
-    // max msg rate per core
-    private Integer maxMsgRatePerCore;
-
-    // whether to enable dynamic parallelism
-    private Boolean dynamicParallelismEnable;
+    Class<? extends Expression>[] values();
 }
