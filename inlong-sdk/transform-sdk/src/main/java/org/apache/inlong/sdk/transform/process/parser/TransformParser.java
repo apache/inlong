@@ -17,28 +17,17 @@
 
 package org.apache.inlong.sdk.transform.process.parser;
 
-import org.apache.inlong.sdk.transform.decode.SourceData;
-import org.apache.inlong.sdk.transform.process.Context;
+import net.sf.jsqlparser.expression.Expression;
 
-import net.sf.jsqlparser.expression.TimestampValue;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.sql.Timestamp;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * DateParser
- * description: parse the sql expression to a java.sql.Timestamp object
- */
-@TransformParser(values = TimestampValue.class)
-public class TimestampParser implements ValueParser {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface TransformParser {
 
-    private final Timestamp timestampValue;
-
-    public TimestampParser(TimestampValue expr) {
-        this.timestampValue = Timestamp.valueOf(expr.getValue().toLocalDateTime());
-    }
-
-    @Override
-    public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        return timestampValue;
-    }
+    Class<? extends Expression>[] values();
 }
