@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.consts;
 
 /**
  * Open api constants
@@ -54,8 +54,8 @@ public class OpenApiConstants {
     public static final String PARAMS_END_TIME = "endTime";
     public static final String PARAMS_AUDIT_ID = "auditId";
     public static final String PARAMS_AUDIT_TAG = "auditTag";
-    public static final String PARAMS_INLONG_GROUP_Id = "inlongGroupId";
-    public static final String PARAMS_INLONG_STREAM_Id = "inlongStreamId";
+    public static final String PARAMS_INLONG_GROUP_ID = "inlongGroupId";
+    public static final String PARAMS_INLONG_STREAM_ID = "inlongStreamId";
     public static final String PARAMS_IP = "ip";
     public static final String PARAMS_AUDIT_CYCLE = "auditCycle";
     public static final String KEY_HTTP_BODY_SUCCESS = "success";
