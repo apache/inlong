@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.StringValue;
  * StringParser
  * 
  */
+@TransformParser(values = StringValue.class)
 public class StringParser implements ValueParser {
 
     private final String stringValue;
