@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-org.apache.inlong.sort.formats.inlongmsg.InLongMsgFormatFactory
+org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgFormatFactory

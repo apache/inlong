@@ -18,12 +18,14 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.core.FileStaticManager;
+import org.apache.inlong.agent.core.FileStaticManager.FileStatic;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -38,8 +40,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.inlong.agent.constant.TaskConstants.SOURCE_DATA_CONTENT_STYLE;
 
 /**
  * Read text files
@@ -49,6 +54,7 @@ public class LogFileSource extends AbstractSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogFileSource.class);
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 64 * 1024;
     private final Long INODE_UPDATE_INTERVAL_MS = 1000L;
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 设置格式
 
     private String fileName;
     private File file;
@@ -308,14 +314,29 @@ public class LogFileSource extends AbstractSource {
     }
 
     @Override
-    public List<Reader> split(TaskProfile jobConf) {
-        return null;
-    }
-
-    @Override
     protected void releaseSource() {
         if (randomAccessFile != null) {
             try {
+                if (FileStaticManager.getInstance() == null) {
+                    return;
+                }
+                FileStatic data = new FileStatic();
+                data.setTaskId(taskId);
+                data.setRetry(String.valueOf(profile.isRetry()));
+                data.setContentType(profile.get(SOURCE_DATA_CONTENT_STYLE));
+                data.setGroupId(profile.getInlongGroupId());
+                data.setStreamId(profile.getInlongStreamId());
+                data.setDataTime(format.format(profile.getSinkDataTime()));
+                data.setFileName(profile.getInstanceId());
+                data.setFileLen(String.valueOf(randomAccessFile.length()));
+                data.setReadBytes(String.valueOf(bytePosition));
+                data.setReadLines(String.valueOf(linePosition));
+                OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
+                if (offsetProfile == null) {
+                    return;
+                }
+                data.setSendLines(offsetProfile.getOffset());
+                FileStaticManager.getInstance().putStaticMsg(data);
                 randomAccessFile.close();
             } catch (IOException e) {
                 LOGGER.error("close randomAccessFile error", e);

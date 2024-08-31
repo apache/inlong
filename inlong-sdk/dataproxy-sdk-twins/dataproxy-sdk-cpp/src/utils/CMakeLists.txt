@@ -19,6 +19,9 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-aux_source_directory(. UTILS_SRCS)
-
+file(GLOB UTILS_SRCS
+        "*.cc"
+        "*.h"
+        )
 add_library(utils STATIC ${UTILS_SRCS})
+

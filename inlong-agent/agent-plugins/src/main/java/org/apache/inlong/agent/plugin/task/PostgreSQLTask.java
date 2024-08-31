@@ -53,7 +53,6 @@ public class PostgreSQLTask extends AbstractTask {
     @Override
     protected void initTask() {
         LOGGER.info("postgres commonInit: {}", taskProfile.toJsonStr());
-        taskProfile.get(TASK_POSTGRES_DBNAME);
         dbName = taskProfile.get(TASK_POSTGRES_DBNAME);
         tableName = taskProfile.get(TASK_POSTGRES_TABLE_INCLUDE_LIST);
         instanceId = dbName + "-" + tableName;

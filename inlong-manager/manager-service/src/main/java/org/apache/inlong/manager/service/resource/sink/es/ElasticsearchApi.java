@@ -39,11 +39,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
-import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class ElasticsearchApi {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApi.class);
 
     private static final Gson GSON = new GsonBuilder().create();
 
@@ -68,7 +71,7 @@ public class ElasticsearchApi {
 
     private static final String CONTENT_TYPE_VALUE = "application/json;charset=UTF-8";
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApi.class);
+    private final Encoder base64Encoder = Base64.getEncoder();
 
     @Autowired
     private ElasticsearchConfig esConfig;
@@ -84,7 +87,7 @@ public class ElasticsearchApi {
         if (esConfig.getAuthEnable()) {
             if (StringUtils.isNotEmpty(esConfig.getUsername()) && StringUtils.isNotEmpty(esConfig.getPassword())) {
                 String tokenStr = esConfig.getUsername() + ":" + esConfig.getPassword();
-                String token = String.valueOf(new BASE64Encoder().encode(tokenStr.getBytes(StandardCharsets.UTF_8)));
+                String token = base64Encoder.encodeToString(tokenStr.getBytes(StandardCharsets.UTF_8));
                 headers.add("Authorization", "Basic " + token);
             }
         }
@@ -214,6 +217,7 @@ public class ElasticsearchApi {
         JsonObject fields = null;
         Map<String, ElasticsearchFieldInfo> fieldInfos = Maps.newHashMap();
         if (ObjectUtils.isNotEmpty(mappings)) {
+            String MAPPINGS_KEY = "mappings";
             properties = mappings.getAsJsonObject(MAPPINGS_KEY);
         }
         if (ObjectUtils.isNotEmpty(properties)) {

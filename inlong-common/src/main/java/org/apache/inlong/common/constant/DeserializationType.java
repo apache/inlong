@@ -19,8 +19,9 @@ package org.apache.inlong.common.constant;
 
 public class DeserializationType {
 
-    public static final String INLONG_MSG = "INLONG_MSG";
-    public static final String INLONG_MSG_PB = "INLONG_MSG_PB";
-    public static final String CSV = "CSV";
-    public static final String KV = "KV";
+    public static final String INLONG_MSG = "inlong_msg";
+    public static final String INLONG_MSG_PB = "inlong_msg_pb";
+    public static final String RAW = "raw";
+    public static final String CSV = "csv";
+    public static final String KV = "kv";
 }

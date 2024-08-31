@@ -58,7 +58,7 @@ public class FileUtils {
             creationTime = Files.readAttributes(Paths.get(fileName), BasicFileAttributes.class).creationTime()
                     .toMillis();
         } catch (IOException e) {
-            LOGGER.error("getFileCreationTime error {}", e.getMessage());
+            LOGGER.error("getFileCreationTime error.", e);
         }
         return creationTime;
     }
@@ -68,7 +68,7 @@ public class FileUtils {
         try {
             lastModify = Files.getLastModifiedTime(Paths.get(fileName)).toMillis();
         } catch (IOException e) {
-            LOGGER.error("getFileLastModifyTime error {}", e.getMessage());
+            LOGGER.error("getFileLastModifyTime error.", e);
         }
         return lastModify;
     }

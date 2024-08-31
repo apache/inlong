@@ -148,16 +148,16 @@ public class TestTransformProcessor {
 
     @Test
     public void testJson2Csv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
-        JsonSourceInfo jsonSource = new JsonSourceInfo("UTF-8", "msgs");
-        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
-        String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
-        TransformConfig config = new TransformConfig(transformSql);
+        List<FieldInfo> fields1 = this.getTestFieldList();
+        JsonSourceInfo jsonSource1 = new JsonSourceInfo("UTF-8", "msgs");
+        CsvSinkInfo csvSink1 = new CsvSinkInfo("UTF-8", '|', '\\', fields1);
+        String transformSql1 = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
         // case1
-        TransformProcessor<String, String> processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createJsonDecoder(jsonSource),
-                        SinkEncoderFactory.createCsvEncoder(csvSink));
-        String srcString = "{\n"
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createJsonDecoder(jsonSource1),
+                        SinkEncoderFactory.createCsvEncoder(csvSink1));
+        String srcString1 = "{\n"
                 + "  \"sid\":\"value1\",\n"
                 + "  \"packageID\":\"value2\",\n"
                 + "  \"msgs\":[\n"
@@ -165,10 +165,42 @@ public class TestTransformProcessor {
                 + "  {\"msg\":\"v4\",\"msgTime\":1713243918000}\n"
                 + "  ]\n"
                 + "}";
-        List<String> output = processor.transform(srcString, new HashMap<>());
-        Assert.assertEquals(2, output.size());
-        Assert.assertEquals(output.get(0), "value1|value2|1713243918000|value4");
-        Assert.assertEquals(output.get(1), "value1|value2|1713243918000|v4");
+        List<String> output1 = processor1.transform(srcString1, new HashMap<>());
+        Assert.assertEquals(2, output1.size());
+        Assert.assertEquals(output1.get(0), "value1|value2|1713243918000|value4");
+        Assert.assertEquals(output1.get(1), "value1|value2|1713243918000|v4");
+        // case2
+        List<FieldInfo> fields2 = this.getTestFieldList2();
+        JsonSourceInfo jsonSource2 = new JsonSourceInfo("UTF-8", "items");
+        CsvSinkInfo csvSink2 = new CsvSinkInfo("UTF-8", '|', '\\', fields2);
+        String transformSql2 =
+                "select $root.id,$child.itemId,$child.subItems(0).subItemId,$child.subItems(1).msg from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createJsonDecoder(jsonSource2),
+                        SinkEncoderFactory.createCsvEncoder(csvSink2));
+        String srcString2 = "{\n"
+                + "  \"id\":\"value1\",\n"
+                + "  \"name\":\"value2\",\n"
+                + "  \"items\":[\n"
+                + "    {\"itemId\":\"item1\",\n"
+                + "     \"subItems\":[\n"
+                + "       {\"subItemId\":\"1001\", \"msg\":\"1001msg\"},\n"
+                + "       {\"subItemId\":\"1002\", \"msg\":\"1002msg\"}\n"
+                + "     ]\n"
+                + "    },\n"
+                + "    {\"itemId\":\"item2\",\n"
+                + "     \"subItems\":[\n"
+                + "       {\"subItemId\":\"2001\", \"msg\":\"2001msg\"},\n"
+                + "       {\"subItemId\":\"2002\", \"msg\":\"2002msg\"}\n"
+                + "     ]\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        List<String> output2 = processor2.transform(srcString2, new HashMap<>());
+        Assert.assertEquals(2, output2.size());
+        Assert.assertEquals(output2.get(0), "value1|item1|1001|1002msg");
+        Assert.assertEquals(output2.get(1), "value1|item2|2001|2002msg");
     }
 
     @Test
@@ -225,6 +257,22 @@ public class TestTransformProcessor {
         FieldInfo msgTime = new FieldInfo();
         msgTime.setName("msgTime");
         fields.add(msgTime);
+        FieldInfo msg = new FieldInfo();
+        msg.setName("msg");
+        fields.add(msg);
+        return fields;
+    }
+    private List<FieldInfo> getTestFieldList2() {
+        List<FieldInfo> fields = new ArrayList<>();
+        FieldInfo id = new FieldInfo();
+        id.setName("id");
+        fields.add(id);
+        FieldInfo itemId = new FieldInfo();
+        itemId.setName("itemId");
+        fields.add(itemId);
+        FieldInfo subItemId = new FieldInfo();
+        subItemId.setName("subItemId");
+        fields.add(subItemId);
         FieldInfo msg = new FieldInfo();
         msg.setName("msg");
         fields.add(msg);

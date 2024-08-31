@@ -30,6 +30,7 @@ import { GroupLogs } from '@/ui/components/GroupLogs';
 import { dashCardList, useColumns } from './config';
 import { statusList } from '@/plugins/groups/common/status';
 import { useDefaultMeta } from '@/plugins';
+import { inlongGroupModeList } from '@/plugins/sync/common/SyncType';
 
 const Comp: React.FC = () => {
   const { options: groups } = useDefaultMeta('group');
@@ -50,7 +51,7 @@ const Comp: React.FC = () => {
   const { data: summary = {} } = useRequest({
     url: '/group/countByStatus',
     params: {
-      inlongGroupMode: 1,
+      inlongGroupMode: options.inlongGroupMode,
     },
   });
 
@@ -171,6 +172,17 @@ const Comp: React.FC = () => {
           dropdownMatchSelectWidth: false,
         },
       },
+      {
+        type: 'select',
+        name: 'inlongGroupMode',
+        label: i18n.t('meta.Synchronize.SyncType'),
+        initialValue: defaultValues.inlongGroupMode,
+        props: {
+          allowClear: true,
+          options: inlongGroupModeList,
+          dropdownMatchSelectWidth: false,
+        },
+      },
     ],
     [groups],
   );
@@ -196,7 +208,10 @@ const Comp: React.FC = () => {
             table={{
               columns,
               rowKey: 'id',
-              dataSource: data?.list,
+              dataSource: data?.list?.map(item => ({
+                ...item,
+                inlongGroupMode: options.inlongGroupMode,
+              })),
               pagination,
               loading,
               onChange,

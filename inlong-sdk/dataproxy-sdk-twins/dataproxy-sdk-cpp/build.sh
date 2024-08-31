@@ -19,17 +19,8 @@
 
 #!/bin/bash
 
-
-# Install third-party components
-cd ./third_party
-cmake .
-make
-
-cd ../
 rm -r build
 mkdir build
-
-# Compile project code
 cd build
 cmake ../
-make
+make -j4

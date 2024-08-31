@@ -18,9 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.except.FileException;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -166,11 +164,6 @@ public class KafkaSource extends AbstractSource {
     @Override
     protected boolean isRunnable() {
         return runnable;
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 
     @Override

@@ -66,7 +66,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       submitData.version = savedData?.version;
     }
     if (type === 'AGENT') {
-      submitData.protocolType = 'HTTP';
       if (submitData.installer !== undefined) {
         if (Array.isArray(submitData.moduleIdList)) {
           submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
@@ -139,6 +138,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   useUpdateEffect(() => {
     if (modalProps.open) {
       // open
+      setInstallType(false);
       form.resetFields();
       if (id) {
         getData(id);
@@ -266,7 +266,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'identifyType',
         initialValue: 'password',
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall,
+        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
         rules: [{ required: true }],
         props: {
           onChange: ({ target: { value } }) => {
@@ -292,7 +292,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'username',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall,
+        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
       },
       {
         type: 'input',
@@ -300,7 +300,12 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'password',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall && values?.identifyType === 'password',
+        visible: values => {
+          return (
+            (values?.isInstall && values?.identifyType === 'password') ||
+            (form.getFieldValue('isInstall') && form.getFieldValue('identifyType') === 'password')
+          );
+        },
       },
       {
         type: 'textarea',
@@ -321,7 +326,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'sshPort',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall,
+        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
       },
       {
         type: 'select',
@@ -330,7 +335,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         isPro: type === 'AGENT',
         hidden: type !== 'AGENT',
         props: {
-          mode: 'multiple',
           options: {
             requestAuto: true,
             requestTrigger: ['onOpen'],
@@ -363,6 +367,9 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     <Modal
       {...modalProps}
       title={i18n.t('pages.Clusters.Node.Name')}
+      afterClose={() => {
+        form.resetFields();
+      }}
       footer={[
         <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
           {i18n.t('basic.Cancel')}

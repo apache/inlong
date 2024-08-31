@@ -18,9 +18,9 @@
 package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatConverter;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverterBuilder;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+import org.apache.inlong.sort.formats.inlongmsg.row.AbstractInLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgMixedFormatConverterBuilder;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;

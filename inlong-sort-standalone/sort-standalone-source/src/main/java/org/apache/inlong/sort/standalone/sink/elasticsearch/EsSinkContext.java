@@ -19,8 +19,16 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.transform.encode.MapSinkEncoder;
+import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -37,6 +45,8 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -119,6 +129,9 @@ public class EsSinkContext extends SinkContext {
     private String strHttpHosts;
     private HttpHost[] httpHosts;
 
+    @Getter
+    protected Map<String, TransformProcessor<String, Map<String, Object>>> transformMap;
+
     public EsSinkContext(String sinkName, Context context, Channel channel,
             BufferQueue<EsIndexRequest> dispatchQueue) {
         super(sinkName, context, channel);
@@ -155,9 +168,12 @@ public class EsSinkContext extends SinkContext {
 
             // change current config
             Map<String, EsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig);
+            Map<String, TransformProcessor<String, Map<String, Object>>> transformProcessor =
+                    reloadTransform(taskConfig);
             Map<String, EsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
             if (unifiedConfiguration) {
                 idConfigMap = fromTaskConfig;
+                transformMap = transformProcessor;
                 reloadClientsFromNodeConfig(esNodeConfig);
             } else {
                 idConfigMap = fromSortTaskConfig;
@@ -205,6 +221,54 @@ public class EsSinkContext extends SinkContext {
             newIdConfigMap.put(uid, idConfig);
         }
         return newIdConfigMap;
+    }
+
+    private Map<String, TransformProcessor<String, Map<String, Object>>> reloadTransform(TaskConfig taskConfig) {
+        ImmutableMap.Builder<String, TransformProcessor<String, Map<String, Object>>> builder =
+                new ImmutableMap.Builder<>();
+
+        taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .forEach(flow -> {
+                    TransformProcessor<String, Map<String, Object>> transformProcessor =
+                            createTransform(flow);
+                    if (transformProcessor == null) {
+                        return;
+                    }
+                    builder.put(InlongId.generateUid(flow.getInlongGroupId(), flow.getInlongStreamId()),
+                            transformProcessor);
+                });
+
+        return builder.build();
+    }
+
+    private TransformProcessor<String, Map<String, Object>> createTransform(DataFlowConfig dataFlowConfig) {
+        try {
+            return TransformProcessor.create(
+                    createTransformConfig(dataFlowConfig),
+                    createSourceDecoder(dataFlowConfig.getSourceConfig()),
+                    createEsSinkEncoder(dataFlowConfig.getSinkConfig()));
+        } catch (Exception e) {
+            LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
+                    e.getMessage());
+            return null;
+        }
+    }
+
+    private MapSinkEncoder createEsSinkEncoder(SinkConfig sinkConfig) {
+        if (!(sinkConfig instanceof EsSinkConfig)) {
+            throw new IllegalArgumentException("sinkInfo must be an instance of EsMapSinkInfo");
+        }
+        EsSinkConfig esSinkConfig = (EsSinkConfig) sinkConfig;
+        List<FieldInfo> fieldInfos = esSinkConfig.getFieldConfigs()
+                .stream()
+                .map(config -> new FieldInfo(config.getName(), deriveTypeConverter(config.getFormatInfo())))
+                .collect(Collectors.toList());
+
+        MapSinkInfo sinkInfo = new MapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
+        return SinkEncoderFactory.createMapEncoder(sinkInfo);
     }
 
     private void reloadClientsFromNodeConfig(EsNodeConfig esNodeConfig) {
@@ -363,6 +427,10 @@ public class EsSinkContext extends SinkContext {
      */
     public EsIdConfig getIdConfig(String uid) {
         return this.idConfigMap.get(uid);
+    }
+
+    public TransformProcessor<String, Map<String, Object>> getTransformProcessor(String uid) {
+        return this.transformMap.get(uid);
     }
 
     /**

@@ -22,17 +22,18 @@ project(dataproxy-sdk-python)
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories("./dataproxy-sdk-cpp/src/core")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/src/core")
 
-include_directories("./dataproxy-sdk-cpp/third_party/lib")
-include_directories("./dataproxy-sdk-cpp/third_party/lib64")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib64")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib")
 
 add_subdirectory(pybind11)
-add_subdirectory(dataproxy-sdk-cpp)
 
-link_directories("./dataproxy-sdk-cpp/third_party/lib")
-link_directories("./dataproxy-sdk-cpp/third_party/lib64")
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib")
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib64")
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib")
 
 pybind11_add_module(inlong_dataproxy inlong_dataproxy.cpp)
 
-target_link_libraries(inlong_dataproxy PRIVATE pybind11::module dataproxy_sdk)
+target_link_libraries(inlong_dataproxy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib/dataproxy_sdk.a" liblog4cplusS.a libsnappy.a libcurl.a libssl.a libcrypto.a)

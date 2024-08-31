@@ -22,6 +22,7 @@
 
 #include "string.h"
 #include <stdint.h>
+#include <limits>
 
 namespace inlong {
 namespace constants {
@@ -41,6 +42,8 @@ static const int32_t kSendBufSize = 10240000;
 static const int32_t kRecvBufSize = 10240000;
 static const uint32_t kMaxGroupIdNum = 50;
 static const uint32_t kMaxStreamIdNum = 100;
+static const uint32_t kMaxCacheNum = 10;
+static const uint32_t kMaxInstance = 30;
 
 static const int32_t kDispatchIntervalZip = 8;
 static const int32_t kDispatchIntervalSend = 10;
@@ -48,6 +51,7 @@ static const int32_t kLoadBalanceInterval = 300000;
 static const int32_t kHeartBeatInterval = 60000;
 static const bool kEnableBalance = true;
 static const bool kEnableLocalCache = true;
+static const bool kEnableShareMsg = true;
 
 static const bool kEnablePack = true;
 static const uint32_t kPackSize = 409600;
@@ -76,6 +80,10 @@ static const uint32_t kReserveProxyNum = 2;
 static const bool kEnableTCPNagle = true;
 static const uint32_t kTcpIdleTime = 600000;
 static const uint32_t kTcpDetectionInterval = 60000;
+static const uint32_t kMaxRetryIntervalMs= 3000;
+static const uint32_t kRetryIntervalMs= 200;
+static const int32_t kRetryTimes = 1;
+static const uint32_t kProxyRepeatTimes = 1;
 
 static const char kSerIP[] = "127.0.0.1";
 static const uint32_t kSerPort = 46801;
@@ -84,6 +92,8 @@ static const uint32_t kMsgType = 7;
 static const bool kEnableSetAffinity = false;
 static const uint32_t kMaskCPUAffinity = 0xff;
 static const uint16_t kExtendField = 0;
+static const uint64_t kMaxSnowFlake = std::numeric_limits<uint64_t>::max();
+static const bool kExtendReport = false;
 
 // http basic auth
 static const char kBasicAuthHeader[] = "Authorization:";
@@ -106,6 +116,7 @@ static const int32_t kWeight[30] = {1,  1,  1,  1,  1,  2,  2,  2,   2,   2,
 static const char kCacheFile[] = ".proxy_list.ini";
 static const char kCacheTmpFile[] = ".proxy_list.ini.tmp";
 const int MAX_RETRY = 10;
+static const int kMetricIntervalMinutes = 1;
 
 } // namespace constants
 } // namespace inlong

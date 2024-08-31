@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * ExpFunction
  * description: exp(numeric)--returns e raised to the power of numeric
  */
+@TransformFunction(names = {"exp"})
 public class ExpFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -20,11 +20,11 @@ package org.apache.inlong.sort.formats.inlongmsgcsv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializerFactory;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatConverter;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatDeserializer;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverterValidator;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatDeserializerValidator;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatFactory;
+import org.apache.inlong.sort.formats.inlongmsg.row.AbstractInLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.row.AbstractInLongMsgMixedFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgMixedFormatConverterValidator;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgMixedFormatDeserializerValidator;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgMixedFormatFactory;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.factories.TableFormatFactoryBase;
@@ -42,10 +42,10 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LI
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_RETAIN_PREDEFINED_FIELD;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getDataRowFormatInfo;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_RETAIN_PREDEFINED_FIELD;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.getDataRowFormatInfo;
 import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsv.FORMAT_TYPE_VALUE;
 import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.FORMAT_DELETE_HEAD_DELIMITER;
 

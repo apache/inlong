@@ -29,6 +29,7 @@ public class AuditMetric {
     private Long successPack = 0L;
     private Long failedPack = 0L;
     private Long totalMsg = 0L;
+    private Long memorySize = 0L;
 
     public void addSuccessPack(long successPack) {
         this.successPack += successPack;
@@ -42,9 +43,14 @@ public class AuditMetric {
         this.totalMsg += totalMsg;
     }
 
+    public void addMemorySize(long memorySize) {
+        this.memorySize += memorySize;
+    }
+
     public void reset() {
         successPack = 0L;
         failedPack = 0L;
         totalMsg = 0L;
+        memorySize = 0L;
     }
 }

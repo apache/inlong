@@ -52,7 +52,10 @@ public class TaskProfileDto {
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
+    public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
     public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
+    public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
+    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -308,12 +311,14 @@ public class TaskProfileDto {
         OracleTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 OracleTaskConfig.class);
         OracleTask oracleTask = new OracleTask();
-        oracleTask.setUser(config.getUser());
+
         oracleTask.setHostname(config.getHostname());
-        oracleTask.setPassword(config.getPassword());
         oracleTask.setPort(config.getPort());
-        oracleTask.setServerName(config.getServerName());
-        oracleTask.setDbname(config.getDbname());
+        oracleTask.setUser(config.getUsername());
+        oracleTask.setPassword(config.getPassword());
+        oracleTask.setSchemaIncludeList(config.getSchemaName());
+        oracleTask.setDbname(config.getDatabase());
+        oracleTask.setTableIncludeList(config.getTableName());
 
         OracleTask.Offset offset = new OracleTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -322,7 +327,7 @@ public class TaskProfileDto {
         oracleTask.setOffset(offset);
 
         OracleTask.Snapshot snapshot = new OracleTask.Snapshot();
-        snapshot.setMode(config.getSnapshotMode());
+        snapshot.setMode(config.getScanStartupMode());
         oracleTask.setSnapshot(snapshot);
 
         OracleTask.History history = new OracleTask.History();
@@ -342,6 +347,10 @@ public class TaskProfileDto {
         sqlServerTask.setPort(config.getPort());
         sqlServerTask.setServerName(config.getSchemaName());
         sqlServerTask.setDbname(config.getDatabase());
+        sqlServerTask.setSchemaName(config.getSchemaName());
+        sqlServerTask.setTableName(config.getSchemaName() + "." + config.getTableName());
+        sqlServerTask.setServerTimezone(config.getServerTimezone());
+        sqlServerTask.setUnixTimestampFormatEnable(config.getUnixTimestampFormatEnable());
 
         SqlServerTask.Offset offset = new SqlServerTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -488,12 +497,14 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case ORACLE:
+                task.setTaskClass(DEFAULT_ORACLE_TASK);
                 OracleTask oracleTask = getOracleTask(dataConfig);
                 task.setOracleTask(oracleTask);
                 task.setSource(ORACLE_SOURCE);
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
+                task.setTaskClass(DEFAULT_SQLSERVER_TASK);
                 SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
                 task.setSqlserverTask(sqlserverTask);
                 task.setSource(SQLSERVER_SOURCE);
@@ -513,6 +524,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case MQTT:
+                task.setTaskClass(DEFAULT_MQTT_TASK);
                 MqttTask mqttTask = getMqttTask(dataConfig);
                 task.setMqttTask(mqttTask);
                 task.setSource(MQTT_SOURCE);

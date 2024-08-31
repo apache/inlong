@@ -33,11 +33,11 @@ include_directories(src/manager)
 include_directories(src/group)
 include_directories(src/protocol)
 include_directories(src/client)
+include_directories(src/metric)
 
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
 
-add_subdirectory(third_party)
 add_subdirectory(src/utils)
 add_subdirectory(src/config)
 add_subdirectory(src/core)
@@ -58,9 +58,9 @@ aux_source_directory(src/protocol PROTOCOL)
 aux_source_directory(src/client CLIENT)
 
 # static library
-add_library(dataproxy_sdk STATIC ${UTILS} ${CONFIGS} ${CORE} ${MANAGER} ${GROUP} ${PROTOCOL} ${CLIENT})
+add_library(dataproxy_sdk STATIC ${UTILS} ${CONFIGS} ${CORE} ${MANAGER} ${GROUP} ${PROTOCOL} ${CLIENT} ${METRIC})
 
 set_target_properties(dataproxy_sdk PROPERTIES OUTPUT_NAME "dataproxy_sdk" PREFIX "")
 
-target_link_libraries(dataproxy_sdk liblog4cplusS.a libsnappy.a libcurl.a)
+target_link_libraries(dataproxy_sdk liblog4cplusS.a libsnappy.a libcurl.a libssl.a libcrypto.a)
 

@@ -54,7 +54,7 @@ public class SqlConstants {
                     ", SUM(count) AS cnt, SUM(size) AS size\n" +
                     "\t\t\t, SUM(delay) AS delay\n" +
                     "\t\tFROM audit_data\n" +
-                    "\t\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\tWHERE log_ts >= ? AND log_ts < ? \n" +
                     "\t\t\tAND audit_id = ?\n" +
                     "\t\tGROUP BY audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
                     "\t) t_all_version\n" +
@@ -66,7 +66,7 @@ public class SqlConstants {
                     "    ELSE audit_tag\n" +
                     "END AS audit_tag \n" +
                     "\t\t\tFROM audit_data\n" +
-                    "\t\t\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\t\tWHERE log_ts >= ? AND log_ts < ? \n" +
                     "\t\t\t\tAND audit_id = ?\n" +
                     "\t\t\tGROUP BY log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
                     "\t\t) t_max_version\n" +
@@ -84,7 +84,7 @@ public class SqlConstants {
             "SELECT ip, sum(count) AS cnt, sum(size) AS size\n" +
                     "\t, sum(delay) AS delay\n" +
                     "FROM audit_data\n" +
-                    "WHERE log_ts BETWEEN ? AND ?\n" +
+                    "WHERE log_ts >= ? AND log_ts < ? \n" +
                     "\tAND inlong_group_id = ? \n" +
                     "\tAND inlong_stream_id =  ? \n" +
                     "\tAND audit_id =  ? \n" +
@@ -100,7 +100,7 @@ public class SqlConstants {
                     "\t, sum(count) AS cnt, sum(size) AS size\n" +
                     "\t, sum(delay) AS delay\n" +
                     "FROM audit_data\n" +
-                    "WHERE log_ts BETWEEN ? AND ? \n" +
+                    "WHERE log_ts >= ? AND log_ts < ? \n" +
                     "\tAND audit_id = ? \n" +
                     "\tAND ip = ? \n" +
                     "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
@@ -120,7 +120,7 @@ public class SqlConstants {
                     "    END AS audit_tag ," +
                     " count, size, delay\n" +
                     "\tFROM audit_data\n" +
-                    "\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\tWHERE log_ts >= ? AND log_ts < ? \n" +
                     "\t\tAND inlong_group_id = ?\n" +
                     "\t\tAND inlong_stream_id = ?\n" +
                     "\t\tAND audit_id = ?\n" +
@@ -137,14 +137,14 @@ public class SqlConstants {
                     ", sum(count) AS cnt, sum(size) AS size\n" +
                     ", sum(delay) AS delay\n" +
                     "FROM audit_data_temp\n" +
-                    "WHERE log_ts BETWEEN ?  AND ? \n" +
+                    "WHERE log_ts >= ? AND log_ts < ? \n" +
                     "AND audit_id = ? \n" +
                     "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
 
     public static final String KEY_MYSQL_SOURCE_QUERY_DAY_SQL = "mysql.query.day.sql";
     public static final String DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL =
             "select log_ts,inlong_group_id,inlong_stream_id,audit_id,audit_tag,count,size,delay " +
-                    "from audit_data_day where log_ts between ? and ? and inlong_group_id=? and inlong_stream_id=? and audit_id =? ";
+                    "from audit_data_day where log_ts >= ? AND log_ts < ? AND inlong_group_id=? AND inlong_stream_id=? AND audit_id =? ";
 
     public static final String KEY_MYSQL_QUERY_AUDIT_ID_SQL = "mysql.query.audit.id.sql";
     public static final String DEFAULT_MYSQL_QUERY_AUDIT_ID_SQL =

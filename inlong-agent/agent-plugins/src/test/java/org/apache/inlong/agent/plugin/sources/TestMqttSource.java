@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.common.metric.MetricItem;
@@ -90,7 +91,7 @@ public class TestMqttSource {
         // build mock
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn("test_group");
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn("test_stream");
-        when(jobProfile.get(eq(MqttSource.JOB_MQTTJOB_TOPICS), eq(StringUtils.EMPTY))).thenReturn(StringUtils.EMPTY,
+        when(jobProfile.get(eq(TaskConstants.TASK_MQTT_TOPIC), eq(StringUtils.EMPTY))).thenReturn(StringUtils.EMPTY,
                 topic1, topic2);
         final MqttSource source = new MqttSource();
 

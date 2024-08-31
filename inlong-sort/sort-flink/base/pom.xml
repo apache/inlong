@@ -41,7 +41,7 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-base</artifactId>
+            <artifactId>sort-format-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -55,6 +55,13 @@
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>dataproxy-sdk</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

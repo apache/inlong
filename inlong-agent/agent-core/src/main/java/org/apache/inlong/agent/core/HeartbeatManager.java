@@ -19,27 +19,33 @@ package org.apache.inlong.agent.core;
 
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
-import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
+import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Pattern;
+import java.util.concurrent.ThreadFactory;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 
@@ -50,32 +56,27 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
     public static final int PRINT_MEMORY_PERMIT_INTERVAL_SECOND = 60;
+    public static final int HEARTBEAT_INTERVAL_SECOND = 60;
+    public static final String INLONG_AGENT_SYSTEM = "inlong_agent_system";
+
     private static HeartbeatManager heartbeatManager = null;
-    private final TaskManager taskManager;
     private final AgentConfiguration conf;
     private final HttpManager httpManager;
     private final String baseManagerUrl;
     private final String reportHeartbeatUrl;
-    private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
+    private DefaultMessageSender sender;
 
     /**
      * Init heartbeat manager.
      */
     private HeartbeatManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
-        taskManager = agentManager.getTaskManager();
         httpManager = new HttpManager(conf);
         baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
-    }
-
-    private HeartbeatManager() {
-        conf = AgentConfiguration.getAgentConf();
-        httpManager = new HttpManager(conf);
-        baseManagerUrl = httpManager.getBaseUrl();
-        reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
-
-        taskManager = null;
+        createMessageSender();
+        AgentStatusManager.getInstance(agentManager);
+        FileStaticManager.getInstance(agentManager);
     }
 
     public static HeartbeatManager getInstance(AgentManager agentManager) {
@@ -122,10 +123,16 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(" {} report heartbeat to manager", heartbeatMsg);
                     }
-                    SECONDS.sleep(heartbeatInterval());
+                    if (sender == null) {
+                        createMessageSender();
+                    }
+                    AgentStatusManager.getInstance().sendStatusMsg(sender);
+                    FileStaticManager.getInstance().sendStaticMsg(sender);
                 } catch (Throwable e) {
                     LOGGER.error("interrupted while report heartbeat", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+                } finally {
+                    AgentUtils.silenceSleepInSeconds(HEARTBEAT_INTERVAL_SECOND);
                 }
             }
         };
@@ -189,9 +196,22 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return baseUrl + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
     }
 
-    public static void main(String[] args) throws Exception {
-        HeartbeatManager heartbeatManager = new HeartbeatManager();
-        heartbeatManager.reportHeartbeat(heartbeatManager.buildDeadHeartbeatMsg());
-        System.out.println("Success send dead heartbeat message to manager.");
+    private void createMessageSender() {
+        String managerAddr = conf.get(AGENT_MANAGER_ADDR);
+        String authSecretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        String authSecretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
+        ProxyClientConfig proxyClientConfig = null;
+        try {
+            proxyClientConfig = new ProxyClientConfig(managerAddr, INLONG_AGENT_SYSTEM, authSecretId, authSecretKey);
+            proxyClientConfig.setTotalAsyncCallbackSize(CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
+            proxyClientConfig.setAliveConnections(CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
+            proxyClientConfig.setIoThreadNum(CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
+            proxyClientConfig.setProtocolType(ProtocolType.TCP);
+            ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-heartbeat",
+                    Thread.currentThread().isDaemon());
+            sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
+        } catch (Exception e) {
+            LOGGER.error("heartbeat manager create sdk failed: ", e);
+        }
     }
 }

@@ -104,6 +104,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,11 +222,35 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            constrainStartAndEndTime(request);
             scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
         }
 
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
+    }
+
+    /**
+     * Add constraints to the start and end time of the offline synchronization group.
+     * 1. startTime must >= current time
+     * 2. endTime must >= startTime
+     * */
+    private void constrainStartAndEndTime(InlongGroupRequest request) {
+        Timestamp startTime = request.getStartTime();
+        Timestamp endTime = request.getEndTime();
+        Preconditions.expectTrue(startTime != null && endTime != null, "start time or end time cannot be empty");
+        long currentTime = System.currentTimeMillis();
+        if (startTime.getTime() < currentTime) {
+            Timestamp newStartTime = new Timestamp(currentTime);
+            request.setStartTime(newStartTime);
+            LOGGER.warn("start time is less than current time, re-set to current time for groupId={}, "
+                    + "startTime={}, newStartTime={}", request.getInlongGroupId(), startTime, newStartTime);
+        }
+        if (request.getStartTime().getTime() > endTime.getTime()) {
+            request.setEndTime(request.getStartTime());
+            LOGGER.warn("end time is less than start time, re-set end time to start time for groupId={}, "
+                    + "endTime={}, newEndTime={}", request.getInlongGroupId(), endTime, request.getEndTime());
+        }
     }
 
     @Override
@@ -284,24 +309,18 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setSortConf(sortConf);
         if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
             // get schedule info and set into group info
-            addScheduleInfo(entity, groupInfo);
+            fillInScheduleInfo(entity, groupInfo);
         }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }
 
-    private void addScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
-        checkOfflineSyncScheduleExist(entity);
-        ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
-        CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
-    }
-
-    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity) {
-        // check schedule info for offline sync
-        if (!isScheduleInfoExist(entity)) {
-            String errorMsg = String.format("Schedule info not found for groupId=%s", entity.getInlongGroupId());
-            LOGGER.error(errorMsg);
-            throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND, errorMsg);
+    private void fillInScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
+        if (isScheduleInfoExist(entity)) {
+            ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
+            int groupVersion = groupInfo.getVersion();
+            CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
+            groupInfo.setVersion(groupVersion);
         }
     }
 
@@ -498,8 +517,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
-            scheduleOperator.updateAndRegister(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new),
-                    operator);
+            constrainStartAndEndTime(request);
+            ScheduleInfoRequest scheduleRequest = CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new);
+            if (scheduleOperator.scheduleInfoExist(groupId)) {
+                scheduleRequest.setVersion(scheduleOperator.getScheduleInfo(groupId).getVersion());
+            }
+            scheduleOperator.updateAndRegister(scheduleRequest, operator);
         }
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);

@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sources.file;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
@@ -30,10 +29,10 @@ import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.file.Source;
 import org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import lombok.AllArgsConstructor;
@@ -155,6 +154,7 @@ public abstract class AbstractSource implements Source {
                 doRun();
             } catch (Throwable e) {
                 LOGGER.error("do run error maybe file deleted: ", e);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
             }
             running = false;
         };
@@ -178,12 +178,14 @@ public abstract class AbstractSource implements Source {
                 continue;
             }
             emptyCount = 0;
-            for (int i = 0; i < lines.size(); i++) {
-                boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).getData().length);
-                if (!suc4Queue) {
-                    break;
+            if (lines != null) {
+                for (int i = 0; i < lines.size(); i++) {
+                    boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).getData().length);
+                    if (!suc4Queue) {
+                        break;
+                    }
+                    putIntoQueue(lines.get(i));
                 }
-                putIntoQueue(lines.get(i));
             }
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
@@ -402,10 +404,5 @@ public abstract class AbstractSource implements Source {
     @Override
     public boolean sourceFinish() {
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 }

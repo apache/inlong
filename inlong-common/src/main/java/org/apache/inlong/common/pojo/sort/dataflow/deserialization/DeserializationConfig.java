@@ -28,6 +28,7 @@ import java.io.Serializable;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InlongMsgDeserializationConfig.class, name = DeserializationType.INLONG_MSG),
         @JsonSubTypes.Type(value = InlongMsgPbDeserialiationConfig.class, name = DeserializationType.INLONG_MSG_PB),
+        @JsonSubTypes.Type(value = RawDeserializationConfig.class, name = DeserializationType.RAW),
 })
 public interface DeserializationConfig extends Serializable {
 

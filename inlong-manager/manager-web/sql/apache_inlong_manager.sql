@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `protocol_type` varchar(20)           DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
     `node_load`     int(11)               DEFAULT '-1' COMMENT 'Current load value of the node',
     `ext_params`    mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
+    `operate_log`   text                  DEFAULT NULL COMMENT 'The operate log',
     `description`   varchar(256)          DEFAULT '' COMMENT 'Description of cluster node',
     `status`        int(4)                DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`    int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',

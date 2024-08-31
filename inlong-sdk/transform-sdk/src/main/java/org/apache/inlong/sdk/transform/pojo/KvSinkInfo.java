@@ -42,7 +42,7 @@ public class KvSinkInfo extends SinkInfo {
     public KvSinkInfo(
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
-        super(SourceInfo.KV, charset);
+        super(SinkInfo.KV, charset);
         if (fields != null) {
             this.fields = fields;
         } else {

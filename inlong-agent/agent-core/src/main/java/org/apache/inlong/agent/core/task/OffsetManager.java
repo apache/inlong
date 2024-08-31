@@ -106,9 +106,6 @@ public class OffsetManager extends AbstractDaemon {
      * get taskPositionManager singleton
      */
     public static OffsetManager getInstance() {
-        if (offsetManager == null) {
-            throw new RuntimeException("task position manager has not been initialized by agentManager");
-        }
         return offsetManager;
     }
 
@@ -149,9 +146,6 @@ public class OffsetManager extends AbstractDaemon {
             InstanceProfile instanceFromDb = iterator.next();
             String taskId = instanceFromDb.getTaskId();
             String instanceId = instanceFromDb.getInstanceId();
-            if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
-                continue;
-            }
             TaskProfile taskFromDb = taskStore.getTask(taskId);
             if (taskFromDb != null) {
                 if (taskFromDb.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
@@ -180,6 +174,10 @@ public class OffsetManager extends AbstractDaemon {
                 iterator.remove();
             }
         }
+    }
+
+    public int getRunningInstanceCount() {
+        return instanceStore.getRunningInstanceCount();
     }
 
     @Override

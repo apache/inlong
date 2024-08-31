@@ -41,7 +41,8 @@ enum SdkCode {
   kSendBeforeInit = 22,
   kFailMallocBuf = 23,
   kMsgSizeLargerThanPackSize = 24,
-  kSendBufferFull = 25
+  kSendBufferFull = 25,
+  kBufferManagerFull = 26
 };
 }
 

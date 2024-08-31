@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.pojo;
 
+import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
+
 import lombok.Data;
 
 /**
@@ -26,4 +28,14 @@ import lombok.Data;
 public class FieldInfo {
 
     private String name;
+    private TypeConverter converter;
+
+    public FieldInfo() {
+
+    }
+
+    public FieldInfo(String name, TypeConverter converter) {
+        this.name = name;
+        this.converter = converter;
+    }
 }
