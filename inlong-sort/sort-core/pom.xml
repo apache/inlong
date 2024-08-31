@@ -73,18 +73,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-inlongmsg-base</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-csv</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <scope>test</scope>
@@ -105,6 +93,18 @@
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-table-common</artifactId>
                     <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-csv</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-inlongmsg-base</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
@@ -253,6 +253,18 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-csv</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-inlongmsg-base</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
                     <artifactId>sort-flink-dependencies-${sort.flink.version}</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
@@ -369,6 +381,24 @@
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
                     <artifactId>sort-connector-pulsar-v1.18</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-connector-jdbc-v1.18</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-connector-elasticsearch6-v1.18</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-connector-elasticsearch7-v1.18</artifactId>
                     <version>${project.version}</version>
                     <scope>test</scope>
                 </dependency>

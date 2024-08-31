@@ -249,6 +249,7 @@
             <id>v1.18</id>
             <modules>
                 <module>format-common</module>
+                <module>format-row</module>
                 <module>format-rowdata</module>
             </modules>
             <dependencies>
