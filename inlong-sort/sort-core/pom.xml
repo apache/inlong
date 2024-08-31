@@ -378,8 +378,8 @@
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
-<!--            Because the flink1.18 connectors not has postgreSQL connector, so this test use 1.15 pg connector-->
-<!--            When there is pg connector in flink1.18, replace it-->
+                <!-- Because the flink1.18 connectors not has postgreSQL connector, so this test use 1.15 pg connector-->
+                <!-- When there is pg connector in flink1.18, replace it-->
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
                     <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
