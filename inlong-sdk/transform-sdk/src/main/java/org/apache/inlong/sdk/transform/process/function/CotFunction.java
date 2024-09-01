@@ -36,19 +36,16 @@ public class CotFunction implements ValueParser {
     private final ValueParser valueParser;
 
     public CotFunction(Function expr) {
-        // 使用OperatorTools构建解析器来处理表达式中的参数
         this.valueParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        // 解析输入的参数
         Object valueObj = valueParser.parse(sourceData, rowIndex, context);
 
-        // 将解析结果转换为BigDecimal以处理数值计算
         BigDecimal value = OperatorTools.parseBigDecimal(valueObj);
 
-        // 计算tan(x)并取倒数以求得cot(x)
+        // Calculate tan(x) and take the inverse to find cot(x)
         double tanValue = Math.tan(value.doubleValue());
         if (tanValue == 0) {
             throw new ArithmeticException("Cotangent undefined for this input, tan(x) is zero.");
