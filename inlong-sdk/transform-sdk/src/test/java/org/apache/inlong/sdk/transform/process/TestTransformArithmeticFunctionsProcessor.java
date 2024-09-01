@@ -208,7 +208,6 @@ public class TestTransformArithmeticFunctionsProcessor {
         }
     }
 
-
     @Test
     public void testLog2Function() throws Exception {
         String transformSql = "select log2(numeric1) from source";
