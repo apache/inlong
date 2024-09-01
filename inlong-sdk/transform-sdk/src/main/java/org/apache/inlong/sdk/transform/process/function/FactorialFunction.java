@@ -41,6 +41,10 @@ public class FactorialFunction implements ValueParser {
      * @param expr
      */
     public FactorialFunction(Function expr) {
+        if (expr == null || expr.getParameters() == null || expr.getParameters().getExpressions() == null
+                || expr.getParameters().getExpressions().get(0) == null) {
+            throw new IllegalArgumentException("Invalid expression for factorial function.");
+        }
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
@@ -54,6 +58,9 @@ public class FactorialFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            throw new IllegalArgumentException("Number object cannot be null.");
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
 
         // Ensure the number is a non-negative integer
@@ -71,6 +78,9 @@ public class FactorialFunction implements ValueParser {
      * @return
      */
     private BigDecimal factorial(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("Factorial is not defined for negative numbers.");
+        }
         BigDecimal result = BigDecimal.ONE;
         for (int i = 2; i <= n; i++) {
             result = result.multiply(BigDecimal.valueOf(i));
