@@ -24,6 +24,11 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
+/**
+ * RadiansFunction
+ * description:
+ *  - RADIANS(x)--returns radians of x, Convert degrees to radians
+ */
 @TransformFunction(names = {"radians"})
 public class RadiansFunction implements ValueParser {
 
