@@ -176,22 +176,35 @@ public class TestTransformArithmeticFunctionsProcessor {
 
     @Test
     public void testFactorialFunction() throws Exception {
-        String transformSql = "select factorial(numeric1) from source";
+
+        List<FieldInfo> fields = new ArrayList<>();
+        FieldInfo numeric1 = new FieldInfo();
+        numeric1.setName("numeric1");
+        fields.add(numeric1);
+
+        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
+
+        KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
+
+        String transformSql = "select factorial(numeric1) as result from source";
+
         TransformConfig config = new TransformConfig(transformSql);
+
         TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: 5！
+
+        // case1: 5!
         List<String> output1 = processor.transform("5|4|6|8");
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=120");
 
-        // case2: 0！
+        // case2: 0!
         List<String> output2 = processor.transform("0|4|6|8");
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=1");
 
-        // case3: 5.5！
+        // case3: 5.5!
         try {
             List<String> output3 = processor.transform("5.5|4|6|8");
             Assert.fail("Expected an exception for non-integer input");
@@ -199,7 +212,7 @@ public class TestTransformArithmeticFunctionsProcessor {
             Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
         }
 
-        // case4: -5！
+        // case4: -5!
         try {
             List<String> output4 = processor.transform("-5|4|6|8");
             Assert.fail("Expected an exception for negative input");
