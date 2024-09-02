@@ -86,7 +86,7 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_year"})
+    @TransformFunction(names = {"day_of_year", "dayofyear"})
     public static class DayOfYearExtractFunction extends DateExtractFunction {
 
         public DayOfYearExtractFunction(Function expr) {
@@ -94,7 +94,7 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_month"})
+    @TransformFunction(names = {"day_of_month", "dayofmonth"})
     public static class DayOfMonthExtractFunction extends DateExtractFunction {
 
         public DayOfMonthExtractFunction(Function expr) {
@@ -102,7 +102,7 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_week"})
+    @TransformFunction(names = {"day_of_week", "dayofweek"})
     public static class DayOfWeekExtractFunction extends DateExtractFunction {
 
         public DayOfWeekExtractFunction(Function expr) {
