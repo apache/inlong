@@ -42,6 +42,9 @@ public class AsinFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            throw new NullPointerException("Parsed number object is null");
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.asin(numberValue.doubleValue());
     }

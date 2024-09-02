@@ -46,6 +46,10 @@ public class Atan2Function implements ValueParser {
         Object xObj = xParser.parse(sourceData, rowIndex, context);
         Object yObj = yParser.parse(sourceData, rowIndex, context);
 
+        if (xObj == null) {
+            throw new NullPointerException("Parsed number object on the x-axis is null");
+        }
+
         BigDecimal xValue = OperatorTools.parseBigDecimal(xObj);
         BigDecimal yValue = OperatorTools.parseBigDecimal(yObj);
 
