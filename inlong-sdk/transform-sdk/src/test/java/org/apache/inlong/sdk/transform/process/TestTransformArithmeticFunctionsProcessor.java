@@ -197,7 +197,7 @@ public class TestTransformArithmeticFunctionsProcessor {
         // case1: 5!
         List<String> output1 = processor.transform("5|4|6|8");
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output1.get(0), "result=120");
+        Assert.assertEquals("result=120", output1.get(0));
 
         // case2: 0!
         List<String> output2 = processor.transform("0|4|6|8");
