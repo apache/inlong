@@ -39,7 +39,7 @@ import java.util.Set;
 
 /**
  * OperatorTools
- * 
+ *
  */
 @Slf4j
 public class OperatorTools {

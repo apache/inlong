@@ -23,12 +23,14 @@ import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.sdk.transform.decode.KvUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -51,18 +53,20 @@ public class KvDataTypeOperator implements DataTypeOperator {
             if (StringUtils.isNotBlank(streamInfo.getKvSeparator())) {
                 kvSeparator = (char) Integer.parseInt(streamInfo.getKvSeparator());
             }
-            String[] bodys = StringUtils.split(str, separator);
-            if (bodys.length != fields.size()) {
-                log.warn(
-                        "The number of reported fields does not match the number of stream fields for groupId={}, streamId={}, reported field size ={}, stream field size ={}",
-                        streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(), bodys.length, fields.size());
-                return fields;
+            Character escapeChar = null;
+            if (StringUtils.isNotBlank(streamInfo.getDataEscapeChar())) {
+                escapeChar = streamInfo.getDataEscapeChar().charAt(0);
             }
-            for (int i = 0; i < bodys.length; i++) {
-                String body = bodys[i];
-                String[] values = StringUtils.split(body, kvSeparator);
-                fields.get(i).setFieldName(values[0]);
-                fields.get(i).setFieldValue(values[1]);
+            Character lineSeparator = null;
+            if (StringUtils.isNotBlank(streamInfo.getLineSeparator())) {
+                lineSeparator = (char) Integer.parseInt(streamInfo.getLineSeparator());
+            }
+            List<Map<String, String>> rowValues =
+                    KvUtils.splitKv(str, separator, kvSeparator, escapeChar, '\"', lineSeparator);
+            for (Map<String, String> row : rowValues) {
+                for (FieldInfo fieldInfo : fields) {
+                    fieldInfo.setFieldValue(row.get(fieldInfo.getFieldName()));
+                }
             }
         } catch (Exception e) {
             log.warn("parse fields failed for groupId = {}, streamId = {}", streamInfo.getInlongGroupId(),
