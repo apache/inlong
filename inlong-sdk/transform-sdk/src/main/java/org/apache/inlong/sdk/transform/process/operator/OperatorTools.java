@@ -49,7 +49,6 @@ public class OperatorTools {
     public static final String ROOT_KEY = "$root";
 
     public static final String CHILD_KEY = "$child";
-
     public static ExpressionOperator buildOperator(Expression expr) {
         if (expr instanceof AndExpression) {
             return new AndOperator((AndExpression) expr);
