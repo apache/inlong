@@ -380,6 +380,54 @@ public class TestTransformTemporalFunctionsProcessor {
     }
 
     @Test
+    public void testDateDiffFunction() throws Exception {
+        String transformSql = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select datediff(string1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: datediff('1970-01-01','1970-01-02')
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=-1", output.get(0));
+
+        // case2: datediff('1970-01-02','1970-01-01')
+        output = processor.transform("1970-01-02|1970-01-01", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case3: datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00')
+        output = processor.transform("2018-12-10 12:30:00|2018-12-09 13:30:00", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case4: datediff('2018-12-10 12:30:00', '')
+        output = processor.transform("2018-12-10 12:30:00|", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case5: datediff('2018-12', '2018-12-12')
+        output = processor.transform("2018-12|2018-12-12", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case6: datediff('1970-01-01',null)
+        transformSql = "select datediff(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testLocalTimeFunction() throws Exception {
         String transformSql1 = "select localtime() from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
