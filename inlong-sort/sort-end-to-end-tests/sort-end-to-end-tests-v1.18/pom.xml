@@ -32,6 +32,7 @@
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.18.1</flink.version>
         <elasticsearch.version>6.8.17</elasticsearch.version>
+        <flink.shaded.jackson.version>2.15.3-18.0</flink.shaded.jackson.version>
     </properties>
 
     <dependencies>
@@ -75,7 +76,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-shaded-jackson</artifactId>
-            <version>2.15.3-18.0</version>
+            <version>${flink.shaded.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
