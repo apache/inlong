@@ -63,6 +63,9 @@ public class FactorialFunction implements ValueParser {
         }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
 
+        System.out.println("Parsed number: " + numberValue);
+        System.out.println("Scale: " + numberValue.scale());
+
         // Ensure the number is a non-negative integer
         if (numberValue.scale() > 0 || numberValue.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Factorial is only defined for non-negative integers.");
