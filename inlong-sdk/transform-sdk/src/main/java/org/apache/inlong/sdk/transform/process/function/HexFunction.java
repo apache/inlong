@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * - If the input argument is a string, the HEX function converts each character in the string to its corresponding hexadecimal ASCII encoding and returns the hexadecimal representation of the entire string.
  */
 @TransformFunction(names = {"hex"})
-class HexFunction implements ValueParser {
+public class HexFunction implements ValueParser {
 
     private static final Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$");
 
