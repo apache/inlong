@@ -63,6 +63,7 @@ public class FactorialFunction implements ValueParser {
         }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
 
+        // 调试输出
         System.out.println("Parsed number: " + numberValue);
         System.out.println("Scale: " + numberValue.scale());
 

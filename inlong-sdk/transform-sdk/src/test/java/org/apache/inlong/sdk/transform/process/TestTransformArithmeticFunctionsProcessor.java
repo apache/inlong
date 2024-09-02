@@ -196,24 +196,24 @@ public class TestTransformArithmeticFunctionsProcessor {
         // case1: 5!
         List<String> output1 = processor.transform("5|4|6|8");
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output1.get(0), "numeric1=120");
+        Assert.assertEquals("numeric1=120", output1.get(0));
 
         // case2: 0!
         List<String> output2 = processor.transform("0|4|6|8");
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "numeric1=1");
+        Assert.assertEquals("numeric1=1", output2.get(0));
 
-        // case3: 5.5!
+        // case3: 5.5! - Non-integer input
         try {
-            List<String> output3 = processor.transform("5.5|4|6|8");
+            processor.transform("5.5|4|6|8");
             Assert.fail("Expected an exception for non-integer input");
         } catch (IllegalArgumentException e) {
             Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
         }
 
-        // case4: -5!
+        // case4: -5! - Negative input
         try {
-            List<String> output4 = processor.transform("-5|4|6|8");
+            processor.transform("-5|4|6|8");
             Assert.fail("Expected an exception for negative input");
         } catch (IllegalArgumentException e) {
             Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
