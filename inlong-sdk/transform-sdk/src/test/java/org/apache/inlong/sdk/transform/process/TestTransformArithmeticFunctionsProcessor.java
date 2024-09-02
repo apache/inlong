@@ -711,4 +711,17 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals(output5.get(0), "result=616263");
     }
 
+    @Test
+    public void testPiFunction() throws Exception {
+        String transformSql1 = "select pi() from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: pi()
+        List<String> output1 = processor1.transform("1007|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=3.141592653589793");
+    }
+
 }
