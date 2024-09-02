@@ -186,7 +186,7 @@ public class TestTransformArithmeticFunctionsProcessor {
 
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
 
-        String transformSql = "select factorial(numeric1) as result from source";
+        String transformSql = "select factorial(numeric1) as numeric1 from source";
 
         TransformConfig config = new TransformConfig(transformSql);
 
@@ -197,7 +197,7 @@ public class TestTransformArithmeticFunctionsProcessor {
         // case1: 5!
         List<String> output1 = processor.transform("5|4|6|8");
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=120", output1.get(0));
+        Assert.assertEquals(output1.get(0), "result=120");
 
         // case2: 0!
         List<String> output2 = processor.transform("0|4|6|8");
