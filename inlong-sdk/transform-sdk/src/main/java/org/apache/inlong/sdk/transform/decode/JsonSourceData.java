@@ -111,20 +111,22 @@ public class JsonSourceData implements SourceData {
                     // error data
                     return "";
                 }
+                // node is not array
                 if (!node.isArray()) {
                     current = newElement;
-                } else {
-                    if (!newElement.isJsonArray()) {
-                        // error data
-                        return "";
-                    }
-                    JsonArray newArray = newElement.getAsJsonArray();
-                    if (node.getArrayIndex() >= newArray.size()) {
-                        // error data
-                        return "";
-                    }
-                    current = newArray.get(node.getArrayIndex());
+                    continue;
                 }
+                // node is an array
+                if (!newElement.isJsonArray()) {
+                    // error data
+                    return "";
+                }
+                JsonArray newArray = newElement.getAsJsonArray();
+                if (node.getArrayIndex() >= newArray.size()) {
+                    // error data
+                    return "";
+                }
+                current = newArray.get(node.getArrayIndex());
             }
             return current.getAsString();
         } catch (Exception e) {
