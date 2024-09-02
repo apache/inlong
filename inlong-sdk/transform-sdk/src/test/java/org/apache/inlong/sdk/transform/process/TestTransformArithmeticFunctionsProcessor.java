@@ -225,6 +225,69 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testIfNullFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: ifnull(5, 3)
+        transformSql = "select ifnull(numeric1,numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=5", output.get(0));
+
+        // case2: ifnull(null,3)
+        transformSql = "select ifnull(xxd,numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=3", output.get(0));
+
+        // case3: ifnull(6 / 3,'YES')
+        transformSql = "select ifnull(numeric1 / numeric2,'YES') from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "6|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=2", output.get(0));
+
+        // case4: ifnull(6 / 0,'YES')
+        transformSql = "select ifnull(numeric1 / numeric2,'YES') from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "6|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=YES", output.get(0));
+
+        // case5: ifnull(6 / 0,3 / 0)
+        transformSql = "select ifnull(numeric1 / numeric2,numeric3 / numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "6|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testMd5Function() throws Exception {
         String transformSql = "select md5(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
