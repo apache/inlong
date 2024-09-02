@@ -350,13 +350,12 @@ export const getTableColumns = (source, dim) => {
     title: item.auditName,
     dataIndex: item.auditId,
     render: text => {
-      let color = 'black';
       if (text?.includes('+')) {
-        color = 'red';
+        return <span style={{ color: 'red' }}>{text}</span>;
       } else if (text?.includes('-')) {
-        color = 'green';
+        return <span style={{ color: 'green' }}>{text}</span>;
       }
-      return <span style={{ color: color }}>{text}</span>;
+      return <span>{text}</span>;
     },
   }));
   return [
