@@ -205,7 +205,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.expectNotNull(request, "inlong group request cannot be empty");
 
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         if (entity != null) {
             LOGGER.error("groupId={} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
@@ -278,7 +278,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public Boolean exist(String groupId) {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
         return entity != null;
     }
