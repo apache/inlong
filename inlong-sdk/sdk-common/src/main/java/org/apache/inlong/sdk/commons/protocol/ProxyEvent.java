@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sdk.commons.protocol;
 
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,15 +76,27 @@ public class ProxyEvent extends SdkEvent {
     public ProxyEvent(String inlongGroupId, String inlongStreamId, MessageObj obj) {
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
-        super.setBody(obj.getBody().toByteArray());
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        this.msgTime = obj.getMsgTime();
-        this.sourceIp = obj.getSourceIp();
+        if (obj != null) {
+            super.setBody(obj.getBody().toByteArray());
+            this.msgTime = obj.getMsgTime();
+            this.sourceIp = obj.getSourceIp();
+        }
         Map<String, String> headers = super.getHeaders();
         headers.put(EventConstants.INLONG_GROUP_ID, inlongGroupId);
         headers.put(EventConstants.INLONG_STREAM_ID, inlongStreamId);
         headers.put(EventConstants.HEADER_KEY_MSG_TIME, String.valueOf(msgTime));
         headers.put(EventConstants.HEADER_KEY_SOURCE_IP, sourceIp);
+        if (obj != null && obj.getParamsList() != null) {
+            List<ProxySdk.MapFieldEntry> list = obj.getParamsList();
+            for (ProxySdk.MapFieldEntry entry : list) {
+                if (AttributeConstants.MSG_RPT_TIME.equalsIgnoreCase(entry.getKey())) {
+                    headers.put(AttributeConstants.MSG_RPT_TIME, entry.getValue());
+                } else if (AttributeConstants.AUDIT_VERSION.equalsIgnoreCase(entry.getKey())) {
+                    headers.put(AttributeConstants.AUDIT_VERSION, entry.getValue());
+                }
+            }
+        }
 
         this.sourceTime = System.currentTimeMillis();
         this.getHeaders().put(EventConstants.HEADER_KEY_SOURCE_TIME, String.valueOf(sourceTime));

@@ -20,23 +20,34 @@ package org.apache.inlong.sdk.transform.pojo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * KvSinkInfo
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@SuperBuilder
 public class KvSinkInfo extends SinkInfo {
 
+    private Character kvDelimiter;
+    private Character entryDelimiter;
     private List<FieldInfo> fields;
 
     @JsonCreator
     public KvSinkInfo(
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
-        super(SourceInfo.KV, charset);
-        this.fields = fields;
+        super(SinkInfo.KV, charset);
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**

@@ -25,6 +25,7 @@ import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/plugins';
 import request from '@/core/utils/request';
+import { ALL_OPTION_VALUE } from '@/ui/components/MultiSelectWithAll';
 
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
@@ -67,6 +68,9 @@ const Comp: React.FC<Props> = ({
   const onOk = async () => {
     const values = await form.validateFields();
     const submitData = new Entity()?.stringify(values) || values;
+    if (submitData.agentIp instanceof Array) {
+      submitData.agentIp = submitData.agentIp.join(',');
+    }
     const isUpdate = Boolean(id);
     if (isUpdate) {
       submitData.id = id;

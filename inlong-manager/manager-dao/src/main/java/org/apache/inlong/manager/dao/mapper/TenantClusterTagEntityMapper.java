@@ -34,7 +34,7 @@ public interface TenantClusterTagEntityMapper {
 
     TenantClusterTagEntity selectByPrimaryKey(Integer id);
 
-    TenantClusterTagEntity selectByUniqueKey(String clusterTag, String tenant);
+    TenantClusterTagEntity selectByUniqueKey(@Param("clusterTag") String clusterTag, @Param("tenant") String tenant);
 
     List<TenantClusterTagEntity> selectByTag(String clusterTag);
 

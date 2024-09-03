@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -25,14 +27,9 @@ import org.apache.flume.Transaction;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
@@ -45,11 +42,10 @@ public class PulsarProducerFederation {
     private final String workerName;
     private final PulsarFederationSinkContext context;
     private Timer reloadTimer;
-
-    private List<PulsarProducerCluster> clusterList = new ArrayList<>();
-    private List<PulsarProducerCluster> deletingClusterList = new ArrayList<>();
-
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
+    private PulsarNodeConfig nodeConfig;
+    private CacheClusterConfig cacheClusterConfig;
+    private PulsarProducerCluster cluster;
+    private PulsarProducerCluster deleteCluster;
 
     /**
      * Constructor
@@ -83,9 +79,7 @@ public class PulsarProducerFederation {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        for (PulsarProducerCluster cluster : this.clusterList) {
-            cluster.stop();
-        }
+        cluster.stop();
     }
 
     /**
@@ -108,62 +102,56 @@ public class PulsarProducerFederation {
      */
     public void reload() {
         try {
-            // stop deleted cluster
-            deletingClusterList.forEach(item -> {
-                item.stop();
-            });
-            deletingClusterList.clear();
-            // update cluster list
-            List<CacheClusterConfig> configList = this.context.getCacheClusters();
-            List<PulsarProducerCluster> newClusterList = new ArrayList<>(configList.size());
-            // prepare
-            Set<String> newClusterNames = new HashSet<>();
-            configList.forEach(item -> {
-                newClusterNames.add(item.getClusterName());
-            });
-            Set<String> oldClusterNames = new HashSet<>();
-            clusterList.forEach(item -> {
-                oldClusterNames.add(item.getCacheClusterName());
-            });
-            // add
-            for (CacheClusterConfig config : configList) {
-                if (!oldClusterNames.contains(config.getClusterName())) {
-                    PulsarProducerCluster cluster = new PulsarProducerCluster(workerName, config, context);
-                    cluster.start();
-                    newClusterList.add(cluster);
-                }
+            if (deleteCluster != null) {
+                deleteCluster.stop();
+                deleteCluster = null;
             }
-            // remove
-            for (PulsarProducerCluster cluster : this.clusterList) {
-                if (newClusterNames.contains(cluster.getCacheClusterName())) {
-                    newClusterList.add(cluster);
-                } else {
-                    deletingClusterList.add(cluster);
-                }
+
+        } catch (Exception e) {
+            LOG.error("failed to close delete cluster, ex={}", e.getMessage(), e);
+        }
+
+        if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+            reloadByNodeConfig();
+        } else {
+            reloadByCacheClusterConfig();
+        }
+
+    }
+
+    private void reloadByNodeConfig() {
+        try {
+            if (nodeConfig != null && context.getNodeConfig().getVersion() <= nodeConfig.getVersion()) {
+                return;
             }
-            this.clusterList = newClusterList;
+            this.nodeConfig = context.getNodeConfig();
+            PulsarProducerCluster updateCluster =
+                    new PulsarProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * send
-     * 
-     * @param  profileEvent
-     * @param  tx
-     * @return              boolean
-     * @throws IOException
-     */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > Integer.MAX_VALUE / 2) {
-            clusterIndex.set(0);
+    private void reloadByCacheClusterConfig() {
+        try {
+            if (cacheClusterConfig != null && !cacheClusterConfig.equals(context.getCacheClusterConfig())) {
+                return;
+            }
+            this.cacheClusterConfig = context.getCacheClusterConfig();
+            PulsarProducerCluster updateCluster =
+                    new PulsarProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
+        } catch (Throwable e) {
+            LOG.error(e.getMessage(), e);
         }
-        List<PulsarProducerCluster> currentClusterList = this.clusterList;
-        int currentSize = currentClusterList.size();
-        int realIndex = currentIndex % currentSize;
-        PulsarProducerCluster clusterProducer = currentClusterList.get(realIndex);
-        return clusterProducer.send(profileEvent, tx);
+    }
+
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
+        return cluster.send(profileEvent, tx);
     }
 }

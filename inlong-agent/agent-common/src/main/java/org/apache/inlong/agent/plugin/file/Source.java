@@ -18,23 +18,12 @@
 package org.apache.inlong.agent.plugin.file;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
 
-import java.util.List;
-
 /**
- * Source can be split into multiple reader.
+ * The source class is used to collect data from a data source
  */
 public interface Source {
-
-    /**
-     * Split source into a list of readers.
-     *
-     * @param conf job conf
-     * @return list of reader
-     */
-    List<Reader> split(TaskProfile conf);
 
     /**
      * Read message

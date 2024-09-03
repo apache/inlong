@@ -31,7 +31,7 @@ public class SchemaUtils implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final String AUDIT_DATA_TIME = "audit_data_time";
+    private final String AUDIT_DATA_TIME = "AUDIT_DATA_TIME";
     private final int DATA_TIME_ABSENT_INDEX = -1;
     private final int dataTimeFieldIndex;
 
@@ -73,7 +73,7 @@ public class SchemaUtils implements Serializable {
      */
     public String[] filterOutTimeField(TableSchema schema) {
         return Arrays.stream(schema.getFieldNames())
-                .filter(field -> !AUDIT_DATA_TIME.equals(field))
+                .filter(field -> !AUDIT_DATA_TIME.equalsIgnoreCase(field))
                 .toArray(String[]::new);
     }
 
@@ -84,7 +84,7 @@ public class SchemaUtils implements Serializable {
      */
     private int getDataTimeIndex(String[] fieldNames) {
         for (int i = 0; i < fieldNames.length; i++) {
-            if (AUDIT_DATA_TIME.equals(fieldNames[i])) {
+            if (AUDIT_DATA_TIME.equalsIgnoreCase(fieldNames[i])) {
                 return i;
             }
         }

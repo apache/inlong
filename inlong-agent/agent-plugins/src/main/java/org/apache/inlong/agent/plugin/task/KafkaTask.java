@@ -41,6 +41,11 @@ public class KafkaTask extends AbstractTask {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
+    protected int getInstanceLimit() {
+        return DEFAULT_INSTANCE_LIMIT;
+    }
+
+    @Override
     protected void initTask() {
         LOGGER.info("kafka commonInit: {}", taskProfile.toJsonStr());
         this.topic = taskProfile.get(TASK_KAFKA_TOPIC);

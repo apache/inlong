@@ -35,15 +35,22 @@ export const useColumns = ({ onDelete, openModal }) => {
     {
       title: i18n.t('basic.Creator'),
       dataIndex: 'creator',
+      render: (text, record) => (
+        <>
+          <div>{text}</div>
+          <div>{record.createTime && timestampFormat(record.createTime)}</div>
+        </>
+      ),
     },
     {
       title: i18n.t('basic.Modifier'),
       dataIndex: 'modifier',
-    },
-    {
-      title: i18n.t('basic.ModifyTime'),
-      dataIndex: 'modifyTime',
-      render: text => text && timestampFormat(text),
+      render: (text, record) => (
+        <>
+          <div>{text}</div>
+          <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+        </>
+      ),
     },
   ];
   return defaultColumns.concat([

@@ -31,6 +31,8 @@ public class SourceConfig implements Serializable {
 
     private String topic;
     private String subscription;
+    private String startConsumeTime;
+    private String stopConsumeTime;
     private String encodingType;
     private DeserializationConfig deserializationConfig;
     private DataTypeConfig dataTypeConfig;

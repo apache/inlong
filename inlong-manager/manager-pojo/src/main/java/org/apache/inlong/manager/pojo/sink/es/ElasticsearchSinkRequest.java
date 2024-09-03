@@ -34,7 +34,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink request")
-@JsonTypeDefine(value = SinkType.ELASTICSEARCH)
+@JsonTypeDefine(value = SinkType.ES)
 public class ElasticsearchSinkRequest extends SinkRequest {
 
     @ApiModelProperty("indexNamePattern")

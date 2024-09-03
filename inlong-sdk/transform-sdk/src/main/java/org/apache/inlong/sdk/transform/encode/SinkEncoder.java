@@ -18,15 +18,16 @@
 package org.apache.inlong.sdk.transform.encode;
 
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import java.util.List;
 
 /**
  * SinkEncoder
  */
-public interface SinkEncoder {
+public interface SinkEncoder<Output> {
 
-    String encode(SinkData sinkData);
+    Output encode(SinkData sinkData, Context context);
 
     List<FieldInfo> getFields();
 }

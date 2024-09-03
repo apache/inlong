@@ -46,7 +46,7 @@ import org.apache.inlong.manager.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.pojo.dataproxy.ProxyCluster;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -80,10 +80,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DataProxyConfigRepository
- * This repository was deprecated since version 1.8.0
  */
 @Lazy
-@Deprecated
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
@@ -124,7 +122,7 @@ public class DataProxyConfigRepository implements IRepository {
     @Autowired
     private StreamSinkEntityMapper streamSinkMapper;
     @Autowired
-    private SortConfigLoader sortConfigLoader;
+    private ConfigLoader configLoader;
 
     @PostConstruct
     public void initialize() {
@@ -366,7 +364,7 @@ public class DataProxyConfigRepository implements IRepository {
         Map<String, Map<String, String>> groupParams = new HashMap<>();
         groupIdMap.forEach((k, v) -> groupParams.put(k, fromJsonToMap(v.getExtParams())));
         // reload inlong group ext
-        List<InlongGroupExtEntity> groupExtCursor = sortConfigLoader
+        List<InlongGroupExtEntity> groupExtCursor = configLoader
                 .loadGroupBackupInfo(ClusterSwitch.BACKUP_CLUSTER_TAG);
         groupExtCursor.forEach(v -> groupParams.computeIfAbsent(v.getInlongGroupId(), k -> new HashMap<>())
                 .put(ClusterSwitch.BACKUP_CLUSTER_TAG, v.getKeyValue()));
@@ -392,7 +390,7 @@ public class DataProxyConfigRepository implements IRepository {
             streamParams.put(k, params);
         });
         // reload inlong stream ext
-        List<InlongStreamExtEntity> streamExtCursor = sortConfigLoader
+        List<InlongStreamExtEntity> streamExtCursor = configLoader
                 .loadStreamBackupInfo(ClusterSwitch.BACKUP_MQ_RESOURCE);
         streamExtCursor.forEach(v -> streamParams
                 .computeIfAbsent(getInlongId(v.getInlongGroupId(), v.getInlongStreamId()), k -> new HashMap<>())

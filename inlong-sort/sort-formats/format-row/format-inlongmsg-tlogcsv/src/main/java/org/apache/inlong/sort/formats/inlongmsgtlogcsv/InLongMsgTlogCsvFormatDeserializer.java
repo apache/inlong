@@ -19,11 +19,11 @@ package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TextFormatBuilder;
-import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+import org.apache.inlong.sort.formats.inlongmsg.row.AbstractInLongMsgFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.descriptors.DescriptorProperties;
@@ -38,10 +38,10 @@ import java.util.Objects;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
 
 /**
  * The deserializer for the records in InLongMsgTlogCsv format.
@@ -97,6 +97,9 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Nullable
     private final String nullLiteral;
 
+    @Nonnull
+    private Boolean isIncludeFirstSegment = false;
+
     public InLongMsgTlogCsvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
@@ -116,6 +119,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 escapeChar,
                 quoteChar,
                 nullLiteral,
+                false,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -128,6 +132,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
+            @Nullable boolean isIncludeFirstSegment,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -139,6 +144,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
+        this.isIncludeFirstSegment = isIncludeFirstSegment;
     }
 
     @Override
@@ -154,7 +160,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
         return Collections.singletonList(
-                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar, quoteChar));
+                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar,
+                        quoteChar, isIncludeFirstSegment));
     }
 
     @Override
@@ -183,9 +190,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         private String timeFieldName = DEFAULT_TIME_FIELD_NAME;
         private String attributesFieldName = DEFAULT_ATTRIBUTES_FIELD_NAME;
         private Character delimiter = DEFAULT_DELIMITER;
-
+        private boolean isIncludeFirstSegment = false;
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
+        }
+
+        public Builder setIsIncludeFirstSegment(boolean isIncludeFirstSegment) {
+            this.isIncludeFirstSegment = isIncludeFirstSegment;
+            return this;
         }
 
         public Builder setTimeFieldName(String timeFieldName) {
@@ -226,7 +238,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                     escapeChar,
                     quoteChar,
                     nullLiteral,
-                    ignoreErrors);
+                    isIncludeFirstSegment,
+                    InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
         }
     }
 
@@ -252,13 +265,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 delimiter.equals(that.delimiter) &&
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
-                Objects.equals(nullLiteral, that.nullLiteral);
+                Objects.equals(nullLiteral, that.nullLiteral) &&
+                Objects.equals(isIncludeFirstSegment, that.isIncludeFirstSegment);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
                 attributesFieldName, charset, delimiter, escapeChar, quoteChar,
-                nullLiteral);
+                nullLiteral, isIncludeFirstSegment);
     }
 }

@@ -88,7 +88,7 @@ public class PluginClassLoader extends URLClassLoader {
      * Get pluginClassLoader by plugin url.
      */
     public static PluginClassLoader getFromPluginUrl(String url, ClassLoader parent) {
-        log.info("ClassLoaderPath:{}", url);
+        log.info("ClassLoaderPath : {}", url);
         checkClassLoader(parent);
         checkUrl(url);
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {

@@ -27,6 +27,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.sort.es.SortEsClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sort.http.SortHttpClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sort.kafka.SortKafkaClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.sort.pulsar.SortPulsarClusterInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortClusterDTO;
 import org.apache.inlong.manager.pojo.sort.BaseSortClusterRequest;
@@ -49,9 +51,11 @@ public class SortClusterOperator extends AbstractClusterOperator {
     private static final Set<String> SORT_CLUSTER_SET = new HashSet<String>() {
 
         {
+            add(ClusterType.SORT_HTTP);
             add(ClusterType.SORT_CLS);
             add(ClusterType.SORT_PULSAR);
             add(ClusterType.SORT_ES);
+            add(ClusterType.SORT_KAFKA);
         }
     };
 
@@ -82,6 +86,9 @@ public class SortClusterOperator extends AbstractClusterOperator {
 
         ClusterInfo sortClusterInfo;
         switch (entity.getType()) {
+            case ClusterType.SORT_HTTP:
+                sortClusterInfo = new SortHttpClusterInfo();
+                break;
             case ClusterType.SORT_CLS:
                 sortClusterInfo = new SortClsClusterInfo();
                 break;
@@ -90,6 +97,9 @@ public class SortClusterOperator extends AbstractClusterOperator {
                 break;
             case ClusterType.SORT_ES:
                 sortClusterInfo = new SortEsClusterInfo();
+                break;
+            case ClusterType.SORT_KAFKA:
+                sortClusterInfo = new SortKafkaClusterInfo();
                 break;
             default:
                 throw new BusinessException("unsupported cluster type " + entity.getType());

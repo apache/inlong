@@ -20,10 +20,13 @@ package org.apache.inlong.manager.service.message;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.RawDeserializationConfig;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 
@@ -49,8 +52,8 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
     }
 
     @Override
-    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers, int index) {
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, List<BriefMQMessage> briefMQMessages,
+            byte[] msgBytes, Map<String, String> headers, int index, QueryMessageRequest request) {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
@@ -59,6 +62,9 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
             DataTypeOperator dataTypeOperator =
                     dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
             List<FieldInfo> fieldList = dataTypeOperator.parseFields(body, streamInfo);
+            if (checkIfFilter(request, fieldList)) {
+                return briefMQMessages;
+            }
             BriefMQMessage briefMQMessage = BriefMQMessage.builder()
                     .id(index)
                     .inlongGroupId(groupId)
@@ -69,12 +75,20 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
                     .body(body)
                     .fieldList(fieldList)
                     .build();
-            return Collections.singletonList(briefMQMessage);
+            briefMQMessages.addAll(Collections.singletonList(briefMQMessage));
+            return briefMQMessages;
         } catch (Exception e) {
             String errMsg = String.format("decode msg failed for groupId=%s, streamId=%s", groupId, streamId);
             log.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+    }
+
+    @Override
+    public DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
+        RawDeserializationConfig rawDeserializationConfig = new RawDeserializationConfig();
+        rawDeserializationConfig.setStreamId(streamInfo.getInlongStreamId());
+        return rawDeserializationConfig;
     }
 
 }

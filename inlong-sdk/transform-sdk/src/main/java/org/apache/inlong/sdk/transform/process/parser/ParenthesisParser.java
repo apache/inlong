@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
 import net.sf.jsqlparser.expression.Parenthesis;
@@ -26,9 +27,10 @@ import net.sf.jsqlparser.expression.Parenthesis;
  * ParenthesisParser
  * 
  */
+@TransformParser(values = Parenthesis.class)
 public class ParenthesisParser implements ValueParser {
 
-    private ValueParser node;
+    private final ValueParser node;
 
     public ParenthesisParser(Parenthesis expr) {
         this.node = OperatorTools.buildParser(expr.getExpression());
@@ -41,7 +43,7 @@ public class ParenthesisParser implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
-        return node.parse(sourceData, rowIndex);
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        return node.parse(sourceData, rowIndex, context);
     }
 }

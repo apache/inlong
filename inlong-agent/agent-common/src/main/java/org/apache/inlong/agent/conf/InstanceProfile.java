@@ -80,6 +80,10 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         return get(TaskConstants.INSTANCE_ID);
     }
 
+    public String getCycleUnit() {
+        return get(TaskConstants.TASK_CYCLE_UNIT);
+    }
+
     public String getSourceClass() {
         return get(TaskConstants.TASK_SOURCE);
     }

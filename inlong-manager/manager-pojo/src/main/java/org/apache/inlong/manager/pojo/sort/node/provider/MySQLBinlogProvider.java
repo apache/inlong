@@ -17,27 +17,36 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 
 import com.google.common.base.Splitter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The Provider for creating MySQLBinlog extract nodes.
  */
+@Service
 public class MySQLBinlogProvider implements ExtractNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MySQLFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -47,8 +56,10 @@ public class MySQLBinlogProvider implements ExtractNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MySQLBinlogSource binlogSource = (MySQLBinlogSource) streamNodeInfo;
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(binlogSource.getSourceType());
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         Map<String, String> properties = parseProperties(binlogSource.getProperties());
 
         final String database = binlogSource.getDatabaseWhiteList();
@@ -90,4 +101,23 @@ public class MySQLBinlogProvider implements ExtractNodeProvider {
                 true,
                 serverTimeZone);
     }
+
+    @Override
+    public List<FieldInfo> getMetaFields() {
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        fieldInfos.add(0, new MetaFieldInfo(MetaField.AUDIT_DATA_TIME.name(), MetaField.AUDIT_DATA_TIME));
+        return fieldInfos;
+    }
+
+    @Override
+    public List<StreamField> addStreamMetaFields(List<StreamField> streamFields) {
+        List<String> fieldNames = streamFields.stream().map(StreamField::getFieldName).collect(Collectors.toList());
+        if (!fieldNames.contains(MetaField.AUDIT_DATA_TIME.name())) {
+            streamFields.add(0,
+                    new StreamField(0, "long", MetaField.AUDIT_DATA_TIME.name(), "data_time", null, 1,
+                            MetaField.AUDIT_DATA_TIME.name()));
+        }
+        return streamFields;
+    }
+
 }

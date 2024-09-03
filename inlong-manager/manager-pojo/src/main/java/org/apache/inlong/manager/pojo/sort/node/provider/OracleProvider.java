@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -35,6 +35,8 @@ import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -42,9 +44,11 @@ import java.util.Map;
 /**
  * The Provider for creating Oracle extract or load nodes.
  */
+@Service
 public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new OracleFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String streamType) {
@@ -54,8 +58,10 @@ public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         OracleSource source = (OracleSource) streamNodeInfo;
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(source.getSourceType());
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         Map<String, String> properties = parseProperties(source.getProperties());
 
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
@@ -82,8 +88,10 @@ public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         OracleSink oracleSink = (OracleSink) nodeInfo;
         Map<String, String> properties = parseProperties(oracleSink.getProperties());
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(oracleSink.getSinkType());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(oracleSink.getSinkFieldList(), oracleSink.getSinkName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         List<FieldRelation> fieldRelations = parseSinkFields(oracleSink.getSinkFieldList(), constantFieldMap);
 
         return new OracleLoadNode(

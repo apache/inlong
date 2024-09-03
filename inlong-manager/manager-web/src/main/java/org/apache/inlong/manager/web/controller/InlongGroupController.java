@@ -33,6 +33,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
@@ -99,6 +100,13 @@ public class InlongGroupController {
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<InlongGroupInfo> get(@PathVariable String groupId) {
         return Response.success(groupService.get(groupId));
+    }
+
+    @RequestMapping(value = "/group/getTenant/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get inlong group tenant")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<String> getTenant(@PathVariable String groupId) {
+        return Response.success(groupService.getTenant(groupId, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
@@ -245,4 +253,9 @@ public class InlongGroupController {
         return Response.success(groupService.finishTagSwitch(groupId));
     }
 
+    @RequestMapping(value = "/group/submitOfflineJob", method = RequestMethod.POST)
+    @ApiOperation(value = "Submitting inlong offline job process")
+    public Response<Boolean> submitOfflineJob(@RequestBody OfflineJobRequest request) {
+        return Response.success(groupService.submitOfflineJob(request));
+    }
 }

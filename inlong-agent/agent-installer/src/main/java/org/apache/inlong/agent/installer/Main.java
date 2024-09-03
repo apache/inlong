@@ -110,7 +110,7 @@ public class Main {
         CommandLine cl = initOptions(args);
         assert cl != null;
         initAgentConf(cl);
-        AuditUtils.initAudit();
+        AuditUtils.initAudit(InstallerConfiguration.getInstallerConf());
         Manager manager = new Manager();
         try {
             manager.start();

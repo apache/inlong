@@ -30,6 +30,16 @@
     <fileSets>
         <!-- for bin -->
         <fileSet>
+            <directory>environment</directory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <fileMode>0755</fileMode>
+            <outputDirectory>environment</outputDirectory>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+
+        <fileSet>
             <directory>bin</directory>
             <includes>
                 <include>*.*</include>

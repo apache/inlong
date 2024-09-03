@@ -32,7 +32,7 @@ service_conf_file=${file_path}/conf/audit-service.properties
 
 # replace the configuration for audit-proxy
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${store_conf_file}"
-sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${store_conf_file}"
+sed -i "s/default.mq.cluster.tag=.*$/default.mq.cluster.tag=${CLUSTER_TAG}/g" "${store_conf_file}"
 if [ "${MQ_TYPE}" = "pulsar" ]; then
   sed -i "s/audit.config.proxy.type=.*$/audit.config.proxy.type=pulsar"/g "${store_conf_file}"
   sed -i "s/audit.pulsar.topic = .*$/audit.pulsar.topic = ${PULSAR_AUDIT_TOPIC}/g" "${store_conf_file}"
@@ -54,13 +54,16 @@ sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_mysql_file}"
 
 # replace the configuration for audit-store
 sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.username=.*$/jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.password=.*$/jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${store_conf_file}"
+sed -i "s/audit.store.jdbc.username=.*$/audit.store.jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${store_conf_file}"
+sed -i "s/audit.store.jdbc.password=.*$/audit.store.jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${store_conf_file}"
 
 # replace the configuration for audit-service
 sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.agent=.*$/audit.proxy.address.agent = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.dataproxy=.*$/audit.proxy.address.dataproxy = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.sort=.*$/audit.proxy.address.sort = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
 if [[ "${AUDIT_JDBC_URL}" =~ (.+):([0-9]+) ]]; then

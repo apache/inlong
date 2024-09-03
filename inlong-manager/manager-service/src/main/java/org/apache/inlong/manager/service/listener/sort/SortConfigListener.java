@@ -137,8 +137,8 @@ public class SortConfigListener implements SortOperateListener {
                 }
             }
         } catch (Exception e) {
-            String msg = String.format("failed to build sort config for groupId=%s, ", groupId);
-            LOGGER.error(msg + "streamInfos=" + streamInfos, e);
+            String msg = String.format("Failed to build sort config for group=%s, ", groupId);
+            LOGGER.error("{} streamInfos={}", msg, streamInfos, e);
             throw new WorkflowListenerException(msg + e.getMessage());
         }
 

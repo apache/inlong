@@ -18,21 +18,51 @@
 package org.apache.inlong.common.pojo.sort.mq;
 
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.util.SortConfigUtil;
 
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PulsarClusterConfig.class, name = MQType.PULSAR),
         @JsonSubTypes.Type(value = TubeClusterConfig.class, name = MQType.TUBEMQ)
 })
 public abstract class MqClusterConfig implements Serializable {
 
-    private String version;
+    private Integer version;
     private String clusterName;
+
+    public static List<MqClusterConfig> batchCheckDelete(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkDelete(last, current, MqClusterConfig::getClusterName);
+    }
+
+    public static List<MqClusterConfig> batchCheckUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkUpdate(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckNoUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkNoUpdate(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckNew(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkNew(last, current, MqClusterConfig::getClusterName);
+    }
+
+    public static List<MqClusterConfig> batchCheckLatest(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkLatest(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckLast(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return last;
+    }
+
 }

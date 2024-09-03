@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
  * 
  * ClassResourceCommonPropertiesLoader
  */
+@Deprecated
 public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);

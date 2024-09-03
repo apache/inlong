@@ -94,11 +94,11 @@ public class FileScanner {
         for (Long time : dateRegion) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(time);
-            String filename = NewDateUtils.replaceDateExpression(calendar, originPattern);
-            ArrayList<String> allPaths = FilePathUtil.cutDirectory(filename);
+            String fileName = NewDateUtils.replaceDateExpression(calendar, originPattern);
+            ArrayList<String> allPaths = FilePathUtil.cutDirectoryByWildcard(fileName);
             String firstDir = allPaths.get(0);
             String secondDir = allPaths.get(0) + File.separator + allPaths.get(1);
-            ArrayList<String> fileList = getUpdatedOrNewFiles(firstDir, secondDir, filename, 3,
+            ArrayList<String> fileList = getUpdatedOrNewFiles(firstDir, secondDir, fileName, 3,
                     DEFAULT_FILE_MAX_NUM);
             for (String file : fileList) {
                 // TODO the time is not YYYYMMDDHH
@@ -109,17 +109,6 @@ public class FileScanner {
             }
         }
         return infos;
-    }
-
-    public static ArrayList<String> scanFile(int maxFileNum, String originPattern, long dataTime) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(dataTime);
-
-        String filename = NewDateUtils.replaceDateExpression(calendar, originPattern);
-        ArrayList<String> allPaths = FilePathUtil.cutDirectory(filename);
-        String firstDir = allPaths.get(0);
-        String secondDir = allPaths.get(0) + File.separator + allPaths.get(1);
-        return getUpdatedOrNewFiles(firstDir, secondDir, filename, 3, maxFileNum);
     }
 
     private static ArrayList<String> getUpdatedOrNewFiles(String firstDir, String secondDir,
@@ -151,7 +140,7 @@ public class FileScanner {
             int maxFileNum) {
         ArrayList<String> ret = new ArrayList<String>();
         ArrayList<String> directories = FilePathUtil
-                .getDirectoryLayers(logFileName);
+                .cutDirectoryByWildcardAndDateExpression(logFileName);
         String parentDir = directories.get(0) + File.separator
                 + directories.get(1);
 

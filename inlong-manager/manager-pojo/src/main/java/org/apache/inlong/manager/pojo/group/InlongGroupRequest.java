@@ -34,6 +34,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -86,8 +87,9 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @Range(min = 0, max = 1, message = "default is 1, only supports [0: disable, 1: enable]")
     private Integer enableCreateResource;
 
-    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1")
-    @Range(min = 0, max = 1, message = "default is 0, only supports [0: Standard, 1: DataSync]")
+    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization, real-time data sync in stream way): 1,"
+            + " DataSync mode(only Data Synchronization, offline data sync in batch way): 2")
+    @Range(min = 0, max = 2, message = "default is 0, only supports [0: Standard, 1: DataSync, 2: DataSyncOffline]")
     private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Data report type, default is 0.\n"
@@ -128,5 +130,35 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
+
+    // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
+    @ApiModelProperty("Schedule type")
+    private Integer scheduleType;
+
+    // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
+    @ApiModelProperty("TimeUnit for schedule interval")
+    private String scheduleUnit;
+
+    @ApiModelProperty("Schedule interval")
+    private Integer scheduleInterval;
+
+    @ApiModelProperty("Start time")
+    private Timestamp startTime;
+
+    @ApiModelProperty("End time")
+    private Timestamp endTime;
+
+    @ApiModelProperty("Delay time")
+    private Integer delayTime;
+
+    @ApiModelProperty("Self depend")
+    private Integer selfDepend;
+
+    @ApiModelProperty("Schedule task parallelism")
+    private Integer taskParallelism;
+
+    @ApiModelProperty("Cron expression")
+    private String crontabExpression;
 
 }

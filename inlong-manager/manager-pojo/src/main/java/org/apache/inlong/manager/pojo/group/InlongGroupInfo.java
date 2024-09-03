@@ -30,6 +30,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -72,7 +73,8 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
     private Integer enableCreateResource;
 
-    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1")
+    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization, real-time data sync in stream way): 1,"
+            + " DataSync mode(only Data Synchronization, offline data sync in batch way): 2")
     private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Data report type, default is 0.\n"
@@ -135,6 +137,36 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
 
     @ApiModelProperty(value = "Inlong tenant")
     private String tenant;
+
+    // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
+    @ApiModelProperty("Schedule type")
+    private Integer scheduleType;
+
+    // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
+    @ApiModelProperty("TimeUnit for schedule interval")
+    private String scheduleUnit;
+
+    @ApiModelProperty("Schedule interval")
+    private Integer scheduleInterval;
+
+    @ApiModelProperty("Start time")
+    private Timestamp startTime;
+
+    @ApiModelProperty("End time")
+    private Timestamp endTime;
+
+    @ApiModelProperty("Delay time")
+    private Integer delayTime;
+
+    @ApiModelProperty("Self depend")
+    private Integer selfDepend;
+
+    @ApiModelProperty("Schedule task parallelism")
+    private Integer taskParallelism;
+
+    @ApiModelProperty("Cron expression")
+    private String crontabExpression;
 
     public abstract InlongGroupRequest genRequest();
 

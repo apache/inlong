@@ -19,12 +19,14 @@ package org.apache.inlong.common.heartbeat;
 
 import org.apache.inlong.common.enums.NodeSrvStatus;
 
+import com.google.common.base.Joiner;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Heartbeat template for all components.
@@ -113,6 +115,14 @@ public class HeartbeatMsg {
     private Integer load = 0xffff;
 
     public ComponentHeartbeat componentHeartbeat() {
+        if (addressInfos != null) {
+            port = Joiner.on(",").join(addressInfos.stream().map(AddressInfo::getPort).collect(Collectors.toList()));
+            ip = Joiner.on(",").join(addressInfos.stream().map(AddressInfo::getIp).collect(Collectors.toList()));
+            reportSourceType = Joiner.on(",")
+                    .join(addressInfos.stream().map(AddressInfo::getReportSourceType).collect(Collectors.toList()));
+            protocolType = Joiner.on(",")
+                    .join(addressInfos.stream().map(AddressInfo::getProtocolType).collect(Collectors.toList()));
+        }
         return new ComponentHeartbeat(nodeSrvStatus, clusterTag, extTag, clusterName,
                 componentType, ip, port, inCharges, protocolType, load);
     }

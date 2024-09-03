@@ -73,8 +73,8 @@ public class InLongMsgUtils {
     public static final String INLONGMSG_ATTR_TIME_DT = "dt";
     public static final String INLONGMSG_ATTR_ADD_COLUMN_PREFIX = "__addcol";
 
-    public static final String DEFAULT_TIME_FIELD_NAME = null;
-    public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = null;
+    public static final String DEFAULT_TIME_FIELD_NAME = "inlongmsg_time";
+    public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = "inlongmsg_attributes";
 
     private static final FieldToRowDataConverters.FieldToRowDataConverter TIME_FIELD_CONVERTER =
             FieldToRowDataConverters.createConverter(new TimestampType());

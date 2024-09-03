@@ -24,16 +24,20 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ClsNodeConfig.class, name = DataNodeType.CLS),
         @JsonSubTypes.Type(value = EsNodeConfig.class, name = DataNodeType.ELASTICSEARCH),
         @JsonSubTypes.Type(value = PulsarNodeConfig.class, name = DataNodeType.PULSAR),
+        @JsonSubTypes.Type(value = KafkaNodeConfig.class, name = DataNodeType.KAFKA),
+        @JsonSubTypes.Type(value = HttpNodeConfig.class, name = DataNodeType.HTTP),
 })
 public abstract class NodeConfig implements Serializable {
 
     private Integer version;
     private String nodeName;
+    private Map<String, String> properties;
 }

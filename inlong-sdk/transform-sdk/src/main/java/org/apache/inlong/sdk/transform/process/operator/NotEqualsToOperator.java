@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
@@ -26,10 +27,11 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
  * NotEqualsToOperator
  * 
  */
+@TransformOperator(values = NotEqualsTo.class)
 public class NotEqualsToOperator implements ExpressionOperator {
 
-    private ValueParser left;
-    private ValueParser right;
+    private final ValueParser left;
+    private final ValueParser right;
 
     public NotEqualsToOperator(NotEqualsTo expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
@@ -44,9 +46,9 @@ public class NotEqualsToOperator implements ExpressionOperator {
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex),
-                (Comparable) this.right.parse(sourceData, rowIndex)) != 0;
+    public boolean check(SourceData sourceData, int rowIndex, Context context) {
+        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex, context),
+                (Comparable) this.right.parse(sourceData, rowIndex, context)) != 0;
     }
 
 }

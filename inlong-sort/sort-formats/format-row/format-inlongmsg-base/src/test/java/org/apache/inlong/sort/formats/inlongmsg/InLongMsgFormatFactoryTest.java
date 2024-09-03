@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgDeserializationSchema;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgDeserializationSchema.MetadataConverter;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;

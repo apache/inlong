@@ -130,6 +130,7 @@ const Comp: React.FC = () => {
         name: 'lastConsumeStatus',
         label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
         initialValue: defaultValues.lastConsumeStatus,
+        visible: false,
         props: {
           allowClear: true,
           options: lastConsumerStatusList,

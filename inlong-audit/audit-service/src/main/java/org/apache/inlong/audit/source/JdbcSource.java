@@ -23,10 +23,12 @@ import org.apache.inlong.audit.entities.SourceConfig;
 import org.apache.inlong.audit.entities.StartEndTime;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.service.ConfigService;
+import org.apache.inlong.audit.utils.CacheUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +60,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_C
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_BACK_INITIAL_OFFSET;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
@@ -64,12 +68,12 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
-
 /**
  * Jdbc source
  */
@@ -136,7 +140,7 @@ public class JdbcSource {
             StartEndTime statCycle = new StartEndTime();
             statCycle.setStartTime(dateFormat.format(calendar.getTime()));
 
-            calendar.set(Calendar.MINUTE, minute + dataCycle - 1);
+            calendar.set(Calendar.MINUTE, minute + dataCycle);
             calendar.set(Calendar.SECOND, 0);
             statCycle.setEndTime(dateFormat.format(calendar.getTime()));
             statCycleList.add(statCycle);
@@ -211,6 +215,9 @@ public class JdbcSource {
     class StatServer implements Runnable, AutoCloseable {
 
         private final int statBackTimes;
+        private final ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        Configuration.getInstance().get(KEY_STAT_THREAD_POOL_SIZE, DEFAULT_STAT_THREAD_POOL_SIZE));
 
         public StatServer(int statBackTimes) {
             this.statBackTimes = statBackTimes;
@@ -239,7 +246,7 @@ public class JdbcSource {
             for (String auditId : auditIds) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     aggregate(auditId);
-                });
+                }, executor);
                 futures.add(future);
             }
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
@@ -293,14 +300,11 @@ public class JdbcSource {
                         data.setInlongStreamId(resultSet.getString(2));
                         data.setAuditId(resultSet.getString(3));
                         String auditTag = resultSet.getString(4);
-                        if (null == auditTag) {
-                            data.setAuditTag(DEFAULT_PARAMS_AUDIT_TAG);
-                        } else {
-                            data.setAuditTag(auditTag);
-                        }
-                        data.setCount(resultSet.getLong(5));
+                        data.setAuditTag(StringUtils.isBlank(auditTag) ? DEFAULT_AUDIT_TAG : auditTag);
+                        long count = resultSet.getLong(5);
+                        data.setCount(count);
                         data.setSize(resultSet.getLong(6));
-                        data.setDelay(resultSet.getLong(7));
+                        data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(7)));
                         dataQueue.push(data);
                     }
                 } catch (SQLException sqlException) {

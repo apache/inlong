@@ -88,6 +88,24 @@ public final class PulsarTableOptions {
                                             "The subscription name of the consumer that is used by the runtime [Pulsar DataStream source connector](https://nightlies.apache.org/flink/flink-docs-master/docs/connectors/datastream/pulsar/#pulsar-source). This argument is required for constructing the consumer.")
                                     .build());
 
+    public static final ConfigOption<String> SOURCE_START_FROM_MESSAGE_ID =
+            ConfigOptions.key("scan.startup.sub-start-offset")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            Description.builder()
+                                    .text(
+                                            "(Optional) Message id that is used to specify a consuming starting "
+                                                    + "point for source. Use %s, %s or pass in a message id "
+                                                    + "representation in %s, "
+                                                    + "such as %s. This option takes precedence over "
+                                                    + "source.start.publish-time.",
+                                            code("earliest"),
+                                            code("latest"),
+                                            code("ledgerId:entryId:partitionId"),
+                                            code("12:2:-1"))
+                                    .build());
+
     public static final ConfigOption<String> STARTUP_MODE =
             ConfigOptions.key("scan.startup.mode")
                     .stringType()
@@ -103,6 +121,7 @@ public final class PulsarTableOptions {
                                             code("earliest"),
                                             code("latest"),
                                             code("ledgerId:entryId:partitionId"),
+                                            code("external-subscription"),
                                             code("12:2:-1"))
                                     .build());
 

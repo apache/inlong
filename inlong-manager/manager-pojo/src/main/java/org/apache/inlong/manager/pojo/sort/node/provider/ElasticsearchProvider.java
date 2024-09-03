@@ -29,17 +29,20 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating Elasticsearch load nodes.
  */
+@Service
 public class ElasticsearchProvider implements LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ELASTICSEARCH.equals(sinkType);
+        return SinkType.ES.equals(sinkType);
     }
 
     @Override

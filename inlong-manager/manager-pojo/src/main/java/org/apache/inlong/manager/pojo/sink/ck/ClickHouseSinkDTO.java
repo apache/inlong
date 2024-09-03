@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClickHouseSinkDTO {
+public class ClickHouseSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of the ClickHouse server")
     private String jdbcUrl;
@@ -114,16 +115,15 @@ public class ClickHouseSinkDTO {
      */
     public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
 
         ClickHouseSinkDTO dto = StringUtils.isNotBlank(extParams)
                 ? ClickHouseSinkDTO.getFromJson(extParams)
                 : new ClickHouseSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        String passwd = dto.getPassword();
+        if (StringUtils.isNotEmpty(passwd)) {
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
+        }
         dto.setPassword(passwd);
         dto.setEncryptVersion(encryptVersion);
         return dto;

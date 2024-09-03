@@ -17,30 +17,41 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -94,6 +105,8 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NO
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_CSV;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
+import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarQueueResourceOperator.PULSAR_SUBSCRIPTION;
+import static org.apache.inlong.manager.service.resource.queue.tubemq.TubeMQQueueResourceOperator.TUBE_CONSUMER_GROUP;
 
 /**
  * Implementation of sink service interface
@@ -105,7 +118,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private static final Pattern PARSE_FIELD_CSV_SPLITTER = Pattern.compile("[\t\\s,]");
     private static final int PARSE_FIELD_CSV_MAX_COLUMNS = 3;
     private static final int PARSE_FIELD_CSV_MIN_COLUMNS = 2;
-
+    @Autowired
+    private SortConfigEntityMapper sortConfigEntityMapper;
+    @Autowired
+    private InlongClusterEntityMapper clusterEntityMapper;
     @Autowired
     private SinkOperatorFactory operatorFactory;
     @Autowired
@@ -122,7 +138,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
     @Autowired
     private ObjectMapper objectMapper;
-
     // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
 
@@ -181,62 +196,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public Integer save(SinkRequest request, UserInfo opInfo) {
-        // check request parameter
-        checkSinkRequestParams(request);
-        InlongGroupEntity entity = groupMapper.selectByGroupId(request.getInlongGroupId());
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
-        }
-        // check group status
-        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curState)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
-        }
-        // Check whether the stream exist or not
-        InlongStreamEntity streamEntity =
-                streamMapper.selectByIdentifier(request.getInlongGroupId(), request.getInlongStreamId());
-        if (streamEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
-        // Check whether the sink name exists with the same groupId and streamId
-        StreamSinkEntity exists = sinkMapper.selectByUniqueKey(
-                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName());
-        if (exists != null && exists.getSinkName().equals(request.getSinkName())) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                    String.format("sink name=%s already exists with the groupId=%s streamId=%s",
-                            request.getSinkName(), request.getInlongGroupId(), request.getInlongStreamId()));
-        }
-        // According to the sink type, save sink information
-        StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
-        List<SinkField> fields = request.getSinkFieldList();
-        // Remove id in sinkField when save
-        if (CollectionUtils.isNotEmpty(fields)) {
-            fields.forEach(sinkField -> sinkField.setId(null));
-        }
-        int id = sinkOperator.saveOpt(request, opInfo.getName());
-        boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
-        if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
-            boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
-                    request.getEnableCreateResource());
-            SinkStatus nextStatus = request.getStartProcess() ? SinkStatus.CONFIG_ING : SinkStatus.NEW;
-            if (!enableCreateResource) {
-                nextStatus = SinkStatus.CONFIG_SUCCESSFUL;
-            }
-            StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
-            sinkEntity.setStatus(nextStatus.getCode());
-            sinkMapper.updateStatus(sinkEntity);
-        }
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
-        if (streamSuccess && request.getStartProcess()) {
-            this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), opInfo.getName());
-        }
-        return id;
-    }
-
-    @Override
     public List<BatchResult> batchSave(List<SinkRequest> requestList, String operator) {
         List<BatchResult> resultList = new ArrayList<>();
         for (SinkRequest request : requestList) {
@@ -268,16 +227,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND,
                     String.format("sink not found by id=%s", id));
-        }
-        StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
-        return sinkOperator.getFromEntity(entity);
-    }
-
-    @Override
-    public StreamSink get(Integer id, UserInfo opInfo) {
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
         InlongGroupEntity groupEntity =
                 groupMapper.selectByGroupId(entity.getInlongGroupId());
@@ -361,6 +310,89 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
+        return pageResult;
+    }
+
+    @Override
+    public PageResult<Map<String, Object>> listDetail(SinkPageRequest request, String operator) {
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
+        Page<StreamSinkEntity> entityPage = (Page<StreamSinkEntity>) sinkMapper.selectByCondition(request);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
+        InlongGroupInfo groupInfo = null;
+        switch (groupEntity.getMqType()) {
+            case MQType.PULSAR:
+                groupInfo = CommonBeanUtils.copyProperties(groupEntity, InlongPulsarInfo::new, true);
+                break;
+            case MQType.TUBEMQ:
+                groupInfo = CommonBeanUtils.copyProperties(groupEntity, InlongTubeMQInfo::new, true);
+                break;
+            case MQType.KAFKA:
+                groupInfo = CommonBeanUtils.copyProperties(groupEntity, InlongKafkaInfo::new, true);
+            default:
+                throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage());
+        }
+        InlongGroupInfo finalGroupInfo = groupInfo;
+        List<Map<String, Object>> responseList = entityPage.stream().map(sink -> {
+            StreamSinkOperator sinkOperator = operatorFactory.getInstance(sink.getSinkType());
+            StreamSink streamSink = sinkOperator.getFromEntity(sink);
+            Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(streamSink,
+                    new TypeReference<Map<String, Object>>() {
+                    });
+            InlongStreamEntity streamEntity =
+                    streamMapper.selectByIdentifier(request.getInlongGroupId(), sink.getInlongStreamId());
+            String topic = "";
+            String consumeGroup = "";
+            switch (groupEntity.getMqType()) {
+                case MQType.PULSAR:
+                    List<InlongClusterEntity> pulsarClusters = clusterEntityMapper.selectByKey(
+                            finalGroupInfo.getInlongClusterTag(), null, MQType.PULSAR);
+                    InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
+                    if (CollectionUtils.isEmpty(pulsarClusters)) {
+                        break;
+                    }
+                    String tenant = pulsarDTO.getPulsarTenant();
+                    if (StringUtils.isBlank(tenant)) {
+                        InlongClusterEntity pulsarCluster = pulsarClusters.get(0);
+                        // Multiple adminUrls should be configured for pulsar,
+                        // otherwise all requests will be sent to the same broker
+                        PulsarClusterDTO pulsarClusterDTO = PulsarClusterDTO.getFromJson(pulsarCluster.getExtParams());
+                        tenant = pulsarClusterDTO.getPulsarTenant();
+                    }
+                    String fullTopicName =
+                            tenant + "/" + finalGroupInfo.getMqResource() + "/" + streamEntity.getMqResource();
+                    topic = "persistent://" + fullTopicName;
+                    consumeGroup = String.format(PULSAR_SUBSCRIPTION, finalGroupInfo.getInlongClusterTag(),
+                            fullTopicName, sink.getId());
+                    break;
+                case MQType.TUBEMQ:
+                    topic = streamEntity.getMqResource();
+                    consumeGroup = String.format(TUBE_CONSUMER_GROUP, groupEntity.getInlongClusterTag(), topic,
+                            sink.getId());
+                    break;
+                case MQType.KAFKA:
+                    topic = streamEntity.getMqResource();
+                    if (topic.equals(streamEntity.getInlongStreamId())) {
+                        // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                        topic = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                                finalGroupInfo.getMqResource(), streamEntity.getMqResource());
+                    }
+                    break;
+                default:
+                    throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage());
+            }
+            requestMap.put("topic", topic);
+            requestMap.put("consumerGroup", consumeGroup);
+            SortConfigEntity sortConfigEntity = sortConfigEntityMapper.selectBySinkId(sink.getId());
+            if (sortConfigEntity != null) {
+                requestMap.put("dataFlowInfo", sortConfigEntity.getConfigParams());
+            }
+            return requestMap;
+        }).collect(Collectors.toList());
+        PageResult<Map<String, Object>> pageResult = new PageResult<>(responseList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
+        LOGGER.debug("success to list sink detail page, result size {}", pageResult.getList().size());
         return pageResult;
     }
 
@@ -455,63 +487,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean update(SinkRequest request, UserInfo opInfo) {
-        if (request.getId() == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        StreamSinkEntity curEntity = sinkMapper.selectByPrimaryKey(request.getId());
-        if (curEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
-        }
-        chkUnmodifiableParams(curEntity, request);
-        // check group record
-        InlongGroupEntity curGroupEntity = groupMapper.selectByGroupId(curEntity.getInlongGroupId());
-        if (curGroupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", curEntity.getInlongGroupId()));
-        }
-        // Check if group status can be modified
-        GroupStatus curState = GroupStatus.forCode(curEntity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curState)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
-        }
-        // Check whether the stream exist or not
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
-                request.getInlongGroupId(), request.getInlongStreamId());
-        if (streamEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
-                    String.format("stream record not found with the groupId=%s streamId=%s",
-                            curEntity.getInlongGroupId(), curEntity.getInlongStreamId()));
-        }
-        // Check whether the sink name exists with the same groupId and streamId
-        StreamSinkEntity existEntity = sinkMapper.selectByUniqueKey(
-                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName());
-        if (existEntity != null && !existEntity.getId().equals(request.getId())) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                    String.format("sink name=%s already exists with the groupId=%s streamId=%s",
-                            request.getSinkName(), request.getInlongGroupId(), request.getInlongStreamId()));
-        }
-        // update record
-        SinkStatus nextStatus = null;
-        boolean enableConfig = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus())
-                || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus());
-        if (enableConfig) {
-            boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
-                    request.getEnableCreateResource());
-            nextStatus = enableCreateResource ? SinkStatus.CONFIG_ING : SinkStatus.CONFIG_SUCCESSFUL;
-        }
-        StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
-        sinkOperator.updateOpt(request, nextStatus, opInfo.getName());
-        // If the stream is [CONFIG_SUCCESSFUL] or [CONFIG_FAILED], then asynchronously start the
-        // [CREATE_STREAM_RESOURCE] process
-        if (enableConfig && request.getStartProcess()) {
-            this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), opInfo.getName());
-        }
-        return true;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
     public UpdateResult updateByKey(SinkRequest request, String operator) {
         LOGGER.info("begin to update sink by key: {}", request);
 
@@ -566,34 +541,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean delete(Integer id, Boolean startProcess, UserInfo opInfo) {
-        // check stream sink record
-        StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
-        if (sinkEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
-        }
-        // check group record
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sinkEntity.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", sinkEntity.getInlongGroupId()));
-        }
-        // Check if group status can be modified
-        GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curState)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
-        }
-        // delete record
-        StreamSinkOperator sinkOperator = operatorFactory.getInstance(sinkEntity.getSinkType());
-        sinkOperator.deleteOpt(sinkEntity, opInfo.getName());
-        if (startProcess) {
-            this.deleteProcessForSink(sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId(), opInfo.getName());
-        }
-        return true;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
     public Boolean deleteByKey(String groupId, String streamId, String sinkName,
             Boolean startProcess, String operator) {
         LOGGER.info("begin to delete sink by groupId={}, streamId={}, sinkName={}", groupId, streamId, sinkName);
@@ -638,18 +585,21 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 int rowCount = sinkMapper.updateByIdSelective(entity);
-                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                    LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
-                            entity.getVersion());
-                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-                }
+                checkAffectRowCount(rowCount, entity);
                 sinkFieldMapper.logicDeleteAll(id);
             });
         }
 
         LOGGER.info("success to logic delete all sink by groupId={}, streamId={}", groupId, streamId);
         return true;
+    }
+
+    private void checkAffectRowCount(int affectRowCount, StreamSinkEntity entity) {
+        if (affectRowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     @Override
@@ -716,12 +666,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             entity.setStatus(status);
             entity.setModifier(operator);
             int rowCount = sinkMapper.updateByIdSelective(entity);
-            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                        entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
-                        entity.getVersion());
-                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-            }
+            checkAffectRowCount(rowCount, entity);
         }
 
         LOGGER.info("success to update sink after approve: {}", approveList);

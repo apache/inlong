@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -45,7 +46,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostgreSQLSinkDTO {
+public class PostgreSQLSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
     @Length(max = 512, message = "length must be less than or equal to 512")
@@ -80,16 +81,15 @@ public class PostgreSQLSinkDTO {
      */
     public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
 
         PostgreSQLSinkDTO dto = StringUtils.isNotBlank(extParams)
                 ? PostgreSQLSinkDTO.getFromJson(extParams)
                 : new PostgreSQLSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        String passwd = dto.getPassword();
+        if (StringUtils.isNotEmpty(passwd)) {
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
+        }
         dto.setPassword(passwd);
         dto.setEncryptVersion(encryptVersion);
         return dto;

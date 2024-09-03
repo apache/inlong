@@ -28,6 +28,10 @@ public class SqlServerTask {
     private String port;
     private String serverName;
     private String dbname;
+    private String schemaName;
+    private String tableName;
+    private String serverTimezone;
+    private String unixTimestampFormatEnable;
 
     private SqlServerTask.Snapshot snapshot;
     private SqlServerTask.Offset offset;
@@ -63,6 +67,9 @@ public class SqlServerTask {
         private String port;
         private String database;
         private String schemaName;
+        private String tableName;
+        private String serverTimezone;
+        private String unixTimestampFormatEnable;
 
         private String snapshotMode;
         private String intervalMs;

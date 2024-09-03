@@ -33,6 +33,7 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
+    command: --authentication_policy=mysql_native_password
 
   pulsar:
     image: apachepulsar/pulsar:2.8.2
@@ -59,7 +60,7 @@ services:
       - ZK_URL=tubemq-server:2181
       - FLINK_HOST=jobmanager
       - FLINK_PORT=8081
-      - AUDIT_PROXY_URL=audit:10081
+      - AUDIT_QUERY_URL=http://audit:10080
 
   dashboard:
     image: inlong/dashboard:${VERSION_TAG}
@@ -82,7 +83,6 @@ services:
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
-      - AUDIT_PROXY_URL=audit:10081
       # pulsar or kafka
       - MQ_TYPE=pulsar
       - ETH_NAME=eth0
@@ -98,9 +98,6 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
-      - AUDIT_PROXY_URL=audit:10081
-    ports:
-      - "8008:8008"
     volumes:
       - ./collect-data:/data/collect-data
 
@@ -112,19 +109,21 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      - JDBC_URL=mysql:3306
-      - USERNAME=root
-      - PASSWORD=inlong
+      - AUDIT_JDBC_URL=mysql:3306
+      - AUDIT_JDBC_USERNAME=root
+      - AUDIT_JDBC_PASSWORD=inlong
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
+      - AUDIT_PROXY_ADDRESS=audit:10081
       # pulsar or kafka
       - MQ_TYPE=pulsar
     ports:
+      - "10080:10080"
       - "10081:10081"
 
   # flink jobmanager
   jobmanager:
-    image: apache/flink:1.13-scala_2.11
+    image: apache/flink:1.15-scala_2.12
     container_name: jobmanager
     environment:
       - |
@@ -136,7 +135,7 @@ services:
 
   # flink taskmanager
   taskmanager:
-    image: apache/flink:1.13-scala_2.11
+    image: apache/flink:1.15-scala_2.12
     container_name: taskmanager
     environment:
       - |

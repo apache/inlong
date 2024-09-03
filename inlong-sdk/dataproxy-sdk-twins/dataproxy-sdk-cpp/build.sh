@@ -21,7 +21,6 @@
 
 rm -r build
 mkdir build
-# mkdir release
 cd build
 cmake ../
-make
+make -j4

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.starrocks.table.sink.table;
 
-import com.starrocks.connector.flink.row.sink.StarRocksTableRowTransformer;
 import com.starrocks.connector.flink.table.sink.StarRocksDynamicSinkFunctionBase;
 import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -37,14 +36,16 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
     private String inlongMetric;
     private String auditHostAndPorts;
     private String auditKeys;
+    private boolean ignoreJsonParseError;
 
     public StarRocksDynamicTableSink(StarRocksSinkOptions sinkOptions, TableSchema schema,
-            String inlongMetric, String auditHostAndPorts, String auditKeys) {
+            String inlongMetric, String auditHostAndPorts, String auditKeys, boolean ignoreJsonParseError) {
         this.flinkSchema = schema;
         this.sinkOptions = sinkOptions;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.auditKeys = auditKeys;
+        this.ignoreJsonParseError = ignoreJsonParseError;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
         StarRocksDynamicSinkFunctionBase<RowData> starrocksSinkFunction = SinkFunctionFactory.createSinkFunction(
                 sinkOptions,
                 flinkSchema,
-                new StarRocksTableRowTransformer(rowDataTypeInfo),
+                new StarRocksTableRowTransformer(rowDataTypeInfo, ignoreJsonParseError),
                 inlongMetric,
                 auditHostAndPorts,
                 auditKeys);
@@ -70,7 +71,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
 
     @Override
     public DynamicTableSink copy() {
-        return new StarRocksDynamicTableSink(sinkOptions, flinkSchema, inlongMetric, auditHostAndPorts, auditKeys);
+        return new StarRocksDynamicTableSink(sinkOptions, flinkSchema, inlongMetric,
+                auditHostAndPorts, auditKeys, ignoreJsonParseError);
     }
 
     @Override

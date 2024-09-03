@@ -51,19 +51,17 @@ detect_sed_command
 init_inlong_agent() {
   echo "Init agent configuration parameters"
   cd $INLONG_HOME/inlong-agent/conf
-  $SED_COMMAND 's/agent.local.ip=.*/'''agent.local.ip=${local_ip}'''/g' agent.properties
-  $SED_COMMAND 's/agent.http.port=.*/'''agent.http.port=${agent_port}'''/g' agent.properties
-  $SED_COMMAND 's/agent.manager.addr=.*/'''agent.manager.addr=http://${manager_server_hostname}:${manager_server_port}'''/g' agent.properties
-  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" agent.properties
-  $SED_COMMAND 's/audit.proxys=.*/'''audit.proxys=${audit_proxys_ip}:${audit_proxys_port}'''/g' agent.properties
+  $SED_COMMAND "s|agent.local.ip=.*|agent.local.ip=${local_ip}|g" agent.properties
+  $SED_COMMAND "s|agent.manager.addr=.*|agent.manager.addr=http://${manager_server_hostname}:${manager_server_port}|g" agent.properties
 }
 
 init_inlong_audit() {
   echo "Init audit configuration parameters"
   cd $INLONG_HOME/inlong-audit/conf
+  # configure Audit Store
   $SED_COMMAND 's#jdbc:mysql://.*apache_inlong_audit#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_audit'''#g' application.properties
-  $SED_COMMAND 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application.properties
-  $SED_COMMAND 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application.properties
+  $SED_COMMAND 's/jdbc.username=.*/'''jdbc.username=${spring_datasource_username}'''/g' application.properties
+  $SED_COMMAND 's/jdbc.password=.*/'''jdbc.password=${spring_datasource_password}'''/g' application.properties
   if [ $mq_type == "pulsar" ]; then
     $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=pulsar'''/g' application.properties
   fi
@@ -73,14 +71,20 @@ init_inlong_audit() {
   if [ $mq_type == "tubemq" ]; then
     $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=tube'''/g' application.properties
   fi
+  # configure Audit Service
+  $SED_COMMAND 's#jdbc:mysql://.*apache_inlong_audit#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_audit'''#g' audit-service.properties
+  $SED_COMMAND 's/mysql.username=.*/'''mysql.username=${spring_datasource_username}'''/g' audit-service.properties
+  $SED_COMMAND 's/mysql.password=.*/'''mysql.password=${spring_datasource_password}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.agent=.*/'''audit.proxy.address.agent=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.dataproxy=.*/'''audit.proxy.address.dataproxy=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.sort=.*/'''audit.proxy.address.sort=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
 }
 
 init_inlong_dataproxy() {
   echo "Init dataproxy configuration parameters"
   cd $INLONG_HOME/inlong-dataproxy/conf
   $SED_COMMAND 's/manager.hosts=.*/'''manager.hosts=${manager_server_hostname}:${manager_server_port}'''/g' common.properties
-  $SED_COMMAND 's/audit.proxys=.*/'''audit.proxys=${audit_proxys_ip}:${audit_proxys_port}'''/g' common.properties
-  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" common.properties
+  $SED_COMMAND "s/audit.proxys.discovery.manager.enable=.*$/audit.proxys.discovery.manager.enable=true/g" common.properties
 }
 
 init_inlong_manager() {
@@ -92,11 +96,13 @@ init_inlong_manager() {
     $SED_COMMAND 's#jdbc:mysql://.*apache_inlong_manager#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_manager'''#g' application-dev.properties
     $SED_COMMAND 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application-dev.properties
     $SED_COMMAND 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application-dev.properties
+    $SED_COMMAND 's/audit.query.url=.*/'''audit.query.url=${audit_service_ip}:${audit_service_port}'''/g' application-dev.properties
   fi
   if [ $spring_profiles_active == "prod" ]; then
     $SED_COMMAND 's#jdbc:mysql://.*apache_inlong_manager#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_manager'''#g' application-prod.properties
     $SED_COMMAND 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application-prod.properties
     $SED_COMMAND 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application-prod.properties
+    $SED_COMMAND 's/audit.query.url=.*/'''audit.query.url=${audit_service_ip}:${audit_service_port}'''/g' application-prod.properties
   fi
   echo "Init inlong manager flink plugin configuration"
   cd $INLONG_HOME/inlong-manager/plugins

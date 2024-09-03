@@ -1,0 +1,96 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name:
+  InLong Unit Test For Flink 1.18
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ci_ut_flink18.yml'
+      - 'inlong-sort/**'
+      - '!**.md'
+
+  pull_request:
+    paths:
+      - '.github/workflows/ci_ut_flink18.yml'
+      - 'inlong-sort/**'
+      - '!**.md'
+
+jobs:
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Release space size
+      - name: Remove unnecessary packages
+        run: |
+          echo "=== Before pruning ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          echo "=== After pruning ==="
+          df -h
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository/*/*/*
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-inlong-flink18-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-inlong-flink18
+
+      - name: Build for Flink 1.18 with Maven
+        run: mvn --update-snapshots -e -V clean install -U -pl :sort-end-to-end-tests-v1.18 -am -Pv1.18 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        env:
+          CI: false
+
+      - name: Unit test for Flink 1.18 with Maven
+        run: mvn --update-snapshots -e -V verify -pl :sort-end-to-end-tests-v1.18 -am -Pv1.18
+        env:
+          CI: false
+
+      - name: Upload unit test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: ./**/target/surefire-reports/
+          if-no-files-found: ignore
+
+      - name: Upload integration test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: failsafe-reports
+          path: ./**/target/failsafe-reports/
+          if-no-files-found: ignore
+
+      - name: Clean up build packages
+        run: mvn clean

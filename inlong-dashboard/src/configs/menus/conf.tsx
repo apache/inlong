@@ -90,6 +90,10 @@ const conf: MenuItemType[] = [
         isAdmin: true,
         name: i18n.t('configs.menus.ProcessManagement'),
       },
+      {
+        path: '/dataTemplate',
+        name: i18n.t('configs.menus.Groups.Template'),
+      },
     ],
   },
   {

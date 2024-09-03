@@ -67,8 +67,15 @@ public class IcebergSourceReader<T>
     }
     @Override
     public List<IcebergSourceSplit> snapshotState(long checkpointId) {
-        metrics.flushAudit();
+        metrics.updateCurrentCheckpointId(checkpointId);
         return super.snapshotState(checkpointId);
+    }
+
+    @Override
+    public void notifyCheckpointComplete(long checkpointId) throws Exception {
+        super.notifyCheckpointComplete(checkpointId);
+        metrics.flushAudit();
+        metrics.updateLastCheckpointId(checkpointId);
     }
 
     @Override

@@ -24,7 +24,7 @@ import { useHistory, useParams } from '@/ui/hooks';
 import i18n from '@/i18n';
 import IpModule, { ipModule as ipModuleName } from './IpModule';
 import IdModule, { idModule as idModuleName } from './IdModule';
-
+import AuditModule, { auditModule as auditModuleName } from '@/ui/pages/ModuleAudit/AuditModule';
 const tabList = [
   {
     tab: i18n.t('pages.ModuleAudit.Id'),
@@ -35,6 +35,11 @@ const tabList = [
     tab: i18n.t('pages.ModuleAudit.Ip'),
     key: ipModuleName,
     content: <IpModule />,
+  },
+  {
+    tab: i18n.t('pages.ModuleAudit.Metric'),
+    key: auditModuleName,
+    content: <AuditModule />,
   },
 ];
 

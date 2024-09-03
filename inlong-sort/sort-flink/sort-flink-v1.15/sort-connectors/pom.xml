@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-flink-v1.15</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connectors-v1.15</artifactId>
@@ -44,6 +44,8 @@
         <module>hudi</module>
         <module>kafka</module>
         <module>redis</module>
+        <module>jdbc</module>
+        <module>elasticsearch-base</module>
     </modules>
 
     <properties>

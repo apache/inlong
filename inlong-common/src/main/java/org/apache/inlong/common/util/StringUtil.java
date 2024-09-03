@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -274,4 +276,11 @@ public class StringUtil {
         }
     }
 
+    public static String parseChar(String charStr) {
+        if (StringUtils.isNumeric(charStr)) {
+            char numberChar = (char) Integer.parseInt(charStr);
+            charStr = Character.toString(numberChar);
+        }
+        return charStr;
+    }
 }

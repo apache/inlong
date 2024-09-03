@@ -34,9 +34,13 @@ public class InlongClusterNodeEntity implements Serializable {
     private String type;
     private String ip;
     private Integer port;
+    private String username;
+    private String password;
+    private Integer sshPort;
     private String protocolType;
     private Integer nodeLoad;
     private String extParams;
+    private String operateLog;
     private String description;
 
     private Integer status;

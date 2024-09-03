@@ -20,15 +20,25 @@ package org.apache.inlong.sdk.transform.pojo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * KvSourceInfo
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuperBuilder
+@Data
 public class KvSourceInfo extends SourceInfo {
 
+    private Character entryDelimiter;
+    private Character kvDelimiter;
+    private Character escapeChar;
+    private Character quoteChar;
+    private Character lineDelimiter;
     private List<FieldInfo> fields;
 
     @JsonCreator
@@ -36,7 +46,11 @@ public class KvSourceInfo extends SourceInfo {
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
         super(charset);
-        this.fields = fields;
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**

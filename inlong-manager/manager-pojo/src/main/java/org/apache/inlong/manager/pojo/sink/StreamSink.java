@@ -68,6 +68,9 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Sink name, unique in one stream.")
     private String sinkName;
 
+    @ApiModelProperty("Transform sql")
+    private String transformSql;
+
     @ApiModelProperty("Sink description")
     private String description;
 

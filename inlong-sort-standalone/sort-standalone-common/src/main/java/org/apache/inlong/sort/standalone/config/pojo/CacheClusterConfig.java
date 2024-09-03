@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.standalone.config.pojo;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,45 +26,10 @@ import java.util.Map;
  * 
  * CacheClusterConfig
  */
+@Data
 public class CacheClusterConfig {
 
     private String clusterName;
     private Map<String, String> params = new HashMap<>();
-
-    /**
-     * get clusterName
-     * 
-     * @return the clusterName
-     */
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    /**
-     * set clusterName
-     * 
-     * @param clusterName the clusterName to set
-     */
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    /**
-     * get params
-     * 
-     * @return the params
-     */
-    public Map<String, String> getParams() {
-        return params;
-    }
-
-    /**
-     * set params
-     * 
-     * @param params the params to set
-     */
-    public void setParams(Map<String, String> params) {
-        this.params = params;
-    }
 
 }

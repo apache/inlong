@@ -83,10 +83,14 @@ start_inlong_audit() {
   if [ "${mq_type}" = "kafka" ]; then
     bash +x ./bin/proxy-start.sh kafka
   fi
+  wait_port_to_listen audit ${audit_proxy_port}
   echo "start audit store"
   bash +x ./bin/store-start.sh
   # wait to start
-  wait_port_to_listen audit ${audit_proxys_port}
+  echo "start audit service"
+  bash +x ./bin/service-start.sh
+  # wait to start
+  wait_port_to_listen audit ${audit_service_port}
 }
 
 start_inlong_manager() {
@@ -136,8 +140,6 @@ start_inlong_agent() {
   echo "start agent"
   cd $INLONG_HOME/inlong-agent
   bash +x ./bin/agent.sh start
-  # wait to start
-  wait_port_to_listen agent ${agent_port}
 }
 
 # start inlong
@@ -179,6 +181,7 @@ stop_inlong_audit() {
   cd $INLONG_HOME/inlong-audit/bin
   bash +x ./proxy-stop.sh
   bash +x ./store-stop.sh
+  bash +x ./service-stop.sh
 }
 
 stop_inlong_agent() {

@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.mongodb;
 
-import com.ververica.cdc.connectors.mongodb.table.MongoDBTableSource;
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.config.TableConfigOptions;
@@ -87,6 +88,15 @@ public class MongoDBTableFactory implements DynamicTableSourceFactory {
         checkArgument(physicalSchema.getPrimaryKey().isPresent(), "Primary key must be present");
         checkPrimaryKey(physicalSchema.getPrimaryKey().get(), "Primary key must be _id field");
 
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
+        String auditKeys = config.get(AUDIT_KEYS);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
         return new MongoDBTableSource(
                 physicalSchema,
                 hosts,
@@ -104,7 +114,8 @@ public class MongoDBTableFactory implements DynamicTableSourceFactory {
                 localTimeZone,
                 enableParallelRead,
                 splitMetaGroupSize,
-                splitSizeMB);
+                splitSizeMB,
+                metricOption);
     }
 
     private void checkPrimaryKey(UniqueConstraint pk, String message) {

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.15</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-kafka-v1.15</artifactId>
@@ -54,8 +54,12 @@
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -80,6 +84,7 @@
                                     <include>org.apache.httpcomponents:*</include>
                                     <include>org.apache.commons:commons-lang3</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.google.guava:*</include>
                                     <include>joda-time:*</include>
                                     <include>com.fasterxml.jackson.core:*</include>
                                     <include>com.amazonaws:*</include>

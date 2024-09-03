@@ -31,16 +31,14 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_HOME = System.getProperty("agent.home");
     public static final String AGENT_ROCKS_DB_PATH = "agent.rocks.db.path";
     public static final String DEFAULT_AGENT_ROCKS_DB_PATH = ".rocksdb";
-    public static final String AGENT_LOCAL_DB_PATH_TASK = ".localdb/task";
-    public static final String AGENT_LOCAL_DB_PATH_INSTANCE = ".localdb/instance";
-    public static final String AGENT_LOCAL_DB_PATH_OFFSET = ".localdb/offset";
+    public static final String AGENT_STORE_PATH_TASK = ".localdb/task";
+    public static final String AGENT_STORE_PATH_INSTANCE = ".localdb/instance";
+    public static final String AGENT_STORE_PATH_OFFSET = ".localdb/offset";
     public static final String AGENT_UNIQ_ID = "agent.uniq.id";
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
     public static final String AGENT_CONF_PARENT = "agent.conf.parent";
     public static final String DEFAULT_AGENT_CONF_PARENT = "conf";
-    public static final String AGENT_HTTP_PORT = "agent.http.port";
-    public static final int DEFAULT_AGENT_HTTP_PORT = 8008;
     public static final String CHANNEL_MEMORY_CAPACITY = "channel.memory.capacity";
     public static final int DEFAULT_CHANNEL_MEMORY_CAPACITY = 2000;
     public static final String JOB_NUMBER_LIMIT = "job.number.limit";
@@ -48,6 +46,9 @@ public class AgentConstants {
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
     public static final String DEFAULT_LOCAL_HOST = "localhost";
+    public static final String AGENT_STORE_CLASSNAME = "agent.store.classname";
+    public static final String DEFAULT_AGENT_STORE_CLASSNAME = "org.apache.inlong.agent.plugin.store.RocksDBStoreImpl";
+
     // default use local ip as uniq id for agent.
     public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIp();
     public static final String CUSTOM_FIXED_IP = "agent.custom.fixed.ip";
@@ -55,6 +56,7 @@ public class AgentConstants {
     public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
     public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
     public static final String AGENT_CLUSTER_IN_CHARGES = "agent.cluster.inCharges";
+    public static final String AGENT_INSTALL_PLATFORM = "agent.install.platform";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
     public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
@@ -66,9 +68,6 @@ public class AgentConstants {
 
     public static final String AUDIT_ENABLE = "audit.enable";
     public static final boolean DEFAULT_AUDIT_ENABLE = true;
-
-    public static final String AUDIT_KEY_PROXYS = "audit.proxys";
-    public static final String DEFAULT_AUDIT_PROXYS = "";
 
     public static final String AGENT_HISTORY_PATH = "agent.history.path";
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";

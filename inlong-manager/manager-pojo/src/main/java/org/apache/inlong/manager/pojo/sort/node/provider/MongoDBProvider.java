@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -27,16 +27,20 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating MongoDB extract nodes.
  */
+@Service
 public class MongoDBProvider implements ExtractNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MongoDBFieldTypeStrategy();
-
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.MONGODB.equals(sourceType);
@@ -45,8 +49,10 @@ public class MongoDBProvider implements ExtractNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MongoDBSource source = (MongoDBSource) streamNodeInfo;
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(source.getSourceType());
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new MongoExtractNode(

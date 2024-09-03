@@ -27,7 +27,25 @@ public class InLongTopic {
     private int partitionId;
     // pulsar,kafka,tube
     private String topicType;
-    private Map<String, String> properties;
+    private String startConsumeTime;
+    private String stopConsumeTime;
+    private Map<String, Object> properties;
+
+    public void setStopConsumeTime(String stopConsumeTime) {
+        this.stopConsumeTime = stopConsumeTime;
+    }
+
+    public void setStartConsumeTime(String startConsumeTime) {
+        this.startConsumeTime = startConsumeTime;
+    }
+
+    public String getStartConsumeTime() {
+        return startConsumeTime;
+    }
+
+    public String getStopConsumeTime() {
+        return stopConsumeTime;
+    }
 
     public String getTopic() {
         return topic;
@@ -61,11 +79,11 @@ public class InLongTopic {
         this.topicType = topicType;
     }
 
-    public Map<String, String> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

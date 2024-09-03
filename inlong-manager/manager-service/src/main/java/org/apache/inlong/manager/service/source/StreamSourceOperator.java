@@ -136,4 +136,12 @@ public interface StreamSourceOperator {
      */
     Integer addDataAddTask(DataAddTaskRequest request, String operator);
 
+    /**
+     * Update the agent task config info.
+     *
+     * @param request source request
+     * @param operator name of the operator
+     */
+    void updateAgentTaskConfig(SourceRequest request, String operator);
+
 }

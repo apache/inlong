@@ -114,6 +114,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Null if not a data add task")
     private Integer taskMapId;
 
+    @ApiModelProperty(value = "Audit version")
+    private String auditVersion;
+
     @ApiModelProperty("Data add task information of existing agents")
     private List<DataAddTaskDTO> dataAddTaskList;
 

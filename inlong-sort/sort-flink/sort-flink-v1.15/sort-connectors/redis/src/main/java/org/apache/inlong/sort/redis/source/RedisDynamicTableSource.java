@@ -37,7 +37,11 @@ import org.apache.flink.util.Preconditions;
 
 import java.util.Map;
 
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.*;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
+
+//import static org.apache.flink.table.types.logical.LogicalTypeRoot.*;
 
 /**
  * Redis dynamic table source
@@ -52,8 +56,13 @@ public class RedisDynamicTableSource implements LookupTableSource {
     private final RedisLookupOptions redisLookupOptions;
     private final Map<String, String> properties;
 
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
+    private final String auditKeys;
+
     public RedisDynamicTableSource(Map<String, String> properties, ResolvedSchema tableSchema,
-            ReadableConfig config, RedisLookupOptions redisLookupOptions) {
+            ReadableConfig config, RedisLookupOptions redisLookupOptions, String inlongMetric, String auditHostAndPorts,
+            String auditKeys) {
         this.properties = properties;
         Preconditions.checkNotNull(properties, "properties should not be null");
         this.tableSchema = tableSchema;
@@ -73,11 +82,15 @@ public class RedisDynamicTableSource implements LookupTableSource {
         flinkJedisConfigBase = RedisHandlerServices
                 .findRedisHandler(InlongJedisConfigHandler.class, properties).createFlinkJedisConfig(config);
         this.redisLookupOptions = redisLookupOptions;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     @Override
     public DynamicTableSource copy() {
-        return new RedisDynamicTableSource(properties, tableSchema, config, redisLookupOptions);
+        return new RedisDynamicTableSource(properties, tableSchema, config, redisLookupOptions, inlongMetric,
+                auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -88,6 +101,7 @@ public class RedisDynamicTableSource implements LookupTableSource {
     @Override
     public LookupRuntimeProvider getLookupRuntimeProvider(LookupContext context) {
         return TableFunctionProvider.of(new RedisRowDataLookupFunction(
-                redisMapper.getCommandDescription(), flinkJedisConfigBase, this.redisLookupOptions));
+                redisMapper.getCommandDescription(), flinkJedisConfigBase, this.redisLookupOptions, inlongMetric,
+                auditHostAndPorts, auditKeys));
     }
 }

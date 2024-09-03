@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -31,10 +33,13 @@ import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 
 import com.github.pagehelper.Page;
@@ -47,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -70,6 +76,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     protected InlongStreamEntityMapper inlongStreamEntityMapper;
     @Autowired
     protected SortConfigEntityMapper sortConfigEntityMapper;
+    @Autowired
+    protected FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     /**
      * Setting the parameters of the latest entity.
@@ -162,7 +170,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
                 throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
             }
             for (int i = 0; i < existsFieldList.size(); i++) {
-                if (!existsFieldList.get(i).getFieldName().equals(fieldRequestList.get(i).getFieldName())) {
+                if (!existsFieldList.get(i).getFieldName().equalsIgnoreCase(fieldRequestList.get(i).getFieldName())) {
                     throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
                 }
             }
@@ -204,6 +212,31 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
         sinkFieldMapper.insertAll(entityList);
         LOGGER.debug("success to save sink fields");
+    }
+
+    @Override
+    public void syncField(SinkRequest request, List<StreamField> streamFields) {
+        FieldTypeMappingStrategy fieldTypeMappingStrategy = fieldTypeStrategyFactory.getInstance(request.getSinkType());
+        if (fieldTypeMappingStrategy == null) {
+            LOGGER.info("current sink type ={} not support sync field", request.getSinkType());
+            return;
+        }
+        List<SinkField> sinkFields = request.getSinkFieldList();
+        if (sinkFields.size() >= streamFields.size()) {
+            return;
+        }
+        for (int i = sinkFields.size(); i < streamFields.size(); i++) {
+            StreamField streamField = streamFields.get(i);
+            SinkField sinkField = CommonBeanUtils.copyProperties(streamField, SinkField::new);
+            sinkField.setSourceFieldName(streamField.getFieldName());
+            sinkField.setSourceFieldType(streamField.getFieldType());
+            sinkField.setFieldComment(streamField.getFieldComment());
+            sinkField.setFieldName(streamField.getFieldName());
+            sinkField.setFieldType(fieldTypeMappingStrategy.getStreamToSinkFieldTypeMapping(streamField.getFieldType())
+                    .toLowerCase(Locale.ROOT));
+            sinkFields.add(sinkField);
+        }
+        updateFieldOpt(true, request);
     }
 
     @Override
@@ -257,7 +290,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     }
 
     @Override
-    public SinkConfig getSinkConfig(StreamSink sink) {
+    public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
         throw new BusinessException(String.format("not support get sink config for sink type=%s", sink.getSinkType()));
     }
 

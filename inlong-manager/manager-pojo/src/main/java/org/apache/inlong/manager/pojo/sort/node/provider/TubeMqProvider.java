@@ -29,6 +29,8 @@ import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 /**
  * The Provider for creating TubeMQ extract nodes.
  */
+@Service
 public class TubeMqProvider implements ExtractNodeProvider {
 
     @Override
@@ -52,6 +55,8 @@ public class TubeMqProvider implements ExtractNodeProvider {
                 source.getSerializationType(),
                 source.getWrapType(),
                 source.getDataSeparator(),
+                source.getKvSeparator(),
+                source.getDataEscapeChar(),
                 source.getIgnoreParseError());
         Map<String, String> properties = parseProperties(source.getProperties());
 

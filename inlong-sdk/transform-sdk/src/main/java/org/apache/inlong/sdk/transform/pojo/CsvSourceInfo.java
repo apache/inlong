@@ -20,29 +20,36 @@ package org.apache.inlong.sdk.transform.pojo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * CsvSourceInfo
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuperBuilder
 public class CsvSourceInfo extends SourceInfo {
 
-    private String delimiter;
-    private String escapeChar;
+    private Character delimiter;
+    private Character escapeChar;
     private List<FieldInfo> fields;
 
     @JsonCreator
     public CsvSourceInfo(
             @JsonProperty("charset") String charset,
-            @JsonProperty("delimiter") String delimiter,
-            @JsonProperty("escapeChar") String escapeChar,
+            @JsonProperty("delimiter") Character delimiter,
+            @JsonProperty("escapeChar") Character escapeChar,
             @JsonProperty("fields") List<FieldInfo> fields) {
         super(charset);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
-        this.fields = fields;
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**
@@ -50,7 +57,7 @@ public class CsvSourceInfo extends SourceInfo {
      * @return the delimiter
      */
     @JsonProperty("delimiter")
-    public String getDelimiter() {
+    public Character getDelimiter() {
         return delimiter;
     }
 
@@ -58,7 +65,7 @@ public class CsvSourceInfo extends SourceInfo {
      * set delimiter
      * @param delimiter the delimiter to set
      */
-    public void setDelimiter(String delimiter) {
+    public void setDelimiter(Character delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -67,7 +74,7 @@ public class CsvSourceInfo extends SourceInfo {
      * @return the escapeChar
      */
     @JsonProperty("escapeChar")
-    public String getEscapeChar() {
+    public Character getEscapeChar() {
         return escapeChar;
     }
 
@@ -75,7 +82,7 @@ public class CsvSourceInfo extends SourceInfo {
      * set escapeChar
      * @param escapeChar the escapeChar to set
      */
-    public void setEscapeChar(String escapeChar) {
+    public void setEscapeChar(Character escapeChar) {
         this.escapeChar = escapeChar;
     }
 

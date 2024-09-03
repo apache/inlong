@@ -134,13 +134,16 @@ public class InlongStreamInfo extends BaseInlongStream {
     private String wrapType;
 
     @ApiModelProperty(value = "If use extended fields")
-    private Boolean useExtendedFields = false;
+    private Boolean useExtendedFields;
 
     @ApiModelProperty(value = "Extended field size")
-    private Integer extendedFieldSize = 0;
+    private Integer extendedFieldSize;
 
     @ApiModelProperty("The multiple enable of sink")
     private Boolean sinkMultipleEnable;
+
+    @ApiModelProperty("Whether to sync field")
+    private Boolean syncField = false;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;

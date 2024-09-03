@@ -30,6 +30,7 @@ import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
@@ -132,14 +133,14 @@ public class TubeMQQueueResourceOperator implements QueueResourceOperator {
     }
 
     public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            Integer messageCount) {
+            QueryMessageRequest request) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
 
         String clusterTag = groupInfo.getInlongClusterTag();
         TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
         String topicName = groupInfo.getMqResource();
 
-        return tubeMQOperator.queryLastMessage(tubeCluster, topicName, messageCount, streamInfo);
+        return tubeMQOperator.queryLastMessage(tubeCluster, topicName, streamInfo, request);
     }
 
     @Override

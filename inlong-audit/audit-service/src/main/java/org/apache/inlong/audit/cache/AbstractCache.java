@@ -19,6 +19,7 @@ package org.apache.inlong.audit.cache;
 
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.AuditCycle;
+import org.apache.inlong.audit.entities.CacheKeyEntity;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.utils.CacheUtils;
 
@@ -27,9 +28,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -37,11 +37,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DATE_FORMAT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_EXPIRED_HOURS;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_MAX_SIZE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_EXPIRED_HOURS;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_MAX_SIZE;
 import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_CACHE_EXPIRED_HOURS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_CACHE_MAX_SIZE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_CACHE_EXPIRED_HOURS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_CACHE_MAX_SIZE;
 
 /**
  * Abstract cache.
@@ -56,6 +56,8 @@ public class AbstractCache {
 
     // According to the startTime and endTime of the request parameters, the maximum number of cache keys generated.
     private static final int MAX_CACHE_KEY_SIZE = 1440;
+
+    private final DateTimeFormatter FORMATTER_YYMMDDHHMMSS = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     protected AbstractCache(AuditCycle auditCycle) {
         cache = Caffeine.newBuilder()
@@ -84,7 +86,6 @@ public class AbstractCache {
     }
 
     /**
-     *
      * @param startTime
      * @param endTime
      * @param inlongGroupId
@@ -96,38 +97,46 @@ public class AbstractCache {
     public List<StatData> getData(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId, String auditTag) {
         List<StatData> result = new LinkedList<>();
-        List<String> keyList = buildCacheKeyList(startTime, endTime, inlongGroupId,
+        List<CacheKeyEntity> keyList = buildCacheKeyList(startTime, endTime, inlongGroupId,
                 inlongStreamId, auditId, auditTag);
-        for (String cacheKey : keyList) {
-            StatData statData = cache.getIfPresent(cacheKey);
+        for (CacheKeyEntity cacheKey : keyList) {
+            StatData statData = cache.getIfPresent(cacheKey.getCacheKey());
             if (null == statData) {
                 // Compatible with scenarios where the auditTag openapi parameter can be empty.
-                statData = cache.getIfPresent(cacheKey + DEFAULT_AUDIT_TAG);
+                statData = cache.getIfPresent(cacheKey.getCacheKey() + DEFAULT_AUDIT_TAG);
             }
             if (null != statData) {
                 result.add(statData);
+            } else {
+                statData = fetchDataFromAuditStorage(cacheKey.getStartTime(), cacheKey.getEndTime(), inlongGroupId,
+                        inlongStreamId,
+                        auditId, auditTag);
+                result.add(statData);
             }
+
         }
         return result;
     }
 
-    private List<String> buildCacheKeyList(String startTime, String endTime, String inlongGroupId,
+    private List<CacheKeyEntity> buildCacheKeyList(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId, String auditTag) {
-        List<String> keyList = new LinkedList<>();
+        List<CacheKeyEntity> keyList = new LinkedList<>();
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-            Date startDate = dateFormat.parse(startTime);
-            Date endDate = dateFormat.parse(endTime);
-            for (int index = 0; index < MAX_CACHE_KEY_SIZE; index++) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(startDate);
-                calendar.add(Calendar.MINUTE, index * auditCycle.getValue());
-                calendar.set(Calendar.SECOND, 0);
-                if (calendar.getTime().compareTo(endDate) > 0) {
+            LocalDateTime startDateTime = LocalDateTime.parse(startTime, FORMATTER_YYMMDDHHMMSS);
+            LocalDateTime endDateTime = LocalDateTime.parse(endTime, FORMATTER_YYMMDDHHMMSS);
+            LocalDateTime nowDateTime = LocalDateTime.now();
+            LocalDateTime maxDateTime = endDateTime.isBefore(nowDateTime) ? endDateTime : nowDateTime;
+
+            for (long index = 0; index < MAX_CACHE_KEY_SIZE; index++) {
+                LocalDateTime currentDateTime = startDateTime.plusMinutes(index * auditCycle.getValue());
+                if (!currentDateTime.isBefore(maxDateTime)) {
                     break;
                 }
-                String time = dateFormat.format(calendar.getTime());
-                keyList.add(CacheUtils.buildCacheKey(time, inlongGroupId, inlongStreamId, auditId, auditTag));
+                String currentTime = currentDateTime.format(FORMATTER_YYMMDDHHMMSS);
+                String cacheKey =
+                        CacheUtils.buildCacheKey(currentTime, inlongGroupId, inlongStreamId, auditId, auditTag);
+                keyList.add(new CacheKeyEntity(cacheKey, currentTime,
+                        currentDateTime.plusMinutes(auditCycle.getValue()).format(FORMATTER_YYMMDDHHMMSS)));
             }
         } catch (Exception exception) {
             LOGGER.error("It has exception when build cache key list!", exception);
@@ -148,5 +157,35 @@ public class AbstractCache {
      */
     private void monitor() {
         LOGGER.info("{} api local cache size={}", auditCycle, cache.estimatedSize());
+    }
+
+    private StatData fetchDataFromAuditStorage(String startTime, String endTime, String inlongGroupId,
+            String inlongStreamId,
+            String auditId, String auditTag) {
+        List<StatData> allStatData =
+                RealTimeQuery.getInstance().queryLogTs(startTime, endTime, inlongGroupId, inlongStreamId, auditId);
+
+        long totalCount = 0L;
+        long totalSize = 0L;
+        long totalDelay = 0L;
+
+        for (StatData data : allStatData) {
+            if (auditTag.equals(data.getAuditTag()) || auditTag.equals(DEFAULT_AUDIT_TAG) || auditTag.isEmpty()) {
+                totalCount += data.getCount();
+                totalSize += data.getSize();
+                totalDelay += data.getDelay();
+            }
+        }
+
+        StatData statData = new StatData();
+        statData.setLogTs(startTime);
+        statData.setInlongGroupId(inlongGroupId);
+        statData.setInlongStreamId(inlongStreamId);
+        statData.setAuditId(auditId);
+        statData.setAuditTag(auditTag);
+        statData.setCount(totalCount);
+        statData.setSize(totalSize);
+        statData.setDelay(totalDelay);
+        return statData;
     }
 }

@@ -145,6 +145,11 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             size--;
         }
         reuse = new GenericRowData(size);
+        try {
+            this.jsonSerializer.open(context);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonRowDataSerializationSchema failed to open", e);
+        }
     }
 
     /**

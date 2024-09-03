@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * ManagerSortClusterConfigLoader
  */
+@Deprecated
 public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);

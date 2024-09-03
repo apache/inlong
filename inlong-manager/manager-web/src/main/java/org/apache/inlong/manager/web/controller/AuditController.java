@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -69,8 +72,16 @@ public class AuditController {
 
     @ApiOperation(value = "Get the audit base info")
     @GetMapping("/audit/getAuditBases")
-    public Response<List<AuditBaseResponse>> getAuditBases() {
-        return Response.success(auditService.getAuditBases());
+    public Response<List<AuditInformation>> getAuditBases(
+            @RequestParam(required = false, defaultValue = "false") boolean isMetric) {
+        return Response.success(auditService.getAuditBases(isMetric));
+    }
+
+    @GetMapping(value = "/audit/getAuditProxy")
+    @ApiOperation(value = "Get audit proxy url")
+    @ApiImplicitParam(name = "component", dataTypeClass = String.class, required = true)
+    public Response<List<AuditProxy>> getAuditProxy(@RequestParam String component) throws Exception {
+        return Response.success(auditService.getAuditProxy(component));
     }
 
 }

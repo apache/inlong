@@ -20,7 +20,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.IcebergFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
@@ -41,6 +41,8 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +53,11 @@ import java.util.stream.Collectors;
  * The Provider for creating Iceberg load nodes.
  */
 @Slf4j
+@Service
 public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new IcebergFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -63,8 +67,10 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         IcebergSource icebergSource = (IcebergSource) streamNodeInfo;
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(icebergSource.getSourceType());
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(icebergSource.getFieldList(), icebergSource.getSourceName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         Map<String, String> properties = parseProperties(icebergSource.getProperties());
 
         return new IcebergExtractNode(icebergSource.getSourceName(),
@@ -86,8 +92,10 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         IcebergSink icebergSink = (IcebergSink) nodeInfo;
         Map<String, String> properties = parseProperties(icebergSink.getProperties());
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(icebergSink.getSinkType());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(icebergSink.getSinkFieldList(), icebergSink.getSinkName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         List<FieldRelation> fieldRelations = parseSinkFields(icebergSink.getSinkFieldList(), constantFieldMap);
         IcebergConstant.CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
         Format format = parsingSinkMultipleFormat(icebergSink.getSinkMultipleEnable(),

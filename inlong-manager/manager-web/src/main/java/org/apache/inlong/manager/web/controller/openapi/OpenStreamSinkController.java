@@ -64,7 +64,7 @@ public class OpenStreamSinkController {
     public Response<StreamSink> get(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sinkId cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sinkService.get(id, LoginUserUtils.getLoginUser()));
+        return Response.success(sinkService.get(id));
     }
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.POST)
@@ -81,7 +81,7 @@ public class OpenStreamSinkController {
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser()));
+        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/batchSave", method = RequestMethod.POST)
@@ -97,7 +97,7 @@ public class OpenStreamSinkController {
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody SinkRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser()));
+        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
@@ -111,6 +111,6 @@ public class OpenStreamSinkController {
             @RequestParam(required = false, defaultValue = "false") boolean startProcess) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sinkId cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser()));
+        return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser().getName()));
     }
 }

@@ -612,6 +612,22 @@ public class TableFormatUtils {
         return new RowFormatInfo(rowType.getFieldNames().toArray(new String[1]), fieldFormatInfos);
     }
 
+    public static RowFormatInfo deriveRowFormatInfo(DataType dataType) {
+
+        RowType rowType = (RowType) dataType.getLogicalType();
+        int size = rowType.getFields().size();
+        FormatInfo[] fieldFormatInfos = new FormatInfo[size];
+        String[] fieldNames = new String[size];
+
+        for (int i = 0; i < size; i++) {
+            LogicalType fieldType = rowType.getTypeAt(i);
+            fieldFormatInfos[i] = deriveFormatInfo(fieldType);
+            fieldNames[i] = rowType.getFieldNames().get(i);
+        }
+
+        return new RowFormatInfo(fieldNames, fieldFormatInfos);
+    }
+
     public static RowFormatInfo deserializeRowFormatInfo(String rowFormatInfoStr) {
         try {
             FormatInfo formatInfo = FormatUtils.demarshall(rowFormatInfoStr);

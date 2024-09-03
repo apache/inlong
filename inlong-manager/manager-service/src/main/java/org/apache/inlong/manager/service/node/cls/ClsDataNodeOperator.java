@@ -114,6 +114,8 @@ public class ClsDataNodeOperator extends AbstractDataNodeOperator {
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
         DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
         ClsNodeConfig clsNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, ClsNodeConfig::new);
+        ClsDataNodeDTO dto = ClsDataNodeDTO.getFromJson(dataNodeEntity.getExtParams());
+        CommonBeanUtils.copyProperties(dto, clsNodeConfig);
         clsNodeConfig.setNodeName(dataNodeInfo.getName());
         return clsNodeConfig;
     }

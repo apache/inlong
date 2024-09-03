@@ -29,7 +29,7 @@ public class FilePathUtil {
     private static final String DAY = "DD";
     private static final String HOUR = "hh";
 
-    public static ArrayList<String> cutDirectory(String directory) {
+    public static ArrayList<String> cutDirectoryByWildcard(String directory) {
         String baseDirectory;
         String regixDirecotry;
         String fileName;
@@ -81,7 +81,7 @@ public class FilePathUtil {
         return ret;
     }
 
-    public static ArrayList<String> getDirectoryLayers(String directory) {
+    public static ArrayList<String> cutDirectoryByWildcardAndDateExpression(String directory) {
         String baseDirectory;
         String regixDirectory;
         String fileName;
@@ -158,8 +158,8 @@ public class FilePathUtil {
     }
 
     public static boolean isSameDir(String fileName1, String fileName2) {
-        ArrayList<String> ret1 = FilePathUtil.cutDirectory(fileName1);
-        ArrayList<String> ret2 = FilePathUtil.cutDirectory(fileName2);
+        ArrayList<String> ret1 = FilePathUtil.cutDirectoryByWildcard(fileName1);
+        ArrayList<String> ret2 = FilePathUtil.cutDirectoryByWildcard(fileName2);
         return ret1.get(0).equals(ret2.get(0));
     }
 

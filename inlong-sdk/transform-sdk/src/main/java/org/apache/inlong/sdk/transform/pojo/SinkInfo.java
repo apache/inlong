@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Optional;
 
@@ -32,10 +34,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @Type(value = CsvSinkInfo.class, name = SourceInfo.CSV),
-        @Type(value = KvSinkInfo.class, name = SourceInfo.KV),
+        @Type(value = CsvSinkInfo.class, name = SinkInfo.CSV),
+        @Type(value = KvSinkInfo.class, name = SinkInfo.KV),
 })
+@SuperBuilder
+@Data
 public abstract class SinkInfo {
+
+    public static final String CSV = "csv";
+    public static final String KV = "kv";
+    public static final String ES_MAP = "es_map";
 
     @JsonIgnore
     private String type;

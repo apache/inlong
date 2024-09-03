@@ -21,6 +21,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
@@ -107,6 +108,7 @@ public class TestEsSinkContext {
      */
     @Test
     public void test() throws Exception {
+        SortConfigMetricReporter.init(CommonPropertiesHolder.get());
         BufferQueue<EsIndexRequest> dispatchQueue = SinkContext.createBufferQueue();
         EsSinkContext context = mock(dispatchQueue);
         assertEquals(10, context.getBulkSizeMb());

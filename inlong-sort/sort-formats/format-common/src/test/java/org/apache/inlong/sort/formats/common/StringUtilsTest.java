@@ -112,4 +112,45 @@ public class StringUtilsTest {
         assertEquals("home", csv1Array2[2][1]);
         assertEquals("home", csv1Array2[2][2]);
     }
+
+    @Test
+    public void testSplitCsvStringWithMaxFields() {
+
+        String csvString = "name|age=20\\||&'\n\name|age=20\\||&'\n\n|home|\\home\\";
+        String[][] csv1Array0 = StringUtils.splitCsv(csvString, '|',
+                '\\', '\'', '\n', false, 0);
+        assertEquals(0, csv1Array0.length);
+
+        String[][] csv1Array1 = StringUtils.splitCsv(csvString, '|',
+                '\\', '\'', '\n', false, 1);
+        assertEquals("name|age=20\\||&'\n\name|age=20\\||&'", csv1Array1[0][0]);
+        assertEquals("", csv1Array1[1][0]);
+        assertEquals("|home|\\home\\", csv1Array1[2][0]);
+
+        String[][] csv1Array2 = StringUtils.splitCsv(csvString, '|',
+                '\\', '\'', '\n', false, 2);
+        assertEquals("name", csv1Array2[0][0]);
+        assertEquals("age=20\\||&'\n\name|age=20\\||&'", csv1Array2[0][1]);
+        assertEquals("", csv1Array2[1][0]);
+        assertEquals("", csv1Array2[2][0]);
+        assertEquals("home|\\home\\", csv1Array2[2][1]);
+
+        String[][] csv1Array3 = StringUtils.splitCsv(csvString, '|',
+                '\\', '\'', '\n', false, 3);
+        assertEquals("name", csv1Array3[0][0]);
+        assertEquals("age=20|", csv1Array3[0][1]);
+        assertEquals("&\n\name|age=20\\||&", csv1Array3[0][2]);
+        assertEquals("", csv1Array3[2][0]);
+        assertEquals("home", csv1Array3[2][1]);
+        assertEquals("home", csv1Array3[2][2]);
+
+        String[][] csv1Array4 = StringUtils.splitCsv(csvString, '|',
+                '\\', '\'', '\n', false, 4);
+        assertEquals("name", csv1Array4[0][0]);
+        assertEquals("age=20|", csv1Array4[0][1]);
+        assertEquals("&\n\name|age=20\\||&", csv1Array4[0][2]);
+        assertEquals("", csv1Array4[2][0]);
+        assertEquals("home", csv1Array4[2][1]);
+        assertEquals("home", csv1Array4[2][2]);
+    }
 }

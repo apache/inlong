@@ -804,6 +804,12 @@
         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableOptions.java
         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableOptionUtils.java
         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableValidationUtils.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/PulsarSource.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/PulsarSourceBuilder.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/PulsarSourceReaderFactory.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/reader/PulsarOrderedSourceReader.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/reader/PulsarSourceReaderBase.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/reader/PulsarUnorderedSourceReader.java
 
  Source  : flink-connector-pulsar 4.0-SNAPSHOT (Please note that the software have been modified.)
  License : https://github.com/apache/flink-connector-pulsar/blob/main/LICENSE
@@ -815,9 +821,19 @@
  Source  : flink-connector-hbase-2.2 1.15.4 (Please note that the software have been modified.)
  License : https://github.com/apache/flink/blob/master/LICENSE
 
-1.3.20 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicTableFactory.java
-       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/UpsertKafkaDynamicTableFactory.java
+1.3.20 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/DynamicKafkaDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/DynamicKafkaRecordSerializationSchema.java
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaConnectorOptionsUtil.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicSink.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/ReducingUpsertSink.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/ReducingUpsertWriter.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/UpsertKafkaDynamicTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/KafkaSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/KafkaSourceBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/reader/KafkaSourceReader.java
   Source  : org.apache.flink:flink-connector-kafka:1.15.4 (Please note that the software have been modified.)
   License : https://github.com/apache/flink/blob/master/LICENSE
 
@@ -828,16 +844,21 @@
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/redis/src/main/java/org/apache/inlong/sort/redis/source/RedisRowDataLookupFunction.java
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/redis/src/main/java/org/apache/inlong/sort/redis/source/RedisDynamicTableSource.java
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/redis/src/main/java/org/apache/inlong/sort/redis/sink/RedisDynamicTableSink.java
-  Source  : org.apache.flink:flink-connector-kafka:1.15.4 (Please note that the software have been modified.)
+  Source  : org.apache.flink:flink-connector-redis:1.15.4 (Please note that the software have been modified.)
   License : https://github.com/jeff-zou/flink-connector-redis/blob/main/LICENSE
 
 1.3.22 inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableFactory.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableOptionUtils.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableOptions.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableValidationUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/source/PulsarReadableMetadata.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/source/PulsarRowDataConverter.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/source/PulsarTableDeserializationSchema.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/source/PulsarTableDeserializationSchemaFactory.java
        inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/source/PulsarTableSource.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/PulsarTableSource.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/PulsarSourceBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/source/reader/PulsarSourceReader.java
   Source  : org.apache.flink:flink-connector-pulsar:4.1.0-1.18 (Please note that the software have been modified.)
   License : https://github.com/apache/flink-connector-pulsar/blob/main/LICENSE
 
@@ -849,6 +870,134 @@
          inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/internal/TableJdbcUpsertOutputFormat.java
     Source  : org.apache.flink:flink-connector-pulsar:4.1.0-1.18 (Please note that the software have been modified.)
     License : https://github.com/apache/flink-connector-pulsar/blob/main/LICENSE
+
+1.3.23 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/source/IncrementalSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/source/IncrementalSourceRecordEmitter.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/source/MongoDBRecordEmitter.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/source/MongoDBSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/source/MongoDBSourceBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/DebeziumChangeFetcher.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/DebeziumDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/DebeziumSourceFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/MongoDBConnectorDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/MongoDBSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/MongoDBTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/mongodb/MongoDBTableSource.java
+    Source  : com.ververica:flink-connector-mongodb-cdc:2.3.0 (Please note that the software have been modified.)
+    License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
+
+1.3.24 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/DebeziumChangeFetcher.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/DebeziumDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/DebeziumSourceFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/PostgreSQLSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/PostgreSQLTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/PostgreSQLTableSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/PostgresValueValidator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/postgre/RowDataDebeziumDeserializeSchema.java
+Source  : com.ververica:flink-connector-postgres-cdc:2.3.0 (Please note that the software have been modified.)
+License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
+
+1.3.25 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/DebeziumChangeFetcher.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/DebeziumDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/DebeziumSourceFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/RowDataDebeziumDeserializeSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/SqlServerSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/SqlserverTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/sqlserver-cdc/src/main/java/org/apache/inlong/sort/sqlserver/SqlServerTableSource.javava
+Source  : com.ververica:flink-connector-sqlserver-cdc:2.3.0 (Please note that the software have been modified.)
+License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
+
+1.3.26 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/append/AppendWriteFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/append/AppendWriteOperator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/bulk/BulkInsertWriteFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/bulk/BulkInsertWriteOperator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/utils/Pipelines.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/StreamWriteFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/sink/StreamWriteOperator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/table/HoodieTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/table/HoodieTableSink.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hudi/src/main/java/org/apache/inlong/sort/hudi/table/HudiTableInlongFactory.java
+Source  : org.apache.hudi:hudi-flink1.15-bundle:0.12.3 (Please note that the software have been modified.)
+License : https://github.com/apache/hudi/blob/master/LICENSE
+
+1.3.27 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/MysqlTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/MySqlTableSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/RowDataDebeziumDeserializeSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/source/MySqlSourceBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/source/MySqlSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/source/reader/MySqlSourceReader.java
+Source  : com.ververica:flink-connector-mysql-cdc:2.3.0 (Please note that the software have been modified.)
+License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
+
+1.3.28 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/table/JdbcDynamicTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/table/JdbcDynamicTableSink.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/table/JdbcOutputFormatBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/internal/GenericJdbcSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/internal/JdbcOutputFormat.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/src/main/java/org/apache/inlong/sort/jdbc/internal/TableJdbcUpsertOutputFormat.java
+Source  : org.apache.flink:flink-connector-jdbc-1.15.4.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
+
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchConfiguration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchConnectorOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchValidationUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGenerator.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGeneratorBase.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGeneratorFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/KeyExtractor.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/RowElasticsearchSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/StaticIndexGenerator.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/util/IgnoringFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/util/NoOpFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/util/RetryRejectedExecutionFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ActionRequestFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/BufferingNoOpRequestIndexer.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchApiCallBridge.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchSinkBase.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/RequestIndexer.java
+Source  : org.apache.flink:flink-connector-elasticsearch-base-3.0.1-1.17.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
+
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6Configuration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6DynamicSink.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/table/Elasticsearch6DynamicSinkFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/Elasticsearch6ApiCallBridge.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/Elasticsearch6BulkProcessorIndexer.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch6/src/main/java/org/apache/inlong/sort/elasticsearch6/ElasticsearchSink.java
+Source  : org.apache.flink:flink-connector-elasticsearch6-3.0.1-1.17.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
+
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/table/Elasticsearch7Configuration.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/table/Elasticsearch7DynamicSink.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/table/Elasticsearch7DynamicSinkFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/Elasticsearch7ApiCallBridge.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/Elasticsearch7BulkProcessorIndexer.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/elasticsearch7/src/main/java/org/apache/inlong/sort/elasticsearch7/ElasticsearchSink.java
+Source  : org.apache.flink:flink-connector-elasticsearch6-3.0.1-1.17.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
+
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/AbstractTimeIndexGenerator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchConfiguration.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchConnectorOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/ElasticsearchValidationUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGenerator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGeneratorBase.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/IndexGeneratorFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/KeyExtractor.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/RequestFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/RowElasticsearchSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/table/StaticIndexGenerator.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/util/IgnoringFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/util/NoOpFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ActionRequestFailureHandler.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/BufferingNoOpRequestIndexer.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchApiCallBridge.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchSinkBase.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/ElasticsearchSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/elasticsearch-base/src/main/java/org/apache/inlong/sort/elasticsearch/RequestIndexer.java
+Source  : org.apache.flink:flink-connector-elasticsearch-base-1.5.4.jar (Please note that the software have been modified.)
+License : https://github.com/apache/flink/blob/master/LICENSE
 
 =======================================================================
 Apache InLong Subcomponents:
@@ -872,9 +1021,8 @@ The text of each license is the standard Apache 2.0 license.
 
   net.minidev:accessors-smart:1.2 - ASM based accessors helper used by json-smart (https://github.com/netplex/json-smart-v2), (The Apache Software License, Version 2.0)
   org.elasticsearch.plugin:aggs-matrix-stats-client:6.8.17 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.plugin:aggs-matrix-stats-client:7.9.2 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  io.airlift:aircompressor:0.10 - aircompressor (http://github.com/airlift/aircompressor), (Apache License 2.0)
-  io.airlift:aircompressor:0.16 - aircompressor (http://github.com/airlift/aircompressor), (Apache License 2.0)
+  org.elasticsearch.plugin:aggs-matrix-stats-client:7.17.13 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  io.airlift:aircompressor:0.27 - aircompressor (http://github.com/airlift/aircompressor), (Apache License 2.0)
   org.jetbrains:annotations:17.0.0 - JetBrains Java Annotations (https://github.com/JetBrains/java-annotations/tree/17.0.0), (The Apache Software License, Version 2.0)
   org.apache.arrow:arrow-format:0.8.0 - Arrow Format (https://arrow.apache.org/), (Apache License, Version 2.0)
   org.apache.arrow:arrow-memory:0.8.0 - Arrow Memory (https://arrow.apache.org/), (Apache License, Version 2.0)
@@ -914,20 +1062,20 @@ The text of each license is the standard Apache 2.0 license.
   io.debezium:debezium-embedded:1.5.4.Final - Debezium Embedded (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-embedded), (Apache License, Version 2.0)
   com.github.joshelser:dropwizard-metrics-hadoop-metrics2-reporter:0.1.2 - Hadoop Metrics2 Reporter for Dropwizard Metrics (https://github.com/joshelser/dropwizard-hadoop-metrics2), (Apache License, Version 2.0)
   org.elasticsearch:elasticsearch:6.8.17  - server (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch:7.9.2 - server (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch:7.17.13 - server (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch:elasticsearch-cli:6.8.17 - cli (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch-cli:7.9.2 - elasticsearch-cli (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-cli:7.17.13 - elasticsearch-cli (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch:elasticsearch-core:6.8.17 - core (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch-core:7.9.2 - elasticsearch-core (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch-geo:7.9.2 - elasticsearch-geo (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-core:7.17.13 - elasticsearch-core (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-geo:7.17.13 - elasticsearch-geo (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch.client:elasticsearch-rest-client:6.8.17 - rest (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.client:elasticsearch-rest-client:7.9.2 - rest (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.client:elasticsearch-rest-client:7.17.13 - rest (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch.client:elasticsearch-rest-high-level-client:6.8.17 - rest-high-level (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.2 - rest-high-level (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.13 - rest-high-level (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch:elasticsearch-secure-sm:6.8.17 - secure-sm (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch-secure-sm:7.9.2 - elasticsearch-secure-sm (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-secure-sm:7.17.13 - elasticsearch-secure-sm (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch:elasticsearch-x-content:6.8.17 - x-content (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch:elasticsearch-x-content:7.9.2 - elasticsearch-x-content (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-x-content:7.17.13 - elasticsearch-x-content (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   com.google.errorprone:error_prone_annotations:2.3.3 - error-prone annotations (https://github.com/google/error-prone), (Apache 2.0)
   com.google.errorprone:error_prone_annotations:2.3.4 - error-prone annotations (https://github.com/google/error-prone), (Apache 2.0)
   com.google.errorprone:error_prone_annotations:2.7.1 - error-prone annotations (https://github.com/google/error-prone), (Apache 2.0)
@@ -1029,13 +1177,13 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.kerby:kerby-util:1.0.1 - Kerby Util (http://directory.apache.org/kerby/kerby-common/kerby-util), (Apache License, Version 2.0)
   org.apache.kerby:kerby-xdr:1.0.1 - Kerby XDR Project (http://directory.apache.org/kerby/kerby-common/kerby-xdr), (Apache License, Version 2.0)
   org.elasticsearch.plugin:lang-mustache-client:jar:6.8.17 - lang-mustache (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.plugin:lang-mustache-client:jar:7.9.2 - lang-mustache (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:lang-mustache-client:jar:7.17.13 - lang-mustache (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - Guava ListenableFuture only (https://github.com/google/guava/listenablefuture), (The Apache Software License, Version 2.0)
   org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
   org.apache.logging.log4j:log4j-web:2.10.0 - Apache Log4j Web (https://logging.apache.org/log4j/2.x/log4j-web/), (Apache License, Version 2.0)
   org.lz4:lz4-java:1.6.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java/tree/1.6.0), (The Apache Software License, Version 2.0)
   org.lz4:lz4-java:1.7.1 - LZ4 and xxHash (https://github.com/lz4/lz4-java/tree/1.7.1), (The Apache Software License, Version 2.0)
-  org.elasticsearch.plugin:mapper-extras-client:7.9.2 - mapper-extras (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:mapper-extras-client:7.17.13 - mapper-extras (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.apache.maven:maven-artifact:3.6.3 - Maven Artifact (https://maven.apache.org/ref/3.6.3/maven-artifact/), (Apache License, Version 2.0)
   io.dropwizard.metrics:metrics-core:3.1.0 - Metrics Core (https://github.com/dropwizard/metrics/tree/v3.1.0), (Apache License 2.0)
   io.dropwizard.metrics:metrics-core:3.2.6 - Metrics Core (https://github.com/dropwizard/metrics/tree/v3.2.6), (Apache License 2.0)
@@ -1056,7 +1204,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.orc:orc-shims:1.5.6 - ORC Shims (http://orc.apache.org/orc-shims), (Apache License, Version 2.0)
   org.apache.orc:orc-shims:1.6.7 - ORC Shims (http://orc.apache.org/orc-shims), (Apache License, Version 2.0)
   org.elasticsearch.plugin:parent-join-client:6.8.17 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.plugin:parent-join-client:7.9.2 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:parent-join-client:7.17.13 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-admin-api:2.8.4 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-all:2.8.4 - Pulsar Client All (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
@@ -1064,7 +1212,7 @@ The text of each license is the standard Apache 2.0 license.
   io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9 - StreamNative :: Pulsar Flink Connector :: Scala 2.11 (https://github.com/streamnative/pulsar-flink), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-package-core:2.8.4 - Apache Pulsar :: Package Management :: Core (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   org.elasticsearch.plugin:rank-eval-client:jar:6.8.17 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.elasticsearch.plugin:rank-eval-client:jar:7.9.2 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:rank-eval-client:jar:7.17.13 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
   org.yaml:snakeyaml:1.17 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.17/), (Apache License, Version 2.0)
   org.yaml:snakeyaml:1.26 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.26/), (Apache License, Version 2.0)

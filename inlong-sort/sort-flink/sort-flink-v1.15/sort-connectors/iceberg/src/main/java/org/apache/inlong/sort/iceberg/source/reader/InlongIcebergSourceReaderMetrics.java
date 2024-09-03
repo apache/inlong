@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.iceberg.source.reader;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 import org.apache.inlong.sort.iceberg.utils.RecyclableJoinedRowData;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetrics {
 
     private final MetricGroup metrics;
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     public InlongIcebergSourceReaderMetrics(MetricGroup metrics, String fullTableName) {
         super(metrics, fullTableName);
@@ -44,20 +44,20 @@ public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetr
 
     public void registerMetrics(MetricOption metricOption) {
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, metrics);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption, metrics);
         } else {
             log.warn("failed to init sourceMetricData since the metricOption is null");
         }
     }
 
     public void outputMetricsWithEstimate(ArrayBatchRecords<T> batchRecord) {
-        if (sourceMetricData != null) {
+        if (sourceExactlyMetric != null) {
             int dataCount = batchRecord.numberOfRecords();
             T[] records = batchRecord.records();
             for (int i = 0; i < dataCount; i++) {
                 long dataSize = getDataSize(records[i]);
                 long dataTime = getDataTime(records[i]);
-                sourceMetricData.outputMetrics(1, dataSize, dataTime);
+                sourceExactlyMetric.outputMetrics(1, dataSize, dataTime);
             }
 
         }
@@ -79,8 +79,20 @@ public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetr
     }
 
     void flushAudit() {
-        if (sourceMetricData != null) {
-            sourceMetricData.flushAuditData();
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
     }
 }

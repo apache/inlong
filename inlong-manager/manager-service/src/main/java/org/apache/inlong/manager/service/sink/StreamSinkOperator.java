@@ -21,10 +21,13 @@ import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 
 import com.github.pagehelper.Page;
 
@@ -104,6 +107,14 @@ public interface StreamSinkOperator {
     void saveFieldOpt(SinkRequest request);
 
     /**
+     * Sync the sink fields.
+     *
+     * @param request sink request info needs to save
+     * @param streamFields stream field list
+     */
+    void syncField(SinkRequest request, List<StreamField> streamFields);
+
+    /**
      * Delete the sink info.
      *
      * @param entity sink info needs to delete
@@ -122,8 +133,11 @@ public interface StreamSinkOperator {
     /**
      * Get the sink config.
      *
+     * @param groupInfo inlong group info
+     * @param streamInfo inlong stream info
      * @param sink sink info
      * @return sink config
      */
-    SinkConfig getSinkConfig(StreamSink sink);
+    SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink);
+
 }

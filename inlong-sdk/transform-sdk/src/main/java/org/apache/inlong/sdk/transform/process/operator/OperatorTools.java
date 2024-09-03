@@ -17,111 +17,102 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
-import org.apache.inlong.sdk.transform.process.function.NowFunction;
-import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
+import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
-import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
-import org.apache.inlong.sdk.transform.process.parser.LongParser;
-import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
-import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
-import org.apache.inlong.sdk.transform.process.parser.StringParser;
-import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
+import org.apache.inlong.sdk.transform.process.parser.ParserTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NotExpression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.ObjectUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 
+import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * OperatorTools
- * 
+ *
  */
+@Slf4j
 public class OperatorTools {
+
+    private static final String OPERATOR_PATH = "org.apache.inlong.sdk.transform.process.operator";
+
+    private final static Map<Class<?>, Class<?>> operatorMap = Maps.newConcurrentMap();
 
     public static final String ROOT_KEY = "$root";
 
     public static final String CHILD_KEY = "$child";
 
+    static {
+        init();
+    }
+
+    private static void init() {
+        Reflections reflections = new Reflections(OPERATOR_PATH, Scanners.TypesAnnotated);
+        Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformOperator.class);
+        for (Class<?> clazz : clazzSet) {
+            if (ExpressionOperator.class.isAssignableFrom(clazz)) {
+                TransformOperator annotation = clazz.getAnnotation(TransformOperator.class);
+                if (annotation == null) {
+                    continue;
+                }
+                Class<?>[] values = annotation.values();
+                for (Class<?> value : values) {
+                    operatorMap.compute(value, (key, former) -> {
+                        if (former != null) {
+                            log.warn("find a conflict for parser class [{}], the former one is [{}], new one is [{}]",
+                                    key, former.getName(), clazz.getName());
+                        }
+                        return clazz;
+                    });
+                }
+            }
+        }
+    }
+
+    public static ExpressionOperator getTransformOperator(Expression expr) {
+        Class<?> clazz = operatorMap.get(expr.getClass());
+        if (clazz == null) {
+            return null;
+        }
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(expr.getClass());
+            return (ExpressionOperator) constructor.newInstance(expr);
+        } catch (NoSuchMethodException e) {
+            log.error("transform operator {} needs one constructor that accept one params whose type is {}",
+                    clazz.getName(), expr.getClass().getName(), e);
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static ExpressionOperator buildOperator(Expression expr) {
-        if (expr instanceof AndExpression) {
-            return new AndOperator((AndExpression) expr);
-        } else if (expr instanceof OrExpression) {
-            return new OrOperator((OrExpression) expr);
-        } else if (expr instanceof Parenthesis) {
-            return new ParenthesisOperator((Parenthesis) expr);
-        } else if (expr instanceof NotExpression) {
-            return new NotOperator((NotExpression) expr);
-        } else if (expr instanceof EqualsTo) {
-            return new EqualsToOperator((EqualsTo) expr);
-        } else if (expr instanceof NotEqualsTo) {
-            return new NotEqualsToOperator((NotEqualsTo) expr);
-        } else if (expr instanceof GreaterThan) {
-            return new GreaterThanOperator((GreaterThan) expr);
-        } else if (expr instanceof GreaterThanEquals) {
-            return new GreaterThanEqualsOperator((GreaterThanEquals) expr);
-        } else if (expr instanceof MinorThan) {
-            return new MinorThanOperator((MinorThan) expr);
-        } else if (expr instanceof MinorThanEquals) {
-            return new MinorThanEqualsOperator((MinorThanEquals) expr);
+        if (expr != null) {
+            return getTransformOperator(expr);
         }
         return null;
     }
 
     public static ValueParser buildParser(Expression expr) {
-        if (expr instanceof Column) {
-            return new ColumnParser((Column) expr);
-        } else if (expr instanceof StringValue) {
-            return new StringParser((StringValue) expr);
-        } else if (expr instanceof LongValue) {
-            return new LongParser((LongValue) expr);
-        } else if (expr instanceof Parenthesis) {
-            return new ParenthesisParser((Parenthesis) expr);
-        } else if (expr instanceof Addition) {
-            return new AdditionParser((Addition) expr);
-        } else if (expr instanceof Subtraction) {
-            return new SubtractionParser((Subtraction) expr);
-        } else if (expr instanceof Multiplication) {
-            return new MultiplicationParser((Multiplication) expr);
-        } else if (expr instanceof Division) {
-            return new DivisionParser((Division) expr);
-        } else if (expr instanceof Function) {
+        if (expr instanceof Function) {
             String exprString = expr.toString();
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
                 return new ColumnParser((Function) expr);
             } else {
-                // TODO
-                Function func = (Function) expr;
-                switch (func.getName()) {
-                    case "concat":
-                        return new ConcatFunction(func);
-                    case "now":
-                        return new NowFunction(func);
-                    default:
-                        return new ColumnParser(func);
-                }
+                return FunctionTools.getTransformFunction((Function) expr);
             }
         }
-        return null;
+        return ParserTools.getTransformParser(expr);
     }
 
     /**
@@ -137,26 +128,52 @@ public class OperatorTools {
         }
     }
 
+    public static String parseString(Object value) {
+        return value.toString();
+    }
+
+    public static Date parseDate(Object value) {
+        if (value instanceof Date) {
+            return (Date) value;
+        } else {
+            return Date.valueOf(String.valueOf(value));
+        }
+    }
+
+    public static Timestamp parseTimestamp(Object value) {
+        if (value instanceof Timestamp) {
+            return (Timestamp) value;
+        } else {
+            return Timestamp.valueOf(String.valueOf(value));
+        }
+    }
+
     /**
      * compareValue
-     * @param value
+     * @param left
+     * @param right
      * @return
      */
     @SuppressWarnings("rawtypes")
     public static int compareValue(Comparable left, Comparable right) {
-        if (left instanceof String) {
-            if (right instanceof String) {
-                return ObjectUtils.compare(left, right);
-            } else {
-                BigDecimal leftValue = parseBigDecimal(left);
-                return ObjectUtils.compare(leftValue, right);
-            }
+        if (left == null) {
+            return right == null ? 0 : -1;
+        }
+        if (right == null) {
+            return 1;
+        }
+
+        if (((Object) left).getClass() == ((Object) right).getClass()) {
+            return ObjectUtils.compare(left, right);
         } else {
-            if (right instanceof String) {
+            try {
+                BigDecimal leftValue = parseBigDecimal(left);
                 BigDecimal rightValue = parseBigDecimal(right);
-                return ObjectUtils.compare(left, rightValue);
-            } else {
-                return ObjectUtils.compare(left, right);
+                return ObjectUtils.compare(leftValue, rightValue);
+            } catch (Exception e) {
+                String leftValue = parseString(left);
+                String rightValue = parseString(right);
+                return ObjectUtils.compare(leftValue, rightValue);
             }
         }
     }

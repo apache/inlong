@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
  * SubtractionParser
  * 
  */
+@TransformParser(values = Subtraction.class)
 public class SubtractionParser implements ValueParser {
 
     private ValueParser left;
@@ -46,9 +48,9 @@ public class SubtractionParser implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
-        Object leftObj = this.left.parse(sourceData, rowIndex);
-        Object rightObj = this.right.parse(sourceData, rowIndex);
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Object leftObj = this.left.parse(sourceData, rowIndex, context);
+        Object rightObj = this.right.parse(sourceData, rowIndex, context);
         BigDecimal leftValue = OperatorTools.parseBigDecimal(leftObj);
         BigDecimal rightValue = OperatorTools.parseBigDecimal(rightObj);
         return leftValue.subtract(rightValue);

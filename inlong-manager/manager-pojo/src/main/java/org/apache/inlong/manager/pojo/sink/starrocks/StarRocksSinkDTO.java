@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StarRocksSinkDTO {
+public class StarRocksSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("StarRocks jdbc url")
     private String jdbcUrl;
@@ -99,16 +100,16 @@ public class StarRocksSinkDTO {
      */
     public static StarRocksSinkDTO getFromRequest(StarRocksSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
 
         StarRocksSinkDTO dto = StringUtils.isNotBlank(extParams)
                 ? StarRocksSinkDTO.getFromJson(extParams)
                 : new StarRocksSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        String passwd = dto.getPassword();
+        if (StringUtils.isNotEmpty(passwd)) {
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
+        }
+
         dto.setEncryptVersion(encryptVersion);
         dto.setPassword(passwd);
         return dto;

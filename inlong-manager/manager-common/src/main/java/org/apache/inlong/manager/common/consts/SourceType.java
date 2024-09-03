@@ -36,6 +36,7 @@ public class SourceType extends StreamType {
     public static final String MONGODB = "MONGODB";
     public static final String REDIS = "REDIS";
     public static final String MQTT = "MQTT";
+    public static final String OCEANBASE = "OCEANBASE";
 
     public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP = new HashMap<String, TaskTypeEnum>() {
 

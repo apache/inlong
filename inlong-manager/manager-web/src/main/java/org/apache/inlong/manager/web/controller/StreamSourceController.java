@@ -77,7 +77,7 @@ public class StreamSourceController {
     @ApiOperation(value = "Get stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSource> get(@PathVariable Integer id) {
-        return Response.success(sourceService.get(id, LoginUserUtils.getLoginUser()));
+        return Response.success(sourceService.get(id));
     }
 
     @RequestMapping(value = "/source/list", method = RequestMethod.POST)
@@ -130,10 +130,16 @@ public class StreamSourceController {
                 sourceService.forceDelete(inlongGroupId, inlongStreamId, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @RequestMapping(value = "/source/addDataAddTask", method = RequestMethod.POST)
+    @RequestMapping(value = "/source/addDataAddTask/{groupId}/{streamId}", method = RequestMethod.POST)
     @ApiOperation(value = "Add supplementary recording task for stream source")
-    public Response<Integer> addSub(@RequestBody DataAddTaskRequest request) {
-        return Response.success(sourceService.addDataAddTask(request, LoginUserUtils.getLoginUser().getName()));
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<List<Integer>> addSub(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestBody List<DataAddTaskRequest> requestList) {
+        return Response.success(sourceService.batchAddDataAddTask(groupId, streamId, requestList,
+                LoginUserUtils.getLoginUser().getName()));
     }
 
 }

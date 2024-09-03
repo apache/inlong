@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-formats</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>format-row</artifactId>
@@ -52,10 +52,18 @@
 
     <profiles>
         <profile>
-            <id>v1.13</id>
+            <id>flink-all-version</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <modules>
+                <module>format-json-v1.13</module>
+                <module>format-json-v1.15</module>
+                <module>format-json-v1.18</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.13</id>
             <modules>
                 <module>format-json-v1.13</module>
             </modules>

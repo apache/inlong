@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
@@ -58,8 +59,8 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
     }
 
     @Override
-    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, List<BriefMQMessage> briefMQMessages,
+            byte[] msgBytes, Map<String, String> headers, int index, QueryMessageRequest request) throws Exception {
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         byte[] values = msgBytes;
         switch (compressType) {
@@ -74,10 +75,12 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
             default:
                 throw new IllegalArgumentException("Unknown compress type:" + compressType);
         }
-        return transformMessageObjs(MessageObjs.parseFrom(values), streamInfo, index);
+        briefMQMessages.addAll(transformMessageObjs(MessageObjs.parseFrom(values), streamInfo, index, request));
+        return briefMQMessages;
     }
 
-    private List<BriefMQMessage> transformMessageObjs(MessageObjs messageObjs, InlongStreamInfo streamInfo, int index) {
+    private List<BriefMQMessage> transformMessageObjs(MessageObjs messageObjs, InlongStreamInfo streamInfo, int index,
+            QueryMessageRequest request) {
         if (null == messageObjs) {
             return null;
         }
@@ -96,6 +99,9 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
                 DataTypeOperator dataTypeOperator =
                         dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
                 List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
+                if (checkIfFilter(request, streamFieldList)) {
+                    continue;
+                }
                 BriefMQMessage message = BriefMQMessage.builder()
                         .id(index)
                         .inlongGroupId(headers.get(AttributeConstants.GROUP_ID))

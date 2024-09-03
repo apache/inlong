@@ -33,9 +33,11 @@ public class CommonPropertiesManagerUrlLoader implements ManagerUrlLoader {
     private static final Logger LOG = InlongLoggerFactory.getLogger(CommonPropertiesManagerUrlLoader.class);
     private static final String KEY_SORT_CLUSTER_CONFIG_MANAGER_URL = "sortClusterConfig.managerUrl";
     private static final String KEY_SORT_SOURCE_CONFIG_MANAGER_URL = "sortSourceConfig.managerUrl";
+    private static final String KEY_SORT_CONFIG_MANAGER_URL = "sortConfig.managerUrl";
 
     private String sortSourceConfigUrl;
     private String sortClusterConfigUrl;
+    private String sortConfigUrl;
     public Context context;
 
     @Override
@@ -68,6 +70,22 @@ public class CommonPropertiesManagerUrlLoader implements ManagerUrlLoader {
             sortClusterConfigUrl = warnMsg;
         }
         return sortClusterConfigUrl;
+    }
+
+    @Override
+    public String acquireSortConfigUrl() {
+        if (sortConfigUrl != null) {
+            return sortConfigUrl;
+        }
+        sortConfigUrl = context.getString(KEY_SORT_CONFIG_MANAGER_URL);
+        if (StringUtils.isBlank(sortConfigUrl)) {
+            String warnMsg = "Get key" + KEY_SORT_CONFIG_MANAGER_URL
+                    + " from CommonPropertiesHolder failed, it's a optional property use to specify "
+                    + "the url where Sort-Standalone request SortSourceConfig.";
+            LOG.warn(warnMsg);
+            sortConfigUrl = warnMsg;
+        }
+        return sortConfigUrl;
     }
 
     @Override

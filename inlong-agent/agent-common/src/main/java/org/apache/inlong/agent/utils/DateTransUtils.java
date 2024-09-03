@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.utils;
 
+import org.apache.inlong.agent.constant.CycleUnitType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +47,11 @@ public class DateTransUtils {
             throws ParseException {
         long retTime = 0;
         SimpleDateFormat df = null;
-        if (cycleUnit.equals("Y") && time.length() == 4) {
-            df = new SimpleDateFormat("yyyy");
-        } else if (cycleUnit.equals("M") && time.length() == 6) {
-            df = new SimpleDateFormat("yyyyMM");
-        } else if (cycleUnit.equals("D") && time.length() == 8) {
+        if (cycleUnit.equalsIgnoreCase(CycleUnitType.DAY) && time.length() == 8) {
             df = new SimpleDateFormat("yyyyMMdd");
-        } else if (cycleUnit.equalsIgnoreCase("h") && time.length() == 10) {
+        } else if (cycleUnit.equalsIgnoreCase(CycleUnitType.HOUR) && time.length() == 10) {
             df = new SimpleDateFormat("yyyyMMddHH");
-        } else if (cycleUnit.contains("m") && time.length() == 12) {
+        } else if (cycleUnit.equals(CycleUnitType.MINUTE) && time.length() == 12) {
             df = new SimpleDateFormat("yyyyMMddHHmm");
         } else {
             logger.error("time {}, cycleUnit {} can't parse!", time, cycleUnit);
@@ -77,15 +75,11 @@ public class DateTransUtils {
 
         Date dateTime = calendarInstance.getTime();
         SimpleDateFormat df = null;
-        if ("Y".equalsIgnoreCase(cycleUnit)) {
-            df = new SimpleDateFormat("yyyy");
-        } else if ("M".equals(cycleUnit)) {
-            df = new SimpleDateFormat("yyyyMM");
-        } else if ("D".equalsIgnoreCase(cycleUnit)) {
+        if (CycleUnitType.DAY.equalsIgnoreCase(cycleUnit)) {
             df = new SimpleDateFormat("yyyyMMdd");
-        } else if ("h".equalsIgnoreCase(cycleUnit)) {
+        } else if (CycleUnitType.HOUR.equalsIgnoreCase(cycleUnit)) {
             df = new SimpleDateFormat("yyyyMMddHH");
-        } else if (cycleUnit.contains("m")) {
+        } else if (CycleUnitType.MINUTE.equals(cycleUnit)) {
             df = new SimpleDateFormat("yyyyMMddHHmm");
         } else {
             logger.error("cycleUnit {} can't parse!", cycleUnit);
@@ -93,21 +87,6 @@ public class DateTransUtils {
         }
         df.setTimeZone(tz);
         retTime = df.format(dateTime);
-
-        if (cycleUnit.contains("m")) {
-            int cycleNum = Integer.parseInt(cycleUnit.substring(0,
-                    cycleUnit.length() - 1));
-            int mmTime = Integer.parseInt(retTime.substring(
-                    retTime.length() - 2, retTime.length()));
-            String realMMTime = "";
-            if (cycleNum * (mmTime / cycleNum) <= 0) {
-                realMMTime = "0" + cycleNum * (mmTime / cycleNum);
-            } else {
-                realMMTime = "" + cycleNum * (mmTime / cycleNum);
-            }
-            retTime = retTime.substring(0, retTime.length() - 2) + realMMTime;
-        }
-
         return retTime;
     }
 

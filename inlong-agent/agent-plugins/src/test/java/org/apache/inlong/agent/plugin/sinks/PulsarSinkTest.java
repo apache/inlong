@@ -47,7 +47,8 @@ public class PulsarSinkTest {
         String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
         helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D");
+        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+                "GMT+8:00");
         profile = taskProfile.createInstanceProfile("", fileName,
                 taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
         pulsarSink = new MockSink();

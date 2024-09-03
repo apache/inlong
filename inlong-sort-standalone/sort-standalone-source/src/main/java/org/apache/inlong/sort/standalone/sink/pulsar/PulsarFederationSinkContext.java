@@ -17,11 +17,17 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
+import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
@@ -32,95 +38,95 @@ import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- *
- * PulsarFederationSinkContext
- */
 public class PulsarFederationSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarFederationSinkContext.class);
     public static final String KEY_EVENT_HANDLER = "eventHandler";
-
-    private Context producerContext;
     private Map<String, PulsarIdConfig> idConfigMap = new ConcurrentHashMap<>();
-    private List<CacheClusterConfig> clusterConfigList = new ArrayList<>();
+    private PulsarNodeConfig pulsarNodeConfig;
+    private CacheClusterConfig cacheClusterConfig;
 
-    /**
-     * Constructor
-     * 
-     * @param sinkName
-     * @param context
-     * @param channel
-     */
     public PulsarFederationSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
     }
 
-    /**
-     * reload
-     */
     public void reload() {
         try {
+            TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if (newSortTaskConfig == null) {
+            if (newTaskConfig == null && newSortTaskConfig == null) {
                 LOG.error("newSortTaskConfig is null.");
                 return;
             }
-            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+            if ((this.taskConfig != null && this.taskConfig.equals(newTaskConfig))
+                    && (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig))) {
                 LOG.info("Same sortTaskConfig, do nothing.");
                 return;
             }
-            this.sortTaskConfig = newSortTaskConfig;
-            this.producerContext = new Context(this.sortTaskConfig.getSinkParams());
 
-            // parse the config of id and topic
-            LOG.info("reload idTopicMap");
-            Map<String, PulsarIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
-            List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
-            for (Map<String, String> idParam : idList) {
-                try {
-                    PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
-                    newIdConfigMap.put(idConfig.getUid(), idConfig);
-                } catch (Exception e) {
-                    LOG.error("fail to parse pulsar id config", e);
+            if (newTaskConfig != null) {
+                PulsarNodeConfig requestNodeConfig = (PulsarNodeConfig) newTaskConfig.getNodeConfig();
+                if (pulsarNodeConfig == null || requestNodeConfig.getVersion() > pulsarNodeConfig.getVersion()) {
+                    this.pulsarNodeConfig = requestNodeConfig;
                 }
             }
-            // build cache cluster config
+
+            this.taskConfig = newTaskConfig;
+            this.sortTaskConfig = newSortTaskConfig;
+
             CacheClusterConfig clusterConfig = new CacheClusterConfig();
             clusterConfig.setClusterName(this.taskName);
             clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
-            List<CacheClusterConfig> newClusterConfigList = new ArrayList<>();
-            newClusterConfigList.add(clusterConfig);
-            // change current config
-            LOG.info("old id config map={}\n new id config map={}", idConfigMap, newIdConfigMap);
-            this.idConfigMap = newIdConfigMap;
-            this.clusterConfigList = newClusterConfigList;
+            this.cacheClusterConfig = clusterConfig;
+
+            Map<String, PulsarIdConfig> fromTaskConfig = fromTaskConfig(taskConfig);
+            Map<String, PulsarIdConfig> fromSortTaskConfig = fromSortTaskConfig(sortTaskConfig);
+            SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
+            idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * get producerContext
-     *
-     * @return the producerContext
-     */
-    public Context getProducerContext() {
-        return producerContext;
+    public Map<String, PulsarIdConfig> fromTaskConfig(TaskConfig taskConfig) {
+        if (taskConfig == null) {
+            return new HashMap<>();
+        }
+        return taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .map(PulsarIdConfig::create)
+                .collect(Collectors.toMap(
+                        config -> InlongId.generateUid(config.getInlongGroupId(), config.getInlongStreamId()),
+                        v -> v,
+                        (v1, v2) -> v1));
     }
 
-    /**
-     * get Topic by uid
-     *
-     * @param  uid uid
-     * @return     topic
-     */
+    public Map<String, PulsarIdConfig> fromSortTaskConfig(SortTaskConfig sortTaskConfig) {
+        if (sortTaskConfig == null) {
+            return new HashMap<>();
+        }
+        Map<String, PulsarIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
+        List<Map<String, String>> idList = sortTaskConfig.getIdParams();
+        for (Map<String, String> idParam : idList) {
+            try {
+                PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
+                newIdConfigMap.put(idConfig.getUid(), idConfig);
+            } catch (Exception e) {
+                LOG.error("fail to parse pulsar id config", e);
+            }
+        }
+        return newIdConfigMap;
+    }
+
     public String getTopic(String uid) {
         PulsarIdConfig idConfig = this.idConfigMap.get(uid);
         if (idConfig == null) {
@@ -129,12 +135,6 @@ public class PulsarFederationSinkContext extends SinkContext {
         return idConfig.getTopic();
     }
 
-    /**
-     * get PulsarIdConfig by uid
-     *
-     * @param  uid uid
-     * @return     KafkaIdConfig
-     */
     public PulsarIdConfig getIdConfig(String uid) {
         PulsarIdConfig idConfig = this.idConfigMap.get(uid);
         if (idConfig == null) {
@@ -143,21 +143,14 @@ public class PulsarFederationSinkContext extends SinkContext {
         return idConfig;
     }
 
-    /**
-     * getCacheClusters
-     *
-     * @return
-     */
-    public List<CacheClusterConfig> getCacheClusters() {
-        return this.clusterConfigList;
+    public PulsarNodeConfig getNodeConfig() {
+        return pulsarNodeConfig;
     }
 
-    /**
-     * addSendMetric
-     *
-     * @param currentRecord
-     * @param topic
-     */
+    public CacheClusterConfig getCacheClusterConfig() {
+        return cacheClusterConfig;
+    }
+
     public void addSendMetric(ProfileEvent currentRecord, String topic) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());

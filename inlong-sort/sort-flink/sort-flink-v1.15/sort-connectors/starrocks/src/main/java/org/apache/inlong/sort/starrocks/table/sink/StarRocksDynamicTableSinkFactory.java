@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
+import static org.apache.inlong.sort.base.Constants.IGNORE_JSON_PARSE_ERROR;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
@@ -54,6 +55,8 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         String inlongMetric = options.getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = options.getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
         String auditKeys = options.getOptional(AUDIT_KEYS).orElse(AUDIT_KEYS.defaultValue());
+        boolean ignoreJsonParseError =
+                options.getOptional(IGNORE_JSON_PARSE_ERROR).orElse(IGNORE_JSON_PARSE_ERROR.defaultValue());
 
         // validate some special properties
         StarRocksSinkOptions sinkOptions = new StarRocksSinkOptions(options, context.getCatalogTable().getOptions());
@@ -61,7 +64,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
 
         return new StarRocksDynamicTableSink(sinkOptions,
-                physicalSchema, inlongMetric, auditHostAndPorts, auditKeys);
+                physicalSchema, inlongMetric, auditHostAndPorts, auditKeys, ignoreJsonParseError);
     }
 
     @Override
@@ -101,6 +104,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
         optionalOptions.add(AUDIT_KEYS);
+        optionalOptions.add(IGNORE_JSON_PARSE_ERROR);
         return optionalOptions;
     }
 

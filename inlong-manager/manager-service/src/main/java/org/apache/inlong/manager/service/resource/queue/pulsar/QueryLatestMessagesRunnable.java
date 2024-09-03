@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,13 +34,11 @@ import java.util.List;
  */
 public class QueryLatestMessagesRunnable implements Runnable {
 
-    public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
-
     private InlongPulsarInfo inlongPulsarInfo;
     private InlongStreamInfo streamInfo;
     private PulsarClusterInfo clusterInfo;
     private PulsarOperator pulsarOperator;
-    private Integer messageCount;
+    private QueryMessageRequest queryMessageRequest;
     private List<BriefMQMessage> briefMQMessages;
     private QueryCountDownLatch latch;
 
@@ -47,14 +46,14 @@ public class QueryLatestMessagesRunnable implements Runnable {
             InlongStreamInfo streamInfo,
             PulsarClusterInfo clusterInfo,
             PulsarOperator pulsarOperator,
-            Integer messageCount,
+            QueryMessageRequest queryMessageRequest,
             List<BriefMQMessage> briefMQMessages,
             QueryCountDownLatch latch) {
         this.inlongPulsarInfo = inlongPulsarInfo;
         this.streamInfo = streamInfo;
         this.clusterInfo = clusterInfo;
         this.pulsarOperator = pulsarOperator;
-        this.messageCount = messageCount;
+        this.queryMessageRequest = queryMessageRequest;
         this.briefMQMessages = briefMQMessages;
         this.latch = latch;
     }
@@ -69,11 +68,9 @@ public class QueryLatestMessagesRunnable implements Runnable {
         String namespace = inlongPulsarInfo.getMqResource();
         String topicName = streamInfo.getMqResource();
         String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
         boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
-        List<BriefMQMessage> messages = pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, subs,
-                messageCount, streamInfo, serial);
+        List<BriefMQMessage> messages =
+                pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, queryMessageRequest, streamInfo, serial);
         if (CollectionUtils.isNotEmpty(messages)) {
             briefMQMessages.addAll(messages);
             this.latch.countDown(messages.size());

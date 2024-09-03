@@ -41,8 +41,8 @@ import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -52,7 +52,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4", "f5"},
+                    new String[]{"__addcol1_", "__addcol2_", "f1", "f2", "f3"},
                     new FormatInfo[]{
                             IntFormatInfo.INSTANCE,
                             IntFormatInfo.INSTANCE,
@@ -74,6 +74,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                         null,
                         null,
                         null,
+                        false,
                         errorHandler);
 
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg(true);
@@ -193,10 +194,12 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                 "field1",
                 "field2",
                 "field3");
-
+        List<Row> expectedRows = new ArrayList<>();
+        expectedRows.add(expectedRow1);
+        expectedRows.add(expectedRow2);
         testRowDeserialization(
                 inLongMsg1.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2));
+                expectedRows);
     }
 
     @Test
@@ -238,6 +241,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                 new InLongMsgTlogCsvFormatDeserializer.Builder(TEST_ROW_INFO)
                         .setTimeFieldName("inlongmsg_time")
                         .setAttributesFieldName("inlongmsg_attributes")
+                        .setIsIncludeFirstSegment(false)
                         .build();
 
         List<Row> actualRows = new ArrayList<>();

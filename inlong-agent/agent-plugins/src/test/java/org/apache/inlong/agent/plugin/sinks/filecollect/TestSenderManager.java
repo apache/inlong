@@ -70,7 +70,8 @@ public class TestSenderManager {
         String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
         helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D");
+        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+                "GMT+8:00");
         profile = taskProfile.createInstanceProfile("", fileName,
                 taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
     }
@@ -86,7 +87,7 @@ public class TestSenderManager {
         try {
             profile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(profile.getInstanceId()));
             SenderManager senderManager = PowerMockito.spy(new SenderManager(profile, "inlongGroupId", "sourceName"));
-            PowerMockito.doNothing().when(senderManager, "createMessageSender", Mockito.anyString());
+            PowerMockito.doNothing().when(senderManager, "createMessageSender");
 
             PowerMockito.doAnswer(invocation -> {
                 SendMessageCallback cb = invocation.getArgument(0);

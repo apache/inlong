@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stream sink control layer
@@ -79,13 +80,19 @@ public class StreamSinkController {
     @OperationLog(operation = OperationType.GET, operationTarget = OperationTarget.SINK)
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSink> get(@PathVariable Integer id) {
-        return Response.success(sinkService.get(id, LoginUserUtils.getLoginUser()));
+        return Response.success(sinkService.get(id));
     }
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream sinks by paginating")
     public Response<PageResult<? extends StreamSink>> listByCondition(@RequestBody SinkPageRequest request) {
         return Response.success(sinkService.listByCondition(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/sink/listDetail", method = RequestMethod.POST)
+    @ApiOperation(value = "List stream sinks detail by paginating")
+    public Response<PageResult<Map<String, Object>>> listDetail(@RequestBody SinkPageRequest request) {
+        return Response.success(sinkService.listDetail(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)

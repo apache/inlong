@@ -174,7 +174,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
   };
-
   useUpdateEffect(() => {
     if (modalProps.open) {
       // open

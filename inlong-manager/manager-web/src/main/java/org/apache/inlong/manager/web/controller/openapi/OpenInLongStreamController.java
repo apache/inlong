@@ -72,7 +72,7 @@ public class OpenInLongStreamController {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.INVALID_PARAMETER, "streamId cannot be blank");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(streamService.get(groupId, streamId, LoginUserUtils.getLoginUser()));
+        return Response.success(streamService.get(groupId, streamId));
     }
 
     @RequestMapping(value = "/stream/getBrief", method = RequestMethod.GET)
@@ -103,7 +103,7 @@ public class OpenInLongStreamController {
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(streamService.save(request, LoginUserUtils.getLoginUser()));
+        return Response.success(streamService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/stream/batchSave", method = RequestMethod.POST)
@@ -120,7 +120,7 @@ public class OpenInLongStreamController {
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongStreamRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(streamService.update(request, LoginUserUtils.getLoginUser()));
+        return Response.success(streamService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/stream/delete", method = RequestMethod.DELETE)
@@ -134,7 +134,7 @@ public class OpenInLongStreamController {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.INVALID_PARAMETER, "streamId cannot be blank");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(streamService.delete(groupId, streamId, LoginUserUtils.getLoginUser()));
+        return Response.success(streamService.delete(groupId, streamId, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/stream/startProcess/{groupId}/{streamId}", method = RequestMethod.POST)

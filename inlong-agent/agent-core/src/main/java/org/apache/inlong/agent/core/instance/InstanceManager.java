@@ -22,11 +22,11 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.InstanceDb;
-import org.apache.inlong.agent.db.TaskProfileDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
+import org.apache.inlong.agent.store.InstanceStore;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
@@ -43,10 +43,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 
 /**
  * handle the instance created by task, including add, delete, update etc.
- * the instance info is store in both db and memory.
+ * the instance info is saved in both store and memory.
  */
 public class InstanceManager extends AbstractDaemon {
 
@@ -54,11 +55,12 @@ public class InstanceManager extends AbstractDaemon {
     private static final int ACTION_QUEUE_CAPACITY = 100;
     public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
     public static final int INSTANCE_PRINT_INTERVAL_MS = 10000;
+    public static final long INSTANCE_KEEP_ALIVE_MS = 5 * 60 * 1000;
     private long lastPrintTime = 0;
-    // instance in db
-    private final InstanceDb instanceDb;
-    private TaskProfileDb taskProfileDb;
-    private TaskProfile taskFromDb;
+    // instance in instance store
+    private final InstanceStore instanceStore;
+    private TaskStore taskStore;
+    private TaskProfile taskFromStore;
     // task in memory
     private final ConcurrentHashMap<String, Instance> instanceMap;
     // instance profile queue.
@@ -114,11 +116,10 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskProfileDb taskProfileDb) {
+    public InstanceManager(String taskId, int instanceLimit, Store basicStore, TaskStore taskStore) {
         this.taskId = taskId;
-        this.auditVersion = Long.parseLong(taskId);
-        instanceDb = new InstanceDb(basicDb);
-        this.taskProfileDb = taskProfileDb;
+        instanceStore = new InstanceStore(basicStore);
+        this.taskStore = taskStore;
         this.agentConf = AgentConfiguration.getAgentConf();
         instanceMap = new ConcurrentHashMap<>();
         this.instanceLimit = instanceLimit;
@@ -129,8 +130,8 @@ public class InstanceManager extends AbstractDaemon {
         return taskId;
     }
 
-    public InstanceDb getInstanceDb() {
-        return instanceDb;
+    public InstanceStore getInstanceStore() {
+        return instanceStore;
     }
 
     public Instance getInstance(String instanceId) {
@@ -138,7 +139,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     public InstanceProfile getInstanceProfile(String instanceId) {
-        return instanceDb.getInstance(taskId, instanceId);
+        return instanceStore.getInstance(taskId, instanceId);
     }
 
     public boolean submitAction(InstanceAction action) {
@@ -162,9 +163,9 @@ public class InstanceManager extends AbstractDaemon {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
                     printInstanceState();
                     dealWithActionQueue(actionQueue);
-                    keepPaceWithDb();
-                    String inlongGroupId = taskFromDb.getInlongGroupId();
-                    String inlongStreamId = taskFromDb.getInlongStreamId();
+                    keepPaceWithStore();
+                    String inlongGroupId = taskFromStore.getInlongGroupId();
+                    String inlongStreamId = taskFromStore.getInlongStreamId();
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT, inlongGroupId, inlongStreamId,
                             AgentUtils.getCurrentTime(), 1, 1, auditVersion);
                 } catch (Throwable ex) {
@@ -180,64 +181,70 @@ public class InstanceManager extends AbstractDaemon {
     private void printInstanceState() {
         long currentTime = AgentUtils.getCurrentTime();
         if (currentTime - lastPrintTime > INSTANCE_PRINT_INTERVAL_MS) {
-            List<InstanceProfile> instances = instanceDb.getInstances(taskId);
+            List<InstanceProfile> instances = instanceStore.getInstances(taskId);
             InstancePrintStat stat = new InstancePrintStat();
             for (int i = 0; i < instances.size(); i++) {
                 InstanceProfile instance = instances.get(i);
                 stat.stat(instance.getState());
             }
             LOGGER.info(
-                    "instanceManager running! taskId {} mem {} db total {} {} action count {}",
+                    "instanceManager running! taskId {} mem {} total {} {} action count {}",
                     taskId, instanceMap.size(), instances.size(), stat, actionQueue.size());
             lastPrintTime = currentTime;
         }
     }
 
-    private void keepPaceWithDb() {
-        traverseDbTasksToMemory();
-        traverseMemoryTasksToDb();
+    private void keepPaceWithStore() {
+        traverseStoreTasksToMemory();
+        traverseMemoryTasksToStore();
     }
 
-    private void traverseDbTasksToMemory() {
-        instanceDb.getInstances(taskId).forEach((profileFromDb) -> {
-            InstanceStateEnum dbState = profileFromDb.getState();
-            Instance instance = instanceMap.get(profileFromDb.getInstanceId());
-            switch (dbState) {
+    private void traverseStoreTasksToMemory() {
+        instanceStore.getInstances(taskId).forEach((profileFromStore) -> {
+            InstanceStateEnum storeState = profileFromStore.getState();
+            Instance instance = instanceMap.get(profileFromStore.getInstanceId());
+            switch (storeState) {
                 case DEFAULT: {
                     if (instance == null) {
-                        LOGGER.info("traverseDbTasksToMemory add instance to mem taskId {} instanceId {}",
-                                profileFromDb.getTaskId(), profileFromDb.getInstanceId());
-                        addToMemory(profileFromDb);
+                        LOGGER.info("traverseStoreTasksToMemory add instance to mem taskId {} instanceId {}",
+                                profileFromStore.getTaskId(), profileFromStore.getInstanceId());
+                        addToMemory(profileFromStore);
                     }
                     break;
                 }
                 case FINISHED:
                     DELETE: {
                         if (instance != null) {
-                            LOGGER.info("traverseDbTasksToMemory delete instance from mem taskId {} instanceId {}",
-                                    profileFromDb.getTaskId(), profileFromDb.getInstanceId());
-                            deleteFromMemory(profileFromDb.getInstanceId());
+                            LOGGER.info("traverseStoreTasksToMemory delete instance from mem taskId {} instanceId {}",
+                                    profileFromStore.getTaskId(), profileFromStore.getInstanceId());
+                            deleteFromMemory(profileFromStore.getInstanceId());
                         }
                         break;
                     }
                 default: {
-                    LOGGER.error("instance invalid state {} taskId {} instanceId {}", dbState,
-                            profileFromDb.getTaskId(),
-                            profileFromDb.getInstanceId());
+                    LOGGER.error("instance invalid state {} taskId {} instanceId {}", storeState,
+                            profileFromStore.getTaskId(),
+                            profileFromStore.getInstanceId());
                 }
             }
         });
     }
 
-    private void traverseMemoryTasksToDb() {
+    private void traverseMemoryTasksToStore() {
         instanceMap.values().forEach((instance) -> {
-            InstanceProfile profileFromDb = instanceDb.getInstance(instance.getTaskId(), instance.getInstanceId());
-            if (profileFromDb == null) {
+            InstanceProfile profileFromStore =
+                    instanceStore.getInstance(instance.getTaskId(), instance.getInstanceId());
+            if (profileFromStore == null) {
                 deleteFromMemory(instance.getInstanceId());
                 return;
             }
-            InstanceStateEnum stateFromDb = profileFromDb.getState();
-            if (stateFromDb != InstanceStateEnum.DEFAULT) {
+            InstanceStateEnum stateFromStore = profileFromStore.getState();
+            if (stateFromStore != InstanceStateEnum.DEFAULT) {
+                deleteFromMemory(instance.getInstanceId());
+            }
+            if (AgentUtils.getCurrentTime() - instance.getLastHeartbeatTime() > INSTANCE_KEEP_ALIVE_MS) {
+                LOGGER.error("instance heartbeat timeout, id: {}, will be deleted from memory",
+                        instance.getInstanceId());
                 deleteFromMemory(instance.getInstanceId());
             }
         });
@@ -273,7 +280,7 @@ public class InstanceManager extends AbstractDaemon {
 
     @Override
     public void start() {
-        restoreFromDb();
+        restoreFromStore();
         submitWorker(coreThread());
     }
 
@@ -290,18 +297,19 @@ public class InstanceManager extends AbstractDaemon {
         }
     }
 
-    private void restoreFromDb() {
-        taskFromDb = taskProfileDb.getTask(taskId);
-        List<InstanceProfile> profileList = instanceDb.getInstances(taskId);
+    private void restoreFromStore() {
+        taskFromStore = taskStore.getTask(taskId);
+        auditVersion = Long.parseLong(taskFromStore.get(TASK_AUDIT_VERSION));
+        List<InstanceProfile> profileList = instanceStore.getInstances(taskId);
         profileList.forEach((profile) -> {
             InstanceStateEnum state = profile.getState();
             if (state == InstanceStateEnum.DEFAULT) {
-                LOGGER.info("instance restoreFromDb addToMem state {} taskId {} instanceId {}", state, taskId,
+                LOGGER.info("instance restoreFromStore addToMem state {} taskId {} instanceId {}", state, taskId,
                         profile.getInstanceId());
                 profile.setBoolean(RESTORE_FROM_DB, true);
                 addToMemory(profile);
             } else {
-                LOGGER.info("instance restoreFromDb ignore state {} taskId {} instanceId {}", state, taskId,
+                LOGGER.info("instance restoreFromStore ignore state {} taskId {} instanceId {}", state, taskId,
                         profile.getInstanceId());
             }
         });
@@ -318,31 +326,31 @@ public class InstanceManager extends AbstractDaemon {
                     profile.getInstanceId());
             return;
         }
-        addToDb(profile, true);
+        addToStore(profile, true);
         addToMemory(profile);
     }
 
     private void finishInstance(InstanceProfile profile) {
         profile.setState(InstanceStateEnum.FINISHED);
         profile.setModifyTime(AgentUtils.getCurrentTime());
-        addToDb(profile, false);
+        addToStore(profile, false);
         deleteFromMemory(profile.getInstanceId());
         LOGGER.info("finished instance state {} taskId {} instanceId {}", profile.getState(),
                 profile.getTaskId(), profile.getInstanceId());
     }
 
     private void deleteInstance(String instanceId) {
-        deleteFromDb(instanceId);
+        deleteFromStore(instanceId);
         deleteFromMemory(instanceId);
     }
 
-    private void deleteFromDb(String instanceId) {
-        InstanceProfile profile = instanceDb.getInstance(taskId, instanceId);
+    private void deleteFromStore(String instanceId) {
+        InstanceProfile profile = instanceStore.getInstance(taskId, instanceId);
         String inlongGroupId = profile.getInlongGroupId();
         String inlongStreamId = profile.getInlongStreamId();
-        instanceDb.deleteInstance(taskId, instanceId);
-        LOGGER.info("delete instance from db: taskId {} instanceId {} result {}", taskId,
-                instanceId, instanceDb.getInstance(taskId, instanceId));
+        instanceStore.deleteInstance(taskId, instanceId);
+        LOGGER.info("delete instance from instance store: taskId {} instanceId {} result {}", taskId,
+                instanceId, instanceStore.getInstance(taskId, instanceId));
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, inlongGroupId, inlongStreamId,
                 profile.getSinkDataTime(), 1, 1, auditVersion);
     }
@@ -363,9 +371,10 @@ public class InstanceManager extends AbstractDaemon {
                 instance.getProfile().getSinkDataTime(), 1, 1, auditVersion);
     }
 
-    private void addToDb(InstanceProfile profile, boolean addNew) {
-        LOGGER.info("add instance to db state {} instanceId {}", profile.getState(), profile.getInstanceId());
-        instanceDb.storeInstance(profile);
+    private void addToStore(InstanceProfile profile, boolean addNew) {
+        LOGGER.info("add instance to instance store state {} instanceId {}", profile.getState(),
+                profile.getInstanceId());
+        instanceStore.storeInstance(profile);
         if (addNew) {
             String inlongGroupId = profile.getInlongGroupId();
             String inlongStreamId = profile.getInlongStreamId();
@@ -391,6 +400,11 @@ public class InstanceManager extends AbstractDaemon {
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
+            if (instanceMap.size() > instanceLimit) {
+                LOGGER.info("add instance to memory refused because instanceMap size over limit {}",
+                        instanceProfile.getInstanceId());
+                return;
+            }
             Class<?> taskClass = Class.forName(instanceProfile.getInstanceClass());
             Instance instance = (Instance) taskClass.newInstance();
             boolean initSuc = instance.init(this, instanceProfile);
@@ -422,13 +436,13 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     public boolean shouldAddAgain(String fileName, long lastModifyTime) {
-        InstanceProfile profileFromDb = instanceDb.getInstance(taskId, fileName);
-        if (profileFromDb == null) {
-            LOGGER.debug("not in db should add {}", fileName);
+        InstanceProfile profileFromStore = instanceStore.getInstance(taskId, fileName);
+        if (profileFromStore == null) {
+            LOGGER.debug("not in instance store should add {}", fileName);
             return true;
         } else {
-            InstanceStateEnum state = profileFromDb.getState();
-            if (state == InstanceStateEnum.FINISHED && lastModifyTime > profileFromDb.getModifyTime()) {
+            InstanceStateEnum state = profileFromStore.getState();
+            if (state == InstanceStateEnum.FINISHED && lastModifyTime > profileFromStore.getModifyTime()) {
                 LOGGER.debug("finished but file update again {}", fileName);
                 return true;
             }
@@ -454,7 +468,7 @@ public class InstanceManager extends AbstractDaemon {
         if (!actionQueue.isEmpty()) {
             return false;
         }
-        List<InstanceProfile> instances = instanceDb.getInstances(taskId);
+        List<InstanceProfile> instances = instanceStore.getInstances(taskId);
         for (int i = 0; i < instances.size(); i++) {
             InstanceProfile profile = instances.get(i);
             if (profile.getState() != InstanceStateEnum.FINISHED) {

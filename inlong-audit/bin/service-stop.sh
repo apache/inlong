@@ -29,7 +29,7 @@ do
   else
       kill $pid
   fi
-  sleep 10
+  sleep 3
 done
 
 pid=$(ps aux | grep "audit-service" | grep -v "grep" | awk '{print $2}')

@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -26,14 +28,9 @@ import org.apache.flume.Transaction;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * KafkaProducerFederation.
@@ -47,34 +44,24 @@ public class KafkaProducerFederation implements Runnable {
     private final KafkaFederationSinkContext context;
     private ScheduledExecutorService pool;
     private long reloadInterval;
+    private KafkaNodeConfig nodeConfig;
+    private KafkaProducerCluster cluster;
+    private KafkaProducerCluster deleteCluster;
+    private CacheClusterConfig cacheClusterConfig;
 
-    private List<KafkaProducerCluster> clusterList = new ArrayList<>();
-    private List<KafkaProducerCluster> deletingClusterList = new ArrayList<>();
-
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
-
-    /**
-     * constructor of KafkaProducerFederation
-     *
-     * @param workerName workerName
-     * @param context    context
-     */
     public KafkaProducerFederation(String workerName, KafkaFederationSinkContext context) {
         this.workerName = Preconditions.checkNotNull(workerName);
         this.context = Preconditions.checkNotNull(context);
         this.reloadInterval = context.getReloadInterval();
     }
 
-    /** close */
     public void close() {
         try {
             this.pool.shutdownNow();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        for (KafkaProducerCluster cluster : this.clusterList) {
-            cluster.stop();
-        }
+        cluster.stop();
     }
 
     /** start */
@@ -87,73 +74,64 @@ public class KafkaProducerFederation implements Runnable {
         }
     }
 
-    /** Implements {@link Runnable} method. */
     @Override
     public void run() {
         this.reload();
     }
 
-    /** reload module */
     private void reload() {
         try {
-            LOG.info("stop deleting clusters, size is {}", deletingClusterList.size());
-            deletingClusterList.forEach(KafkaProducerCluster::stop);
-            deletingClusterList.clear();
+            if (deleteCluster != null) {
+                deleteCluster.stop();
+                deleteCluster = null;
+            }
+        } catch (Exception e) {
+            LOG.error("failed to close delete cluster, ex={}", e.getMessage(), e);
+        }
 
-            LOG.info("update cluster list");
-            List<CacheClusterConfig> newClusterConfigList = this.context.getClusterConfigList();
-            // prepare
-            Set<String> newClusterNames = new HashSet<>();
-            Set<String> oldClusterNames = new HashSet<>();
-            newClusterConfigList.forEach(
-                    clusterConfig -> newClusterNames.add(clusterConfig.getClusterName()));
-            clusterList.forEach(cluster -> oldClusterNames.add(cluster.getCacheClusterName()));
-            List<KafkaProducerCluster> newClusterList = new ArrayList<>(newClusterConfigList.size());
+        if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+            reloadByNodeConfig();
+        } else {
+            reloadByCacheClusterConfig();
+        }
 
-            // add new cluster
-            newClusterConfigList.forEach(
-                    config -> {
-                        if (!oldClusterNames.contains(config.getClusterName())) {
-                            KafkaProducerCluster cluster = new KafkaProducerCluster(workerName, config, context);
-                            cluster.start();
-                            newClusterList.add(cluster);
-                        }
-                    });
+    }
 
-            // remove expire cluster
-            clusterList.forEach(
-                    cluster -> {
-                        if (!newClusterNames.contains(cluster.getCacheClusterName())) {
-                            deletingClusterList.add(cluster);
-                        } else {
-                            newClusterList.add(cluster);
-                        }
-                    });
-            LOG.info("the modified cluster list size is {}", newClusterList.size());
-            this.clusterList = newClusterList;
+    private void reloadByCacheClusterConfig() {
+        try {
+            if (cacheClusterConfig != null && !cacheClusterConfig.equals(context.getCacheClusterConfig())) {
+                return;
+            }
+            this.cacheClusterConfig = context.getCacheClusterConfig();
+            KafkaProducerCluster updateCluster =
+                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+    }
+
+    private void reloadByNodeConfig() {
+        try {
+            if (nodeConfig != null && context.getNodeConfig().getVersion() <= nodeConfig.getVersion()) {
+                return;
+            }
+            this.nodeConfig = context.getNodeConfig();
+            KafkaProducerCluster updateCluster =
+                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * send event
-     *
-     * @param  profileEvent event to send
-     * @param  tx           transaction
-     * @return              send result
-     * @throws IOException
-     */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > Integer.MAX_VALUE / 2) {
-            clusterIndex.set(0);
-        }
-        List<KafkaProducerCluster> currentClusterList = this.clusterList;
-        int currentSize = currentClusterList.size();
-        int realIndex = currentIndex % currentSize;
-        KafkaProducerCluster clusterProducer = currentClusterList.get(realIndex);
-        return clusterProducer.send(profileEvent, tx);
+        return cluster.send(profileEvent, tx);
     }
 
     /** Init ScheduledExecutorService with fix reload rate {@link #reloadInterval}. */

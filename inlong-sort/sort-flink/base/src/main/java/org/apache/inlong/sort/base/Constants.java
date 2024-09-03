@@ -195,6 +195,12 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
+    public static final ConfigOption<Boolean> IGNORE_JSON_PARSE_ERROR =
+            ConfigOptions.key("sink.ignore.json.parse.error")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Ignore json parse error.");
+
     public static final ConfigOption<String> SINK_MULTIPLE_FORMAT =
             ConfigOptions.key("sink.multiple.format")
                     .stringType()

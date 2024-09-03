@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>inlong-manager</artifactId>
@@ -40,6 +40,7 @@
         <module>manager-service</module>
         <module>manager-workflow</module>
         <module>manager-web</module>
+        <module>manager-schedule</module>
         <module>manager-docker</module>
     </modules>
 

@@ -32,4 +32,8 @@ public class CacheUtils {
                 .append(auditTag)
                 .toString();
     }
+
+    public static long calculateAverageDelay(long totalCount, long totalDelay) {
+        return totalCount == 0 ? 0 : (totalDelay / Math.abs(totalCount));
+    }
 }

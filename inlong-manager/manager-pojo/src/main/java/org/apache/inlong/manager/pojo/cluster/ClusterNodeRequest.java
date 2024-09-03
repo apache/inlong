@@ -55,8 +55,16 @@ public class ClusterNodeRequest {
     private String ip;
 
     @ApiModelProperty(value = "Cluster port")
-    @NotNull(message = "port cannot be null")
     private Integer port;
+
+    @ApiModelProperty(value = "Username")
+    private String username;
+
+    @ApiModelProperty(value = "password")
+    private String password;
+
+    @ApiModelProperty(value = "SSH port")
+    private Integer sshPort;
 
     @ApiModelProperty(value = "Cluster protocol type")
     @Length(min = 1, max = 20, message = "length must be less than or equal to 20")
@@ -68,6 +76,9 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Extended params")
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
+
+    @ApiModelProperty(value = "Operate log")
+    private String operateLog;
 
     @ApiModelProperty(value = "Description of the cluster node")
     @Length(max = 256, message = "length must be less than or equal to 256")

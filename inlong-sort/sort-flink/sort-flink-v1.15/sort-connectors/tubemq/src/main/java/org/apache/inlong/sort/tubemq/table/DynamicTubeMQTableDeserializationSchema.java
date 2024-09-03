@@ -19,7 +19,7 @@ package org.apache.inlong.sort.tubemq.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import com.google.common.base.Objects;
@@ -61,9 +61,9 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     private final boolean innerFormat;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
-    private MetricOption metricOption;
+    private final MetricOption metricOption;
 
     public DynamicTubeMQTableDeserializationSchema(
             DeserializationSchema<RowData> schema,
@@ -83,7 +83,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     @Override
     public void open() {
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -97,7 +97,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
         List<RowData> rows = new ArrayList<>();
 
         MetricsCollector<RowData> metricsCollector =
-                new MetricsCollector<>(new ListCollector<>(rows), sourceMetricData);
+                new MetricsCollector<>(new ListCollector<>(rows), sourceExactlyMetric);
 
         // reset time stamp if the deserialize schema has not inner format
         if (!innerFormat) {
@@ -111,8 +111,21 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     @Override
     public void flushAudit() {
-        if (sourceMetricData != null) {
-            sourceMetricData.flushAuditData();
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+    @Override
+    public void setCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    @Override
+    public void updateLastCheckpointId(Long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
     }
 

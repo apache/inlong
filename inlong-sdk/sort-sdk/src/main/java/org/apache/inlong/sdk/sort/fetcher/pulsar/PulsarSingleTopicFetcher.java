@@ -151,7 +151,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
 
             consumer = client.newConsumer(Schema.BYTES)
                     .topic(topic.getTopic())
-                    .subscriptionName(context.getConfig().getSortTaskId())
+                    .subscriptionName(context.getConfig().getSubscription())
                     .subscriptionType(SubscriptionType.Shared)
                     .startMessageIdInclusive()
                     .subscriptionInitialPosition(position)

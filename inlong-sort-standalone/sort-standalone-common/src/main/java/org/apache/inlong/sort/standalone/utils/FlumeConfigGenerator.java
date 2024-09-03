@@ -27,6 +27,7 @@ import java.util.Optional;
 /**
  * generator for flume config
  */
+@Deprecated
 public class FlumeConfigGenerator {
 
     public static final String KEY_TASK_NAME = "taskName";

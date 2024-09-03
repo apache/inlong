@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.kv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatForRowDataUtils;
 import org.apache.inlong.sort.formats.base.TableFormatOptions;
+import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.base.TextFormatOptions;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -104,10 +105,9 @@ public class KvFormatFactory
             public DeserializationSchema<RowData> createRuntimeDecoder(
                     DynamicTableSource.Context context,
                     DataType dataType) {
-
                 KvRowDataDeserializationSchema.Builder schemaBuilder =
                         new KvRowDataDeserializationSchema.Builder(
-                                deserializeRowFormatInfo(formatOptions.get(ROW_FORMAT_INFO)),
+                                TableFormatUtils.deriveRowFormatInfo(dataType),
                                 context.createTypeInformation(dataType));
                 configureDeserializationSchema(formatOptions, schemaBuilder);
                 return schemaBuilder.build();
@@ -128,7 +128,6 @@ public class KvFormatFactory
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(ROW_FORMAT_INFO);
         options.add(TextFormatOptions.KV_ENTRY_DELIMITER);
         options.add(TextFormatOptions.KV_DELIMITER);
         options.add(TextFormatOptions.CHARSET);
@@ -138,6 +137,7 @@ public class KvFormatFactory
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(ROW_FORMAT_INFO);
         options.add(TextFormatOptions.ESCAPE_CHARACTER);
         options.add(TextFormatOptions.QUOTE_CHARACTER);
         options.add(TextFormatOptions.NULL_LITERAL);

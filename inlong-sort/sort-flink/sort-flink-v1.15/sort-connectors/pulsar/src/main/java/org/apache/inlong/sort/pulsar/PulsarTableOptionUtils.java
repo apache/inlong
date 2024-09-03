@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.pulsar;
 
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
@@ -46,6 +48,7 @@ import java.util.stream.IntStream;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.KEY_FIELDS;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.KEY_FORMAT;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
@@ -174,7 +177,14 @@ public class PulsarTableOptionUtils {
 
     public static StartCursor getStartCursor(ReadableConfig tableOptions) {
         if (tableOptions.getOptional(STARTUP_MODE).isPresent()) {
-            return parseMessageIdStartCursor(tableOptions.get(STARTUP_MODE));
+            String mode = tableOptions.getOptional(STARTUP_MODE).get();
+            // to keep consistent with pulsar connector in flink 1.13
+            if (mode.equals(PulsarScanStartupMode.EXTERNAL_SUBSCRIPTION.getValue())) {
+                return parseMessageIdStartCursor(tableOptions.get(SOURCE_START_FROM_MESSAGE_ID));
+            }
+            return parseMessageIdStartCursor(mode);
+        } else if (tableOptions.getOptional(SOURCE_START_FROM_MESSAGE_ID).isPresent()) {
+            return parseMessageIdStartCursor(tableOptions.get(SOURCE_START_FROM_MESSAGE_ID));
         } else if (tableOptions.getOptional(SOURCE_START_FROM_PUBLISH_TIME).isPresent()) {
             return parsePublishTimeStartCursor(tableOptions.get(SOURCE_START_FROM_PUBLISH_TIME));
         } else {

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,20 +30,24 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CsvSinkInfo extends SinkInfo {
 
-    private String delimiter;
-    private String escapeChar;
+    private Character delimiter;
+    private Character escapeChar;
     private List<FieldInfo> fields;
 
     @JsonCreator
     public CsvSinkInfo(
             @JsonProperty("charset") String charset,
-            @JsonProperty("delimiter") String delimiter,
-            @JsonProperty("escapeChar") String escapeChar,
+            @JsonProperty("delimiter") Character delimiter,
+            @JsonProperty("escapeChar") Character escapeChar,
             @JsonProperty("fields") List<FieldInfo> fields) {
-        super(SourceInfo.CSV, charset);
+        super(SinkInfo.CSV, charset);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
-        this.fields = fields;
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**
@@ -50,7 +55,7 @@ public class CsvSinkInfo extends SinkInfo {
      * @return the delimiter
      */
     @JsonProperty("delimiter")
-    public String getDelimiter() {
+    public Character getDelimiter() {
         return delimiter;
     }
 
@@ -58,7 +63,7 @@ public class CsvSinkInfo extends SinkInfo {
      * set delimiter
      * @param delimiter the delimiter to set
      */
-    public void setDelimiter(String delimiter) {
+    public void setDelimiter(Character delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -67,7 +72,7 @@ public class CsvSinkInfo extends SinkInfo {
      * @return the escapeChar
      */
     @JsonProperty("escapeChar")
-    public String getEscapeChar() {
+    public Character getEscapeChar() {
         return escapeChar;
     }
 
@@ -75,7 +80,7 @@ public class CsvSinkInfo extends SinkInfo {
      * set escapeChar
      * @param escapeChar the escapeChar to set
      */
-    public void setEscapeChar(String escapeChar) {
+    public void setEscapeChar(Character escapeChar) {
         this.escapeChar = escapeChar;
     }
 

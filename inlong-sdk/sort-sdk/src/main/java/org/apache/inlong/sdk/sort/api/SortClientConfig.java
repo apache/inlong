@@ -35,6 +35,7 @@ public class SortClientConfig implements Serializable {
     private static final long serialVersionUID = -7531960714809683830L;
 
     private final String sortTaskId;
+    private final String subscription;
     private final String sortClusterName;
     private InLongTopicChangeListener assignmentsListener;
     private ReadCallback callback;
@@ -83,11 +84,22 @@ public class SortClientConfig implements Serializable {
             InLongTopicChangeListener assignmentsListener,
             ConsumeStrategy consumeStrategy,
             String localIp) {
+        this(sortTaskId, sortClusterName, assignmentsListener, consumeStrategy, localIp, sortTaskId);
+    }
+
+    public SortClientConfig(
+            String sortTaskId,
+            String sortClusterName,
+            InLongTopicChangeListener assignmentsListener,
+            ConsumeStrategy consumeStrategy,
+            String localIp,
+            String subscription) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
         this.assignmentsListener = assignmentsListener;
         this.consumeStrategy = consumeStrategy;
         this.localIp = localIp;
+        this.subscription = subscription;
     }
 
     public boolean isStopConsume() {
@@ -100,6 +112,10 @@ public class SortClientConfig implements Serializable {
 
     public String getSortTaskId() {
         return sortTaskId;
+    }
+
+    public String getSubscription() {
+        return subscription;
     }
 
     public String getSortClusterName() {

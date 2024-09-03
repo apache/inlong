@@ -94,6 +94,14 @@ public class ConfigManager {
         return null;
     }
 
+    public String getValue(String key) {
+        ConfigHolder holder = holderMap.get(DEFAULT_CONFIG_PROPERTIES);
+        if (holder != null) {
+            return holder.getHolder().get(key);
+        }
+        return null;
+    }
+
     private boolean updatePropertiesHolder(Map<String, String> result,
             String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {
@@ -247,7 +255,7 @@ public class ConfigManager {
             try {
                 String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager.hosts");
                 String proxyClusterTag = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES)
-                        .get("proxy.cluster.tag");
+                        .get("default.mq.cluster.tag");
                 LOG.info("manager url: {}", managerHosts);
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {

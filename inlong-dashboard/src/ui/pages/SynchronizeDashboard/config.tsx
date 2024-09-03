@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/ui/components/Icons';
 import { Button } from 'antd';
 import { useDefaultMeta, useLoadMeta, SyncMetaType } from '@/plugins';
-
+import { timestampFormat } from '@/core/utils';
 export const dashCardList = [
   {
     desc: i18n.t('pages.SynchronizeDashboard.config.Total'),
@@ -67,11 +67,35 @@ export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
       if (item.dataIndex === 'inlongGroupId') {
         return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
       }
+      if (item.dataIndex === 'creator') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.createTime && timestampFormat(record.createTime)}</div>
+            </>
+          ),
+        };
+      }
+      if (item.dataIndex === 'modifier') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+            </>
+          ),
+        };
+      }
       return item;
     })
+    .filter(item => item.dataIndex !== 'createTime')
     .concat([
       {
         title: i18n.t('basic.Operating'),
+        width: 200,
         dataIndex: 'action',
         render: (text, record) => (
           <>

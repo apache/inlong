@@ -103,7 +103,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
             return new ArrayList<>();
         }
         JsonNode physicalNode = getPhysicalData(root);
-        if (physicalNode.isArray()) {
+        if (physicalNode != null && physicalNode.isArray()) {
             // Extract from the first value when the physicalNode is array
             physicalNode = physicalNode.get(FIRST);
         }

@@ -35,7 +35,6 @@ ENV PLUGINS_URL=default
 ENV FLINK_HOST=127.0.0.1
 ENV FLINK_PORT=8081
 ENV FLINK_PARALLELISM=1
-ENV AUDIT_PROXY_URL=127.0.0.1:10081
 # JVM env
 ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-manager
@@ -48,16 +47,12 @@ RUN wget -P lib/ ${default_jdbc_connector_url}
 # add sort resource
 ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
 RUN wget -P /opt/inlong-sort/connectors/ ${default_jdbc_connector_url}
-ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-kafka-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-hive-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-mysql-cdc-${VERSION}.jar /opt/inlong-sort/connectors/
-# audit clickhouse
-ENV AUDIT_CK_URL=127.0.0.1:8123
-ENV AUDIT_CK_USERNAME=default
-ENV AUDIT_CK_PASSWD=default
-ENV AUDIT_CK_DBNAME="apache_inlong_audit"
+ADD target/sort-connector-pulsar-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-kafka-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-mysql-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-jdbc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+# audit
+ENV AUDIT_QUERY_URL=127.0.0.1:10080
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
 CMD ["bin/manager-docker.sh"]

@@ -89,9 +89,9 @@ public class CommonConstants {
     public static final String PROXY_KEY_DATA = "dataKey";
 
     public static final int DEFAULT_FILE_MAX_NUM = 4096;
-    public static final String TASK_ID_PREFIX = "task_";
-    public static final String INSTANCE_ID_PREFIX = "ins_";
-    public static final String OFFSET_ID_PREFIX = "offset_";
+    public static final String TASK_ID_PREFIX = "task";
+    public static final String INSTANCE_ID_PREFIX = "ins";
+    public static final String OFFSET_ID_PREFIX = "offset";
     public static final String AGENT_OS_NAME = "os.name";
     public static final String AGENT_NIX_OS = "nix";
     public static final String AGENT_NUX_OS = "nux";

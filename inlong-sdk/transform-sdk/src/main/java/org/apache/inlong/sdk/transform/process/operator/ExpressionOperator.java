@@ -18,11 +18,12 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 /**
  * ExpressionOperator
  */
 public interface ExpressionOperator {
 
-    boolean check(SourceData sourceData, int rowIndex);
+    boolean check(SourceData sourceData, int rowIndex, Context context);
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils.file;
 
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.utils.DateTransUtils;
 
 import hirondelle.date4j.DateTime;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -170,34 +170,34 @@ public class NewDateUtils {
             calendar.set(Calendar.MINUTE, minTime);
 
             /* Calculate the offset. */
-            if ("D".equalsIgnoreCase(offsetUnit)) {
+            if (CycleUnitType.DAY.equalsIgnoreCase(offsetUnit)) {
                 calendar.add(Calendar.DAY_OF_YEAR, offsetNumber);
             }
 
-            if ("H".equalsIgnoreCase(offsetUnit)) {
+            if (CycleUnitType.HOUR.equalsIgnoreCase(offsetUnit)) {
                 calendar.add(Calendar.HOUR_OF_DAY, offsetNumber);
             }
         } else if (cycleUnit.length() == 1) {
-            if ("D".equalsIgnoreCase(cycleUnit)) {
+            if (CycleUnitType.DAY.equalsIgnoreCase(cycleUnit)) {
                 calendar.set(Calendar.HOUR_OF_DAY, 0);
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);
-            } else if ("h".equalsIgnoreCase(cycleUnit)) {
+            } else if (CycleUnitType.HOUR.equalsIgnoreCase(cycleUnit)) {
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);
             }
         }
 
         /* Calculate the offset. */
-        if ("D".equalsIgnoreCase(offsetUnit)) {
+        if (CycleUnitType.DAY.equalsIgnoreCase(offsetUnit)) {
             calendar.add(Calendar.DAY_OF_YEAR, offsetNumber);
         }
 
-        if ("h".equalsIgnoreCase(offsetUnit)) {
+        if (CycleUnitType.HOUR.equalsIgnoreCase(offsetUnit)) {
             calendar.add(Calendar.HOUR_OF_DAY, offsetNumber);
         }
 
-        if ("m".equals(offsetUnit)) {
+        if (CycleUnitType.MINUTE.equals(offsetUnit)) {
             calendar.add(Calendar.MINUTE, offsetNumber);
         }
 
@@ -207,15 +207,11 @@ public class NewDateUtils {
     public static boolean isValidCreationTime(String dataTime, String cycleUnit,
             String timeOffset) {
         long timeInterval = 0;
-        if ("Y".equalsIgnoreCase(cycleUnit)) {
+        if (CycleUnitType.DAY.equalsIgnoreCase(cycleUnit)) {
             timeInterval = DAY_TIMEOUT_INTERVAL;
-        } else if ("M".equals(cycleUnit)) {
+        } else if (CycleUnitType.HOUR.equalsIgnoreCase(cycleUnit)) {
             timeInterval = HOUR_TIMEOUT_INTERVAL;
-        } else if ("D".equalsIgnoreCase(cycleUnit)) {
-            timeInterval = DAY_TIMEOUT_INTERVAL;
-        } else if ("h".equalsIgnoreCase(cycleUnit)) {
-            timeInterval = HOUR_TIMEOUT_INTERVAL;
-        } else if (cycleUnit.contains("m")) {
+        } else if (cycleUnit.endsWith(CycleUnitType.MINUTE)) {
             timeInterval = HOUR_TIMEOUT_INTERVAL;
         } else {
             logger.error("cycleUnit {} can't parse!", cycleUnit);
@@ -265,23 +261,20 @@ public class NewDateUtils {
         return matcher.find();
     }
 
-    public static String getDateTime(String fileName, String dataName,
-            PathDateExpression dateExpression) {
+    public static String getDateTime(String fileName, String dataName, PathDateExpression dateExpression) {
         String dataTime = null;
 
         if (isBraceContain(dataName)) {
             String fullRegx = replaceDateExpressionWithRegex(dataName, "dataTime");
-            Pattern fullPatt = Pattern.compile(fullRegx);
-            Matcher matcher = fullPatt.matcher(fileName);
+            Pattern fullPattern = Pattern.compile(fullRegx);
+            Matcher matcher = fullPattern.matcher(fileName);
             if (matcher.find()) {
                 dataTime = matcher.group("dataTime");
             }
         } else {
             dataTime = getDateTime(fileName, dateExpression);
         }
-
         return dataTime;
-
     }
 
     public static String getDateTime(String fileName, PathDateExpression dateExpression) {
@@ -423,8 +416,7 @@ public class NewDateUtils {
         return sb.toString();
     }
 
-    public static String replaceDateExpression(Calendar dateTime,
-            String dataPath) {
+    public static String replaceDateExpression(Calendar dateTime, String dataPath) {
         if (dataPath == null) {
             return null;
         }
@@ -439,7 +431,6 @@ public class NewDateUtils {
 
         // find longest DATEPATTERN
         ArrayList<MatchPoint> mp = extractAllTimeRegex(dataPath);
-
         if (mp == null || mp.size() == 0) {
             return dataPath;
         }
@@ -471,35 +462,7 @@ public class NewDateUtils {
         return sb.toString();
     }
 
-    public static String replaceDateExpression1(Calendar dateTime,
-            String logFileName) {
-        if (dateTime == null || logFileName == null) {
-            return null;
-        }
-
-        String year = String.valueOf(dateTime.get(Calendar.YEAR));
-        String month = String.valueOf(dateTime.get(Calendar.MONTH) + 1);
-        String day = String.valueOf(dateTime.get(Calendar.DAY_OF_MONTH));
-        String hour = String.valueOf(dateTime.get(Calendar.HOUR_OF_DAY));
-        String minute = String.valueOf(dateTime.get(Calendar.MINUTE));
-
-        int hhIndex = logFileName.indexOf("hh");
-        int mmIndex = logFileName.indexOf("mm");
-
-        logFileName = logFileName.replaceAll("YYYY", year);
-        logFileName = logFileName.replaceAll("MM", externDate(month));
-        logFileName = logFileName.replaceAll("DD", externDate(day));
-        logFileName = logFileName.replaceAll("hh", externDate(hour));
-
-        if (hhIndex != -1 && mmIndex != -1 && mmIndex >= hhIndex + 2
-                && mmIndex < hhIndex + 4) {
-            logFileName = logFileName.replaceAll("mm", externDate(minute));
-        }
-
-        return logFileName;
-    }
-
-    private static String externDate(String time) {
+    public static String externDate(String time) {
         if (time.length() == 1) {
             return "0" + time;
         } else {
@@ -507,51 +470,12 @@ public class NewDateUtils {
         }
     }
 
-    public static String parseCycleUnit(String scheduleTime) {
-        String cycleUnit = "D";
-
-        StringTokenizer st = new StringTokenizer(scheduleTime, " ");
-
-        if (st.countTokens() <= 0) {
-            return "D";
-        }
-
-        int index = 0;
-        while (st.hasMoreElements()) {
-            String currentString = st.nextToken();
-            if (currentString.contains("/")) {
-                if (index == 1) {
-                    cycleUnit = "10m";
-                } else if (index == 2) {
-                    cycleUnit = "h";
-                }
-                break;
-            }
-
-            if (currentString.equals("*")) {
-                if (index == 3) {
-                    cycleUnit = "D";
-                }
-                break;
-            }
-
-            index++;
-        }
-
-        logger.info("ScheduleTime: " + scheduleTime + ", cycleUnit: "
-                + cycleUnit);
-
-        return cycleUnit;
-    }
-
     public static List<Long> getDateRegion(long startTime, long endTime, String cycleUnit) {
         List<Long> ret = new ArrayList<Long>();
         DateTime dtStart = DateTime.forInstant(startTime, TimeZone.getDefault());
         DateTime dtEnd = DateTime.forInstant(endTime, TimeZone.getDefault());
 
-        if (cycleUnit.equals("M")) {
-            dtEnd = dtEnd.getEndOfMonth();
-        } else if (cycleUnit.equals("D")) {
+        if (cycleUnit.equals(CycleUnitType.DAY)) {
             dtEnd = dtEnd.getEndOfDay();
         }
 
@@ -561,22 +485,12 @@ public class NewDateUtils {
         int hour = 0;
         int minute = 0;
         int second = 0;
-        if (cycleUnit.equalsIgnoreCase("Y")) {
-            year = 1;
-        } else if (cycleUnit.equals("M")) {
-            month = 1;
-        } else if (cycleUnit.equalsIgnoreCase("D")) {
+        if (cycleUnit.equalsIgnoreCase(CycleUnitType.DAY)) {
             day = 1;
-        } else if (cycleUnit.equalsIgnoreCase("h")) {
+        } else if (cycleUnit.equalsIgnoreCase(CycleUnitType.HOUR)) {
             hour = 1;
-        } else if (cycleUnit.equals("10m")) {
-            minute = 10;
-        } else if (cycleUnit.equals("15m")) {
-            minute = 15;
-        } else if (cycleUnit.equals("30m")) {
-            minute = 30;
-        } else if (cycleUnit.equalsIgnoreCase("s")) {
-            second = 1;
+        } else if (cycleUnit.equals(CycleUnitType.MINUTE)) {
+            minute = 1;
         } else {
             logger.error("cycleUnit {} is error: ", cycleUnit);
             return ret;

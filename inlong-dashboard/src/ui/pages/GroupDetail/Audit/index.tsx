@@ -31,6 +31,8 @@ import {
   getTableColumns,
   timeStaticsDimList,
 } from './config';
+import { Table } from 'antd';
+import i18n from '@/i18n';
 
 type Props = CommonInterface;
 
@@ -92,7 +94,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   }, [sourceData, query.timeStaticsDim]);
 
   const onSearch = async () => {
-    await form.validateFields();
+    let values = await form.validateFields();
+    if (values.timeStaticsDim == 'MINUTE') {
+      setQuery(prev => ({ ...prev, endDate: prev.startDate }));
+    }
     run();
   };
 
@@ -126,9 +131,23 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
       <HighTable
         table={{
-          columns: getTableColumns(sourceData),
+          columns: getTableColumns(sourceData, query.timeStaticsDim),
           dataSource: toTableData(sourceData, sourceDataMap),
           rowKey: 'logTs',
+          summary: () => (
+            <Table.Summary fixed>
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0}>
+                  {i18n.t('pages.GroupDetail.Audit.Total')}
+                </Table.Summary.Cell>
+                {sourceData.map((row, index) => (
+                  <Table.Summary.Cell index={index + 1}>
+                    {row.auditSet.reduce((total, item) => total + item.count, 0).toLocaleString()}
+                  </Table.Summary.Cell>
+                ))}
+              </Table.Summary.Row>
+            </Table.Summary>
+          ),
         }}
       />
     </>

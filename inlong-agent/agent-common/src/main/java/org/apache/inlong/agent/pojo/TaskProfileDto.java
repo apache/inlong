@@ -38,6 +38,8 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import com.google.gson.Gson;
 import lombok.Data;
 
+import java.util.stream.Collectors;
+
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.TaskConstants.SYNC_SEND_OPEN;
@@ -50,6 +52,10 @@ public class TaskProfileDto {
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
+    public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
+    public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
+    public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
+    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -96,6 +102,10 @@ public class TaskProfileDto {
     public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
 
     private static final Gson GSON = new Gson();
+
+    public static final String deafult_time_offset = "0";
+
+    private static final String DEFAULT_AUDIT_VERSION = "0";
 
     private Task task;
     private Proxy proxy;
@@ -157,9 +167,10 @@ public class TaskProfileDto {
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
         fileTask.setStartTime(taskConfig.getStartTime());
         fileTask.setEndTime(taskConfig.getEndTime());
-        fileTask.setProperties(GSON.toJson(taskConfig.getProperties()));
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
+        } else {
+            fileTask.setTimeOffset(deafult_time_offset + fileTask.getCycleUnit());
         }
 
         if (taskConfig.getAdditionalAttr() != null) {
@@ -237,11 +248,14 @@ public class TaskProfileDto {
         postgreSQLTask.setHostname(config.getHostname());
         postgreSQLTask.setPort(config.getPort());
         postgreSQLTask.setDbname(config.getDatabase());
-        postgreSQLTask.setServername(config.getSchema());
-        postgreSQLTask.setPluginname(config.getDecodingPluginName());
-        postgreSQLTask.setTableNameList(config.getTableNameList());
+        postgreSQLTask.setSchemaIncludeList(config.getSchema());
+        postgreSQLTask.setPluginName(config.getDecodingPluginName());
+        // Each identifier is of the form schemaName.tableName and connected with ","
+        postgreSQLTask.setTableIncludeList(
+                config.getTableNameList().stream().map(tableName -> config.getSchema() + "." + tableName).collect(
+                        Collectors.joining(",")));
         postgreSQLTask.setServerTimeZone(config.getServerTimeZone());
-        postgreSQLTask.setScanStartupMode(config.getScanStartupMode());
+        postgreSQLTask.setSnapshotMode(config.getScanStartupMode());
         postgreSQLTask.setPrimaryKey(config.getPrimaryKey());
 
         return postgreSQLTask;
@@ -297,12 +311,14 @@ public class TaskProfileDto {
         OracleTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 OracleTaskConfig.class);
         OracleTask oracleTask = new OracleTask();
-        oracleTask.setUser(config.getUser());
+
         oracleTask.setHostname(config.getHostname());
-        oracleTask.setPassword(config.getPassword());
         oracleTask.setPort(config.getPort());
-        oracleTask.setServerName(config.getServerName());
-        oracleTask.setDbname(config.getDbname());
+        oracleTask.setUser(config.getUsername());
+        oracleTask.setPassword(config.getPassword());
+        oracleTask.setSchemaIncludeList(config.getSchemaName());
+        oracleTask.setDbname(config.getDatabase());
+        oracleTask.setTableIncludeList(config.getTableName());
 
         OracleTask.Offset offset = new OracleTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -311,7 +327,7 @@ public class TaskProfileDto {
         oracleTask.setOffset(offset);
 
         OracleTask.Snapshot snapshot = new OracleTask.Snapshot();
-        snapshot.setMode(config.getSnapshotMode());
+        snapshot.setMode(config.getScanStartupMode());
         oracleTask.setSnapshot(snapshot);
 
         OracleTask.History history = new OracleTask.History();
@@ -331,6 +347,10 @@ public class TaskProfileDto {
         sqlServerTask.setPort(config.getPort());
         sqlServerTask.setServerName(config.getSchemaName());
         sqlServerTask.setDbname(config.getDatabase());
+        sqlServerTask.setSchemaName(config.getSchemaName());
+        sqlServerTask.setTableName(config.getSchemaName() + "." + config.getTableName());
+        sqlServerTask.setServerTimezone(config.getServerTimezone());
+        sqlServerTask.setUnixTimestampFormatEnable(config.getUnixTimestampFormatEnable());
 
         SqlServerTask.Offset offset = new SqlServerTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -414,7 +434,11 @@ public class TaskProfileDto {
         task.setPredefinedFields(dataConfig.getPredefinedFields());
         task.setCycleUnit(CycleUnitType.REAL_TIME);
         task.setTimeZone(dataConfig.getTimeZone());
-
+        if (dataConfig.getAuditVersion() == null) {
+            task.setAuditVersion(DEFAULT_AUDIT_VERSION);
+        } else {
+            task.setAuditVersion(dataConfig.getAuditVersion());
+        }
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
             task.setSink(DEFAULT_DATA_PROXY_SINK);
@@ -431,7 +455,7 @@ public class TaskProfileDto {
             } else if (mqType.equals(MQType.KAFKA)) {
                 task.setSink(KAFKA_SINK);
             } else {
-                throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
+                throw new IllegalArgumentException("invalid mq type " + mqType + " please check");
             }
         }
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
@@ -466,18 +490,21 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
+                task.setTaskClass(DEFAULT_POSTGRESQL_TASK);
                 PostgreSQLTask postgreSQLTask = getPostgresTask(dataConfig);
                 task.setPostgreSQLTask(postgreSQLTask);
                 task.setSource(POSTGRESQL_SOURCE);
                 profileDto.setTask(task);
                 break;
             case ORACLE:
+                task.setTaskClass(DEFAULT_ORACLE_TASK);
                 OracleTask oracleTask = getOracleTask(dataConfig);
                 task.setOracleTask(oracleTask);
                 task.setSource(ORACLE_SOURCE);
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
+                task.setTaskClass(DEFAULT_SQLSERVER_TASK);
                 SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
                 task.setSqlserverTask(sqlserverTask);
                 task.setSource(SQLSERVER_SOURCE);
@@ -497,6 +524,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case MQTT:
+                task.setTaskClass(DEFAULT_MQTT_TASK);
                 MqttTask mqttTask = getMqttTask(dataConfig);
                 task.setMqttTask(mqttTask);
                 task.setSource(MQTT_SOURCE);
@@ -534,6 +562,7 @@ public class TaskProfileDto {
         private Integer state;
         private String cycleUnit;
         private String timeZone;
+        private String auditVersion;
 
         private FileTask fileTask;
         private BinlogTask binlogTask;

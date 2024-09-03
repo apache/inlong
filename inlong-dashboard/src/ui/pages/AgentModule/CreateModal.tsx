@@ -17,13 +17,14 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, message, Modal } from 'antd';
 import i18n from '@/i18n';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import request from '@/core/utils/request';
 import { ModalProps } from 'antd/es/modal';
+import rulesPattern from '@/core/utils/pattern';
 
 export interface Props extends ModalProps {
   id?: string;
@@ -32,7 +33,7 @@ export interface Props extends ModalProps {
 
 const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
   const [form] = useForm();
-
+  const [isCreate, setCreate] = useState(false);
   const content = useMemo(() => {
     return [
       {
@@ -45,7 +46,13 @@ const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
         type: 'input',
         label: i18n.t('pages.ModuleAgent.Config.Version'),
         name: 'version',
-        rules: [{ required: true }],
+        rules: [
+          {
+            required: true,
+            pattern: rulesPattern.version,
+            message: i18n.t('meta.Sources.File.VersionRule'),
+          },
+        ],
       },
       {
         type: 'select',
@@ -135,7 +142,12 @@ const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
     {
       manual: true,
       onSuccess: result => {
-        form.setFieldsValue(result);
+        if (isCreate) {
+          form.resetFields();
+          form.setFieldsValue({ ...result, name: '', version: '', packageId: '' });
+        } else {
+          form.setFieldsValue(result);
+        }
       },
     },
   );
@@ -160,7 +172,12 @@ const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
   useUpdateEffect(() => {
     if (modalProps.open) {
       if (id) {
+        setCreate(false);
         getData(id);
+      } else {
+        setCreate(true);
+        // here need a data which id is 1 to init create form
+        getData(1);
       }
     } else {
       form.resetFields();

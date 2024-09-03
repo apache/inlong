@@ -40,6 +40,11 @@ public class MongoDBTask extends AbstractTask {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
+    protected int getInstanceLimit() {
+        return DEFAULT_INSTANCE_LIMIT;
+    }
+
+    @Override
     protected void initTask() {
         LOGGER.info("mongoDB commonInit: {}", taskProfile.toJsonStr());
         this.collection = taskProfile.get(TaskConstants.TASK_MONGO_COLLECTION_INCLUDE_LIST);

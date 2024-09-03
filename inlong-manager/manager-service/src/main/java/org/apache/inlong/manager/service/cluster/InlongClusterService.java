@@ -53,15 +53,6 @@ public interface InlongClusterService {
     Integer saveTag(ClusterTagRequest request, String operator);
 
     /**
-     * Save cluster tag.
-     *
-     * @param request cluster tag
-     * @param opInfo userinfo of operator
-     * @return cluster tag id after saving
-     */
-    Integer saveTag(ClusterTagRequest request, UserInfo opInfo);
-
-    /**
      * Get cluster tag by id.
      *
      * @param id cluster tag id
@@ -69,15 +60,6 @@ public interface InlongClusterService {
      * @return cluster tag info
      */
     ClusterTagResponse getTag(Integer id, String currentUser);
-
-    /**
-     * Get cluster tag by id.
-     *
-     * @param id cluster tag id
-     * @param opInfo userinfo of operator
-     * @return cluster tag info
-     */
-    ClusterTagResponse getTag(Integer id, UserInfo opInfo);
 
     /**
      * Paging query cluster tags according to conditions.
@@ -106,15 +88,6 @@ public interface InlongClusterService {
     Boolean updateTag(ClusterTagRequest request, String operator);
 
     /**
-     * Update cluster tag.
-     *
-     * @param request cluster tag to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean updateTag(ClusterTagRequest request, UserInfo opInfo);
-
-    /**
      * Delete cluster tag.
      *
      * @param id cluster tag id to be deleted
@@ -122,15 +95,6 @@ public interface InlongClusterService {
      * @return whether succeed
      */
     Boolean deleteTag(Integer id, String operator);
-
-    /**
-     * Delete cluster tag.
-     *
-     * @param id cluster tag id to be deleted
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean deleteTag(Integer id, UserInfo opInfo);
 
     /**
      * Save cluster info.
@@ -142,15 +106,6 @@ public interface InlongClusterService {
     Integer save(ClusterRequest request, String operator);
 
     /**
-     * Save cluster info.
-     *
-     * @param request inlong cluster info
-     * @param opInfo userinfo of operator
-     * @return cluster id after saving
-     */
-    Integer save(ClusterRequest request, UserInfo opInfo);
-
-    /**
      * Get cluster info by id.
      *
      * @param id cluster id
@@ -158,15 +113,6 @@ public interface InlongClusterService {
      * @return cluster info
      */
     ClusterInfo get(Integer id, String currentUser);
-
-    /**
-     * Get cluster info by id.
-     *
-     * @param id cluster id
-     * @param opInfo userinfo of operator
-     * @return cluster info
-     */
-    ClusterInfo get(Integer id, UserInfo opInfo);
 
     /**
      * Get one cluster by the cluster tag, cluster name and cluster type.
@@ -215,15 +161,6 @@ public interface InlongClusterService {
     Boolean update(ClusterRequest request, String operator);
 
     /**
-     * Update cluster information
-     *
-     * @param request cluster info to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean update(ClusterRequest request, UserInfo opInfo);
-
-    /**
      * Update cluster information by unique key
      *
      * @param request cluster info to be modified
@@ -240,15 +177,6 @@ public interface InlongClusterService {
      * @return whether succeed
      */
     Boolean bindTag(BindTagRequest request, String operator);
-
-    /**
-     * Bind or unbind cluster tag for clusters.
-     *
-     * @param request cluster info to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean bindTag(BindTagRequest request, UserInfo opInfo);
 
     /**
      * Delete cluster information.
@@ -288,15 +216,6 @@ public interface InlongClusterService {
     Integer saveNode(ClusterNodeRequest request, String operator);
 
     /**
-     * Save cluster node info.
-     *
-     * @param request inlong cluster info
-     * @param opInfo userinfo of operator
-     * @return cluster id after saving
-     */
-    Integer saveNode(ClusterNodeRequest request, UserInfo opInfo);
-
-    /**
      * Get cluster node info by id.
      *
      * @param id cluster id
@@ -304,15 +223,6 @@ public interface InlongClusterService {
      * @return cluster info
      */
     ClusterNodeResponse getNode(Integer id, String currentUser);
-
-    /**
-     * Get cluster node info by id.
-     *
-     * @param id cluster id
-     * @param opInfo userinfo of operator
-     * @return cluster info
-     */
-    ClusterNodeResponse getNode(Integer id, UserInfo opInfo);
 
     /**
      * Paging query cluster nodes according to conditions.
@@ -343,18 +253,6 @@ public interface InlongClusterService {
     List<ClusterNodeResponse> listNodeByGroupId(String inlongGroupId, String clusterType, String protocolType);
 
     /**
-     * List cluster nodes
-     *
-     * @param inlongGroupId inlong group id
-     * @param clusterType cluster type
-     * @param protocolType protocol type, such as: TCP, HTTP
-     * @param opInfo userinfo of operator
-     * @return cluster node list
-     */
-    List<ClusterNodeResponse> listNodeByGroupId(
-            String inlongGroupId, String clusterType, String protocolType, UserInfo opInfo);
-
-    /**
      * Query node IP list by cluster type
      *
      * @param type cluster type
@@ -372,15 +270,6 @@ public interface InlongClusterService {
     Boolean updateNode(ClusterNodeRequest request, String operator);
 
     /**
-     * Update cluster node.
-     *
-     * @param request cluster node to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean updateNode(ClusterNodeRequest request, UserInfo opInfo);
-
-    /**
      * Delete cluster node.
      *
      * @param id cluster node id to be deleted
@@ -392,13 +281,25 @@ public interface InlongClusterService {
     Boolean unloadNode(Integer id, String operator);
 
     /**
-     * Delete cluster node.
+     * Retrieves the SSH public key from the manager node for agent installation.
      *
-     * @param id cluster node id to be deleted
-     * @param opInfo userinfo of operator
-     * @return whether succeed
+     * <p>To enable SSH key-based authentication, the manager node's public key must be added to the agent node.
+     * This method either generates a new public key or retrieves an existing one.</p>
+     *
+     * <p>After obtaining the SSH public key, add it to the <code>~/.ssh/authorized_keys</code> file on the agent node.
+     * This allows the manager node to execute remote commands on the agent node via SSH.</p>
+     *
+     * @return the SSH public key as a String
      */
-    Boolean deleteNode(Integer id, UserInfo opInfo);
+    String getManagerSSHPublicKey();
+
+    /**
+     * Test whether the SSH connection can be successfully established using the provided SSH information.
+     *
+     * @param request connection request
+     * @return true or false
+     */
+    Boolean testSSHConnection(ClusterNodeRequest request);
 
     /**
      * Query data proxy nodes by the given inlong group id and protocol type
@@ -431,22 +332,9 @@ public interface InlongClusterService {
     /**
      * Get data proxy cluster list by the given cluster name
      *
-     * This method was deprecated since version 1.8.0,
-     * new method please see {@link InlongClusterService#getMetaConfig(String, String)}
-     *
      * @return data proxy config
      */
-    @Deprecated
     String getAllConfig(String clusterName, String md5);
-
-    /**
-     * Get data proxy cluster list by the given cluster name.
-     *
-     * since version 1.8.0
-     *
-     * @return data proxy config
-     */
-    String getMetaConfig(String clusterName, String md5);
 
     /**
      * Get the MQ info by cluster tag for Audit

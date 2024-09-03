@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import org.apache.inlong.audit.entity.AuditComponent;
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -32,7 +34,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.apache.inlong.sort.protocol.GroupInfo;
@@ -41,12 +42,12 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -70,16 +71,14 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortFlinkConfigOperator.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @Value("${metrics.audit.proxy.hosts:127.0.0.1}")
-    private String auditHost;
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
     private StreamTransformService transformService;
     @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
     private AuditService auditService;
+    @Autowired
+    private NodeFactory nodeFactory;
 
     @Override
     public Boolean accept(List<String> sinkTypeList) {
@@ -249,13 +248,13 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
         if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
-            return NodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
+            return nodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
         }
         List<TransformNode> transformNodes =
                 TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
-        nodes.addAll(NodeFactory.createExtractNodes(sources));
+        nodes.addAll(nodeFactory.createExtractNodes(sources));
         nodes.addAll(transformNodes);
-        nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));
+        nodes.addAll(nodeFactory.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
 
@@ -299,8 +298,10 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
     private void addAuditId(Map<String, Object> properties, String type, IndicatorType indicatorType) {
         try {
             String auditId = auditService.getAuditId(type, indicatorType);
+            List<AuditProxy> auditProxyList = auditService.getAuditProxy(AuditComponent.SORT.getComponent());
             properties.putIfAbsent("metrics.audit.key", auditId);
-            properties.putIfAbsent("metrics.audit.proxy.hosts", auditHost);
+            properties.putIfAbsent("metrics.audit.proxy.hosts",
+                    Joiner.on(InlongConstants.AMPERSAND).join(auditProxyList));
         } catch (Exception e) {
             LOGGER.error("Current type ={} is not set auditId", type);
         }

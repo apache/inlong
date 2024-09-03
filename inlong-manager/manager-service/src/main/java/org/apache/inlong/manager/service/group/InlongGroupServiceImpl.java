@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
+import org.apache.inlong.common.bounded.Boundaries;
+import org.apache.inlong.common.bounded.BoundaryType;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -36,12 +38,14 @@ import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
+import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -57,6 +61,9 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
@@ -64,14 +71,20 @@ import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
+import org.apache.inlong.manager.service.source.bounded.BoundedSourceType;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.tenant.InlongTenantService;
+import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -91,6 +104,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +119,7 @@ import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG
 import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 import static org.apache.inlong.common.constant.ClusterSwitch.CLUSTER_SWITCH_TIME;
 import static org.apache.inlong.common.constant.ClusterSwitch.FINISH_SWITCH_INTERVAL_MIN;
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATASYNC_OFFLINE_MODE;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 import static org.apache.inlong.manager.workflow.event.process.ProcessEventListener.EXECUTOR_SERVICE;
 
@@ -145,6 +160,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongGroupOperatorFactory groupOperatorFactory;
     @Autowired
     private SourceOperatorFactory sourceOperatorFactory;
+    @Autowired
+    private InlongTenantService tenantService;
+    @Autowired
+    private InlongRoleService inlongRoleService;
+    @Autowired
+    private TenantUserRoleEntityMapper tenantUserRoleEntityMapper;
+
+    @Autowired
+    ScheduleOperator scheduleOperator;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -181,7 +205,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.expectNotNull(request, "inlong group request cannot be empty");
 
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         if (entity != null) {
             LOGGER.error("groupId={} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
@@ -196,27 +220,37 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            constrainStartAndEndTime(request);
+            scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
+        }
+
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
     }
 
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public String save(InlongGroupRequest request, UserInfo opInfo) {
-        String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity != null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
+    /**
+     * Add constraints to the start and end time of the offline synchronization group.
+     * 1. startTime must >= current time
+     * 2. endTime must >= startTime
+     * */
+    private void constrainStartAndEndTime(InlongGroupRequest request) {
+        Timestamp startTime = request.getStartTime();
+        Timestamp endTime = request.getEndTime();
+        Preconditions.expectTrue(startTime != null && endTime != null, "start time or end time cannot be empty");
+        long currentTime = System.currentTimeMillis();
+        if (startTime.getTime() < currentTime) {
+            Timestamp newStartTime = new Timestamp(currentTime);
+            request.setStartTime(newStartTime);
+            LOGGER.warn("start time is less than current time, re-set to current time for groupId={}, "
+                    + "startTime={}, newStartTime={}", request.getInlongGroupId(), startTime, newStartTime);
         }
-        if (request.getEnableZookeeper() == null) {
-            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        if (request.getStartTime().getTime() > endTime.getTime()) {
+            request.setEndTime(request.getStartTime());
+            LOGGER.warn("end time is less than start time, re-set end time to start time for groupId={}, "
+                    + "endTime={}, newEndTime={}", request.getInlongGroupId(), endTime, request.getEndTime());
         }
-
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
-        groupId = instance.saveOpt(request, opInfo.getName());
-        // save ext info
-        this.saveOrUpdateExt(groupId, request.getExtList());
-        return groupId;
     }
 
     @Override
@@ -244,9 +278,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public Boolean exist(String groupId) {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
         return entity != null;
+    }
+
+    private boolean isScheduleInfoExist(InlongGroupEntity entity) {
+        return DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())
+                && scheduleOperator.scheduleInfoExist(entity.getInlongGroupId());
     }
 
     @Override
@@ -268,29 +307,45 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
         BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
-
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            // get schedule info and set into group info
+            fillInScheduleInfo(entity, groupInfo);
+        }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }
 
+    private void fillInScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
+        if (isScheduleInfoExist(entity)) {
+            ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
+            int groupVersion = groupInfo.getVersion();
+            CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
+            groupInfo.setVersion(groupVersion);
+        }
+    }
+
     @Override
-    public InlongGroupInfo get(String groupId, UserInfo opInfo) {
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+    public String getTenant(String groupId, String operator) {
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        String tenant = groupEntity.getTenant();
+        if (Objects.equals(InlongConstants.DEFAULT_PULSAR_TENANT, tenant)) {
+            return tenant;
+        }
+        InlongTenantInfo tenantInfo = tenantService.getByName(tenant);
+        if (tenantInfo == null) {
+            String errMsg = String.format("tenant=[%s] not found", tenant);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
         }
 
-        // query mq information
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
-        InlongGroupInfo groupInfo = instance.getFromEntity(entity);
-        // get all ext info
-        List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
-        List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
-        groupInfo.setExtList(extList);
-        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
-        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
-        groupInfo.setSortConf(sortConf);
-        return groupInfo;
+        InlongRoleInfo inlongRoleInfo = inlongRoleService.getByUsername(operator);
+        TenantUserRoleEntity tenantRoleInfo = tenantUserRoleEntityMapper.selectByUsernameAndTenant(operator, tenant);
+        if (inlongRoleInfo == null && tenantRoleInfo == null) {
+            String errMsg = String.format("user=[%s] has no privilege for tenant=[%s]", operator, tenant);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        return tenant;
     }
 
     @Override
@@ -460,39 +515,17 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            constrainStartAndEndTime(request);
+            ScheduleInfoRequest scheduleRequest = CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new);
+            if (scheduleOperator.scheduleInfoExist(groupId)) {
+                scheduleRequest.setVersion(scheduleOperator.getScheduleInfo(groupId).getVersion());
+            }
+            scheduleOperator.updateAndRegister(scheduleRequest, operator);
+        }
+
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
-        return groupId;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
-    public String update(InlongGroupRequest request, UserInfo opInfo) {
-        String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-        chkUnmodifiableParams(entity, request);
-        // check whether the current status supports modification
-        GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curStatus)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED,
-                    String.format("Current status=%s is not allowed to update", curStatus));
-        }
-        // mq type cannot be changed
-        if (!entity.getMqType().equals(request.getMqType()) && !GroupStatus.allowedUpdateMQ(curStatus)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED,
-                    String.format("Current status=%s is not allowed to update MQ type", curStatus));
-        }
-        // update record
-        if (request.getEnableZookeeper() == null) {
-            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
-        }
-
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
-        instance.updateOpt(request, opInfo.getName());
-        // save ext info
-        this.saveOrUpdateExt(groupId, request.getExtList());
         return groupId;
     }
 
@@ -647,6 +680,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
 
+        // remove schedule
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            try {
+                scheduleOperator.deleteByGroupIdOpt(entity.getInlongGroupId(), operator);
+            } catch (Exception e) {
+                LOGGER.warn("failed to delete schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
+            }
+        }
+
         LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);
         return true;
     }
@@ -714,8 +756,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
         // check mqType
-        Preconditions.expectEquals(entity.getMqType(), request.getMqType(),
-                ErrorCodeEnum.INVALID_PARAMETER, "mqType not allowed modify");
+        Preconditions.expectTrue(
+                Objects.equals(entity.getMqType(), request.getMqType())
+                        || Objects.equals(entity.getStatus(), GroupStatus.TO_BE_SUBMIT.getCode()),
+                "mqType not allowed modify");
         // check record version
         Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
@@ -731,7 +775,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         InlongGroupInfo groupInfo = this.get(groupId);
 
         // check if the group mode is data sync mode
-        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+        if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())) {
             String errMSg = String.format("no need to switch sync mode group = {}", groupId);
             LOGGER.error(errMSg);
             throw new BusinessException(errMSg);
@@ -909,6 +953,58 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             groupInfoList.add(groupFullInfo);
         }
         return groupInfoList;
+    }
+
+    @Override
+    public Boolean submitOfflineJob(OfflineJobRequest request) {
+        // 1. get stream info list
+        String groupId = request.getGroupId();
+        InlongGroupInfo groupInfo = get(groupId);
+        if (groupInfo == null) {
+            String msg = String.format("InLong group not found for group=%s", groupId);
+            LOGGER.error(msg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+
+        List<InlongStreamInfo> streamInfoList = streamService.list(groupId);
+        if (CollectionUtils.isEmpty(streamInfoList)) {
+            LOGGER.warn("No stream info found for group {}, skip submit offline job", groupId);
+            return false;
+        }
+
+        // check if source type is bounded source
+        streamInfoList.forEach(this::checkBoundedSource);
+
+        // get the source boundaries
+        checkSourceBoundaryType(request.getBoundaryType());
+        BoundaryType boundaryType = BoundaryType.getInstance(request.getBoundaryType());
+        if (boundaryType == null) {
+            throw new BusinessException(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED.getMessage(), request.getBoundaryType()));
+        }
+        Boundaries boundaries = new Boundaries(request.getLowerBoundary(), request.getUpperBoundary(), boundaryType);
+
+        LOGGER.info("Check bounded source success, start to submitting offline job for group {}", groupId);
+
+        return scheduleOperator.submitOfflineJob(groupId, streamInfoList, boundaries);
+    }
+
+    private void checkBoundedSource(InlongStreamInfo streamInfo) {
+        streamInfo.getSourceList().forEach(stream -> {
+            if (!BoundedSourceType.isBoundedSource(stream.getSourceType())) {
+                throw new BusinessException(ErrorCodeEnum.BOUNDED_SOURCE_TYPE_NOT_SUPPORTED,
+                        String.format(ErrorCodeEnum.BOUNDED_SOURCE_TYPE_NOT_SUPPORTED.getMessage(),
+                                stream.getSourceType()));
+            }
+        });
+    }
+
+    private void checkSourceBoundaryType(String sourceBoundaryType) {
+        if (!BoundaryType.isSupportBoundaryType(sourceBoundaryType)) {
+            throw new BusinessException(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED.getMessage(),
+                            sourceBoundaryType));
+        }
     }
 
 }

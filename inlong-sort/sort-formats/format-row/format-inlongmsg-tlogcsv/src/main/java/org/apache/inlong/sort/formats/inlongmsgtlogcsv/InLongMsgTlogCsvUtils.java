@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseDateTime;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.getPredefinedFields;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.parseAttr;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.parseDateTime;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.parseEpochTime;
 import static org.apache.inlong.sort.formats.util.StringUtils.splitCsv;
 
 /**
@@ -79,7 +79,8 @@ public class InLongMsgTlogCsvUtils {
             String charset,
             char delimiter,
             Character escapeChar,
-            Character quoteChar) {
+            Character quoteChar,
+            boolean isIncludeFirstSegment) {
         String text;
         if (bytes[0] == delimiter) {
             text = new String(bytes, 1, bytes.length - 1, Charset.forName(charset));
@@ -91,7 +92,7 @@ public class InLongMsgTlogCsvUtils {
 
         String streamId = segments[0];
         List<String> fields =
-                Arrays.stream(segments, 1, segments.length).collect(Collectors.toList());
+                Arrays.stream(segments, (isIncludeFirstSegment ? 0 : 1), segments.length).collect(Collectors.toList());
 
         return new InLongMsgBody(bytes, streamId, fields, Collections.emptyMap());
     }

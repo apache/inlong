@@ -19,14 +19,13 @@ package org.apache.inlong.sort.pulsar.table.source;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.pulsar.source.config.SourceConfiguration;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
-import org.apache.flink.connector.pulsar.table.source.PulsarRowDataConverter;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.pulsar.client.api.Message;
@@ -66,7 +65,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean upsertMode;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     private MetricOption metricOption;
 
@@ -95,7 +94,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             keyDeserialization.open(context);
         }
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
         valueDeserialization.open(context);
     }
@@ -117,16 +116,36 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             rowDataConverter.projectToRowWithNullValueRow(message, keyRowData, collector);
             return;
         }
+        MetricsCollector<RowData> metricsCollector =
+                new MetricsCollector<>(collector, sourceExactlyMetric);
 
-        valueDeserialization.deserialize(message.getData(),
-                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData));
+        valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
 
         rowDataConverter.projectToProducedRowAndCollect(
-                message, keyRowData, valueRowData, collector);
+                message, keyRowData, valueRowData, metricsCollector);
+
     }
 
     @Override
     public TypeInformation<RowData> getProducedType() {
         return producedTypeInfo;
+    }
+
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
+        }
     }
 }

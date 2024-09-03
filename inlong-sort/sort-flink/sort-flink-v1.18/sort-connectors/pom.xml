@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-flink-v1.18</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connectors-v1.18</artifactId>
@@ -33,6 +33,9 @@
     <modules>
         <module>pulsar</module>
         <module>jdbc</module>
+        <module>elasticsearch-base</module>
+        <module>elasticsearch6</module>
+        <module>elasticsearch7</module>
     </modules>
 
     <properties>

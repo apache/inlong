@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.service.listener.queue.StreamQueueResourceListener;
 import org.apache.inlong.manager.service.listener.sink.StreamSinkResourceListener;
 import org.apache.inlong.manager.service.listener.sort.StreamSortConfigListener;
+import org.apache.inlong.manager.service.listener.source.SourceStartListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
@@ -60,6 +61,8 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
     private StreamSortConfigListener streamSortConfigListener;
     @Autowired
     private StreamSinkResourceListener sinkResourceListener;
+    @Autowired
+    private SourceStartListener sourceStartListener;
 
     @PostConstruct
     public void init() {
@@ -70,6 +73,7 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         sortOperateListeners.add(streamSortConfigListener);
         sinkOperateListeners = new LinkedList<>();
         sinkOperateListeners.add(sinkResourceListener);
+        sourceOperateListeners.add(sourceStartListener);
     }
 
     @Override
@@ -184,5 +188,4 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         }
         return listeners;
     }
-
 }

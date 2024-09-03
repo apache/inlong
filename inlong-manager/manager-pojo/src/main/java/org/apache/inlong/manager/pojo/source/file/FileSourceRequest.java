@@ -90,9 +90,6 @@ public class FileSourceRequest extends SourceRequest {
     @ApiModelProperty("End time")
     private Long endTime;
 
-    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
-    private Map<String, String> filterMetaByLabels;
-
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());

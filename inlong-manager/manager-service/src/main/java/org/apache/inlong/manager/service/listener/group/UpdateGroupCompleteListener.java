@@ -96,7 +96,8 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         }
 
         // if the inlong group is dataSync mode, the stream source needs to be processed.
-        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+        if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())
+                || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())) {
             changeSource4DataSync(groupId, operateType, operator);
         }
 

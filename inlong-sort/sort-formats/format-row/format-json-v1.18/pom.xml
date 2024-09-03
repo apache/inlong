@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>format-row</artifactId>
-        <version>1.13.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-format-json-v1.18</artifactId>
@@ -73,7 +73,7 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-flink-dependencies-${sort.flink.version}</artifactId>
+            <artifactId>sort-flink-dependencies-v1.18</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

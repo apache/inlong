@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.pulsar.table.source;
 
+import org.apache.inlong.sort.pulsar.source.PulsarSource;
+import org.apache.inlong.sort.pulsar.source.PulsarSourceBuilder;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.connector.pulsar.source.PulsarSource;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
+import org.apache.flink.connector.pulsar.source.enumerator.cursor.stop.NeverStopCursor;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
-import org.apache.flink.connector.pulsar.table.source.PulsarReadableMetadata;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.source.DynamicTableSource;
@@ -114,15 +116,18 @@ public class PulsarTableSource implements ScanTableSource, SupportsReadingMetada
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext context) {
         PulsarDeserializationSchema<RowData> deserializationSchema =
                 deserializationSchemaFactory.createPulsarDeserialization(context);
-        PulsarSource<RowData> source =
-                PulsarSource.builder()
-                        .setTopics(topics)
-                        .setStartCursor(startCursor)
-                        .setUnboundedStopCursor(stopCursor)
-                        .setDeserializationSchema(deserializationSchema)
-                        .setProperties(properties)
-                        .build();
-        return SourceProvider.of(source);
+        PulsarSourceBuilder<RowData> sourceBuilder = PulsarSource.builder();
+        sourceBuilder
+                .setTopics(topics)
+                .setStartCursor(startCursor)
+                .setDeserializationSchema(deserializationSchema)
+                .setProperties(properties);
+        if (!(stopCursor instanceof NeverStopCursor)) {
+            sourceBuilder.setBoundedStopCursor(stopCursor);
+        } else {
+            sourceBuilder.setUnboundedStopCursor(stopCursor);
+        }
+        return SourceProvider.of(sourceBuilder.build());
     }
 
     /**

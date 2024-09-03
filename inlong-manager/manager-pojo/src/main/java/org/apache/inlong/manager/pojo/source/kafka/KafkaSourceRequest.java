@@ -27,8 +27,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Kafka source request
  */
@@ -80,13 +78,19 @@ public class KafkaSourceRequest extends SourceRequest {
     private String primaryKey;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
-    private String dataEncoding = StandardCharsets.UTF_8.toString();
+    private String dataEncoding;
 
     @ApiModelProperty(value = "Data separator")
-    private String dataSeparator = String.valueOf((int) '|');
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "KV separator")
+    private String kvSeparator;
 
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA);

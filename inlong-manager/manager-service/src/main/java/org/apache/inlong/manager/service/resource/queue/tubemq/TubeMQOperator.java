@@ -30,6 +30,7 @@ import org.apache.inlong.manager.pojo.queue.tubemq.TubeHttpResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeMessageResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeMessageResponse.TubeDataInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
@@ -70,6 +71,7 @@ public class TubeMQOperator {
     private static final String CREATE_USER = "&createUser=";
     private static final String CONF_MOD_AUTH_TOKEN = "&confModAuthToken=";
     private static final String MSG_COUNT = "&msgCount=";
+    private static final String FILTER_CONDS = "&filterConds=";
 
     private static final String QUERY_TOPIC_PATH = "/webapi.htm?method=admin_query_cluster_topic_view";
     private static final String QUERY_BROKER_PATH = "/webapi.htm?method=admin_query_broker_run_status";
@@ -269,7 +271,7 @@ public class TubeMQOperator {
      * Query topic message for the given tubemq cluster.
      */
     public List<BriefMQMessage> queryLastMessage(TubeClusterInfo tubeCluster, String topicName,
-            Integer msgCount, InlongStreamInfo streamInfo) {
+            InlongStreamInfo streamInfo, QueryMessageRequest request) {
         LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, tubeCluster);
         String masterUrl = tubeCluster.getMasterWebUrl();
         TubeBrokerInfo brokerView = this.getBrokerInfo(masterUrl);
@@ -286,7 +288,8 @@ public class TubeMQOperator {
                 throw new BusinessException("TubeMQ master url or TubeMQ topic cannot be null");
             }
 
-            String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT + msgCount;
+            String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT
+                    + request.getMessageCount() + FILTER_CONDS + streamInfo.getInlongStreamId();
             TubeMessageResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), TubeMessageResponse.class);
             if (response.getErrCode() != SUCCESS_CODE && response.getErrCode() != 200) {
@@ -310,7 +313,7 @@ public class TubeMQOperator {
                 }
                 byte[] messageData = Base64.getDecoder().decode(tubeDataInfo.getData());
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
-                messageList.addAll(deserializeOperator.decodeMsg(streamInfo, messageData, map, index));
+                deserializeOperator.decodeMsg(streamInfo, messageList, messageData, map, index, request);
             }
 
             LOGGER.info("success query messages for topic={}", topicName);

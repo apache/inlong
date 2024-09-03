@@ -33,9 +33,13 @@ public class ClusterType {
     public static final String DATAPROXY = "DATAPROXY";
     public static final String KAFKA = "KAFKA";
 
+    public static final String SORT_HTTP = "SORT_HTTP";
     public static final String SORT_ES = "SORT_ES";
     public static final String SORT_CLS = "SORT_CLS";
     public static final String SORT_PULSAR = "SORT_PULSAR";
+    public static final String SORT_KAFKA = "SORT_KAFKA";
+
+    public static final String AGENT_ZK = "AGENT_ZK";
 
     private static final Set<String> TYPE_SET = new HashSet<String>() {
 
@@ -45,9 +49,11 @@ public class ClusterType {
             add(ClusterType.PULSAR);
             add(ClusterType.DATAPROXY);
             add(ClusterType.KAFKA);
+            add(ClusterType.SORT_HTTP);
             add(ClusterType.SORT_ES);
             add(ClusterType.SORT_CLS);
             add(ClusterType.SORT_PULSAR);
+            add(ClusterType.SORT_KAFKA);
         }
     };
 

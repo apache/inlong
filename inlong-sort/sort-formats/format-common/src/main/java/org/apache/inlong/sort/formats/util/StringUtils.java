@@ -81,6 +81,10 @@ public class StringUtils {
         Map<String, String> fields = new HashMap<>();
         List<Map<String, String>> lines = new ArrayList<>();
 
+        if (text == null) {
+            return lines;
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         String key = "";
@@ -384,6 +388,19 @@ public class StringUtils {
     }
 
     /**
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean, Integer)
+     */
+    public static String[][] splitCsv(
+            @Nonnull String text,
+            @Nonnull Character delimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter,
+            boolean deleteHeadDelimiter) {
+        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter, null);
+    }
+
+    /**
      * Splits the csv text, which may contains multiple lines of data.
      *
      * <p>Both escaping and quoting is supported. When the escape character is
@@ -398,6 +415,7 @@ public class StringUtils {
      * @param lineDelimiter The delimiter between lines, e.g. '\n'.
      * @param deleteHeadDelimiter If true and the leading character of a line
      *                            is a delimiter, it will be ignored.
+     * @param maxFieldSize The max filed size of one single line
      * @return A 2-D String array representing the parsed data, where the 1st
      * dimension is row and the 2nd dimension is column.
      */
@@ -407,9 +425,16 @@ public class StringUtils {
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable Character lineDelimiter,
-            boolean deleteHeadDelimiter) {
+            boolean deleteHeadDelimiter,
+            @Nullable Integer maxFieldSize) {
+        if (maxFieldSize != null && maxFieldSize <= 0) {
+            return new String[0][];
+        }
+
         List<String[]> lines = new ArrayList<>();
         List<String> fields = new ArrayList<>();
+        int splittedSize = 0;
+        int lastFieldStartIndex = 0;
 
         StringBuilder stringBuilder = new StringBuilder();
         int state = STATE_NORMAL;
@@ -427,6 +452,14 @@ public class StringUtils {
                         String field = stringBuilder.toString();
                         fields.add(field);
                         stringBuilder.setLength(0);
+
+                        splittedSize++;
+                        // if the last field, mark the last filed start index
+                        if (maxFieldSize != null && splittedSize == maxFieldSize - 1) {
+                            if (i + 1 < text.length()) {
+                                lastFieldStartIndex = i + 1;
+                            }
+                        }
                         break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
@@ -467,10 +500,19 @@ public class StringUtils {
                     case STATE_NORMAL:
                         String field = stringBuilder.toString();
                         fields.add(field);
-                        lines.add(fields.toArray(new String[0]));
 
+                        // if the max field size < the real field size,
+                        // remove the extra fields and copy the latest field from lastFieldStartIndex to current index
+                        if (maxFieldSize != null && fields.size() > maxFieldSize) {
+                            fields = replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, i);
+                        }
+                        // reset the lastFieldStartIndex for new line
+                        lastFieldStartIndex = i + 1;
+
+                        lines.add(fields.toArray(new String[0]));
                         stringBuilder.setLength(0);
                         fields.clear();
+                        splittedSize = 0;
                         break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
@@ -494,6 +536,11 @@ public class StringUtils {
             case STATE_QUOTING:
                 String field = stringBuilder.toString();
                 fields.add(field);
+
+                if (maxFieldSize != null && fields.size() > maxFieldSize) {
+                    fields = replaceLastField(fields, maxFieldSize, text, lastFieldStartIndex, text.length());
+                }
+
                 lines.add(fields.toArray(new String[0]));
 
                 String[][] result = new String[lines.size()][];
@@ -504,6 +551,28 @@ public class StringUtils {
             default:
                 throw new IllegalStateException(String.format("Text=[%s].", text));
         }
+    }
+
+    /**
+     * if the max field size < the real field size,
+     * remove the extra fields and copy the latest field from lastFieldStartIndex to lastFieldEndIndex
+     *
+     * @param fields Target field list
+     * @param maxFieldSize Specified max fieldSize
+     * @param text Origin text
+     * @param lastFieldStartIndex Start index of last field
+     * @param lastFieldEndIndex End index of last field
+     */
+    private static List<String> replaceLastField(
+            List<String> fields,
+            int maxFieldSize,
+            String text,
+            int lastFieldStartIndex,
+            int lastFieldEndIndex) {
+        List<String> newField = fields.subList(0, maxFieldSize - 1);
+        String last = text.substring(lastFieldStartIndex, lastFieldEndIndex);
+        newField.add(last);
+        return newField;
     }
 
     /**

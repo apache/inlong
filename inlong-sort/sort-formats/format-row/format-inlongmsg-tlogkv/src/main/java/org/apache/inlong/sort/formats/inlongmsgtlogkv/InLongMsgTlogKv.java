@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 
 import org.apache.inlong.sort.formats.base.TextFormatDescriptor;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;

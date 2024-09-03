@@ -66,7 +66,8 @@ public class InitStreamCompleteListener implements ProcessEventListener {
             // Update status of other related configs
             streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
             streamService.updateWithoutCheck(streamInfo.genRequest(), operator);
-            if (InlongConstants.DATASYNC_MODE.equals(form.getGroupInfo().getInlongGroupMode())) {
+            if (InlongConstants.DATASYNC_REALTIME_MODE.equals(form.getGroupInfo().getInlongGroupMode())
+                    || InlongConstants.DATASYNC_OFFLINE_MODE.equals(form.getGroupInfo().getInlongGroupMode())) {
                 sourceService.updateStatus(groupId, streamId, SourceStatus.SOURCE_NORMAL.getCode(), operator);
             } else {
                 sourceService.updateStatus(groupId, streamId, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);

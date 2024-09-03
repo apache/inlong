@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 /**
  * Installer configuration. Only one instance in the process.
- * Basically it use properties file to store configurations.
+ * Basically it use properties file to save configurations.
  */
 public class InstallerConfiguration extends AbstractConfiguration {
 

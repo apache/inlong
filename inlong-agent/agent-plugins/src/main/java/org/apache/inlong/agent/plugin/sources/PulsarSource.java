@@ -18,9 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.except.FileException;
-import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -132,7 +130,7 @@ public class PulsarSource extends AbstractSource {
             }
             return consumer;
         } catch (PulsarClientException | IllegalArgumentException e) {
-            if (consumer == null) {
+            if (consumer != null) {
                 try {
                     consumer.close();
                 } catch (PulsarClientException ex) {
@@ -163,11 +161,6 @@ public class PulsarSource extends AbstractSource {
                 LOGGER.error("close consumer error", e);
             }
         }
-    }
-
-    @Override
-    public List<Reader> split(TaskProfile conf) {
-        return null;
     }
 
     @Override

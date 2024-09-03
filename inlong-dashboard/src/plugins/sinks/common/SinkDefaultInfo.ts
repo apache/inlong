@@ -136,6 +136,32 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   description: string;
 
   @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+    visible: values => Boolean(values.sinkType),
+  })
+  @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,

@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.flume.Context;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class,
-        AdminServiceRegister.class})
+        AdminServiceRegister.class, InlongLoggerFactory.class})
 public class TestSortSdkSource {
 
     private Context mockContext;
@@ -55,6 +56,8 @@ public class TestSortSdkSource {
         PowerMockito.mockStatic(LoggerFactory.class);
         Logger log = PowerMockito.mock(Logger.class);
         PowerMockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(log);
+        PowerMockito.mockStatic(InlongLoggerFactory.class);
+        PowerMockito.when(InlongLoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(log);
         PowerMockito.mockStatic(MetricRegister.class);
 
         PowerMockito.mockStatic(SortClusterConfigHolder.class);

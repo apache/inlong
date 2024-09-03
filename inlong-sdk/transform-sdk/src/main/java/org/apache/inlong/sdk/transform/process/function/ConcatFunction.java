@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -31,6 +32,7 @@ import java.util.List;
  * ConcatFunction
  * 
  */
+@TransformFunction(names = {"concat"})
 public class ConcatFunction implements ValueParser {
 
     private List<ValueParser> nodeList;
@@ -59,10 +61,10 @@ public class ConcatFunction implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
         StringBuilder builder = new StringBuilder();
         for (ValueParser node : nodeList) {
-            builder.append(node.parse(sourceData, rowIndex));
+            builder.append(node.parse(sourceData, rowIndex, context));
         }
         return builder.toString();
     }

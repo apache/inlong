@@ -36,6 +36,7 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
@@ -67,8 +68,6 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      * The name rule for Pulsar subscription: clusterTag_topicName_sinkId_consumer_group
      */
     public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
-
-    public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
 
     @Autowired
     private InlongClusterService clusterService;
@@ -307,31 +306,23 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
     /**
      * Query latest message from pulsar
      */
-    public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo,
-            InlongStreamInfo streamInfo, Integer messageCount) throws Exception {
+    public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            QueryMessageRequest request) throws Exception {
         List<ClusterInfo> pulsarClusterList = clusterService.listByTagAndType(groupInfo.getInlongClusterTag(),
                 ClusterType.PULSAR);
         List<BriefMQMessage> briefMQMessages = Collections.synchronizedList(new ArrayList<>());
-        QueryCountDownLatch queryLatch = new QueryCountDownLatch(messageCount, pulsarClusterList.size());
+        QueryCountDownLatch queryLatch = new QueryCountDownLatch(request.getMessageCount(), pulsarClusterList.size());
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         for (ClusterInfo clusterInfo : pulsarClusterList) {
             QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(inlongPulsarInfo, streamInfo,
-                    (PulsarClusterInfo) clusterInfo, pulsarOperator, messageCount, briefMQMessages, queryLatch);
+                    (PulsarClusterInfo) clusterInfo, pulsarOperator, request, briefMQMessages, queryLatch);
             this.executor.execute(task);
         }
         queryLatch.await(30, TimeUnit.SECONDS);
+        log.info("success query pulsar message for groupId={}, streamId={}", streamInfo.getInlongGroupId(),
+                streamInfo.getInlongStreamId());
 
-        // insert the consumer group info into the inlong_consume table
-        String topicName = streamInfo.getMqResource();
-        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
-        Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
-        String groupId = streamInfo.getInlongGroupId();
-        log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
-                id, subs, groupId, topicName);
-
-        // cut
-        int finalMsgCount = Math.min(messageCount, briefMQMessages.size());
+        int finalMsgCount = Math.min(request.getMessageCount(), briefMQMessages.size());
         if (finalMsgCount > 0) {
             return briefMQMessages.subList(0, finalMsgCount);
         } else {

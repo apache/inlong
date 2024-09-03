@@ -28,8 +28,10 @@
 #include "../utils/utils.h"
 
 namespace inlong {
-SdkConfig *SdkConfig::instance_ = new SdkConfig();
-SdkConfig *SdkConfig::getInstance() { return SdkConfig::instance_; }
+SdkConfig *SdkConfig::getInstance() {
+  static SdkConfig instance;
+  return &instance;
+}
 
 bool SdkConfig::ParseConfig(const std::string &config_path) {
   // Ensure the data consistency of each sdk instance
@@ -38,6 +40,9 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   // Guaranteed to only parse the configuration file once
   if (!__sync_bool_compare_and_swap(&parsed_, false, true)) {
     LOG_INFO("ParseConfig has  parsed .");
+    if (++instance_num_ > max_instance_) {
+      return false;
+    }
     return true;
   }
 
@@ -92,7 +97,7 @@ void SdkConfig::defaultInit() {
   load_balance_interval_ = constants::kLoadBalanceInterval;
   heart_beat_interval_ = constants::kHeartBeatInterval;
   enable_balance_ = constants::kEnableBalance;
-  isolation_level_=constants::IsolationLevel::kLevelSecond;
+  isolation_level_ = constants::IsolationLevel::kLevelSecond;
 
   // cache parameter
   send_buf_size_ = constants::kSendBufSize;
@@ -116,8 +121,6 @@ void SdkConfig::defaultInit() {
 
   // manager parameters
   manager_url_ = constants::kManagerURL;
-  enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
-  manager_cluster_url_ = constants::kManagerClusterURL;
   manager_update_interval_ = constants::kManagerUpdateInterval;
   manager_url_timeout_ = constants::kManagerTimeout;
   max_proxy_num_ = constants::kMaxProxyNum;
@@ -132,6 +135,11 @@ void SdkConfig::defaultInit() {
   enable_setaffinity_ = constants::kEnableSetAffinity;
   mask_cpu_affinity_ = constants::kMaskCPUAffinity;
   extend_field_ = constants::kExtendField;
+
+  need_auth_ = constants::kNeedAuth;
+  max_instance_ = constants::kMaxInstance;
+  instance_num_ = 1;
+  enable_share_msg_ = constants::kEnableShareMsg;
 }
 
 void SdkConfig::InitThreadParam(const rapidjson::Value &doc) {
@@ -211,6 +219,21 @@ void SdkConfig::InitCacheParam(const rapidjson::Value &doc) {
     max_stream_id_num_ = obj.GetInt();
   } else {
     max_stream_id_num_ = constants::kMaxGroupIdNum;
+  }
+
+  // max_cache_num
+  if (doc.HasMember("max_cache_num") && doc["max_cache_num"].IsInt() && doc["max_cache_num"].GetInt() >= 0) {
+    const rapidjson::Value &obj = doc["max_cache_num"];
+    max_cache_num_ = obj.GetInt();
+  } else {
+    max_cache_num_ = constants::kMaxCacheNum;
+  }
+
+  if (doc.HasMember("enable_share_msg") && doc["enable_share_msg"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_share_msg"];
+    enable_share_msg_ = obj.GetBool();
+  } else {
+    enable_share_msg_ = constants::kEnableShareMsg;
   }
 }
 
@@ -304,22 +327,7 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
   } else {
     manager_url_ = constants::kManagerURL;
   }
-  // manager cluster url
-  if (doc.HasMember("manager_cluster_url") &&
-      doc["manager_cluster_url"].IsString()) {
-    const rapidjson::Value &obj = doc["manager_cluster_url"];
-    manager_cluster_url_ = obj.GetString();
-  } else {
-    manager_cluster_url_ = constants::kManagerClusterURL;
-  }
-  // enable manager from cluster
-  if (doc.HasMember("enable_manager_url_from_cluster") &&
-      doc["enable_manager_url_from_cluster"].IsBool()) {
-    const rapidjson::Value &obj = doc["enable_manager_url_from_cluster"];
-    enable_manager_url_from_cluster_ = obj.GetBool();
-  } else {
-    enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
-  }
+
   // manager update interval
   if (doc.HasMember("manager_update_interval") &&
       doc["manager_update_interval"].IsInt() &&
@@ -411,6 +419,19 @@ void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
   } else {
     enable_balance_ = constants::kEnableBalance;
   }
+
+  if (doc.HasMember("retry_times") && doc["retry_times"].IsInt() && doc["retry_times"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["retry_times"];
+    retry_times_ = obj.GetInt();
+  } else {
+    retry_times_ = constants::kRetryTimes;
+  }
+  if (doc.HasMember("proxy_repeat_times") && doc["proxy_repeat_times"].IsInt() && doc["proxy_repeat_times"].GetInt() >= 0) {
+    const rapidjson::Value &obj = doc["proxy_repeat_times"];
+    proxy_repeat_times_ = obj.GetInt();
+  } else {
+    proxy_repeat_times_ = constants::kProxyRepeatTimes;
+  }
 }
 void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
   // auth settings
@@ -431,9 +452,10 @@ void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
   } else {
     need_auth_ = constants::kNeedAuth;
     LOG_INFO("need_auth is not expect, then use default:%s" << need_auth_
-                 ? "true"
-                 : "false");
+             ? "true"
+             : "false");
   }
+
 }
 void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   // ser_ip
@@ -475,12 +497,27 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   } else {
     extend_field_ = constants::kExtendField;
   }
+
+  // instance num
+  if (doc.HasMember("max_instance") && doc["max_instance"].IsInt() && doc["max_instance"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["max_instance"];
+    max_instance_ = obj.GetInt();
+  } else {
+    max_instance_ = constants::kMaxInstance;
+  }
+
+  if (doc.HasMember("extend_report") && doc["extend_report"].IsBool()) {
+    const rapidjson::Value &obj = doc["extend_report"];
+    extend_report_ = obj.GetBool();
+  } else {
+    extend_report_ = constants::kExtendReport;
+  }
 }
 
-bool SdkConfig::GetLocalIPV4Address(std::string& err_info, std::string& localhost) {
+bool SdkConfig::GetLocalIPV4Address(std::string &err_info, std::string &localhost) {
   int32_t sockfd;
   int32_t ip_num = 0;
-  char  buf[1024] = {0};
+  char buf[1024] = {0};
   struct ifreq *ifreq;
   struct ifreq if_flag;
   struct ifconf ifconf;
@@ -493,7 +530,7 @@ bool SdkConfig::GetLocalIPV4Address(std::string& err_info, std::string& localhos
   }
 
   ioctl(sockfd, SIOCGIFCONF, &ifconf);
-  ifreq  = (struct ifreq *)buf;
+  ifreq = (struct ifreq *) buf;
   ip_num = ifconf.ifc_len / sizeof(struct ifreq);
   for (int32_t i = 0; i < ip_num; i++, ifreq++) {
     if (ifreq->ifr_flags != AF_INET) {
@@ -511,11 +548,11 @@ bool SdkConfig::GetLocalIPV4Address(std::string& err_info, std::string& localhos
       continue;
     }
 
-    if (!strncmp(inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr),
+    if (!strncmp(inet_ntoa(((struct sockaddr_in *) &(ifreq->ifr_addr))->sin_addr),
                  "127.0.0.1", 7)) {
       continue;
     }
-    localhost = inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr);
+    localhost = inet_ntoa(((struct sockaddr_in *) &(ifreq->ifr_addr))->sin_addr);
     close(sockfd);
     err_info = "Ok";
     return true;
@@ -542,11 +579,6 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("log_level: " << log_level_);
   LOG_INFO("log_path: " << log_path_.c_str());
   LOG_INFO("manager_url: " << manager_url_.c_str());
-  LOG_INFO("manager_cluster_url: " << manager_cluster_url_.c_str());
-  LOG_INFO(
-      "enable_manager_url_from_cluster: " << enable_manager_url_from_cluster_
-          ? "true"
-          : "false");
   LOG_INFO("manager_update_interval:  minutes" << manager_update_interval_);
   LOG_INFO("manager_url_timeout: " << manager_url_timeout_);
   LOG_INFO("max_tcp_num: " << max_proxy_num_);
@@ -566,6 +598,8 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("max_group_id_num: " << max_group_id_num_);
   LOG_INFO("max_stream_id_num: " << max_stream_id_num_);
   LOG_INFO("isolation_level: " << isolation_level_);
+  LOG_INFO("max_instance: " << max_instance_);
+  LOG_INFO("max_cache_num: " << max_cache_num_);
 }
 
 } // namespace inlong

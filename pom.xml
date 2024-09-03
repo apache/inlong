@@ -28,7 +28,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.13.0-SNAPSHOT</version>
+    <version>1.14.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
@@ -100,7 +100,7 @@
         <rocksdb.version>6.29.4.1</rocksdb.version>
         <redis-replicator.version>3.6.4</redis-replicator.version>
         <hadoop.version>2.10.2</hadoop.version>
-        <postgresql.version>42.4.4</postgresql.version>
+        <postgresql.version>42.4.5</postgresql.version>
         <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
         <mysql.jdbc.version>8.0.28</mysql.jdbc.version>
         <mssql.jdbc.version>12.4.1.jre8</mssql.jdbc.version>
@@ -109,7 +109,7 @@
         <mybatis.version>3.5.9</mybatis.version>
         <druid.version>1.2.6</druid.version>
         <elasticsearch6.version>6.8.17</elasticsearch6.version>
-        <elasticsearch7.version>7.9.2</elasticsearch7.version>
+        <elasticsearch7.version>7.17.13</elasticsearch7.version>
         <shiro.version>1.13.0</shiro.version>
 
         <snappy.version>1.1.10.4</snappy.version>
@@ -204,6 +204,7 @@
         <woodstox-core.version>5.4.0</woodstox-core.version>
         <libfb303.version>0.9.3</libfb303.version>
         <apache.thrift.version>0.14.1</apache.thrift.version>
+        <aircompressor.version>0.27</aircompressor.version>
     </properties>
 
     <dependencyManagement>
@@ -1540,9 +1541,6 @@
     <profiles>
         <profile>
             <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <flink.version>1.13.5</flink.version>
                 <sort.flink.version>v1.13</sort.flink.version>
@@ -1550,6 +1548,9 @@
         </profile>
         <profile>
             <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <flink.version>1.15.4</flink.version>
                 <sort.flink.version>v1.15</sort.flink.version>

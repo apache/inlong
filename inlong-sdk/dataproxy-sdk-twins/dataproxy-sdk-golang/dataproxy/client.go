@@ -85,17 +85,17 @@ func NewClient(opts ...Option) (Client, error) {
 		cli.Close()
 		return nil, err
 	}
-	err = cli.netClient.Start()
-	if err != nil {
-		cli.Close()
-		return nil, err
-	}
+
 	return cli, nil
 }
 
 func (c *client) initAll() error {
 	// the following initialization order must not be changed。
-	err := c.initDiscoverer()
+	err := c.initMetrics()
+	if err != nil {
+		return err
+	}
+	err = c.initDiscoverer()
 	if err != nil {
 		return err
 	}
@@ -111,10 +111,6 @@ func (c *client) initAll() error {
 	if err != nil {
 		return err
 	}
-	err = c.initMetrics()
-	if err != nil {
-		return err
-	}
 	err = c.initWorkers()
 	if err != nil {
 		return err
@@ -123,7 +119,7 @@ func (c *client) initAll() error {
 }
 
 func (c *client) initDiscoverer() error {
-	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.Logger)
+	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.Logger, c.options.Auth)
 	if err != nil {
 		return err
 	}
@@ -143,6 +139,12 @@ func (c *client) initNetClient() error {
 	if err != nil {
 		return err
 	}
+
+	err = netClient.Start()
+	if err != nil {
+		return err
+	}
+
 	// save net client
 	c.netClient = netClient
 	return nil
@@ -160,10 +162,8 @@ func (c *client) initConns() error {
 		endpoints[i] = epList[i].Addr
 	}
 
-	// maximum connection number per endpoint is 3
-	connsPerEndpoint := c.options.WorkerNum/epLen + 1
-	connsPerEndpoint = int(math.Min(3, float64(connsPerEndpoint)))
-
+	// minimum connection number per endpoint is 1
+	connsPerEndpoint := int(math.Ceil(float64(c.options.WorkerNum) * 1.2 / float64(epLen)))
 	pool, err := connpool.NewConnPool(endpoints, connsPerEndpoint, 512, c, c.log)
 	if err != nil {
 		return err
@@ -257,6 +257,9 @@ func (c *client) Close() {
 		if c.netClient != nil {
 			_ = c.netClient.Stop()
 		}
+		if c.connPool != nil {
+			c.connPool.Close()
+		}
 	})
 }
 
@@ -287,10 +290,22 @@ func (c *client) OnOpen(conn gnet.Conn) ([]byte, gnet.Action) {
 }
 
 func (c *client) OnClose(conn gnet.Conn, err error) gnet.Action {
-	c.log.Warn("connection closed: ", conn.RemoteAddr(), ", err: ", err)
 	if err != nil {
+		c.log.Warn("connection closed: ", conn.RemoteAddr(), ", err: ", err)
 		c.metrics.incError(errConnClosedByPeer.strCode)
 	}
+
+	// delete this conn from conn pool
+	if c.connPool != nil {
+		c.connPool.OnConnClosed(conn, err)
+	}
+
+	if err != nil {
+		for _, w := range c.workers {
+			w.onConnClosed(conn, err)
+		}
+	}
+
 	return gnet.None
 }
 
@@ -318,7 +333,7 @@ func (c *client) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		length, payloadOffset, payloadOffsetEnd, err := c.framer.ReadFrame(buf)
-		if err == framer.ErrIncompleteFrame {
+		if errors.Is(err, framer.ErrIncompleteFrame) {
 			break
 		}
 

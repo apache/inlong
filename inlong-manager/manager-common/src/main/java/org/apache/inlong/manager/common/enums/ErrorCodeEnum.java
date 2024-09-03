@@ -125,6 +125,15 @@ public enum ErrorCodeEnum {
     MQ_TYPE_IS_NULL(1600, "MQ type is null"),
     MQ_TYPE_NOT_SUPPORT(1601, "MQ type '%s' not support"),
 
+    SCHEDULE_NOT_FOUND(1700, "Schedule info not found"),
+    SCHEDULE_DUPLICATE(1701, "Schedule info already exist"),
+    SCHEDULE_ENGINE_NOT_SUPPORTED(1702, "Schedule engine type not supported"),
+    SCHEDULE_STATUS_TRANSITION_NOT_ALLOWED(1703, "Schedule status transition is not allowed"),
+
+    BOUNDED_SOURCE_TYPE_NOT_SUPPORTED(1801, "Bounded source type %s not supported"),
+    BOUNDARY_TYPE_NOT_SUPPORTED(1802, "Boundary type %s not supported"),
+    BOUNDARIES_NOT_FOUND(1803, "Boundaries not found"),
+
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
     WORKFLOW_APPROVER_NOT_FOUND(4001, "Workflow approver does not exist/no operation authority"),
     WORKFLOW_DELETE_RECORD_FAILED(4002, "Workflow delete record failure"),
@@ -162,9 +171,13 @@ public enum ErrorCodeEnum {
     MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
 
     PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
-    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect")
+    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect"),
 
-    ;
+    TEMPLATE_NOT_FOUND(8001, "Template does not exist/no operation authority"),
+    TEMPLATE_NAME_DUPLICATE(8002, "The current template name is exist"),
+    TEMPLATE_INFO_INCORRECT(8003, "Template info was incorrect"),
+    TEMPLATE_FIELD_UPDATE_NOT_ALLOWED(8004, "Current status not allowed to modification/delete field"),
+    TEMPLATE_PERMISSION_DENIED(8005, "No permission to this inlong template");
 
     private final int code;
     private final String message;

@@ -17,7 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -33,4 +37,9 @@ public interface IEvent2IndexRequestHandler {
      * @return
      */
     EsIndexRequest parse(EsSinkContext context, ProfileEvent event);
+
+    List<EsIndexRequest> parse(
+            EsSinkContext context,
+            ProfileEvent event,
+            TransformProcessor<String, Map<String, Object>> transformProcessor);
 }

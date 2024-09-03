@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort;
 
+import org.apache.inlong.common.bounded.Boundaries;
+import org.apache.inlong.common.bounded.BoundaryType;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.parser.Parser;
@@ -24,6 +26,7 @@ import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.impl.NativeFlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.util.ParameterTool;
 
 import com.google.common.base.Preconditions;
@@ -33,12 +36,21 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.apache.inlong.sort.configuration.Constants.SOURCE_BOUNDARY_TYPE;
+import static org.apache.inlong.sort.configuration.Constants.SOURCE_LOWER_BOUNDARY;
+import static org.apache.inlong.sort.configuration.Constants.SOURCE_UPPER_BOUNDARY;
+
 public class Entrance {
+
+    private static final Logger log = LoggerFactory.getLogger(Entrance.class);
+    public static final String BATCH_MODE = "batch";
 
     public static void main(String[] args) throws Exception {
         final ParameterTool parameterTool = ParameterTool.fromArgs(args);
@@ -50,7 +62,14 @@ public class Entrance {
                 config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
         env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
+
+        String runtimeExecutionMode = config.getString(Constants.RUNTIME_EXECUTION_MODE);
+        EnvironmentSettings settings;
+        if (BATCH_MODE.equalsIgnoreCase(runtimeExecutionMode)) {
+            settings = EnvironmentSettings.newInstance().inBatchMode().build();
+        } else {
+            settings = EnvironmentSettings.newInstance().inStreamingMode().build();
+        }
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         tableEnv.getConfig().getConfiguration().setString(Constants.PIPELINE_NAME,
                 config.getString(Constants.JOB_NAME));
@@ -66,6 +85,10 @@ public class Entrance {
                 groupInfo.getProperties().putIfAbsent(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
                         config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS));
             }
+
+            // fill in boundaries if needed
+            fillInSourceBoundariesIfNeeded(runtimeExecutionMode, groupInfo, config);
+
             parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         } else {
             String statements = getStatementSetFromFile(sqlFile);
@@ -74,6 +97,34 @@ public class Entrance {
         final ParseResult parseResult = Preconditions.checkNotNull(parser.parse(),
                 "parse result is null");
         parseResult.execute();
+    }
+
+    private static void fillInSourceBoundariesIfNeeded(String runtimeExecutionMode, GroupInfo groupInfo,
+            Configuration configuration) {
+        if (!BATCH_MODE.equalsIgnoreCase(runtimeExecutionMode)) {
+            return;
+        }
+        String type = configuration.getString(SOURCE_BOUNDARY_TYPE);
+        String lowerBoundary = configuration.getString(SOURCE_LOWER_BOUNDARY);
+        String upperBoundary = configuration.getString(SOURCE_UPPER_BOUNDARY);
+
+        log.info("Filling in source boundaries for group: {}, with execution mode: {}, boundaryType: {}, "
+                + "lowerBoundary: {}, upperBoundary: {}",
+                groupInfo.getGroupId(), runtimeExecutionMode, type, lowerBoundary, upperBoundary);
+
+        BoundaryType boundaryType = BoundaryType.getInstance(type);
+        if (boundaryType == null) {
+            throw new RuntimeException("Unknown boundary type: " + type);
+        }
+        Boundaries boundaries = new Boundaries(lowerBoundary, upperBoundary, boundaryType);
+        // add source boundaries for bounded source
+        groupInfo.getStreams().forEach(streamInfo -> {
+            streamInfo.getNodes().forEach(node -> {
+                if (node instanceof ExtractNode) {
+                    ((ExtractNode) node).fillInBoundaries(boundaries);
+                }
+            });
+        });
     }
 
     private static String getStatementSetFromFile(String fileName) throws IOException {

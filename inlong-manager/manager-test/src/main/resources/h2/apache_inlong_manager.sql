@@ -132,9 +132,13 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `type`          varchar(20)  NOT NULL COMMENT 'Cluster type, such as: AGENT, DATAPROXY, etc',
     `ip`            varchar(512) NOT NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
     `port`          int(6)       NULL COMMENT 'Cluster port',
+    `username`      varchar(256)          DEFAULT NULL COMMENT 'Username for ssh',
+    `password`      varchar(256)          DEFAULT NULL COMMENT 'Password for ssh',
+    `ssh_port`      int(11)               DEFAULT NULL COMMENT 'Ssh port',
     `protocol_type` varchar(20)           DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
     `node_load`     int(11)               DEFAULT '-1' COMMENT 'Current load value of the node',
     `ext_params`    mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
+    `operate_log`   text                  DEFAULT NULL COMMENT 'The operate log',
     `description`   varchar(256)          DEFAULT '' COMMENT 'Description of cluster node',
     `status`        int(4)                DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`    int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -802,60 +806,6 @@ VALUES ('public', 'Default tenant', 'admin', 'admin'),
        ('another', 'Another tenant', 'admin', 'admin');
 
 -- ----------------------------
--- Table structure for audit_base
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `audit_base`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`             varchar(256) NOT NULL COMMENT 'Audit base name',
-    `type`             varchar(20)  NOT NULL COMMENT 'Audit base item type, such as: AGENT, DATAPROXY, etc',
-    `indicator_type`   int(4)       DEFAULT NULL COMMENT 'Indicator type for audit',
-    `audit_id`         varchar(11)  NOT NULL COMMENT 'Audit ID mapping of audit name',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_audit_base_type` (`type`, `indicator_type`),
-    UNIQUE KEY `unique_audit_base_name` (`name`)
-);
-
--- ----------------------------
--- Insert audit_base item
--- ----------------------------
-INSERT INTO `audit_base`(`name`, `type`, `indicator_type`, `audit_id`)
-VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
-       ('audit_sdk_sent', 'SDK', 1, '2'),
-       ('audit_agent_collect', 'AGENT', 0, '3'),
-       ('audit_agent_sent', 'AGENT', 1, '4'),
-       ('audit_dataproxy_received', 'DATAPROXY', 0, '5'),
-       ('audit_dataproxy_sent', 'DATAPROXY', 1, '6'),
-       ('audit_sort_hive_input', 'HIVE', 0, '7'),
-       ('audit_sort_hive_output', 'HIVE', 1, '8'),
-       ('audit_sort_clickhouse_input', 'CLICKHOUSE', 0, '9'),
-       ('audit_sort_clickhouse_output', 'CLICKHOUSE', 1, '10'),
-       ('audit_sort_es_input', 'ES', 0, '11'),
-       ('audit_sort_es_output', 'ES', 1, '12'),
-       ('audit_sort_starrocks_input', 'STARROCKS', 0, '13'),
-       ('audit_sort_starrocks_output', 'STARROCKS', 1, '14'),
-       ('audit_sort_hudi_input', 'HUDI', 0, '15'),
-       ('audit_sort_hudi_output', 'HUDI', 1, '16'),
-       ('audit_sort_iceberg_input', 'ICEBERG', 0, '17'),
-       ('audit_sort_iceberg_output', 'ICEBERG', 1, '18'),
-       ('audit_sort_hbase_input', 'HBASE', 0, '19'),
-       ('audit_sort_hbase_output', 'HBASE', 1, '20'),
-       ('audit_sort_doris_input', 'DORIS', 0, '21'),
-       ('audit_sort_doris_output', 'DORIS', 1, '22'),
-       ('audit_sort_mysql_input', 'MYSQL', 0, '23'),
-       ('audit_sort_mysql_output', 'MYSQL', 1, '24'),
-       ('audit_sort_kudu_input', 'KUDU', 0, '25'),
-       ('audit_sort_kudu_output', 'KUDU', 1, '26'),
-       ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
-       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28'),
-       ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
-       ('audit_sort_mysql_binlog_output', 'MYSQL_BINLOG', 1, '30'),
-       ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
-       ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
-       ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
-       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
-
--- ----------------------------
 -- Table structure for tenant_cluster_tag
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `tenant_cluster_tag`
@@ -917,8 +867,7 @@ CREATE TABLE IF NOT EXISTS `sort_config`
 (
     `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `sink_id`             int(11)       NOT NULL COMMENT 'Sink id',
-    `source_params`       text          NOT NULL COMMENT 'The source params of sort',
-    `cluster_params`      text          NOT NULL COMMENT 'The cluster params of sort',
+    `config_params`       text          NOT NULL COMMENT 'The config params',
     `sink_type`           varchar(128)  NOT NULL COMMENT 'Sink type',
     `inlong_cluster_name` varchar(128)  NOT NULL COMMENT 'Inlong cluster name',
     `inlong_cluster_tag`  varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
@@ -954,5 +903,116 @@ CREATE TABLE IF NOT EXISTS `cluster_config`
 );
 
 -- ----------------------------
+-- Table structure for agent_task_config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `agent_task_config`
+(
+    `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `config_params`       text          DEFAULT NULL COMMENT 'The agent config params',
+    `task_params`         text          DEFAULT NULL COMMENT 'The agent task config params',
+    `module_params`       text          DEFAULT NULL COMMENT 'The module config params',
+    `agent_ip`            varchar(128)  NOT NULL COMMENT 'agent ip',
+    `cluster_name`        varchar(128)  NOT NULL COMMENT 'Inlong cluster name',
+    `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',
+    `modifier`            varchar(128)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`          int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`             int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_agent_task_config_ip_cluster_name` (`agent_ip`, `cluster_name`, `is_deleted`)
+);
+
+-- ----------------------------
+-- Table structure for template
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `template`
+(
+    `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`                varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
+    `in_charges`          varchar(512)  NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `visible_range`       text          NOT NULL COMMENT 'Visible range of template',
+    `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',
+    `modifier`            varchar(128)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`          int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`             int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_template_name` (`name`, `is_deleted`)
+);
+
+-- ----------------------------
+-- Table structure for template field
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `template_field`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `template_id`         int(11)      NOT NULL COMMENT 'Owning template id',
+    `is_predefined_field` tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
+    `field_name`          varchar(120) NOT NULL COMMENT 'field name',
+    `field_value`         varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
+    `pre_expression`      varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
+    `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
+    `field_comment`       varchar(50)  DEFAULT NULL COMMENT 'Field description',
+    `is_meta_field`       smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`     varchar(120) DEFAULT NULL COMMENT 'Meta field name',
+    `field_format`        text         DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, custom such as yyyy-MM-dd HH:mm:ss, and serialize format of complex type or decimal precision, etc.',
+    `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    PRIMARY KEY (`id`),
+    INDEX `template_field_index` (`template_id`)
+);
+
+-- ----------------------------
+-- Table structure for tenant_template
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `tenant_template`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `tenant`        varchar(256) NOT NULL COMMENT 'Inlong tenant',
+    `template_name` varchar(128) NOT NULL COMMENT 'template name',
+    `is_deleted`    int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`       varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`      varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`       int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_tenant_inlong_template` (`tenant`, `template_name`, `is_deleted`)
+);
+
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for schedule_config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `schedule_config`
+(
+    `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, undeleted ones cannot be repeated',
+    `schedule_type`          int(4)       NOT NULL DEFAULT '0' COMMENT 'Schedule type, 0 for normal, 1 for crontab',
+    `schedule_unit`          varchar(64)  DEFAULT NULL COMMENT 'Schedule unit, Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround',
+    `schedule_interval`      int(11)      DEFAULT '1' COMMENT 'Schedule interval',
+    `start_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Start time for schedule',
+    `end_time`               timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'End time for schedule',
+    `delay_time`             int(11)      DEFAULT '0' COMMENT 'Delay time in minutes to schedule',
+    `self_depend`            int(11)      DEFAULT NULL COMMENT 'Self depend info',
+    `task_parallelism`       int(11)      DEFAULT NULL COMMENT 'Task parallelism',
+    `crontab_expression`     varchar(256) DEFAULT NULL COMMENT 'Crontab expression if schedule type is crontab',
+    `status`                 int(4)       DEFAULT '100' COMMENT 'Schedule status',
+    `previous_status`        int(4)       DEFAULT '100' COMMENT 'Previous schedule status',
+    `is_deleted`             int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`               varchar(64)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_group_schedule_config` (`inlong_group_id`, `is_deleted`)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'schedule_config';
+-- ----------------------------
+
 
 SET FOREIGN_KEY_CHECKS = 1;

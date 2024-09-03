@@ -78,18 +78,9 @@ public class DataProxyController {
     }
 
     @PostMapping("/dataproxy/getAllConfig")
-    @ApiOperation(value = "Get all proxy config. " +
-            "This method was deprecated since version 1.8.0. " +
-            "Please use new method /dataproxy/getMetaConfig")
-    @Deprecated
+    @ApiOperation(value = "Get all proxy config")
     public String getAllConfig(@RequestBody DataProxyConfigRequest request) {
         return clusterService.getAllConfig(request.getClusterName(), request.getMd5());
-    }
-
-    @PostMapping("/dataproxy/getMetaConfig")
-    @ApiOperation(value = "Get all DataProxy meta config")
-    public String getMetaConfig(@RequestBody DataProxyConfigRequest request) {
-        return clusterService.getMetaConfig(request.getClusterName(), request.getMd5());
     }
 
     @RequestMapping(value = "/changeClusterTag", method = RequestMethod.PUT)

@@ -28,11 +28,13 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ClsSinkConfig.class, name = SinkType.CLS),
         @JsonSubTypes.Type(value = EsSinkConfig.class, name = SinkType.ELASTICSEARCH),
         @JsonSubTypes.Type(value = PulsarSinkConfig.class, name = SinkType.PULSAR),
+        @JsonSubTypes.Type(value = KafkaSinkConfig.class, name = SinkType.KAFKA),
+        @JsonSubTypes.Type(value = HttpSinkConfig.class, name = SinkType.HTTP),
 })
 public abstract class SinkConfig implements Serializable {
 

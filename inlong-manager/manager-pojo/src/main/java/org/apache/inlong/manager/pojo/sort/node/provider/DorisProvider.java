@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ import java.util.Map;
  * The Provider for creating Doris load nodes.
  */
 @Slf4j
+@Service
 public class DorisProvider implements LoadNodeProvider {
 
     @Override
@@ -55,7 +57,6 @@ public class DorisProvider implements LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(dorisSink.getSinkFieldList(), dorisSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(dorisSink.getSinkFieldList(), constantFieldMap);
         Format format = parsingSinkMultipleFormat(dorisSink.getSinkMultipleEnable(), dorisSink.getSinkMultipleFormat());
-        log.info("Test sink doris pro username ={}", dorisSink);
 
         return new DorisLoadNode(
                 dorisSink.getSinkName(),

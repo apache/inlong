@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.ScheduleEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ScheduleEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="schedule_type" jdbcType="INTEGER" property="scheduleType"/>
+        <result column="schedule_unit" jdbcType="VARCHAR" property="scheduleUnit"/>
+        <result column="schedule_interval" jdbcType="INTEGER" property="scheduleInterval"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <result column="delay_time" jdbcType="INTEGER" property="delayTime"/>
+        <result column="self_depend" jdbcType="INTEGER" property="selfDepend"/>
+        <result column="task_parallelism" jdbcType="INTEGER" property="taskParallelism"/>
+        <result column="crontab_expression" jdbcType="VARCHAR" property="crontabExpression"/>
+
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, inlong_group_id, schedule_type, schedule_unit, schedule_interval, start_time,
+          end_time, delay_time, self_depend, task_parallelism, crontab_expression,
+           status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
+        insert into schedule_config (id, inlong_group_id, schedule_type, schedule_unit,
+                                     schedule_interval, start_time, end_time, delay_time,
+                                     self_depend, task_parallelism, crontab_expression,
+                                     status, previous_status, creator, modifier)
+        values (#{id, jdbcType=INTEGER}, #{inlongGroupId, jdbcType=VARCHAR},
+                #{scheduleType, jdbcType=INTEGER}, #{scheduleUnit, jdbcType=VARCHAR},
+                #{scheduleInterval, jdbcType=INTEGER}, #{startTime, jdbcType=TIMESTAMP},
+                #{endTime, jdbcType=TIMESTAMP}, #{delayTime, jdbcType=INTEGER},
+                #{selfDepend, jdbcType=INTEGER}, #{taskParallelism, jdbcType=INTEGER},
+                #{crontabExpression, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
+    </insert>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from schedule_config
+        where id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+
+    <select id="selectByGroupId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from schedule_config
+        where inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
+        update schedule_config
+        <set>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
+            </if>
+            <if test="scheduleType != null">
+                schedule_type = #{scheduleType, jdbcType=INTEGER},
+            </if>
+            <if test="scheduleUnit !=null">
+                schedule_unit = #{scheduleUnit, jdbcType=VARCHAR},
+            </if>
+            <if test="scheduleInterval != null">
+                schedule_interval = #{scheduleInterval, jdbcType=INTEGER},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="delayTime != null">
+                delay_time = #{delayTime, jdbcType=INTEGER},
+            </if>
+            <if test="selfDepend != null">
+                self_depend = #{selfDepend, jdbcType=INTEGER},
+            </if>
+            <if test="taskParallelism != null">
+                task_parallelism = #{taskParallelism, jdbcType=INTEGER},
+            </if>
+            <if test="crontabExpression != null">
+                crontab_expression = #{crontabExpression, jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status, jdbcType=VARCHAR},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus, jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator, jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier, jdbcType=VARCHAR},
+            </if>
+            version = #{version, jdbcType=INTEGER} + 1
+        </set>
+        <where>
+            id = #{id, jdbcType=INTEGER}
+            and version = #{version,jdbcType=INTEGER}
+        </where>
+    </update>
+
+    <delete id="deleteByGroupId">
+        delete
+        from schedule_config
+        where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+    </delete>
+
+</mapper>

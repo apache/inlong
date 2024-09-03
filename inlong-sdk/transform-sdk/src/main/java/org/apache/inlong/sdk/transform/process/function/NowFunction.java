@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
@@ -26,6 +27,7 @@ import net.sf.jsqlparser.expression.Function;
  * NowFunction
  * 
  */
+@TransformFunction(names = {"now"})
 public class NowFunction implements ValueParser {
 
     /**
@@ -42,7 +44,7 @@ public class NowFunction implements ValueParser {
      * @return
      */
     @Override
-    public Object parse(SourceData sourceData, int rowIndex) {
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
         return String.valueOf(System.currentTimeMillis());
     }
 }

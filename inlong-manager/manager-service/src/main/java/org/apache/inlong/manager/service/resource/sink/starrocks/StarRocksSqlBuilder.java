@@ -54,11 +54,6 @@ public class StarRocksSqlBuilder {
         sql.append("CREATE TABLE ").append(table.getTableName());
         // Construct columns and partition columns
         sql.append(getColumnsAndComments(table));
-        if (!StringUtils.isEmpty(table.getPrimaryKey())) {
-            sql.append(", PRIMARY KEY (")
-                    .append(table.getPrimaryKey())
-                    .append(")");
-        }
         if (!Objects.isNull(table.getReplicationNum())) {
             sql.append(" PROPERTIES ( \"replication_num\" = \"")
                     .append(table.getReplicationNum())
@@ -161,6 +156,11 @@ public class StarRocksSqlBuilder {
             columnList.add(columnStr.toString());
         }
         StringBuilder result = new StringBuilder().append(" (").append(StringUtils.join(columnList, ",")).append(") ");
+        if (StringUtils.isNotBlank(tableInfo.getPrimaryKey())) {
+            result.append("PRIMARY KEY (")
+                    .append(tableInfo.getPrimaryKey())
+                    .append(") ");
+        }
         // set partitions
         if (sortKeyList.size() > 0) {
             result.append("DUPLICATE KEY (").append(StringUtils.join(sortKeyList, ",")).append(") ");

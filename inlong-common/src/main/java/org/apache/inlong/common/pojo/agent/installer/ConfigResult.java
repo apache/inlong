@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.agent.installer;
 
+import org.apache.inlong.common.pojo.agent.AgentResponseCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,12 +38,14 @@ public class ConfigResult {
     /**
      * The code of the config result
      */
-    InstallerCode code;
+    AgentResponseCode code;
 
     /**
      * The md5 of the config result
      */
     private String md5;
+
+    private Integer version;
 
     /**
      * The list of module config list

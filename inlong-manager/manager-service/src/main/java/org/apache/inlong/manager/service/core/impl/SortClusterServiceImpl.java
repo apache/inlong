@@ -26,8 +26,8 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.node.DataNodeOperator;
 import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
@@ -93,7 +93,7 @@ public class SortClusterServiceImpl implements SortClusterService {
     private long reloadInterval;
 
     @Autowired
-    private SortConfigLoader sortConfigLoader;
+    private ConfigLoader configLoader;
     @Autowired
     private SinkOperatorFactory sinkOperatorFactory;
     @Autowired
@@ -171,16 +171,16 @@ public class SortClusterServiceImpl implements SortClusterService {
 
     private void reloadAllClusterConfig() {
         // load all fields info
-        List<SortFieldInfo> fieldInfos = sortConfigLoader.loadAllFields();
+        List<SortFieldInfo> fieldInfos = configLoader.loadAllFields();
         fieldMap = new HashMap<>();
         fieldInfos.forEach(info -> {
             List<String> fields = fieldMap.computeIfAbsent(info.getSinkId(), k -> new ArrayList<>());
             fields.add(info.getFieldName());
         });
 
-        List<StreamSinkEntity> sinkEntities = sortConfigLoader.loadAllStreamSinkEntity();
+        List<StreamSinkEntity> sinkEntities = configLoader.loadAllStreamSinkEntity();
         // get all task under a given cluster, has been reduced into cluster and task.
-        List<SortTaskInfo> tasks = sortConfigLoader.loadAllTask();
+        List<SortTaskInfo> tasks = configLoader.loadAllTask();
         Map<String, List<SortTaskInfo>> clusterTaskMap = tasks.stream()
                 .filter(dto -> StringUtils.isNotBlank(dto.getSortClusterName())
                         && StringUtils.isNotBlank(dto.getSortTaskName())
@@ -189,7 +189,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
         // reload all streams
-        allStreams = sortConfigLoader.loadAllStreams()
+        allStreams = configLoader.loadAllStreams()
                 .stream()
                 .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
                         Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
@@ -202,7 +202,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .collect(Collectors.groupingBy(StreamSinkEntity::getSortTaskName));
 
         // get all data nodes and group by node name
-        List<DataNodeEntity> dataNodeEntities = sortConfigLoader.loadAllDataNodeEntity();
+        List<DataNodeEntity> dataNodeEntities = configLoader.loadAllDataNodeEntity();
         Map<String, DataNodeInfo> task2DataNodeMap = dataNodeEntities.stream()
                 .filter(entity -> StringUtils.isNotBlank(entity.getName()))
                 .map(entity -> {
@@ -300,6 +300,6 @@ public class SortClusterServiceImpl implements SortClusterService {
      */
     private void setReloadTimer() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
     }
 }

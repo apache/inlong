@@ -63,6 +63,11 @@ public interface StreamSourceEntityMapper {
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
+     * According to the inlong group id and inlong stream id, query the number of data add task
+     */
+    int selectDataAddTaskCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
      * Paging query source list based on conditions
      */
     List<StreamSourceEntity> selectByCondition(@Param("request") SourcePageRequest request);

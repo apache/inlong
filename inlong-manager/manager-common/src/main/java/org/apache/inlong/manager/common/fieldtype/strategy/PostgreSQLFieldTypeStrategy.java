@@ -20,24 +20,21 @@ package org.apache.inlong.manager.common.fieldtype.strategy;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
 
-import org.apache.commons.lang3.StringUtils;
-
-import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+import org.springframework.stereotype.Service;
 
 /**
  * The postgresql field type mapping strategy
  */
-public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
-
-    private final FieldTypeMappingReader reader;
+@Service
+public class PostgreSQLFieldTypeStrategy extends DefaultFieldTypeStrategy {
 
     public PostgreSQLFieldTypeStrategy() {
         this.reader = new FieldTypeMappingReader(DataNodeType.POSTGRESQL);
     }
 
     @Override
-    public String getFieldTypeMapping(String sourceType) {
-        String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getFIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
+    public Boolean accept(String type) {
+        return DataNodeType.POSTGRESQL.equals(type);
     }
+
 }

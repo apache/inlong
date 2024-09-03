@@ -153,5 +153,4 @@ public class StreamParseUtils {
                 String.format(" should not be null for streamId=%s", inlongStreamId));
         return GSON.fromJson(tempView, StreamPipeline.class);
     }
-
 }

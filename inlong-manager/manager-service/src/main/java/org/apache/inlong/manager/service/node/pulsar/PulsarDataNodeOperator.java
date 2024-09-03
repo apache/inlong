@@ -126,6 +126,8 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
         DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
         PulsarNodeConfig pulsarNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, PulsarNodeConfig::new);
+        PulsarDataNodeDTO dto = PulsarDataNodeDTO.getFromJson(dataNodeEntity.getExtParams());
+        CommonBeanUtils.copyProperties(dto, pulsarNodeConfig);
         pulsarNodeConfig.setNodeName(dataNodeInfo.getName());
         return pulsarNodeConfig;
     }

@@ -106,7 +106,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
+        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source -> 5.Schedule
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSinkTask);

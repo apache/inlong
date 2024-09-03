@@ -88,6 +88,11 @@ public class LogFileTask extends AbstractTask {
     private BlockingQueue<InstanceProfile> instanceQueue;
 
     @Override
+    protected int getInstanceLimit() {
+        return taskProfile.getInt(TaskConstants.FILE_MAX_NUM);
+    }
+
+    @Override
     protected void initTask() {
         instanceQueue = new LinkedBlockingQueue<>(INSTANCE_QUEUE_CAPACITY);
         retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);
@@ -177,7 +182,7 @@ public class LogFileTask extends AbstractTask {
     }
 
     public void addPathPattern(String originPattern) {
-        ArrayList<String> directories = FilePathUtil.getDirectoryLayers(originPattern);
+        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         String basicStaticPath = directories.get(0);
         LOGGER.info("dataName {} watchPath {}", new Object[]{originPattern, basicStaticPath});
         /* Remember the failed watcher creations. */
@@ -420,6 +425,7 @@ public class LogFileTask extends AbstractTask {
             return;
         }
         try {
+            entity.removeDeletedWatchDir();
             /* Get all creation events until all events are consumed. */
             for (int i = 0; i < entity.getTotalPathSize(); i++) {
                 // maybe the watchService is closed ,but we catch this exception!
@@ -525,7 +531,7 @@ public class LogFileTask extends AbstractTask {
         PathDateExpression dateExpression = entity.getDateExpression();
         if (dateExpression.getLongestDatePattern().length() != 0) {
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(), dateExpression);
-            LOGGER.info("file {} ,fileTime {}", newFileName, dataTime);
+            LOGGER.info("file {}, fileTime {}", newFileName, dataTime);
             if (!NewDateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(),
                     taskProfile.getTimeOffset())) {
                 return false;

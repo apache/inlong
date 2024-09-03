@@ -95,6 +95,7 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
     },
   })
   @ColumnDecorator({
+    width: 300,
     render: type => groups.find(c => c.value === type)?.label || type,
   })
   @I18n('meta.Group.MQType')

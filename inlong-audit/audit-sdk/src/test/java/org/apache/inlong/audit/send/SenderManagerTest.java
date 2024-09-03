@@ -28,22 +28,9 @@ public class SenderManagerTest {
     private AuditConfig testConfig = new AuditConfig();
 
     @Test
-    public void nextRequestId() {
-        SenderManager testManager = new SenderManager(testConfig);
-        Long requestId = testManager.nextRequestId();
-        assertTrue(requestId == 0);
-
-        requestId = testManager.nextRequestId();
-        assertTrue(requestId == 1);
-
-        requestId = testManager.nextRequestId();
-        assertTrue(requestId == 2);
-    }
-
-    @Test
     public void clearBuffer() {
         SenderManager testManager = new SenderManager(testConfig);
-        testManager.clearBuffer();
+        testManager.checkFailedData();
         int dataMapSize = testManager.getDataMapSize();
         assertTrue(dataMapSize == 0);
     }

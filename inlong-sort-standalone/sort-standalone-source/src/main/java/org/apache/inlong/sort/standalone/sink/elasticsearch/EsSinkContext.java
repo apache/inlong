@@ -17,11 +17,24 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
+import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.transform.encode.MapSinkEncoder;
+import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
@@ -29,8 +42,11 @@ import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -40,14 +56,15 @@ import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
- * 
  * EsSinkContext
  */
 public class EsSinkContext extends SinkContext {
@@ -85,8 +102,10 @@ public class EsSinkContext extends SinkContext {
     public static final boolean DEFAULT_IS_USE_INDEX_ID = false;
 
     private Context sinkContext;
+    private EsNodeConfig esNodeConfig;
     private String nodeId;
     private Map<String, EsIdConfig> idConfigMap = new ConcurrentHashMap<>();
+    private ObjectMapper objectMapper = new ObjectMapper();
     private final BufferQueue<EsIndexRequest> dispatchQueue;
     private AtomicLong offerCounter = new AtomicLong(0);
     private AtomicLong takeCounter = new AtomicLong(0);
@@ -110,14 +129,9 @@ public class EsSinkContext extends SinkContext {
     private String strHttpHosts;
     private HttpHost[] httpHosts;
 
-    /**
-     * Constructor
-     * 
-     * @param sinkName
-     * @param context
-     * @param channel
-     * @param dispatchQueue
-     */
+    @Getter
+    protected Map<String, TransformProcessor<String, Map<String, Object>>> transformMap;
+
     public EsSinkContext(String sinkName, Context context, Channel channel,
             BufferQueue<EsIndexRequest> dispatchQueue) {
         super(sinkName, context, channel);
@@ -134,73 +148,203 @@ public class EsSinkContext extends SinkContext {
             LOG.info("SortTask:{},dispatchQueue:{},offer:{},take:{},back:{}",
                     taskName, dispatchQueue.size(), offerCounter.getAndSet(0),
                     takeCounter.getAndSet(0), backCounter.getAndSet(0));
+            TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+            if ((newTaskConfig == null || newTaskConfig.equals(taskConfig))
+                    && (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig))) {
                 return;
             }
-            LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
-                    new ObjectMapper().writeValueAsString(newSortTaskConfig));
+            LOG.info("get new SortTaskConfig:taskName:{}", taskName);
+
+            if (newTaskConfig != null) {
+                EsNodeConfig requestNodeConfig = (EsNodeConfig) newTaskConfig.getNodeConfig();
+                if (esNodeConfig == null || requestNodeConfig.getVersion() > esNodeConfig.getVersion()) {
+                    this.esNodeConfig = requestNodeConfig;
+                }
+            }
+
+            this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
-            this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
-            // parse the config of id and topic
-            Map<String, EsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
-            List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            for (Map<String, String> idParam : idList) {
-                String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
-                String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
-                String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-                String jsonIdConfig = objectMapper.writeValueAsString(idParam);
-                EsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, EsIdConfig.class);
-                idConfig.getFieldList();
-                newIdConfigMap.put(uid, idConfig);
-            }
+
             // change current config
-            this.idConfigMap = newIdConfigMap;
-            // rest client
-            this.username = sinkContext.getString(KEY_USERNAME);
-            this.password = sinkContext.getString(KEY_PASSWORD);
-            this.bulkAction = sinkContext.getInteger(KEY_BULK_ACTION, DEFAULT_BULK_ACTION);
-            this.bulkSizeMb = sinkContext.getInteger(KEY_BULK_SIZE_MB, DEFAULT_BULK_SIZE_MB);
-            this.flushInterval = sinkContext.getInteger(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
-            this.concurrentRequests = sinkContext.getInteger(KEY_CONCURRENT_REQUESTS, DEFAULT_CONCURRENT_REQUESTS);
-            this.maxConnect = sinkContext.getInteger(KEY_MAX_CONNECT_TOTAL, DEFAULT_MAX_CONNECT_TOTAL);
-            this.maxConnectPerRoute = sinkContext.getInteger(KEY_MAX_CONNECT_PER_ROUTE, DEFAULT_MAX_CONNECT_PER_ROUTE);
-            this.connectionRequestTimeout =
-                    sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT, DEFAULT_CONNECTION_REQUEST_TIMEOUT);
-            this.socketTimeout = sinkContext.getInteger(KEY_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT);
-            this.maxRedirects = sinkContext.getInteger(KEY_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
-            this.logMaxLength = sinkContext.getInteger(KEY_LOG_MAX_LENGTH, DEFAULT_LOG_MAX_LENGTH);
-            this.keywordMaxLength = sinkContext.getInteger(KEY_KEYWORD_MAX_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
-            this.isUseIndexId = sinkContext.getBoolean(KEY_IS_USE_INDEX_ID, DEFAULT_IS_USE_INDEX_ID);
-            // http host
-            this.strHttpHosts = sinkContext.getString(KEY_HTTP_HOSTS);
-            if (!StringUtils.isBlank(strHttpHosts)) {
-                String[] strHttpHostArray = strHttpHosts.split("\\s+");
-                List<HttpHost> newHttpHosts = new ArrayList<>(strHttpHostArray.length);
-                for (String strHttpHost : strHttpHostArray) {
-                    String[] ipPort = strHttpHost.split(":");
-                    if (ipPort.length == 2 && NumberUtils.isDigits(ipPort[1])) {
-                        newHttpHosts.add(new HttpHost(ipPort[0], NumberUtils.toInt(ipPort[1])));
-                    }
-                }
-                if (newHttpHosts.size() > 0) {
-                    HttpHost[] newHostHostArray = new HttpHost[newHttpHosts.size()];
-                    this.httpHosts = newHttpHosts.toArray(newHostHostArray);
-                }
+            Map<String, EsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig);
+            Map<String, TransformProcessor<String, Map<String, Object>>> transformProcessor =
+                    reloadTransform(taskConfig);
+            Map<String, EsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
+            if (unifiedConfiguration) {
+                idConfigMap = fromTaskConfig;
+                transformMap = transformProcessor;
+                reloadClientsFromNodeConfig(esNodeConfig);
+            } else {
+                idConfigMap = fromSortTaskConfig;
+                reloadClientsFromSortTaskConfig(sortTaskConfig);
             }
+            SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
             // log
             LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
-                    new ObjectMapper().writeValueAsString(newIdConfigMap));
+                    objectMapper.writeValueAsString(idConfigMap));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
+    private Map<String, EsIdConfig> reloadIdParamsFromTaskConfig(TaskConfig taskConfig) {
+        if (taskConfig == null) {
+            return new HashMap<>();
+        }
+        return taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .map(EsIdConfig::create)
+                .collect(Collectors.toMap(
+                        config -> InlongId.generateUid(config.getInlongGroupId(), config.getInlongStreamId()),
+                        v -> v,
+                        (flow1, flow2) -> flow1));
+    }
+
+    private Map<String, EsIdConfig> reloadIdParamsFromSortTaskConfig(SortTaskConfig sortTaskConfig)
+            throws JsonProcessingException {
+        if (sortTaskConfig == null) {
+            return new HashMap<>();
+        }
+        Map<String, EsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
+        List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        for (Map<String, String> idParam : idList) {
+            String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
+            String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
+            String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
+            String jsonIdConfig = objectMapper.writeValueAsString(idParam);
+            EsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, EsIdConfig.class);
+            newIdConfigMap.put(uid, idConfig);
+        }
+        return newIdConfigMap;
+    }
+
+    private Map<String, TransformProcessor<String, Map<String, Object>>> reloadTransform(TaskConfig taskConfig) {
+        ImmutableMap.Builder<String, TransformProcessor<String, Map<String, Object>>> builder =
+                new ImmutableMap.Builder<>();
+
+        taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .forEach(flow -> {
+                    TransformProcessor<String, Map<String, Object>> transformProcessor =
+                            createTransform(flow);
+                    if (transformProcessor == null) {
+                        return;
+                    }
+                    builder.put(InlongId.generateUid(flow.getInlongGroupId(), flow.getInlongStreamId()),
+                            transformProcessor);
+                });
+
+        return builder.build();
+    }
+
+    private TransformProcessor<String, Map<String, Object>> createTransform(DataFlowConfig dataFlowConfig) {
+        try {
+            return TransformProcessor.create(
+                    createTransformConfig(dataFlowConfig),
+                    createSourceDecoder(dataFlowConfig.getSourceConfig()),
+                    createEsSinkEncoder(dataFlowConfig.getSinkConfig()));
+        } catch (Exception e) {
+            LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
+                    e.getMessage());
+            return null;
+        }
+    }
+
+    private MapSinkEncoder createEsSinkEncoder(SinkConfig sinkConfig) {
+        if (!(sinkConfig instanceof EsSinkConfig)) {
+            throw new IllegalArgumentException("sinkInfo must be an instance of EsMapSinkInfo");
+        }
+        EsSinkConfig esSinkConfig = (EsSinkConfig) sinkConfig;
+        List<FieldInfo> fieldInfos = esSinkConfig.getFieldConfigs()
+                .stream()
+                .map(config -> new FieldInfo(config.getName(), deriveTypeConverter(config.getFormatInfo())))
+                .collect(Collectors.toList());
+
+        MapSinkInfo sinkInfo = new MapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
+        return SinkEncoderFactory.createMapEncoder(sinkInfo);
+    }
+
+    private void reloadClientsFromNodeConfig(EsNodeConfig esNodeConfig) {
+        Map<String, String> properties = esNodeConfig.getProperties();
+        this.sinkContext = new Context(properties != null ? properties : new HashMap<>());
+        this.username = esNodeConfig.getUsername();
+        this.password = esNodeConfig.getPassword();
+        this.bulkAction = esNodeConfig.getBulkAction();
+        this.bulkSizeMb = esNodeConfig.getBulkSizeMb();
+        this.flushInterval = esNodeConfig.getFlushInterval();
+        this.concurrentRequests = esNodeConfig.getConcurrentRequests();
+        this.maxConnect = esNodeConfig.getMaxConnect();
+        this.keywordMaxLength = esNodeConfig.getKeywordMaxLength();
+        this.isUseIndexId = esNodeConfig.getIsUseIndexId();
+
+        this.maxConnectPerRoute = sinkContext.getInteger(KEY_MAX_CONNECT_PER_ROUTE, DEFAULT_MAX_CONNECT_PER_ROUTE);
+        this.connectionRequestTimeout =
+                sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT, DEFAULT_CONNECTION_REQUEST_TIMEOUT);
+        this.socketTimeout = sinkContext.getInteger(KEY_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT);
+        this.maxRedirects = sinkContext.getInteger(KEY_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
+        this.logMaxLength = sinkContext.getInteger(KEY_LOG_MAX_LENGTH, DEFAULT_LOG_MAX_LENGTH);
+        // http host
+        this.strHttpHosts = esNodeConfig.getHttpHosts();
+        if (!StringUtils.isBlank(strHttpHosts)) {
+            String[] strHttpHostArray = strHttpHosts.split("\\s+");
+            List<HttpHost> newHttpHosts = new ArrayList<>(strHttpHostArray.length);
+            for (String strHttpHost : strHttpHostArray) {
+                String[] ipPort = strHttpHost.split(":");
+                if (ipPort.length == 2 && NumberUtils.isDigits(ipPort[1])) {
+                    newHttpHosts.add(new HttpHost(ipPort[0], NumberUtils.toInt(ipPort[1])));
+                }
+            }
+            if (newHttpHosts.size() > 0) {
+                HttpHost[] newHostHostArray = new HttpHost[newHttpHosts.size()];
+                this.httpHosts = newHttpHosts.toArray(newHostHostArray);
+            }
+        }
+    }
+
+    private void reloadClientsFromSortTaskConfig(SortTaskConfig sortTaskConfig) {
+        this.sinkContext = new Context(sortTaskConfig.getSinkParams());
+        this.username = sinkContext.getString(KEY_USERNAME);
+        this.password = sinkContext.getString(KEY_PASSWORD);
+        this.bulkAction = sinkContext.getInteger(KEY_BULK_ACTION, DEFAULT_BULK_ACTION);
+        this.bulkSizeMb = sinkContext.getInteger(KEY_BULK_SIZE_MB, DEFAULT_BULK_SIZE_MB);
+        this.flushInterval = sinkContext.getInteger(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
+        this.concurrentRequests = sinkContext.getInteger(KEY_CONCURRENT_REQUESTS, DEFAULT_CONCURRENT_REQUESTS);
+        this.maxConnect = sinkContext.getInteger(KEY_MAX_CONNECT_TOTAL, DEFAULT_MAX_CONNECT_TOTAL);
+
+        this.maxConnectPerRoute = sinkContext.getInteger(KEY_MAX_CONNECT_PER_ROUTE, DEFAULT_MAX_CONNECT_PER_ROUTE);
+        this.connectionRequestTimeout =
+                sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT, DEFAULT_CONNECTION_REQUEST_TIMEOUT);
+        this.socketTimeout = sinkContext.getInteger(KEY_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT);
+        this.maxRedirects = sinkContext.getInteger(KEY_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
+        this.logMaxLength = sinkContext.getInteger(KEY_LOG_MAX_LENGTH, DEFAULT_LOG_MAX_LENGTH);
+        // http host
+        this.strHttpHosts = sinkContext.getString(KEY_HTTP_HOSTS);
+        if (!StringUtils.isBlank(strHttpHosts)) {
+            String[] strHttpHostArray = strHttpHosts.split("\\s+");
+            List<HttpHost> newHttpHosts = new ArrayList<>(strHttpHostArray.length);
+            for (String strHttpHost : strHttpHostArray) {
+                String[] ipPort = strHttpHost.split(":");
+                if (ipPort.length == 2 && NumberUtils.isDigits(ipPort[1])) {
+                    newHttpHosts.add(new HttpHost(ipPort[0], NumberUtils.toInt(ipPort[1])));
+                }
+            }
+            if (newHttpHosts.size() > 0) {
+                HttpHost[] newHostHostArray = new HttpHost[newHttpHosts.size()];
+                this.httpHosts = newHttpHosts.toArray(newHostHostArray);
+            }
+        }
+    }
+
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      */
@@ -238,7 +382,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * addSendResultMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      * @param result
@@ -277,17 +421,21 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * getIdConfig
-     * 
-     * @param  uid
+     *
+     * @param uid
      * @return
      */
     public EsIdConfig getIdConfig(String uid) {
         return this.idConfigMap.get(uid);
     }
 
+    public TransformProcessor<String, Map<String, Object>> getTransformProcessor(String uid) {
+        return this.transformMap.get(uid);
+    }
+
     /**
      * get nodeId
-     * 
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -296,7 +444,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get idConfigMap
-     * 
+     *
      * @return the idConfigMap
      */
     public Map<String, EsIdConfig> getIdConfigMap() {
@@ -305,7 +453,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get sinkContext
-     * 
+     *
      * @return the sinkContext
      */
     public Context getSinkContext() {
@@ -314,7 +462,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set sinkContext
-     * 
+     *
      * @param sinkContext the sinkContext to set
      */
     public void setSinkContext(Context sinkContext) {
@@ -323,8 +471,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * offerDispatchQueue
-     * 
-     * @param  indexRequest
+     *
+     * @param indexRequest
      * @return
      */
     public void offerDispatchQueue(EsIndexRequest indexRequest) {
@@ -335,7 +483,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * takeDispatchQueue
-     * 
+     *
      * @return
      */
     public EsIndexRequest takeDispatchQueue() {
@@ -348,8 +496,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * backDispatchQueue
-     * 
-     * @param  indexRequest
+     *
+     * @param indexRequest
      * @return
      */
     public void backDispatchQueue(EsIndexRequest indexRequest) {
@@ -359,8 +507,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * releaseDispatchQueue
-     * 
-     * @param  indexRequest
+     *
+     * @param indexRequest
      * @return
      */
     public void releaseDispatchQueue(EsIndexRequest indexRequest) {
@@ -369,7 +517,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get bulkAction
-     * 
+     *
      * @return the bulkAction
      */
     public int getBulkAction() {
@@ -378,7 +526,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set bulkAction
-     * 
+     *
      * @param bulkAction the bulkAction to set
      */
     public void setBulkAction(int bulkAction) {
@@ -387,7 +535,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get bulkSizeMb
-     * 
+     *
      * @return the bulkSizeMb
      */
     public int getBulkSizeMb() {
@@ -396,7 +544,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set bulkSizeMb
-     * 
+     *
      * @param bulkSizeMb the bulkSizeMb to set
      */
     public void setBulkSizeMb(int bulkSizeMb) {
@@ -405,7 +553,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get flushInterval
-     * 
+     *
      * @return the flushInterval
      */
     public int getFlushInterval() {
@@ -414,7 +562,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set flushInterval
-     * 
+     *
      * @param flushInterval the flushInterval to set
      */
     public void setFlushInterval(int flushInterval) {
@@ -423,7 +571,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get concurrentRequests
-     * 
+     *
      * @return the concurrentRequests
      */
     public int getConcurrentRequests() {
@@ -432,7 +580,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set concurrentRequests
-     * 
+     *
      * @param concurrentRequests the concurrentRequests to set
      */
     public void setConcurrentRequests(int concurrentRequests) {
@@ -441,7 +589,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get maxConnect
-     * 
+     *
      * @return the maxConnect
      */
     public int getMaxConnect() {
@@ -485,7 +633,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set maxConnect
-     * 
+     *
      * @param maxConnect the maxConnect to set
      */
     public void setMaxConnect(int maxConnect) {
@@ -494,7 +642,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get strHttpHosts
-     * 
+     *
      * @return the strHttpHosts
      */
     public String getStrHttpHosts() {
@@ -503,7 +651,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set strHttpHosts
-     * 
+     *
      * @param strHttpHosts the strHttpHosts to set
      */
     public void setStrHttpHosts(String strHttpHosts) {
@@ -512,7 +660,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get httpHosts
-     * 
+     *
      * @return the httpHosts
      */
     public HttpHost[] getHttpHosts() {
@@ -521,7 +669,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set httpHosts
-     * 
+     *
      * @param httpHosts the httpHosts to set
      */
     public void setHttpHosts(HttpHost[] httpHosts) {
@@ -530,7 +678,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set nodeId
-     * 
+     *
      * @param nodeId the nodeId to set
      */
     public void setNodeId(String nodeId) {
@@ -539,7 +687,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set idConfigMap
-     * 
+     *
      * @param idConfigMap the idConfigMap to set
      */
     public void setIdConfigMap(Map<String, EsIdConfig> idConfigMap) {
@@ -548,7 +696,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get username
-     * 
+     *
      * @return the username
      */
     public String getUsername() {
@@ -557,7 +705,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set username
-     * 
+     *
      * @param username the username to set
      */
     public void setUsername(String username) {
@@ -566,7 +714,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get password
-     * 
+     *
      * @return the password
      */
     public String getPassword() {
@@ -575,7 +723,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set password
-     * 
+     *
      * @param password the password to set
      */
     public void setPassword(String password) {
@@ -584,7 +732,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get keywordMaxLength
-     * 
+     *
      * @return the keywordMaxLength
      */
     public int getKeywordMaxLength() {
@@ -593,7 +741,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set keywordMaxLength
-     * 
+     *
      * @param keywordMaxLength the keywordMaxLength to set
      */
     public void setKeywordMaxLength(int keywordMaxLength) {
@@ -602,7 +750,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get isUseIndexId
-     * 
+     *
      * @return the isUseIndexId
      */
     public boolean isUseIndexId() {
@@ -611,7 +759,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set isUseIndexId
-     * 
+     *
      * @param isUseIndexId the isUseIndexId to set
      */
     public void setUseIndexId(boolean isUseIndexId) {
@@ -620,7 +768,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * create indexRequestHandler
-     * 
+     *
      * @return the indexRequestHandler
      */
     public IEvent2IndexRequestHandler createIndexRequestHandler() {

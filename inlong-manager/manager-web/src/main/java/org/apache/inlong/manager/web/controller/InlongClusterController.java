@@ -297,6 +297,18 @@ public class InlongClusterController {
         return Response.success(clusterService.unloadNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
+    @RequestMapping(value = "/cluster/node/getManagerSSHPublicKey", method = RequestMethod.GET)
+    @ApiOperation(value = "Obtain the SSH public key from the manager to install the agent.")
+    public Response<String> getManagerSSHPublicKey() {
+        return Response.success(clusterService.getManagerSSHPublicKey());
+    }
+
+    @PostMapping("/cluster/node/testSSHConnection")
+    @ApiOperation(value = "Test SSH connection for inlong cluster node")
+    public Response<Boolean> testSSHConnection(@RequestBody ClusterNodeRequest request) {
+        return Response.success(clusterService.testSSHConnection(request));
+    }
+
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
     public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {

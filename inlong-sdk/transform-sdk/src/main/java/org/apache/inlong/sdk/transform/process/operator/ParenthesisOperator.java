@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import net.sf.jsqlparser.expression.Parenthesis;
 
@@ -25,9 +26,10 @@ import net.sf.jsqlparser.expression.Parenthesis;
  * ParenthesisOperator
  * 
  */
+@TransformOperator(values = Parenthesis.class)
 public class ParenthesisOperator implements ExpressionOperator {
 
-    private ExpressionOperator node;
+    private final ExpressionOperator node;
 
     public ParenthesisOperator(Parenthesis expr) {
         this.node = OperatorTools.buildOperator(expr.getExpression());
@@ -40,8 +42,8 @@ public class ParenthesisOperator implements ExpressionOperator {
      * @return
      */
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return this.node.check(sourceData, rowIndex);
+    public boolean check(SourceData sourceData, int rowIndex, Context context) {
+        return this.node.check(sourceData, rowIndex, context);
     }
 
 }

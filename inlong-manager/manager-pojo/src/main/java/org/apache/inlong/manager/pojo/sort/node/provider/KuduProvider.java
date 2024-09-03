@@ -27,12 +27,15 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating Kudu load nodes.
  */
+@Service
 public class KuduProvider implements LoadNodeProvider {
 
     @Override

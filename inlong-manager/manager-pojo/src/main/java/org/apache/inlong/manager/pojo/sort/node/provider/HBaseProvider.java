@@ -28,6 +28,7 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import com.google.common.collect.Lists;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import java.util.Map;
 /**
  * The Provider for creating HBase load nodes.
  */
+@Service
 public class HBaseProvider implements LoadNodeProvider {
 
     @Override

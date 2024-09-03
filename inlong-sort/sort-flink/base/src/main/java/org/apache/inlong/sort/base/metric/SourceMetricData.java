@@ -24,8 +24,6 @@ import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -44,10 +42,10 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 /**
  * A collection class for handling metrics
  */
-public class SourceMetricData implements MetricData, Serializable {
+@Deprecated
+public class SourceMetricData implements MetricData, Serializable, SourceMetricsReporter {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(SourceMetricData.class);
     private MetricGroup metricGroup;
     private final Map<String, String> labels;
     private Counter numRecordsIn;
@@ -104,7 +102,7 @@ public class SourceMetricData implements MetricData, Serializable {
         }
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
             this.auditOperator = AuditOperator.getInstance();
             this.auditKeys = option.getInlongAuditKeys();
         }
@@ -114,7 +112,7 @@ public class SourceMetricData implements MetricData, Serializable {
         this.labels = option.getLabels();
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
             this.auditOperator = AuditOperator.getInstance();
             this.auditKeys = option.getInlongAuditKeys();
         }
@@ -260,6 +258,7 @@ public class SourceMetricData implements MetricData, Serializable {
         this.emitDelay = emitDelay;
     }
 
+    @Override
     public void outputMetricsWithEstimate(Object data, long dataTime) {
         outputMetrics(1, getDataSize(data), dataTime);
     }

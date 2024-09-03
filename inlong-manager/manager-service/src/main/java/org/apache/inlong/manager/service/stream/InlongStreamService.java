@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -61,15 +62,6 @@ public interface InlongStreamService {
     List<BatchResult> batchSave(List<InlongStreamRequest> requestList, String operator);
 
     /**
-     * Save inlong stream information.
-     *
-     * @param request Inlong stream information.
-     * @param opInfo userinfo of operator
-     * @return Id after successful save.
-     */
-    Integer save(InlongStreamRequest request, UserInfo opInfo);
-
-    /**
      * Query whether the inlong stream ID exists
      *
      * @param groupId inlong group id
@@ -86,16 +78,6 @@ public interface InlongStreamService {
      * @return inlong stream details
      */
     InlongStreamInfo get(String groupId, String streamId);
-
-    /**
-     * Query the details of the specified inlong stream
-     *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param opInfo userinfo of operator
-     * @return inlong stream details
-     */
-    InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo);
 
     /**
      * Query the brief of the specified inlong stream
@@ -160,15 +142,6 @@ public interface InlongStreamService {
     Boolean update(InlongStreamRequest request, String operator);
 
     /**
-     * Update the InlongStream info
-     *
-     * @param request inlong stream info that needs to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean update(InlongStreamRequest request, UserInfo opInfo);
-
-    /**
      * Update the InlongStream - not check the InlongGroup status to which the stream belongs.
      *
      * @param request inlong stream info that needs to be modified
@@ -189,19 +162,6 @@ public interface InlongStreamService {
      * @return whether succeed
      */
     Boolean delete(String groupId, String streamId, String operator);
-
-    /**
-     * Delete the specified inlong stream.
-     * <p/>
-     * When deleting an inlong stream, you need to check whether there are some related
-     * stream_sources or stream_sinks
-     *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean delete(String groupId, String streamId, UserInfo opInfo);
 
     /**
      * Logically delete all inlong streams under the specified groupId
@@ -282,12 +242,10 @@ public interface InlongStreamService {
     /**
      * List brief mq message info
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @param messageCount Count of messages to query'
+     * @param request query message request
      * @param operator operator
      * @return list of brief mq message info
      */
-    List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator);
+    List<BriefMQMessage> listMessages(QueryMessageRequest request, String operator);
 
 }

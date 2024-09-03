@@ -25,6 +25,7 @@ import org.apache.flume.conf.Configurable;
  * 
  * SortClusterConfigLoader
  */
+@Deprecated
 public interface SortClusterConfigLoader extends Configurable {
 
     /**

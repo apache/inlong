@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
+import org.apache.inlong.common.pojo.agent.AgentConfigRequest;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
@@ -68,6 +70,12 @@ public class AgentController {
     public Response<TaskResult> reportAndGetTask(@RequestBody TaskRequest request) {
         agentService.report(request);
         return Response.success(agentService.getTaskResult(request));
+    }
+
+    @PostMapping("/agent/getConfig")
+    @ApiOperation(value = "Pull agent config info")
+    public Response<AgentConfigInfo> getAgentConfig(@RequestBody AgentConfigRequest request) {
+        return Response.success(agentService.getAgentConfig(request));
     }
 
     @PostMapping("/agent/getExistTaskConfig")

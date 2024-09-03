@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeDefine(value = SinkType.ELASTICSEARCH)
+@JsonTypeDefine(value = SinkType.ES)
 public class ElasticsearchFieldInfo extends SinkField {
 
     @ApiModelProperty("Elasticsearch Analyzer")

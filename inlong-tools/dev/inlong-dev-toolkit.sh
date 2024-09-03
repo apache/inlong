@@ -78,6 +78,15 @@ function manager() {
     exec:exec)
 
   echo 'current_version: '"$project_version"
+
+  sort_flink_version=$(mvn -q \
+    -Dexec.executable=echo \
+    -Dexec.args='${sort.flink.version}' \
+    --non-recursive \
+    exec:exec)
+
+  echo 'sort_filnk_version: '"${sort_flink_version}"
+
   #
   echo 'associate plugins directory: inlong-manager/manager-plugins/target/plugins'
   # plugins -> manager-plugins/target/plugins
@@ -100,7 +109,7 @@ function manager() {
   rm -rf $sort_connector_dir
   mkdir "$sort_connector_dir"
   cd "$sort_connector_dir"
-  connector_names=$(grep '<module>' "$base_dir"/inlong-sort/sort-connectors/pom.xml | sed 's/<module>//g' | sed 's/<\/module>//g' | grep -v base)
+  connector_names=$(grep '<module>' "$base_dir"/inlong-sort/sort-flink/sort-flink-"${sort_flink_version}"/sort-connectors/pom.xml | sed 's/<module>//g' | sed 's/<\/module>//g' | grep -v base)
 
   echo 'All connector names: '
   echo $connector_names | tr -d '\n'

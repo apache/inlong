@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
+import org.apache.inlong.sdk.transform.process.Context;
 
 import net.sf.jsqlparser.expression.NotExpression;
 
@@ -25,9 +26,10 @@ import net.sf.jsqlparser.expression.NotExpression;
  * NotOperator
  * 
  */
+@TransformOperator(values = NotExpression.class)
 public class NotOperator implements ExpressionOperator {
 
-    private ExpressionOperator node;
+    private final ExpressionOperator node;
 
     public NotOperator(NotExpression expr) {
         this.node = OperatorTools.buildOperator(expr.getExpression());
@@ -40,8 +42,8 @@ public class NotOperator implements ExpressionOperator {
      * @return
      */
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return !this.node.check(sourceData, rowIndex);
+    public boolean check(SourceData sourceData, int rowIndex, Context context) {
+        return !this.node.check(sourceData, rowIndex, context);
     }
 
 }

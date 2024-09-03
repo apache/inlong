@@ -37,4 +37,6 @@ public interface ManagerUrlLoader extends Configurable {
      * @return SortClusterConfigUrl
      */
     String acquireSortClusterConfigUrl();
+
+    String acquireSortConfigUrl();
 }

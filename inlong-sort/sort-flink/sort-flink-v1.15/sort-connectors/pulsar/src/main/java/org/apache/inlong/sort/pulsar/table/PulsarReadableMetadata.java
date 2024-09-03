@@ -17,14 +17,17 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
+import org.apache.flink.util.Collector;
 import org.apache.pulsar.client.api.Message;
 
 import java.io.Serializable;
@@ -33,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.inlong.sort.pulsar.table.PulsarReadableMetadata.ReadableMetadata.CONSUME_TIME;
 
 /**
  * Class for reading metadata fields from a Pulsar message and put in corresponding Flink row
@@ -66,10 +71,16 @@ public class PulsarReadableMetadata implements Serializable {
     }
 
     public void appendProducedRowWithMetadata(
-            GenericRowData producedRowData, int physicalArity, Message<?> message) {
+            GenericRowData producedRowData, int physicalArity, Message<?> message, Collector<RowData> collector) {
         for (int metadataPos = 0; metadataPos < metadataConverters.size(); metadataPos++) {
+            Object metadata = metadataConverters.get(metadataPos).read(message);
             producedRowData.setField(
-                    physicalArity + metadataPos, metadataConverters.get(metadataPos).read(message));
+                    physicalArity + metadataPos, metadata);
+            if (CONSUME_TIME.key.equals(connectorMetadataKeys.get(metadataPos)) &&
+                    collector instanceof MetricsCollector) {
+                ((MetricsCollector<RowData>) collector).resetTimestamp((Long) metadata);
+            }
+
         }
     }
 
