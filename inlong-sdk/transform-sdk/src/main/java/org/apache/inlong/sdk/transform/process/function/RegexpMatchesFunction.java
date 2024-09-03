@@ -32,6 +32,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * RegexpMatchesFunction
+ * description: REGEX_MATCHES(source_string, pattern [, flags]) → set of text[]--returns the result
+ *              of the first match of the specified regular expression from a string
+ * parameters: 1) source_string: the string to be matched
+ *             2) pattern: POSIX regular expression for matching
+ *             3) flags: one or more characters that control the behavior of a function,
+ *                'g' flag can be used when we want to match all the substrings that occur,
+ *                'i' flag to ignore case for matching,
+ *                'm' flag allows regular expressions to match across multiple lines
+ */
 @TransformFunction(names = {"regexp_matches"})
 public class RegexpMatchesFunction implements ValueParser {
 
