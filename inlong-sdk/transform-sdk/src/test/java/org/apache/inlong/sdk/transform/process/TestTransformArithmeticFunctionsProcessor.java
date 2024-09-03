@@ -423,6 +423,23 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testRadiansFunction() throws Exception {
+        String transformSql = "select radians(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: radians(10)
+        List<String> output1 = processor.transform("10|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.17453292519943295");
+        // case2: radians(18.97)
+        List<String> output2 = processor.transform("18.97|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=0.33108895910332425");
+    }
+
+    @Test
     public void testLog10Function() throws Exception {
         String transformSql = "select log10(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
