@@ -18,16 +18,20 @@
 package org.apache.inlong.manager.service.consume;
 
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.tubemq.ConsumeTubeMQDTO;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -48,6 +53,8 @@ public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
 
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public Boolean accept(String mqType) {
@@ -81,7 +88,12 @@ public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
             ConsumeTubeMQDTO dto = ConsumeTubeMQDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, consumeInfo);
         }
-
+        InlongGroupInfo groupInfo = groupService.get(entity.getInlongGroupId());
+        List<ClusterInfo> clusterInfos =
+                clusterService.listByTagAndType(groupInfo.getInlongClusterTag(), ClusterType.TUBEMQ);
+        Preconditions.expectNotEmpty(clusterInfos,
+                "tubeMQ cluster not exist for groupId=" + groupInfo.getInlongGroupId());
+        consumeInfo.setClusterInfos(clusterInfos);
         return consumeInfo;
     }
 

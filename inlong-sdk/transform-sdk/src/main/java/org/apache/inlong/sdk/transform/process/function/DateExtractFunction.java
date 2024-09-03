@@ -41,15 +41,72 @@ import java.util.Locale;
  * - week(date)--returns the week of a year (an integer between 1 and 53) from SQL date
  * - dayofyear(date)--returns the day of a year (an integer between 1 and 366) from SQL date
  * - dayofmonth(date)--returns the day of a month (an integer between 1 and 31) from SQL date
+ * - dayofweek(date)--returns the day of a week (an integer between 1(Sunday) and 7(Saturday)) from SQL date
  */
-public class DateExtractFunction implements ValueParser {
+public abstract class DateExtractFunction implements ValueParser {
 
     private DateExtractFunctionType type;
     private ValueParser dateParser;
     private static final TemporalField weekOfYearField = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
 
     public enum DateExtractFunctionType {
-        YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH
+        YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH, DAY_OF_WEEK
+    }
+
+    @TransformFunction(names = {"year"})
+    public static class YearExtractFunction extends DateExtractFunction {
+
+        public YearExtractFunction(Function expr) {
+            super(DateExtractFunctionType.YEAR, expr);
+        }
+    }
+
+    @TransformFunction(names = {"quarter"})
+    public static class QuarterExtractFunction extends DateExtractFunction {
+
+        public QuarterExtractFunction(Function expr) {
+            super(DateExtractFunctionType.QUARTER, expr);
+        }
+    }
+
+    @TransformFunction(names = {"month"})
+    public static class MonthExtractFunction extends DateExtractFunction {
+
+        public MonthExtractFunction(Function expr) {
+            super(DateExtractFunctionType.MONTH, expr);
+        }
+    }
+
+    @TransformFunction(names = {"week"})
+    public static class WeekExtractFunction extends DateExtractFunction {
+
+        public WeekExtractFunction(Function expr) {
+            super(DateExtractFunctionType.WEEK, expr);
+        }
+    }
+
+    @TransformFunction(names = {"day_of_year"})
+    public static class DayOfYearExtractFunction extends DateExtractFunction {
+
+        public DayOfYearExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_YEAR, expr);
+        }
+    }
+
+    @TransformFunction(names = {"day_of_month"})
+    public static class DayOfMonthExtractFunction extends DateExtractFunction {
+
+        public DayOfMonthExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_MONTH, expr);
+        }
+    }
+
+    @TransformFunction(names = {"day_of_week"})
+    public static class DayOfWeekExtractFunction extends DateExtractFunction {
+
+        public DayOfWeekExtractFunction(Function expr) {
+            super(DateExtractFunctionType.DAY_OF_WEEK, expr);
+        }
     }
 
     public DateExtractFunction(DateExtractFunctionType type, Function expr) {
@@ -82,6 +139,9 @@ public class DateExtractFunction implements ValueParser {
             // dayofmonth(between 1 and 31)
             case DAY_OF_MONTH:
                 return localDate.getDayOfMonth();
+            // dayofweek(between 1 and 7)
+            case DAY_OF_WEEK:
+                return localDate.getDayOfWeek().getValue() % 7 + 1;
             default:
                 return null;
         }

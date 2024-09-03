@@ -77,6 +77,9 @@ public class ClusterNodeRequest {
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
 
+    @ApiModelProperty(value = "Operate log")
+    private String operateLog;
+
     @ApiModelProperty(value = "Description of the cluster node")
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;

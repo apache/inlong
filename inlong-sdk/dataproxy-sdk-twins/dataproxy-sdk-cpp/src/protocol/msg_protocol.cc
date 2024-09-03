@@ -29,9 +29,7 @@ char APIEncode::recvBuf[APIEncode::kRecvLen] = {0};
 
 void APIEncode::decodeProtocoMsg(SendBuffer *buf) {
   memset(recvBuf, 0x0, kRecvLen);
-  // //LOG_DEBUG("print buf content, %s", buf->content());
-  memcpy(recvBuf, buf->content(), buf->len());
-  // memcpy(recvBuf, buf->content(), buf->len());
+  memcpy(recvBuf, buf->GetData(), buf->GetDataLen());
 
   char *p = recvBuf;
 

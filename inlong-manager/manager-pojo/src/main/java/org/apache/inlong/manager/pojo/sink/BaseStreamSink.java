@@ -32,6 +32,9 @@ import lombok.NoArgsConstructor;
 @ApiModel("Base info of stream sink")
 public class BaseStreamSink {
 
+    @ApiModelProperty("Transform sql")
+    private String transformSql;
+
     @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
     private String startConsumeTime;
 

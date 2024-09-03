@@ -28,6 +28,7 @@ import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ThreadUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +112,7 @@ public abstract class AbstractTask extends Task {
             doRun();
         } catch (Throwable e) {
             LOGGER.error("do run error: ", e);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
         }
         running = false;
     }

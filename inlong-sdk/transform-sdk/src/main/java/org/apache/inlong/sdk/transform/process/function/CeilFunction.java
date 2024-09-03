@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * CeilFunction
  * description: ceil(numeric)--rounds numeric up, and returns the smallest number that is greater than or equal to numeric
  */
+@TransformFunction(names = {"ceil"})
 public class CeilFunction implements ValueParser {
 
     private ValueParser numberParser;

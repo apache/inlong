@@ -25,7 +25,6 @@ import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
-import org.apache.inlong.sdk.transform.process.function.FibonacciFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
@@ -46,28 +45,13 @@ import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
-import org.apache.inlong.sdk.transform.process.parser.DateParser;
-import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
-import org.apache.inlong.sdk.transform.process.parser.LongParser;
-import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
-import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
-import org.apache.inlong.sdk.transform.process.parser.StringParser;
-import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
-import org.apache.inlong.sdk.transform.process.parser.TimestampParser;
+import org.apache.inlong.sdk.transform.process.parser.ParserTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NotExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -76,14 +60,11 @@ import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * OperatorTools
@@ -132,7 +113,6 @@ public class OperatorTools {
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
         functionMap.put("round", RoundFunction::new);
-        functionMap.put("factorial", FibonacciFunction::new);
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
@@ -164,35 +144,15 @@ public class OperatorTools {
     }
 
     public static ValueParser buildParser(Expression expr) {
-        if (expr instanceof Column) {
-            return new ColumnParser((Column) expr);
-        } else if (expr instanceof StringValue) {
-            return new StringParser((StringValue) expr);
-        } else if (expr instanceof LongValue) {
-            return new LongParser((LongValue) expr);
-        } else if (expr instanceof Parenthesis) {
-            return new ParenthesisParser((Parenthesis) expr);
-        } else if (expr instanceof Addition) {
-            return new AdditionParser((Addition) expr);
-        } else if (expr instanceof Subtraction) {
-            return new SubtractionParser((Subtraction) expr);
-        } else if (expr instanceof Multiplication) {
-            return new MultiplicationParser((Multiplication) expr);
-        } else if (expr instanceof Division) {
-            return new DivisionParser((Division) expr);
-        } else if (expr instanceof DateValue) {
-            return new DateParser((DateValue) expr);
-        } else if (expr instanceof TimestampValue) {
-            return new TimestampParser((TimestampValue) expr);
-        } else if (expr instanceof Function) {
+        if (expr instanceof Function) {
             String exprString = expr.toString();
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
                 return new ColumnParser((Function) expr);
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
-                        .get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor =
+                        functionMap.get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {

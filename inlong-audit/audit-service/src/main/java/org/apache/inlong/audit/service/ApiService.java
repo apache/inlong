@@ -48,42 +48,42 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_DAY_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_AUDIT_PROXY_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IDS_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
-import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_BACKLOG_SIZE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_DAY_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_AUDIT_PROXY_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IDS_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IPS_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_HOUR_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTES_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_MSG;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_SUCCESS;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_SERVER_BIND_PORT;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_COMPONENT;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_CYCLE;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_ID;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_TAG;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_END_TIME;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_INLONG_GROUP_Id;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_INLONG_STREAM_Id;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_IP;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_START_TIME;
-import static org.apache.inlong.audit.config.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_DAY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_AUDIT_PROXY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_IDS_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_HOUR_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
+import static org.apache.inlong.audit.consts.OpenApiConstants.HTTP_RESPOND_CODE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_BACKLOG_SIZE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_DAY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_AUDIT_PROXY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_IDS_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_IPS_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_HOUR_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_MINUTES_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_ERR_MSG;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_SUCCESS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_SERVER_BIND_PORT;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_COMPONENT;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_CYCLE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_ID;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_TAG;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_END_TIME;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_INLONG_GROUP_ID;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_INLONG_STREAM_ID;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_IP;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_START_TIME;
+import static org.apache.inlong.audit.consts.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.entities.ApiType.DAY;
 import static org.apache.inlong.audit.entities.ApiType.GET_AUDIT_PROXY;
 import static org.apache.inlong.audit.entities.ApiType.GET_IDS;
@@ -208,14 +208,14 @@ public class ApiService {
                     return params.containsKey(PARAMS_START_TIME)
                             && params.containsKey(PARAMS_END_TIME)
                             && params.containsKey(PARAMS_AUDIT_ID)
-                            && params.containsKey(PARAMS_INLONG_GROUP_Id)
-                            && params.containsKey(PARAMS_INLONG_STREAM_Id);
+                            && params.containsKey(PARAMS_INLONG_GROUP_ID)
+                            && params.containsKey(PARAMS_INLONG_STREAM_ID);
                 case MINUTES:
                     return params.containsKey(PARAMS_START_TIME)
                             && params.containsKey(PARAMS_END_TIME)
                             && params.containsKey(PARAMS_AUDIT_ID)
-                            && params.containsKey(PARAMS_INLONG_GROUP_Id)
-                            && params.containsKey(PARAMS_INLONG_STREAM_Id)
+                            && params.containsKey(PARAMS_INLONG_GROUP_ID)
+                            && params.containsKey(PARAMS_INLONG_STREAM_ID)
                             && params.containsKey(PARAMS_AUDIT_CYCLE);
                 case GET_IDS:
                     return params.containsKey(PARAMS_START_TIME)
@@ -249,8 +249,8 @@ public class ApiService {
                     case HOUR:
                         statData = HourCache.getInstance().getData(params.get(PARAMS_START_TIME),
                                 params.get(PARAMS_END_TIME),
-                                params.get(PARAMS_INLONG_GROUP_Id),
-                                params.get(PARAMS_INLONG_STREAM_Id),
+                                params.get(PARAMS_INLONG_GROUP_ID),
+                                params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID),
                                 params.get(PARAMS_AUDIT_TAG));
                         responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
@@ -259,8 +259,8 @@ public class ApiService {
                         statData = DayCache.getInstance().getData(
                                 params.get(PARAMS_START_TIME),
                                 params.get(PARAMS_END_TIME),
-                                params.get(PARAMS_INLONG_GROUP_Id),
-                                params.get(PARAMS_INLONG_STREAM_Id),
+                                params.get(PARAMS_INLONG_GROUP_ID),
+                                params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID));
                         responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
                         break;
@@ -276,8 +276,8 @@ public class ApiService {
                         statData = RealTimeQuery.getInstance().queryIpsById(
                                 params.get(PARAMS_START_TIME),
                                 params.get(PARAMS_END_TIME),
-                                params.get(PARAMS_INLONG_GROUP_Id),
-                                params.get(PARAMS_INLONG_STREAM_Id),
+                                params.get(PARAMS_INLONG_GROUP_ID),
+                                params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID));
                         responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
                         break;
@@ -303,22 +303,22 @@ public class ApiService {
                 case MINUTE:
                     statData = RealTimeQuery.getInstance().queryLogTs(params.get(PARAMS_START_TIME),
                             params.get(PARAMS_END_TIME),
-                            params.get(PARAMS_INLONG_GROUP_Id),
-                            params.get(PARAMS_INLONG_STREAM_Id),
+                            params.get(PARAMS_INLONG_GROUP_ID),
+                            params.get(PARAMS_INLONG_STREAM_ID),
                             params.get(PARAMS_AUDIT_ID));
                     break;
                 case MINUTE_10:
                     statData = TenMinutesCache.getInstance().getData(params.get(PARAMS_START_TIME),
                             params.get(PARAMS_END_TIME),
-                            params.get(PARAMS_INLONG_GROUP_Id),
-                            params.get(PARAMS_INLONG_STREAM_Id), params.get(PARAMS_AUDIT_ID),
+                            params.get(PARAMS_INLONG_GROUP_ID),
+                            params.get(PARAMS_INLONG_STREAM_ID), params.get(PARAMS_AUDIT_ID),
                             params.get(PARAMS_AUDIT_TAG));
                     break;
                 case MINUTE_30:
                     statData = HalfHourCache.getInstance().getData(params.get(PARAMS_START_TIME),
                             params.get(PARAMS_END_TIME),
-                            params.get(PARAMS_INLONG_GROUP_Id),
-                            params.get(PARAMS_INLONG_STREAM_Id), params.get(PARAMS_AUDIT_ID),
+                            params.get(PARAMS_INLONG_GROUP_ID),
+                            params.get(PARAMS_INLONG_STREAM_ID), params.get(PARAMS_AUDIT_ID),
                             params.get(PARAMS_AUDIT_TAG));
                     break;
                 default:

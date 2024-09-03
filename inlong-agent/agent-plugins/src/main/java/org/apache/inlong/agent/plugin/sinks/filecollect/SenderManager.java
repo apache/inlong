@@ -262,6 +262,7 @@ public class SenderManager {
                 }
                 retry++;
                 AgentUtils.silenceSleepInMs(retrySleepTime);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), exception);
             }
         }
     }
@@ -299,10 +300,9 @@ public class SenderManager {
                                 message.getTotalSize(), auditVersion);
                         sendBatchWithRetryCount(callback.message, callback.retry + 1);
                     }
-                } catch (Exception ex) {
-                    LOGGER.error("error caught", ex);
-                } catch (Throwable t) {
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
+                } catch (Exception e) {
+                    LOGGER.error("error caught", e);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 } finally {
                     AgentUtils.silenceSleepInMs(batchFlushInterval);
                 }

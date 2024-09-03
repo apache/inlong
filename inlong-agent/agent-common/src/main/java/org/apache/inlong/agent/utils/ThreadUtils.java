@@ -35,7 +35,7 @@ public class ThreadUtils {
     }
 
     private static void handleOOM(Thread t, Throwable e) {
-        if (ExceptionUtils.indexOfThrowable(e, java.lang.OutOfMemoryError.class) != -1) {
+        if (ExceptionUtils.indexOfThrowable(e, OutOfMemoryError.class) != -1) {
             LOGGER.error("Agent exit caused by {} OutOfMemory: ", t.getName(), e);
             forceShutDown();
         }
@@ -43,7 +43,7 @@ public class ThreadUtils {
 
     private static void forceShutDown() {
         try {
-            Runtime.getRuntime().exit(-1);
+            Runtime.getRuntime().halt(-1);
         } catch (Throwable e) {
             LOGGER.error("exit failed, just halt, exception: ", e);
             Runtime.getRuntime().halt(-2);

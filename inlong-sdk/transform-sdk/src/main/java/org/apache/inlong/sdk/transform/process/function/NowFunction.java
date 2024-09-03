@@ -27,6 +27,7 @@ import net.sf.jsqlparser.expression.Function;
  * NowFunction
  * 
  */
+@TransformFunction(names = {"now"})
 public class NowFunction implements ValueParser {
 
     /**

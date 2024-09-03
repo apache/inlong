@@ -73,6 +73,9 @@ public class ClusterNodeResponse {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "Operate log")
+    private String operateLog;
+
     @ApiModelProperty(value = "Description of the cluster node")
     private String description;
 

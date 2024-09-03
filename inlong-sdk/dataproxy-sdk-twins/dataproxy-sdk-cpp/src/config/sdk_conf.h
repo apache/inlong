@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <atomic>
+#include "../utils/capi_constant.h"
 
 namespace inlong {
 class SdkConfig {
@@ -40,7 +42,7 @@ private:
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
   bool GetLocalIPV4Address(std::string& err_info, std::string& localhost);
-  SdkConfig() { defaultInit(); };
+  SdkConfig():extend_report_(false) { defaultInit(); };
 
       public:
   // cache parameter
@@ -53,6 +55,7 @@ private:
   uint32_t max_cache_num_;
   uint32_t max_instance_;
   uint32_t instance_num_;
+  bool enable_share_msg_;
 
   // thread parameters
   uint32_t per_groupid_thread_nums_; // Sending thread per groupid
@@ -79,8 +82,6 @@ private:
 
   // manager parameters
   std::string manager_url_;
-  bool enable_manager_url_from_cluster_;
-  std::string manager_cluster_url_;
   uint32_t manager_update_interval_; // Automatic update interval, minutes
   uint32_t manager_url_timeout_;     // URL parsing timeout, seconds
   uint64_t max_proxy_num_;
@@ -94,7 +95,8 @@ private:
   uint32_t tcp_detection_interval_; // tcp-client detection interval
   bool enable_balance_;
   bool enable_local_cache_;
-
+  uint32_t retry_times_;
+  uint32_t proxy_repeat_times_;
 
   // auth settings
   bool need_auth_;
@@ -112,6 +114,7 @@ private:
   uint32_t buf_size_;
 
   volatile bool parsed_ = false;
+  bool extend_report_;
 
   void defaultInit();
   static SdkConfig *getInstance();

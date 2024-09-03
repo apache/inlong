@@ -32,6 +32,7 @@ import java.util.List;
  * ConcatFunction
  * 
  */
+@TransformFunction(names = {"concat"})
 public class ConcatFunction implements ValueParser {
 
     private List<ValueParser> nodeList;

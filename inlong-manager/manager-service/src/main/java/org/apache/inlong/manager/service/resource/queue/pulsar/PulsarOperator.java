@@ -411,7 +411,7 @@ public class PulsarOperator {
      */
     public List<BriefMQMessage> queryLatestMessage(PulsarClusterInfo pulsarClusterInfo, String topicFullName,
             QueryMessageRequest request, InlongStreamInfo streamInfo, boolean serial) {
-        LOGGER.info("begin to query message for topic {}", topicFullName);
+        LOGGER.info("begin to query message for topic {}, adminUrl={}", topicFullName, pulsarClusterInfo.getAdminUrl());
         List<BriefMQMessage> messageList = new ArrayList<>();
         int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
         for (int messageIndex = 0; messageIndex < 100; messageIndex++) {
@@ -464,9 +464,8 @@ public class PulsarOperator {
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
             deserializeOperator.decodeMsg(streamInfo, briefMQMessages, messageInfo.getBody(), headers, index, request);
         } catch (Exception e) {
-            LOGGER.warn("query message from pulsar error for groupId = {}, streamId = {}",
-                    streamInfo.getInlongGroupId(),
-                    streamInfo.getInlongStreamId(), e);
+            LOGGER.warn("query message from pulsar error for groupId = {}, streamId = {}, adminUrl={}",
+                    streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(), pulsarClusterInfo.getAdminUrl(), e);
         }
         return briefMQMessages;
     }
