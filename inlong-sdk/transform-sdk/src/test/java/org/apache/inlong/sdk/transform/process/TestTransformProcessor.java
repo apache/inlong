@@ -44,13 +44,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testCsv2Kv() throws Exception {
-        List<FieldInfo> fields = new ArrayList<>();
-        FieldInfo ftime = new FieldInfo();
-        ftime.setName("ftime");
-        fields.add(ftime);
-        FieldInfo extinfo = new FieldInfo();
-        extinfo.setName("extinfo");
-        fields.add(extinfo);
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
         CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
         String transformSql = "select ftime,extinfo from source where extinfo='ok'";
@@ -97,13 +91,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testKv2Csv() throws Exception {
-        List<FieldInfo> fields = new ArrayList<>();
-        FieldInfo ftime = new FieldInfo();
-        ftime.setName("ftime");
-        fields.add(ftime);
-        FieldInfo extinfo = new FieldInfo();
-        extinfo.setName("extinfo");
-        fields.add(extinfo);
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
         KvSourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select ftime,extinfo from source where extinfo='ok'";
@@ -148,7 +136,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testJson2Csv() throws Exception {
-        List<FieldInfo> fields1 = this.getTestFieldList();
+        List<FieldInfo> fields1 = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         JsonSourceInfo jsonSource1 = new JsonSourceInfo("UTF-8", "msgs");
         CsvSinkInfo csvSink1 = new CsvSinkInfo("UTF-8", '|', '\\', fields1);
         String transformSql1 = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
@@ -170,7 +158,7 @@ public class TestTransformProcessor {
         Assert.assertEquals(output1.get(0), "value1|value2|1713243918000|value4");
         Assert.assertEquals(output1.get(1), "value1|value2|1713243918000|v4");
         // case2
-        List<FieldInfo> fields2 = this.getTestFieldList2();
+        List<FieldInfo> fields2 = this.getTestFieldList("id", "itemId", "subItemId", "msg");
         JsonSourceInfo jsonSource2 = new JsonSourceInfo("UTF-8", "items");
         CsvSinkInfo csvSink2 = new CsvSinkInfo("UTF-8", '|', '\\', fields2);
         String transformSql2 =
@@ -205,7 +193,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testJson2CsvForOne() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         JsonSourceInfo jsonSource = new JsonSourceInfo("UTF-8", "");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
@@ -229,7 +217,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testPb2Csv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
@@ -246,36 +234,13 @@ public class TestTransformProcessor {
         Assert.assertEquals(output.get(1), "sid|1|1713243918002|msgValue42");
     }
 
-    private List<FieldInfo> getTestFieldList() {
+    private List<FieldInfo> getTestFieldList(String... fieldNames) {
         List<FieldInfo> fields = new ArrayList<>();
-        FieldInfo sid = new FieldInfo();
-        sid.setName("sid");
-        fields.add(sid);
-        FieldInfo packageID = new FieldInfo();
-        packageID.setName("packageID");
-        fields.add(packageID);
-        FieldInfo msgTime = new FieldInfo();
-        msgTime.setName("msgTime");
-        fields.add(msgTime);
-        FieldInfo msg = new FieldInfo();
-        msg.setName("msg");
-        fields.add(msg);
-        return fields;
-    }
-    private List<FieldInfo> getTestFieldList2() {
-        List<FieldInfo> fields = new ArrayList<>();
-        FieldInfo id = new FieldInfo();
-        id.setName("id");
-        fields.add(id);
-        FieldInfo itemId = new FieldInfo();
-        itemId.setName("itemId");
-        fields.add(itemId);
-        FieldInfo subItemId = new FieldInfo();
-        subItemId.setName("subItemId");
-        fields.add(subItemId);
-        FieldInfo msg = new FieldInfo();
-        msg.setName("msg");
-        fields.add(msg);
+        for (String fieldName : fieldNames) {
+            FieldInfo field = new FieldInfo();
+            field.setName(fieldName);
+            fields.add(field);
+        }
         return fields;
     }
 
@@ -309,7 +274,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testPb2CsvForOne() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
@@ -327,7 +292,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testPb2CsvForAdd() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
@@ -351,7 +316,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testPb2CsvForConcat() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
@@ -371,7 +336,7 @@ public class TestTransformProcessor {
 
     @Test
     public void testPb2CsvForNow() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList();
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
         String transformBase64 = this.getPbTestDescription();
         PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
