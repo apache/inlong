@@ -722,19 +722,15 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals("result=1278", output5.get(0));
     }
-//=======
 
     @Test
     public void testAsciiFunction() throws Exception {
         String transformSql1 = "select ascii(string1) from source";
-//>>>>>>> 32b67c2c6 ([INLONG-10882][SDK] Transform SQL support ASCII function)
         TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-//<<<<<<< HEAD
-//=======
         // case1: ascii('abc') -> 97
         List<String> output1 = processor1.transform("abc|el|EL|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
@@ -755,7 +751,6 @@ public class TestTransformStringFunctionsProcessor {
         List<String> output2 = processor2.transform("A|el|EL|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=null");
-//>>>>>>> 32b67c2c6 ([INLONG-10882][SDK] Transform SQL support ASCII function)
     }
 
 }
