@@ -17,11 +17,10 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.process.Context;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -63,7 +62,11 @@ public class KvSinkEncoder implements SinkEncoder<String> {
         if (fields == null || fields.size() == 0) {
             for (String fieldName : sinkData.keyList()) {
                 String fieldValue = sinkData.getField(fieldName);
-                builder.append(fieldName).append(kvDelimiter).append(fieldValue).append(entryDelimiter);
+                if (StringUtils.equals(fieldName, ALL_SOURCE_FIELD_SIGN)) {
+                    builder.append(fieldValue).append(entryDelimiter);
+                } else {
+                    builder.append(fieldName).append(kvDelimiter).append(fieldValue).append(entryDelimiter);
+                }
             }
         } else {
             for (FieldInfo field : fields) {

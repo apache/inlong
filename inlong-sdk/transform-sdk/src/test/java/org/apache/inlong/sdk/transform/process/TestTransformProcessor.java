@@ -350,4 +350,69 @@ public class TestTransformProcessor {
         List<String> output = processor.transform(srcBytes, new HashMap<>());
         Assert.assertEquals(2, output.size());
     }
+    @Test
+    public void testCsv2Star() throws Exception {
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
+        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', new ArrayList<>());
+        String transformSql = "select *";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createCsvEncoder(csvSink));
+
+        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "2024-04-28 00:00:00|ok");
+        // case2
+        config.setTransformSql("select * from source where extinfo!='ok'");
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createCsvEncoder(csvSink));
+
+        List<String> output2 = processor2.transform("2024-04-28 00:00:00|ok", new HashMap<>());
+        Assert.assertEquals(0, output2.size());
+        // case3
+        config.setTransformSql("select *,extinfo,ftime from source where extinfo!='ok'");
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createCsvEncoder(csvSink));
+
+        List<String> output3 = processor3.transform("2024-04-28 00:00:00|nok", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "2024-04-28 00:00:00|nok|nok|2024-04-28 00:00:00");
+    }
+
+    @Test
+    public void testKv2Star() throws Exception {
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
+        KvSourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
+        KvSinkInfo kvSink = new KvSinkInfo("UTF-8", new ArrayList<>());
+        String transformSql = "select *";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor1.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "ftime=2024-04-28 00:00:00&extinfo=ok");
+        // case2
+        config.setTransformSql("select * from source where extinfo!='ok'");
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output2 = processor2.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+        Assert.assertEquals(0, output2.size());
+        // case3
+        config.setTransformSql("select *,extinfo e1,ftime f1 from source where extinfo!='ok'");
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        List<String> output3 = processor3.transform("ftime=2024-04-28 00:00:00&extinfo=nok", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "ftime=2024-04-28 00:00:00&extinfo=nok&e1=nok&f1=2024-04-28 00:00:00");
+    }
 }
