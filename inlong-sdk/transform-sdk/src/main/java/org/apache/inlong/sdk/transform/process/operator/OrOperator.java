@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
  * OrOperator
  * 
  */
+@TransformOperator(values = OrExpression.class)
 public class OrOperator implements ExpressionOperator {
 
     private final ExpressionOperator left;

@@ -27,6 +27,7 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
  * NotEqualsToOperator
  * 
  */
+@TransformOperator(values = NotEqualsTo.class)
 public class NotEqualsToOperator implements ExpressionOperator {
 
     private final ValueParser left;
