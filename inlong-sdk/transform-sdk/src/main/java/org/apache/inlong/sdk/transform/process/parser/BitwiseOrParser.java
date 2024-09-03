@@ -22,42 +22,41 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.expression.SignedExpression;
+import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
- * SignParser
+ * BitwiseOrParser
+ * 
  */
 @Slf4j
-@TransformParser(values = SignedExpression.class)
-public class SignParser implements ValueParser {
+@TransformParser(values = BitwiseOr.class)
+public class BitwiseOrParser implements ValueParser {
 
-    private final char sign;
-    private final ValueParser number;
+    private final ValueParser left;
 
-    public SignParser(SignedExpression expr) {
-        sign = expr.getSign();
-        number = OperatorTools.buildParser(expr.getExpression());
+    private final ValueParser right;
+
+    public BitwiseOrParser(BitwiseOr expr) {
+        this.left = OperatorTools.buildParser(expr.getLeftExpression());
+        this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         try {
-            Object numberObject = number.parse(sourceData, rowIndex, context);
-            if (numberObject == null) {
+            Object leftObj = this.left.parse(sourceData, rowIndex, context);
+            Object rightObj = this.right.parse(sourceData, rowIndex, context);
+            if (leftObj == null || rightObj == null) {
                 return null;
             }
-            BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObject);
-            switch (sign) {
-                case '-':
-                    return numberValue.multiply(new BigDecimal(-1));
-                case '~':
-                    return Long.toUnsignedString(numberValue.toBigInteger().not().longValue());
-            }
+            BigInteger leftValue = OperatorTools.parseBigDecimal(leftObj).toBigInteger();
+            BigInteger rightValue = OperatorTools.parseBigDecimal(rightObj).toBigInteger();
+            return Long.toUnsignedString(leftValue.or(rightValue).longValue());
         } catch (Exception e) {
             log.error("Value parsing failed", e);
+            return null;
         }
-        return null;
     }
 }
