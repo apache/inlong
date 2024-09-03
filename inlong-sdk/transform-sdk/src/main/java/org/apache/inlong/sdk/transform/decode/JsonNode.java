@@ -21,16 +21,26 @@ import lombok.Data;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * JsonNode
- * 
+ *
+ * This class represents a node in a JSON structure. It can handle both simple
+ * nodes and nodes that represent arrays with indices.
+ *
+ * Example:
+ * For a JSON path like "arr(0, 1, 2)", the `JsonNode` will parse it as:
+ * - name: "arr"
+ * - arrayIndices: [0, 1, 2]
  */
 @Data
 public class JsonNode {
 
     private String name;
     private boolean isArray = false;
-    private int arrayIndex = -1;
+    private List<Integer> arrayIndices = new ArrayList<>();
 
     public JsonNode(String nodeString) {
         int beginIndex = nodeString.indexOf('(');
@@ -41,9 +51,14 @@ public class JsonNode {
             int endIndex = nodeString.lastIndexOf(')');
             if (endIndex >= 0) {
                 this.isArray = true;
-                this.arrayIndex = NumberUtils.toInt(nodeString.substring(beginIndex + 1, endIndex), -1);
-                if (this.arrayIndex < 0) {
-                    this.arrayIndex = 0;
+                String indicesString = nodeString.substring(beginIndex + 1, endIndex);
+                String[] indices = indicesString.split(",");
+                for (String index : indices) {
+                    int arrayIndex = NumberUtils.toInt(StringUtils.trim(index), -1);
+                    if (arrayIndex < 0) {
+                        arrayIndex = 0;
+                    }
+                    this.arrayIndices.add(arrayIndex);
                 }
             }
         }
