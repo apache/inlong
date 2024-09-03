@@ -15,40 +15,48 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.operator;
+package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
+
+import java.math.BigInteger;
 
 /**
- * EqualsToOperator
+ * BitwiseXorParser
  * 
  */
-@TransformOperator(values = EqualsTo.class)
-public class EqualsToOperator implements ExpressionOperator {
+@Slf4j
+@TransformParser(values = BitwiseXor.class)
+public class BitwiseXorParser implements ValueParser {
 
     private final ValueParser left;
+
     private final ValueParser right;
 
-    public EqualsToOperator(EqualsTo expr) {
+    public BitwiseXorParser(BitwiseXor expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
-    /**
-     * check
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
     @Override
-    public boolean check(SourceData sourceData, int rowIndex, Context context) {
-        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex, context),
-                (Comparable) this.right.parse(sourceData, rowIndex, context)) == 0;
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        try {
+            Object leftObj = this.left.parse(sourceData, rowIndex, context);
+            Object rightObj = this.right.parse(sourceData, rowIndex, context);
+            if (leftObj == null || rightObj == null) {
+                return null;
+            }
+            BigInteger leftValue = OperatorTools.parseBigDecimal(leftObj).toBigInteger();
+            BigInteger rightValue = OperatorTools.parseBigDecimal(rightObj).toBigInteger();
+            return Long.toUnsignedString(leftValue.xor(rightValue).longValue());
+        } catch (Exception e) {
+            log.error("Value parsing failed", e);
+            return null;
+        }
     }
-
 }

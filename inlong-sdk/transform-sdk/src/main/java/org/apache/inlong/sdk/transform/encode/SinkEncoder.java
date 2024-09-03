@@ -27,6 +27,8 @@ import java.util.List;
  */
 public interface SinkEncoder<Output> {
 
+    public static final String ALL_SOURCE_FIELD_SIGN = "*";
+
     Output encode(SinkData sinkData, Context context);
 
     List<FieldInfo> getFields();

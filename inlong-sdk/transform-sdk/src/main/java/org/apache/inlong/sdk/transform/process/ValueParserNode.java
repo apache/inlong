@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.pojo;
+package org.apache.inlong.sdk.transform.process;
 
-import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
+import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * FieldInfo
+ * ValueParserNode
  */
+@AllArgsConstructor
 @Data
-public class FieldInfo {
+public class ValueParserNode {
 
-    private String name;
-    private TypeConverter converter = TypeConverter.DefaultTypeConverter();
-
-    public FieldInfo() {
-
-    }
-
-    public FieldInfo(String name, TypeConverter converter) {
-        this.name = name;
-        this.converter = converter;
-    }
+    private String fieldName;
+    private ValueParser parser;
 }

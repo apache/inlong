@@ -15,40 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.operator;
+package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.Function;
 
 /**
- * EqualsToOperator
- * 
+ * RadiansFunction
+ * description:
+ *  - RADIANS(x)--returns radians of x, Convert degrees to radians
  */
-@TransformOperator(values = EqualsTo.class)
-public class EqualsToOperator implements ExpressionOperator {
+@TransformFunction(names = {"radians"})
+public class RadiansFunction implements ValueParser {
 
-    private final ValueParser left;
-    private final ValueParser right;
+    private ValueParser degreeParser;
 
-    public EqualsToOperator(EqualsTo expr) {
-        this.left = OperatorTools.buildParser(expr.getLeftExpression());
-        this.right = OperatorTools.buildParser(expr.getRightExpression());
+    public RadiansFunction(Function expr) {
+        degreeParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * check
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
     @Override
-    public boolean check(SourceData sourceData, int rowIndex, Context context) {
-        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex, context),
-                (Comparable) this.right.parse(sourceData, rowIndex, context)) == 0;
+    public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Object degreeObj = degreeParser.parse(sourceData, rowIndex, context);
+        if (degreeObj == null) {
+            return null;
+        }
+        return Math.toRadians(OperatorTools.parseBigDecimal(degreeObj).doubleValue());
     }
-
 }

@@ -15,28 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.parser;
+package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Function;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.nio.charset.StandardCharsets;
 
 /**
- * LongParser
- *
+ * ShaFunction
+ * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
+ * return NULL if the parameter is NULL
+ * return a string of 40 hexadecimal digits.
  */
-@TransformParser(values = DoubleValue.class)
-public class DoubleParser implements ValueParser {
+@TransformFunction(names = {"sha"})
+public class ShaFunction implements ValueParser {
 
-    private final Double value;
+    private final ValueParser msgParser;
 
-    public DoubleParser(DoubleValue expr) {
-        this.value = expr.getValue();
+    public ShaFunction(Function expr) {
+        msgParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        return value;
+        Object msgObj = msgParser.parse(sourceData, rowIndex, context);
+        if (msgObj == null) {
+            return null;
+        }
+        String msg = msgObj.toString();
+        return DigestUtils.sha1Hex(msg.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -288,6 +288,84 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
+    public void testShaFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: sha("")
+        transformSql = "select sha(numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=da39a3ee5e6b4b0d3255bfef95601890afd80709", output.get(0));
+
+        // case2: sha("5")
+        data = "5|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4", output.get(0));
+
+        // case3: sha(null)
+        transformSql = "select sha(xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "3|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
+    public void testSha2Function() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: sha2("",3)
+        transformSql = "select sha2(numeric1,numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case2: sha2("5",224)
+        data = "5|224|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17", output.get(0));
+
+        // case3: sha2("5",0)
+        data = "5|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", output.get(0));
+
+        // case4: sha2(null,224)
+        transformSql = "select sha2(xxd,224) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "3|224|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testMd5Function() throws Exception {
         String transformSql = "select md5(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
@@ -318,6 +396,181 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output4 = processor.transform("1|4|6|8");
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals("result=null", output4.get(0));
+    }
+
+    @Test
+    public void testBitwiseInversionOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: ~-4
+        transformSql = "select ~numeric1 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "-4|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=3", output.get(0));
+
+        // case2: ~4
+        data = "4|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551611", output.get(0));
+
+        // case3: ~0
+        data = "0|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551615", output.get(0));
+
+        // case4: ~~-4
+        transformSql = "select ~(~numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "-4|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551612", output.get(0));
+
+    }
+    @Test
+    public void testBitwiseAndOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: 18446744073709551615 & -1
+        transformSql = "select numeric1 & numeric2 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "18446744073709551615|-1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551615", output.get(0));
+
+        // case2: 18446744073709551615 & 0
+        data = "18446744073709551615|0|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+    }
+    @Test
+    public void testBitwiseOrOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: 18446744073709551615 | -1
+        transformSql = "select numeric1 | numeric2 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "18446744073709551615|-1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551615", output.get(0));
+
+        // case2: 4 | 3
+        data = "4|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=7", output.get(0));
+    }
+    @Test
+    public void testBitwiseRightShiftOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: 4 >> -1
+        transformSql = "select numeric1 >> numeric2 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "4|-1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+
+        // case2: 9223372036854775808 >> 2
+        data = "9223372036854775808|2|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=2305843009213693952", output.get(0));
+
+        // case3: 9223372036854775808 >> 9223372036854775808
+        data = "9223372036854775808|9223372036854775808|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+    }
+    @Test
+    public void testBitwiseLeftShiftOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: 9223372036854775807 << 1
+        transformSql = "select numeric1 << numeric2 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "9223372036854775807|1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551614", output.get(0));
+
+        // case2: 18446744073709551615 << 18446744073709551615
+        data = "18446744073709551615|18446744073709551615|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+
+        // case3: 9223372036854775807 << -1
+        data = "9223372036854775807|-1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0", output.get(0));
+    }
+    @Test
+    public void testBitwiseXorOperator() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        // case1: 4 ^ 3
+        transformSql = "select numeric1 ^ numeric2 from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "4|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=7", output.get(0));
+
+        // case2: 4 ^ -1
+        data = "4|-1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=18446744073709551611", output.get(0));
     }
 
     @Test
@@ -420,6 +673,23 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output2 = processor.transform("10|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=2.302585092994046");
+    }
+
+    @Test
+    public void testRadiansFunction() throws Exception {
+        String transformSql = "select radians(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: radians(10)
+        List<String> output1 = processor.transform("10|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=0.17453292519943295");
+        // case2: radians(18.97)
+        List<String> output2 = processor.transform("18.97|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=0.33108895910332425");
     }
 
     @Test
@@ -709,6 +979,19 @@ public class TestTransformArithmeticFunctionsProcessor {
         List<String> output5 = processor1.transform("abc|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=616263");
+    }
+
+    @Test
+    public void testPiFunction() throws Exception {
+        String transformSql1 = "select pi() from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case: pi()
+        List<String> output1 = processor1.transform("1007|4|6|8", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=3.141592653589793");
     }
 
 }

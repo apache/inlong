@@ -15,27 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.pojo;
+package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import lombok.Data;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * FieldInfo
- */
-@Data
-public class FieldInfo {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface TransformOperator {
 
-    private String name;
-    private TypeConverter converter = TypeConverter.DefaultTypeConverter();
-
-    public FieldInfo() {
-
-    }
-
-    public FieldInfo(String name, TypeConverter converter) {
-        this.name = name;
-        this.converter = converter;
-    }
+    Class<?>[] values();
 }
