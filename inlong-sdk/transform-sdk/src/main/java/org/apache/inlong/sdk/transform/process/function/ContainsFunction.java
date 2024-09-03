@@ -51,6 +51,6 @@ public class ContainsFunction implements ValueParser {
         Object rightStrObj = rightStrParser.parse(sourceData, rowIndex, context);
         String leftStr = OperatorTools.parseString(leftStrObj);
         String rightStr = OperatorTools.parseString(rightStrObj);
-        return leftStr.contains(rightStr);
+        return (leftStr == null || rightStr == null) ? null : leftStr.contains(rightStr);
     }
 }
