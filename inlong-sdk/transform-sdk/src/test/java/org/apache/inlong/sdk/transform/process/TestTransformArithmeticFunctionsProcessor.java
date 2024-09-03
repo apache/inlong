@@ -193,22 +193,22 @@ public class TestTransformArithmeticFunctionsProcessor {
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case1: 5!
+        // case1: Valid input - 5!
         List<String> output1 = processor.transform("5|4|6|8");
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("numeric1=120", output1.get(0));
 
-        // case2: 0!
+        // case2: Valid input - 0!
         List<String> output2 = processor.transform("0|4|6|8");
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals("numeric1=1", output2.get(0));
 
-        // case3: 5.5! - Non-integer input
+        // case3: Non-integer input (5.5) should return null
         List<String> output3 = processor.transform("5.5|4|6|8");
         Assert.assertEquals(1, output3.size());
         Assert.assertNull(output3.get(0));
 
-        // case4: -5! - Negative input
+        // case4: Negative input (-5) should return null
         List<String> output4 = processor.transform("-5|4|6|8");
         Assert.assertEquals(1, output4.size());
         Assert.assertNull(output4.get(0));
