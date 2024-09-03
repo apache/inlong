@@ -63,7 +63,11 @@ public class KvSinkEncoder implements SinkEncoder<String> {
         if (fields == null || fields.size() == 0) {
             for (String fieldName : sinkData.keyList()) {
                 String fieldValue = sinkData.getField(fieldName);
-                builder.append(fieldName).append(kvDelimiter).append(fieldValue).append(entryDelimiter);
+                if (StringUtils.equals(fieldName, ALL_SOURCE_FIELD_SIGN)) {
+                    builder.append(fieldValue).append(entryDelimiter);
+                } else {
+                    builder.append(fieldName).append(kvDelimiter).append(fieldValue).append(entryDelimiter);
+                }
             }
         } else {
             for (FieldInfo field : fields) {
