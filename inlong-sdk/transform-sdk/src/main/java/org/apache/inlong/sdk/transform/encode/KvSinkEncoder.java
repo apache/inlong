@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.process.Context;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;

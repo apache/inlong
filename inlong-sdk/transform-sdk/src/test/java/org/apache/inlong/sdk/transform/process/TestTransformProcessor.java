@@ -385,14 +385,14 @@ public class TestTransformProcessor {
         // case4
         CsvSourceInfo csvSourceNoField = new CsvSourceInfo("UTF-8", '|', '\\', new ArrayList<>());
         CsvSinkInfo csvSinkNoField = new CsvSinkInfo("UTF-8", '|', '\\', new ArrayList<>());
-        config.setTransformSql("select * from source where extinfo!='ok'");
+        config.setTransformSql("select *,$2,$1 from source where extinfo!='ok'");
         TransformProcessor<String, String> processor4 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSourceNoField),
                         SinkEncoderFactory.createCsvEncoder(csvSinkNoField));
 
         List<String> output4 = processor4.transform("2024-04-28 00:00:00|nok", new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "2024-04-28 00:00:00|nok");
+        Assert.assertEquals(output4.get(0), "2024-04-28 00:00:00|nok|nok|2024-04-28 00:00:00");
     }
 
     @Test
