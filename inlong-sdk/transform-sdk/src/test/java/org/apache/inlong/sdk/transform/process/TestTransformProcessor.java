@@ -385,7 +385,7 @@ public class TestTransformProcessor {
         // case4
         CsvSourceInfo csvSourceNoField = new CsvSourceInfo("UTF-8", '|', '\\', new ArrayList<>());
         CsvSinkInfo csvSinkNoField = new CsvSinkInfo("UTF-8", '|', '\\', new ArrayList<>());
-        config.setTransformSql("select *,$2,$1 from source where extinfo!='ok'");
+        config.setTransformSql("select *,$2,$1 from source where $2='nok'");
         TransformProcessor<String, String> processor4 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSourceNoField),
                         SinkEncoderFactory.createCsvEncoder(csvSinkNoField));
