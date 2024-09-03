@@ -24,6 +24,7 @@ import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.ParquetSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.XmlSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.YamlSourceInfo;
 
 public class SourceDecoderFactory {
@@ -38,6 +39,10 @@ public class SourceDecoderFactory {
 
     public static JsonSourceDecoder createJsonDecoder(JsonSourceInfo sourceInfo) {
         return new JsonSourceDecoder(sourceInfo);
+    }
+
+    public static XmlSourceDecoder createXmlDecoder(XmlSourceInfo sourceInfo) {
+        return new XmlSourceDecoder(sourceInfo);
     }
 
     public static PbSourceDecoder createPbDecoder(PbSourceInfo sourceInfo) {
