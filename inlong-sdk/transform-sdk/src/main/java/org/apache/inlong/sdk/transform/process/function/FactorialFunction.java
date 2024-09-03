@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
@@ -31,45 +32,66 @@ import java.math.BigDecimal;
  * description: factorial(numeric)--returns the factorial of a non-negative
  * integer
  */
+@Slf4j
 public class FactorialFunction implements ValueParser {
 
-    private ValueParser numberParser;
+    private final ValueParser numberParser;
 
     /**
      * Constructor
-     * 
+     *
      * @param expr
      */
     public FactorialFunction(Function expr) {
         if (expr == null || expr.getParameters() == null || expr.getParameters().getExpressions() == null
+                || expr.getParameters().getExpressions().isEmpty()
                 || expr.getParameters().getExpressions().get(0) == null) {
-            throw new IllegalArgumentException("Invalid expression for factorial function.");
+            log.error("Invalid expression for factorial function.");
+            numberParser = null;
+        } else {
+            numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
         }
-        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     /**
      * parse
-     * 
+     *
      * @param sourceData
      * @param rowIndex
      * @return
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        if (numberObj == null) {
-            throw new IllegalArgumentException("Number object cannot be null.");
+        if (numberParser == null) {
+            log.error("Number parser is not initialized.");
+            return null;
         }
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
 
-        // 调试输出
-        System.out.println("Parsed number: " + numberValue);
-        System.out.println("Scale: " + numberValue.scale());
+        Object numberObj;
+        try {
+            numberObj = numberParser.parse(sourceData, rowIndex, context);
+        } catch (Exception e) {
+            log.error("Error parsing number object", e);
+            return null;
+        }
+
+        if (numberObj == null) {
+            log.warn("Parsed number object is null.");
+            return null;
+        }
+
+        BigDecimal numberValue;
+        try {
+            numberValue = OperatorTools.parseBigDecimal(numberObj);
+        } catch (Exception e) {
+            log.error("Error converting parsed object to BigDecimal", e);
+            return null;
+        }
 
         // Ensure the number is a non-negative integer
         if (numberValue.scale() > 0 || numberValue.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Factorial is only defined for non-negative integers.");
+            log.warn("Factorial is only defined for non-negative integers. Invalid input: {}", numberValue);
+            return null;
         }
 
         return factorial(numberValue.intValue());
@@ -77,13 +99,14 @@ public class FactorialFunction implements ValueParser {
 
     /**
      * Helper method to calculate factorial
-     * 
+     *
      * @param n
      * @return
      */
     private BigDecimal factorial(int n) {
         if (n < 0) {
-            throw new IllegalArgumentException("Factorial is not defined for negative numbers.");
+            log.error("Factorial is not defined for negative numbers.");
+            return null;
         }
         BigDecimal result = BigDecimal.ONE;
         for (int i = 2; i <= n; i++) {

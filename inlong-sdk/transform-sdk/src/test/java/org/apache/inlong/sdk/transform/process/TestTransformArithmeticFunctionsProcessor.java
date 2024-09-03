@@ -204,20 +204,14 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertEquals("numeric1=1", output2.get(0));
 
         // case3: 5.5! - Non-integer input
-        try {
-            processor.transform("5.5|4|6|8");
-            Assert.fail("Expected an exception for non-integer input");
-        } catch (IllegalArgumentException e) {
-            Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
-        }
+        List<String> output3 = processor.transform("5.5|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertNull(output3.get(0));
 
         // case4: -5! - Negative input
-        try {
-            processor.transform("-5|4|6|8");
-            Assert.fail("Expected an exception for negative input");
-        } catch (IllegalArgumentException e) {
-            Assert.assertEquals("Factorial is only defined for non-negative integers.", e.getMessage());
-        }
+        List<String> output4 = processor.transform("-5|4|6|8");
+        Assert.assertEquals(1, output4.size());
+        Assert.assertNull(output4.get(0));
     }
 
     @Test
