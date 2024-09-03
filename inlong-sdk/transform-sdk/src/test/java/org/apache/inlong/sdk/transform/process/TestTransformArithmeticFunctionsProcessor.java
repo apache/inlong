@@ -175,43 +175,32 @@ public class TestTransformArithmeticFunctionsProcessor {
     }
 
     @Test
-    public void testFactorialFunction() throws Exception {
-
-        List<FieldInfo> fields = new ArrayList<>();
-        FieldInfo numeric1 = new FieldInfo();
-        numeric1.setName("numeric1");
-        fields.add(numeric1);
-
-        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
-        KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
-
-        String transformSql = "select factorial(numeric1) as numeric1 from source";
-
+    public void testFibonacciFunction() throws Exception {
+        String transformSql = "select fibonacci(numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
-
         TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case1: Valid input - 5!
-        List<String> output1 = processor.transform("5|4|6|8");
+        // case1: fibonacci(0)
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("numeric1=120", output1.get(0));
+        Assert.assertEquals(output1.get(0), "result=0");
 
-        // case2: Valid input - 0!
-        List<String> output2 = processor.transform("0|4|6|8");
+        // case2: fibonacci(1)
+        List<String> output2 = processor.transform("1|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals("numeric1=1", output2.get(0));
+        Assert.assertEquals(output2.get(0), "result=1");
 
-        // case3: Non-integer input (5.5) should return null
-        List<String> output3 = processor.transform("5.5|4|6|8");
+        // case3: fibonacci(7)
+        List<String> output3 = processor.transform("7|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertNull(output3.get(0));
+        Assert.assertEquals(output3.get(0), "result=13");
 
-        // case4: Negative input (-5) should return null
-        List<String> output4 = processor.transform("-5|4|6|8");
+        // case4: fibonacci(10)
+        List<String> output4 = processor.transform("10|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertNull(output4.get(0));
+        Assert.assertEquals(output4.get(0), "result=55");
     }
 
     @Test

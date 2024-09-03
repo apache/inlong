@@ -25,7 +25,7 @@ import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
-import org.apache.inlong.sdk.transform.process.function.FactorialFunction;
+import org.apache.inlong.sdk.transform.process.function.FibonacciFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
@@ -132,7 +132,7 @@ public class OperatorTools {
                 func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
                         func));
         functionMap.put("round", RoundFunction::new);
-        functionMap.put("factorial", FactorialFunction::new);
+        functionMap.put("factorial", FibonacciFunction::new);
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
@@ -191,8 +191,8 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor =
-                        functionMap.get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
+                        .get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {
