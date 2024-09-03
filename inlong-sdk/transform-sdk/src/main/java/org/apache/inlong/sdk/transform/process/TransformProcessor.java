@@ -31,23 +31,23 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * TransformProcessor
- * 
+ *
  */
 public class TransformProcessor<I, O> {
 
@@ -61,7 +61,9 @@ public class TransformProcessor<I, O> {
 
     private PlainSelect transformSelect;
     private ExpressionOperator where;
-    private Map<String, ValueParser> selectItemMap;
+    private List<ValueParserNode> selectItems;
+
+    private boolean includeAllSourceFields = false;
 
     public static <I, O> TransformProcessor<I, O> create(
             TransformConfig config,
@@ -91,7 +93,7 @@ public class TransformProcessor<I, O> {
         this.transformSelect = (PlainSelect) select.getSelectBody();
         this.where = OperatorTools.buildOperator(this.transformSelect.getWhere());
         List<SelectItem> items = this.transformSelect.getSelectItems();
-        this.selectItemMap = new HashMap<>(items.size());
+        this.selectItems = new ArrayList<>(items.size());
         List<FieldInfo> fields = this.encoder.getFields();
         for (int i = 0; i < items.size(); i++) {
             SelectItem item = items.get(i);
@@ -108,8 +110,12 @@ public class TransformProcessor<I, O> {
                         fieldName = exprItem.getAlias().getName();
                     }
                 }
-                this.selectItemMap.put(fieldName,
-                        OperatorTools.buildParser(exprItem.getExpression()));
+                this.selectItems
+                        .add(new ValueParserNode(fieldName, OperatorTools.buildParser(exprItem.getExpression())));
+            } else if (item instanceof AllColumns) {
+                fieldName = item.toString();
+                this.encoder.getFields().clear();
+                this.selectItems.add(new ValueParserNode(fieldName, null));
             }
         }
     }
@@ -137,10 +143,18 @@ public class TransformProcessor<I, O> {
 
             // parse value
             SinkData sinkData = new DefaultSinkData();
-            for (Entry<String, ValueParser> entry : this.selectItemMap.entrySet()) {
-                String fieldName = entry.getKey();
+            for (ValueParserNode node : this.selectItems) {
+                String fieldName = node.getFieldName();
+                ValueParser parser = node.getParser();
+                if (parser == null && StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                    if (input instanceof String) {
+                        sinkData.addField(fieldName, (String) input);
+                    } else {
+                        sinkData.addField(fieldName, "");
+                    }
+                    continue;
+                }
                 try {
-                    ValueParser parser = entry.getValue();
                     Object fieldValue = parser.parse(sourceData, i, context);
                     sinkData.addField(fieldName, String.valueOf(fieldValue));
                 } catch (Throwable t) {

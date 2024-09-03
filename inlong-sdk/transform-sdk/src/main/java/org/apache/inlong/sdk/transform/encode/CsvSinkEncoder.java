@@ -66,7 +66,11 @@ public class CsvSinkEncoder implements SinkEncoder<String> {
             } else {
                 for (String fieldName : sinkData.keyList()) {
                     String fieldValue = sinkData.getField(fieldName);
-                    EscapeUtils.escapeContent(builder, delimiter, escapeChar, fieldValue);
+                    if (StringUtils.equals(fieldName, ALL_SOURCE_FIELD_SIGN)) {
+                        builder.append(fieldValue);
+                    } else {
+                        EscapeUtils.escapeContent(builder, delimiter, escapeChar, fieldValue);
+                    }
                     builder.append(delimiter);
                 }
             }
