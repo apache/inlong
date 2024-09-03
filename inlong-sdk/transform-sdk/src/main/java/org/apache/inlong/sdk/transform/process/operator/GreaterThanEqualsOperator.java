@@ -27,6 +27,7 @@ import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
  * GreaterThanEqualsOperator
  * 
  */
+@TransformOperator(values = GreaterThanEquals.class)
 public class GreaterThanEqualsOperator implements ExpressionOperator {
 
     private final ValueParser left;
