@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.transform.process.function.DateExtractFunction;
 import org.apache.inlong.sdk.transform.process.function.DateExtractFunction.DateExtractFunctionType;
 import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
 import org.apache.inlong.sdk.transform.process.function.ExpFunction;
+import org.apache.inlong.sdk.transform.process.function.FibonacciFunction;
 import org.apache.inlong.sdk.transform.process.function.FloorFunction;
 import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
@@ -43,9 +44,7 @@ import org.apache.inlong.sdk.transform.process.function.TimestampExtractFunction
 import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
 import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
 import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
-import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
-import org.apache.inlong.sdk.transform.process.parser.ParserTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -65,6 +64,8 @@ import org.apache.commons.lang.ObjectUtils;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * OperatorTools
@@ -116,6 +117,8 @@ public class OperatorTools {
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
+        functionMap.put("fibonacci", FibonacciFunction::new);
+
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
@@ -151,8 +154,8 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor =
-                        functionMap.get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
+                        .get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {
