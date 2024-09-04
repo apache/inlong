@@ -28,7 +28,7 @@ import lombok.Data;
 public class FieldInfo {
 
     private String name;
-    private TypeConverter converter;
+    private TypeConverter converter = TypeConverter.DefaultTypeConverter();
 
     public FieldInfo() {
 

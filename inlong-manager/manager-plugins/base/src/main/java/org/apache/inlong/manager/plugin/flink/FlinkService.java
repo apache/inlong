@@ -23,6 +23,7 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
+import org.apache.inlong.manager.plugin.util.ApplicationContextProvider;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,12 +63,14 @@ public class FlinkService {
     private static final Pattern IP_PORT_PATTERN = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
     private final FlinkConfig flinkConfig;
-    private final Integer parallelism;
+    private Integer parallelism;
     private final String savepointDirectory;
     // map endpoint to Configuration
     private final Map<String, Configuration> configurations = new HashMap<>();
     // map Configuration to FlinkClientService
     private final Map<Configuration, FlinkClientService> flinkClientServices = new HashMap<>();
+
+    private final FlinkParallelismOptimizer flinkParallelismOptimizer;
 
     /**
      * Constructor of FlinkService.
@@ -76,6 +79,8 @@ public class FlinkService {
         flinkConfig = FlinkUtils.getFlinkConfigFromFile();
         parallelism = flinkConfig.getParallelism();
         savepointDirectory = flinkConfig.getSavepointDirectory();
+        // let spring inject the bean
+        flinkParallelismOptimizer = ApplicationContextProvider.getContext().getBean(FlinkParallelismOptimizer.class);
     }
 
     private static class FlinkServiceHolder {
@@ -213,6 +218,21 @@ public class FlinkService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
 
         Configuration configuration = getFlinkConfiguration(flinkInfo.getEndpoint());
+        log.debug("flink info: {}", flinkInfo);
+        if (flinkConfig.getDynamicParallelismEnable()) {
+            flinkParallelismOptimizer.setMaximumMessagePerSecondPerCore(flinkConfig.getMaxMsgRatePerCore());
+            // get stream info list for auditing
+            int recommendedParallelism =
+                    flinkParallelismOptimizer.calculateRecommendedParallelism(flinkInfo.getInlongStreamInfoList());
+            // Ensure parallelism is at least the default value
+            recommendedParallelism = recommendedParallelism < parallelism ? parallelism : recommendedParallelism;
+
+            if (recommendedParallelism != parallelism) {
+                log.info("switched to recommended parallelism: {}", recommendedParallelism);
+                parallelism = recommendedParallelism;
+            }
+        }
+        log.info("current parallelism: {}", parallelism);
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)

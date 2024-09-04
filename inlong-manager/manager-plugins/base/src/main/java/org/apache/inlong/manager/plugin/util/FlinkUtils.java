@@ -218,6 +218,9 @@ public class FlinkUtils {
         flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
         flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
         flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
+        flinkConfig.setDynamicParallelismEnable(Boolean.parseBoolean(properties.getProperty(
+                Constants.FLINK_DYNAMIC_PARALLELISM_ENABLE)));
+        flinkConfig.setMaxMsgRatePerCore(Integer.valueOf(properties.getProperty(Constants.FLINK_MAX_MSG_RATE_PERCORE)));
         return flinkConfig;
     }
 

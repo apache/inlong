@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -215,6 +216,16 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output7 = processor7.transform("2024-02-29", new HashMap<>());
         Assert.assertEquals(1, output7.size());
         Assert.assertEquals(output7.get(0), "result=5");
+
+        String transformSql8 = "select dayname(string1) from source";
+        TransformConfig config8 = new TransformConfig(transformSql8);
+        TransformProcessor<String, String> processor8 = TransformProcessor
+                .create(config8, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case8: dayname(2024-02-29) (Thursday)
+        List<String> output8 = processor8.transform("2024-02-29", new HashMap<>());
+        Assert.assertEquals(1, output8.size());
+        Assert.assertEquals(output8.get(0), "result=THURSDAY");
     }
 
     @Test
@@ -379,6 +390,54 @@ public class TestTransformTemporalFunctionsProcessor {
     }
 
     @Test
+    public void testDateDiffFunction() throws Exception {
+        String transformSql = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select datediff(string1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: datediff('1970-01-01','1970-01-02')
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=-1", output.get(0));
+
+        // case2: datediff('1970-01-02','1970-01-01')
+        output = processor.transform("1970-01-02|1970-01-01", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case3: datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00')
+        output = processor.transform("2018-12-10 12:30:00|2018-12-09 13:30:00", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case4: datediff('2018-12-10 12:30:00', '')
+        output = processor.transform("2018-12-10 12:30:00|", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case5: datediff('2018-12', '2018-12-12')
+        output = processor.transform("2018-12|2018-12-12", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case6: datediff('1970-01-01',null)
+        transformSql = "select datediff(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testLocalTimeFunction() throws Exception {
         String transformSql1 = "select localtime() from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
@@ -419,6 +478,47 @@ public class TestTransformTemporalFunctionsProcessor {
         Duration duration3 = Duration.between(expectedTime3, actualTime3);
         Assert.assertEquals(1, output3.size());
         Assert.assertTrue(duration3.getSeconds() < 1);
+    }
+
+    @Test
+    public void testLocalDateFunction() throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // case1: localDate() - default system time zone
+        String transformSql1 = "select localdate() from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output1 = processor1.transform("", new HashMap<>());
+        LocalDate expectedDate1 = LocalDate.now(ZoneId.systemDefault());
+        LocalDate actualDate1 = LocalDate.parse(output1.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(expectedDate1, actualDate1);
+
+        // case2: localDate("UTC")
+        String transformSql2 = "select localdate('UTC') from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output2 = processor2.transform("", new HashMap<>());
+        LocalDate expectedDate2 = LocalDate.now(ZoneId.of("UTC"));
+        LocalDate actualDate2 = LocalDate.parse(output2.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(expectedDate2, actualDate2);
+
+        // case3: localDate("UTC-12")
+        String transformSql3 = "select localdate('UTC-12') from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        List<String> output3 = processor3.transform("", new HashMap<>());
+        LocalDate expectedDate3 = LocalDate.now(ZoneId.of("UTC-12"));
+        LocalDate actualDate3 = LocalDate.parse(output3.get(0).split("=")[1], formatter);
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(expectedDate3, actualDate3);
     }
 
     @Test

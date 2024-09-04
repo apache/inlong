@@ -40,4 +40,9 @@ public class FlinkConfig {
     // flink version
     private String version;
 
+    // max msg rate per core
+    private Integer maxMsgRatePerCore;
+
+    // whether to enable dynamic parallelism
+    private Boolean dynamicParallelismEnable;
 }

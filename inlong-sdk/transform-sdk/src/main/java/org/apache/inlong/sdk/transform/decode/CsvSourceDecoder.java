@@ -76,9 +76,13 @@ public class CsvSourceDecoder implements SourceDecoder<String> {
             int fieldIndex = 0;
             for (FieldInfo field : fields) {
                 String fieldName = field.getName();
-                String fieldValue = null;
+                Object fieldValue = null;
                 if (fieldIndex < fieldValues.length) {
-                    fieldValue = fieldValues[fieldIndex];
+                    try {
+                        fieldValue = field.getConverter().convert(fieldValues[fieldIndex]);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 sourceData.putField(fieldName, fieldValue);
                 fieldIndex++;

@@ -28,6 +28,7 @@ import java.sql.Timestamp;
  * DateParser
  * description: parse the sql expression to a java.sql.Timestamp object
  */
+@TransformParser(values = TimestampValue.class)
 public class TimestampParser implements ValueParser {
 
     private final Timestamp timestampValue;

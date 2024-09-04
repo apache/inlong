@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
  * AndOperator
  * 
  */
+@TransformOperator(values = AndExpression.class)
 public class AndOperator implements ExpressionOperator {
 
     private final ExpressionOperator left;

@@ -26,5 +26,5 @@ public interface SourceData {
 
     int getRowCount();
 
-    String getField(int rowNum, String fieldName);
+    Object getField(int rowNum, String fieldName);
 }

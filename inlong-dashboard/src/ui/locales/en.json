@@ -838,6 +838,7 @@
   "pages.Clusters.Node.Status": "Status",
   "pages.Clusters.Node.Status.Normal": "Normal",
   "pages.Clusters.Node.Status.Timeout": "Timeout",
+  "pages.Clusters.Node.LastModifier": "Last modifier",
   "pages.Clusters.Node.Creator": "Creator",
   "pages.Clusters.Node.Create": "Create",
   "pages.Clusters.Node.IpRule": "Please enter the IP address correctly",
