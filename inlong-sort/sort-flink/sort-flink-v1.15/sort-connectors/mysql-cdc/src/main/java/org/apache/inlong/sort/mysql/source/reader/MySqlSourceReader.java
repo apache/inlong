@@ -47,6 +47,13 @@ import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
+import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter;
+import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.logs.SdkLoggerProvider;
+import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
@@ -88,6 +95,7 @@ public class MySqlSourceReader<T>
     private final MySqlSourceReaderContext mySqlSourceReaderContext;
     private MySqlBinlogSplit suspendedBinlogSplit;
     private final DebeziumDeserializationSchema<T> metricSchema;
+    private OpenTelemetrySdk SDK;
 
     public MySqlSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementQueue,
@@ -113,9 +121,31 @@ public class MySqlSourceReader<T>
 
     @Override
     public void start() {
+        this.SDK = OpenTelemetrySdk.builder()
+                .setLoggerProvider(
+                        SdkLoggerProvider.builder()
+                                .setResource(
+                                        Resource.getDefault().toBuilder()
+                                                .put(ResourceAttributes.SERVICE_NAME, "log4j-example")
+                                                .build())
+                                .addLogRecordProcessor(
+                                        BatchLogRecordProcessor.builder(
+                                                OtlpGrpcLogRecordExporter.builder()
+                                                        .setEndpoint("http://127.0.0.1:4317")
+                                                        .build())
+                                                .build())
+                                .build())
+                .build();
+        OpenTelemetryAppender.install(SDK);
         if (getNumberOfCurrentlyAssignedSplits() == 0) {
             context.sendSplitRequest();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        SDK.close();
     }
 
     @Override

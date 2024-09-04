@@ -7,9 +7,7 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
+http://www.apache.org/licenses/LICENSE-2.0
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,22 +18,73 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.15</artifactId>
         <version>1.14.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
     <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-mysql-cdc</name>
-
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
-
     <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-api</artifactId>
+            <version>1.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-log4j-appender-2.17</artifactId>
+            <version>1.28.0-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-trace</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-semconv</artifactId>
+            <version>1.28.0-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-logs</artifactId>
+            <version>1.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>1.17.2</version>
+        </dependency>
         <!-- Debezium dependencies -->
         <dependency>
             <groupId>com.ververica</groupId>
@@ -78,7 +127,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -92,6 +140,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>
@@ -113,6 +162,11 @@
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>io.opentelemetry</include>
+                                    <include>io.opentelemetry.*</include>
+                                    <include>io.opentelemetry-sdk.*</include>
+                                    <include>com.squareup.okhttp3</include>
+                                    <include>com.squareup.okio</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -137,10 +191,6 @@
                                 </filter>
                             </filters>
                             <relocations>
-                                <relocation>
-                                    <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.base</shadedPattern>
-                                </relocation>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.cdc.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.cdc.base</shadedPattern>
