@@ -29,6 +29,12 @@ import net.sf.jsqlparser.expression.NullValue;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ConcatWsFunction
+ * description: concat_ws(string1, string2, string3,…)--Returns a string that concatenates STRING2,
+ * STRING3, … with a separator STRING1. The separator is added between the strings to be concatenated.
+ * Returns NULL If STRING1 is NULL.
+ */
 @TransformFunction(names = {"concat_ws"})
 public class ConcatWsFunction implements ValueParser {
 
@@ -70,7 +76,7 @@ public class ConcatWsFunction implements ValueParser {
             return null;
         }
         StringBuilder result = new StringBuilder();
-        Boolean firstStrFlag = true;
+        boolean firstStrFlag = true;
         for (ValueParser node : nodeList) {
             if (node != null) {
                 Object parsedValue = node.parse(sourceData, rowIndex, context);
