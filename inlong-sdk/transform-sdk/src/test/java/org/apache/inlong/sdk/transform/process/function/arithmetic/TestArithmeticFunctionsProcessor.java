@@ -31,7 +31,9 @@ import org.junit.runners.Suite;
         TestLogFunction.class, TestLog10Function.class, TestMd5Function.class, TestModuloFunction.class,
         TestPiFunction.class, TestPowerFunction.class, TestRadiansFunction.class, TestRandFunction.class,
         TestRoundFunction.class, TestSha2Function.class, TestShaFunction.class, TestSignFunction.class,
-        TestSinFunction.class, TestSinhFunction.class, TestSqrtFunction.class, TestTanFunction.class
+        TestSinFunction.class, TestSinhFunction.class, TestSqrtFunction.class, TestTanFunction.class,
+        TestAsinFunction.class, TestAtanFunction.class, TestAtan2Function.class, TestCoshFunction.class,
+        TestCoshFunction.class, TestTanhFunction.class
 })
 public class TestArithmeticFunctionsProcessor {
 }
