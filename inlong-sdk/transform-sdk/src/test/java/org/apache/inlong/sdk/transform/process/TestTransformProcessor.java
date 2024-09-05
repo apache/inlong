@@ -458,7 +458,8 @@ public class TestTransformProcessor {
                 .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        List<String> output1 = processor1.transform("key1=string11&key2=string12&key3=number11&key4=number12", new HashMap<>());
+        List<String> output1 =
+                processor1.transform("key1=string11&key2=string12&key3=number11&key4=number12", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("field1=string11&field2=&field3=number12", output1.get(0));
     }
