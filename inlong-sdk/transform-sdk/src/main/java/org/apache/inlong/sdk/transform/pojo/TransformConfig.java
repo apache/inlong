@@ -35,16 +35,32 @@ public class TransformConfig {
     @JsonProperty("configuration")
     private Map<String, Object> configuration;
 
+    @JsonProperty("strictOrder")
+    private boolean strictOrder = true;
+
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql) {
-        this(transformSql, ImmutableMap.of());
+        this(transformSql, ImmutableMap.of(), true);
     }
 
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql,
             @JsonProperty("configuration") Map<String, Object> configuration) {
+        this(transformSql, configuration, true);
+    }
+    @JsonCreator
+    public TransformConfig(@JsonProperty("transformSql") String transformSql,
+            @JsonProperty("strictOrder") boolean strictOrder) {
+        this(transformSql, ImmutableMap.of(), strictOrder);
+    }
+
+    @JsonCreator
+    public TransformConfig(@JsonProperty("transformSql") String transformSql,
+            @JsonProperty("configuration") Map<String, Object> configuration,
+            @JsonProperty("strictOrder") boolean strictOrder) {
         this.transformSql = Preconditions.checkNotNull(transformSql, "transform sql should not be null");
         this.configuration = configuration;
+        this.strictOrder = strictOrder;
     }
 
     /**
@@ -59,6 +75,11 @@ public class TransformConfig {
     @JsonProperty("configuration")
     public Map<String, Object> getConfiguration() {
         return configuration;
+    }
+
+    @JsonProperty("strictOrder")
+    public boolean getStrictOrder() {
+        return strictOrder;
     }
 
     /**
