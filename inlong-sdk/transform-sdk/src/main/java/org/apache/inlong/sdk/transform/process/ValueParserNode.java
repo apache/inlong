@@ -15,21 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.encode;
+package org.apache.inlong.sdk.transform.process;
 
-import org.apache.inlong.sdk.transform.pojo.FieldInfo;
-import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
- * SinkEncoder
+ * ValueParserNode
  */
-public interface SinkEncoder<Output> {
+@AllArgsConstructor
+@Data
+public class ValueParserNode {
 
-    public static final String ALL_SOURCE_FIELD_SIGN = "*";
-
-    Output encode(SinkData sinkData, Context context);
-
-    List<FieldInfo> getFields();
+    private String fieldName;
+    private ValueParser parser;
 }
