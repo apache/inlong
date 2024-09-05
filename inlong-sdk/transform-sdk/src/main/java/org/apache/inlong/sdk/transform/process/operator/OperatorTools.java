@@ -17,9 +17,31 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.function.FunctionTools;
+import org.apache.inlong.sdk.transform.process.function.AbsFunction;
+import org.apache.inlong.sdk.transform.process.function.CeilFunction;
+import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.CosFunction;
+import org.apache.inlong.sdk.transform.process.function.DateFormatFunction;
+import org.apache.inlong.sdk.transform.process.function.ExpFunction;
+import org.apache.inlong.sdk.transform.process.function.FibonacciFunction;
+import org.apache.inlong.sdk.transform.process.function.FloorFunction;
+import org.apache.inlong.sdk.transform.process.function.FromUnixTimeFunction;
+import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.LocateFunction;
+import org.apache.inlong.sdk.transform.process.function.Log10Function;
+import org.apache.inlong.sdk.transform.process.function.Log2Function;
+import org.apache.inlong.sdk.transform.process.function.LogFunction;
+import org.apache.inlong.sdk.transform.process.function.NowFunction;
+import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.RoundFunction;
+import org.apache.inlong.sdk.transform.process.function.SinFunction;
+import org.apache.inlong.sdk.transform.process.function.SinhFunction;
+import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
+import org.apache.inlong.sdk.transform.process.function.SubstringFunction;
+import org.apache.inlong.sdk.transform.process.function.ToDateFunction;
+import org.apache.inlong.sdk.transform.process.function.ToTimestampFunction;
+import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
-import org.apache.inlong.sdk.transform.process.parser.ParserTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import com.google.common.collect.Maps;
@@ -27,15 +49,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.lang.ObjectUtils;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
 
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * OperatorTools
@@ -52,55 +71,35 @@ public class OperatorTools {
 
     public static final String CHILD_KEY = "$child";
 
+    private static final Map<String, java.util.function.Function<Function, ValueParser>> functionMap = new HashMap<>();
+
     static {
-        init();
-    }
+        functionMap.put("concat", ConcatFunction::new);
+        functionMap.put("now", NowFunction::new);
+        functionMap.put("power", PowerFunction::new);
+        functionMap.put("abs", AbsFunction::new);
+        functionMap.put("sqrt", SqrtFunction::new);
+        functionMap.put("ln", LnFunction::new);
+        functionMap.put("log10", Log10Function::new);
+        functionMap.put("log2", Log2Function::new);
+        functionMap.put("log", LogFunction::new);
+        functionMap.put("exp", ExpFunction::new);
+        functionMap.put("substring", SubstringFunction::new);
+        functionMap.put("locate", LocateFunction::new);
+        functionMap.put("to_date", ToDateFunction::new);
+        functionMap.put("date_format", DateFormatFunction::new);
+        functionMap.put("ceil", CeilFunction::new);
+        functionMap.put("floor", FloorFunction::new);
+        functionMap.put("sin", SinFunction::new);
+        functionMap.put("sinh", SinhFunction::new);
+        functionMap.put("cos", CosFunction::new);
 
-    private static void init() {
-        Reflections reflections = new Reflections(OPERATOR_PATH, Scanners.TypesAnnotated);
-        Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformOperator.class);
-        for (Class<?> clazz : clazzSet) {
-            if (ExpressionOperator.class.isAssignableFrom(clazz)) {
-                TransformOperator annotation = clazz.getAnnotation(TransformOperator.class);
-                if (annotation == null) {
-                    continue;
-                }
-                Class<?>[] values = annotation.values();
-                for (Class<?> value : values) {
-                    operatorMap.compute(value, (key, former) -> {
-                        if (former != null) {
-                            log.warn("find a conflict for parser class [{}], the former one is [{}], new one is [{}]",
-                                    key, former.getName(), clazz.getName());
-                        }
-                        return clazz;
-                    });
-                }
-            }
-        }
-    }
+        functionMap.put("round", RoundFunction::new);
+        functionMap.put("from_unixtime", FromUnixTimeFunction::new);
+        functionMap.put("unix_timestamp", UnixTimestampFunction::new);
+        functionMap.put("to_timestamp", ToTimestampFunction::new);
+        functionMap.put("fibonacci", FibonacciFunction::new);
 
-    public static ExpressionOperator getTransformOperator(Expression expr) {
-        Class<?> clazz = operatorMap.get(expr.getClass());
-        if (clazz == null) {
-            return null;
-        }
-        try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor(expr.getClass());
-            return (ExpressionOperator) constructor.newInstance(expr);
-        } catch (NoSuchMethodException e) {
-            log.error("transform operator {} needs one constructor that accept one params whose type is {}",
-                    clazz.getName(), expr.getClass().getName(), e);
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static ExpressionOperator buildOperator(Expression expr) {
-        if (expr != null) {
-            return getTransformOperator(expr);
-        }
-        return null;
     }
 
     public static ValueParser buildParser(Expression expr) {
@@ -109,14 +108,23 @@ public class OperatorTools {
             if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
                 return new ColumnParser((Function) expr);
             } else {
-                return FunctionTools.getTransformFunction((Function) expr);
+                // TODO
+                Function func = (Function) expr;
+                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap
+                        .get(func.getName().toLowerCase());
+                if (valueParserConstructor != null) {
+                    return valueParserConstructor.apply(func);
+                } else {
+                    return new ColumnParser(func);
+                }
             }
         }
-        return ParserTools.getTransformParser(expr);
+        return null;
     }
 
     /**
      * parseBigDecimal
+     * 
      * @param value
      * @return
      */
@@ -150,6 +158,7 @@ public class OperatorTools {
 
     /**
      * compareValue
+     * 
      * @param left
      * @param right
      * @return
