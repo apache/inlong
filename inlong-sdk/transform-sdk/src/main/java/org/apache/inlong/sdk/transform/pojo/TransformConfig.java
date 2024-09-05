@@ -38,29 +38,34 @@ public class TransformConfig {
     @JsonProperty("strictOrder")
     private boolean strictOrder = true;
 
+    @JsonProperty("ignoreConfigError")
+    private boolean ignoreConfigError = true;
+
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql) {
-        this(transformSql, ImmutableMap.of(), true);
+        this(transformSql, ImmutableMap.of(), true, true);
     }
 
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql,
             @JsonProperty("configuration") Map<String, Object> configuration) {
-        this(transformSql, configuration, true);
+        this(transformSql, configuration, true, true);
     }
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql,
             @JsonProperty("strictOrder") boolean strictOrder) {
-        this(transformSql, ImmutableMap.of(), strictOrder);
+        this(transformSql, ImmutableMap.of(), strictOrder, true);
     }
 
     @JsonCreator
     public TransformConfig(@JsonProperty("transformSql") String transformSql,
             @JsonProperty("configuration") Map<String, Object> configuration,
-            @JsonProperty("strictOrder") boolean strictOrder) {
+            @JsonProperty("strictOrder") boolean strictOrder,
+            @JsonProperty("ignoreConfigError") boolean ignoreConfigError) {
         this.transformSql = Preconditions.checkNotNull(transformSql, "transform sql should not be null");
         this.configuration = configuration;
         this.strictOrder = strictOrder;
+        this.ignoreConfigError = ignoreConfigError;
     }
 
     /**
@@ -78,8 +83,13 @@ public class TransformConfig {
     }
 
     @JsonProperty("strictOrder")
-    public boolean getStrictOrder() {
+    public boolean isStrictOrder() {
         return strictOrder;
+    }
+
+    @JsonProperty("ignoreConfigError")
+    public boolean isIgnoreConfigError() {
+        return ignoreConfigError;
     }
 
     /**
