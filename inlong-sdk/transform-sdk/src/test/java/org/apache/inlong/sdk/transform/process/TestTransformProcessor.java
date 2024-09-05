@@ -434,7 +434,7 @@ public class TestTransformProcessor {
         List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', sinkFields);
         String transformSql = "select ftime as field2,data as field3,extinfo as field4 from source where extinfo='ok'";
-        TransformConfig config = new TransformConfig(transformSql);
+        TransformConfig config = new TransformConfig(transformSql, false);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
@@ -452,7 +452,7 @@ public class TestTransformProcessor {
         List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", sinkFields);
         String transformSql = "select key4 as field3, key2 as field6, key1 as field1";
-        TransformConfig config = new TransformConfig(transformSql);
+        TransformConfig config = new TransformConfig(transformSql, false);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
