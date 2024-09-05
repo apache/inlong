@@ -32,10 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * TestChrFunctionProcessor
+ * TestTransformChrFunctionProcessor
  * description: test chr functions in transform processor
  */
-public class TestChrFunctionProcessor {
+public class TestTransformChrFunctionProcessor {
 
     private static final List<FieldInfo> srcFields = new ArrayList<>();
     private static final List<FieldInfo> dstFields = new ArrayList<>();
@@ -67,7 +67,7 @@ public class TestChrFunctionProcessor {
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=a");
 
-        // case2: translate("hello word!", "el", "EL")
+        // case2: chr(353)
         List<String> output2 = processor1.transform("353|5|6|8|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=a");

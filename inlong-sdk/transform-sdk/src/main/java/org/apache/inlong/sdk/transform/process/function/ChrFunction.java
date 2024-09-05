@@ -26,7 +26,7 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
-/***
+/**
  * ChrFunction
  * description: chr(numeric)--returns the ASCII character having the binary equivalent to integer
 **/
