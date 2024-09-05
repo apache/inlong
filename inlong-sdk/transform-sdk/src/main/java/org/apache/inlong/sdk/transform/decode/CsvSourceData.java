@@ -28,14 +28,14 @@ import java.util.Map;
  */
 public class CsvSourceData implements SourceData {
 
-    private List<Map<String, String>> rows = new ArrayList<>();
+    private List<Map<String, Object>> rows = new ArrayList<>();
 
-    private Map<String, String> currentRow;
+    private Map<String, Object> currentRow;
 
     public CsvSourceData() {
     }
 
-    public void putField(String fieldName, String fieldValue) {
+    public void putField(String fieldName, Object fieldValue) {
         this.currentRow.put(fieldName, fieldValue);
     }
 
@@ -50,11 +50,11 @@ public class CsvSourceData implements SourceData {
     }
 
     @Override
-    public String getField(int rowNum, String fieldName) {
+    public Object getField(int rowNum, String fieldName) {
         if (rowNum >= this.rows.size()) {
             return null;
         }
-        Map<String, String> targetRow = this.rows.get(rowNum);
+        Map<String, Object> targetRow = this.rows.get(rowNum);
         return targetRow.get(fieldName);
     }
 }

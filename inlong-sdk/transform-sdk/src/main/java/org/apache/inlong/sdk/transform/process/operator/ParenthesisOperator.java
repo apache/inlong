@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.Parenthesis;
  * ParenthesisOperator
  * 
  */
+@TransformOperator(values = Parenthesis.class)
 public class ParenthesisOperator implements ExpressionOperator {
 
     private final ExpressionOperator node;

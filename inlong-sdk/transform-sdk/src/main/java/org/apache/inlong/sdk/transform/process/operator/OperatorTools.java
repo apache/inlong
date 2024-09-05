@@ -47,19 +47,13 @@ import org.apache.inlong.sdk.transform.process.function.UnixTimestampFunction;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.NotExpression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import org.apache.commons.lang.ObjectUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -69,9 +63,14 @@ import java.util.Map;
 
 /**
  * OperatorTools
- * 
+ *
  */
+@Slf4j
 public class OperatorTools {
+
+    private static final String OPERATOR_PATH = "org.apache.inlong.sdk.transform.process.operator";
+
+    private final static Map<Class<?>, Class<?>> operatorMap = Maps.newConcurrentMap();
 
     public static final String ROOT_KEY = "$root";
 
@@ -122,26 +121,8 @@ public class OperatorTools {
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {
-        if (expr instanceof AndExpression) {
-            return new AndOperator((AndExpression) expr);
-        } else if (expr instanceof OrExpression) {
-            return new OrOperator((OrExpression) expr);
-        } else if (expr instanceof Parenthesis) {
-            return new ParenthesisOperator((Parenthesis) expr);
-        } else if (expr instanceof NotExpression) {
-            return new NotOperator((NotExpression) expr);
-        } else if (expr instanceof EqualsTo) {
-            return new EqualsToOperator((EqualsTo) expr);
-        } else if (expr instanceof NotEqualsTo) {
-            return new NotEqualsToOperator((NotEqualsTo) expr);
-        } else if (expr instanceof GreaterThan) {
-            return new GreaterThanOperator((GreaterThan) expr);
-        } else if (expr instanceof GreaterThanEquals) {
-            return new GreaterThanEqualsOperator((GreaterThanEquals) expr);
-        } else if (expr instanceof MinorThan) {
-            return new MinorThanOperator((MinorThan) expr);
-        } else if (expr instanceof MinorThanEquals) {
-            return new MinorThanEqualsOperator((MinorThanEquals) expr);
+        if (expr != null) {
+            return getTransformOperator(expr);
         }
         return null;
     }
@@ -215,19 +196,18 @@ public class OperatorTools {
         if (right == null) {
             return 1;
         }
-        if (left instanceof String) {
-            if (right instanceof String) {
-                return ObjectUtils.compare(left, right);
-            } else {
-                BigDecimal leftValue = parseBigDecimal(left);
-                return ObjectUtils.compare(leftValue, right);
-            }
+
+        if (((Object) left).getClass() == ((Object) right).getClass()) {
+            return ObjectUtils.compare(left, right);
         } else {
-            if (right instanceof String) {
+            try {
+                BigDecimal leftValue = parseBigDecimal(left);
                 BigDecimal rightValue = parseBigDecimal(right);
-                return ObjectUtils.compare(left, rightValue);
-            } else {
-                return ObjectUtils.compare(left, right);
+                return ObjectUtils.compare(leftValue, rightValue);
+            } catch (Exception e) {
+                String leftValue = parseString(left);
+                String rightValue = parseString(right);
+                return ObjectUtils.compare(leftValue, rightValue);
             }
         }
     }

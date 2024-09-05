@@ -21,29 +21,43 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.SignedExpression;
 
 import java.math.BigDecimal;
 
 /**
  * SignParser
- * 
  */
+@Slf4j
 @TransformParser(values = SignedExpression.class)
 public class SignParser implements ValueParser {
 
-    private final Integer sign;
+    private final char sign;
     private final ValueParser number;
 
     public SignParser(SignedExpression expr) {
-        sign = expr.getSign() == '-' ? -1 : 1;
+        sign = expr.getSign();
         number = OperatorTools.buildParser(expr.getExpression());
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObject = number.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObject);
-        return numberValue.multiply(new BigDecimal(sign));
+        try {
+            Object numberObject = number.parse(sourceData, rowIndex, context);
+            if (numberObject == null) {
+                return null;
+            }
+            BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObject);
+            switch (sign) {
+                case '-':
+                    return numberValue.multiply(new BigDecimal(-1));
+                case '~':
+                    return Long.toUnsignedString(numberValue.toBigInteger().not().longValue());
+            }
+        } catch (Exception e) {
+            log.error("Value parsing failed", e);
+        }
+        return null;
     }
 }

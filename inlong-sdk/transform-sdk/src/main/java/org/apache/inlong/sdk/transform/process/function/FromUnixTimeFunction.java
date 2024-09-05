@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * format(default is ‘yyyy-MM-dd HH:mm:ss’). numeric is an internal timestamp value representing seconds
  * since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function.
  */
-@TransformFunction(names = {"from_unix_time"})
+@TransformFunction(names = {"from_unix_time", "form_unixtime"})
 public class FromUnixTimeFunction implements ValueParser {
 
     private ValueParser numericParser;

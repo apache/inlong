@@ -85,39 +85,40 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
     public SourceData decode(String srcString, Context context) {
         JsonObject root = gson.fromJson(srcString, JsonObject.class);
         JsonArray childRoot = null;
-        if (CollectionUtils.isNotEmpty(childNodes)) {
-            JsonElement current = root;
-            for (JsonNode node : childNodes) {
-                if (!current.isJsonObject()) {
-                    // error data
-                    return new JsonSourceData(root, childRoot);
-                }
-                JsonElement newElement = current.getAsJsonObject().get(node.getName());
-                if (newElement == null) {
-                    // error data
-                    return new JsonSourceData(root, childRoot);
-                }
-                if (!node.isArray()) {
-                    current = newElement;
-                } else {
-                    if (!newElement.isJsonArray()) {
-                        // error data
-                        return new JsonSourceData(root, childRoot);
-                    }
-                    JsonArray newArray = newElement.getAsJsonArray();
-                    if (node.getArrayIndex() >= newArray.size()) {
-                        // error data
-                        return new JsonSourceData(root, childRoot);
-                    }
-                    current = newArray.get(node.getArrayIndex());
-                }
-            }
-            if (!current.isJsonArray()) {
-                // error data
-                return new JsonSourceData(root, childRoot);
-            }
-            childRoot = current.getAsJsonArray();
+        if (CollectionUtils.isEmpty(childNodes)) {
+            return new JsonSourceData(root, null);
         }
+        JsonElement current = root;
+        for (JsonNode node : childNodes) {
+            if (!current.isJsonObject()) {
+                // error data
+                return new JsonSourceData(root, null);
+            }
+            JsonElement newElement = current.getAsJsonObject().get(node.getName());
+            if (newElement == null) {
+                // error data
+                return new JsonSourceData(root, null);
+            }
+            if (!node.isArray()) {
+                current = newElement;
+            } else {
+                if (!newElement.isJsonArray()) {
+                    // error data
+                    return new JsonSourceData(root, null);
+                }
+                JsonArray newArray = newElement.getAsJsonArray();
+                if (node.getArrayIndex() >= newArray.size()) {
+                    // error data
+                    return new JsonSourceData(root, null);
+                }
+                current = newArray.get(node.getArrayIndex());
+            }
+        }
+        if (!current.isJsonArray()) {
+            // error data
+            return new JsonSourceData(root, null);
+        }
+        childRoot = current.getAsJsonArray();
         return new JsonSourceData(root, childRoot);
     }
 }

@@ -69,9 +69,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         exitsId = true;
       }
       const width =
-        (cur['fieldName'].length > cur['fieldValue'].length
-          ? cur['fieldName'].length
-          : cur['fieldValue'].length) * 10;
+        (cur['fieldName']?.length > cur['fieldValue']?.length
+          ? cur['fieldName']?.length
+          : cur['fieldValue']?.length) * 10;
       acc.push({
         title: cur['fieldName'],
         key: cur['fieldName'],

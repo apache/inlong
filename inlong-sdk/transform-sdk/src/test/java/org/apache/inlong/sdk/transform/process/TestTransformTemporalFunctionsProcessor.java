@@ -216,6 +216,16 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output7 = processor7.transform("2024-02-29", new HashMap<>());
         Assert.assertEquals(1, output7.size());
         Assert.assertEquals(output7.get(0), "result=5");
+
+        String transformSql8 = "select dayname(string1) from source";
+        TransformConfig config8 = new TransformConfig(transformSql8);
+        TransformProcessor<String, String> processor8 = TransformProcessor
+                .create(config8, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case8: dayname(2024-02-29) (Thursday)
+        List<String> output8 = processor8.transform("2024-02-29", new HashMap<>());
+        Assert.assertEquals(1, output8.size());
+        Assert.assertEquals(output8.get(0), "result=THURSDAY");
     }
 
     @Test
@@ -377,6 +387,54 @@ public class TestTransformTemporalFunctionsProcessor {
         List<String> output4 = processor4.transform("1970-01-01", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=1970-01-01 00:00:00.0");
+    }
+
+    @Test
+    public void testDateDiffFunction() throws Exception {
+        String transformSql = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select datediff(string1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: datediff('1970-01-01','1970-01-02')
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=-1", output.get(0));
+
+        // case2: datediff('1970-01-02','1970-01-01')
+        output = processor.transform("1970-01-02|1970-01-01", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case3: datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00')
+        output = processor.transform("2018-12-10 12:30:00|2018-12-09 13:30:00", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=1", output.get(0));
+
+        // case4: datediff('2018-12-10 12:30:00', '')
+        output = processor.transform("2018-12-10 12:30:00|", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case5: datediff('2018-12', '2018-12-12')
+        output = processor.transform("2018-12|2018-12-12", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case6: datediff('1970-01-01',null)
+        transformSql = "select datediff(string1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
     }
 
     @Test

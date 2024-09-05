@@ -429,6 +429,146 @@ public class TestTransformStringFunctionsProcessor {
     }
 
     @Test
+    public void testRpadFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select rpad(string1,numeric1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: rpad('he',7,'xxd')
+        data = "he|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=hexxdxx", output.get(0));
+
+        // case2: rpad('he',1,'xxd')
+        data = "he|xxd|cloud|1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=h", output.get(0));
+
+        // case3: rpad('he',1,'')
+        data = "he||cloud|1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=h", output.get(0));
+
+        // case4: rpad('he',-1,'xxd')
+        data = "he|xxd|cloud|-1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case5: rpad(null,5,'xxd')
+        transformSql = "select rpad(xxd,numeric1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case6: rpad('he',null,'xxd')
+        transformSql = "select rpad(string1,xxd,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case7: rpad('he',5,null)
+        transformSql = "select rpad(string1,numeric1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
+    public void testLpadFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select lpad(string1,numeric1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: lpad('he',7,'xxd')
+        data = "he|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=xxdxxhe", output.get(0));
+
+        // case2: lpad('he',1,'xxd')
+        data = "he|xxd|cloud|1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=h", output.get(0));
+
+        // case3: lpad('he',1,'')
+        data = "he||cloud|1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=h", output.get(0));
+
+        // case4: lpad('he',-1,'xxd')
+        data = "he|xxd|cloud|-1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case5: lpad(null,5,'xxd')
+        transformSql = "select lpad(xxd,numeric1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case6: lpad('he',null,'xxd')
+        transformSql = "select lpad(string1,xxd,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+
+        // case7: lpad('he',5,null)
+        transformSql = "select lpad(string1,numeric1,xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=null", output.get(0));
+    }
+
+    @Test
     public void testRightFunction() throws Exception {
         String transformSql = "select right(string1,numeric1) from source";
         TransformConfig config = new TransformConfig(transformSql);
@@ -550,4 +690,70 @@ public class TestTransformStringFunctionsProcessor {
         Assert.assertEquals(output3.get(0), "result=Apache Inlong");
     }
 
+    @Test
+    public void testInsertFunction() throws Exception {
+        String transformSql1 = "select insert(string1, numeric1, numeric2, string2) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: insert('12345678', 3, 4, 'word') -> '12word78'
+        List<String> output1 = processor1.transform("12345678|word|cloud|3|4|0", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=12word78", output1.get(0));
+
+        // case2: insert('12345678', -1, 4, 'word') -> '12345678'
+        List<String> output2 = processor1.transform("12345678|word|cloud|-1|4|0", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=12345678", output2.get(0));
+
+        // case3: insert('12345678', 3, 100, 'word') -> '12word'
+        List<String> output3 = processor1.transform("12345678|word|cloud|3|100|0", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals("result=12word", output3.get(0));
+
+        // case4: insert('', 3, 4, 'word') -> ''
+        List<String> output4 = processor1.transform("|word|cloud|3|4|0", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals("result=", output4.get(0));
+
+        // case5: insert('12345678', 3, 4, '') -> '1278'
+        List<String> output5 = processor1.transform("12345678||cloud|3|4|0", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals("result=1278", output5.get(0));
+    }
+
+    @Test
+    public void testContainsFunction() throws Exception {
+        String transformSql = "select contains(string1, string2) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: contains('Transform SQL', 'SQL')
+        List<String> output1 = processor.transform("Transform SQL|SQL", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=true");
+        // case2: contains('', 'SQL')
+        List<String> output2 = processor.transform("|SQL", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=false");
+        // case3: contains('Transform SQL', '')
+        List<String> output3 = processor.transform("Transform SQL|", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=true");
+        // case4: contains('Transform SQL', 'Transformer')
+        List<String> output4 = processor.transform("Transform SQL|Transformer", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=false");
+        // case5: contains('Transform SQL', 'm S')
+        List<String> output5 = processor.transform("Transform SQL|m S", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=true");
+        // case6: contains('', '')
+        List<String> output6 = processor.transform("|", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=true");
+    }
 }
