@@ -98,33 +98,13 @@ public class OperatorTools {
         functionMap.put("sin", SinFunction::new);
         functionMap.put("sinh", SinhFunction::new);
         functionMap.put("cos", CosFunction::new);
-        functionMap.put("year", func -> new DateExtractFunction(DateExtractFunctionType.YEAR, func));
-        functionMap.put("quarter", func -> new DateExtractFunction(DateExtractFunctionType.QUARTER, func));
-        functionMap.put("month", func -> new DateExtractFunction(DateExtractFunctionType.MONTH, func));
-        functionMap.put("week", func -> new DateExtractFunction(DateExtractFunctionType.WEEK, func));
-        functionMap.put("dayofyear", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_YEAR, func));
-        functionMap.put("dayofmonth", func -> new DateExtractFunction(DateExtractFunctionType.DAY_OF_MONTH, func));
-        functionMap.put("hour",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.HOUR, func));
-        functionMap.put("minute",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.MINUTE,
-                        func));
-        functionMap.put("second",
-                func -> new TimestampExtractFunction(TimestampExtractFunction.TimestampExtractFunctionType.SECOND,
-                        func));
+
         functionMap.put("round", RoundFunction::new);
         functionMap.put("from_unixtime", FromUnixTimeFunction::new);
         functionMap.put("unix_timestamp", UnixTimestampFunction::new);
         functionMap.put("to_timestamp", ToTimestampFunction::new);
         functionMap.put("fibonacci", FibonacciFunction::new);
 
-    }
-
-    public static ExpressionOperator buildOperator(Expression expr) {
-        if (expr != null) {
-            return getTransformOperator(expr);
-        }
-        return null;
     }
 
     public static ValueParser buildParser(Expression expr) {
