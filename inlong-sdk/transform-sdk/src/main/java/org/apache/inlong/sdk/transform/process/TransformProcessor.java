@@ -84,7 +84,7 @@ public class TransformProcessor<I, O> {
 
     private void init() throws JSQLParserException {
         this.initTransformSql();
-        if (encoder != null && encoder.getFields() != null) {
+        if (!config.getStrictOrder() && encoder != null && encoder.getFields() != null) {
             List<FieldInfo> fields = encoder.getFields();
             this.sinkFieldList = new ArrayList<>(fields.size());
             fields.forEach(v -> this.sinkFieldList.add(v.getName()));
@@ -98,15 +98,21 @@ public class TransformProcessor<I, O> {
         this.where = OperatorTools.buildOperator(this.transformSelect.getWhere());
         List<SelectItem> items = this.transformSelect.getSelectItems();
         this.selectItems = new ArrayList<>(items.size());
+        List<FieldInfo> fields = this.encoder.getFields();
         for (int i = 0; i < items.size(); i++) {
             SelectItem item = items.get(i);
             String fieldName = null;
+            if (config.getStrictOrder() && i < fields.size()) {
+                fieldName = fields.get(i).getName();
+            }
             if (item instanceof SelectExpressionItem) {
                 SelectExpressionItem exprItem = (SelectExpressionItem) item;
-                if (exprItem.getAlias() == null) {
-                    fieldName = exprItem.toString();
-                } else {
-                    fieldName = exprItem.getAlias().getName();
+                if (fieldName == null) {
+                    if (exprItem.getAlias() == null) {
+                        fieldName = exprItem.toString();
+                    } else {
+                        fieldName = exprItem.getAlias().getName();
+                    }
                 }
                 this.selectItems
                         .add(new ValueParserNode(fieldName, OperatorTools.buildParser(exprItem.getExpression())));
