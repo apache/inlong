@@ -426,4 +426,22 @@ public class TestTransformProcessor {
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "ftime=2024-04-28 00:00:00&extinfo=nok&e1=nok&f1=2024-04-28 00:00:00");
     }
+
+    @Test
+    public void testCsv2CsvForErrorOrder() throws Exception {
+        List<FieldInfo> sourceFields = this.getTestFieldList("ftime", "extinfo", "data");
+        CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', sourceFields);
+        List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
+        CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', sinkFields);
+        String transformSql = "select ftime as field2,data as field3,extinfo as field4 from source where extinfo='ok'";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createCsvEncoder(csvSink));
+
+        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok|data1", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("|2024-04-28 00:00:00|data1", output1.get(0));
+    }
 }
