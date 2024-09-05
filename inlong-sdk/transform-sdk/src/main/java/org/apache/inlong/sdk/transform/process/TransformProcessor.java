@@ -83,12 +83,12 @@ public class TransformProcessor<I, O> {
     }
 
     private void init() throws JSQLParserException {
-        this.initTransformSql();
-        if (!config.getStrictOrder() && encoder != null && encoder.getFields() != null) {
+        if (!config.isStrictOrder() && encoder != null && encoder.getFields() != null) {
             List<FieldInfo> fields = encoder.getFields();
             this.sinkFieldList = new ArrayList<>(fields.size());
             fields.forEach(v -> this.sinkFieldList.add(v.getName()));
         }
+        this.initTransformSql();
     }
 
     private void initTransformSql() throws JSQLParserException {
@@ -102,7 +102,7 @@ public class TransformProcessor<I, O> {
         for (int i = 0; i < items.size(); i++) {
             SelectItem item = items.get(i);
             String fieldName = null;
-            if (config.getStrictOrder() && i < fields.size()) {
+            if (config.isStrictOrder() && i < fields.size()) {
                 fieldName = fields.get(i).getName();
             }
             if (item instanceof SelectExpressionItem) {
@@ -113,6 +113,10 @@ public class TransformProcessor<I, O> {
                     } else {
                         fieldName = exprItem.getAlias().getName();
                     }
+                    if (!this.checkSelectField(fieldName)) {
+                        throw new JSQLParserException(
+                                String.format("Field name:%s can not be found in sink field list.", fieldName));
+                    }
                 }
                 this.selectItems
                         .add(new ValueParserNode(fieldName, OperatorTools.buildParser(exprItem.getExpression())));
@@ -122,6 +126,13 @@ public class TransformProcessor<I, O> {
                 this.selectItems.add(new ValueParserNode(fieldName, null));
             }
         }
+    }
+
+    public boolean checkSelectField(String fieldName) {
+        if (config.isIgnoreConfigError()) {
+            return true;
+        }
+        return this.sinkFieldList != null && this.sinkFieldList.contains(fieldName);
     }
 
     public List<O> transform(I input) {
