@@ -444,4 +444,22 @@ public class TestTransformProcessor {
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("|2024-04-28 00:00:00|data1", output1.get(0));
     }
+
+    @Test
+    public void testKv2KvForErrorOrder() throws Exception {
+        List<FieldInfo> sourceFields = this.getTestFieldList("key1", "key2", "key3", "key4");
+        KvSourceInfo kvSource = new KvSourceInfo("UTF-8", sourceFields);
+        List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
+        KvSinkInfo kvSink = new KvSinkInfo("UTF-8", sinkFields);
+        String transformSql = "select key4 as field3, key2 as field6, key1 as field1";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        List<String> output1 = processor1.transform("key1=string11&key2=string12&key3=number11&key4=number12", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("field1=string11&field2=&field3=number12", output1.get(0));
+    }
 }
