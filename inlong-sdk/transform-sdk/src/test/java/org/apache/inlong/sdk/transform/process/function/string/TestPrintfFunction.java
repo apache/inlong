@@ -1,18 +1,37 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class TestPrintfFunction extends AbstractFunctionStringTestBase{
+public class TestPrintfFunction extends AbstractFunctionStringTestBase {
+
     @Test
-    public void  testPrintfFunction() throws Exception {
+    public void testPrintfFunction() throws Exception {
         String transformSql1 = "select printf(string1, numeric1) from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
@@ -46,7 +65,8 @@ public class TestPrintfFunction extends AbstractFunctionStringTestBase{
         TransformProcessor<String, String> processor4 = TransformProcessor
                 .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        List<String> output4 = processor4.transform("User %s has %d points and a balance of %.2f.|Bob||1500|99.99", new HashMap<>());
+        List<String> output4 =
+                processor4.transform("User %s has %d points and a balance of %.2f.|Bob||1500|99.99", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=User Bob has 1500 points and a balance of 99.99.");
         // case5: printf("Temperature is %d°C, and altitude is %.1f meters.", -20, 0.0)
@@ -55,7 +75,8 @@ public class TestPrintfFunction extends AbstractFunctionStringTestBase{
         TransformProcessor<String, String> processor5 = TransformProcessor
                 .create(config5, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        List<String> output5 = processor5.transform("Temperature is %d°C, and altitude is %.1f meters.|||-20|0.0", new HashMap<>());
+        List<String> output5 =
+                processor5.transform("Temperature is %d°C, and altitude is %.1f meters.|||-20|0.0", new HashMap<>());
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=Temperature is -20°C, and altitude is 0.0 meters.");
         // case6: printf("Empty string: '%s'", "")
