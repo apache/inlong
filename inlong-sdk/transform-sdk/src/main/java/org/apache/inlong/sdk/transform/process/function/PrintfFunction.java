@@ -29,24 +29,28 @@ public class PrintfFunction implements ValueParser {
         int size = argsParser.size();
         Object[] args = new Object[size];
         for (int i = 0 ; i < size ; i ++) {
-            Object arg = argsParser.get(i).parse(sourceData, rowIndex, context).toString();
-            String argStr = arg.toString();
-            if (isInteger(argStr)) {
-                arg = Integer.parseInt(argStr);
-            } else if (isFloat(argStr)) {
-                arg = Float.parseFloat(argStr);
-            }
-            args[i] = arg;
+            Object parsed = argsParser.get(i).parse(sourceData, rowIndex, context);
+            Object arg = parsed == null ? "null" : parsed.toString();
+            args[i] = parse(arg);
         }
         return String.format(strfmt, args);
     }
 
-    public boolean isFloat(String str) {
-        return str.matches("^(-?\\d+)(\\.\\d+)?$");
+    public Object parse(Object obj) {
+        if (isInteger(obj)) {
+            obj = Integer.parseInt(obj.toString());
+        } else if (isFloat(obj)) {
+            obj = Float.parseFloat(obj.toString());
+        }
+        return obj;
     }
 
-    public boolean isInteger(String str){
-        return str.matches("-?\\\\d+");
+    public boolean isFloat(Object obj) {
+        return obj.toString().matches("^(-?\\d+)(\\.\\d+)?$");
+    }
+
+    public boolean isInteger(Object obj){
+        return obj.toString().matches("^-?\\d+$");
     }
 
 }
