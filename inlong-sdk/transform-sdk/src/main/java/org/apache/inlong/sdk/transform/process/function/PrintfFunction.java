@@ -27,6 +27,10 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * PrintfFunction
+ * description: printf(strfmt, obj, ...) - Returns a formatted string from printf-style format strings.
+ */
 @TransformFunction(names = {"printf"})
 public class PrintfFunction implements ValueParser {
 
