@@ -15,50 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
-import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
-import org.apache.inlong.sdk.transform.pojo.FieldInfo;
-import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * TestTransformFromBase64FunctionProcessor
- * description: test the from_base64 function in transform processor
- */
-public class TestTransformFromBase64FunctionProcessor {
+public class TestFromBase64Function extends AbstractFunctionStringTestBase {
 
-    private static final List<FieldInfo> srcFields = new ArrayList<>();
-    private static final List<FieldInfo> dstFields = new ArrayList<>();
-    private static final CsvSourceInfo csvSource;
-    private static final KvSinkInfo kvSink;
-
-    static {
-        for (int i = 1; i < 4; i++) {
-            FieldInfo field = new FieldInfo();
-            field.setName("string" + i);
-            srcFields.add(field);
-        }
-        for (int i = 1; i < 4; i++) {
-            FieldInfo field = new FieldInfo();
-            field.setName("numeric" + i);
-            srcFields.add(field);
-        }
-        FieldInfo field = new FieldInfo();
-        field.setName("result");
-        dstFields.add(field);
-        csvSource = new CsvSourceInfo("UTF-8", '|', '\\', srcFields);
-        kvSink = new KvSinkInfo("UTF-8", dstFields);
-    }
     @Test
     public void testFromBase64Function() throws Exception {
         String transformSql = "select from_base64(string1) from source";
