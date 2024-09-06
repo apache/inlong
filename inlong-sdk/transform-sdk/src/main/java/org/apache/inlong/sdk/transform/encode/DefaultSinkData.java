@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
  * DefaultSinkData
  * 
  */
+@Data
 public class DefaultSinkData implements SinkData {
 
     private List<String> keyList = new ArrayList<>();
