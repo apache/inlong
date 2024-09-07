@@ -48,6 +48,9 @@ public class RepeatFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         Object countObj = countParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null || countObj == null) {
+            return null;
+        }
         if (stringObj.equals("") || countObj.equals("")) {
             return "";
         }
