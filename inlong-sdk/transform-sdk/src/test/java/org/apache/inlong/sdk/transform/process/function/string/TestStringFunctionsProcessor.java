@@ -26,7 +26,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({TestInsertFunction.class, TestLeftFunction.class, TestLengthFunction.class,
         TestLocateFunction.class, TestLowerFunction.class, TestLpadFunction.class, TestReplaceFunction.class,
-        TestReplicateFunction.class, TestReverseFunction.class, TestRightFunction.class, TestRpadFunction.class,
+        TestRepeatFunction.class, TestReverseFunction.class, TestRightFunction.class, TestRpadFunction.class,
         TestSpaceFunction.class, TestStrcmpFunction.class, TestSubstringFunction.class, TestToBase64Function.class,
         TestTranslateFunction.class, TestTrimFunction.class, TestUpperFunction.class, TestContainsFunction.class,
         TestFromBase64Function.class
