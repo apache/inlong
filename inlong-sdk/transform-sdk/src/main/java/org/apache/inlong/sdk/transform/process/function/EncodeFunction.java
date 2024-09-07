@@ -44,9 +44,13 @@ public class EncodeFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        String stringValue = OperatorTools.parseString(stringParser.parse(sourceData, rowIndex, context));
-        String characterSetValue =
-                OperatorTools.parseString(characterSetParser.parse(sourceData, rowIndex, context)).toUpperCase();
+        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        Object characterObj = characterSetParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null || characterObj == null) {
+            return null;
+        }
+        String stringValue = OperatorTools.parseString(stringObj);
+        String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
         byte[] encodeBytes = encode(stringValue, characterSetValue);
         StringBuilder res = new StringBuilder();
         if (encodeBytes != null) {

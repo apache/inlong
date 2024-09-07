@@ -44,9 +44,13 @@ public class DecodeFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        String binaryString = OperatorTools.parseString(binaryParser.parse(sourceData, rowIndex, context));
-        String characterSetValue =
-                OperatorTools.parseString(characterSetParser.parse(sourceData, rowIndex, context)).toUpperCase();
+        Object binaryObj = binaryParser.parse(sourceData, rowIndex, context);
+        Object characterObj = characterSetParser.parse(sourceData, rowIndex, context);
+        if (binaryObj == null || characterObj == null) {
+            return null;
+        }
+        String binaryString = OperatorTools.parseString(binaryObj);
+        String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
         return decode(binaryString, characterSetValue);
     }
 
