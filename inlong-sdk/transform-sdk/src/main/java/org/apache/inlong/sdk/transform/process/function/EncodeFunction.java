@@ -31,7 +31,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+/**
+ * EncodeFunction
+ * description: encode(string1, string2)
+ *      Encode using the provided character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
+ *      If either parameter is empty, the result will also be empty.
+ */
 @TransformFunction(names = {"encode"})
 public class EncodeFunction implements ValueParser {
 
