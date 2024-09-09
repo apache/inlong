@@ -62,10 +62,4 @@ public class UrlEncodeFunction implements ValueParser {
         }
     }
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        String string = "https://www.google.com/search?q=java url encode";
-        String s = "bat apache";
-        System.out.println(URLEncoder.encode(string, StandardCharsets.UTF_8.toString()));
-        System.out.println(URLEncoder.encode(s, StandardCharsets.UTF_8.toString()));
-    }
 }
