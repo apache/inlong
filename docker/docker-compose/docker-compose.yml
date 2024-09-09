@@ -129,6 +129,7 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+      - OTEL_EXPORTER_ENDPOINT=logcollector:4317
     ports:
       - "8081:8081"
     command: jobmanager
@@ -142,4 +143,15 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+      - OTEL_EXPORTER_ENDPOINT=logcollector:4317
     command: taskmanager
+
+  # opentelemetry collector
+  logcollector:
+    image: otel/opentelemetry-collector-contrib:0.107.0
+    container_name: logcollector
+    volumes:
+      - ./otel-config.yaml:/otel-config.yaml
+    command: [ "--config=/otel-config.yaml"]
+    ports:
+      - "4317:4317"
