@@ -31,7 +31,7 @@ import java.util.Random;
 /**
  * RandIntegerFunction
  * description: RAND_INTEGER(INT1)--Returns a pseudorandom integer value in the range [0, INT)
- *              RAND_INTEGER(INT1, INT2)--Returns a pseudorandom integer value in the range [0, INT2) with an initial seed INT1.
+ *              RAND_INTEGER(INT1, INT2)--Returns a pseudorandom integer value in the range [0, INT1) with an initial seed INT2.
  *              Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound.
  */
 @TransformFunction(names = {"rand_integer"})
@@ -69,7 +69,7 @@ public class RandIntegerFunction implements ValueParser {
         return random.nextInt(range);
     }
 
-    private int randInteger(int seed, int range) {
+    private int randInteger(int range, int seed) {
         random.setSeed(seed);
         return random.nextInt(range);
     }
