@@ -37,10 +37,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /** wrapper of kafka producer */
 public class KafkaProducerCluster implements LifecycleAware {
