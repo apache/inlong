@@ -37,7 +37,7 @@ public class TestEFunction extends AbstractFunctionArithmeticTestBase {
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case: pi()
+        // case: e()
         List<String> output1 = processor1.transform("1007|4|6|8", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=2.718281828459045");
