@@ -48,7 +48,7 @@ public class TruncateFunction implements ValueParser {
         List<Expression> expressions = expr.getParameters().getExpressions();
         if (expressions != null) {
             bigDecimalParser = OperatorTools.buildParser(expressions.get(0));
-            if (expressions.size() == 2) {
+            if (expressions.size() >= 2) {
                 integerParser = OperatorTools.buildParser(expressions.get(1));
             }
         }
