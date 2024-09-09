@@ -26,13 +26,31 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @TransformFunction(names = {"encode"})
 public class EncodeFunction implements ValueParser {
 
     private ValueParser stringParser;
 
     private ValueParser characterSetParser;
+
+    private static final Set<String> SUPPORTED_CHARSETS;
+
+    static {
+        Set<String> charsets = new HashSet<>();
+        charsets.add(StandardCharsets.US_ASCII.name());
+        charsets.add(StandardCharsets.ISO_8859_1.name());
+        charsets.add(StandardCharsets.UTF_8.name());
+        charsets.add(StandardCharsets.UTF_16.name());
+        charsets.add(StandardCharsets.UTF_16BE.name());
+        charsets.add(StandardCharsets.UTF_16LE.name());
+        SUPPORTED_CHARSETS = Collections.unmodifiableSet(charsets);
+    }
 
     public EncodeFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
@@ -65,7 +83,7 @@ public class EncodeFunction implements ValueParser {
         if (stringValue == null || stringValue.isEmpty() || characterSetValue == null || characterSetValue.isEmpty()) {
             return new byte[0];
         }
-        if (Charset.isSupported(characterSetValue)) {
+        if (Charset.isSupported(characterSetValue) && SUPPORTED_CHARSETS.contains(characterSetValue)) {
             Charset charset = Charset.forName(characterSetValue);
             return stringValue.getBytes(charset);
         }

@@ -26,13 +26,31 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @TransformFunction(names = {"decode"})
 public class DecodeFunction implements ValueParser {
 
     private ValueParser binaryParser;
 
     private ValueParser characterSetParser;
+
+    private static final Set<String> SUPPORTED_CHARSETS;
+
+    static {
+        Set<String> charsets = new HashSet<>();
+        charsets.add(StandardCharsets.US_ASCII.name());
+        charsets.add(StandardCharsets.ISO_8859_1.name());
+        charsets.add(StandardCharsets.UTF_8.name());
+        charsets.add(StandardCharsets.UTF_16.name());
+        charsets.add(StandardCharsets.UTF_16BE.name());
+        charsets.add(StandardCharsets.UTF_16LE.name());
+        SUPPORTED_CHARSETS = Collections.unmodifiableSet(charsets);
+    }
 
     public DecodeFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
@@ -63,7 +81,7 @@ public class DecodeFunction implements ValueParser {
         for (int i = 0; i < byteValues.length; i++) {
             byteArray[i] = (byte) Integer.parseInt(byteValues[i]);
         }
-        if (Charset.isSupported(charsetName)) {
+        if (Charset.isSupported(charsetName) && SUPPORTED_CHARSETS.contains(charsetName)) {
             Charset charset = Charset.forName(charsetName);
             return new String(byteArray, charset);
         }
