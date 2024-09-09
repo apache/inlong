@@ -36,6 +36,8 @@ import java.util.List;
  *              integer2 can be negative, making the integer2 digit to the left of the decimal point of the value zero.
  *              This function can also be used by passing only one numeric1 argument without setting Integer2.
  *              If Integer2 is not set, Integer2 is 0
+ * for example: truncate(42.324, 2)--return 42.32
+ *              truncate(42.324)--return 42.0
  */
 @TransformFunction(names = {"truncate"})
 public class TruncateFunction implements ValueParser {
