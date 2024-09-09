@@ -53,9 +53,9 @@ public class TestRandIntegerFunction extends AbstractFunctionArithmeticTestBase 
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case: rand_integer(2, 89)
-        List<String> output3 = processor2.transform("2|89||", new HashMap<>());
+        // case: rand_integer(88, 89)
+        List<String> output3 = processor2.transform("88|89||", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=" + new Random(2).nextInt(89));
+        Assert.assertEquals(output3.get(0), "result=" + new Random(89).nextInt(88));
     }
 }
