@@ -30,8 +30,8 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.errors.RetriableException;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.datanucleus.util.StringUtils;
@@ -42,7 +42,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Properties;
 
-/** wrapper of kafka producer */
+/**
+ * wrapper of kafka producer
+ */
 public class KafkaProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
@@ -73,7 +75,9 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.handler = sinkContext.createEventHandler();
     }
 
-    /** start and init kafka producer */
+    /**
+     * start and init kafka producer
+     */
     @Override
     public void start() {
         if (CommonPropertiesHolder.useUnifiedConfiguration()) {
@@ -161,7 +165,9 @@ public class KafkaProducerCluster implements LifecycleAware {
         return props;
     }
 
-    /** stop and close kafka producer */
+    /**
+     * stop and close kafka producer
+     */
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
@@ -187,8 +193,8 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param  profileEvent data to send
-     * @return              boolean
+     * @param profileEvent data to send
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
