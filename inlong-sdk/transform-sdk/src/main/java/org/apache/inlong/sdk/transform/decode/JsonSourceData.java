@@ -117,20 +117,35 @@ public class JsonSourceData implements SourceData {
                     continue;
                 }
                 // node is an array
-                if (!newElement.isJsonArray()) {
+                current = getElementFromArray(node, newElement);
+                if (current == null) {
                     // error data
                     return "";
                 }
-                JsonArray newArray = newElement.getAsJsonArray();
-                if (node.getArrayIndex() >= newArray.size()) {
-                    // error data
-                    return "";
-                }
-                current = newArray.get(node.getArrayIndex());
             }
             return current.getAsString();
         } catch (Exception e) {
             return "";
         }
+    }
+
+    private JsonElement getElementFromArray(JsonNode node, JsonElement curElement) {
+        if (node.getArrayIndices().isEmpty()) {
+            // error data
+            return null;
+        }
+        for (int index : node.getArrayIndices()) {
+            if (!curElement.isJsonArray()) {
+                // error data
+                return null;
+            }
+            JsonArray newArray = curElement.getAsJsonArray();
+            if (index >= newArray.size()) {
+                // error data
+                return null;
+            }
+            curElement = newArray.get(index);
+        }
+        return curElement;
     }
 }

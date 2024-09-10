@@ -88,6 +88,55 @@ public class TestJson2CsvProcessor extends AbstractProcessorTestBase {
         Assert.assertEquals(2, output2.size());
         Assert.assertEquals(output2.get(0), "value1|item1|1001|1002msg");
         Assert.assertEquals(output2.get(1), "value1|item2|2001|2002msg");
+        // case 3
+        List<FieldInfo> fields3 = this.getTestFieldList("matrix(0,0)", "matrix(1,1)", "matrix(2,2)");
+        JsonSourceInfo jsonSource3 = new JsonSourceInfo("UTF-8", "");
+        CsvSinkInfo csvSink3 = new CsvSinkInfo("UTF-8", '|', '\\', fields3);
+        String transformSql3 = "select $root.matrix(0, 0), $root.matrix(1, 1), $root.matrix(2, 2) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createJsonDecoder(jsonSource3),
+                        SinkEncoderFactory.createCsvEncoder(csvSink3));
+        String srcString3 = "{\n"
+                + "  \"matrix\": [\n"
+                + "    [1, 2, 3],\n"
+                + "    [4, 5, 6],\n"
+                + "    [7, 8, 9]\n"
+                + "  ]\n"
+                + "}";
+        List<String> output3 = processor3.transform(srcString3, new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "1|5|9");
+        // case 4
+        List<FieldInfo> fields4 = this.getTestFieldList("department_name", "course_id", "num");
+        JsonSourceInfo jsonSource4 = new JsonSourceInfo("UTF-8", "");
+        CsvSinkInfo csvSink4 = new CsvSinkInfo("UTF-8", '|', '\\', fields4);
+        String transformSql4 =
+                "select $root.departments(0).name, $root.departments(0).courses(0,1).courseId, sqrt($root.departments(0).courses(0,1).courseId - 2) from source";
+        TransformConfig config4 = new TransformConfig(transformSql4);
+        TransformProcessor<String, String> processor4 = TransformProcessor
+                .create(config4, SourceDecoderFactory.createJsonDecoder(jsonSource4),
+                        SinkEncoderFactory.createCsvEncoder(csvSink4));
+        String srcString4 = "{\n" +
+                "  \"departments\": [\n" +
+                "    {\n" +
+                "      \"name\": \"Mathematics\",\n" +
+                "      \"courses\": [\n" +
+                "        [\n" +
+                "          {\"courseId\": \"101\", \"title\": \"Calculus I\"},\n" +
+                "          {\"courseId\": \"102\", \"title\": \"Linear Algebra\"}\n" +
+                "        ],\n" +
+                "        [\n" +
+                "          {\"courseId\": \"201\", \"title\": \"Calculus II\"},\n" +
+                "          {\"courseId\": \"202\", \"title\": \"Abstract Algebra\"}\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        List<String> output4 = processor4.transform(srcString4, new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "Mathematics|102|10.0");
     }
 
     @Test
