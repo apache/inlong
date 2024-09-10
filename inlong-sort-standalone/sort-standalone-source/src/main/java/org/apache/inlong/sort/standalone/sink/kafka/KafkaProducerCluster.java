@@ -31,8 +31,11 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
+import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -190,11 +193,11 @@ public class KafkaProducerCluster implements LifecycleAware {
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        String topic = profileEvent.getHeaders().get(Constants.TOPIC);
+        String topic = sinkContext.getTopic(profileEvent.getUid());
         ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
         long sendTime = System.currentTimeMillis();
         // check
-        if (record == null) {
+        if (record == null || StringUtils.isEmpty(topic)) {
             tx.commit();
             profileEvent.ack();
             tx.close();
@@ -209,9 +212,14 @@ public class KafkaProducerCluster implements LifecycleAware {
                             sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                             profileEvent.ack();
                         } else {
+                            if (ex instanceof UnknownTopicOrPartitionException
+                                    || !(ex instanceof RetriableException)) {
+                                tx.commit();
+                            } else {
+                                tx.rollback();
+                            }
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
                                     metadata.topic(), metadata.partition()), ex);
-                            tx.rollback();
                             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
                         }
                         tx.close();
