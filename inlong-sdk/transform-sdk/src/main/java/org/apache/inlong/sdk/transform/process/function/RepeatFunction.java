@@ -27,17 +27,18 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 /**
- * ReplicateFunction
- * description: replicate(string, numeric)--Repeat the string numeric times and return a new string
+ * RepeatFunction
+ * description: repeat(string, numeric)--Repeat the string numeric times and return a new string
+ *              replicate(string, numeric)--Repeat the string numeric times and return a new string
  */
-@TransformFunction(names = {"replicate"})
-public class ReplicateFunction implements ValueParser {
+@TransformFunction(names = {"repeat", "replicate"})
+public class RepeatFunction implements ValueParser {
 
     private ValueParser stringParser;
 
     private ValueParser countParser;
 
-    public ReplicateFunction(Function expr) {
+    public RepeatFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         stringParser = OperatorTools.buildParser(expressions.get(0));
         countParser = OperatorTools.buildParser(expressions.get(1));
@@ -47,6 +48,12 @@ public class ReplicateFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         Object countObj = countParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null || countObj == null) {
+            return null;
+        }
+        if (stringObj.equals("") || countObj.equals("")) {
+            return "";
+        }
         String str = OperatorTools.parseString(stringObj);
         double count = OperatorTools.parseBigDecimal(countObj).doubleValue();
         return repeat(str, count);
