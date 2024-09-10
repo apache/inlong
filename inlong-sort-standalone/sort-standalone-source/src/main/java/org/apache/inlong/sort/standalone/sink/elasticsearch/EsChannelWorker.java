@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flume.Channel;
@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * EsChannelWorker
@@ -45,7 +46,7 @@ public class EsChannelWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      * @param workerIndex
      */
@@ -94,7 +95,9 @@ public class EsChannelWorker extends Thread {
             }
             // to profileEvent
             ProfileEvent profileEvent = (ProfileEvent) event;
-            if (!CommonPropertiesHolder.useUnifiedConfiguration()) {
+            TransformProcessor<String, Map<String, Object>> processor =
+                    context.getTransformProcessor(profileEvent.getUid());
+            if (processor == null) {
                 EsIndexRequest indexRequest = handler.parse(context, profileEvent);
                 // offer queue
                 if (indexRequest != null) {
@@ -122,7 +125,6 @@ public class EsChannelWorker extends Thread {
             } catch (Throwable e) {
                 LOG.error("Channel take transaction rollback exception:" + getName(), e);
             }
-            return;
         } finally {
             tx.close();
         }
