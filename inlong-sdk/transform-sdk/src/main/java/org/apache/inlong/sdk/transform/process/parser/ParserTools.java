@@ -61,6 +61,9 @@ public class ParserTools {
     }
 
     public static ValueParser getTransformParser(Expression expr) {
+        if (expr == null) {
+            return null;
+        }
         Class<?> clazz = parserMap.get(expr.getClass());
         if (clazz == null) {
             return new ColumnParser((Column) expr);
