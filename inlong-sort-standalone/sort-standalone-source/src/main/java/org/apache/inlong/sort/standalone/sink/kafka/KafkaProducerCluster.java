@@ -21,7 +21,6 @@ import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
@@ -31,8 +30,11 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.RetriableException;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -40,7 +42,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Properties;
 
-/** wrapper of kafka producer */
+/**
+ * wrapper of kafka producer
+ */
 public class KafkaProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
@@ -71,7 +75,9 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.handler = sinkContext.createEventHandler();
     }
 
-    /** start and init kafka producer */
+    /**
+     * start and init kafka producer
+     */
     @Override
     public void start() {
         if (CommonPropertiesHolder.useUnifiedConfiguration()) {
@@ -159,7 +165,9 @@ public class KafkaProducerCluster implements LifecycleAware {
         return props;
     }
 
-    /** stop and close kafka producer */
+    /**
+     * stop and close kafka producer
+     */
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
@@ -185,16 +193,16 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param  profileEvent data to send
-     * @return              boolean
+     * @param profileEvent data to send
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        String topic = profileEvent.getHeaders().get(Constants.TOPIC);
+        String topic = sinkContext.getTopic(profileEvent.getUid());
         ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
         long sendTime = System.currentTimeMillis();
         // check
-        if (record == null) {
+        if (record == null || StringUtils.isEmpty(topic)) {
             tx.commit();
             profileEvent.ack();
             tx.close();
@@ -209,9 +217,14 @@ public class KafkaProducerCluster implements LifecycleAware {
                             sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                             profileEvent.ack();
                         } else {
+                            if (ex instanceof UnknownTopicOrPartitionException
+                                    || !(ex instanceof RetriableException)) {
+                                tx.commit();
+                            } else {
+                                tx.rollback();
+                            }
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
                                     metadata.topic(), metadata.partition()), ex);
-                            tx.rollback();
                             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
                         }
                         tx.close();
