@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -32,15 +33,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 /**
- * EncodeFunction
- * description: encode(string1, string2)
- *      Encode using the provided character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
+ * DecodeFunction
+ * description: decode(binary, string)
+ *      Decode using the supplied character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
  *      If either parameter is empty, the result will also be empty.
  */
-@TransformFunction(names = {"encode"})
-public class EncodeFunction implements ValueParser {
+@TransformFunction(names = {"decode"})
+public class DecodeFunction implements ValueParser {
 
-    private ValueParser stringParser;
+    private ValueParser binaryParser;
 
     private ValueParser characterSetParser;
 
@@ -57,41 +58,39 @@ public class EncodeFunction implements ValueParser {
         SUPPORTED_CHARSETS = Collections.unmodifiableSet(charsets);
     }
 
-    public EncodeFunction(Function expr) {
+    public DecodeFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         if (expressions != null && expressions.size() == 2) {
-            stringParser = OperatorTools.buildParser(expressions.get(0));
+            binaryParser = OperatorTools.buildParser(expressions.get(0));
             characterSetParser = OperatorTools.buildParser(expressions.get(1));
         }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        Object binaryObj = binaryParser.parse(sourceData, rowIndex, context);
         Object characterObj = characterSetParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null || characterObj == null) {
+        if (binaryObj == null || characterObj == null) {
             return null;
         }
-        String stringValue = OperatorTools.parseString(stringObj);
+        String binaryString = OperatorTools.parseString(binaryObj);
         String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
-        byte[] encodeBytes = encode(stringValue, characterSetValue);
-        StringBuilder res = new StringBuilder();
-        if (encodeBytes != null) {
-            for (byte encodeByte : encodeBytes) {
-                res.append((int) encodeByte).append(" ");
-            }
-        }
-        return res.toString().trim();
+        return decode(binaryString, characterSetValue);
     }
 
-    private byte[] encode(String stringValue, String characterSetValue) {
-        if (stringValue == null || stringValue.isEmpty() || characterSetValue == null || characterSetValue.isEmpty()) {
-            return new byte[0];
+    private String decode(String binaryString, String charsetName) {
+        if (binaryString == null || binaryString.isEmpty() || charsetName == null || charsetName.isEmpty()) {
+            return "";
         }
-        if (Charset.isSupported(characterSetValue) && SUPPORTED_CHARSETS.contains(characterSetValue)) {
-            Charset charset = Charset.forName(characterSetValue);
-            return stringValue.getBytes(charset);
+        String[] byteValues = binaryString.split(" ");
+        byte[] byteArray = new byte[byteValues.length];
+        for (int i = 0; i < byteValues.length; i++) {
+            byteArray[i] = (byte) Integer.parseInt(byteValues[i]);
         }
-        return null;
+        if (Charset.isSupported(charsetName) && SUPPORTED_CHARSETS.contains(charsetName)) {
+            Charset charset = Charset.forName(charsetName);
+            return new String(byteArray, charset);
+        }
+        return "";
     }
 }
