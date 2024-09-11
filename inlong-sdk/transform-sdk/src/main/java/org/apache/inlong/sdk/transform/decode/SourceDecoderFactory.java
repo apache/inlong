@@ -21,6 +21,7 @@ import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.YamlSourceInfo;
 
 public class SourceDecoderFactory {
 
@@ -39,4 +40,9 @@ public class SourceDecoderFactory {
     public static PbSourceDecoder createPbDecoder(PbSourceInfo sourceInfo) {
         return new PbSourceDecoder(sourceInfo);
     }
+
+    public static YamlSourceDecoder createYamlDecoder(YamlSourceInfo sourceInfo) {
+        return new YamlSourceDecoder(sourceInfo);
+    }
+
 }
