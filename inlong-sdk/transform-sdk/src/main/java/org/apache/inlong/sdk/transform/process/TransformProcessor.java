@@ -20,7 +20,6 @@ package org.apache.inlong.sdk.transform.process;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
 import org.apache.inlong.sdk.transform.encode.DefaultSinkData;
-import org.apache.inlong.sdk.transform.encode.SinkData;
 import org.apache.inlong.sdk.transform.encode.SinkEncoder;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
@@ -31,29 +30,30 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * TransformProcessor
- * 
+ *
  */
 public class TransformProcessor<I, O> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformProcessor.class);
 
     private static final Map<String, Object> EMPTY_EXT_PARAMS = ImmutableMap.of();
+    private static final String DUMMY_SELECT = "select *";
 
     private final TransformConfig config;
     private final SourceDecoder<I> decoder;
@@ -61,7 +61,9 @@ public class TransformProcessor<I, O> {
 
     private PlainSelect transformSelect;
     private ExpressionOperator where;
-    private Map<String, ValueParser> selectItemMap;
+    private List<ValueParserNode> selectItems;
+
+    private List<String> sinkFieldList;
 
     public static <I, O> TransformProcessor<I, O> create(
             TransformConfig config,
@@ -82,21 +84,31 @@ public class TransformProcessor<I, O> {
     }
 
     private void init() throws JSQLParserException {
-        this.initTransformSql();
+        if (!config.isStrictOrder() && encoder != null && encoder.getFields() != null) {
+            List<FieldInfo> fields = encoder.getFields();
+            this.sinkFieldList = new ArrayList<>(fields.size());
+            fields.forEach(v -> this.sinkFieldList.add(v.getName()));
+        }
+
+        if (StringUtils.isNotEmpty(config.getTransformSql())) {
+            this.initTransformSql(config.getTransformSql());
+        } else {
+            this.initTransformSql(DUMMY_SELECT);
+        }
     }
 
-    private void initTransformSql() throws JSQLParserException {
+    private void initTransformSql(String sql) throws JSQLParserException {
         CCJSqlParserManager parserManager = new CCJSqlParserManager();
-        Select select = (Select) parserManager.parse(new StringReader(config.getTransformSql()));
+        Select select = (Select) parserManager.parse(new StringReader(sql));
         this.transformSelect = (PlainSelect) select.getSelectBody();
         this.where = OperatorTools.buildOperator(this.transformSelect.getWhere());
         List<SelectItem> items = this.transformSelect.getSelectItems();
-        this.selectItemMap = new HashMap<>(items.size());
+        this.selectItems = new ArrayList<>(items.size());
         List<FieldInfo> fields = this.encoder.getFields();
         for (int i = 0; i < items.size(); i++) {
             SelectItem item = items.get(i);
             String fieldName = null;
-            if (i < fields.size()) {
+            if (config.isStrictOrder() && i < fields.size()) {
                 fieldName = fields.get(i).getName();
             }
             if (item instanceof SelectExpressionItem) {
@@ -107,11 +119,26 @@ public class TransformProcessor<I, O> {
                     } else {
                         fieldName = exprItem.getAlias().getName();
                     }
+                    if (!this.checkSelectField(fieldName)) {
+                        throw new JSQLParserException(
+                                String.format("Field name:%s can not be found in sink field list.", fieldName));
+                    }
                 }
-                this.selectItemMap.put(fieldName,
-                        OperatorTools.buildParser(exprItem.getExpression()));
+                this.selectItems
+                        .add(new ValueParserNode(fieldName, OperatorTools.buildParser(exprItem.getExpression())));
+            } else if (item instanceof AllColumns) {
+                fieldName = item.toString();
+                this.encoder.getFields().clear();
+                this.selectItems.add(new ValueParserNode(fieldName, null));
             }
         }
+    }
+
+    public boolean checkSelectField(String fieldName) {
+        if (config.isIgnoreConfigError()) {
+            return true;
+        }
+        return this.sinkFieldList != null && this.sinkFieldList.contains(fieldName);
     }
 
     public List<O> transform(I input) {
@@ -136,11 +163,19 @@ public class TransformProcessor<I, O> {
             }
 
             // parse value
-            SinkData sinkData = new DefaultSinkData();
-            for (Entry<String, ValueParser> entry : this.selectItemMap.entrySet()) {
-                String fieldName = entry.getKey();
+            DefaultSinkData sinkData = new DefaultSinkData();
+            for (ValueParserNode node : this.selectItems) {
+                String fieldName = node.getFieldName();
+                ValueParser parser = node.getParser();
+                if (parser == null && StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                    if (input instanceof String) {
+                        sinkData.addField(fieldName, (String) input);
+                    } else {
+                        sinkData.addField(fieldName, "");
+                    }
+                    continue;
+                }
                 try {
-                    ValueParser parser = entry.getValue();
                     Object fieldValue = parser.parse(sourceData, i, context);
                     sinkData.addField(fieldName, String.valueOf(fieldValue));
                 } catch (Throwable t) {
@@ -149,6 +184,9 @@ public class TransformProcessor<I, O> {
                 }
             }
 
+            if (this.sinkFieldList != null) {
+                sinkData.setKeyList(this.sinkFieldList);
+            }
             // encode
             sinkDatas.add(this.encoder.encode(sinkData, context));
         }

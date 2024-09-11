@@ -64,7 +64,7 @@ SendGroupPtr SendManager::DoGetSendGroup(const std::string &send_group_key) {
   unique_read_lock<read_write_mutex> rdlck(send_group_map_rwmutex_);
   auto send_group_map = send_group_map_.find(send_group_key);
   if (send_group_map == send_group_map_.end()) {
-    LOG_ERROR("fail to get send group, group_id:%s" << send_group_key);
+    LOG_ERROR("Fail to get send group, group key:" << send_group_key);
     return nullptr;
   }
   if (send_group_map->second.empty()) {

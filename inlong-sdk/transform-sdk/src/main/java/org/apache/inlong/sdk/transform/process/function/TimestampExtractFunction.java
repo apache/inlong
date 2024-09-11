@@ -36,13 +36,37 @@ import java.util.List;
  * - minute(timestamp)--returns the minute of an hour (an integer between 0 and 59) from SQL timestamp
  * - second(timestamp)--returns the second of a minute (an integer between 0 and 59) from SQL timestamp
  */
-public class TimestampExtractFunction implements ValueParser {
+public abstract class TimestampExtractFunction implements ValueParser {
 
     private TimestampExtractFunctionType type;
     private ValueParser timestampParser;
 
     public enum TimestampExtractFunctionType {
         HOUR, MINUTE, SECOND
+    }
+
+    @TransformFunction(names = {"hour"})
+    public static class HourExtractFunction extends TimestampExtractFunction {
+
+        public HourExtractFunction(Function expr) {
+            super(TimestampExtractFunctionType.HOUR, expr);
+        }
+    }
+
+    @TransformFunction(names = {"minute"})
+    public static class MinuteExtractFunction extends TimestampExtractFunction {
+
+        public MinuteExtractFunction(Function expr) {
+            super(TimestampExtractFunctionType.MINUTE, expr);
+        }
+    }
+
+    @TransformFunction(names = {"second"})
+    public static class SecondExtractFunction extends TimestampExtractFunction {
+
+        public SecondExtractFunction(Function expr) {
+            super(TimestampExtractFunctionType.SECOND, expr);
+        }
     }
 
     public TimestampExtractFunction(TimestampExtractFunctionType type, Function expr) {

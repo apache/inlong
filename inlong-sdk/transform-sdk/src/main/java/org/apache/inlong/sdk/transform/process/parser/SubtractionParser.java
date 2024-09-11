@@ -29,6 +29,7 @@ import java.math.BigDecimal;
  * SubtractionParser
  * 
  */
+@TransformParser(values = Subtraction.class)
 public class SubtractionParser implements ValueParser {
 
     private ValueParser left;

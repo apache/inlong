@@ -71,6 +71,7 @@ public class TubeMQOperator {
     private static final String CREATE_USER = "&createUser=";
     private static final String CONF_MOD_AUTH_TOKEN = "&confModAuthToken=";
     private static final String MSG_COUNT = "&msgCount=";
+    private static final String FILTER_CONDS = "&filterConds=";
 
     private static final String QUERY_TOPIC_PATH = "/webapi.htm?method=admin_query_cluster_topic_view";
     private static final String QUERY_BROKER_PATH = "/webapi.htm?method=admin_query_broker_run_status";
@@ -288,7 +289,7 @@ public class TubeMQOperator {
             }
 
             String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT
-                    + request.getMessageCount();
+                    + request.getMessageCount() + FILTER_CONDS + streamInfo.getInlongStreamId();
             TubeMessageResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), TubeMessageResponse.class);
             if (response.getErrCode() != SUCCESS_CODE && response.getErrCode() != 200) {

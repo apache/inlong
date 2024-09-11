@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.NotExpression;
  * NotOperator
  * 
  */
+@TransformOperator(values = NotExpression.class)
 public class NotOperator implements ExpressionOperator {
 
     private final ExpressionOperator node;

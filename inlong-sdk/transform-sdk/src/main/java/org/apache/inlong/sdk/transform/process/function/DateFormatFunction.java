@@ -25,7 +25,7 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * description: date_format(timestamp,format)--converts timestamp(in seconds) to a value of string in the format
  * specified by the date format string. The format string is compatible with Java’s SimpleDateFormat
  */
+@TransformFunction(names = {"date_format"})
 public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;
@@ -65,11 +66,10 @@ public class DateFormatFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object timestampObj = timestampParser.parse(sourceData, rowIndex, context);
         Object formatObj = formatParser.parse(sourceData, rowIndex, context);
-        BigDecimal timestamp = OperatorTools.parseBigDecimal(timestampObj);
+        Timestamp timestamp = OperatorTools.parseTimestamp(timestampObj);
         String format = OperatorTools.parseString(formatObj);
         SimpleDateFormat sdf = getSimpleDateFormat(format);
-        // the timestamp is in seconds, multiply 1000 to get milliseconds
-        Date date = new Date(timestamp.longValue() * 1000);
+        Date date = new Date(timestamp.getTime());
         return sdf.format(date);
     }
 

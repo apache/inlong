@@ -27,9 +27,9 @@
 #include <vector>
 
 namespace inlong {
+using GroupId2ClusterIdMap = std::unordered_map<std::string, int32_t>;
 class ProxyManager {
 private:
-  static ProxyManager *instance_;
   uint32_t timeout_;
   read_write_mutex groupid_2_cluster_id_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
@@ -54,13 +54,16 @@ private:
   uint64_t last_update_time_;
 
   int32_t ParseAndGet(const std::string &key, const std::string &meta_data,
-                      ProxyInfoVec &proxy_info_vec);
+                      ProxyInfoVec &proxy_info_vec,GroupId2ClusterIdMap &group_id_2_cluster_id);
 
 public:
   ProxyManager(){};
   ~ProxyManager();
-  static ProxyManager *GetInstance() { return instance_; }
-  int32_t CheckBidConf(const std::string &inlong_group_id, bool is_inited);
+  static ProxyManager *GetInstance() {
+    static ProxyManager instance;
+    return &instance;
+  }
+  int32_t CheckGroupIdConf(const std::string &inlong_group_id, bool is_inited);
   void Update();
   void DoUpdate();
   void Init();

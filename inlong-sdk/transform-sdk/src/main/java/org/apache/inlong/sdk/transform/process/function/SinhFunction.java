@@ -30,6 +30,7 @@ import java.math.BigDecimal;
  * SinhFunction
  * description: sinh(numeric)--returns the hyperbolic sine of numeric
  */
+@TransformFunction(names = {"sinh"})
 public class SinhFunction implements ValueParser {
 
     private ValueParser numberParser;
