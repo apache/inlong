@@ -336,6 +336,10 @@ public class RedisSource extends AbstractSource {
                 if (redisReplicator != null) {
                     redisReplicator.close();
                 }
+                // command mode then close jedis
+                if (jedis.isConnected()) {
+                    jedis.close();
+                }
             } catch (IOException e) {
                 LOGGER.error("Redis reader close failed.");
             }
