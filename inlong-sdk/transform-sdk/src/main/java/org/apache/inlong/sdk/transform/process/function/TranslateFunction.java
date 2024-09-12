@@ -22,8 +22,10 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,16 +80,9 @@ public class TranslateFunction implements ValueParser {
             return "";
         }
         StringBuilder builder = null;
-        final int findSize = findChars == null ? 0 : findChars.length();
-        final int replaceSize = replaceChars == null ? 0 : replaceChars.length();
-        final int commonSize = Math.min(findSize, replaceSize);
         // Create a map to store character replacements
-        Map<Character, Character> replacementMap = new HashMap<>();
-        for (int i = 0; i < commonSize; i++) {
-            char findChar = findChars.charAt(i);
-            char replaceChar = replaceChars.charAt(i);
-            replacementMap.put(findChar, replaceChar);
-        }
+        Map<Character, Character> replacementMap = parseReplacementMap(findChars, replaceChars);
+
         for (int i = 0, size = originalStr.length(); i < size; i++) {
             char ch = originalStr.charAt(i);
             if (replacementMap.containsKey(ch)) {
@@ -106,5 +101,23 @@ public class TranslateFunction implements ValueParser {
             }
         }
         return builder == null ? originalStr : builder.toString();
+    }
+
+    private Map<Character, Character> parseReplacementMap(String findChars, String replaceChars) {
+        if (StringUtils.isAnyBlank(findChars, replaceChars)) {
+            return ImmutableMap.of();
+        }
+
+        final int findSize = findChars == null ? 0 : findChars.length();
+        final int replaceSize = replaceChars == null ? 0 : replaceChars.length();
+        final int commonSize = Math.min(findSize, replaceSize);
+        // Create a map to store character replacements
+        Map<Character, Character> replacementMap = new HashMap<>();
+        for (int i = 0; i < commonSize; i++) {
+            char findChar = findChars.charAt(i);
+            char replaceChar = replaceChars.charAt(i);
+            replacementMap.put(findChar, replaceChar);
+        }
+        return replacementMap;
     }
 }
