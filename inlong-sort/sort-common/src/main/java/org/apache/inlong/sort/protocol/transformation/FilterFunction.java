@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import lombok.Data;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.transformation.function.BetweenFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 
+import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -37,6 +37,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 })
 @Data
 public abstract class FilterFunction implements Function {
+
     @JsonProperty("logicOperator")
     protected LogicOperator logicOperator;
 }
