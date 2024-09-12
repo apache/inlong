@@ -119,6 +119,7 @@ public class TestRedisSource {
         final String streamId = "stream01";
         final String keys = "age,name,sex";
         final String command = "zscore";
+        final String subOperation = "set,del";
 
         TaskProfile taskProfile = helper.getTaskProfile(1, "", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
                 "GMT+8:00");
@@ -133,6 +134,7 @@ public class TestRedisSource {
         profile.set(TaskConstants.TASK_REDIS_COMMAND, command);
         profile.set(TaskConstants.TASK_REDIS_KEYS, keys);
         profile.set(TaskConstants.TASK_AUDIT_VERSION, "0");
+        profile.set(TaskConstants.TASK_REDIS_SUBOPERATION, subOperation);
         profile.setInstanceId(instanceId);
     }
 

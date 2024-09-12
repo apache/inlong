@@ -279,6 +279,7 @@ public class TaskProfileDto {
         redisTask.setFieldOrMember(config.getFieldOrMember());
         redisTask.setIsSubscribe(config.getIsSubscribe());
         redisTask.setSyncFreq(config.getSyncFreq());
+        redisTask.setSubOperations(config.getSubOperations());
 
         return redisTask;
     }

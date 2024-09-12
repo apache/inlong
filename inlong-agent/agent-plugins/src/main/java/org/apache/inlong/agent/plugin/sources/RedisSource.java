@@ -99,6 +99,7 @@ public class RedisSource extends AbstractSource {
     private boolean destroyed;
     private boolean isSubscribe;
     private Set<String> keys;
+    private Set<String> subOperations;
     private Replicator redisReplicator;
     private BlockingQueue<SourceData> redisQueue;
     private ScheduledExecutorService executor;
@@ -145,10 +146,12 @@ public class RedisSource extends AbstractSource {
         try {
             if (isSubscribe) {
                 // use subscribe mode
+                this.subOperations = new ConcurrentSkipListSet<>(
+                        Arrays.asList(profile.get(TaskConstants.TASK_REDIS_SUBOPERATION).split(",")));
                 this.executor = (ScheduledExecutorService) Executors.newSingleThreadExecutor();
-                redisReplicator = new RedisReplicator(uri);
+                this.redisReplicator = new RedisReplicator(uri);
                 initReplicator();
-                executor.execute(startReplicatorSync());
+                this.executor.execute(startReplicatorSync());
             } else {
                 this.executor = Executors.newScheduledThreadPool(1);
                 // use command mode
@@ -158,7 +161,7 @@ public class RedisSource extends AbstractSource {
                 long syncFreq = profile.getLong(TaskConstants.TASK_REDIS_SYNC_FREQ, DEFAULT_FREQ);
                 this.jedis = new Jedis(uri);
                 jedis.connect();
-                executor.scheduleWithFixedDelay(startJedisSync(), 0, syncFreq, TimeUnit.MILLISECONDS);
+                this.executor.scheduleWithFixedDelay(startJedisSync(), 0, syncFreq, TimeUnit.MILLISECONDS);
             }
         } catch (URISyntaxException | IOException | JedisConnectionException e) {
             sourceMetric.pluginReadFailCount.addAndGet(1);
@@ -389,6 +392,34 @@ public class RedisSource extends AbstractSource {
     }
 
     private void initReplicator() {
+        if (!subOperations.isEmpty()) {
+            DefaultCommandParser replicatorCommandParser = new DefaultCommandParser();
+            for (String subOperation : subOperations) {
+                this.redisReplicator.addCommandParser(CommandName.name(subOperation), replicatorCommandParser);
+            }
+            this.redisReplicator.addEventListener((replicator, event) -> {
+                if (event instanceof DefaultCommand) {
+                    DefaultCommand defaultCommand = (DefaultCommand) event;
+                    Object[] args = defaultCommand.getArgs();
+                    if (args[0] instanceof byte[]) {
+                        String key = new String((byte[]) args[0], StandardCharsets.UTF_8);
+                        if (keys.contains(key)) {
+                            synchronizeData(gson.toJson(event));
+                        }
+                    }
+                }
+                if (event instanceof PostRdbSyncEvent) {
+                    this.snapShot = String.valueOf(replicator.getConfiguration().getReplOffset());
+                    LOGGER.info("after rdb snapShot is: {}", snapShot);
+                }
+            });
+        } else {
+            // if SubOperation is not configured, subscribe all modification
+            initDefaultReplicator();
+        }
+    }
+
+    private void initDefaultReplicator() {
         DefaultCommandParser defaultCommandParser = new DefaultCommandParser();
         this.redisReplicator.addCommandParser(CommandName.name("APPEND"), defaultCommandParser);
         this.redisReplicator.addCommandParser(CommandName.name("SET"), defaultCommandParser);

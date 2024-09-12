@@ -190,6 +190,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_REDIS_KEYS = "task.redisTask.keys";
     public static final String TASK_REDIS_FIELD_OR_MEMBER = "task.redisTask.fieldOrMember";
     public static final String TASK_REDIS_IS_SUBSCRIBE = "task.redisTask.isSubscribe";
+    public static final String TASK_REDIS_SUBOPERATION = "task.redisTask.subOperation";
     public static final String TASK_REDIS_SYNC_FREQ = "task.redisTask.syncFreq";
 
     public static final String TASK_STATE = "task.state";

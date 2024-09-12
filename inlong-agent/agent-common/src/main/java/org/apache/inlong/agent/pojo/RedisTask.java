@@ -35,6 +35,7 @@ public class RedisTask {
     private String fieldOrMember;
     private Boolean isSubscribe;
     private String syncFreq;
+    private String subOperations;
 
     @Data
     public static class RedisTaskConfig {
@@ -53,5 +54,6 @@ public class RedisTask {
         private String fieldOrMember;
         private Boolean isSubscribe;
         private String syncFreq;
+        private String subOperations;
     }
 }
