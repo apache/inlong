@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.transformation.function.BetweenFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
@@ -33,6 +35,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
         @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction")
 })
-public interface FilterFunction extends Function {
-
+@Data
+public abstract class FilterFunction implements Function {
+    @JsonProperty("logicOperator")
+    protected LogicOperator logicOperator;
 }
