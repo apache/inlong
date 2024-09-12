@@ -17,15 +17,15 @@
 
 package org.apache.inlong.sdk.transform.process.function;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -103,7 +103,7 @@ public class TranslateFunction implements ValueParser {
         return builder == null ? originalStr : builder.toString();
     }
 
-    private  Map<Character, Character> parseReplacementMap(String findChars, String replaceChars) {
+    private Map<Character, Character> parseReplacementMap(String findChars, String replaceChars) {
         if (StringUtils.isAnyBlank(findChars, replaceChars)) {
             return ImmutableMap.of();
         }
