@@ -15,52 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.util.List;
-
 /**
- * ASCIIFunction
- * description: ASCII(string) -- Returns the numeric value of the first character of string. Returns NULL if string is NULL.
+ * IsDecimalFunction
+ * description: is_decimal(string)
+ * - return true if string can be parsed to a valid numeric.
+ * - return false otherwise (Including cases where string is null and '').
  */
-@TransformFunction(names = {"ascii"})
-public class AsciiFunction implements ValueParser {
+@TransformFunction(names = {"is_decimal"})
+public class IsDecimalFunction implements ValueParser {
 
     private final ValueParser stringParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
-    public AsciiFunction(Function expr) {
-        List<Expression> expressions = expr.getParameters().getExpressions();
-        stringParser = OperatorTools.buildParser(expressions.get(0));
+    public IsDecimalFunction(Function expr) {
+        stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null) {
-            return null;
+        Object stringObject = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObject == null) {
+            return false;
         }
-        String str = OperatorTools.parseString(stringObj);
-        if (str == null || str.isEmpty()) {
-            return null;
+        String string = OperatorTools.parseString(stringObject).toLowerCase();
+        if (string.isEmpty()) {
+            return false;
         }
-        return (int) str.charAt(0);
+        return string.matches("(\\s)*([+-])?(([0-9]*\\.)?([0-9]+)|([0-9]+)(\\.[0-9]*)?)([eE][\\+-]?[0-9]+)?(\\s)*");
     }
 }

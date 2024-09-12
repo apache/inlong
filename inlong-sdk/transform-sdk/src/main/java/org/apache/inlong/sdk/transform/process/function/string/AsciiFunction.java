@@ -15,45 +15,53 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
+import java.util.List;
+
 /**
- * IsDigitFunction
- * description: is_digit(string)
- * - return true if all characters in string are digit.
- * - return false otherwise (Including cases where string is null and '').
+ * ASCIIFunction
+ * description: ASCII(string) -- Returns the numeric value of the first character of string. Returns NULL if string is NULL.
  */
-@TransformFunction(names = {"is_digit"})
-public class IsDigitFunction implements ValueParser {
+@TransformFunction(names = {"ascii"})
+public class AsciiFunction implements ValueParser {
 
     private final ValueParser stringParser;
 
-    public IsDigitFunction(Function expr) {
-        stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    /**
+     * Constructor
+     * @param expr
+     */
+    public AsciiFunction(Function expr) {
+        List<Expression> expressions = expr.getParameters().getExpressions();
+        stringParser = OperatorTools.buildParser(expressions.get(0));
     }
 
+    /**
+     * parse
+     * @param sourceData
+     * @param rowIndex
+     * @return
+     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObject = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObject == null) {
-            return false;
+        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null) {
+            return null;
         }
-        String string = OperatorTools.parseString(stringObject).toLowerCase();
-        if (string.isEmpty()) {
-            return false;
+        String str = OperatorTools.parseString(stringObj);
+        if (str == null || str.isEmpty()) {
+            return null;
         }
-        for (char chr : string.toCharArray()) {
-            if (chr < '0' || chr > '9') {
-                return false;
-            }
-        }
-        return true;
+        return (int) str.charAt(0);
     }
 }

@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * IsDecimalFunction
- * description: is_decimal(string)
- * - return true if string can be parsed to a valid numeric.
+ * IsDigitFunction
+ * description: is_digit(string)
+ * - return true if all characters in string are digit.
  * - return false otherwise (Including cases where string is null and '').
  */
-@TransformFunction(names = {"is_decimal"})
-public class IsDecimalFunction implements ValueParser {
+@TransformFunction(names = {"is_digit"})
+public class IsDigitFunction implements ValueParser {
 
     private final ValueParser stringParser;
 
-    public IsDecimalFunction(Function expr) {
+    public IsDigitFunction(Function expr) {
         stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
@@ -49,6 +50,11 @@ public class IsDecimalFunction implements ValueParser {
         if (string.isEmpty()) {
             return false;
         }
-        return string.matches("(\\s)*([+-])?(([0-9]*\\.)?([0-9]+)|([0-9]+)(\\.[0-9]*)?)([eE][\\+-]?[0-9]+)?(\\s)*");
+        for (char chr : string.toCharArray()) {
+            if (chr < '0' || chr > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 }
