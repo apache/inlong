@@ -23,6 +23,7 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -72,6 +73,13 @@ public class RedisSource extends AbstractSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisSource.class);
     private static final long MAX_DATA_SIZE = 500 * 1024;
     private static final int REDIS_QUEUE_SIZE = 10000;
+    private static final long DEFAULT_FREQ = 60 * 1000;
+    private static final String GET_COMMAND = "GET";
+    private static final String MGET_COMMAND = "MGET";
+    private static final String HGET_COMMAND = "HGET";
+    private static final String ZSCORE_COMMAND = "ZSCORE";
+    private static final String ZREVRANK_COMMAND = "ZREVRANK";
+    private static final String EXISTS_COMMAND = "EXISTS";
     private Gson gson;
 
     public InstanceProfile profile;
@@ -94,6 +102,18 @@ public class RedisSource extends AbstractSource {
     private Replicator redisReplicator;
     private BlockingQueue<SourceData> redisQueue;
     private ScheduledExecutorService executor;
+
+    // Command handler map
+    private static final Map<String, CommandHandler> commandHandlers = Maps.newConcurrentMap();
+
+    static {
+        commandHandlers.put(GET_COMMAND, RedisSource::handleGet);
+        commandHandlers.put(MGET_COMMAND, RedisSource::handleMGet);
+        commandHandlers.put(HGET_COMMAND, RedisSource::handleHGet);
+        commandHandlers.put(ZSCORE_COMMAND, RedisSource::handleZScore);
+        commandHandlers.put(ZREVRANK_COMMAND, RedisSource::handleZRevRank);
+        commandHandlers.put(EXISTS_COMMAND, RedisSource::handleExists);
+    }
 
     public RedisSource() {
 
@@ -132,10 +152,10 @@ public class RedisSource extends AbstractSource {
             } else {
                 this.executor = Executors.newScheduledThreadPool(1);
                 // use command mode
-                this.redisCommand = profile.get(TaskConstants.TASK_REDIS_COMMAND, "get");
+                this.redisCommand = profile.get(TaskConstants.TASK_REDIS_COMMAND, GET_COMMAND);
                 this.fieldOrMember = profile.get(TaskConstants.TASK_REDIS_FIELD_OR_MEMBER, null);
                 // default frequency 1min
-                long syncFreq = profile.getLong(TaskConstants.TASK_REDIS_SYNC_FREQ, 60 * 1000);
+                long syncFreq = profile.getLong(TaskConstants.TASK_REDIS_SYNC_FREQ, DEFAULT_FREQ);
                 this.jedis = new Jedis(uri);
                 jedis.connect();
                 executor.scheduleWithFixedDelay(startJedisSync(), 0, syncFreq, TimeUnit.MILLISECONDS);
@@ -172,63 +192,72 @@ public class RedisSource extends AbstractSource {
 
     private Map<String, Object> fetchDataByJedis(Jedis jedis, String command, List<String> keys, String fieldOrMember) {
         Map<String, Object> result = new HashMap<>();
-        switch (command.toUpperCase()) {
-            case "GET":
-                // use pipeline to decrease IO cost
-                Pipeline pipeline = jedis.pipelined();
-                for (String key : keys) {
-                    pipeline.get(key);
-                }
-                List<Object> getValues = pipeline.syncAndReturnAll();
-                for (int i = 0; i < keys.size(); i++) {
-                    result.put(keys.get(i), getValues.get(i));
-                }
-                break;
-
-            case "MGET":
-                List<String> mGetValues = jedis.mget(keys.toArray(new String[0]));
-                for (int i = 0; i < keys.size(); i++) {
-                    result.put(keys.get(i), mGetValues.get(i));
-                }
-                break;
-
-            case "HGET":
-                for (String key : keys) {
-                    String value = jedis.hget(key, fieldOrMember);
-                    result.put(key, value);
-                }
-                break;
-
-            case "ZSCORE":
-                for (String key : keys) {
-                    if (!StringUtils.isEmpty(fieldOrMember)) {
-                        Double score = jedis.zscore(key, fieldOrMember);
-                        result.put(key, score);
-                    }
-                }
-                break;
-
-            case "ZREVRANK":
-                for (String key : keys) {
-                    if (StringUtils.isEmpty(fieldOrMember)) {
-                        Long rank = jedis.zrevrank(key, fieldOrMember);
-                        result.put(key, rank);
-                    }
-                }
-                break;
-
-            case "EXISTS":
-                for (String key : keys) {
-                    boolean exists = jedis.exists(key);
-                    result.put(key, exists);
-                }
-                break;
-
-            default:
-                LOGGER.info("Unsupported command: " + command);
-                throw new UnsupportedOperationException("Unsupported command: " + command);
+        CommandHandler handler = commandHandlers.get(command.toUpperCase());
+        if (handler != null) {
+            handler.handle(jedis, keys, fieldOrMember, result);
+        } else {
+            LOGGER.error("Unsupported command: " + command);
+            throw new UnsupportedOperationException("Unsupported command: " + command);
         }
         return result;
+    }
+
+    private static void handleGet(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result) {
+        Pipeline pipeline = jedis.pipelined();
+        for (String key : keys) {
+            pipeline.get(key);
+        }
+        List<Object> getValues = pipeline.syncAndReturnAll();
+        for (int i = 0; i < keys.size(); i++) {
+            result.put(keys.get(i), getValues.get(i));
+        }
+    }
+
+    private static void handleMGet(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result) {
+        List<String> mGetValues = jedis.mget(keys.toArray(new String[0]));
+        for (int i = 0; i < keys.size(); i++) {
+            result.put(keys.get(i), mGetValues.get(i));
+        }
+    }
+
+    private static void handleHGet(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result) {
+        for (String key : keys) {
+            String value = jedis.hget(key, fieldOrMember);
+            result.put(key, value);
+        }
+    }
+
+    private static void handleZScore(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result) {
+        for (String key : keys) {
+            if (!StringUtils.isEmpty(fieldOrMember)) {
+                Double score = jedis.zscore(key, fieldOrMember);
+                result.put(key, score);
+            }
+        }
+    }
+
+    private static void handleZRevRank(Jedis jedis, List<String> keys, String fieldOrMember,
+            Map<String, Object> result) {
+        for (String key : keys) {
+            if (!StringUtils.isEmpty(fieldOrMember)) {
+                Long rank = jedis.zrevrank(key, fieldOrMember);
+                result.put(key, rank);
+            }
+        }
+    }
+
+    private static void handleExists(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result) {
+        for (String key : keys) {
+            boolean exists = jedis.exists(key);
+            result.put(key, exists);
+        }
+    }
+
+    // Functional interface for handling commands
+    @FunctionalInterface
+    private interface CommandHandler {
+
+        void handle(Jedis jedis, List<String> keys, String fieldOrMember, Map<String, Object> result);
     }
 
     private void synchronizeData(String data) {

@@ -235,7 +235,6 @@ public class TestRedisSource {
     @Test
     public void testFetchDataByJedis_Exists()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        // 模拟 EXISTS 命令的返回值
         when(jedis.exists("key1")).thenReturn(true);
         when(jedis.exists("key2")).thenReturn(false);
 
@@ -245,15 +244,12 @@ public class TestRedisSource {
         expectedData.put("key1", true);
         expectedData.put("key2", false);
 
-        // 调用 fetchDataByJedis
         Method method = RedisSource.class.getDeclaredMethod("fetchDataByJedis", Jedis.class, String.class, List.class,
                 String.class);
         method.setAccessible(true);
         Map<String, Object> result = (Map<String, Object>) method.invoke(redisSource, jedis, "EXISTS", keys, null);
-        // 验证结果是否与预期匹配
         assertEquals(expectedData, result);
 
-        // 验证 exists 被调用
         verify(jedis, times(1)).exists("key1");
         verify(jedis, times(1)).exists("key2");
         executor.shutdown();
