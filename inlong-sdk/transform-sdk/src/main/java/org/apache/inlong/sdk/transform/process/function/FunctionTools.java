@@ -73,7 +73,7 @@ public class FunctionTools {
         if (func == null) {
             return null;
         }
-        String functionName = func.getName();
+        String functionName = func.getName().toLowerCase();
         Class<?> clazz = functionMap.get(functionName);
         if (clazz == null) {
             return new ColumnParser(func);
