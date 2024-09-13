@@ -44,6 +44,7 @@ import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilter
 import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.IsNotNullOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.IsNullOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.LessThanOperator;
@@ -238,6 +239,8 @@ public class FilterFunctionUtils {
                 return IsNullOperator.getInstance();
             case not_null:
                 return IsNotNullOperator.getInstance();
+            case in:
+                return InOperator.getInstance();
             default:
                 throw new IllegalArgumentException(String.format("Unsupported operateType=%s", operationType));
         }
