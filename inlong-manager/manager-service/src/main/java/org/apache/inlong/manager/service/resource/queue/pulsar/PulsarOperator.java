@@ -414,7 +414,7 @@ public class PulsarOperator {
         LOGGER.info("begin to query message for topic {}, adminUrl={}", topicFullName, pulsarClusterInfo.getAdminUrl());
         List<BriefMQMessage> messageList = new ArrayList<>();
         int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
-        for (int messageIndex = 0; messageIndex < 100; messageIndex++) {
+        for (int messageIndex = 0; messageIndex < request.getMessageCount(); messageIndex++) {
             int currentPartitionNum = messageIndex % partitionCount;
             int messagePosition = messageIndex / partitionCount + 1;
             String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, currentPartitionNum, serial);

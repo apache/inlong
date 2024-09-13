@@ -41,7 +41,7 @@ public class QueryMessageRequest {
     private String streamId;
 
     @ApiModelProperty(value = "Message count")
-    private Integer messageCount = 100;
+    private Integer messageCount = 10;
 
     @ApiModelProperty(value = "Field name")
     private String fieldName;

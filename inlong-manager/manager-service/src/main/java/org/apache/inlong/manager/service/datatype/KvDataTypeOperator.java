@@ -62,7 +62,7 @@ public class KvDataTypeOperator implements DataTypeOperator {
                 lineSeparator = (char) Integer.parseInt(streamInfo.getLineSeparator());
             }
             List<Map<String, String>> rowValues =
-                    KvUtils.splitKv(str, separator, kvSeparator, escapeChar, '\"', lineSeparator);
+                    KvUtils.splitKv(str, separator, kvSeparator, escapeChar, null, lineSeparator);
             for (Map<String, String> row : rowValues) {
                 for (FieldInfo fieldInfo : fields) {
                     fieldInfo.setFieldValue(row.get(fieldInfo.getFieldName()));
