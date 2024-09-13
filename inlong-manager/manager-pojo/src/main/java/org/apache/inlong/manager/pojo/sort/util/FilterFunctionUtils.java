@@ -98,11 +98,11 @@ public class FilterFunctionUtils {
                 .map(filterRule -> createFilterFunction(filterRule, transformName)).collect(Collectors.toList());
         // Move logicOperator to preFunction
         for (int index = filterFunctions.size() - 1; index > 0; index--) {
-            SingleValueFilterFunction function = (SingleValueFilterFunction) filterFunctions.get(index);
-            SingleValueFilterFunction preFunction = (SingleValueFilterFunction) filterFunctions.get(index - 1);
+            FilterFunction function = filterFunctions.get(index);
+            FilterFunction preFunction = filterFunctions.get(index - 1);
             function.setLogicOperator(preFunction.getLogicOperator());
         }
-        ((SingleValueFilterFunction) filterFunctions.get(0)).setLogicOperator(EmptyOperator.getInstance());
+        (filterFunctions.get(0)).setLogicOperator(EmptyOperator.getInstance());
         return filterFunctions;
     }
 
