@@ -31,12 +31,15 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterRu
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.TargetValue;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
+import org.apache.inlong.sort.protocol.transformation.CompareOperator;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.LogicOperator;
+import org.apache.inlong.sort.protocol.transformation.MultiValueCompareOperator;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
 import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
+import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
@@ -51,13 +54,17 @@ import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Util for creat filter function.
  */
+@Slf4j
 public class FilterFunctionUtils {
 
     /**
@@ -155,12 +162,26 @@ public class FilterFunctionUtils {
                     FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
         }
         OperationType operationType = filterRule.getOperationType();
-        SingleValueCompareOperator compareOperator = parseCompareOperator(operationType);
+        CompareOperator compareOperator = parseCompareOperator(operationType);
         TargetValue targetValue = filterRule.getTargetValue();
         FunctionParam target = parseTargetValue(targetValue, transformName);
         RuleRelation relationWithPost = filterRule.getRelationWithPost();
         LogicOperator logicOperator = parseLogicOperator(relationWithPost);
-        return new SingleValueFilterFunction(logicOperator, sourceFieldInfo, compareOperator, target);
+        if (compareOperator instanceof SingleValueCompareOperator) {
+            return new SingleValueFilterFunction(logicOperator, sourceFieldInfo,
+                    (SingleValueCompareOperator) compareOperator, target);
+        } else {
+            List<FunctionParam> targets = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(filterRule.getTargetValues())) {
+                for (TargetValue value : filterRule.getTargetValues()) {
+                    targets.add(parseTargetValue(value, transformName));
+                }
+            } else {
+                targets.add(target);
+            }
+            return new MultiValueFilterFunction(sourceFieldInfo, targets, (MultiValueCompareOperator) compareOperator,
+                    logicOperator);
+        }
     }
 
     private static LogicOperator parseLogicOperator(RuleRelation relation) {
@@ -199,7 +220,7 @@ public class FilterFunctionUtils {
         }
     }
 
-    private static SingleValueCompareOperator parseCompareOperator(OperationType operationType) {
+    private static CompareOperator parseCompareOperator(OperationType operationType) {
         switch (operationType) {
             case eq:
                 return EqualOperator.getInstance();

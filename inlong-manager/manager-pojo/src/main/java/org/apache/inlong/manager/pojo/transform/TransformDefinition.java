@@ -36,7 +36,7 @@ public abstract class TransformDefinition {
 
     @JsonFormat
     public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null
+        lt, le, eq, ne, ge, gt, is_null, not_null, in
     }
 
     @JsonFormat
