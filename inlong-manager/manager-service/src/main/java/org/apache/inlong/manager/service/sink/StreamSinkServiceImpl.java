@@ -481,7 +481,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), operator);
         }
 
-        LOGGER.info("success to update sink by id: {}", request);
+        LOGGER.info("success to update sink by id: {}", request.getId());
         return true;
     }
 
