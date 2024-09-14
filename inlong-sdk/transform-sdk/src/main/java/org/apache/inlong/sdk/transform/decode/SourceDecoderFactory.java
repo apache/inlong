@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.pojo.AvroSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
@@ -38,5 +39,9 @@ public class SourceDecoderFactory {
 
     public static PbSourceDecoder createPbDecoder(PbSourceInfo sourceInfo) {
         return new PbSourceDecoder(sourceInfo);
+    }
+
+    public static AvroSourceDecoder createAvroDecoder(AvroSourceInfo sourceInfo) {
+        return new AvroSourceDecoder(sourceInfo);
     }
 }
