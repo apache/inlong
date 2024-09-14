@@ -15,37 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.transform;
+package org.apache.inlong.sdk.transform.process.function.handler;
 
-import org.apache.inlong.manager.common.enums.TransformType;
+import java.io.ByteArrayOutputStream;
+import java.util.zip.Deflater;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class DeflaterCompress implements CompressHandler {
 
-/**
- * A class to define operation to transform.
- */
-@Data
-@NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "transformType")
-public abstract class TransformDefinition {
+    @Override
+    public byte[] compress(byte[] data) throws Exception {
+        Deflater deflater = new Deflater();
+        deflater.setInput(data);
+        deflater.finish();
 
-    protected TransformType transformType;
-
-    @JsonFormat
-    public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null, in
-    }
-
-    @JsonFormat
-    public enum ScriptType {
-        PYTHON, JAVA
-    }
-
-    @JsonFormat
-    public enum RuleRelation {
-        AND, OR
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        return outputStream.toByteArray();
     }
 }

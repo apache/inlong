@@ -15,37 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.transform;
+package org.apache.inlong.sdk.transform.process.function.handler;
 
-import org.apache.inlong.manager.common.enums.TransformType;
+public interface UncompressHandler {
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-/**
- * A class to define operation to transform.
- */
-@Data
-@NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "transformType")
-public abstract class TransformDefinition {
-
-    protected TransformType transformType;
-
-    @JsonFormat
-    public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null, in
-    }
-
-    @JsonFormat
-    public enum ScriptType {
-        PYTHON, JAVA
-    }
-
-    @JsonFormat
-    public enum RuleRelation {
-        AND, OR
-    }
+    byte[] uncompress(byte[] data) throws Exception;
 }

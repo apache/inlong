@@ -30,6 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @JsonTypeName("multiValueFilter")
 @Data
 @NoArgsConstructor
-public class MultiValueFilterFunction implements FilterFunction {
+public class MultiValueFilterFunction extends FilterFunction implements Serializable {
 
     @JsonProperty("source")
     private FunctionParam source;
@@ -48,8 +49,6 @@ public class MultiValueFilterFunction implements FilterFunction {
     private List<FunctionParam> targets;
     @JsonProperty("compareOperator")
     private MultiValueCompareOperator compareOperator;
-    @JsonProperty("logicOperator")
-    private LogicOperator logicOperator;
 
     @JsonCreator
     public MultiValueFilterFunction(

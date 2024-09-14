@@ -910,6 +910,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", groupId, protocolType);
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            String errMsg = String.format("group not found by groupId=%s", groupId);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
         GroupStatus groupStatus = GroupStatus.forCode(groupEntity.getStatus());
         if (!Objects.equals(groupStatus, GroupStatus.CONFIG_SUCCESSFUL)) {
             String errMsg =

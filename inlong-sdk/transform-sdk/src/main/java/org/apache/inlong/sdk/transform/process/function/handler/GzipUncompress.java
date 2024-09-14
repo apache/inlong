@@ -15,37 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.transform;
+package org.apache.inlong.sdk.transform.process.function.handler;
 
-import org.apache.inlong.manager.common.enums.TransformType;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.zip.GZIPInputStream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class GzipUncompress implements UncompressHandler {
 
-/**
- * A class to define operation to transform.
- */
-@Data
-@NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "transformType")
-public abstract class TransformDefinition {
-
-    protected TransformType transformType;
-
-    @JsonFormat
-    public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null, in
-    }
-
-    @JsonFormat
-    public enum ScriptType {
-        PYTHON, JAVA
-    }
-
-    @JsonFormat
-    public enum RuleRelation {
-        AND, OR
+    @Override
+    public byte[] uncompress(byte[] data) throws Exception {
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        GZIPInputStream gzipInputStream = new GZIPInputStream(bais);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = gzipInputStream.read(buffer)) > 0) {
+            baos.write(buffer, 0, len);
+        }
+        gzipInputStream.close();
+        return baos.toByteArray();
     }
 }
