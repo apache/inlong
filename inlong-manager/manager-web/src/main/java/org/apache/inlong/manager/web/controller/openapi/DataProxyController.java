@@ -56,11 +56,7 @@ public class DataProxyController {
     @ApiOperation(value = "Get data proxy IP list by InlongGroupId")
     public Response<DataProxyNodeResponse> getIpList(@PathVariable String inlongGroupId,
             @RequestParam(required = false) String protocolType) {
-        try {
-            return Response.success(clusterService.getDataProxyNodes(inlongGroupId, protocolType));
-        } catch (Exception e) {
-            return Response.fail(e.getMessage());
-        }
+        return Response.success(clusterService.getDataProxyNodes(inlongGroupId, protocolType));
     }
 
     @PostMapping(value = "/dataproxy/getIpListByClusterName/{clusterName}")
