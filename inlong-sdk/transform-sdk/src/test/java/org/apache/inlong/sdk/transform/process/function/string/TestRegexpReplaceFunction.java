@@ -60,6 +60,6 @@ public class TestRegexpReplaceFunction extends AbstractFunctionStringTestBase {
         List<String> output3 =
                 processor3.transform("User: Alice, ID: 12345|\\\\d+|QAQ|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
     }
 }

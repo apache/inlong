@@ -56,6 +56,6 @@ public class TestRegexpFunction extends AbstractFunctionStringTestBase {
         List<String> output3 =
                 processor2.transform("User: Alice, ID: 12345|User: (\\\\w+), ID: (\\\\d+)|5|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
     }
 }

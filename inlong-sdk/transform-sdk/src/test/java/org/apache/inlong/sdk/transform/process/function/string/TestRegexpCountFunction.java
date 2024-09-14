@@ -59,7 +59,7 @@ public class TestRegexpCountFunction extends AbstractFunctionStringTestBase {
         List<String> output3 =
                 processor2.transform("The quick brown fox quick|quick|QAQ|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
         String transformSql3 = "select regexp_count(string1,string2) from source";
         TransformConfig config3 = new TransformConfig(transformSql3);
         TransformProcessor<String, String> processor3 = TransformProcessor

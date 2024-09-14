@@ -55,7 +55,7 @@ public class TestRegexpSubstrFunction extends AbstractFunctionStringTestBase {
                 "abcdef|\\\\d+|1|2|3",
                 new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
 
         String transformSql2 = "select regex_substr(string1) from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
@@ -66,7 +66,7 @@ public class TestRegexpSubstrFunction extends AbstractFunctionStringTestBase {
         List<String> output5 =
                 processor2.transform("The quick brown fox quick|quick|QAQ|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output5.size());
-        Assert.assertEquals(output5.get(0), "result=null");
+        Assert.assertEquals(output5.get(0), "result=");
         String transformSql3 = "select regex_substr(string1,string2) from source";
         TransformConfig config3 = new TransformConfig(transformSql3);
         TransformProcessor<String, String> processor3 = TransformProcessor

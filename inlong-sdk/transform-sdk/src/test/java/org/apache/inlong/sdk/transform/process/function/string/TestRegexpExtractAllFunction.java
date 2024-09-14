@@ -63,7 +63,7 @@ public class TestRegexpExtractAllFunction extends AbstractFunctionStringTestBase
                 "Name: John, Age: 25, Location: NY|Name: (\\\\w+), Age: (\\\\d+), Location: (\\\\w+)|1|4|3",
                 new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "result=null");
+        Assert.assertEquals(output4.get(0), "result=");
 
         String transformSql2 = "select regexp_extract_all(string1,string2) from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
