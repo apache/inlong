@@ -167,7 +167,7 @@ public class TransformProcessor<I, O> {
             for (ValueParserNode node : this.selectItems) {
                 String fieldName = node.getFieldName();
                 ValueParser parser = node.getParser();
-                if (parser == null || StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                if (parser == null && StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
                     if (input instanceof String) {
                         sinkData.addField(fieldName, (String) input);
                     } else {
@@ -177,7 +177,11 @@ public class TransformProcessor<I, O> {
                 }
                 try {
                     Object fieldValue = parser.parse(sourceData, i, context);
-                    sinkData.addField(fieldName, String.valueOf(fieldValue));
+                    if (fieldValue == null) {
+                        sinkData.addField(fieldName, "");
+                    } else {
+                        sinkData.addField(fieldName, fieldValue.toString());
+                    }
                 } catch (Throwable t) {
                     sinkData.addField(fieldName, "");
                 }
