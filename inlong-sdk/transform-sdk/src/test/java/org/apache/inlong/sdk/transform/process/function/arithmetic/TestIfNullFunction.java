@@ -90,6 +90,6 @@ public class TestIfNullFunction extends AbstractFunctionArithmeticTestBase {
         data = "6|0|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }
