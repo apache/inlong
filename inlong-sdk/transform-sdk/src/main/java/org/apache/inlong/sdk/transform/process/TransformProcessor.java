@@ -177,9 +177,12 @@ public class TransformProcessor<I, O> {
                 }
                 try {
                     Object fieldValue = parser.parse(sourceData, i, context);
-                    sinkData.addField(fieldName, String.valueOf(fieldValue));
+                    if (fieldValue == null) {
+                        sinkData.addField(fieldName, "");
+                    } else {
+                        sinkData.addField(fieldName, fieldValue.toString());
+                    }
                 } catch (Throwable t) {
-                    LOG.error(t.getMessage(), t);
                     sinkData.addField(fieldName, "");
                 }
             }

@@ -59,6 +59,6 @@ public class TestMd5Function extends AbstractFunctionArithmeticTestBase {
                         SinkEncoderFactory.createKvEncoder(kvSink));
         List<String> output4 = processor.transform("1|4|6|8");
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals("result=null", output4.get(0));
+        Assert.assertEquals("result=", output4.get(0));
     }
 }

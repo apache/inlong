@@ -28,50 +28,58 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestBitLengthFunction extends AbstractFunctionStringTestBase {
+public class TestCompressFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testBitLengthFunction() throws Exception {
-        String transformSql = "select bit_length(string1) from source";
+    public void testCompressFunction() throws Exception {
+        String transformSql = "select length(compress(replicate(string1,100))) from source";
         TransformConfig config = new TransformConfig(transformSql);
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: bit_length('hello world')
-        List<String> output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
+        // case1: length(compress(replicate(string1,100)))
+        List<String> output1 = processor1.transform("abcdefghijk|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=88", output1.get(0));
+        Assert.assertEquals("result=33", output1.get(0));
 
-        // case2: bit_length('')
+        transformSql = "select length(compress(string1)) from source";
+        config = new TransformConfig(transformSql);
+        processor1 = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: length(compress(''))
         output1 = processor1.transform("|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=0", output1.get(0));
 
-        transformSql = "select bit_length(xxd) from source";
+        transformSql = "select length(compress(xxd)) from source";
         config = new TransformConfig(transformSql);
         processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: bit_length(null)
+        // case3: length(compress(null))
         output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=", output1.get(0));
 
-        transformSql = "select bit_length(string1,string2) from source";
+        transformSql = "select length(compress(string1,string2)) from source";
         config = new TransformConfig(transformSql);
         processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case4: bit_length(hello 你好,'utf-8')
-        output1 = processor1.transform("hello 你好|utf-8|cloud|2|1|3", new HashMap<>());
+        // case4: length(compress('hello world','Gzip'))
+        output1 = processor1.transform("hello world|Gzip|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=96", output1.get(0));
+        Assert.assertEquals("result=35", output1.get(0));
 
-        // case5: bit_length(hello 你好,'gbk')
-        output1 = processor1.transform("hello 你好|gbk|cloud|2|1|3", new HashMap<>());
+        // case5: length(compress('hello world','zip'))
+        output1 = processor1.transform("hello world|zip|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=80", output1.get(0));
+        Assert.assertEquals("result=131", output1.get(0));
+
+        // case5: length(compress('hello world','undefinedType'))
+        output1 = processor1.transform("hello world|undefinedType|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=", output1.get(0));
     }
 }
