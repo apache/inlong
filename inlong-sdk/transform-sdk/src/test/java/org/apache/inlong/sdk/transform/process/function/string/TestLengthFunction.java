@@ -50,6 +50,6 @@ public class TestLengthFunction extends AbstractFunctionStringTestBase {
         // case2: length(null)
         output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
     }
 }

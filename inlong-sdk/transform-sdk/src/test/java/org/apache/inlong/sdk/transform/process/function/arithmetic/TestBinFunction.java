@@ -48,6 +48,6 @@ public class TestBinFunction extends AbstractFunctionArithmeticTestBase {
         // case: bin()
         List<String> output2 = processor2.transform("1|2|3|4", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output2.get(0), "result=null");
+        Assert.assertEquals(output2.get(0), "result=");
     }
 }

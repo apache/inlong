@@ -55,6 +55,6 @@ public class TestLowerFunction extends AbstractFunctionStringTestBase {
                         SinkEncoderFactory.createKvEncoder(kvSink));
         List<String> output3 = processor2.transform("ApPlE|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
     }
 }

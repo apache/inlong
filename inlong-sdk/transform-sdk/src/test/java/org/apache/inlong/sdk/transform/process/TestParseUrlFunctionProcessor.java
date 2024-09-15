@@ -111,7 +111,7 @@ public class TestParseUrlFunctionProcessor {
         List<String> output5 = processor5.transform("http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1|QUERY|k1|cloud|1",
                 new HashMap<>());
         Assert.assertEquals(1, output5.size());
-        Assert.assertEquals(output5.get(0), "result=null");
+        Assert.assertEquals(output5.get(0), "result=");
 
         String transformSql6 = "select parse_url(string1, string2, stringX) from source";
         TransformConfig config6 = new TransformConfig(transformSql6);
@@ -122,7 +122,7 @@ public class TestParseUrlFunctionProcessor {
         List<String> output6 = processor6.transform("http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1|QUERY|k1|cloud|1",
                 new HashMap<>());
         Assert.assertEquals(1, output6.size());
-        Assert.assertEquals(output6.get(0), "result=null");
+        Assert.assertEquals(output6.get(0), "result=");
         Assert.assertEquals(output3.get(0), "result=v1");
 
         String transformSql7 = "select parse_url(string1, string2) from source";
@@ -145,7 +145,7 @@ public class TestParseUrlFunctionProcessor {
         List<String> output8 = processor8
                 .transform("http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1|USERINFO|k1|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output8.size());
-        Assert.assertEquals(output8.get(0), "result=null");
+        Assert.assertEquals(output8.get(0), "result=");
 
         String transformSql9 = "select parse_url(string1, string2) from source";
         TransformConfig config9 = new TransformConfig(transformSql9);

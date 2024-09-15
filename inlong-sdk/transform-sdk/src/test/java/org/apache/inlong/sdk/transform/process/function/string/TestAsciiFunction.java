@@ -57,6 +57,6 @@ public class TestAsciiFunction extends AbstractFunctionStringTestBase {
         // case3: ascii(null) -> null
         List<String> output2 = processor2.transform("A|el|EL|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "result=null");
+        Assert.assertEquals(output2.get(0), "result=");
     }
 }

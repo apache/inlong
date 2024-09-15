@@ -60,7 +60,7 @@ public class TestUnCompressFunction extends AbstractFunctionStringTestBase {
         // case3: uncompress(compress(null))
         output1 = processor1.transform("h|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         transformSql = "select uncompress(compress(string1)) from source";
         config = new TransformConfig(transformSql);
@@ -95,16 +95,16 @@ public class TestUnCompressFunction extends AbstractFunctionStringTestBase {
         // case7: uncompress(compress(null,'Gzip'),'Gzip')
         output1 = processor1.transform("hello world|Gzip|Gzip|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         // case8: uncompress(compress(null,'zip'),'zip')
         output1 = processor1.transform("hello world|zip|zip|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         // case8: uncompress(compress(null,'zip'),'undefinedType')
         output1 = processor1.transform("hello world|zip|undefinedType|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
     }
 }

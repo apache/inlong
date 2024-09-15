@@ -95,7 +95,7 @@ public class TestTransformConcatWsFunctionProcessor {
                         SinkEncoderFactory.createKvEncoder(kvSink));
         List<String> output4 = processor4.transform("apple|null|cloud|extra", new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "result=null");
+        Assert.assertEquals(output4.get(0), "result=");
 
         // case 5: concat_ws('-', '', '', '')
         String transformSql5 = "select concat_ws('-', string1, string2, string3) from source";
