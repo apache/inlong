@@ -61,6 +61,6 @@ public class TestLocateFunction extends AbstractFunctionStringTestBase {
         // case5: locate('app', null)
         List<String> output5 = processor1.transform("app", new HashMap<>());
         Assert.assertEquals(1, output5.size());
-        Assert.assertEquals(output5.get(0), "result=null");
+        Assert.assertEquals(output5.get(0), "result=");
     }
 }

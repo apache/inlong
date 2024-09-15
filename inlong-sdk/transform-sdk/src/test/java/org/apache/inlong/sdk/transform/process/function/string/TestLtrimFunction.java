@@ -65,6 +65,6 @@ public class TestLtrimFunction extends AbstractFunctionStringTestBase {
         data = " in long|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }

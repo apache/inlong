@@ -64,7 +64,7 @@ public class TestRightFunction extends AbstractFunctionStringTestBase {
         data = "hello world|banana|cloud|5|3|3";
         output1 = processor1.transform(data, new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         // case5: right('hello world',null)
         transformSql = "select right(string1,xxd) from source";
@@ -75,6 +75,6 @@ public class TestRightFunction extends AbstractFunctionStringTestBase {
         data = "hello world|banana|cloud|5|3|3";
         output1 = processor1.transform(data, new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
     }
 }
