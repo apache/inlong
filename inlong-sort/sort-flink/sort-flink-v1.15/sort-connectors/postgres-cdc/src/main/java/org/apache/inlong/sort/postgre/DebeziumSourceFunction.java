@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.postgre;
 
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
+
 import com.ververica.cdc.debezium.Validator;
 import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
 import com.ververica.cdc.debezium.internal.DebeziumOffset;
@@ -62,6 +64,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -198,6 +202,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /** Buffer the events from the source and record the errors from the debezium. */
     private transient Handover handover;
 
+    private SourceExactlyMetric sourceExactlyMetric;
+
+    // record the start time of each checkpoint
+    private final transient Map<Long, Long> checkpointStartTimeMap = new HashMap<>();
+
     // ---------------------------------------------------------------------------------------
 
     public DebeziumSourceFunction(
@@ -221,6 +230,10 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
+        // get sourceExactlyMetric from deserializer to record metrics
+        if (sourceExactlyMetric == null && deserializer instanceof RowDataDebeziumDeserializeSchema) {
+            sourceExactlyMetric = ((RowDataDebeziumDeserializeSchema) deserializer).getSourceExactlyMetric();
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -305,6 +318,17 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+        try {
+            doSnapshotState(functionSnapshotContext);
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumSnapshotError();
+            }
+            throw e;
+        }
+    }
+
+    private void doSnapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
         if (handover.hasError()) {
             LOG.debug("snapshotState() called on closed source");
             throw new FlinkRuntimeException(
@@ -317,6 +341,10 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             ((RowDataDebeziumDeserializeSchema) deserializer)
                     .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
         }
+        // record the start time of each checkpoint
+        long checkpointId = functionSnapshotContext.getCheckpointId();
+        checkpointStartTimeMap.put(checkpointId, System.currentTimeMillis());
+        sourceExactlyMetric.incNumSnapshotCreate();
     }
 
     private void snapshotOffsetState(long checkpointId) throws Exception {
@@ -495,6 +523,12 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 RowDataDebeziumDeserializeSchema schema = (RowDataDebeziumDeserializeSchema) deserializer;
                 schema.flushAudit();
                 schema.updateLastCheckpointId(checkpointId);
+            }
+            // get the start time of the currently completed checkpoint
+            Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
+            if (snapShotStartTimeById != null) {
+                sourceExactlyMetric.incNumCompletedSnapshots();
+                sourceExactlyMetric.recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
             }
         } catch (Exception e) {
             // ignore exception if we are no longer running

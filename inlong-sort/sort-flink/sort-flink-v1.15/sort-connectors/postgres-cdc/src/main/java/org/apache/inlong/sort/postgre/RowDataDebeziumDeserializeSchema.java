@@ -35,6 +35,7 @@ import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
+import lombok.Getter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -101,6 +102,9 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
     private final MetricOption metricOption;
+
+    // Getter to make sourceExactlyMetric accessible to DebeziumSourceFunction
+    @Getter
     private SourceExactlyMetric sourceExactlyMetric;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
@@ -139,6 +143,18 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
+        long deseializeStartTime = System.currentTimeMillis();
+        try {
+            doDeserialize(record, out, deseializeStartTime);
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeError();
+            }
+            throw e;
+        }
+    }
+
+    private void doDeserialize(SourceRecord record, Collector<RowData> out, long deseializeStartTime) throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
@@ -173,6 +189,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                 out = new MetricsCollector<>(out, sourceExactlyMetric);
             }
             emit(record, after, out);
+        }
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.incNumDeserializeSuccess();
+            sourceExactlyMetric.recordDeserializeDelay(System.currentTimeMillis() - deseializeStartTime);
         }
     }
 

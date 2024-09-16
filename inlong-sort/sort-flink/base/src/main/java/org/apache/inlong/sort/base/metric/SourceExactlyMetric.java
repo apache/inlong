@@ -33,12 +33,19 @@ import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.common.constant.Constants.DEFAULT_AUDIT_VERSION;
 import static org.apache.inlong.sort.base.Constants.CURRENT_EMIT_EVENT_TIME_LAG;
 import static org.apache.inlong.sort.base.Constants.CURRENT_FETCH_EVENT_TIME_LAG;
+import static org.apache.inlong.sort.base.Constants.DESERIALIZE_TIME_LAG;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_COMPLETED_SNAPSHOTS;
+import static org.apache.inlong.sort.base.Constants.NUM_DESERIALIZE_ERROR;
+import static org.apache.inlong.sort.base.Constants.NUM_DESERIALIZE_SUCCESS;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_CREATE;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_ERROR;
+import static org.apache.inlong.sort.base.Constants.SNAPSHOT_TO_CHECKPOINT_TIME_LAG;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 public class SourceExactlyMetric implements MetricData, Serializable, SourceMetricsReporter {
@@ -50,6 +57,13 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
     private Counter numBytesIn;
     private Counter numRecordsInForMeter;
     private Counter numBytesInForMeter;
+    private Counter numDeserializeSuccess;
+    private Counter numDeserializeError;
+    private Gauge<Long> deserializeTimeLag;
+    private Counter numSnapshotCreate;
+    private Counter numSnapshotError;
+    private Counter numCompletedSnapshots;
+    private Gauge<Long> snapshotToCheckpointTimeLag;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
     private AuditReporterImpl auditReporter;
@@ -80,6 +94,17 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
      */
     private volatile long emitDelay = 0L;
 
+    /**
+     * deserializeDelay = deserializeEndTime - deserializeStartTime, where the deserializeStartTime is the time method deserialize is called,
+     * and deserializeEndTime is the time the record is emitted
+     */
+    private volatile long deserializeDelay = 0L;
+
+    /**
+     * snapshotToCheckpointDelay = snapShotCompleteTime - snapShotStartTimeById, where the snapShotCompleteTime is the time the logic of notifyCheckpointComplete is finished
+     */
+    private volatile long snapshotToCheckpointDelay = 0L;
+
     public SourceExactlyMetric(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
@@ -98,6 +123,12 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                 registerMetricsForNumRecordsInPerSecond();
                 registerMetricsForCurrentFetchEventTimeLag();
                 registerMetricsForCurrentEmitEventTimeLag();
+                registerMetricsForDeserializeTimeLag();
+                registerMetricsForNumDeserializeSuccess(new ThreadSafeCounter());
+                registerMetricsForNumDeserializeError(new ThreadSafeCounter());
+                registerMetricsForNumSnapshotCreate(new ThreadSafeCounter());
+                registerMetricsForNumSnapshotError(new ThreadSafeCounter());
+                registerMetricsForSnapshotToCheckpointTimeLag();
                 break;
         }
 
@@ -178,6 +209,58 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
     public void registerMetricsForCurrentEmitEventTimeLag() {
         currentEmitEventTimeLag = registerGauge(CURRENT_EMIT_EVENT_TIME_LAG, (Gauge<Long>) this::getEmitDelay);
     }
+    public void registerMetricsForDeserializeTimeLag() {
+        deserializeTimeLag = registerGauge(DESERIALIZE_TIME_LAG, (Gauge<Long>) this::getDeserializeDelay);
+    }
+
+    public void registerMetricsForNumDeserializeSuccess(Counter counter) {
+        numDeserializeSuccess = registerCounter(NUM_DESERIALIZE_SUCCESS, counter);
+    }
+
+    public void registerMetricsForNumDeserializeError(Counter counter) {
+        numDeserializeError = registerCounter(NUM_DESERIALIZE_ERROR, counter);
+    }
+
+    public void registerMetricsForNumSnapshotCreate(Counter counter) {
+        numSnapshotCreate = registerCounter(NUM_SNAPSHOT_CREATE, counter);
+    }
+
+    public void registerMetricsForNumSnapshotError(Counter counter) {
+        numSnapshotError = registerCounter(NUM_SNAPSHOT_ERROR, counter);
+    }
+
+    public void registerMetricsForNumCompletedCheckpoints(Counter counter) {
+        numCompletedSnapshots = registerCounter(NUM_COMPLETED_SNAPSHOTS, counter);
+    }
+
+    public void registerMetricsForSnapshotToCheckpointTimeLag() {
+        snapshotToCheckpointTimeLag =
+                registerGauge(SNAPSHOT_TO_CHECKPOINT_TIME_LAG, (Gauge<Long>) this::getSnapshotToCheckpointDelay);
+    }
+
+    public Gauge getDeserializeTimeLag() {
+        return deserializeTimeLag;
+    }
+
+    public Gauge getSnapshotToCheckpointTimeLag() {
+        return snapshotToCheckpointTimeLag;
+    }
+
+    public Counter getNumDeserializeSuccess() {
+        return numDeserializeSuccess;
+    }
+
+    public Counter getNumDeserializeError() {
+        return numDeserializeError;
+    }
+
+    public Counter getNumSnapshotCreate() {
+        return numSnapshotCreate;
+    }
+
+    public Counter getNumSnapshotError() {
+        return numSnapshotError;
+    }
 
     public Counter getNumRecordsIn() {
         return numRecordsIn;
@@ -209,6 +292,26 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
 
     public long getEmitDelay() {
         return emitDelay;
+    }
+
+    public long getDeserializeDelay() {
+        return deserializeDelay;
+    }
+
+    public long getSnapshotToCheckpointDelay() {
+        return snapshotToCheckpointDelay;
+    }
+
+    public Counter getNumCompletedSnapshots() {
+        return numCompletedSnapshots;
+    }
+
+    public void recordDeserializeDelay(long deserializeDelay) {
+        this.deserializeDelay = deserializeDelay;
+    }
+
+    public void recordSnapshotToCheckpointDelay(long snapshotToCheckpointDelay) {
+        this.snapshotToCheckpointDelay = snapshotToCheckpointDelay;
     }
 
     @Override
@@ -262,6 +365,36 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         }
     }
 
+    public void incNumDeserializeSuccess() {
+        if (numDeserializeSuccess != null) {
+            numDeserializeSuccess.inc();
+        }
+    }
+
+    public void incNumDeserializeError() {
+        if (numDeserializeError != null) {
+            numDeserializeError.inc();
+        }
+    }
+
+    public void incNumSnapshotCreate() {
+        if (numSnapshotCreate != null) {
+            numSnapshotCreate.inc();
+        }
+    }
+
+    public void incNumSnapshotError() {
+        if (numSnapshotError != null) {
+            numSnapshotError.inc();
+        }
+    }
+
+    public void incNumCompletedSnapshots() {
+        if (numCompletedSnapshots != null) {
+            numCompletedSnapshots.inc();
+        }
+    }
+
     /**
      * flush audit data
      * usually call this method in close method or when checkpointing
@@ -292,6 +425,14 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                 + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
                 + ", currentFetchEventTimeLag=" + currentFetchEventTimeLag.getValue()
                 + ", currentEmitEventTimeLag=" + currentEmitEventTimeLag.getValue()
+                + ", deserializeTimeLag=" + deserializeTimeLag.getValue()
+                + ", numDeserializeSuccess=" + numDeserializeSuccess.getCount()
+                + ", numDeserializeError=" + numDeserializeError.getCount()
+                + ", numSnapshotCreate=" + numSnapshotCreate.getCount()
+                + ", numSnapshotError=" + numSnapshotError.getCount()
+                + ", snapshotToCheckpointTimeLag=" + snapshotToCheckpointTimeLag.getValue()
+                + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
+                + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
                 + ", auditReporter=" + auditReporter
                 + '}';
     }
