@@ -220,6 +220,6 @@ public interface StreamSourceService {
      * @param operator Operator's name.
      * @return source id list after saving.
      */
-    List<Integer> batchAddDataAddTask(String groupId, String streamId, List<DataAddTaskRequest> requestList,
+    List<Integer> batchAddDataAddTask(String groupId, List<DataAddTaskRequest> requestList,
             String operator);
 }
