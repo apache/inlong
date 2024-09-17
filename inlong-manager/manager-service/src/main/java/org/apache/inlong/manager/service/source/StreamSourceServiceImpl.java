@@ -537,10 +537,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public List<Integer> batchAddDataAddTask(String groupId, String streamId, List<DataAddTaskRequest> requestList,
+    public List<Integer> batchAddDataAddTask(String groupId, List<DataAddTaskRequest> requestList,
             String operator) {
         List<Integer> result = new ArrayList<>();
-        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(groupId, streamId));
+        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(groupId, null));
         for (DataAddTaskRequest request : requestList) {
             request.setAuditVersion(auditVersion);
             int id = addDataAddTask(request, operator);

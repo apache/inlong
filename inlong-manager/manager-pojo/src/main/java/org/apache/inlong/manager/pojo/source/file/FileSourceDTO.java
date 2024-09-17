@@ -101,6 +101,9 @@ public class FileSourceDTO {
     @ApiModelProperty(value = "Audit version")
     private String auditVersion;
 
+    @ApiModelProperty("filterStreams")
+    private List<String> filterStreams;
+
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest, String extParams) {
         FileSourceDTO dto = StringUtils.isNotBlank(extParams)
                 ? FileSourceDTO.getFromJson(extParams)

@@ -90,6 +90,9 @@ public class FileSourceRequest extends SourceRequest {
     @ApiModelProperty("End time")
     private Long endTime;
 
+    @ApiModelProperty("filterStreams")
+    private List<String> filterStreams;
+
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());
