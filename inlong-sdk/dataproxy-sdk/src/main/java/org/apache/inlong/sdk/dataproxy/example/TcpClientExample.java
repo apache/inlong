@@ -40,22 +40,12 @@ public class TcpClientExample {
      */
     public static void main(String[] args) throws InterruptedException {
 
-        String inlongGroupId = "test_test";
-        String inlongStreamId = "test_test";
+        String inlongGroupId = "test_group_id";
+        String inlongStreamId = "test_stream_id";
 
-        /*
-         * 1. if isLocalVisit is true, will get dataproxy server info from local file in
-         * ${configBasePath}/${inlongGroupId}.local file
-         *
-         * for example: /data/inlong/config/test_test.local and file context like this:
-         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
-         * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]} 2. if isLocalVisit is false, will get dataproxy server
-         * info from manager so we must ensure that the manager server url is configured correctly!
-         */
-        String configBasePath = "/data/inlong/config";
-
+        String configBasePath = "";
         String inLongManagerAddr = "127.0.0.1";
-        String inLongManagerPort = "8000";
+        String inLongManagerPort = "8083";
 
         /*
          * It is recommended to use type 7. For others, please refer to the official related documents
@@ -66,19 +56,20 @@ public class TcpClientExample {
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
                 .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort,
-                        inlongGroupId, false, false, configBasePath, msgType);
+                        inlongGroupId, true, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
+        sender.close(); // close the sender
     }
 
     public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-            String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String inlongGroupId, boolean requestByHttp, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
-            dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), inlongGroupId, "test", "123456");
+            dataProxyConfig = new ProxyClientConfig(localIP, requestByHttp, inLongManagerAddr,
+                    Integer.valueOf(inLongManagerPort), inlongGroupId, "admin", "inlong");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }
@@ -98,9 +89,11 @@ public class TcpClientExample {
         try {
             result = sender.sendMessage(messageBody.getBytes("utf8"), inlongGroupId, inlongStreamId,
                     0, String.valueOf(dt), 20, TimeUnit.SECONDS);
+
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        System.out.println("messageSender" + result);
         logger.info("messageSender {}", result);
     }
 
