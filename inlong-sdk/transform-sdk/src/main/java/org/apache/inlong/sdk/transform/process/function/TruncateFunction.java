@@ -39,7 +39,7 @@ import java.util.List;
  * for example: truncate(42.324, 2)--return 42.32
  *              truncate(42.324)--return 42.0
  */
-@TransformFunction(names = {"truncate"})
+@TransformFunction(names = {"truncate", "trunc"})
 public class TruncateFunction implements ValueParser {
 
     private ValueParser bigDecimalParser;
