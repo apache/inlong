@@ -124,6 +124,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                 registerMetricsForCurrentFetchEventTimeLag();
                 registerMetricsForCurrentEmitEventTimeLag();
                 registerMetricsForDeserializeTimeLag();
+                registerMetricsForNumCompletedSnapshots(new ThreadSafeCounter());
                 registerMetricsForNumDeserializeSuccess(new ThreadSafeCounter());
                 registerMetricsForNumDeserializeError(new ThreadSafeCounter());
                 registerMetricsForNumSnapshotCreate(new ThreadSafeCounter());
@@ -229,7 +230,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         numSnapshotError = registerCounter(NUM_SNAPSHOT_ERROR, counter);
     }
 
-    public void registerMetricsForNumCompletedCheckpoints(Counter counter) {
+    public void registerMetricsForNumCompletedSnapshots(Counter counter) {
         numCompletedSnapshots = registerCounter(NUM_COMPLETED_SNAPSHOTS, counter);
     }
 

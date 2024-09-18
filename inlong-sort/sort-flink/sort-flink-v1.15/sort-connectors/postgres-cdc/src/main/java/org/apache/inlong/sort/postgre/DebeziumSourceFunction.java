@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.postgre;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import com.ververica.cdc.debezium.Validator;
@@ -202,10 +203,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /** Buffer the events from the source and record the errors from the debezium. */
     private transient Handover handover;
 
-    private SourceExactlyMetric sourceExactlyMetric;
+    /** Self-defined Flink metrics. */
+    private transient SourceExactlyMetric sourceExactlyMetric;
 
-    // record the start time of each checkpoint
-    private final transient Map<Long, Long> checkpointStartTimeMap = new HashMap<>();
+    private final MetricOption metricOption;
+
+    /** The map to store the start time of each checkpoint. */
+    private transient Map<Long, Long> checkpointStartTimeMap = new HashMap<>();
 
     // ---------------------------------------------------------------------------------------
 
@@ -213,11 +217,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator) {
+            Validator validator,
+            MetricOption metricOption) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -230,9 +236,16 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
-        // get sourceExactlyMetric from deserializer to record metrics
-        if (sourceExactlyMetric == null && deserializer instanceof RowDataDebeziumDeserializeSchema) {
-            sourceExactlyMetric = ((RowDataDebeziumDeserializeSchema) deserializer).getSourceExactlyMetric();
+        if (sourceExactlyMetric == null) {
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption, getRuntimeContext().getMetricGroup());
+        }
+        if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
+            ((RowDataDebeziumDeserializeSchema) deserializer)
+                    .setSourceExactlyMetric(sourceExactlyMetric);
+        }
+        // instantiate checkpointStartTimeMap after restoring from checkpoint
+        if (checkpointStartTimeMap == null) {
+            checkpointStartTimeMap = new HashMap<>();
         }
     }
 
@@ -342,8 +355,12 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
         }
         // record the start time of each checkpoint
-        long checkpointId = functionSnapshotContext.getCheckpointId();
-        checkpointStartTimeMap.put(checkpointId, System.currentTimeMillis());
+        Long checkpointId = functionSnapshotContext.getCheckpointId();
+        if (checkpointStartTimeMap != null) {
+            checkpointStartTimeMap.put(checkpointId, System.currentTimeMillis());
+        } else {
+            LOG.error("checkpointStartTimeMap is null, can't record the start time of checkpoint");
+        }
         sourceExactlyMetric.incNumSnapshotCreate();
     }
 
@@ -525,10 +542,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 schema.updateLastCheckpointId(checkpointId);
             }
             // get the start time of the currently completed checkpoint
-            Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
-            if (snapShotStartTimeById != null) {
-                sourceExactlyMetric.incNumCompletedSnapshots();
-                sourceExactlyMetric.recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
+            if (checkpointStartTimeMap != null) {
+                Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
+                if (snapShotStartTimeById != null) {
+                    sourceExactlyMetric.incNumCompletedSnapshots();
+                    sourceExactlyMetric
+                            .recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
+                }
+            } else {
+                LOG.error("checkpointStartTimeMap is null, can't get the start time of checkpoint");
             }
         } catch (Exception e) {
             // ignore exception if we are no longer running
