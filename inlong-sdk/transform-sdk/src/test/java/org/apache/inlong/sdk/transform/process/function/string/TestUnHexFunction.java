@@ -28,43 +28,52 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLtrimFunction extends AbstractFunctionStringTestBase {
+/**
+ * TestUnHexFunction
+ * description: test the unhex function in transform processor
+ */
+public class TestUnHexFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testTrimFunction() throws Exception {
+    public void testUnHexFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select ltrim(string1) from source";
+        transformSql = "select unhex(string1) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case1: ltrim(' in long ')
-        data = " in long |xxd|cloud|7|3|3";
-        output = processor.transform(data, new HashMap<>());
+        // case3: unhex("6")
+        output = processor.transform("6", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=in long ", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
+        // case1: unhex("696E6C6F6E67")
+        output = processor.transform("696E6C6F6E67", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=inlong", output.get(0));
 
-        // case2: ltrim(' ')
-        data = "   |xxd|cloud|7|3|3";
-        output = processor.transform(data, new HashMap<>());
+        // case2: unhex("")
+        output = processor.transform("|", new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals(output.get(0), "result=");
+
+        // case3: unhex("6")
+        output = processor.transform("6", new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
 
-        transformSql = "select ltrim(xxd) from source";
+        transformSql = "select unhex(hex(string1)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: ltrim(null)
-        data = " in long|xxd|cloud|7|3|3";
-        output = processor.transform(data, new HashMap<>());
+        // case4: unhex(hex("inlong"))
+        output = processor.transform("inlong", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
+        Assert.assertEquals("result=inlong", output.get(0));
+
     }
 }

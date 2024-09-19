@@ -29,40 +29,31 @@ import java.util.concurrent.TimeUnit;
 public class HttpClientExample {
 
     public static void main(String[] args) {
-        /*
-         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath} directory/${dataProxyGroupId}
-         * .local such as : configBasePath = /data/inlong/dataproxy/conf dataProxyGroupId = test so config file is :
-         * /data/inlong/dataproxy/conf/test.local and config context like this:
-         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0
-         * .1","port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
-         *
-         * 2. if 'isLocalVisit' is false sdk will get config from manager auto.
-         */
         String inlongGroupId = "test_group_id";
         String inlongStreamId = "test_stream_id";
-        String configBasePath = "/data/inlong/dataproxy/conf";
+        String configBasePath = "";
         String inLongManagerAddr = "127.0.0.1";
-        String inLongManagerPort = "8080";
+        String inLongManagerPort = "8083";
         String localIP = "127.0.0.1";
         String messageBody = "inlong message body!";
 
         HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
-                inLongManagerPort, inlongGroupId, false, false,
+                inLongManagerPort, inlongGroupId, true, false,
                 configBasePath);
-
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
+        sender.close(); // close the sender
     }
 
     public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
             String inLongManagerPort, String inlongGroupId,
-            boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            boolean requestByHttp, boolean isReadProxyIPFromLocal,
             String configBasePath) {
         ProxyClientConfig proxyConfig = null;
         HttpProxySender sender = null;
         try {
-            proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
+            proxyConfig = new ProxyClientConfig(localIP, requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
-                    inlongGroupId, "test", "123456");
+                    inlongGroupId, "admin", "inlong");// user and password of manager
             proxyConfig.setInlongGroupId(inlongGroupId);
             proxyConfig.setConfStoreBasePath(configBasePath);
             proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);

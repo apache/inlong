@@ -48,13 +48,13 @@ public class TestSplitIndexFunction extends AbstractFunctionStringTestBase {
         data = "a,b,c|,|cloud|-1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case3: split_index('a,b,c', ',', 3)
         data = "a,b,c|,|cloud|3|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case4: split_index(null, ',', 1)
         transformSql = "select split_index(xxd, string2, numeric1) from source";
@@ -65,7 +65,7 @@ public class TestSplitIndexFunction extends AbstractFunctionStringTestBase {
         data = "abc|,|cloud|1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case5: split_index('a,b,c', null, 1)
         transformSql = "select split_index(string1, xxd, numeric1) from source";
@@ -76,7 +76,7 @@ public class TestSplitIndexFunction extends AbstractFunctionStringTestBase {
         data = "a,b,c|xxd|cloud|1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case6: split_index('a,b,c', ',', null)
         transformSql = "select split_index(string1, string2, xxd) from source";
@@ -87,7 +87,7 @@ public class TestSplitIndexFunction extends AbstractFunctionStringTestBase {
         data = "a,b,c|,|cloud|xxd|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case7: split_index('', ',', 0)
         transformSql = "select split_index(string1, string2, numeric1) from source";

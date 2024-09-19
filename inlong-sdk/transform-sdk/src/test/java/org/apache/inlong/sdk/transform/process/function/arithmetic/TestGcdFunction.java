@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
@@ -28,43 +28,43 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLtrimFunction extends AbstractFunctionStringTestBase {
+public class TestGcdFunction extends AbstractFunctionArithmeticTestBase {
 
     @Test
-    public void testTrimFunction() throws Exception {
+    public void testGcdFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select ltrim(string1) from source";
+        transformSql = "select gcd(numeric1,numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case1: ltrim(' in long ')
-        data = " in long |xxd|cloud|7|3|3";
+        // case1: gcd(3.14159265358979323846,3.2653589793)
+        data = "3.14159265358979323846|3.2653589793||";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=in long ", output.get(0));
+        Assert.assertEquals("result=2E-20", output.get(0));
 
-        // case2: ltrim(' ')
-        data = "   |xxd|cloud|7|3|3";
+        // case2: gcd(3.141,3.846)
+        data = "3.141|3.846||";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
+        Assert.assertEquals("result=0.003", output.get(0));
 
-        transformSql = "select ltrim(xxd) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: ltrim(null)
-        data = " in long|xxd|cloud|7|3|3";
+        // case3: gcd(0,3.846)
+        data = "0|3.846||";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
+        Assert.assertEquals("result=3.846", output.get(0));
+
+        // case4: gcd(-3.141,3.846)
+        data = "3.141|3.846||";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=0.003", output.get(0));
     }
 }

@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.flowcontrol;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.function.arithmetic.AbstractFunctionArithmeticTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,43 +29,68 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLtrimFunction extends AbstractFunctionStringTestBase {
+public class TestIsNullFunction extends AbstractFunctionArithmeticTestBase {
 
     @Test
-    public void testTrimFunction() throws Exception {
+    public void testIsNullFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select ltrim(string1) from source";
+        // case1: isnull(5 + 3)
+        transformSql = "select isnull(numeric1 + numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case1: ltrim(' in long ')
-        data = " in long |xxd|cloud|7|3|3";
+        data = "5|3|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=in long ", output.get(0));
+        Assert.assertEquals("result=false", output.get(0));
 
-        // case2: ltrim(' ')
-        data = "   |xxd|cloud|7|3|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
-
-        transformSql = "select ltrim(xxd) from source";
+        // case2: isnull(5 / 0)
+        transformSql = "select isnull(numeric1 / numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: ltrim(null)
-        data = " in long|xxd|cloud|7|3|3";
+        data = "5|0|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
+        Assert.assertEquals("result=true", output.get(0));
+
+        // case3: isnull(null)
+        transformSql = "select isnull(numericx) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=true", output.get(0));
+
+        // case4: isnull(5)
+        transformSql = "select isnull(numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=false", output.get(0));
+
+        // case5: isnull(5 > 0)
+        transformSql = "select isnull(numeric1 > numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|0|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=false", output.get(0));
     }
 }

@@ -64,7 +64,7 @@ public class TestLpadFunction extends AbstractFunctionStringTestBase {
         data = "he|xxd|cloud|-1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case5: lpad(null,5,'xxd')
         transformSql = "select lpad(xxd,numeric1,string2) from source";
@@ -75,7 +75,7 @@ public class TestLpadFunction extends AbstractFunctionStringTestBase {
         data = "he|xxd|cloud|5|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case6: lpad('he',null,'xxd')
         transformSql = "select lpad(string1,xxd,string2) from source";
@@ -86,7 +86,7 @@ public class TestLpadFunction extends AbstractFunctionStringTestBase {
         data = "he|xxd|cloud|5|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case7: lpad('he',5,null)
         transformSql = "select lpad(string1,numeric1,xxd) from source";
@@ -97,6 +97,6 @@ public class TestLpadFunction extends AbstractFunctionStringTestBase {
         data = "he|xxd|cloud|5|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }
