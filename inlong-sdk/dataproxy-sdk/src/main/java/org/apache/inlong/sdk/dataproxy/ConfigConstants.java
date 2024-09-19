@@ -74,4 +74,6 @@ public class ConfigConstants {
     public static String HTTP = "http://";
     public static String HTTPS = "https://";
 
+    public static int SENDER_MAX_RETRY = 3;
+
 }
