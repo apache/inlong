@@ -67,6 +67,8 @@ public interface StreamSourceEntityMapper {
      */
     int selectDataAddTaskCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    List<StreamSourceEntity> selectByByTimeout(@Param("retentionDays") Integer retentionDays);
+
     /**
      * Paging query source list based on conditions
      */
