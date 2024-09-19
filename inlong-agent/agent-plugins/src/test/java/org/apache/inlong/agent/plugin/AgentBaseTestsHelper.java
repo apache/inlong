@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * common environment setting up for test cases.
@@ -80,15 +81,19 @@ public class AgentBaseTestsHelper {
         }
     }
 
-    public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String cycleUnit, String timeZone) {
-        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, cycleUnit, timeZone);
+    public TaskProfile getTaskProfile(int taskId, String pattern, String dataContentStyle, boolean retry,
+            Long startTime, Long endTime,
+            TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
+        DataConfig dataConfig = getDataConfig(taskId, pattern, dataContentStyle, retry, startTime, endTime,
+                state, cycleUnit, timeZone,
+                filterStreams);
         TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
         return profile;
     }
 
-    private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String cycleUnit, String timeZone) {
+    private DataConfig getDataConfig(int taskId, String pattern, String dataContentStyle, boolean retry, Long startTime,
+            Long endTime,
+            TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
         dataConfig.setInlongStreamId("testStreamId");
@@ -107,8 +112,9 @@ public class AgentBaseTestsHelper {
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
         // mix: login|87601|968|67826|23579 or login|a=b&c=d&x=y&asdf
-        fileTaskConfig.setDataContentStyle("mix");
+        fileTaskConfig.setDataContentStyle(dataContentStyle);
         fileTaskConfig.setDataSeparator("|");
+        fileTaskConfig.setFilterStreams(filterStreams);
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }
