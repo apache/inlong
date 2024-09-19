@@ -52,6 +52,7 @@ public abstract class AbstractTask extends Task {
     protected boolean initOK = false;
     protected long lastPrintTime = 0;
     protected long auditVersion;
+    protected long instanceCount = 0;
 
     @Override
     public void init(Object srcManager, TaskProfile taskProfile, Store basicStore) throws IOException {
@@ -152,7 +153,7 @@ public abstract class AbstractTask extends Task {
     }
 
     protected boolean allInstanceFinished() {
-        return instanceManager.allInstanceFinished();
+        return instanceCount == instanceManager.getFinishedInstanceCount();
     }
 
     protected boolean shouldAddAgain(String fileName, long lastModifyTime) {
