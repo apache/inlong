@@ -22,19 +22,19 @@ import org.apache.inlong.agent.plugin.Message;
 
 import java.util.Map;
 
-// For some private, customized extension processing
-public abstract class ExtendedHandler {
+public class DefaultExtendedHandler extends ExtendedHandler {
 
-    protected InstanceProfile profile;
-
-    public ExtendedHandler(InstanceProfile profile) {
-        this.profile = profile;
+    public DefaultExtendedHandler(InstanceProfile profile) {
+        super(profile);
     }
 
     // Modify the header by the body
-    abstract public void dealWithHeader(Map<String, String> header, byte[] body);
+    public void dealWithHeader(Map<String, String> header, byte[] body) {
+    }
 
-    abstract public boolean filterMessage(Message msg);
+    public boolean filterMessage(Message msg) {
+        return true;
+    }
 
     public static class Constants {
 

@@ -167,6 +167,9 @@ public class TaskProfileDto {
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
         fileTask.setStartTime(taskConfig.getStartTime());
         fileTask.setEndTime(taskConfig.getEndTime());
+        if (taskConfig.getFilterStreams() != null) {
+            fileTask.setFilterStreams(GSON.toJson(taskConfig.getFilterStreams()));
+        }
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         } else {

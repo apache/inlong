@@ -1,0 +1,3 @@
+ok|hello line-end-symbol aa
+no|world line-end-symbol
+ok|agent line-end-symbol

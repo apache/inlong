@@ -103,8 +103,9 @@ public class TestLogFileTask {
         for (int i = 0; i < resources.size(); i++) {
             resourceName.add(LOADER.getResource(resources.get(i)).getPath());
         }
-        TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, true, 0L, 0L, TaskStateEnum.RUNNING, cycle,
-                "GMT+8:00");
+        TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", true, 0L, 0L, TaskStateEnum.RUNNING,
+                cycle,
+                "GMT+8:00", null);
         LogFileTask dayTask = null;
         final List<String> fileName = new ArrayList();
         final List<String> dataTime = new ArrayList();
