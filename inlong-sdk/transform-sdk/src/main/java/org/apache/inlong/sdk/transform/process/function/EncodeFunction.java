@@ -74,14 +74,7 @@ public class EncodeFunction implements ValueParser {
         }
         String stringValue = OperatorTools.parseString(stringObj);
         String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
-        byte[] encodeBytes = encode(stringValue, characterSetValue);
-        StringBuilder res = new StringBuilder();
-        if (encodeBytes != null) {
-            for (byte encodeByte : encodeBytes) {
-                res.append((int) encodeByte).append(" ");
-            }
-        }
-        return res.toString().trim();
+        return encode(stringValue, characterSetValue);
     }
 
     private byte[] encode(String stringValue, String characterSetValue) {
