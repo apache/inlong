@@ -23,29 +23,38 @@ import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
-import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * ShaFunction
- * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
- * return NULL if the parameter is NULL
- * return a string of 40 hexadecimal digits.
+ * UnHexFunction  -> unhex(str)
+ * description: unhex(str) interprets each pair of characters in the argument as a hexadecimal number and converts it to the byte represented by the number.
+ * return null if str is null;
+ * return a binary string otherwise.
  */
-@TransformFunction(names = {"sha"})
-public class ShaFunction implements ValueParser {
+@TransformFunction(names = {"unhex"})
+public class UnHexFunction implements ValueParser {
 
-    private final ValueParser msgParser;
+    private ValueParser valueParser;
 
-    public ShaFunction(Function expr) {
-        msgParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public UnHexFunction(Function expr) {
+        valueParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object msgObj = msgParser.parse(sourceData, rowIndex, context);
-        if (msgObj == null) {
+        Object valueObj = valueParser.parse(sourceData, rowIndex, context);
+        if (valueObj == null) {
             return null;
         }
-        return DigestUtils.sha1Hex(OperatorTools.parseBytes(msgObj));
+        return hexToString(OperatorTools.parseString(valueObj));
+    }
+
+    public static String hexToString(String hex) {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < hex.length(); i += 2) {
+            String str = hex.substring(i, i + 2);
+            char ch = (char) Integer.parseInt(str, 16);
+            output.append(ch);
+        }
+        return output.toString();
     }
 }
