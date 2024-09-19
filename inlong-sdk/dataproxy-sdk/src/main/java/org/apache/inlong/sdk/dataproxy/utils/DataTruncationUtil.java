@@ -25,18 +25,14 @@ import java.util.List;
 public class DataTruncationUtil {
 
     /**
-     * truncate data body if it is too long
+     * truncate data body
      * @param body
      * @return byte[]
      */
     public static byte[] truncateData(byte[] body) {
-        if (body.length > ConfigConstants.MAX_MESSAGE_LENGTH) {
-            byte[] newBody = new byte[ConfigConstants.MAX_MESSAGE_LENGTH];
-            System.arraycopy(body, 0, newBody, 0, ConfigConstants.MAX_MESSAGE_LENGTH);
-            return newBody;
-        } else {
-            return body;
-        }
+        byte[] newBody = new byte[ConfigConstants.MAX_MESSAGE_LENGTH];
+        System.arraycopy(body, 0, newBody, 0, ConfigConstants.MAX_MESSAGE_LENGTH);
+        return newBody;
     }
 
     /**
@@ -52,13 +48,9 @@ public class DataTruncationUtil {
                 newBodyList.add(body);
                 size += body.length;
             } else {
-                byte[] newBody = new byte[ConfigConstants.MAX_MESSAGE_LENGTH - size];
-                System.arraycopy(body, 0, newBody, 0, ConfigConstants.MAX_MESSAGE_LENGTH - size);
-                newBodyList.add(newBody);
                 break;
             }
         }
         return newBodyList;
-
     }
 }
