@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
@@ -80,7 +79,7 @@ public class TestLogFileSource {
             String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
             TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", false, 0L, 0L,
                     TaskStateEnum.RUNNING, "D",
-                    "GMT+8:00", Arrays.asList(""));
+                    "GMT+8:00", null);
             String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
             InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
                     fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
