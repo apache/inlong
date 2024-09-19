@@ -236,7 +236,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
-        if (sourceExactlyMetric == null) {
+        if (sourceExactlyMetric == null && metricOption != null) {
             sourceExactlyMetric = new SourceExactlyMetric(metricOption, getRuntimeContext().getMetricGroup());
         }
         if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
