@@ -69,7 +69,7 @@ public class TaskConstants extends CommonConstants {
     public static final String PREDEFINE_FIELDS = "task.predefinedFields";
     public static final String FILE_SOURCE_EXTEND_CLASS = "task.fileTask.extendedClass";
     public static final String DEFAULT_FILE_SOURCE_EXTEND_CLASS =
-            "org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler";
+            "org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler";
     public static final String TASK_AUDIT_VERSION = "task.auditVersion";
 
     // Kafka task
