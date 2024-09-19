@@ -32,8 +32,9 @@ import java.util.regex.Pattern;
  * RegexpFunction
  * description: REGEX(string1, string2)--Returns TRUE if any (possibly empty) substring of string1 matches the Java
  *              regular expression string2, otherwise FALSE. Returns NULL if any of arguments is NULL.
+ *              SIMILAR(string1, string2)--Same as above
  */
-@TransformFunction(names = {"regex"})
+@TransformFunction(names = {"regex", "similar"})
 public class RegexpFunction implements ValueParser {
 
     private ValueParser inputParser;
