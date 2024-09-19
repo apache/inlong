@@ -124,7 +124,8 @@ public class FileSourceOperator extends AbstractSourceOperator {
             StreamSourceEntity dataAddTaskEntity =
                     CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
             dataAddTaskEntity.setId(null);
-            dataAddTaskEntity.setSourceName(sourceEntity.getSourceName() + "-" + (dataAddTaskSize + 1));
+            dataAddTaskEntity.setSourceName(
+                    sourceEntity.getSourceName() + "-" + (dataAddTaskSize + 1) + "-" + sourceEntity.getId());
             dataAddTaskEntity.setExtParams(objectMapper.writeValueAsString(dto));
             dataAddTaskEntity.setTaskMapId(sourceEntity.getId());
             Integer id = sourceMapper.insert(dataAddTaskEntity);

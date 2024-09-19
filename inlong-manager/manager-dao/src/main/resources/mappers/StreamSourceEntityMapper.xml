@@ -133,6 +133,16 @@
             and task_map_id is not NULL
         </where>
     </select>
+    <select id="selectByByTimeout" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and task_map_id is not null
+            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{retentionDays, jdbcType=INTEGER} DAY)
+        </where>
+    </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
