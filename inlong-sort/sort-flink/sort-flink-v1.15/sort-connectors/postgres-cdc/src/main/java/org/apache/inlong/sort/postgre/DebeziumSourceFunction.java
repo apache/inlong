@@ -209,7 +209,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     private final MetricOption metricOption;
 
     /** The map to store the start time of each checkpoint. */
-    private transient Map<Long, Long> checkpointStartTimeMap = new HashMap<>();
+    private transient Map<Long, Long> checkpointStartTimeMap;
 
     // ---------------------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
-        if (sourceExactlyMetric == null && metricOption != null) {
+        if (metricOption != null) {
             sourceExactlyMetric = new SourceExactlyMetric(metricOption, getRuntimeContext().getMetricGroup());
         }
         if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
@@ -244,9 +244,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     .setSourceExactlyMetric(sourceExactlyMetric);
         }
         // instantiate checkpointStartTimeMap after restoring from checkpoint
-        if (checkpointStartTimeMap == null) {
-            checkpointStartTimeMap = new HashMap<>();
-        }
+        checkpointStartTimeMap = new HashMap<>();
     }
 
     // ------------------------------------------------------------------------
@@ -361,7 +359,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         } else {
             LOG.error("checkpointStartTimeMap is null, can't record the start time of checkpoint");
         }
-        sourceExactlyMetric.incNumSnapshotCreate();
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.incNumSnapshotCreate();
+        }
     }
 
     private void snapshotOffsetState(long checkpointId) throws Exception {
@@ -544,7 +544,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             // get the start time of the currently completed checkpoint
             if (checkpointStartTimeMap != null) {
                 Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
-                if (snapShotStartTimeById != null) {
+                if (snapShotStartTimeById != null && sourceExactlyMetric != null) {
                     sourceExactlyMetric.incNumCompletedSnapshots();
                     sourceExactlyMetric
                             .recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
