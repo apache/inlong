@@ -72,23 +72,18 @@ public class DecodeFunction implements ValueParser {
         if (binaryObj == null || characterObj == null) {
             return null;
         }
-        String binaryString = OperatorTools.parseString(binaryObj);
         String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
-        return decode(binaryString, characterSetValue);
+        return decode((byte[]) binaryObj, characterSetValue);
     }
 
-    private String decode(String binaryString, String charsetName) {
-        if (binaryString == null || binaryString.isEmpty() || charsetName == null || charsetName.isEmpty()) {
+    private String decode(byte[] binaryString, String charsetName) {
+        if (binaryString == null || charsetName == null || charsetName.isEmpty()) {
             return "";
         }
-        String[] byteValues = binaryString.split(" ");
-        byte[] byteArray = new byte[byteValues.length];
-        for (int i = 0; i < byteValues.length; i++) {
-            byteArray[i] = (byte) Integer.parseInt(byteValues[i]);
-        }
+
         if (Charset.isSupported(charsetName) && SUPPORTED_CHARSETS.contains(charsetName)) {
             Charset charset = Charset.forName(charsetName);
-            return new String(byteArray, charset);
+            return new String(binaryString, charset);
         }
         return "";
     }

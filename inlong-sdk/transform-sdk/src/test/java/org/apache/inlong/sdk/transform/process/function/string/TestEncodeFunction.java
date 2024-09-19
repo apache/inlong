@@ -32,44 +32,44 @@ public class TestEncodeFunction extends AbstractFunctionStringTestBase {
 
     @Test
     public void testEncodeFunction() throws Exception {
-        String transformSql = "select encode(string1,string2) from source";
+        String transformSql = "select decode(encode(string1,string2),string3) from source";
         TransformConfig config = new TransformConfig(transformSql);
         TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case1: encode('Hello','UTF-8')
-        List<String> output1 = processor.transform("Hello|UTF-8|banana|cloud|1", new HashMap<>());
+        // case1: decode(encode('Hello','UTF-8'),'UTF-8')
+        List<String> output1 = processor.transform("Hello|UTF-8|UTF-8|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output1.get(0), "result=72 101 108 108 111");
+        Assert.assertEquals(output1.get(0), "result=Hello");
 
-        // case2: encode('Hello','US-ASCII')
-        List<String> output2 = processor.transform("Hello|US-ASCII|banana|cloud|1", new HashMap<>());
+        // case2: decode(encode('Hello','US-ASCII'),'US-ASCII')
+        List<String> output2 = processor.transform("Hello|US-ASCII|US-ASCII|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "result=72 101 108 108 111");
+        Assert.assertEquals(output2.get(0), "result=Hello");
 
-        // case3: encode('Hello','ISO-8859-1')
-        List<String> output3 = processor.transform("Hello|ISO-8859-1|banana|cloud|1", new HashMap<>());
+        // case3: decode(encode('Hello','ISO-8859-1'),'ISO-8859-1')
+        List<String> output3 = processor.transform("Hello|ISO-8859-1|ISO-8859-1|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=72 101 108 108 111");
+        Assert.assertEquals(output3.get(0), "result=Hello");
 
-        // case4: encode('Hello','UTF-16BE')
-        List<String> output4 = processor.transform("Hello|UTF-16BE|banana|cloud|1", new HashMap<>());
+        // case4: decode(encode('Hello','UTF-16BE'),'UTF-16BE')
+        List<String> output4 = processor.transform("Hello|UTF-16BE|UTF-16BE|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "result=0 72 0 101 0 108 0 108 0 111");
+        Assert.assertEquals(output4.get(0), "result=Hello");
 
-        // case5: encode('Hello','UTF-16LE')
-        List<String> output5 = processor.transform("Hello|UTf-16LE|banana|cloud|1", new HashMap<>());
+        // case5: decode(encode('Hello','UTF-16LE'),'UTF-16LE')
+        List<String> output5 = processor.transform("Hello|UTf-16LE|UTf-16LE|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output5.size());
-        Assert.assertEquals(output5.get(0), "result=72 0 101 0 108 0 108 0 111 0");
+        Assert.assertEquals(output5.get(0), "result=Hello");
 
-        // case6: encode('Hello','UTF-16')
-        List<String> output6 = processor.transform("Hello|UtF-16|banana|cloud|1", new HashMap<>());
+        // case6: decode(encode('Hello','UTF-16'),'UTF-16')
+        List<String> output6 = processor.transform("Hello|UtF-16|UtF-16|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output6.size());
-        Assert.assertEquals(output6.get(0), "result=-2 -1 0 72 0 101 0 108 0 108 0 111");
+        Assert.assertEquals(output6.get(0), "result=Hello");
 
-        // case7: encode('Hello','UTF-16--')
-        List<String> output7 = processor.transform("Hello|UTF-16--|banana|cloud|1", new HashMap<>());
+        // case7: decode(encode('Hello','UTF-16--'),'UTF-16--')
+        List<String> output7 = processor.transform("Hello|UTF-16--|UTF-16--|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output7.size());
         Assert.assertEquals(output7.get(0), "result=");
     }
