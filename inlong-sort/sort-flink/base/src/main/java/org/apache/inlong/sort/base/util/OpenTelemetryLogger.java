@@ -20,7 +20,9 @@ package org.apache.inlong.sort.base.util;
 import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter;
 import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.OpenTelemetrySdkBuilder;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
+import io.opentelemetry.sdk.logs.SdkLoggerProviderBuilder;
 import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
@@ -77,21 +79,27 @@ public class OpenTelemetryLogger {
 
     private void createOpenTelemetrySdk() {
         // Create OpenTelemetry SDK
-        SDK = OpenTelemetrySdk.builder()
-                .setLoggerProvider(
-                        SdkLoggerProvider.builder()
-                                .setResource(
-                                        Resource.getDefault().toBuilder()
-                                                .put(ResourceAttributes.SERVICE_NAME, this.serviceName)
-                                                .build())
-                                .addLogRecordProcessor(
-                                        BatchLogRecordProcessor.builder(
-                                                OtlpGrpcLogRecordExporter.builder()
-                                                        .setEndpoint("http://" + this.endpoint)
-                                                        .build())
-                                                .build())
-                                .build())
+        OpenTelemetrySdkBuilder sdkBuilder = OpenTelemetrySdk.builder();
+        // Create Logger Provider Builder
+        SdkLoggerProviderBuilder loggerProviderBuilder = SdkLoggerProvider.builder();
+        // get Resource
+        Resource resource = Resource.getDefault().toBuilder()
+                .put(ResourceAttributes.SERVICE_NAME, this.serviceName)
                 .build();
+        // set Resource
+        loggerProviderBuilder.setResource(resource);
+        // Create OpenTelemetry Exporter
+        OtlpGrpcLogRecordExporter exporter = OtlpGrpcLogRecordExporter.builder()
+                .setEndpoint("http://" + this.endpoint)
+                .build();
+        // Create BatchLogRecordProcessor use OpenTelemetry Exporter
+        BatchLogRecordProcessor batchLogRecordProcessor = BatchLogRecordProcessor.builder(exporter).build();
+        // Add BatchLogRecordProcessor to Logger Provider Builder
+        loggerProviderBuilder.addLogRecordProcessor(batchLogRecordProcessor);
+        // set Logger Provider
+        sdkBuilder.setLoggerProvider(loggerProviderBuilder.build());
+        // Build OpenTelemetry SDK
+        SDK = sdkBuilder.build();
     }
 
     public void addOpenTelemetryAppender() {
