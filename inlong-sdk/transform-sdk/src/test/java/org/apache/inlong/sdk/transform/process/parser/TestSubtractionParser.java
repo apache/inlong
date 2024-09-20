@@ -77,11 +77,11 @@ public class TestSubtractionParser extends AbstractParserTestBase {
         // case4: '23:59:59' - INTERVAL 1 YEAR
         output = processor.transform("||||23:59:59|1", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
         // case4: '23:59:59' - INTERVAL -1 YEAR
         output = processor.transform("||||23:59:59|-1", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         transformSql = "select string1 - INTERVAL string2 WEEK from source";
         config = new TransformConfig(transformSql);
@@ -119,7 +119,7 @@ public class TestSubtractionParser extends AbstractParserTestBase {
         // case7: '1992-12-31 23:59:59' - INTERVAL null QUARTER
         output = processor.transform("||||1992-12-31 23:59:59|13", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
     }
 }
