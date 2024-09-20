@@ -20,14 +20,17 @@ package org.apache.inlong.sdk.transform.process.parser;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
+import java.time.temporal.ChronoField;
+import java.util.Map;
 
 /**
  * AdditionParser
- * 
  */
 @TransformParser(values = Addition.class)
 public class AdditionParser implements ValueParser {
@@ -41,16 +44,38 @@ public class AdditionParser implements ValueParser {
         this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        if (this.left instanceof IntervalParser && this.right instanceof IntervalParser) {
+            return null;
+        } else if (this.left instanceof IntervalParser || this.right instanceof IntervalParser) {
+            IntervalParser intervalParser = null;
+            ValueParser dateParser = null;
+            if (this.left instanceof IntervalParser) {
+                intervalParser = (IntervalParser) this.left;
+                dateParser = this.right;
+            } else {
+                intervalParser = (IntervalParser) this.right;
+                dateParser = this.left;
+            }
+            Object intervalPairObj = intervalParser.parse(sourceData, rowIndex, context);
+            Object dateObj = dateParser.parse(sourceData, rowIndex, context);
+            if (intervalPairObj == null || dateObj == null) {
+                return null;
+            }
+            return DateUtil.dateAdd(OperatorTools.parseString(dateObj),
+                    (Pair<Integer, Map<ChronoField, Long>>) intervalPairObj, 1);
+        } else {
+            return numericalOperation(sourceData, rowIndex, context);
+        }
+    }
+
+    private BigDecimal numericalOperation(SourceData sourceData, int rowIndex, Context context) {
         Object leftObj = this.left.parse(sourceData, rowIndex, context);
         Object rightObj = this.right.parse(sourceData, rowIndex, context);
+        if (leftObj == null || rightObj == null) {
+            return null;
+        }
         BigDecimal leftValue = OperatorTools.parseBigDecimal(leftObj);
         BigDecimal rightValue = OperatorTools.parseBigDecimal(rightObj);
         return leftValue.add(rightValue);
