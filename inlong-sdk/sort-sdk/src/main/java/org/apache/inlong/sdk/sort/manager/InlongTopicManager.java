@@ -32,6 +32,8 @@ import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.slf4j.Logger;
@@ -359,10 +361,18 @@ public class InlongTopicManager extends TopicManager {
         LOGGER.info("start to init pulsar client for cluster={}", cluster);
         if (cluster.getBootstraps() != null) {
             try {
+                String token = cluster.getToken();
+                Authentication auth = null;
+                if (StringUtils.isNoneBlank(token)) {
+                    auth = AuthenticationFactory.token(token);
+                }
                 PulsarClient pulsarClient = PulsarClient.builder()
                         .serviceUrl(cluster.getBootstraps())
-                        .authentication(AuthenticationFactory.token(cluster.getToken()))
+                        .authentication(auth)
                         .build();
+                LOGGER.info("create pulsar client succ cluster:{}, token:{}",
+                        cluster.getClusterId(),
+                        cluster.getToken());
                 PulsarClient oldClient = pulsarClients.putIfAbsent(cluster.getClusterId(), pulsarClient);
                 if (oldClient != null && !oldClient.isClosed()) {
                     LOGGER.warn("close new pulsar client for cluster={}", cluster);

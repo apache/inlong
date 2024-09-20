@@ -35,6 +35,7 @@ import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -213,10 +214,19 @@ public class InlongMultiTopicManager extends TopicManager {
                 topic.getInLongCluster().getBootstraps(), consumerSize);
         for (int i = 0; i < consumerSize; i++) {
             try {
+                String token = topic.getInLongCluster().getToken();
+                Authentication auth = null;
+                if (StringUtils.isNoneBlank(token)) {
+                    auth = AuthenticationFactory.token(token);
+                }
                 PulsarClient pulsarClient = PulsarClient.builder()
                         .serviceUrl(topic.getInLongCluster().getBootstraps())
-                        .authentication(AuthenticationFactory.token(topic.getInLongCluster().getToken()))
+                        .authentication(auth)
                         .build();
+                LOGGER.info("create pulsar client succ cluster:{}, topic:{}, token:{}",
+                        topic.getInLongCluster().getClusterId(),
+                        topic.getTopic(),
+                        topic.getInLongCluster().getToken());
                 TopicFetcher fetcher = TopicFetcherBuilder.newPulsarBuilder()
                         .pulsarClient(pulsarClient)
                         .topic(topics)
