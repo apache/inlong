@@ -91,6 +91,7 @@ public class SinkType extends StreamType {
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
     static {
+        SINK_TO_CLUSTER.put(HTTP, ClusterType.SORT_HTTP);
         SINK_TO_CLUSTER.put(CLS, ClusterType.SORT_CLS);
         SINK_TO_CLUSTER.put(ES, ClusterType.SORT_ES);
         SINK_TO_CLUSTER.put(PULSAR, ClusterType.SORT_PULSAR);
