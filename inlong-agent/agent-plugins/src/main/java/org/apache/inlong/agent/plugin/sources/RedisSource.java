@@ -294,9 +294,10 @@ public class RedisSource extends AbstractSource {
             LOGGER.info("redis subscribe synchronization is {} on source {}",
                     redisReplicator != null && !executor.isShutdown() ? "running" : "stop",
                     hostName + ":" + port);
+        } else {
+            LOGGER.info("redis command synchronization is {} on source {}", !executor.isShutdown() ? "running" : "stop",
+                    hostName + ":" + port);
         }
-        LOGGER.info("redis command synchronization is {} on source {}", !executor.isShutdown() ? "running" : "stop",
-                hostName + ":" + port);
     }
 
     @Override
