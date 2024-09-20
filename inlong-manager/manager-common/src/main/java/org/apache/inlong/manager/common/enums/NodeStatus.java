@@ -26,7 +26,15 @@ public enum NodeStatus {
 
     NORMAL(1),
 
-    HEARTBEAT_TIMEOUT(2);
+    HEARTBEAT_TIMEOUT(2),
+
+    INSTALLING(3),
+
+    INSTALL_FAILED(4),
+
+    INSTALL_SUCCESS(5),
+
+    UNLOAD_FAILED(6);
 
     int status;
 
