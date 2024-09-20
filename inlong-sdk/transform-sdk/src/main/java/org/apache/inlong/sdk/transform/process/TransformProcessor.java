@@ -29,6 +29,7 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,7 @@ public class TransformProcessor<I, O> {
     private PlainSelect transformSelect;
     private ExpressionOperator where;
     private List<ValueParserNode> selectItems;
+    private List<ValueParserNode> groupByItems;
 
     private List<String> sinkFieldList;
 
@@ -131,6 +134,14 @@ public class TransformProcessor<I, O> {
                 this.encoder.getFields().clear();
                 this.selectItems.add(new ValueParserNode(fieldName, null));
             }
+            if (this.transformSelect.getGroupBy() != null) {
+                this.groupByItems = new ArrayList<>();
+                List<Expression> groupByExpressions = this.transformSelect.getGroupBy().getGroupByExpressions();
+                for (Expression expr : groupByExpressions) {
+                    ValueParser parser = OperatorTools.buildParser(expr);
+                    groupByItems.add(new ValueParserNode(expr.toString(), parser));
+                }
+            }
         }
     }
 
@@ -153,7 +164,8 @@ public class TransformProcessor<I, O> {
         if (sourceData == null) {
             return null;
         }
-
+        boolean hasGroupBy = this.groupByItems != null && !this.groupByItems.isEmpty();
+        Map<String, DefaultSinkData> groupedData = hasGroupBy ? new HashMap<>() : null;
         List<O> sinkDatas = new ArrayList<>(sourceData.getRowCount());
         for (int i = 0; i < sourceData.getRowCount(); i++) {
 
@@ -162,38 +174,64 @@ public class TransformProcessor<I, O> {
                 continue;
             }
 
+            DefaultSinkData sinkData;
+            if (hasGroupBy) {
+                // has 'group by' key
+                String groupKey = generateGroupKey(sourceData, i, context);
+                groupedData.putIfAbsent(groupKey, new DefaultSinkData());
+                sinkData = groupedData.get(groupKey);
+            } else {
+                sinkData = new DefaultSinkData();
+            }
             // parse value
-            DefaultSinkData sinkData = new DefaultSinkData();
-            for (ValueParserNode node : this.selectItems) {
-                String fieldName = node.getFieldName();
-                ValueParser parser = node.getParser();
-                if (parser == null || StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
-                    if (input instanceof String) {
-                        sinkData.addField(fieldName, (String) input);
-                    } else {
-                        sinkData.addField(fieldName, "");
-                    }
-                    continue;
+            parseSelectItems(input, sourceData, i, context, sinkData);
+            if (!hasGroupBy) {
+                if (this.sinkFieldList != null) {
+                    sinkData.setKeyList(this.sinkFieldList);
                 }
-                try {
-                    Object fieldValue = parser.parse(sourceData, i, context);
-                    if (fieldValue == null) {
-                        sinkData.addField(fieldName, "");
-                    } else {
-                        sinkData.addField(fieldName, fieldValue.toString());
-                    }
-                } catch (Throwable t) {
-                    sinkData.addField(fieldName, "");
+                sinkDatas.add(this.encoder.encode(sinkData, context));
+            }
+        }
+        if (hasGroupBy) {
+            for (DefaultSinkData groupData : groupedData.values()) {
+                if (this.sinkFieldList != null) {
+                    groupData.setKeyList(this.sinkFieldList);
                 }
+                sinkDatas.add(this.encoder.encode(groupData, context));
             }
-
-            if (this.sinkFieldList != null) {
-                sinkData.setKeyList(this.sinkFieldList);
-            }
-            // encode
-            sinkDatas.add(this.encoder.encode(sinkData, context));
         }
         return sinkDatas;
     }
 
+    private void parseSelectItems(I input, SourceData sourceData, int rowIndex, Context context,
+            DefaultSinkData sinkData) {
+        for (ValueParserNode node : this.selectItems) {
+            String fieldName = node.getFieldName();
+            ValueParser parser = node.getParser();
+
+            if (parser == null || StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                if (input instanceof String) {
+                    sinkData.addField(fieldName, (String) input);
+                } else {
+                    sinkData.addField(fieldName, "");
+                }
+            } else {
+                try {
+                    Object fieldValue = parser.parse(sourceData, rowIndex, context);
+                    sinkData.addField(fieldName, fieldValue != null ? fieldValue.toString() : "");
+                } catch (Throwable t) {
+                    sinkData.addField(fieldName, "");
+                }
+            }
+        }
+    }
+
+    private String generateGroupKey(SourceData sourceData, int rowIndex, Context context) {
+        StringBuilder groupKeyBuilder = new StringBuilder();
+        for (ValueParserNode groupByNode : this.groupByItems) {
+            Object groupByValue = groupByNode.getParser().parse(sourceData, rowIndex, context);
+            groupKeyBuilder.append(groupByValue);
+        }
+        return groupKeyBuilder.toString();
+    }
 }
