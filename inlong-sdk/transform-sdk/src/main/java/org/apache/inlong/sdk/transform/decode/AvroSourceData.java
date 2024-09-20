@@ -20,12 +20,14 @@ package org.apache.inlong.sdk.transform.decode;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.util.Utf8;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AvroSourceData implements SourceData {
 
@@ -91,6 +93,16 @@ public class AvroSourceData implements SourceData {
             // parse other node
             for (int i = 1; i < childNodes.size(); i++) {
                 AvroNode node = childNodes.get(i);
+                if (curSchema.getType() == Type.MAP) {
+                    Map<?, ?> map = (Map<?, ?>) current;
+                    Object mapValue = map.get(new Utf8(node.getName()));
+                    if (mapValue == null) {
+                        return "";
+                    }
+                    curSchema = curSchema.getValueType();
+                    current = mapValue;
+                    continue;
+                }
                 if (curSchema.getType() != Type.RECORD) {
                     // error data
                     return "";
