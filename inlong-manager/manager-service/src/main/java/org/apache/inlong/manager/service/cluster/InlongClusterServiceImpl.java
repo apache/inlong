@@ -141,9 +141,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             10L,
             TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(100),
-            new ThreadFactoryBuilder().setNameFormat("async-install-%s").build(),
+            new ThreadFactoryBuilder().setNameFormat("agent-install-%s").build(),
             new CallerRunsPolicy());
-    private final LinkedBlockingQueue<ClusterNodeRequest> installQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<ClusterNodeRequest> pendingInstallRequests = new LinkedBlockingQueue<>();
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -717,7 +717,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
             request.setId(id);
-            installQueue.add(request);
+            pendingInstallRequests.add(request);
         }
         return id;
     }
@@ -867,7 +867,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (request.getIsInstall()) {
             // when reinstall set install to false
             request.setIsInstall(false);
-            installQueue.add(request);
+            pendingInstallRequests.add(request);
         }
         return true;
     }
@@ -1422,10 +1422,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         @Transactional(rollbackFor = Throwable.class)
         public void processInstall() {
-            if (installQueue.isEmpty()) {
+            if (pendingInstallRequests.isEmpty()) {
                 return;
             }
-            ClusterNodeRequest request = installQueue.poll();
+            ClusterNodeRequest request = pendingInstallRequests.poll();
             InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
                     request.getType());
             if (request.getIsInstall()) {
