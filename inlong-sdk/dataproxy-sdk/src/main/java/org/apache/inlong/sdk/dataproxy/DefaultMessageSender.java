@@ -37,12 +37,10 @@ import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -69,6 +67,7 @@ public class DefaultMessageSender implements MessageSender {
     private boolean isSupportLF = false;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
     private boolean sendSuccess = true;
+    private final int senderMaxRetry;
 
     public DefaultMessageSender(ProxyClientConfig configure) throws Exception {
         this(configure, null);
@@ -79,6 +78,7 @@ public class DefaultMessageSender implements MessageSender {
         sender = new Sender(configure, selfDefineFactory);
         groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
+        senderMaxRetry = configure.getSenderMaxRetry();
         indexCol.start();
 
     }
@@ -208,17 +208,17 @@ public class DefaultMessageSender implements MessageSender {
         int attempts = 0;
         SendResult sendResult = null;
         DefaultMessageSender currentSender = initialSender;
-        while (attempts < ConfigConstants.SENDER_MAX_RETRY) {
+        while (attempts < this.senderMaxRetry) {
             sendResult = sendOperation.apply(currentSender);
             if (sendResult != null && sendResult.equals(SendResult.OK)) {
                 currentSender.setSendSuccess(true);
                 return sendResult;
             }
             currentSender.setSendSuccess(false);
-            // try to get success sender
-            DefaultMessageSender randomSuccessSender = getRandomSuccessSender();
-            if (randomSuccessSender != null) {
-                currentSender = randomSuccessSender;
+            // try to get another success sender
+            DefaultMessageSender anotherSender = getAnotherSuccessSender(currentSender);
+            if (anotherSender != null) {
+                currentSender = anotherSender;
             } else {
                 break;
             }
@@ -233,7 +233,7 @@ public class DefaultMessageSender implements MessageSender {
         int attempts = 0;
         String sendIndexResult = null;
         DefaultMessageSender currentSender = initialSender;
-        while (attempts < ConfigConstants.SENDER_MAX_RETRY) {
+        while (attempts < this.senderMaxRetry) {
             sendIndexResult = sendOperation.apply(currentSender);
             if (sendIndexResult != null && sendIndexResult.startsWith(SendResult.OK.toString())) {
                 currentSender.setSendSuccess(true);
@@ -241,7 +241,7 @@ public class DefaultMessageSender implements MessageSender {
             }
             currentSender.setSendSuccess(false);
             // try to get success sender
-            DefaultMessageSender randomSuccessSender = getRandomSuccessSender();
+            DefaultMessageSender randomSuccessSender = getAnotherSuccessSender(currentSender);
             if (randomSuccessSender != null) {
                 currentSender = randomSuccessSender;
             } else {
@@ -253,24 +253,11 @@ public class DefaultMessageSender implements MessageSender {
         return sendIndexResult;
     }
 
-    private DefaultMessageSender getRandomSuccessSender() {
-        List<Integer> keys = new ArrayList<>(CACHE_SENDER.keySet());
-        if (keys.isEmpty()) {
-            return null;
-        }
-        int attempts = 0;
-        int maxAttempts = keys.size();
-        // choose sending success MessageSender randomly
-        while (attempts < maxAttempts) {
-            int randomIndex = ThreadLocalRandom.current().nextInt(keys.size());
-            Integer randomKey = keys.get(randomIndex);
-            DefaultMessageSender sender = CACHE_SENDER.get(randomKey);
-
-            if (sender != null && sender.isSendSuccess()) {
+    private DefaultMessageSender getAnotherSuccessSender(DefaultMessageSender currentSender) {
+        for (DefaultMessageSender sender : CACHE_SENDER.values()) {
+            if (sender != null && sender.isSendSuccess() && !sender.equals(currentSender)) {
                 return sender;
             }
-            keys.remove(randomIndex);
-            attempts++;
         }
         return null;
     }
