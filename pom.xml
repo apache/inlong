@@ -164,7 +164,6 @@
         <curator.version>4.2.0</curator.version>
 
         <avro.version>1.10.1</avro.version>
-        <bson.version>4.9.1</bson.version>
         <orc.core.version>1.6.7</orc.core.version>
         <parquet.version>1.12.2</parquet.version>
         <oro.version>2.0.8</oro.version>
@@ -210,12 +209,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>bson</artifactId>
-                <version>${bson.version}</version>
-            </dependency>
-
             <!--opentelemetry-->
             <dependency>
                 <groupId>io.opentelemetry</groupId>
