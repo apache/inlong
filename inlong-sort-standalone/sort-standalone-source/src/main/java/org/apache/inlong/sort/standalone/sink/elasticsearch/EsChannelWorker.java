@@ -106,7 +106,6 @@ public class EsChannelWorker extends Thread {
                     context.addSendFailMetric();
                     profileEvent.ack();
                 }
-                tx.commit();
             } else {
                 List<EsIndexRequest> indexRequestList = handler.parse(
                         context, profileEvent, context.getTransformProcessor(profileEvent.getUid()));
@@ -117,6 +116,7 @@ public class EsChannelWorker extends Thread {
                     profileEvent.ack();
                 }
             }
+            tx.commit();
 
         } catch (Throwable t) {
             LOG.error("Process event failed!" + this.getName(), t);

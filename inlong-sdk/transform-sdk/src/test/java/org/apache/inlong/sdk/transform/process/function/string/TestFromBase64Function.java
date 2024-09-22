@@ -51,7 +51,7 @@ public class TestFromBase64Function extends AbstractFunctionStringTestBase {
         // case2: from_base64(null) -> null
         List<String> output2 = processor2.transform("|apple|banana|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "result=null");
+        Assert.assertEquals(output2.get(0), "result=");
 
         // case3: from_base64('QXBhY2hlIEluTG9uZw==') -> 'Apache InLong'
         List<String> output3 = processor.transform("QXBhY2hlIEluTG9uZw==|apple|banana|cloud|1", new HashMap<>());

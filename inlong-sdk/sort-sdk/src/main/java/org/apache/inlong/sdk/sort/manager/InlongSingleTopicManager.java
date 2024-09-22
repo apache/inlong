@@ -33,6 +33,7 @@ import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.slf4j.Logger;
@@ -363,15 +364,20 @@ public class InlongSingleTopicManager extends TopicManager {
         if (!pulsarClients.containsKey(topic.getInLongCluster().getClusterId())) {
             if (topic.getInLongCluster().getBootstraps() != null) {
                 try {
+                    String token = topic.getInLongCluster().getToken();
+                    Authentication auth = null;
+                    if (StringUtils.isNoneBlank(token)) {
+                        auth = AuthenticationFactory.token(token);
+                    }
                     PulsarClient pulsarClient = PulsarClient.builder()
                             .serviceUrl(topic.getInLongCluster().getBootstraps())
-                            .authentication(AuthenticationFactory.token(topic.getInLongCluster().getToken()))
+                            .authentication(auth)
                             .build();
                     pulsarClients.put(topic.getInLongCluster().getClusterId(), pulsarClient);
-                    LOGGER.debug("create pulsar client succ {}",
-                            new String[]{topic.getInLongCluster().getClusterId(),
-                                    topic.getInLongCluster().getBootstraps(),
-                                    topic.getInLongCluster().getToken()});
+                    LOGGER.info("create pulsar client succ cluster:{}, topic:{}, token:{}",
+                            topic.getInLongCluster().getClusterId(),
+                            topic.getTopic(),
+                            topic.getInLongCluster().getToken());
                 } catch (Exception e) {
                     LOGGER.error("create pulsar client error {}", topic);
                     LOGGER.error(e.getMessage(), e);

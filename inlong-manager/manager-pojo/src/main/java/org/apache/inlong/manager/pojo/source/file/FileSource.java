@@ -95,6 +95,9 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("End time")
     private Long endTime;
 
+    @ApiModelProperty("filterStreams")
+    private List<String> filterStreams;
+
     public FileSource() {
         this.setSourceType(SourceType.FILE);
     }

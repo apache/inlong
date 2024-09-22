@@ -52,15 +52,31 @@ public class TestTruncateFunction extends AbstractFunctionArithmeticTestBase {
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=12000");
 
-        String transformSql2 = "select truncate(numeric1) from source";
+        String transformSql2 = "select trunc(numeric1,numeric2) from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case4: truncate(12345)
-        List<String> output4 = processor2.transform("12345.6789|-3|6|8");
+        // case1: trunc(42.324, 2)
+        List<String> output4 = processor2.transform("42.324|2|6|8");
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "result=12345");
+        Assert.assertEquals(output4.get(0), "result=42.32");
+
+        // case2: trunc(42.324, -1)
+        List<String> output5 = processor2.transform("42.324|-1|6|8");
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=40");
+
+        String transformSql3 = "select truncate(numeric1) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case4: truncate(12345.6789)
+        List<String> output6 = processor3.transform("12345.6789|-3|6|8");
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=12345");
     }
 }

@@ -20,9 +20,11 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
+import org.apache.inlong.sdk.transform.process.converter.BooleanConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * AbstractFunctionArithmeticTestBase
  * description: define static parameters for ArithmeticFunction tests
@@ -40,6 +42,7 @@ public abstract class AbstractFunctionArithmeticTestBase {
             field.setName("numeric" + i);
             srcFields.add(field);
         }
+        srcFields.add(new FieldInfo("booleanVal", new BooleanConverter()));
         FieldInfo field = new FieldInfo();
         field.setName("result");
         dstFields.add(field);
