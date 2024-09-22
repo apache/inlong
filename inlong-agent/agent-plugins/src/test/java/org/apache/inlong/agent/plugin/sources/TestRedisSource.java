@@ -121,8 +121,8 @@ public class TestRedisSource {
         final String command = "zscore";
         final String subOperation = "set,del";
 
-        TaskProfile taskProfile = helper.getTaskProfile(1, "", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
-                "GMT+8:00");
+        TaskProfile taskProfile = helper.getTaskProfile(1, "", "csv", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+                "GMT+8:00", null);
         profile = taskProfile.createInstanceProfile("",
                 "", taskProfile.getCycleUnit(), "20240725", AgentUtils.getCurrentTime());
         profile.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
