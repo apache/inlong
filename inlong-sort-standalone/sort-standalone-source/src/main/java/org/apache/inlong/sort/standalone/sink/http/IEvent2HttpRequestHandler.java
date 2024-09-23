@@ -18,12 +18,17 @@
 package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 public interface IEvent2HttpRequestHandler {
 
     HttpRequest parse(HttpSinkContext context, ProfileEvent event) throws URISyntaxException, JsonProcessingException;
+
+    List<HttpRequest> parse(HttpSinkContext context, DispatchProfile dispatchProfile)
+            throws URISyntaxException, JsonProcessingException;
 }

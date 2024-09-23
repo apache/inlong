@@ -45,6 +45,17 @@ public class BufferQueue<A> {
      * Constructor
      * 
      * @param maxSizeKb
+     * @param queue
+     */
+    public BufferQueue(int maxSizeKb, LinkedBlockingQueue<A> queue) {
+        this.currentTokens = new SizeSemaphore(maxSizeKb, SizeSemaphore.ONEKB);
+        this.queue = queue;
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param maxSizeKb
      * @param globalTokens
      */
     public BufferQueue(int maxSizeKb, SizeSemaphore globalTokens) {
