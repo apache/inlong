@@ -22,51 +22,55 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
+import java.nio.charset.Charset;
 import java.util.List;
+
 /**
- * ReplicateFunction
- * description: replicate(string, numeric)--Repeat the string numeric times and return a new string
+ * BitLengthFunction
+ * description: bit_length(string,[charset])
+ * - return NULL if the string is NULL.
+ * - return number of bits in string.
  */
-@TransformFunction(names = {"replicate"})
-public class ReplicateFunction implements ValueParser {
+@Slf4j
+@TransformFunction(names = {"bit_length"})
+public class BitLengthFunction implements ValueParser {
 
-    private ValueParser stringParser;
+    private final ValueParser stringParser;
+    private final ValueParser charsetParser;
+    private final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
-    private ValueParser countParser;
-
-    public ReplicateFunction(Function expr) {
+    public BitLengthFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         stringParser = OperatorTools.buildParser(expressions.get(0));
-        countParser = OperatorTools.buildParser(expressions.get(1));
+        if (expressions.size() == 2) {
+            charsetParser = OperatorTools.buildParser(expressions.get(1));
+        } else {
+            charsetParser = null;
+        }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        Object countObj = countParser.parse(sourceData, rowIndex, context);
-        String str = OperatorTools.parseString(stringObj);
-        double count = OperatorTools.parseBigDecimal(countObj).doubleValue();
-        return repeat(str, count);
-    }
-    private String repeat(String str, double count) {
-        if (count == 0) {
-            return "";
+        Object stringObject = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObject == null) {
+            return null;
         }
-        if (count == 1) {
-            return str;
-        }
-        StringBuilder repeatedStr = new StringBuilder();
-        StringBuilder originStr = new StringBuilder(str);
-        while (count > 0) {
-            if (count % 2 != 0) {
-                repeatedStr.append(originStr);
+        try {
+            Charset charset = DEFAULT_CHARSET;
+            if (charsetParser != null) {
+                Object charsetObj = charsetParser.parse(sourceData, rowIndex, context);
+                if (charsetObj != null) {
+                    charset = Charset.forName(OperatorTools.parseString(charsetObj));
+                }
             }
-            count = Math.floor(count / 2);
-            originStr.append(originStr);
+            return OperatorTools.parseString(stringObject).getBytes(charset).length * 8;
+        } catch (Exception e) {
+            log.error("Analysis failed", e);
+            return null;
         }
-        return repeatedStr.toString();
     }
 }

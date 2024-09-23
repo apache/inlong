@@ -53,6 +53,7 @@ public class TransformProcessor<I, O> {
     private static final Logger LOG = LoggerFactory.getLogger(TransformProcessor.class);
 
     private static final Map<String, Object> EMPTY_EXT_PARAMS = ImmutableMap.of();
+    private static final String DUMMY_SELECT = "select *";
 
     private final TransformConfig config;
     private final SourceDecoder<I> decoder;
@@ -88,12 +89,17 @@ public class TransformProcessor<I, O> {
             this.sinkFieldList = new ArrayList<>(fields.size());
             fields.forEach(v -> this.sinkFieldList.add(v.getName()));
         }
-        this.initTransformSql();
+
+        if (StringUtils.isNotEmpty(config.getTransformSql())) {
+            this.initTransformSql(config.getTransformSql());
+        } else {
+            this.initTransformSql(DUMMY_SELECT);
+        }
     }
 
-    private void initTransformSql() throws JSQLParserException {
+    private void initTransformSql(String sql) throws JSQLParserException {
         CCJSqlParserManager parserManager = new CCJSqlParserManager();
-        Select select = (Select) parserManager.parse(new StringReader(config.getTransformSql()));
+        Select select = (Select) parserManager.parse(new StringReader(sql));
         this.transformSelect = (PlainSelect) select.getSelectBody();
         this.where = OperatorTools.buildOperator(this.transformSelect.getWhere());
         List<SelectItem> items = this.transformSelect.getSelectItems();
@@ -161,7 +167,7 @@ public class TransformProcessor<I, O> {
             for (ValueParserNode node : this.selectItems) {
                 String fieldName = node.getFieldName();
                 ValueParser parser = node.getParser();
-                if (parser == null && StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                if (parser == null || StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
                     if (input instanceof String) {
                         sinkData.addField(fieldName, (String) input);
                     } else {
@@ -171,9 +177,12 @@ public class TransformProcessor<I, O> {
                 }
                 try {
                     Object fieldValue = parser.parse(sourceData, i, context);
-                    sinkData.addField(fieldName, String.valueOf(fieldValue));
+                    if (fieldValue == null) {
+                        sinkData.addField(fieldName, "");
+                    } else {
+                        sinkData.addField(fieldName, fieldValue.toString());
+                    }
                 } catch (Throwable t) {
-                    LOG.error(t.getMessage(), t);
                     sinkData.addField(fieldName, "");
                 }
             }

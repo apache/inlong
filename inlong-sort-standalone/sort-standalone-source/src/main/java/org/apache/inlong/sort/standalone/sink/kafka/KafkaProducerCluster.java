@@ -21,7 +21,6 @@ import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
@@ -31,18 +30,27 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.RetriableException;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Properties;
 
-/** wrapper of kafka producer */
+/**
+ * wrapper of kafka producer
+ */
 public class KafkaProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
+
+    private static final String KEY_DEFAULT_SELECTOR = "sink.kafka.selector.default";
+    private static final String KEY_PRODUCER_CLOSE_TIMEOUT = "sink.kafka.producer.close.timeout";
 
     private final String workerName;
     protected final KafkaNodeConfig nodeConfig;
@@ -67,7 +75,9 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.handler = sinkContext.createEventHandler();
     }
 
-    /** start and init kafka producer */
+    /**
+     * start and init kafka producer
+     */
     @Override
     public void start() {
         if (CommonPropertiesHolder.useUnifiedConfiguration()) {
@@ -86,7 +96,6 @@ public class KafkaProducerCluster implements LifecycleAware {
         try {
             Properties props = defaultKafkaProperties();
             props.putAll(cacheClusterConfig.getParams());
-            props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
             props.put(ProducerConfig.ACKS_CONFIG,
                     cacheClusterConfig.getParams().getOrDefault(ProducerConfig.ACKS_CONFIG, "all"));
 
@@ -112,7 +121,6 @@ public class KafkaProducerCluster implements LifecycleAware {
         try {
             Properties props = defaultKafkaProperties();
             props.putAll(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
-            props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
             props.put(ProducerConfig.ACKS_CONFIG, nodeConfig.getAcks());
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, nodeConfig.getBootstrapServers());
             props.put(ProducerConfig.CLIENT_ID_CONFIG, nodeConfig.getClientId() + "-" + workerName);
@@ -126,11 +134,15 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     public Properties defaultKafkaProperties() {
         Properties props = new Properties();
+
+        if (!CommonPropertiesHolder.getBoolean(KEY_DEFAULT_SELECTOR, false)) {
+            props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
+        }
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "false");
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, "122880");
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "44740000");
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
-        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, "86400000");
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, "300000");
         props.put(ProducerConfig.LINGER_MS_CONFIG, "500");
         props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
         props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "8388608");
@@ -153,13 +165,16 @@ public class KafkaProducerCluster implements LifecycleAware {
         return props;
     }
 
-    /** stop and close kafka producer */
+    /**
+     * stop and close kafka producer
+     */
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
         try {
-            LOG.info("stop kafka producer");
-            producer.close();
+            long timeout = CommonPropertiesHolder.getLong(KEY_PRODUCER_CLOSE_TIMEOUT, 60L);
+            LOG.info("stop kafka producer, timeout={}", timeout);
+            producer.close(Duration.ofSeconds(timeout));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -178,16 +193,16 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param  profileEvent data to send
-     * @return              boolean
+     * @param profileEvent data to send
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        String topic = profileEvent.getHeaders().get(Constants.TOPIC);
+        String topic = sinkContext.getTopic(profileEvent.getUid());
         ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
         long sendTime = System.currentTimeMillis();
         // check
-        if (record == null) {
+        if (record == null || StringUtils.isEmpty(topic)) {
             tx.commit();
             profileEvent.ack();
             tx.close();
@@ -202,9 +217,14 @@ public class KafkaProducerCluster implements LifecycleAware {
                             sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                             profileEvent.ack();
                         } else {
+                            if (ex instanceof UnknownTopicOrPartitionException
+                                    || !(ex instanceof RetriableException)) {
+                                tx.commit();
+                            } else {
+                                tx.rollback();
+                            }
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
                                     metadata.topic(), metadata.partition()), ex);
-                            tx.rollback();
                             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
                         }
                         tx.close();
