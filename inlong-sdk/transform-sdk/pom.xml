@@ -32,6 +32,7 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+        <bson.version>4.9.1</bson.version>
     </properties>
 
     <dependencies>
@@ -61,6 +62,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
+            <version>${bson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
