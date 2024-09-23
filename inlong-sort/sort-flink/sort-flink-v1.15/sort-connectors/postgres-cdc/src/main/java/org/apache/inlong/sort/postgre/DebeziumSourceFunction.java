@@ -353,9 +353,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
         }
         // record the start time of each checkpoint
-        Long checkpointId = functionSnapshotContext.getCheckpointId();
         if (checkpointStartTimeMap != null) {
-            checkpointStartTimeMap.put(checkpointId, System.currentTimeMillis());
+            checkpointStartTimeMap.put(functionSnapshotContext.getCheckpointId(), System.currentTimeMillis());
         } else {
             LOG.error("checkpointStartTimeMap is null, can't record the start time of checkpoint");
         }

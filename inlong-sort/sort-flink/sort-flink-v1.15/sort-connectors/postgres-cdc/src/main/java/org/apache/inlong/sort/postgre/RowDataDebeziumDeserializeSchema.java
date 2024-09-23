@@ -34,7 +34,6 @@ import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
-import lombok.Setter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -102,7 +101,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     private final DebeziumChangelogMode changelogMode;
 
     /** Self-defined Flink metrics, which will be set by DebeziumSourceFunction with setter */
-    @Setter
     private SourceExactlyMetric sourceExactlyMetric;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
@@ -711,5 +709,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         if (sourceExactlyMetric != null) {
             sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
+    }
+
+    /** setter to enable DebeziumSourceFunction to set the metric */
+    public void setSourceExactlyMetric(SourceExactlyMetric sourceExactlyMetric) {
+        this.sourceExactlyMetric = sourceExactlyMetric;
     }
 }
