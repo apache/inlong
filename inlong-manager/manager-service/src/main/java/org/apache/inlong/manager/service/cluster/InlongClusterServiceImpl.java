@@ -90,6 +90,7 @@ import com.github.pagehelper.PageHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -100,6 +101,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,6 +116,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.pojo.cluster.InlongClusterTagExtParam.packExtParams;
@@ -126,6 +135,15 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
     private static final Gson GSON = new Gson();
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            5,
+            10,
+            10L,
+            TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("agent-install-%s").build(),
+            new CallerRunsPolicy());
+    private final LinkedBlockingQueue<ClusterNodeRequest> pendingInstallRequests = new LinkedBlockingQueue<>();
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -157,6 +175,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Lazy
     @Autowired
     private DataProxyConfigRepository proxyRepository;
+
+    @PostConstruct
+    private void startInstallTask() {
+        InstallTaskRunnable installTaskRunnable = new InstallTaskRunnable();
+        this.executorService.execute(installTaskRunnable);
+        LOGGER.info("install task started successfully");
+    }
 
     @Override
     public Integer saveTag(ClusterTagRequest request, String operator) {
@@ -692,9 +717,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
             request.setId(id);
-            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
-                    request.getType());
-            clusterNodeInstallOperator.install(request, operator);
+            pendingInstallRequests.add(request);
         }
         return id;
     }
@@ -810,7 +833,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
         Preconditions.expectNotNull(request, "inlong cluster node cannot be empty");
@@ -843,9 +865,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, operator);
         if (request.getIsInstall()) {
-            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
-                    request.getType());
-            clusterNodeInstallOperator.install(request, operator);
+            // when reinstall set install to false
+            request.setIsInstall(false);
+            pendingInstallRequests.add(request);
         }
         return true;
     }
@@ -1379,6 +1401,39 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check and append clusterTag
         if (StringUtils.isBlank(request.getClusterTags())) {
             request.setClusterTags(entity.getClusterTags());
+        }
+    }
+
+    private class InstallTaskRunnable implements Runnable {
+
+        private static final int WAIT_SECONDS = 60 * 1000;
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    processInstall();
+                    Thread.sleep(WAIT_SECONDS);
+                } catch (Exception e) {
+                    LOGGER.error("exception occurred when install", e);
+                }
+            }
+        }
+
+        @Transactional(rollbackFor = Throwable.class)
+        public void processInstall() {
+            if (pendingInstallRequests.isEmpty()) {
+                return;
+            }
+            ClusterNodeRequest request = pendingInstallRequests.poll();
+            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
+                    request.getType());
+            if (request.getIsInstall()) {
+                clusterNodeInstallOperator.install(request, request.getCurrentUser());
+            } else {
+                clusterNodeInstallOperator.reInstall(request, request.getCurrentUser());
+            }
+
         }
     }
 }

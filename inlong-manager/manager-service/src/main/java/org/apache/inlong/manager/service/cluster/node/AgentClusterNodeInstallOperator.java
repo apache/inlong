@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.cluster.node;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ModuleType;
+import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -96,12 +97,17 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     public boolean install(ClusterNodeRequest clusterNodeRequest, String operator) {
         LOGGER.info("begin to insert agent cluster node={}", clusterNodeRequest);
         try {
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
+                    "begin to install");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             deployInstaller(request, operator);
             String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
+                    NodeStatus.INSTALL_SUCCESS.getStatus(), "success to install");
         } catch (Exception e) {
-            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
+                    NodeStatus.INSTALL_FAILED.getStatus(), e.getMessage());
             String errMsg = String.format("install agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -114,13 +120,18 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     public boolean reInstall(ClusterNodeRequest clusterNodeRequest, String operator) {
         LOGGER.info("begin to reInstall agent cluster node={}", clusterNodeRequest);
         try {
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
+                    "begin to reinstall");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
             String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, reStartCmd);
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.NORMAL.getStatus(),
+                    "success to reinstall");
         } catch (Exception e) {
-            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), e.getMessage());
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
+                    NodeStatus.INSTALL_FAILED.getStatus(), e.getMessage());
             String errMsg = String.format("reInstall agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -140,7 +151,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             commandExecutor.execRemote(request, stopCmd);
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
         } catch (Exception e) {
-            clusterNodeEntityMapper.updateOperateLogById(clusterNodeEntity.getId(), e.getMessage());
+            clusterNodeEntityMapper.updateOperateLogById(clusterNodeEntity.getId(),
+                    NodeStatus.UNLOAD_FAILED.getStatus(), e.getMessage());
             String errMsg = String.format("unload agent cluster node failed for ip=%s", clusterNodeEntity.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);

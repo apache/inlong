@@ -256,7 +256,14 @@
     </update>
     <update id="updateOperateLogById">
         update inlong_cluster_node
-        set operate_log = #{operateLog,jdbcType=LONGVARCHAR}
+        <set>
+            <if test="nextStatus != null">
+                status = #{nextStatus,jdbcType=INTEGER},
+            </if>
+            <if test="operateLog != null">
+                operate_log  = #{operateLog,jdbcType=LONGVARCHAR}
+            </if>
+        </set>
         where id = #{id,jdbcType=INTEGER}
         and is_deleted = 0
     </update>
