@@ -88,10 +88,6 @@ public class ProxyMessageCache {
         }
     }
 
-    public void generateExtraMap(String dataKey) {
-        this.extraMap.put(AttributeConstants.MESSAGE_PARTITION_KEY, dataKey);
-    }
-
     /**
      * Check whether queue is nearly full
      *
