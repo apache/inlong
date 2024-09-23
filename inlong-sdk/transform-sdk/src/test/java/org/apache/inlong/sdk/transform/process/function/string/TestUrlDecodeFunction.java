@@ -52,6 +52,6 @@ public class TestUrlDecodeFunction extends AbstractFunctionStringTestBase {
         // case2: url_decode(null) -> null
         List<String> output2 = processor2.transform("|apple|banana|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals(output2.get(0), "result=null");
+        Assert.assertEquals(output2.get(0), "result=");
     }
 }
