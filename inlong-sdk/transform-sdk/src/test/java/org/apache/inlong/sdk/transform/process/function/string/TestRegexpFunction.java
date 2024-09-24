@@ -73,5 +73,21 @@ public class TestRegexpFunction extends AbstractFunctionStringTestBase {
         List<String> output5 = processor3.transform("The quick brown fox|cold|5|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals(output5.get(0), "result=false");
+
+        String transformSql4 = "select regexp_like(string1, string2) from source";
+        TransformConfig config4 = new TransformConfig(transformSql4);
+        TransformProcessor<String, String> processor4 = TransformProcessor
+                .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case6: regexp_like("The quick brown fox", "quick")
+        List<String> output6 = processor4.transform("The quick brown fox|quick|5|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=true");
+
+        // case7: regexp_like("The quick brown fox", "cold")
+        List<String> output7 = processor4.transform("The quick brown fox|cold|5|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=false");
     }
 }
