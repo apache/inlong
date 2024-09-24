@@ -37,6 +37,7 @@ public class TestRegexpMatchesFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+
         // case1: regexp_matches("The quick brown fox", "quick")
         List<String> output1 = processor1.transform("The quick brown fox|quick|5|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
@@ -46,11 +47,13 @@ public class TestRegexpMatchesFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+
         // case2: regexp_matches("User: Alice, ID: 12345", "User: (\\w+), ID: (\\d+)")
         List<String> output2 =
                 processor2.transform("User: Alice, ID: 12345|User: (\\\\w+), ID: (\\\\d+)|5|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=[{\"Alice\",\"12345\"}]");
+
         // case3: regexp_matches("User: Alice, ID: 12345User: Alice, ID: 12345;
         // User: Bob, ID: 67890", "User: (\\w+), ID: (\\d+)")
         List<String> output3 =
@@ -62,10 +65,12 @@ public class TestRegexpMatchesFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor3 = TransformProcessor
                 .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+
         // case4: regexp_matches("foo 123 bar 456", "\\d+", "g")
         List<String> output4 = processor3.transform("foo 123 bar 456|\\\\d+|g|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=[{\"123\"},{\"456\"}]");
+
         // case5: regexp_matches("User: Alice, ID: 12345User: Alice, ID: 12345;
         // User: Bob, ID: 67890", "User: (\\w+),ID: (\\d+)", "g")
         List<String> output5 = processor3.transform(
@@ -77,6 +82,7 @@ public class TestRegexpMatchesFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor4 = TransformProcessor
                 .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+
         // case6: regexp_matches("Hello! hello World", "hello", "ig")
         List<String> output6 = processor4.transform("Hello! hello World|hello|ig|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output6.size());
@@ -86,9 +92,16 @@ public class TestRegexpMatchesFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor5 = TransformProcessor
                 .create(config5, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+
         // case7: regexp_matches("First line\nSecond line", "^Second", "m")
         List<String> output7 = processor5.transform("First line\\\nSecond line|^Second|m|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output7.size());
         Assert.assertEquals(output7.get(0), "result=[{\"Second\"}]");
+
+        // without 'g' flag
+        // case7: regexp_matches("Hello! hello World", "hello", "i")
+        List<String> output8 = processor5.transform("Hello! hello World|hello|i|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output8.size());
+        Assert.assertEquals(output8.get(0), "result=[{\"Hello\"}]");
     }
 }
