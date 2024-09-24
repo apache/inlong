@@ -66,6 +66,48 @@ public abstract class AbstractProcessorTestBase {
         return transformBase64;
     }
 
+    protected String getParquetTestDescription() {
+        return "message SdkDataRequest { "
+                + "required binary sid (UTF8); "
+                + "required int64 packageID; "
+                + "repeated group msgs { "
+                + "  required binary msg (UTF8); "
+                + "  required int64 msgTime; "
+                + "  optional group extinfo (MAP) { "
+                + "    repeated group key_value { "
+                + "      required binary key (UTF8); "
+                + "      required binary value (UTF8); "
+                + "    } "
+                + "  } "
+                + "} "
+                + "}";
+    }
+
+    protected byte[] getParquetTestData() {
+        String srcString = "UEFSMRUAFRoVHiwVAhUAFQgVCBwYCXNlc3Npb25fMRgJc2Vzc2lvbl8xFg" +
+                "AAAAANMAkAAABzZXNzaW9uXzEVABUQFRQsFQIVABUIFQgcGAjpAwAAAAAAABgI6QMAAAA" +
+                "AAAAWAAAAAAgc6QMAAAAAAAAVABVMFUwsFQQVABUGFQYcGAtIZWxsbyBXb3JsZBgHQm9u" +
+                "am91chYAAAAAJhQCAAAAAwIFBmgDCwAAAEhlbGxvIFdvcmxkBwAAAEJvbmpvdXIVABU4F" +
+                "TgsFQQVABUGFQYcGAjellVhAAAAABgI05ZVYQAAAAAWAAAAABwUAgAAAAMCBQZAA9OWVW" +
+                "EAAAAA3pZVYQAAAAAVBBUQFRRMFQIVBAAACBwEAAAAbGFuZxUAFSAVJCwVBBUEFQYVBhw" +
+                "YBGxhbmcYBGxhbmcWAAAAABA8AwAAAAMEAAMAAAADDwAAAxUAFTQVNCwVBBUAFQYVBhwY" +
+                "AkZSGAJFThYAAAAAGhgDAAAAAwQABQc0DwACAAAARU4CAAAARlIVAhmsSA5TZGtEYXRhU" +
+                "mVxdWVzdBUGABUMJQAYA3NpZCUAABUEJQAYCXBhY2thZ2VJRAA1BBgEbXNncxUGABUMJQ" +
+                "AYA21zZyUAABUEJQAYB21zZ1RpbWUANQIYB2V4dGluZm8VAhUCADUEGAlrZXlfdmFsdWU" +
+                "VBAAVDCUAGANrZXklAAAVDCUAGAV2YWx1ZSUAABYCGRwZbCYIHBUMGSUIABkYA3NpZBUC" +
+                "FgIWcBZ0Jgg8GAlzZXNzaW9uXzEYCXNlc3Npb25fMRYAAAAAJnwcFQQZJQgAGRgJcGFja" +
+                "2FnZUlEFQIWAhZiFmYmfDwYCOkDAAAAAAAAGAjpAwAAAAAAABYAAAAAJuIBHBUMGSUABh" +
+                "koBG1zZ3MDbXNnFQIWBBaiARaiASbiATwYC0hlbGxvIFdvcmxkGAdCb25qb3VyFgAAAAA" +
+                "mhAMcFQQZJQAGGSgEbXNncwdtc2dUaW1lFQIWBBaKARaKASaEAzwYCN6WVWEAAAAAGAjT" +
+                "llVhAAAAABYAAAAAJo4EHBUMGSUEBhlIBG1zZ3MHZXh0aW5mbwlrZXlfdmFsdWUDa2V5F" +
+                "QIWBBaMARaUASaOBDwYBGxhbmcYBGxhbmcWAAAAACaiBRwVDBklAAYZSARtc2dzB2V4dG" +
+                "luZm8Ja2V5X3ZhbHVlBXZhbHVlFQIWBBZuFm4mogU8GAJGUhgCRU4WAAAAABb4BRYCACh" +
+                "JcGFycXVldC1tciB2ZXJzaW9uIDEuOC4xIChidWlsZCA0YWJhNGRhZTdiYjBkNGVkYmNm" +
+                "NzkyM2FlMTMzOWYyOGZkM2Y3ZmNmKQBeAgAAUEFSMQ==";
+        byte[] srcBytes = Base64.getDecoder().decode(srcString);
+        return srcBytes;
+    }
+
     protected byte[] getAvroTestData() {
         String srcString = "T2JqAQIWYXZyby5zY2hlbWHIBXsidHlwZSI6InJlY29yZCIsIm5hbWUiOiJTZGtE"
                 + "YXRhUmVxdWVzdCIsIm5hbWVzcGFjZSI6InRlc3QiLCJmaWVsZHMiOlt7Im5hbWUi"
