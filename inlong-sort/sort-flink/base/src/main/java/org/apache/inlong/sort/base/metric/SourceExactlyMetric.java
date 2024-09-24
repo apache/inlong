@@ -432,6 +432,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                 + ", numSnapshotCreate=" + numSnapshotCreate.getCount()
                 + ", numSnapshotError=" + numSnapshotError.getCount()
                 + ", snapshotToCheckpointTimeLag=" + snapshotToCheckpointTimeLag.getValue()
+                + ", numSnapshotComplete=" + numSnapshotComplete.getCount()
                 + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
                 + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
                 + ", auditReporter=" + auditReporter
