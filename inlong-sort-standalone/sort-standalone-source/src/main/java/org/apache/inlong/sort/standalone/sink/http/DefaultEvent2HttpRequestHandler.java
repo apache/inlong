@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
@@ -36,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,6 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
         String uid = event.getUid();
         HttpIdConfig idConfig = context.getIdConfig(uid);
         if (idConfig == null) {
-            context.addSendResultMetric(event, context.getTaskName(), false, System.currentTimeMillis());
             return null;
         }
         // get the delimiter
@@ -130,11 +131,21 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
                 LOG.error("Unsupported request method: {}", requestMethod);
                 return null;
         }
-        return new HttpRequest(request, event, idConfig.getMaxRetryTimes());
+        return new HttpRequest(request, event, null, idConfig.getMaxRetryTimes());
     }
 
     private static void setEntity(HttpEntityEnclosingRequestBase request, String jsonData) {
         StringEntity requestEntity = new StringEntity(jsonData, ContentType.APPLICATION_JSON);
         request.setEntity(requestEntity);
+    }
+
+    public List<HttpRequest> parse(HttpSinkContext context, DispatchProfile dispatchProfile)
+            throws URISyntaxException, JsonProcessingException {
+        List<HttpRequest> requests = new ArrayList<>();
+        for (ProfileEvent profileEvent : dispatchProfile.getEvents()) {
+            HttpRequest request = this.parse(context, profileEvent);
+            requests.add(request);
+        }
+        return requests;
     }
 }

@@ -22,10 +22,6 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 public class HttpSinkFactory {
 
-    public static HttpOutputChannel createHttpOutputChannel(HttpSinkContext context) {
-        return new HttpOutputChannel(context);
-    }
-
     public static CloseableHttpAsyncClient createHttpAsyncClient(HttpAsyncClientBuilder builder) {
         return builder.build();
     }
