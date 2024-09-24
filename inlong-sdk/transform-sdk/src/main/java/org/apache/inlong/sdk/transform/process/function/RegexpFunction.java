@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  *              regular expression string2, otherwise FALSE. Returns NULL if any of arguments is NULL.
  *              SIMILAR(string1, string2)--Same as above
  */
-@TransformFunction(names = {"regex", "similar"})
+@TransformFunction(names = {"regex", "similar", "regexp_like"})
 public class RegexpFunction implements ValueParser {
 
     private ValueParser inputParser;
