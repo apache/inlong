@@ -455,6 +455,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         String groupId = request.getInlongGroupId();
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
         userService.checkUser(groupEntity.getInCharges(), operator,
                 "Current user does not have permission to update stream info");
 
@@ -522,6 +525,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         // Check if it can be deleted
         this.checkGroupStatusIsTemp(groupId);
         InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
         userService.checkUser(groupEntity.getInCharges(), operator,
                 "Current user does not have permission to delete stream info");
 
@@ -961,6 +967,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<BriefMQMessage> listMessages(QueryMessageRequest request, String operator) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getGroupId());
+        if (groupEntity == null) {
+            throw new BusinessException(
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getGroupId()));
+        }
         userService.checkUser(groupEntity.getInCharges(), operator, String
                 .format("Current user does not have permission to query message for groupId=%s", request.getGroupId()));
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
