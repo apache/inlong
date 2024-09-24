@@ -115,7 +115,7 @@ public class MqttSource extends AbstractSource {
                     headerMap.put("record.messageId", String.valueOf(message.getId()));
                     headerMap.put("record.qos", String.valueOf(message.getQos()));
                     byte[] recordValue = message.getPayload();
-                    mqttMessagesQueue.offer(new DefaultMessage(recordValue, headerMap), 1, TimeUnit.SECONDS);
+                    mqttMessagesQueue.offer(new DefaultMessage(recordValue, headerMap));
 
                 }
 
