@@ -37,12 +37,12 @@ import static org.apache.inlong.sort.base.Constants.DESERIALIZE_TIME_LAG;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_COMPLETED_SNAPSHOTS;
 import static org.apache.inlong.sort.base.Constants.NUM_DESERIALIZE_ERROR;
 import static org.apache.inlong.sort.base.Constants.NUM_DESERIALIZE_SUCCESS;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_COMPLETE;
 import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_CREATE;
 import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_ERROR;
 import static org.apache.inlong.sort.base.Constants.SNAPSHOT_TO_CHECKPOINT_TIME_LAG;
@@ -62,7 +62,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
     private Gauge<Long> deserializeTimeLag;
     private Counter numSnapshotCreate;
     private Counter numSnapshotError;
-    private Counter numCompletedSnapshots;
+    private Counter numSnapshotComplete;
     private Gauge<Long> snapshotToCheckpointTimeLag;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
@@ -124,7 +124,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                 registerMetricsForCurrentFetchEventTimeLag();
                 registerMetricsForCurrentEmitEventTimeLag();
                 registerMetricsForDeserializeTimeLag();
-                registerMetricsForNumCompletedSnapshots(new ThreadSafeCounter());
+                registerMetricsForNumSnapshotComplete(new ThreadSafeCounter());
                 registerMetricsForNumDeserializeSuccess(new ThreadSafeCounter());
                 registerMetricsForNumDeserializeError(new ThreadSafeCounter());
                 registerMetricsForNumSnapshotCreate(new ThreadSafeCounter());
@@ -230,8 +230,8 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         numSnapshotError = registerCounter(NUM_SNAPSHOT_ERROR, counter);
     }
 
-    public void registerMetricsForNumCompletedSnapshots(Counter counter) {
-        numCompletedSnapshots = registerCounter(NUM_COMPLETED_SNAPSHOTS, counter);
+    public void registerMetricsForNumSnapshotComplete(Counter counter) {
+        numSnapshotComplete = registerCounter(NUM_SNAPSHOT_COMPLETE, counter);
     }
 
     public void registerMetricsForSnapshotToCheckpointTimeLag() {
@@ -303,8 +303,8 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         return snapshotToCheckpointDelay;
     }
 
-    public Counter getNumCompletedSnapshots() {
-        return numCompletedSnapshots;
+    public Counter getNumSnapshotComplete() {
+        return numSnapshotComplete;
     }
 
     public void recordDeserializeDelay(long deserializeDelay) {
@@ -390,9 +390,9 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         }
     }
 
-    public void incNumCompletedSnapshots() {
-        if (numCompletedSnapshots != null) {
-            numCompletedSnapshots.inc();
+    public void incNumSnapshotComplete() {
+        if (numSnapshotComplete != null) {
+            numSnapshotComplete.inc();
         }
     }
 

@@ -77,7 +77,7 @@ public final class Constants {
 
     public static final String NUM_SNAPSHOT_ERROR = "numSnapshotError";
 
-    public static final String NUM_COMPLETED_SNAPSHOTS = "numCompletedSnapshots";
+    public static final String NUM_SNAPSHOT_COMPLETE = "numSnapshotComplete";
 
     public static final String SNAPSHOT_TO_CHECKPOINT_TIME_LAG = "snapshotToCheckpointTimeLag";
 
