@@ -15,44 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
-import java.math.BigDecimal;
-
 /**
- * Atan2dFunction
- * description: asind(numeric)--returns the arc sine of numeric in units of degrees
+ * UnHexFunction  -> unhex(str)
+ * description: unhex(str) interprets each pair of characters in the argument as a hexadecimal number and converts it to the byte represented by the number.
+ * return null if str is null;
+ * return a binary string otherwise.
  */
-@TransformFunction(names = {"atan2d"})
-public class Atan2dFunction implements ValueParser {
+@TransformFunction(names = {"unhex"})
+public class UnHexFunction implements ValueParser {
 
-    private ValueParser xParser;
-    private ValueParser yParser;
+    private ValueParser valueParser;
 
-    public Atan2dFunction(Function expr) {
-        xParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
-        yParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
+    public UnHexFunction(Function expr) {
+        valueParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object xObj = xParser.parse(sourceData, rowIndex, context);
-        Object yObj = yParser.parse(sourceData, rowIndex, context);
-
-        if (xObj == null) {
-            throw new NullPointerException("Parsed number object on the x-axis is null");
+        Object valueObj = valueParser.parse(sourceData, rowIndex, context);
+        if (valueObj == null) {
+            return null;
         }
+        return hexToString(OperatorTools.parseString(valueObj));
+    }
 
-        BigDecimal xValue = OperatorTools.parseBigDecimal(xObj);
-        BigDecimal yValue = OperatorTools.parseBigDecimal(yObj);
-
-        return Math.toDegrees(Math.atan2(xValue.doubleValue(), yValue.doubleValue()));
+    public static String hexToString(String hex) {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < hex.length(); i += 2) {
+            String str = hex.substring(i, i + 2);
+            char ch = (char) Integer.parseInt(str, 16);
+            output.append(ch);
+        }
+        return output.toString();
     }
 }

@@ -15,34 +15,51 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.flowcontrol;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
+import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.math.BigDecimal;
-
 /**
- * AtandFunction
- * description: atand(numeric)--returns the arc tangent of numeric in units of degrees
+ * IsNullFunction
+ * description: isnull(expr)
+ * - return true if expr is NULL
+ * - return false otherwise.
  */
-@TransformFunction(names = {"atand"})
-public class AtandFunction implements ValueParser {
+@TransformFunction(names = {"isnull"})
+public class IsNullFunction implements ValueParser {
 
-    private ValueParser numberParser;
+    private ValueParser stringParser;
+    private ExpressionOperator operator;
 
-    public AtandFunction(Function expr) {
-        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public IsNullFunction(Function expr) {
+        Expression expression = expr.getParameters().getExpressions().get(0);
+        try {
+            stringParser = OperatorTools.buildParser(expression);
+        } catch (Exception e) {
+            operator = OperatorTools.buildOperator(expression);
+        }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.toDegrees(Math.atan(numberValue.doubleValue()));
+        Object val = null;
+        try {
+            if (stringParser != null) {
+                val = stringParser.parse(sourceData, rowIndex, context);
+            } else {
+                val = operator.check(sourceData, rowIndex, context);
+            }
+        } catch (Exception ignored) {
+
+        }
+        return val == null;
     }
 }

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -30,20 +31,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpCountFunction
- * description: REGEXP_COUNT(str, regexp)--Returns the number of times str matches the regexp pattern.
- *              regexp must be a Java regular expression.
- *              Returns an INTEGER representation of the number of matches.
+ * RegexpInstrFunction
+ * description: REGEXP_INSTR(str, regexp)--Returns the position of the first substring in str that matches regexp.
+ *              Result indexes begin at 1, 0 if there is no match.
+ *              Returns an INTEGER representation of the first matched substring index.
  *              NULL if any of the arguments are NULL or regexp is invalid.
  */
-@TransformFunction(names = {"regexp_count"})
-public class RegexpCountFunction implements ValueParser {
+@TransformFunction(names = {"regexp_instr"})
+public class RegexpInstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;
 
     private ValueParser patternStringParser;
 
-    public RegexpCountFunction(Function expr) {
+    public RegexpInstrFunction(Function expr) {
         if (expr.getParameters() != null) {
             List<Expression> expressions = expr.getParameters().getExpressions();
             if (expressions != null && expressions.size() >= 2) {
@@ -62,10 +63,10 @@ public class RegexpCountFunction implements ValueParser {
         String patternString = OperatorTools.parseString(patternStringParser.parse(sourceData, rowIndex, context));
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(inputString);
-        int count = 0;
-        while (matcher.find()) {
-            count++;
+        if (matcher.find()) {
+            return matcher.start() + 1;
+        } else {
+            return 0;
         }
-        return count;
     }
 }

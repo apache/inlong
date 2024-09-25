@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -27,22 +28,29 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * TandFunction
- * description: tand(numeric)--returns the tangent of numeric in units of degrees
+ * CotdFunction
+ * description: cotd(numeric)--returns the cotangent of numeric in units of degrees
  */
-@TransformFunction(names = {"tand"})
-public class TandFunction implements ValueParser {
+@TransformFunction(names = {"cotd"})
+public class CotdFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    public TandFunction(Function expr) {
+    public CotdFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.tan(Math.toRadians(numberValue.doubleValue()));
+        Object valueObj = numberParser.parse(sourceData, rowIndex, context);
+
+        BigDecimal value = OperatorTools.parseBigDecimal(valueObj);
+
+        // Calculate tan(x) and take the inverse to find cot(x)
+        double tanValue = Math.tan(Math.toRadians(value.doubleValue()));
+        if (tanValue == 0) {
+            throw new ArithmeticException("Cotangent undefined for this input, tan(x) is zero.");
+        }
+        return 1.0 / tanValue;
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process;
+package org.apache.inlong.sdk.transform.process.function.flowcontrol;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sdk.transform.process.converter.DoubleConverter;
 import org.apache.inlong.sdk.transform.process.converter.LongConverter;
 import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
@@ -33,7 +34,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestBetweenAndOperator {
+public class TestIfFunction extends AbstractFunctionFlowControlTestBase {
 
     private static final List<FieldInfo> srcFields = new ArrayList<>();
     private static final List<FieldInfo> dstFields = new ArrayList<>();

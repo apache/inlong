@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -26,42 +27,40 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 /**
- * RegexpReplaceFunction
- * description: REGEXP_REPLACE(string1, string2, string3)--Returns a string from STRING1 with all the substrings that
- *              match a regular expression STRING2 consecutively being replaced with STRING3.
+ * RegexpFunction
+ * description: REGEX(string1, string2)--Returns TRUE if any (possibly empty) substring of string1 matches the Java
+ *              regular expression string2, otherwise FALSE. Returns NULL if any of arguments is NULL.
+ *              SIMILAR(string1, string2)--Same as above
  */
-@TransformFunction(names = {"regexp_replace"})
-public class RegexpReplaceFunction implements ValueParser {
+@TransformFunction(names = {"regex", "similar", "regexp_like"})
+public class RegexpFunction implements ValueParser {
 
-    private ValueParser inputStringParser;
+    private ValueParser inputParser;
 
-    private ValueParser patternStringParser;
+    private ValueParser patternParser;
 
-    private ValueParser replaceStringParser;
-
-    public RegexpReplaceFunction(Function expr) {
+    public RegexpFunction(Function expr) {
         if (expr.getParameters() != null) {
             List<Expression> expressions = expr.getParameters().getExpressions();
-            if (expressions != null && expressions.size() >= 3) {
-                inputStringParser = OperatorTools.buildParser(expressions.get(0));
-                patternStringParser = OperatorTools.buildParser(expressions.get(1));
-                replaceStringParser = OperatorTools.buildParser(expressions.get(2));
+            if (expressions != null && expressions.size() == 2) {
+                inputParser = OperatorTools.buildParser(expressions.get(0));
+                patternParser = OperatorTools.buildParser(expressions.get(1));
             }
         }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        if (inputStringParser == null || patternStringParser == null || replaceStringParser == null) {
+        if (inputParser == null || patternParser == null) {
             return null;
         }
-        String inputString = OperatorTools.parseString(inputStringParser.parse(sourceData, rowIndex, context));
-        String patternString = OperatorTools.parseString(patternStringParser.parse(sourceData, rowIndex, context));
-        String replaceString = OperatorTools.parseString(replaceStringParser.parse(sourceData, rowIndex, context));
+        String inputString = OperatorTools.parseString(inputParser.parse(sourceData, rowIndex, context));
+        String patternString = OperatorTools.parseString(patternParser.parse(sourceData, rowIndex, context));
         Pattern pattern = Pattern.compile(patternString);
-        return pattern.matcher(inputString).replaceAll(replaceString);
+        Matcher matcher = pattern.matcher(inputString);
+        return matcher.find();
     }
 }

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -27,22 +28,32 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SindFunction
- * description: sind(numeric)--returns the sine of numeric in units of degrees
+ * Atan2dFunction
+ * description: asind(numeric)--returns the arc sine of numeric in units of degrees
  */
-@TransformFunction(names = {"sind"})
-public class SindFunction implements ValueParser {
+@TransformFunction(names = {"atan2d"})
+public class Atan2dFunction implements ValueParser {
 
-    private ValueParser numberParser;
+    private ValueParser xParser;
+    private ValueParser yParser;
 
-    public SindFunction(Function expr) {
-        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public Atan2dFunction(Function expr) {
+        xParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        yParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.sin(Math.toRadians(numberValue.doubleValue()));
+        Object xObj = xParser.parse(sourceData, rowIndex, context);
+        Object yObj = yParser.parse(sourceData, rowIndex, context);
+
+        if (xObj == null) {
+            throw new NullPointerException("Parsed number object on the x-axis is null");
+        }
+
+        BigDecimal xValue = OperatorTools.parseBigDecimal(xObj);
+        BigDecimal yValue = OperatorTools.parseBigDecimal(yObj);
+
+        return Math.toDegrees(Math.atan2(xValue.doubleValue(), yValue.doubleValue()));
     }
 }

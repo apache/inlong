@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -27,15 +28,15 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * AcosdFunction
- * description: acosd(numeric)--returns the arc cosine of numeric in units of degrees
+ * SindFunction
+ * description: sind(numeric)--returns the sine of numeric in units of degrees
  */
-@TransformFunction(names = {"acosd"})
-public class AcosdFunction implements ValueParser {
+@TransformFunction(names = {"sind"})
+public class SindFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    public AcosdFunction(Function expr) {
+    public SindFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
@@ -43,6 +44,6 @@ public class AcosdFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return Math.toDegrees(Math.acos(numberValue.doubleValue()));
+        return Math.sin(Math.toRadians(numberValue.doubleValue()));
     }
 }

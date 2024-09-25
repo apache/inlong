@@ -15,34 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpExtractAllFunction
- * description: REGEXP_EXTRACT_ALL(str, regexp[, extractIndex])--Returns an ARRAY representation of all the matched substrings.
- *              NULL if any of the arguments are NULL or invalid.Extracts all the substrings in str that match the regexp
- *              expression and correspond to the regexp group extractIndex. regexp may contain multiple groups. extractIndex
- *              indicates which regexp group to extract and starts from 1, also the default value if not specified.
- *              0 means matching the entire regular expression.
- * for example: REGEXP_EXTRACT_ALL("abc123def456ghi789", "(\\d+)", 0)--return [123, 456, 789]
- *              REGEXP_EXTRACT_ALL("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 1)--return [John]
- *              REGEXP_EXTRACT_ALL("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 0)--return [Name: John, Age: 25, Location: NY]
+ * RegexpExtractFunction
+ * description: REGEXP_EXTRACT(string1, string2[, integer])--Returns a string from string1 which extracted with a specified
+ *              regular expression string2 and a regexp match group index integer.The regexp match group index starts
+ *              from 1 and 0 means matching the whole regexp. In addition, the regexp match group index should not exceed
+ *              the number of the defined groups.
+ * for example: REGEXP_EXTRACT("abc123def", "(\\d+)", 1)--return 123
+ *              REGEXP_EXTRACT("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 2)--return 25
+ *              REGEXP_EXTRACT("abc123def", "(\\d+)", 2)--return null
+ *              REGEXP_EXTRACT("abc123def", "abcdef", 1)--return null
  */
-@TransformFunction(names = {"regexp_extract_all"})
-public class RegexpExtractAllFunction implements ValueParser {
+@TransformFunction(names = {"regexp_extract"})
+public class RegexpExtractFunction implements ValueParser {
 
     private ValueParser inputStringParser;
 
@@ -50,45 +50,36 @@ public class RegexpExtractAllFunction implements ValueParser {
 
     private ValueParser indexIntegerParser;
 
-    public RegexpExtractAllFunction(Function expr) {
+    public RegexpExtractFunction(Function expr) {
         if (expr.getParameters() != null) {
             List<Expression> expressions = expr.getParameters().getExpressions();
-            if (expressions != null && expressions.size() >= 2) {
+            if (expressions != null && expressions.size() >= 3) {
                 inputStringParser = OperatorTools.buildParser(expressions.get(0));
                 patternStringParser = OperatorTools.buildParser(expressions.get(1));
-                if (expressions.size() >= 3) {
-                    indexIntegerParser = OperatorTools.buildParser(expressions.get(2));
-                }
+                indexIntegerParser = OperatorTools.buildParser(expressions.get(2));
             }
         }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        if (inputStringParser == null || patternStringParser == null) {
+        if (inputStringParser == null || patternStringParser == null || indexIntegerParser == null) {
             return null;
         }
         String inputString = OperatorTools.parseString(inputStringParser.parse(sourceData, rowIndex, context));
         String patternString = OperatorTools.parseString(patternStringParser.parse(sourceData, rowIndex, context));
-        int index = 0;
-        if (indexIntegerParser != null) {
-            index = OperatorTools.parseBigDecimal(indexIntegerParser.parse(sourceData, rowIndex, context)).intValue();
-        }
-        if (index < 0) {
+        int indexInteger =
+                OperatorTools.parseBigDecimal(indexIntegerParser.parse(sourceData, rowIndex, context)).intValue();
+        if (indexInteger < 0) {
             return null;
         }
-        List<String> resultList = new ArrayList<>();
-
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(inputString);
-        while (matcher.find()) {
-            if (index <= matcher.groupCount()) {
-                resultList.add(matcher.group(index));
-            } else {
-                return null;
+        if (matcher.find()) {
+            if (indexInteger <= matcher.groupCount()) {
+                return matcher.group(indexInteger);
             }
         }
-
-        return resultList.isEmpty() ? null : resultList;
+        return null;
     }
 }

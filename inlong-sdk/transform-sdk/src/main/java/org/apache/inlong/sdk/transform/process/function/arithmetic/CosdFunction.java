@@ -15,50 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
+import java.math.BigDecimal;
+
 /**
- * IsNullFunction
- * description: isnull(expr)
- * - return true if expr is NULL
- * - return false otherwise.
+ * CosdFunction
+ * description: cosd(numeric)--returns the cosine of numeric in units of degrees
  */
-@TransformFunction(names = {"isnull"})
-public class IsNullFunction implements ValueParser {
+@TransformFunction(names = {"cosd"})
+public class CosdFunction implements ValueParser {
 
-    private ValueParser stringParser;
-    private ExpressionOperator operator;
+    private ValueParser numberParser;
 
-    public IsNullFunction(Function expr) {
-        Expression expression = expr.getParameters().getExpressions().get(0);
-        try {
-            stringParser = OperatorTools.buildParser(expression);
-        } catch (Exception e) {
-            operator = OperatorTools.buildOperator(expression);
-        }
+    public CosdFunction(Function expr) {
+        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object val = null;
-        try {
-            if (stringParser != null) {
-                val = stringParser.parse(sourceData, rowIndex, context);
-            } else {
-                val = operator.check(sourceData, rowIndex, context);
-            }
-        } catch (Exception ignored) {
-
-        }
-        return val == null;
+        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
+        return Math.cos(Math.toRadians(numberValue.doubleValue()));
     }
 }

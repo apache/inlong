@@ -15,46 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 
+import java.math.BigDecimal;
+
 /**
- * UnHexFunction  -> unhex(str)
- * description: unhex(str) interprets each pair of characters in the argument as a hexadecimal number and converts it to the byte represented by the number.
- * return null if str is null;
- * return a binary string otherwise.
+ * AtandFunction
+ * description: atand(numeric)--returns the arc tangent of numeric in units of degrees
  */
-@TransformFunction(names = {"unhex"})
-public class UnHexFunction implements ValueParser {
+@TransformFunction(names = {"atand"})
+public class AtandFunction implements ValueParser {
 
-    private ValueParser valueParser;
+    private ValueParser numberParser;
 
-    public UnHexFunction(Function expr) {
-        valueParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public AtandFunction(Function expr) {
+        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object valueObj = valueParser.parse(sourceData, rowIndex, context);
-        if (valueObj == null) {
-            return null;
-        }
-        return hexToString(OperatorTools.parseString(valueObj));
-    }
-
-    public static String hexToString(String hex) {
-        StringBuilder output = new StringBuilder();
-        for (int i = 0; i < hex.length(); i += 2) {
-            String str = hex.substring(i, i + 2);
-            char ch = (char) Integer.parseInt(str, 16);
-            output.append(ch);
-        }
-        return output.toString();
+        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
+        return Math.toDegrees(Math.atan(numberValue.doubleValue()));
     }
 }

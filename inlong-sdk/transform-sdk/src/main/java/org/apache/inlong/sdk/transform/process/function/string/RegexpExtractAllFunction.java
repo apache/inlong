@@ -15,40 +15,51 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpInstrFunction
- * description: REGEXP_INSTR(str, regexp)--Returns the position of the first substring in str that matches regexp.
- *              Result indexes begin at 1, 0 if there is no match.
- *              Returns an INTEGER representation of the first matched substring index.
- *              NULL if any of the arguments are NULL or regexp is invalid.
+ * RegexpExtractAllFunction
+ * description: REGEXP_EXTRACT_ALL(str, regexp[, extractIndex])--Returns an ARRAY representation of all the matched substrings.
+ *              NULL if any of the arguments are NULL or invalid.Extracts all the substrings in str that match the regexp
+ *              expression and correspond to the regexp group extractIndex. regexp may contain multiple groups. extractIndex
+ *              indicates which regexp group to extract and starts from 1, also the default value if not specified.
+ *              0 means matching the entire regular expression.
+ * for example: REGEXP_EXTRACT_ALL("abc123def456ghi789", "(\\d+)", 0)--return [123, 456, 789]
+ *              REGEXP_EXTRACT_ALL("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 1)--return [John]
+ *              REGEXP_EXTRACT_ALL("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 0)--return [Name: John, Age: 25, Location: NY]
  */
-@TransformFunction(names = {"regexp_instr"})
-public class RegexpInstrFunction implements ValueParser {
+@TransformFunction(names = {"regexp_extract_all"})
+public class RegexpExtractAllFunction implements ValueParser {
 
     private ValueParser inputStringParser;
 
     private ValueParser patternStringParser;
 
-    public RegexpInstrFunction(Function expr) {
+    private ValueParser indexIntegerParser;
+
+    public RegexpExtractAllFunction(Function expr) {
         if (expr.getParameters() != null) {
             List<Expression> expressions = expr.getParameters().getExpressions();
             if (expressions != null && expressions.size() >= 2) {
                 inputStringParser = OperatorTools.buildParser(expressions.get(0));
                 patternStringParser = OperatorTools.buildParser(expressions.get(1));
+                if (expressions.size() >= 3) {
+                    indexIntegerParser = OperatorTools.buildParser(expressions.get(2));
+                }
             }
         }
     }
@@ -60,12 +71,25 @@ public class RegexpInstrFunction implements ValueParser {
         }
         String inputString = OperatorTools.parseString(inputStringParser.parse(sourceData, rowIndex, context));
         String patternString = OperatorTools.parseString(patternStringParser.parse(sourceData, rowIndex, context));
+        int index = 0;
+        if (indexIntegerParser != null) {
+            index = OperatorTools.parseBigDecimal(indexIntegerParser.parse(sourceData, rowIndex, context)).intValue();
+        }
+        if (index < 0) {
+            return null;
+        }
+        List<String> resultList = new ArrayList<>();
+
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(inputString);
-        if (matcher.find()) {
-            return matcher.start() + 1;
-        } else {
-            return 0;
+        while (matcher.find()) {
+            if (index <= matcher.groupCount()) {
+                resultList.add(matcher.group(index));
+            } else {
+                return null;
+            }
         }
+
+        return resultList.isEmpty() ? null : resultList;
     }
 }
