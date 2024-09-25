@@ -61,6 +61,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_FILE_CONTENT_COLLECT_TYPE = "task.fileTask.contentCollectType";
     public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
     public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
+    public static final String SOURCE_FILTER_STREAMS = "task.fileTask.filterStreams";
     public static final String TASK_RETRY = "task.fileTask.retry";
     public static final String TASK_START_TIME = "task.fileTask.startTime";
     public static final String TASK_END_TIME = "task.fileTask.endTime";
@@ -68,7 +69,7 @@ public class TaskConstants extends CommonConstants {
     public static final String PREDEFINE_FIELDS = "task.predefinedFields";
     public static final String FILE_SOURCE_EXTEND_CLASS = "task.fileTask.extendedClass";
     public static final String DEFAULT_FILE_SOURCE_EXTEND_CLASS =
-            "org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler";
+            "org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler";
     public static final String TASK_AUDIT_VERSION = "task.auditVersion";
 
     // Kafka task

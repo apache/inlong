@@ -79,6 +79,7 @@ public class InstanceManager extends AbstractDaemon {
     private volatile boolean runAtLeastOneTime = false;
     private volatile boolean running = false;
     private final double reserveCoefficient = 0.8;
+    private long finishedInstanceCount = 0;
 
     private class InstancePrintStat {
 
@@ -318,6 +319,8 @@ public class InstanceManager extends AbstractDaemon {
     private void addInstance(InstanceProfile profile) {
         if (instanceMap.size() >= instanceLimit) {
             LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+            actionQueue.offer(new InstanceAction(ActionType.ADD, profile));
+            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
             return;
         }
         LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
@@ -337,6 +340,7 @@ public class InstanceManager extends AbstractDaemon {
         deleteFromMemory(profile.getInstanceId());
         LOGGER.info("finished instance state {} taskId {} instanceId {}", profile.getState(),
                 profile.getTaskId(), profile.getInstanceId());
+        finishedInstanceCount++;
     }
 
     private void deleteInstance(String instanceId) {
@@ -458,23 +462,14 @@ public class InstanceManager extends AbstractDaemon {
         return (instanceMap.size() + actionQueue.size()) >= instanceLimit * reserveCoefficient;
     }
 
-    public boolean allInstanceFinished() {
-        if (!runAtLeastOneTime) {
-            return false;
-        }
-        if (!instanceMap.isEmpty()) {
-            return false;
-        }
-        if (!actionQueue.isEmpty()) {
-            return false;
-        }
+    public long getFinishedInstanceCount() {
+        int count = 0;
         List<InstanceProfile> instances = instanceStore.getInstances(taskId);
         for (int i = 0; i < instances.size(); i++) {
-            InstanceProfile profile = instances.get(i);
-            if (profile.getState() != InstanceStateEnum.FINISHED) {
-                return false;
+            if (instances.get(i).getState() == InstanceStateEnum.FINISHED) {
+                count++;
             }
         }
-        return true;
+        return count;
     }
 }

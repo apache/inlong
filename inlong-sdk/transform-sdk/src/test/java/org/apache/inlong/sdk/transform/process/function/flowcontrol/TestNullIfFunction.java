@@ -52,7 +52,7 @@ public class TestNullIfFunction extends AbstractFunctionFlowControlTestBase {
         data = "5|5|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case3: nullif(null,3)
         transformSql = "select nullif(xxd,numeric2) from source";
@@ -63,6 +63,6 @@ public class TestNullIfFunction extends AbstractFunctionFlowControlTestBase {
         data = "5|3|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }

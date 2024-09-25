@@ -60,7 +60,7 @@ public class TestCompressFunction extends AbstractFunctionStringTestBase {
         // case3: length(compress(null))
         output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         transformSql = "select length(compress(string1,string2)) from source";
         config = new TransformConfig(transformSql);
@@ -80,6 +80,6 @@ public class TestCompressFunction extends AbstractFunctionStringTestBase {
         // case5: length(compress('hello world','undefinedType'))
         output1 = processor1.transform("hello world|undefinedType|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
     }
 }

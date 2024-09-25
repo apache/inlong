@@ -55,7 +55,8 @@ public interface InlongClusterNodeEntityMapper {
      */
     int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus, @Param("status") Integer status);
 
-    int updateOperateLogById(@Param("id") Integer id, @Param("operateLog") String operateLog);
+    int updateOperateLogById(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus,
+            @Param("operateLog") String operateLog);
 
     int deleteById(Integer id);
 

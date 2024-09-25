@@ -59,6 +59,6 @@ public class TestChrFunction extends AbstractFunctionArithmeticTestBase {
         // case3: chr(null)
         List<String> output3 = processor2.transform("|5|6|8|1|9", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals(output3.get(0), "result=null");
+        Assert.assertEquals(output3.get(0), "result=");
     }
 }
