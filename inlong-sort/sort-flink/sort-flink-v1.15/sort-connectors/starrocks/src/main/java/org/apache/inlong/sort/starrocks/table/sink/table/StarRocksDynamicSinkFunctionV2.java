@@ -101,6 +101,9 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
     private SchemaUtils schemaUtils;
     private String stateKey;
 
+    /** The map to store the start time of each checkpoint. */
+    private transient Map<Long, Long> checkpointStartTimeMap;
+
     public StarRocksDynamicSinkFunctionV2(StarRocksSinkOptions sinkOptions,
             TableSchema schema,
             StarRocksIRowTransformer<T> rowTransformer, String inlongMetric,
@@ -208,12 +211,26 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
         flushLegacyData();
 
         Object[] data = rowTransformer.transform(value, sinkOptions.supportUpsertDelete());
-
+        long serializeStartTime = System.currentTimeMillis();
+        String serializedData;
+        try {
+            serializedData = serializer.serialize(data);
+        } catch (Exception e) {
+            log.error("Failed to serialize data", e);
+            if (sinkExactlyMetric != null) {
+                sinkExactlyMetric.incNumSerializeError();
+            }
+            return;
+        }
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.incNumSerializeSuccess();
+            sinkExactlyMetric.recordSerializeDelay(System.currentTimeMillis() - serializeStartTime);
+        }
         sinkManager.write(
                 null,
                 sinkOptions.getDatabaseName(),
                 sinkOptions.getTableName(),
-                serializer.serialize(schemaUtils.filterOutTimeField(data)));
+                serializedData);
 
         ouputMetrics(value, data);
     }
@@ -243,6 +260,8 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
         commitTransaction(Long.MAX_VALUE);
         log.info("Open sink function v2. {}", EnvUtils.getGitInformation());
+
+        checkpointStartTimeMap = new HashMap<>();
     }
 
     @Override
@@ -266,10 +285,16 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+        // record the start time of each checkpoint
+        checkpointStartTimeMap.put(functionSnapshotContext.getCheckpointId(), System.currentTimeMillis());
+
         updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
         sinkManager.flush();
 
         if (sinkOptions.getSemantic() != StarRocksSinkSemantic.EXACTLY_ONCE) {
+            if (sinkExactlyMetric != null) {
+                sinkExactlyMetric.incNumSnapshotCreate();
+            }
             return;
         }
 
@@ -280,8 +305,15 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
             snapshotStates.clear();
             snapshotStates.add(StarrocksSnapshotState.of(snapshotMap));
+            if (sinkExactlyMetric != null) {
+                sinkExactlyMetric.incNumSnapshotCreate();
+            }
         } else {
             sinkManager.abort(snapshot);
+            checkpointStartTimeMap.remove(functionSnapshotContext.getCheckpointId());
+            if (sinkExactlyMetric != null) {
+                sinkExactlyMetric.incNumSnapshotError();
+            }
             throw new RuntimeException("Snapshot state failed by prepare");
         }
 
@@ -343,6 +375,15 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
         commitTransaction(checkpointId);
         flushAudit();
         updateLastCheckpointId(checkpointId);
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.incNumSnapshotComplete();
+        }
+        // get the start time of the currently completed checkpoint
+        Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
+        if (snapShotStartTimeById != null && sinkExactlyMetric != null) {
+            sinkExactlyMetric
+                    .recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
+        }
     }
 
     private void commitTransaction(long checkpointId) {
