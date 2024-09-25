@@ -63,6 +63,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -138,6 +139,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private UserService userService;
     // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
 
@@ -449,7 +452,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
         chkUnmodifiableParams(curEntity, request);
-        groupCheckService.checkGroupStatus(request.getInlongGroupId(), operator);
+        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(request.getInlongGroupId(), operator);
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to update sink info");
         // Check whether the stream exist or not
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
                 request.getInlongGroupId(), request.getInlongStreamId());
@@ -526,7 +531,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
 
-        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to delete sink info");
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         sinkOperator.deleteOpt(entity, operator);
@@ -553,7 +560,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.expectNotNull(entity, String.format("stream sink not exist by groupId=%s streamId=%s sinkName=%s",
                 groupId, streamId, sinkName));
 
-        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to delete sink info");
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         sinkOperator.deleteOpt(entity, operator);
