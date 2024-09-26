@@ -21,15 +21,13 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.pojo.IntervalInfo;
 import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.time.temporal.ChronoField;
 import java.util.List;
-import java.util.Map;
 
 /**
  * DateAddFunction
@@ -50,8 +48,8 @@ import java.util.Map;
 @TransformFunction(names = {"date_add"})
 public class DateAddFunction implements ValueParser {
 
-    private ValueParser datetimeParser;
-    private ValueParser intervalParser;
+    private final ValueParser datetimeParser;
+    private final ValueParser intervalParser;
 
     public DateAddFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
@@ -61,12 +59,12 @@ public class DateAddFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object intervalPairObj = intervalParser.parse(sourceData, rowIndex, context);
+        Object intervalInfoObj = intervalParser.parse(sourceData, rowIndex, context);
         Object dateObj = datetimeParser.parse(sourceData, rowIndex, context);
-        if (intervalPairObj == null || dateObj == null) {
+        if (intervalInfoObj == null || dateObj == null) {
             return null;
         }
-        return DateUtil.dateAdd(OperatorTools.parseString(dateObj),
-                (Pair<Integer, Map<ChronoField, Long>>) intervalPairObj, 1);
+        return DateUtil.dateTypeAdd(OperatorTools.parseString(dateObj),
+                (IntervalInfo) intervalInfoObj, true);
     }
 }

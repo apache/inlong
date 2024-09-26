@@ -20,24 +20,23 @@ package org.apache.inlong.sdk.transform.process.parser;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.pojo.IntervalInfo;
 import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
-import java.time.temporal.ChronoField;
-import java.util.Map;
 
 /**
  * SubtractionParser
+ * Description: Support subtraction between numerical values and time
  */
 @TransformParser(values = Subtraction.class)
 public class SubtractionParser implements ValueParser {
 
-    private ValueParser left;
+    private final ValueParser left;
 
-    private ValueParser right;
+    private final ValueParser right;
 
     public SubtractionParser(Subtraction expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
@@ -58,13 +57,13 @@ public class SubtractionParser implements ValueParser {
                 intervalParser = (IntervalParser) this.right;
                 dateParser = this.left;
             }
-            Object intervalPairObj = intervalParser.parse(sourceData, rowIndex, context);
+            Object intervalInfoObj = intervalParser.parse(sourceData, rowIndex, context);
             Object dateObj = dateParser.parse(sourceData, rowIndex, context);
-            if (intervalPairObj == null || dateObj == null) {
+            if (intervalInfoObj == null || dateObj == null) {
                 return null;
             }
-            return DateUtil.dateAdd(OperatorTools.parseString(dateObj),
-                    (Pair<Integer, Map<ChronoField, Long>>) intervalPairObj, -1);
+            return DateUtil.dateTypeAdd(OperatorTools.parseString(dateObj),
+                    (IntervalInfo) intervalInfoObj, false);
         } else {
             return numericalOperation(sourceData, rowIndex, context);
         }
