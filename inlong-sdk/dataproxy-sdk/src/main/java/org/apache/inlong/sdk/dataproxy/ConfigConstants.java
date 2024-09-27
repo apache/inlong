@@ -73,5 +73,6 @@ public class ConfigConstants {
 
     public static String HTTP = "http://";
     public static String HTTPS = "https://";
+    public static int MAX_MESSAGE_LENGTH = 500 * 1024;
 
 }
