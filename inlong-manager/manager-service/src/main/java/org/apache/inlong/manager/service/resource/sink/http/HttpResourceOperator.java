@@ -43,11 +43,11 @@ public class HttpResourceOperator extends AbstractStandaloneSinkResourceOperator
     @Override
     public void createSinkResource(SinkInfo sinkInfo) {
         LOG.info("begin to create sink resources sinkId={}", sinkInfo.getId());
-        if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
-            LOG.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
-            return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
+        if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+            return;
+        } else if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
+            LOG.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
         }
         this.checkTaskAndConsumerGroup(sinkInfo);
