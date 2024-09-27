@@ -24,10 +24,10 @@ import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * DivisionParser
- * 
  */
 @TransformParser(values = Division.class)
 public class DivisionParser implements ValueParser {
@@ -36,23 +36,24 @@ public class DivisionParser implements ValueParser {
 
     private ValueParser right;
 
+    private final int DEFAULT_SCALE_DIFFERENCE = 4;
+
     public DivisionParser(Division expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object leftObj = this.left.parse(sourceData, rowIndex, context);
         Object rightObj = this.right.parse(sourceData, rowIndex, context);
         BigDecimal leftValue = OperatorTools.parseBigDecimal(leftObj);
         BigDecimal rightValue = OperatorTools.parseBigDecimal(rightObj);
-        return leftValue.divide(rightValue);
+        try {
+            return leftValue.divide(rightValue);
+        } catch (Exception e) {
+            int scale = Math.max(leftValue.scale(), rightValue.scale()) + DEFAULT_SCALE_DIFFERENCE;
+            return leftValue.divide(rightValue, scale, RoundingMode.HALF_UP);
+        }
     }
 }
