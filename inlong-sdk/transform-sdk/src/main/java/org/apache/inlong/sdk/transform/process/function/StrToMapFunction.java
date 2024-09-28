@@ -28,7 +28,14 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * StrToMapFunction
+ * description: str_to_map(string1, string2, string3) - Returns a map after splitting the string1 into key/value pairs
+ *              using delimiters. string2 is the pair delimiter, default is ‘,’. And string3 is the key-value delimiter,
+ *              default is ‘=’. Both pair delimiter and key-value delimiter are treated as regular expressions.So special
+ *              characters (e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter literally.
+ * for example: STR_TO_MAP('item1:10,item2:5,item3:2', ':', ',')--{'item1' -> 10, 'item2' -> 5, 'item3' -> 2}
+ */
 @TransformFunction(names = {"str_to_map"})
 public class StrToMapFunction implements ValueParser {
 
