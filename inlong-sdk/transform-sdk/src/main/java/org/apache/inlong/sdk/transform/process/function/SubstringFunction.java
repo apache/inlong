@@ -33,7 +33,7 @@ import java.util.List;
  * description:
  * return a substring of STRING starting from position INT1 with length INT2 (to the end by default)
  */
-@TransformFunction(names = {"substring", "substr"})
+@TransformFunction(names = {"substring", "substr", "mid"})
 public class SubstringFunction implements ValueParser {
 
     private ValueParser stringParser;
