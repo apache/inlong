@@ -27,8 +27,9 @@ import net.sf.jsqlparser.expression.Function;
 /**
  * TrimFunction
  * description: trim(string)--Remove Spaces before and after the string.
+ *              btrim(string)--Remove Spaces before and after the string.
  */
-@TransformFunction(names = {"trim"})
+@TransformFunction(names = {"trim", "btrim"})
 public class TrimFunction implements ValueParser {
 
     private ValueParser stringParser;
