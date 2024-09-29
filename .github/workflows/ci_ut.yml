@@ -57,6 +57,9 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-22.04
     steps:
+      - name: Clean docker images
+        run: docker image prune
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -123,6 +126,3 @@ jobs:
 
       - name: Clean up build packages
         run: mvn clean
-
-      - name: Clean docker images
-        run: docker image prune
