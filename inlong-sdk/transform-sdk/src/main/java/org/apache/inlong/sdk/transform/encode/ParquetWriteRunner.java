@@ -17,26 +17,12 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
-import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
-import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
-import org.apache.inlong.sdk.transform.pojo.ParquetSinkInfo;
+public interface ParquetWriteRunner<T> {
 
-public class SinkEncoderFactory {
-
-    public static CsvSinkEncoder createCsvEncoder(CsvSinkInfo csvSinkInfo) {
-        return new CsvSinkEncoder(csvSinkInfo);
-    }
-
-    public static KvSinkEncoder createKvEncoder(KvSinkInfo kvSinkInfo) {
-        return new KvSinkEncoder(kvSinkInfo);
-    }
-
-    public static MapSinkEncoder createMapEncoder(MapSinkInfo mapSinkInfo) {
-        return new MapSinkEncoder(mapSinkInfo);
-    }
-
-    public static ParquetSinkEncoder createParquetEncoder(ParquetSinkInfo parquetSinkInfo) {
-        return new ParquetSinkEncoder(parquetSinkInfo);
-    }
+    /**
+     * Write the specified record into the Parquet row by the supplied writer.
+     * @param record data that needs to be written
+     * @param valueWriter parquet data writer
+     */
+    void doWrite(T record, ParquetValueWriter valueWriter);
 }
