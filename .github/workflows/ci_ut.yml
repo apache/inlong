@@ -123,3 +123,6 @@ jobs:
 
       - name: Clean up build packages
         run: mvn clean
+
+      - name: Clean docker images
+        run: docker image prune
