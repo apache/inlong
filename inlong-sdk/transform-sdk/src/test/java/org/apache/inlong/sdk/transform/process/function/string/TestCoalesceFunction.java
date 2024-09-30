@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,10 +39,9 @@ public class TestCoalesceFunction extends AbstractFunctionStringTestBase {
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
         // case1: coalesce('Transform SQL', 'SQL', 'hh')
-        /*
-         * List<String> output1 = processor1.transform("Transform SQL|SQL|hh", new HashMap<>()); Assert.assertEquals(1,
-         * output1.size()); Assert.assertEquals(output1.get(0), "result=Transform SQL");
-         */
+        List<String> output1 = processor1.transform("Transform SQL|SQL|hh", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=Transform SQL");
 
         // case2: coalesce('', 'SQL', 'hh')
         List<String> output2 = processor1.transform("|SQL|hh", new HashMap<>());
