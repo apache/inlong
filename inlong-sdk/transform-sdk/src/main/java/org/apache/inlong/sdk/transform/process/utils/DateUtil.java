@@ -24,19 +24,28 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DateUtil {
 
     // Need to follow this order
-    private static final List<DateTimeFormatter> DATE_TIME_FORMATTER_LIST = Arrays.asList(
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"),
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-            DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    private static final List<DateTimeFormatter> TIME_FORMATTER_LIST = Arrays.asList(
-            DateTimeFormatter.ofPattern("HH:mm:ss.SSSSSS"), DateTimeFormatter.ofPattern("HH:mm:ss"));
+    private static final Map<String, DateTimeFormatter> DATE_TIME_FORMATTER_MAP = new LinkedHashMap<>();
+    private static final Map<String, DateTimeFormatter> TIME_FORMATTER_MAP = new LinkedHashMap<>();
+    public static String YEAR_TO_MICRO = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+    public static String YEAR_TO_SECOND = "yyyy-MM-dd HH:mm:ss";
+    public static String YEAR_TO_MONTH = "yyyy-MM-dd";
+    public static String HOUR_TO_MICRO = "HH:mm:ss.SSSSSS";
+    public static String HOUR_TO_SECOND = "HH:mm:ss";
+
+    static {
+        DATE_TIME_FORMATTER_MAP.put(YEAR_TO_MICRO, DateTimeFormatter.ofPattern(YEAR_TO_MICRO));
+        DATE_TIME_FORMATTER_MAP.put(YEAR_TO_SECOND, DateTimeFormatter.ofPattern(YEAR_TO_SECOND));
+        DATE_TIME_FORMATTER_MAP.put(YEAR_TO_MONTH, DateTimeFormatter.ofPattern(YEAR_TO_MONTH));
+
+        TIME_FORMATTER_MAP.put(HOUR_TO_MICRO, DateTimeFormatter.ofPattern(HOUR_TO_MICRO));
+        TIME_FORMATTER_MAP.put(HOUR_TO_SECOND, DateTimeFormatter.ofPattern(HOUR_TO_SECOND));
+    }
 
     /**
      * Time calculation
@@ -56,8 +65,27 @@ public class DateUtil {
             return null;
         }
 
-        Object dateParserObj = null;
-        for (DateTimeFormatter dateTimeFormatter : DATE_TIME_FORMATTER_LIST) {
+        Object dateParserObj = parseLocalDateTime(dateStr);
+        if (dateParserObj != null) {
+            return addDateTime(intervalPair, sign, (LocalDateTime) dateParserObj, dateStr);
+        }
+        dateParserObj = parseLocalTime(dateStr);
+        if (dateParserObj != null) {
+            return addTime(intervalPair, sign, (LocalTime) dateParserObj, dateStr);
+        }
+        return null;
+    }
+
+    public static LocalDateTime dateAdd(LocalDateTime localDateTime, LocalTime localTime) {
+        return localDateTime.plusHours(localTime.getHour())
+                .plusMinutes(localTime.getMinute())
+                .plusSeconds(localTime.getSecond())
+                .plusNanos(localTime.getNano());
+    }
+
+    public static LocalDateTime parseLocalDateTime(String dateStr) {
+        LocalDateTime dateParserObj = null;
+        for (DateTimeFormatter dateTimeFormatter : DATE_TIME_FORMATTER_MAP.values()) {
             try {
                 dateParserObj = LocalDateTime.parse(dateStr, dateTimeFormatter);
             } catch (Exception e) {
@@ -68,22 +96,33 @@ public class DateUtil {
                 }
             }
             if (dateParserObj != null) {
-                return addDateTime(intervalPair, sign, (LocalDateTime) dateParserObj, dateStr);
+                return dateParserObj;
             }
         }
+        return null;
+    }
 
-        for (DateTimeFormatter dateTimeFormatter : TIME_FORMATTER_LIST) {
+    public static LocalTime parseLocalTime(String dateStr) {
+        LocalTime dateParserObj = null;
+        for (DateTimeFormatter dateTimeFormatter : TIME_FORMATTER_MAP.values()) {
             try {
                 dateParserObj = LocalTime.parse(dateStr, dateTimeFormatter);
             } catch (Exception ignored) {
 
             }
             if (dateParserObj != null) {
-                return addTime(intervalPair, sign, (LocalTime) dateParserObj, dateStr);
+                return dateParserObj;
             }
         }
-
         return null;
+    }
+
+    public static DateTimeFormatter getDateTimeFormatter(String formatStr) {
+        DateTimeFormatter formatter = DATE_TIME_FORMATTER_MAP.get(formatStr);
+        if (formatter != null) {
+            return formatter;
+        }
+        return TIME_FORMATTER_MAP.get(formatStr);
     }
 
     private static String addDateTime(Pair<Integer, Map<ChronoField, Long>> intervalPair, int sign,
@@ -127,16 +166,14 @@ public class DateUtil {
                     return null;
             }
         }
-
-        String result = dateTime.toLocalDate().toString();
         if (hasTime) {
             if (hasMicroSecond) {
-                result += " " + dateTime.toLocalTime().format(TIME_FORMATTER_LIST.get(0));
+                return dateTime.format(DATE_TIME_FORMATTER_MAP.get(YEAR_TO_MICRO));
             } else {
-                result += " " + dateTime.toLocalTime().format(TIME_FORMATTER_LIST.get(1));
+                return dateTime.format(DATE_TIME_FORMATTER_MAP.get(YEAR_TO_SECOND));
             }
         }
-        return result;
+        return dateTime.toLocalDate().toString();
     }
 
     private static String addTime(Pair<Integer, Map<ChronoField, Long>> intervalPair, int sign, LocalTime time,
@@ -168,9 +205,9 @@ public class DateUtil {
         }
 
         if (hasMicroSecond) {
-            return time.format(TIME_FORMATTER_LIST.get(0));
+            return time.format(TIME_FORMATTER_MAP.get(HOUR_TO_MICRO));
         } else {
-            return time.format(TIME_FORMATTER_LIST.get(1));
+            return time.format(TIME_FORMATTER_MAP.get(HOUR_TO_SECOND));
         }
     }
 

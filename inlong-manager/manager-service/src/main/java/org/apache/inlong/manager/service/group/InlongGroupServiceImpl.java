@@ -85,6 +85,7 @@ import org.apache.inlong.manager.service.source.bounded.BoundedSourceType;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 import org.apache.inlong.manager.service.user.InlongRoleService;
+import org.apache.inlong.manager.service.user.UserService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -166,6 +167,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongRoleService inlongRoleService;
     @Autowired
     private TenantUserRoleEntityMapper tenantUserRoleEntityMapper;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     ScheduleOperator scheduleOperator;
@@ -501,6 +504,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
+        userService.checkUser(entity.getInCharges(), operator,
+                "Current user does not have permission to update group info");
         chkUnmodifiableParams(entity, request);
         // check whether the current status can be modified
         doUpdateCheck(entity, request, operator);

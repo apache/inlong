@@ -164,7 +164,6 @@
         <curator.version>4.2.0</curator.version>
 
         <avro.version>1.10.1</avro.version>
-        <bson.version>4.9.1</bson.version>
         <orc.core.version>1.6.7</orc.core.version>
         <parquet.version>1.12.2</parquet.version>
         <oro.version>2.0.8</oro.version>
@@ -201,6 +200,7 @@
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
         <otel.version>1.28.0</otel.version>
+        <otel.alpha.version>1.28.0-alpha</otel.alpha.version>
         <tencentcloud-api.version>3.1.830</tencentcloud-api.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
         <libfb303.version>0.9.3</libfb303.version>
@@ -210,12 +210,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>bson</artifactId>
-                <version>${bson.version}</version>
-            </dependency>
-
             <!--opentelemetry-->
             <dependency>
                 <groupId>io.opentelemetry</groupId>

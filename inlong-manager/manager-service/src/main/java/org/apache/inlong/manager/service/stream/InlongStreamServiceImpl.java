@@ -67,6 +67,7 @@ import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
 import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -150,6 +151,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Autowired
     @Lazy
     private SinkOperatorFactory sinkOperatorFactory;
+    @Autowired
+    private UserService userService;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -451,6 +454,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.expectNotNull(request, "inlong stream request is empty");
         String groupId = request.getInlongGroupId();
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to update stream info");
+
         String streamId = request.getInlongStreamId();
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
@@ -514,6 +524,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         // Check if it can be deleted
         this.checkGroupStatusIsTemp(groupId);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to delete stream info");
 
         InlongStreamEntity entity = streamMapper.selectByIdentifier(groupId, streamId);
         if (entity == null) {
@@ -951,6 +967,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<BriefMQMessage> listMessages(QueryMessageRequest request, String operator) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getGroupId());
+        if (groupEntity == null) {
+            throw new BusinessException(
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getGroupId()));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator, String
+                .format("Current user does not have permission to query message for groupId=%s", request.getGroupId()));
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
         InlongStreamInfo inlongStreamInfo = get(request.getGroupId(), request.getStreamId());

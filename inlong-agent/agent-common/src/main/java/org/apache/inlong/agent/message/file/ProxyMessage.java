@@ -22,7 +22,6 @@ import org.apache.inlong.agent.plugin.Message;
 
 import java.util.Map;
 
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
@@ -37,9 +36,6 @@ public class ProxyMessage implements Message {
     private final Map<String, String> header;
     private final String inlongGroupId;
     private final String inlongStreamId;
-    // determine the group key when making batch
-    private final String batchKey;
-    private final String dataKey;
     OffsetAckInfo ackInfo;
 
     public ProxyMessage(byte[] body, Map<String, String> header) {
@@ -47,18 +43,11 @@ public class ProxyMessage implements Message {
         this.header = header;
         this.inlongGroupId = header.get(PROXY_KEY_GROUP_ID);
         this.inlongStreamId = header.getOrDefault(PROXY_KEY_STREAM_ID, DEFAULT_INLONG_STREAM_ID);
-        this.dataKey = header.getOrDefault(PROXY_KEY_DATA, "");
-        // use the batch key of user and inlongStreamId to determine one batch
-        this.batchKey = dataKey + inlongStreamId;
         ackInfo = new OffsetAckInfo(header.get(TaskConstants.OFFSET), body.length, false);
     }
 
     public ProxyMessage(Message message) {
         this(message.getBody(), message.getHeader());
-    }
-
-    public String getDataKey() {
-        return dataKey;
     }
 
     /**
@@ -91,9 +80,5 @@ public class ProxyMessage implements Message {
 
     public String getInlongStreamId() {
         return inlongStreamId;
-    }
-
-    public String getBatchKey() {
-        return batchKey;
     }
 }

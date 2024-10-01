@@ -48,7 +48,7 @@ import java.util.Map;
  *      find_chars: A string containing the characters to be replaced.
  *      replace_chars: A string containing the characters to substitute.
  * examples:
- *      case1: translate(email, '@', '.') -> original_expression: harry@inlong.com  target_expression: harry.inlong.com
+ *      case1: translate(harry@inlong.com, '@', '.') -> original_expression: harry@inlong.com  target_expression: harry.inlong.com
  *      case2: translate(hello WorD, 'WD', 'wd') -> original_expression: hello WorD  target_expression: hello word
  */
 @TransformFunction(names = {"translate"})
@@ -108,9 +108,7 @@ public class TranslateFunction implements ValueParser {
             return ImmutableMap.of();
         }
 
-        final int findSize = findChars == null ? 0 : findChars.length();
-        final int replaceSize = replaceChars == null ? 0 : replaceChars.length();
-        final int commonSize = Math.min(findSize, replaceSize);
+        final int commonSize = Math.min(findChars.length(), replaceChars.length());
         // Create a map to store character replacements
         Map<Character, Character> replacementMap = new HashMap<>();
         for (int i = 0; i < commonSize; i++) {
