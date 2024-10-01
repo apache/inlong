@@ -40,7 +40,7 @@ public class JsonUnQuoteFunction implements ValueParser {
     private ValueParser jsonParser;
 
     public JsonUnQuoteFunction(Function expr) {
-        jsonParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        this.jsonParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override

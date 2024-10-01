@@ -32,13 +32,13 @@ import net.sf.jsqlparser.expression.Function;
  * for example: json_quote('Hello, World!')--return "Hello, World!"
  *              json_quote('Complex string with / and \\')--return "Complex string with / and \\"
  */
-@TransformFunction(names = {"json_quote"})
+@TransformFunction(names = {"json_quote", "json_string"})
 public class JsonQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;
 
     public JsonQuoteFunction(Function expr) {
-        jsonParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        this.jsonParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
@@ -46,10 +46,10 @@ public class JsonQuoteFunction implements ValueParser {
         if (jsonParser == null) {
             return null;
         }
-        String jsonString = OperatorTools.parseString(jsonParser.parse(sourceData, rowIndex, context));
-        if (jsonString == null) {
+        Object parse = jsonParser.parse(sourceData, rowIndex, context);
+        if (parse == null) {
             return null;
         }
-        return JSON.toJSONString(jsonString);
+        return JSON.toJSONString(parse);
     }
 }

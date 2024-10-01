@@ -101,4 +101,76 @@ public class TestJsonQuoteFunction extends AbstractFunctionStringTestBase {
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
     }
+
+    @Test
+    public void testJsonStringFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select json_string(string1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: json_string('true')
+        data = "true|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"true\"", output.get(0));
+
+        // case2: json_string('This is a "quoted" string')
+        data = "This is a \"quoted\" string|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"This is a quoted string\"", output.get(0));
+
+        // case3: json_string('A back\slash:')
+        data = "A back\\slash:|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"A backslash:\"", output.get(0));
+
+        // case4: json_string('Column1\tColumn2)
+        data = "Column1\tColumn2|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"Column1\\tColumn2\"", output.get(0));
+
+        // case5: json_string('Quotes ' and double quotes \"')
+        data = "Quotes ' and double quotes \\\"|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"Quotes ' and double quotes \\\"\"", output.get(0));
+
+        // case6: json_string(null)
+        data = "|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"\"", output.get(0));
+
+        // case7: json_string('Complex string with / and \\')
+        data = "Complex string with / and \\\\";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"Complex string with / and \\\\\"", output.get(0));
+
+        // case8: json_string('Unicode test: ሴ噸')
+        data = "Unicode test: ሴ噸|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=\"Unicode test: ሴ噸\"", output.get(0));
+
+        transformSql = "select json_quote(xxd) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case9: json_string()
+        data = "|xxd|cloud|7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+    }
 }
