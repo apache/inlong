@@ -29,8 +29,15 @@ import net.sf.jsqlparser.expression.Function;
  * description: JSON_QUOTE(string)--Quotes a string as a JSON value by wrapping it with double quote characters,
  *              escaping interior quote and special characters (’"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’), and returning
  *              the result as a string. If the argument is NULL, the function returns NULL.
+ *
+ *              JSON_STRING(string)--Serializes a value into JSON. returns a JSON string containing the serialized value.
+ *              If the value is NULL, the function returns NULL.
+ *
  * for example: json_quote('Hello, World!')--return "Hello, World!"
  *              json_quote('Complex string with / and \\')--return "Complex string with / and \\"
+ *
+ *              json_string(1)--return 1
+ *              json_string(true)--return "true"
  */
 @TransformFunction(names = {"json_quote", "json_string"})
 public class JsonQuoteFunction implements ValueParser {
