@@ -77,8 +77,9 @@ public class TestLogFileSource {
     private LogFileSource getSource(int taskId, long offset) {
         try {
             String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D",
-                    "GMT+8:00");
+            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", false, 0L, 0L,
+                    TaskStateEnum.RUNNING, "D",
+                    "GMT+8:00", null);
             String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
             InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
                     fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());

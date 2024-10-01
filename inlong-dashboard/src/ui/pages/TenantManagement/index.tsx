@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { Button, Card } from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Card, message, Modal } from 'antd';
 import { PageContainer, Container } from '@/ui/components/PageContainer';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
@@ -26,6 +26,8 @@ import { useTranslation } from 'react-i18next';
 import { defaultSize } from '@/configs/pagination';
 import DetailModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
+import i18n from 'i18next';
+import request from '@/core/utils/request';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -114,7 +116,22 @@ const Comp: React.FC = () => {
     current: options.pageNum,
     total: data?.total,
   };
-
+  const onDelete = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('basic.DeleteConfirm'),
+        onOk: async () => {
+          await request({
+            url: `/role/tenant/delete/${id}`,
+            method: 'DELETE',
+          });
+          await getList();
+          message.success(i18n.t('basic.DeleteSuccess'));
+        },
+      });
+    },
+    [getList],
+  );
   return (
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Container>
@@ -130,7 +147,7 @@ const Comp: React.FC = () => {
               onFilter,
             }}
             table={{
-              columns: getColumns({ onEdit }),
+              columns: getColumns({ onEdit, onDelete }),
               rowKey: 'id',
               dataSource: data?.list,
               pagination,

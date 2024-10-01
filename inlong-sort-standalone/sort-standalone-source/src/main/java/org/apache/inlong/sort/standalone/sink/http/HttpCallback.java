@@ -18,11 +18,17 @@
 package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.dispatch.DispatchManager;
+import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.slf4j.Logger;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 public class HttpCallback implements FutureCallback<HttpResponse> {
 
@@ -39,25 +45,47 @@ public class HttpCallback implements FutureCallback<HttpResponse> {
     @Override
     public void completed(HttpResponse httpResponse) {
         int statusCode = httpResponse.getStatusLine().getStatusCode();
-        ProfileEvent event = requestItem.getEvent();
         long sendTime = requestItem.getSendTime();
 
         // is fail
         if (statusCode != 200) {
-            handleFailedRequest(event, sendTime);
+            HttpEntity entity = httpResponse.getEntity();
+            try (InputStream is = entity.getContent()) {
+                int len = (int) entity.getContentLength();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] readed = new byte[len];
+                is.read(readed);
+                baos.write(readed);
+                String content = new String(readed);
+                LOG.error("Fail to send http,statusCode:{},content:{}",
+                        statusCode, content);
+            } catch (Throwable t) {
+                LOG.error(t.getMessage(), t);
+            }
+            handleFailedRequest(sendTime);
         } else {
-            context.addSendResultMetric(event, context.getTaskName(), true, sendTime);
-            context.releaseDispatchQueue(requestItem);
-            event.ack();
+            if (requestItem.getProfileEvent() != null) {
+                ProfileEvent profileEvent = requestItem.getProfileEvent();
+                context.addSendResultMetric(profileEvent, context.getTaskName(), true, sendTime);
+                context.releaseDispatchQueue(profileEvent);
+                profileEvent.ack();
+            }
+            if (requestItem.getDispatchProfile() != null) {
+                DispatchProfile dispatchProfile = requestItem.getDispatchProfile();
+                for (ProfileEvent profileEvent : dispatchProfile.getEvents()) {
+                    context.addSendResultMetric(profileEvent, context.getTaskName(), true, sendTime);
+                    context.releaseDispatchQueue(profileEvent);
+                    profileEvent.ack();
+                }
+            }
         }
     }
 
     @Override
     public void failed(Exception e) {
         LOG.error("Http request failed,errorMsg:{}", e.getMessage(), e);
-        ProfileEvent event = requestItem.getEvent();
         long sendTime = requestItem.getSendTime();
-        handleFailedRequest(event, sendTime);
+        handleFailedRequest(sendTime);
     }
 
     @Override
@@ -65,16 +93,30 @@ public class HttpCallback implements FutureCallback<HttpResponse> {
         LOG.info("Request cancelled");
     }
 
-    private void handleFailedRequest(ProfileEvent event, long sendTime) {
+    private void handleFailedRequest(long sendTime) {
         int remainRetryTimes = requestItem.getRemainRetryTimes();
-        context.addSendResultMetric(event, context.getTaskName(), false, sendTime);
-        // if reach the max retry times, release the request
-        if (remainRetryTimes == 1) {
-            context.releaseDispatchQueue(requestItem);
-            return;
-        } else if (remainRetryTimes > 1) {
-            requestItem.setRemainRetryTimes(remainRetryTimes - 1);
+        if (requestItem.getProfileEvent() != null) {
+            ProfileEvent profileEvent = requestItem.getProfileEvent();
+            context.addSendResultMetric(profileEvent, context.getTaskName(), false, sendTime);
+            // if reach the max retry times, release the request
+            if (remainRetryTimes == 1) {
+                context.releaseDispatchQueue(profileEvent);
+                return;
+            } else if (remainRetryTimes > 1) {
+                requestItem.setRemainRetryTimes(remainRetryTimes - 1);
+            }
+            long dispatchTime = profileEvent.getRawLogTime() - profileEvent.getRawLogTime() % DispatchManager.MINUTE_MS;
+            DispatchProfile dispatchProfile = new DispatchProfile(profileEvent.getUid(),
+                    profileEvent.getInlongGroupId(), profileEvent.getInlongStreamId(),
+                    dispatchTime);
+            dispatchProfile.addEvent(profileEvent, DispatchManager.DEFAULT_DISPATCH_MAX_PACKCOUNT, Integer.MAX_VALUE);
+            context.backDispatchQueue(dispatchProfile);
         }
-        context.backDispatchQueue(requestItem);
+        if (requestItem.getDispatchProfile() != null) {
+            DispatchProfile dispatchProfile = requestItem.getDispatchProfile();
+            dispatchProfile.getEvents()
+                    .forEach(v -> context.addSendResultMetric(v, context.getTaskName(), false, sendTime));
+            context.backDispatchQueue(dispatchProfile);
+        }
     }
 }

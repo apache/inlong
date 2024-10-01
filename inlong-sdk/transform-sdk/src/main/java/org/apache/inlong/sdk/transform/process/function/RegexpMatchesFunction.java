@@ -41,7 +41,8 @@ import java.util.stream.Collectors;
  *             3) flags: one or more characters that control the behavior of a function,
  *                'g' flag can be used when we want to match all the substrings that occur,
  *                'i' flag to ignore case for matching,
- *                'm' flag allows regular expressions to match across multiple lines
+ *                'x' flag to extend syntax (ignoring whitespace and comments in regular expressions)
+ *                'm' and 'n' flag allows regular expressions to match across multiple lines
  */
 @TransformFunction(names = {"regexp_matches"})
 public class RegexpMatchesFunction implements ValueParser {
@@ -78,30 +79,37 @@ public class RegexpMatchesFunction implements ValueParser {
 
     private String regexpMatches(String input, String regex, String flags) {
         int flag = 0;
-        if (flags.contains("i")) {
-            flag |= Pattern.CASE_INSENSITIVE;
-        }
-        if (flags.contains("m")) {
-            flag |= Pattern.MULTILINE;
-        }
-        if (flags.contains("g")) {
-            flag |= Pattern.DOTALL;
+        if (flags != null) {
+            if (flags.contains("i")) {
+                flag |= Pattern.CASE_INSENSITIVE;
+            }
+            if (flags.contains("m") || flags.contains("n")) {
+                flag |= Pattern.MULTILINE;
+            }
+            if (flags.contains("s")) {
+                flag |= Pattern.DOTALL;
+            }
+            if (flags.contains("x")) {
+                flag |= Pattern.COMMENTS;
+            }
         }
 
         Pattern pattern = Pattern.compile(regex, flag);
         Matcher matcher = pattern.matcher(input);
-
+        boolean isGlobalMatch = flags != null && flags.contains("g");
         List<String[]> matches = new ArrayList<>();
 
         while (matcher.find()) {
-            if (matcher.groupCount() == 0) {
-                matches.add(new String[]{matcher.group(0)});
-            } else {
-                String[] matchGroups = new String[matcher.groupCount()];
-                for (int i = 1; i <= matcher.groupCount(); i++) {
-                    matchGroups[i - 1] = matcher.group(i) != null ? matcher.group(i) : "";
-                }
-                matches.add(matchGroups);
+            int groupCount = matcher.groupCount();
+            String[] matchGroups = new String[groupCount > 0 ? groupCount : 1];
+
+            for (int i = 0; i <= groupCount; i++) {
+                matchGroups[i == 0 ? 0 : i - 1] = matcher.group(i) != null ? matcher.group(i) : "";
+            }
+            matches.add(matchGroups);
+
+            if (!isGlobalMatch) {
+                break;
             }
         }
         return listToString(matches);

@@ -34,11 +34,13 @@ public class BetweenAndOperator implements ExpressionOperator {
     private final ValueParser left;
     private final ValueParser start;
     private final ValueParser end;
+    private final boolean isNot;
 
     public BetweenAndOperator(Between expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         this.start = OperatorTools.buildParser(expr.getBetweenExpressionStart());
         this.end = OperatorTools.buildParser(expr.getBetweenExpressionEnd());
+        this.isNot = expr.isNot();
     }
 
     @SuppressWarnings("rawtypes")
@@ -48,7 +50,9 @@ public class BetweenAndOperator implements ExpressionOperator {
         Comparable startValue = (Comparable) this.start.parse(sourceData, rowIndex, context);
         Comparable endValue = (Comparable) this.end.parse(sourceData, rowIndex, context);
 
-        return OperatorTools.compareValue(leftValue, startValue) >= 0 &&
+        boolean result = OperatorTools.compareValue(leftValue, startValue) >= 0 &&
                 OperatorTools.compareValue(leftValue, endValue) <= 0;
+
+        return this.isNot != result;
     }
 }

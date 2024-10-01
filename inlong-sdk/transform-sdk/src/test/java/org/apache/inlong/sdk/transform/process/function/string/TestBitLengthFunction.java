@@ -56,7 +56,7 @@ public class TestBitLengthFunction extends AbstractFunctionStringTestBase {
         // case3: bit_length(null)
         output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=null", output1.get(0));
+        Assert.assertEquals("result=", output1.get(0));
 
         transformSql = "select bit_length(string1,string2) from source";
         config = new TransformConfig(transformSql);

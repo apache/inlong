@@ -18,10 +18,13 @@
 package org.apache.inlong.sdk.transform.decode;
 
 import org.apache.inlong.sdk.transform.pojo.AvroSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.BsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.ParquetSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.YamlSourceInfo;
 
 public class SourceDecoderFactory {
 
@@ -44,4 +47,17 @@ public class SourceDecoderFactory {
     public static AvroSourceDecoder createAvroDecoder(AvroSourceInfo sourceInfo) {
         return new AvroSourceDecoder(sourceInfo);
     }
+
+    public static BsonSourceDecoder createBsonDecoder(BsonSourceInfo sourceInfo) {
+        return new BsonSourceDecoder(sourceInfo);
+    }
+
+    public static ParquetSourceDecoder createParquetDecoder(ParquetSourceInfo sourceInfo) {
+        return new ParquetSourceDecoder(sourceInfo);
+    }
+
+    public static YamlSourceDecoder createYamlDecoder(YamlSourceInfo sourceInfo) {
+        return new YamlSourceDecoder(sourceInfo);
+    }
+
 }

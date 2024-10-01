@@ -46,7 +46,7 @@ public class TestSha2Function extends AbstractFunctionArithmeticTestBase {
         data = "|3|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case2: sha2("5",224)
         data = "5|224|3|5";
@@ -69,6 +69,6 @@ public class TestSha2Function extends AbstractFunctionArithmeticTestBase {
         data = "3|224|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }

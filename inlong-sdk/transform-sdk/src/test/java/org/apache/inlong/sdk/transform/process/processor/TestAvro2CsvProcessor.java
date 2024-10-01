@@ -34,10 +34,11 @@ public class TestAvro2CsvProcessor extends AbstractProcessorTestBase {
 
     @Test
     public void testAvro2Csv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
+        List<FieldInfo> fields = this.getTestFieldList("sid", "packageID", "msgTime", "msg", "extinfo.k1");
         AvroSourceInfo avroSource = new AvroSourceInfo("UTF-8", "msgs");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
-        String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
+        String transformSql =
+                "select $root.sid,$root.packageID,$child.msgTime,$child.msg, $child.extinfo.k1 from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
         TransformProcessor<byte[], String> processor = TransformProcessor
@@ -46,7 +47,7 @@ public class TestAvro2CsvProcessor extends AbstractProcessorTestBase {
         byte[] srcBytes = this.getAvroTestData();
         List<String> output = processor.transform(srcBytes);
         Assert.assertEquals(2, output.size());
-        Assert.assertEquals(output.get(0), "sid1|123456|10011001|Apple");
-        Assert.assertEquals(output.get(1), "sid1|123456|20022002|Banana");
+        Assert.assertEquals(output.get(0), "sid1|123456|10011001|Apple|value1");
+        Assert.assertEquals(output.get(1), "sid1|123456|20022002|Banana|value3");
     }
 }
