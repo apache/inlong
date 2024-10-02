@@ -32,52 +32,52 @@ public class TestCompressFunction extends AbstractFunctionStringTestBase {
 
     @Test
     public void testCompressFunction() throws Exception {
-        String transformSql = "select length(compress(replicate(string1,100))) from source";
+        String transformSql = "select length(compress(replicate(string1,100)),'ISO_8859_1') from source";
         TransformConfig config = new TransformConfig(transformSql);
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: length(compress(replicate(string1,100)))
+        // case1: length(compress(replicate(string1,100)),'ISO_8859_1')
         List<String> output1 = processor1.transform("abcdefghijk|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=33", output1.get(0));
 
-        transformSql = "select length(compress(string1)) from source";
+        transformSql = "select length(compress(string1),'ISO_8859_1') from source";
         config = new TransformConfig(transformSql);
         processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case2: length(compress(''))
+        // case2: length(compress(''),'ISO_8859_1')
         output1 = processor1.transform("|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=0", output1.get(0));
 
-        transformSql = "select length(compress(xxd)) from source";
+        transformSql = "select length(compress(xxd),'ISO_8859_1') from source";
         config = new TransformConfig(transformSql);
         processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case3: length(compress(null))
+        // case3: length(compress(null),'ISO_8859_1')
         output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=", output1.get(0));
 
-        transformSql = "select length(compress(string1,string2)) from source";
+        transformSql = "select length(compress(string1,string2),'ISO_8859_1') from source";
         config = new TransformConfig(transformSql);
         processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case4: length(compress('hello world','Gzip'))
+        // case4: length(compress('hello world','Gzip'),'ISO_8859_1')
         output1 = processor1.transform("hello world|Gzip|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=35", output1.get(0));
 
-        // case5: length(compress('hello world','zip'))
+        // case5: length(compress('hello world','zip'),'ISO_8859_1')
         output1 = processor1.transform("hello world|zip|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=131", output1.get(0));
 
-        // case5: length(compress('hello world','undefinedType'))
+        // case5: length(compress('hello world','undefinedType'),'ISO_8859_1')
         output1 = processor1.transform("hello world|undefinedType|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals("result=", output1.get(0));
