@@ -61,6 +61,10 @@ public class JsonValueFunction implements ValueParser {
             return null;
         }
         Object res = JSONPath.read(json, path);
-        return res != null ? res.toString() : null;
+        // check if it is a scalar
+        if (res instanceof String || res instanceof Number || res instanceof Boolean) {
+            return res.toString();
+        }
+        return null;
     }
 }

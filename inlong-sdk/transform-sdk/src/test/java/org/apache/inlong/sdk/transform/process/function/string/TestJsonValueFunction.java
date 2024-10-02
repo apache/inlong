@@ -31,7 +31,7 @@ import java.util.List;
 public class TestJsonValueFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testJsonExistsFunction() throws Exception {
+    public void testJsonValueFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
@@ -90,11 +90,11 @@ public class TestJsonValueFunction extends AbstractFunctionStringTestBase {
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=Amy", output.get(0));
 
-        // case9: json_value({\"people\": [{\"name\": \"Alice\"}, {\"name\": \"Bob\"}]}, $.people[0].name)
-        data = "{\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}|$.people[0].name|3|5";
+        // case9: json_value({\"people\": [{\"name\": \"Alice\"}, {\"name\": \"Bob\"}]}, $.people)
+        data = "{\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}|$.people|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=Alice", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case10: json_value({\"people\": [{\"name\": \"Alice\"}, {\"name\": \"Bob\"}]}, $.people[2].name)
         data = "{\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}|$.people[2].name|3|5";
