@@ -31,7 +31,8 @@ import java.util.List;
 /**
  * JsonValueFunction
  * description: JSON_VALUE(jsonValue, path)--Extracts a scalar from a JSON string.
- * for example:
+ * for example: json_value({"a": 1}, $.a)--return 1
+ *              json_value({\"person\": {\"name\": \"Alice\" ,\"age\": 30}}, $.person.name)--return Alice
  */
 @TransformFunction(names = {"json_value"})
 public class JsonValueFunction implements ValueParser {
