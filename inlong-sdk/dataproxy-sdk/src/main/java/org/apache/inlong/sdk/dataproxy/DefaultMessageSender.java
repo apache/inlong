@@ -197,7 +197,7 @@ public class DefaultMessageSender implements MessageSender {
     private SendResult retryWhenSendMessageFail(Function<Sender, SendResult> sendOperation) {
         int attempts = 0;
         SendResult sendResult = null;
-        while (attempts < this.senderMaxRetry + 1) {
+        while (attempts < this.senderMaxRetry) {
             sendResult = sendOperation.apply(sender);
             if (sendResult != null && sendResult.equals(SendResult.OK)) {
                 return sendResult;
@@ -210,7 +210,7 @@ public class DefaultMessageSender implements MessageSender {
     private String retryWhenSendMessageIndexFail(Function<Sender, String> sendOperation) {
         int attempts = 0;
         String sendIndexResult = null;
-        while (attempts < this.senderMaxRetry + 1) {
+        while (attempts < this.senderMaxRetry) {
             sendIndexResult = sendOperation.apply(sender);
             if (sendIndexResult != null && sendIndexResult.startsWith(SendResult.OK.toString())) {
                 return sendIndexResult;

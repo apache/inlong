@@ -100,12 +100,12 @@ public class ProxyClientConfig {
     private LoadBalance loadBalance;
 
     private int maxRetry;
-    private int senderMaxRetry;
+    private int senderMaxRetry = ConfigConstants.DEFAULT_SENDER_MAX_RETRY;
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp,
             int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
-            LoadBalance loadBalance, int virtualNode, int maxRetry, int senderMaxRetry) throws ProxysdkException {
+            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -136,12 +136,11 @@ public class ProxyClientConfig {
         this.loadBalance = loadBalance;
         this.virtualNode = virtualNode;
         this.maxRetry = maxRetry;
-        this.senderMaxRetry = senderMaxRetry;
     }
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey,
-            LoadBalance loadBalance, int virtualNode, int maxRetry, int senderMaxRetry) throws ProxysdkException {
+            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(managerAddress) || (!managerAddress.startsWith(ConfigConstants.HTTP)
                 && !managerAddress.startsWith(ConfigConstants.HTTPS))) {
             throw new ProxysdkException("managerAddress is blank or missing http/https protocol ");
@@ -168,7 +167,6 @@ public class ProxyClientConfig {
         this.loadBalance = loadBalance;
         this.virtualNode = virtualNode;
         this.maxRetry = maxRetry;
-        this.senderMaxRetry = senderMaxRetry;
     }
 
     private String getManagerUrl(String managerAddress, String inlongGroupId) {
@@ -187,14 +185,14 @@ public class ProxyClientConfig {
             String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
         this(localHost, requestByHttp, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
-                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY, ConfigConstants.DEFAULT_SENDER_MAX_RETRY);
+                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
 
     public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey)
             throws ProxysdkException {
         this(managerAddress, inlongGroupId, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
-                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY, ConfigConstants.DEFAULT_SENDER_MAX_RETRY);
+                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
 
     public String getTlsServerCertFilePathAndName() {
