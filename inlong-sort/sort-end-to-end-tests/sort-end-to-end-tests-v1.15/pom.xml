@@ -32,7 +32,6 @@
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
         <mongodb-driver-sync.version>4.10.2</mongodb-driver-sync.version>
-        <pulsar-client.version>2.8.2</pulsar-client.version>
     </properties>
 
     <dependencies>
@@ -167,18 +166,7 @@
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.pulsar</groupId>
-                    <artifactId>pulsar-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client</artifactId>
-            <version>${pulsar-client.version}</version>
+            <version>${pulsar.version}</version>
         </dependency>
 
     </dependencies>
