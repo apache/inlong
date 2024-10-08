@@ -50,10 +50,11 @@ public class PulsarSource extends AbstractSource {
     private String serviceUrl;
     private String subscription;
     private String subscriptionType;
-    private String subscriptionPosition;
+    private SubscriptionInitialPosition subscriptionPosition;
     private PulsarClient pulsarClient;
     private Long timestamp;
     private final static String PULSAR_SUBSCRIPTION_PREFIX = "inlong-agent-";
+    private final static String SUBSCRIPTION_CUSTOM = "Custom";
     private boolean isRestoreFromDB = false;
     private Consumer<byte[]> consumer;
     private long offset = 0L;
@@ -68,8 +69,12 @@ public class PulsarSource extends AbstractSource {
             topic = profile.getInstanceId();
             serviceUrl = profile.get(TASK_PULSAR_SERVICE_URL);
             subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, PULSAR_SUBSCRIPTION_PREFIX + inlongStreamId);
-            subscriptionPosition = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION,
-                    SubscriptionInitialPosition.Latest.name());
+            String position = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION, SubscriptionInitialPosition.Latest.name());
+            if (position.equals(SUBSCRIPTION_CUSTOM)) {
+                subscriptionPosition = SubscriptionInitialPosition.Latest;
+            } else {
+                subscriptionPosition = SubscriptionInitialPosition.valueOf(position);
+            }
             subscriptionType = profile.get(TASK_PULSAR_SUBSCRIPTION_TYPE, SubscriptionType.Shared.name());
             timestamp = profile.getLong(TASK_PULSAR_RESET_TIME, 0);
             pulsarClient = PulsarClient.builder().serviceUrl(serviceUrl).build();
@@ -97,19 +102,20 @@ public class PulsarSource extends AbstractSource {
         org.apache.pulsar.client.api.Message<byte[]> message = null;
         try {
             message = consumer.receive(0, TimeUnit.MILLISECONDS);
-            offset = message.getSequenceId();
         } catch (PulsarClientException e) {
             LOGGER.error("read from pulsar error", e);
         }
         if (!ObjectUtils.isEmpty(message)) {
+            offset = message.getSequenceId();
             dataList.add(new SourceData(message.getValue(), new String(message.getMessageId().toByteArray(),
                     StandardCharsets.UTF_8)));
+            try {
+                consumer.acknowledge(message);
+            } catch (PulsarClientException e) {
+                LOGGER.error("ack pulsar error", e);
+            }
         }
-        try {
-            consumer.acknowledge(message);
-        } catch (PulsarClientException e) {
-            LOGGER.error("ack pulsar error", e);
-        }
+
         return dataList;
     }
 
@@ -119,7 +125,7 @@ public class PulsarSource extends AbstractSource {
             consumer = pulsarClient.newConsumer(Schema.BYTES)
                     .topic(topic)
                     .subscriptionName(subscription)
-                    .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
+                    .subscriptionInitialPosition(subscriptionPosition)
                     .subscriptionType(SubscriptionType.valueOf(subscriptionType))
                     .subscribe();
             if (!isRestoreFromDB && timestamp != 0L) {

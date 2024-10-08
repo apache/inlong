@@ -32,14 +32,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 import static org.apache.inlong.common.msg.AttributeConstants.AUDIT_VERSION;
@@ -56,11 +53,8 @@ public class ProxyMessageCache {
     private final int maxPackSize;
     private final int maxQueueNumber;
     private final String groupId;
-    // ms
-    private final int cacheTimeout;
     // streamId -> list of proxyMessage
     private final ConcurrentHashMap<String, LinkedBlockingQueue<ProxyMessage>> messageQueueMap;
-    private final AtomicLong cacheSize = new AtomicLong(0);
     private long lastPrintTime = 0;
     private long dataTime;
     private boolean isRealTime = false;
@@ -76,7 +70,6 @@ public class ProxyMessageCache {
         this.maxPackSize = instanceProfile.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         this.maxQueueNumber = instanceProfile.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,
                 DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);
-        this.cacheTimeout = instanceProfile.getInt(PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
         messageQueueMap = new ConcurrentHashMap<>();
         dataTime = instanceProfile.getSinkDataTime();
         extraMap.put(AttributeConstants.MESSAGE_SYNC_SEND, "false");
@@ -109,7 +102,6 @@ public class ProxyMessageCache {
                 return false;
             }
             messageQueue.put(message);
-            cacheSize.addAndGet(message.getBody().length);
             return true;
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
@@ -159,13 +151,11 @@ public class ProxyMessageCache {
             if (peekMessageLength > maxPackSize) {
                 LOGGER.warn("message size is {}, greater than max pack size {}, drop it!",
                         peekMessage.getBody().length, maxPackSize);
-                cacheSize.addAndGet(-bodySize);
                 messageQueue.remove();
                 break;
             }
             resultBatchSize += bodySize;
             // decrease queue size.
-            cacheSize.addAndGet(-bodySize);
             bodyList.add(message.getBody());
             offsetList.add(message.getAckInfo());
         }
@@ -183,13 +173,4 @@ public class ProxyMessageCache {
         }
         return null;
     }
-
-    public Map<String, String> getExtraMap() {
-        return extraMap;
-    }
-
-    public long getCacheSize() {
-        return cacheSize.get();
-    }
-
 }
