@@ -157,6 +157,14 @@ public class OperatorTools {
         }
     }
 
+    public static boolean parseBoolean(Object value) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else {
+            return Boolean.parseBoolean(String.valueOf(value));
+        }
+    }
+
     /**
      * compareValue
      * @param left
