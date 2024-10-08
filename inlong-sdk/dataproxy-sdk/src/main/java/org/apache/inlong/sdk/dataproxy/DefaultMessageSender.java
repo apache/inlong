@@ -66,7 +66,7 @@ public class DefaultMessageSender implements MessageSender {
     private boolean isReport = false;
     private boolean isSupportLF = false;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
-    private final int senderMaxRetry;
+    private final int senderMaxAttempt;
 
     public DefaultMessageSender(ProxyClientConfig configure) throws Exception {
         this(configure, null);
@@ -77,7 +77,7 @@ public class DefaultMessageSender implements MessageSender {
         sender = new Sender(configure, selfDefineFactory);
         groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
-        senderMaxRetry = configure.getSenderMaxRetry();
+        senderMaxAttempt = configure.getSenderMaxAttempt();
         indexCol.start();
 
     }
@@ -194,10 +194,10 @@ public class DefaultMessageSender implements MessageSender {
         return ConfigConstants.PROXY_SDK_VERSION;
     }
 
-    private SendResult retryWhenSendMessageFail(Function<Sender, SendResult> sendOperation) {
+    private SendResult attemptSendMessage(Function<Sender, SendResult> sendOperation) {
         int attempts = 0;
         SendResult sendResult = null;
-        while (attempts < this.senderMaxRetry) {
+        while (attempts < this.senderMaxAttempt) {
             sendResult = sendOperation.apply(sender);
             if (sendResult != null && sendResult.equals(SendResult.OK)) {
                 return sendResult;
@@ -207,10 +207,10 @@ public class DefaultMessageSender implements MessageSender {
         return sendResult;
     }
 
-    private String retryWhenSendMessageIndexFail(Function<Sender, String> sendOperation) {
+    private String attemptSendMessageIndex(Function<Sender, String> sendOperation) {
         int attempts = 0;
         String sendIndexResult = null;
-        while (attempts < this.senderMaxRetry) {
+        while (attempts < this.senderMaxAttempt) {
             sendIndexResult = sendOperation.apply(sender);
             if (sendIndexResult != null && sendIndexResult.startsWith(SendResult.OK.toString())) {
                 return sendIndexResult;
@@ -226,7 +226,7 @@ public class DefaultMessageSender implements MessageSender {
         Function<Sender, SendResult> sendOperation =
                 (sender) -> sender.syncSendMessage(new EncodeObject(body, attributes, idGenerator.getNextId()), msgUUID,
                         timeout, timeUnit);
-        return retryWhenSendMessageFail(sendOperation);
+        return attemptSendMessage(sendOperation);
     }
 
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
@@ -268,7 +268,7 @@ public class DefaultMessageSender implements MessageSender {
             encodeObject.setSupportLF(isSupportLF);
             Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isProxySend) {
                 proxySend = "&" + proxySend;
@@ -290,7 +290,7 @@ public class DefaultMessageSender implements MessageSender {
                         false, groupId), msgUUID, timeout, timeUnit);
 
             }
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         }
 
         return null;
@@ -338,7 +338,7 @@ public class DefaultMessageSender implements MessageSender {
             encodeObject.setSupportLF(isSupportLF);
             Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId).append("&dt=").append(dt);
             if (isCompressEnd) {
@@ -346,12 +346,12 @@ public class DefaultMessageSender implements MessageSender {
                 Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(new EncodeObject(body,
                         attrs.toString(), idGenerator.getNextId(), this.getMsgtype(), true, groupId),
                         msgUUID, timeout, timeUnit);
-                return retryWhenSendMessageFail(sendOperation);
+                return attemptSendMessage(sendOperation);
             } else {
                 Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(new EncodeObject(body,
                         attrs.toString(), idGenerator.getNextId(), this.getMsgtype(), false, groupId),
                         msgUUID, timeout, timeUnit);
-                return retryWhenSendMessageFail(sendOperation);
+                return attemptSendMessage(sendOperation);
             }
         }
         return null;
@@ -396,7 +396,7 @@ public class DefaultMessageSender implements MessageSender {
             encodeObject.setSupportLF(isSupportLF);
             Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isProxySend) {
                 proxySend = "&" + proxySend;
@@ -417,7 +417,7 @@ public class DefaultMessageSender implements MessageSender {
                         idGenerator.getNextId(), this.getMsgtype(),
                         false, groupId), msgUUID, timeout, timeUnit);
             }
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         }
         return null;
     }
@@ -461,7 +461,7 @@ public class DefaultMessageSender implements MessageSender {
             encodeObject.setSupportLF(isSupportLF);
             Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageFail(sendOperation);
+            return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
                     .append("&dt=").append(dt).append("&cnt=").append(bodyList.size());
@@ -470,13 +470,13 @@ public class DefaultMessageSender implements MessageSender {
                 Function<Sender, SendResult> sendOperation =
                         (sender) -> sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
                                 idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
-                return retryWhenSendMessageFail(sendOperation);
+                return attemptSendMessage(sendOperation);
             } else {
                 Function<Sender, SendResult> sendOperation =
                         (sender) -> sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
                                 idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout,
                                 timeUnit);
-                return retryWhenSendMessageFail(sendOperation);
+                return attemptSendMessage(sendOperation);
             }
         }
         return null;
@@ -869,7 +869,7 @@ public class DefaultMessageSender implements MessageSender {
             encodeObject.setSupportLF(isSupportLF);
             Function<Sender, String> sendOperation = (sender) -> sender.syncSendMessageIndex(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageIndexFail(sendOperation);
+            return attemptSendMessageIndex(sendOperation);
         }
         return null;
     }
@@ -886,7 +886,7 @@ public class DefaultMessageSender implements MessageSender {
                     isGroupIdTransfer, dt / 1000, sid, groupId, streamId, "", messageKey, ip);
             Function<Sender, String> sendOperation = (sender) -> sender.syncSendMessageIndex(encodeObject, msgUUID,
                     timeout, timeUnit);
-            return retryWhenSendMessageIndexFail(sendOperation);
+            return attemptSendMessageIndex(sendOperation);
         }
         return null;
     }
