@@ -166,7 +166,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       {
         type: 'inputnumber',
         label: i18n.t('pages.Clusters.Node.Port'),
-        hidden: type === 'AGENT',
         name: 'port',
         rules: [
           {
