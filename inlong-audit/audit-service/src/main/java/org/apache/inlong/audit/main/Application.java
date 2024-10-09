@@ -25,6 +25,7 @@ import org.apache.inlong.audit.selector.api.SelectorFactory;
 import org.apache.inlong.audit.service.ApiService;
 import org.apache.inlong.audit.service.ConfigService;
 import org.apache.inlong.audit.service.EtlService;
+import org.apache.inlong.audit.service.PartitionManager;
 import org.apache.inlong.audit.utils.JdbcUtils;
 import org.apache.inlong.common.util.NetworkUtils;
 
@@ -50,6 +51,8 @@ public class Application {
         try {
             // Periodically obtain audit id and audit course configuration from DB
             ConfigService.getInstance().start();
+
+            PartitionManager.getInstance().start();
 
             // Etl service aggregate the data from the data source and store the aggregated data to the target storage
             etlService.start();

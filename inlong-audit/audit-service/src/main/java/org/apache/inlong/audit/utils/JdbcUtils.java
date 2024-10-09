@@ -20,13 +20,28 @@ package org.apache.inlong.audit.utils;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.JdbcConfig;
 
+import com.zaxxer.hikari.HikariConfig;
+
 import java.util.Objects;
 
+import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DEFAULT_MYSQL_DRIVER;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_DRIVER;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_JDBC_URL;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_PASSWORD;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_USERNAME;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 
 /**
  * Jdbc utils
@@ -63,5 +78,27 @@ public class JdbcUtils {
                 jdbcUrl,
                 userName,
                 password);
+    }
+
+    public static HikariConfig buildHikariConfig(String driverClassName, String jdbcUrl, String userName,
+            String passWord) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setJdbcUrl(jdbcUrl);
+        hikariConfig.setUsername(userName);
+        hikariConfig.setPassword(passWord);
+        Configuration configuration = Configuration.getInstance();
+        hikariConfig.setConnectionTimeout(configuration.get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
+                DEFAULT_CONNECTION_TIMEOUT));
+        hikariConfig.addDataSourceProperty(CACHE_PREP_STMTS,
+                configuration.get(KEY_CACHE_PREP_STMTS, DEFAULT_CACHE_PREP_STMTS));
+        hikariConfig.addDataSourceProperty(PREP_STMT_CACHE_SIZE,
+                configuration.get(KEY_PREP_STMT_CACHE_SIZE, DEFAULT_PREP_STMT_CACHE_SIZE));
+        hikariConfig.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT,
+                configuration.get(KEY_PREP_STMT_CACHE_SQL_LIMIT, DEFAULT_PREP_STMT_CACHE_SQL_LIMIT));
+        hikariConfig.setMaximumPoolSize(
+                configuration.get(KEY_DATASOURCE_POOL_SIZE,
+                        DEFAULT_DATASOURCE_POOL_SIZE));
+        return hikariConfig;
     }
 }

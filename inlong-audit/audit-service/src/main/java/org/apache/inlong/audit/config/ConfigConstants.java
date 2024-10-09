@@ -57,9 +57,6 @@ public class ConfigConstants {
     public static final int DEFAULT_SOURCE_DB_SINK_BATCH = 1000;
     public static final String KEY_CONFIG_UPDATE_INTERVAL_SECONDS = "config.update.interval.seconds";
     public static final int DEFAULT_CONFIG_UPDATE_INTERVAL_SECONDS = 60;
-
-    public static final String KEY_ENABLE_MANAGE_PARTITIONS = "enable.manage.partitions";
-    public static final boolean DEFAULT_ENABLE_MANAGE_PARTITIONS = true;
     public static final String KEY_CHECK_PARTITION_INTERVAL_HOURS = "check.partition.interval.hours";
     public static final int DEFAULT_CHECK_PARTITION_INTERVAL_HOURS = 6;
 
@@ -112,5 +109,8 @@ public class ConfigConstants {
 
     public static final int MAX_INIT_COUNT = 2;
     public static final int RANDOM_BOUND = 10;
+
+    public static final String KEY_ENABLE_STAT_AUDIT_DAY = "enable.stat.audit.day";
+    public static final boolean DEFAULT_ENABLE_STAT_AUDIT_DAY = true;
 
 }

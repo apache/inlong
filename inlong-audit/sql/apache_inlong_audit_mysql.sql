@@ -92,7 +92,9 @@ CREATE TABLE IF NOT EXISTS `audit_data_day`
     `update_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
     PRIMARY KEY (`log_ts`,`inlong_group_id`,`inlong_stream_id`,`audit_id`,`audit_tag`)
 ) ENGINE = InnoDB
-DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data day table';
+DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data day table'
+PARTITION BY RANGE (to_days(`log_ts`))
+(PARTITION pDefault VALUES LESS THAN (TO_DAYS('1970-01-01')));
 
 -- ----------------------------
 -- Table structure for selector
