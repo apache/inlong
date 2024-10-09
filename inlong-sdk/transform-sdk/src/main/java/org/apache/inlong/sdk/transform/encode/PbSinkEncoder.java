@@ -85,7 +85,7 @@ public class PbSinkEncoder implements SinkEncoder<byte[]> {
                     DescriptorProtos.FileDescriptorSet.parseFrom(protoBytes);
             Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(
                     fileDescriptorSet.getFile(0), new Descriptors.FileDescriptor[]{});
-            return fileDescriptor.getMessageTypes().get(0); // Assuming one message type for simplicity
+            return fileDescriptor.getMessageTypes().get(0);
         } catch (Exception e) {
             throw new RuntimeException("Failed to decode protoDescription", e);
         }
