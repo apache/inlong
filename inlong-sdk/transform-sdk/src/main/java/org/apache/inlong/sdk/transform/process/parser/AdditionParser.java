@@ -20,17 +20,16 @@ package org.apache.inlong.sdk.transform.process.parser;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.pojo.IntervalInfo;
 import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
-import java.time.temporal.ChronoField;
-import java.util.Map;
 
 /**
  * AdditionParser
+ * Description: Support the addition of numerical values and time
  */
 @TransformParser(values = Addition.class)
 public class AdditionParser implements ValueParser {
@@ -49,8 +48,8 @@ public class AdditionParser implements ValueParser {
         if (this.left instanceof IntervalParser && this.right instanceof IntervalParser) {
             return null;
         } else if (this.left instanceof IntervalParser || this.right instanceof IntervalParser) {
-            IntervalParser intervalParser = null;
-            ValueParser dateParser = null;
+            IntervalParser intervalParser;
+            ValueParser dateParser;
             if (this.left instanceof IntervalParser) {
                 intervalParser = (IntervalParser) this.left;
                 dateParser = this.right;
@@ -58,13 +57,13 @@ public class AdditionParser implements ValueParser {
                 intervalParser = (IntervalParser) this.right;
                 dateParser = this.left;
             }
-            Object intervalPairObj = intervalParser.parse(sourceData, rowIndex, context);
+            Object intervalInfoObj = intervalParser.parse(sourceData, rowIndex, context);
             Object dateObj = dateParser.parse(sourceData, rowIndex, context);
-            if (intervalPairObj == null || dateObj == null) {
+            if (intervalInfoObj == null || dateObj == null) {
                 return null;
             }
-            return DateUtil.dateAdd(OperatorTools.parseString(dateObj),
-                    (Pair<Integer, Map<ChronoField, Long>>) intervalPairObj, 1);
+            return DateUtil.dateTypeAdd(OperatorTools.parseString(dateObj),
+                    (IntervalInfo) intervalInfoObj, true);
         } else {
             return numericalOperation(sourceData, rowIndex, context);
         }
