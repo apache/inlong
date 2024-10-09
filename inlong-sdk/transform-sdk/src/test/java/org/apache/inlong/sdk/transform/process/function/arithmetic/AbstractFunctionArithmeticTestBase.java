@@ -37,7 +37,7 @@ public abstract class AbstractFunctionArithmeticTestBase {
     protected static final KvSinkInfo kvSink;
 
     static {
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i <= 5; i++) {
             FieldInfo field = new FieldInfo();
             field.setName("numeric" + i);
             srcFields.add(field);

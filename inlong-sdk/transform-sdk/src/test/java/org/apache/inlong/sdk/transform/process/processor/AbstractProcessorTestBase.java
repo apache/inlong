@@ -17,11 +17,26 @@
 
 package org.apache.inlong.sdk.transform.process.processor;
 
+import org.apache.inlong.sdk.transform.decode.ParquetInputByteArray;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 
+import org.apache.parquet.column.page.PageReadStore;
+import org.apache.parquet.example.data.Group;
+import org.apache.parquet.example.data.simple.convert.GroupRecordConverter;
+import org.apache.parquet.hadoop.ParquetFileReader;
+import org.apache.parquet.hadoop.metadata.ParquetMetadata;
+import org.apache.parquet.io.ColumnIOFactory;
+import org.apache.parquet.io.InputFile;
+import org.apache.parquet.io.MessageColumnIO;
+import org.apache.parquet.io.RecordReader;
+import org.apache.parquet.io.api.RecordMaterializer;
+import org.apache.parquet.schema.MessageType;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
 /**
  * AbstractProcessorTestBase
  * description: define static parameters for Processor tests
@@ -122,5 +137,39 @@ public abstract class AbstractProcessorTestBase {
                 + "OCL/qDiW";
         byte[] srcBytes = Base64.getDecoder().decode(srcString);
         return srcBytes;
+    }
+
+    public static List<String> ParquetByteArray2CsvStr(byte[] parquetBytes) throws IOException {
+        InputFile inputFile = new ParquetInputByteArray(parquetBytes);
+        List<String> strRows = new ArrayList<>();
+        try (ParquetFileReader reader = ParquetFileReader.open(inputFile)) {
+            ParquetMetadata footer = reader.getFooter();
+            MessageType schema = footer.getFileMetaData().getSchema();
+            int fieldSize = schema.getFields().size();
+            PageReadStore pages;
+
+            while ((pages = reader.readNextRowGroup()) != null) {
+                long rows = pages.getRowCount();
+
+                ColumnIOFactory factory = new ColumnIOFactory();
+                MessageColumnIO columnIO = factory.getColumnIO(schema);
+
+                RecordMaterializer<Group> recordMaterializer = new GroupRecordConverter(schema);
+
+                RecordReader<Group> recordReader = columnIO.getRecordReader(pages, recordMaterializer);
+
+                for (int i = 0; i < rows; i++) {
+                    Group group = recordReader.read();
+                    if (group != null) {
+                        StringBuilder builder = new StringBuilder();
+                        for (int j = 0; j < fieldSize; j++) {
+                            builder.append(group.getValueToString(j, 0) + "|");
+                        }
+                        strRows.add(builder.substring(0, builder.length() - 1));
+                    }
+                }
+            }
+        }
+        return strRows;
     }
 }

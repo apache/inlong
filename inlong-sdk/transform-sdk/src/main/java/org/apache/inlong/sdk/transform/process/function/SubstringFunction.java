@@ -24,13 +24,14 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 
 import java.util.List;
 
 /**
- * SubstringFunction
- * description: substring(string FROM INT1 [ FOR INT2 ])--returns a substring of STRING starting from position INT1 with
- * length INT2 (to the end by default)
+ * SubstringFunction -> substring(string FROM INT1 [ FOR INT2 ])
+ * description:
+ * return a substring of STRING starting from position INT1 with length INT2 (to the end by default)
  */
 @TransformFunction(names = {"substring", "substr"})
 public class SubstringFunction implements ValueParser {
@@ -39,14 +40,14 @@ public class SubstringFunction implements ValueParser {
     private ValueParser startPositionParser;
     private ValueParser lengthParser;
 
-    /**
-     * Constructor
-     *
-     * @param expr
-     */
     public SubstringFunction(Function expr) {
-        List<Expression> expressions = expr.getParameters().getExpressions();
-        // Determine the number of arguments and build parser
+        ExpressionList parameters = expr.getParameters();
+        List<Expression> expressions;
+        if (parameters != null) {
+            expressions = parameters.getExpressions();
+        } else {
+            expressions = expr.getNamedParameters().getExpressions();
+        }
         stringParser = OperatorTools.buildParser(expressions.get(0));
         startPositionParser = OperatorTools.buildParser(expressions.get(1));
         if (expressions.size() == 3) {
@@ -54,13 +55,6 @@ public class SubstringFunction implements ValueParser {
         }
     }
 
-    /**
-     * parse
-     *
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);

@@ -74,6 +74,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,6 +120,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     private InlongStreamEntityMapper streamMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private SourceOperatorFactory operatorFactory;
 
     /**
      * Getting the source type.
@@ -523,7 +527,12 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        String extParams = getExtParams(entity);
+        if (operatorFactory == null) {
+            operatorFactory = new SourceOperatorFactory();
+            autowireCapableBeanFactory.autowireBean(operatorFactory);
+        }
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
+        String extParams = sourceOperator.getExtParams(entity);
         if (groupEntity != null && streamEntity != null) {
             dataConfig.setState(
                     SourceStatus.NORMAL_STATUS_SET.contains(SourceStatus.forCode(entity.getStatus()))

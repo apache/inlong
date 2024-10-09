@@ -28,10 +28,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestTimestampAdd extends AbstractFunctionTemporalTestBase {
+public class TestTimestampAddFunction extends AbstractFunctionTemporalTestBase {
 
     @Test
-    public void testTimestampAdd() throws Exception {
+    public void testTimestampAddFunction() throws Exception {
         String transformSql1 = "select timestamp_add('day',string2,string1) from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
@@ -67,5 +67,21 @@ public class TestTimestampAdd extends AbstractFunctionTemporalTestBase {
         List<String> output5 = processor2.transform("1970-01-01|-3", new HashMap<>());
         Assert.assertEquals(1, output5.size());
         Assert.assertEquals("result=1969-12-31 23:57:00", output5.get(0));
+
+        String transformSql3 = "select timestamp_add('MICROSECOND',string2,string1) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case6: timestamp_add('MICROSECOND',3,'1970-01-01 00:00:44.000001')
+        List<String> output6 = processor3.transform("1970-01-01 00:00:44.000001|3", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals("result=1970-01-01 00:00:44.000004", output6.get(0));
+
+        // case7: timestamp_add('MICROSECOND',3,'1970-01-01 00:00:44')
+        List<String> output7 = processor3.transform("1970-01-01 00:00:44|3", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals("result=1970-01-01 00:00:44.000003", output7.get(0));
     }
 }
