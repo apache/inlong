@@ -21,6 +21,7 @@ import org.apache.inlong.audit.AuditReporterImpl;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
@@ -39,6 +40,13 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_SERIALIZE_ERROR;
+import static org.apache.inlong.sort.base.Constants.NUM_SERIALIZE_SUCCESS;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_COMPLETE;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_CREATE;
+import static org.apache.inlong.sort.base.Constants.NUM_SNAPSHOT_ERROR;
+import static org.apache.inlong.sort.base.Constants.SERIALIZE_TIME_LAG;
+import static org.apache.inlong.sort.base.Constants.SNAPSHOT_TO_CHECKPOINT_TIME_LAG;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 /**
@@ -59,11 +67,24 @@ public class SinkExactlyMetric implements MetricData, Serializable {
     private Counter numBytesOutForMeter;
     private Counter dirtyRecordsOut;
     private Counter dirtyBytesOut;
+    private Counter numSerializeSuccess;
+    private Counter numSerializeError;
+    private Gauge<Long> serializeTimeLag;
+    /** number of attempts to create a snapshot, i.e. <code>snapshotState()</code> method call */
+    private Counter numSnapshotCreate;
+    /** number of errors when creating a snapshot */
+
+    private Counter numSnapshotError;
+    /** number of successful snapshot completions, i.e. <code>notifyCheckpointComplete</code> method call */
+    private Counter numSnapshotComplete;
+    private Gauge<Long> snapshotToCheckpointTimeLag;
     private Meter numRecordsOutPerSecond;
     private Meter numBytesOutPerSecond;
     private List<Integer> auditKeys;
     private Long currentCheckpointId = 0L;
     private Long lastCheckpointId = 0L;
+    private Long snapshotToCheckpointDelay = 0L;
+    private Long serializeDelay = 0L;
 
     public SinkExactlyMetric(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
@@ -78,6 +99,8 @@ public class SinkExactlyMetric implements MetricData, Serializable {
             case DIRTY:
                 registerMetricsForDirtyBytesOut(new ThreadSafeCounter());
                 registerMetricsForDirtyRecordsOut(new ThreadSafeCounter());
+                registerMetricForNumSerializeError(new ThreadSafeCounter());
+                registerMetricForNumSnapshotError(new ThreadSafeCounter());
                 break;
             case NORMAL:
                 recordsOutCounter.inc(option.getInitRecords());
@@ -88,6 +111,11 @@ public class SinkExactlyMetric implements MetricData, Serializable {
                 registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());
                 registerMetricsForNumBytesOutPerSecond();
                 registerMetricsForNumRecordsOutPerSecond();
+                registerMetricForSnapshotToCheckpointTimeLag();
+                registerMetricForSerializeTimeLag();
+                registerMetricForNumSerializeSuccess(new ThreadSafeCounter());
+                registerMetricForNumSnapshotCreate(new ThreadSafeCounter());
+                registerMetricForNumSnapshotComplete(new ThreadSafeCounter());
                 break;
             default:
                 recordsOutCounter.inc(option.getInitRecords());
@@ -102,6 +130,13 @@ public class SinkExactlyMetric implements MetricData, Serializable {
                 registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());
                 registerMetricsForNumBytesOutPerSecond();
                 registerMetricsForNumRecordsOutPerSecond();
+                registerMetricForSnapshotToCheckpointTimeLag();
+                registerMetricForSerializeTimeLag();
+                registerMetricForNumSerializeSuccess(new ThreadSafeCounter());
+                registerMetricForNumSerializeError(new ThreadSafeCounter());
+                registerMetricForNumSnapshotCreate(new ThreadSafeCounter());
+                registerMetricForNumSnapshotError(new ThreadSafeCounter());
+                registerMetricForNumSnapshotComplete(new ThreadSafeCounter());
                 break;
 
         }
@@ -184,6 +219,55 @@ public class SinkExactlyMetric implements MetricData, Serializable {
         dirtyBytesOut = registerCounter(DIRTY_BYTES_OUT, counter);
     }
 
+    public void registerMetricForNumSerializeSuccess() {
+        numSerializeSuccess = registerCounter(NUM_SERIALIZE_SUCCESS, new SimpleCounter());
+    }
+
+    public void registerMetricForNumSerializeSuccess(Counter counter) {
+        numSerializeSuccess = registerCounter(NUM_SERIALIZE_SUCCESS, counter);
+    }
+
+    public void registerMetricForNumSerializeError() {
+        numSerializeError = registerCounter(NUM_SERIALIZE_ERROR, new SimpleCounter());
+    }
+
+    public void registerMetricForNumSerializeError(Counter counter) {
+        numSerializeError = registerCounter(NUM_SERIALIZE_ERROR, counter);
+    }
+
+    public void registerMetricForSerializeTimeLag() {
+        serializeTimeLag = registerGauge(SERIALIZE_TIME_LAG, (Gauge<Long>) this::getSerializeDelay);
+    }
+
+    public void registerMetricForNumSnapshotCreate() {
+        numSnapshotCreate = registerCounter(NUM_SNAPSHOT_CREATE, new SimpleCounter());
+    }
+
+    public void registerMetricForNumSnapshotCreate(Counter counter) {
+        numSnapshotCreate = registerCounter(NUM_SNAPSHOT_CREATE, counter);
+    }
+
+    public void registerMetricForNumSnapshotError() {
+        numSnapshotError = registerCounter(NUM_SNAPSHOT_ERROR, new SimpleCounter());
+    }
+
+    public void registerMetricForNumSnapshotError(Counter counter) {
+        numSnapshotError = registerCounter(NUM_SNAPSHOT_ERROR, counter);
+    }
+
+    public void registerMetricForNumSnapshotComplete() {
+        numSnapshotComplete = registerCounter(NUM_SNAPSHOT_COMPLETE, new SimpleCounter());
+    }
+
+    public void registerMetricForNumSnapshotComplete(Counter counter) {
+        numSnapshotComplete = registerCounter(NUM_SNAPSHOT_COMPLETE, counter);
+    }
+
+    public void registerMetricForSnapshotToCheckpointTimeLag() {
+        snapshotToCheckpointTimeLag =
+                registerGauge(SNAPSHOT_TO_CHECKPOINT_TIME_LAG, (Gauge<Long>) this::getSnapshotToCheckpointDelay);
+    }
+
     public Counter getNumRecordsOut() {
         return numRecordsOut;
     }
@@ -208,6 +292,50 @@ public class SinkExactlyMetric implements MetricData, Serializable {
         return numBytesOutPerSecond;
     }
 
+    public Counter getNumSerializeSuccess() {
+        return numSerializeSuccess;
+    }
+
+    public Counter getNumSerializeError() {
+        return numSerializeError;
+    }
+
+    public Counter getNumSnapshotCreate() {
+        return numSnapshotCreate;
+    }
+
+    public Counter getNumSnapshotError() {
+        return numSnapshotError;
+    }
+
+    public Counter getNumSnapshotComplete() {
+        return numSnapshotComplete;
+    }
+
+    public Gauge<Long> getSerializeTimeLag() {
+        return serializeTimeLag;
+    }
+
+    public Gauge<Long> getSnapshotToCheckpointTimeLag() {
+        return snapshotToCheckpointTimeLag;
+    }
+
+    public Long getSnapshotToCheckpointDelay() {
+        return snapshotToCheckpointDelay;
+    }
+
+    public Long getSerializeDelay() {
+        return serializeDelay;
+    }
+
+    public void recordSerializeDelay(Long delay) {
+        this.serializeDelay = delay;
+    }
+
+    public void recordSnapshotToCheckpointDelay(Long delay) {
+        this.snapshotToCheckpointDelay = delay;
+    }
+
     @Override
     public MetricGroup getMetricGroup() {
         return metricGroup;
@@ -216,6 +344,36 @@ public class SinkExactlyMetric implements MetricData, Serializable {
     @Override
     public Map<String, String> getLabels() {
         return labels;
+    }
+
+    public void incNumSerializeSuccess() {
+        if (numSerializeSuccess != null) {
+            numSerializeSuccess.inc();
+        }
+    }
+
+    public void incNumSerializeError() {
+        if (numSerializeError != null) {
+            numSerializeError.inc();
+        }
+    }
+
+    public void incNumSnapshotCreate() {
+        if (numSnapshotCreate != null) {
+            numSnapshotCreate.inc();
+        }
+    }
+
+    public void incNumSnapshotError() {
+        if (numSnapshotError != null) {
+            numSnapshotError.inc();
+        }
+    }
+
+    public void incNumSnapshotComplete() {
+        if (numSnapshotComplete != null) {
+            numSnapshotComplete.inc();
+        }
     }
 
     public Counter getNumRecordsOutForMeter() {
@@ -301,6 +459,8 @@ public class SinkExactlyMetric implements MetricData, Serializable {
                         + ", labels=" + labels
                         + ", dirtyRecords=" + dirtyRecordsOut.getCount()
                         + ", dirtyBytes=" + dirtyBytesOut.getCount()
+                        + ", numSerializeError=" + numSerializeError.getCount()
+                        + ", numSnapshotError=" + numSnapshotError.getCount()
                         + '}';
             case NORMAL:
                 return "SinkMetricData{"
@@ -313,6 +473,11 @@ public class SinkExactlyMetric implements MetricData, Serializable {
                         + ", numBytesOutForMeter=" + numBytesOutForMeter.getCount()
                         + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
                         + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
+                        + ", serializeTimeLag=" + serializeTimeLag.getValue()
+                        + ", snapshotToCheckpointTimeLag=" + snapshotToCheckpointTimeLag.getValue()
+                        + ", numSerializeSuccess=" + numSerializeSuccess.getCount()
+                        + ", numSnapshotCreate=" + numSnapshotCreate.getCount()
+                        + ", numSnapshotComplete=" + numSnapshotComplete.getCount()
                         + '}';
             default:
                 return "SinkMetricData{"
@@ -327,6 +492,13 @@ public class SinkExactlyMetric implements MetricData, Serializable {
                         + ", dirtyBytesOut=" + dirtyBytesOut.getCount()
                         + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
                         + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
+                        + ", serializeTimeLag=" + serializeTimeLag.getValue()
+                        + ", snapshotToCheckpointTimeLag=" + snapshotToCheckpointTimeLag.getValue()
+                        + ", numSerializeSuccess=" + numSerializeSuccess.getCount()
+                        + ", numSnapshotCreate=" + numSnapshotCreate.getCount()
+                        + ", numSnapshotComplete=" + numSnapshotComplete.getCount()
+                        + ", numSerializeError=" + numSerializeError.getCount()
+                        + ", numSnapshotError=" + numSnapshotError.getCount()
                         + '}';
         }
     }

@@ -81,6 +81,12 @@ public final class Constants {
 
     public static final String SNAPSHOT_TO_CHECKPOINT_TIME_LAG = "snapshotToCheckpointTimeLag";
 
+    public static final String NUM_SERIALIZE_SUCCESS = "numSerializeSuccess";
+
+    public static final String NUM_SERIALIZE_ERROR = "numSerializeError";
+
+    public static final String SERIALIZE_TIME_LAG = "serializeTimeLag";
+
     /**
      * Timestamp when the read phase changed
      */
