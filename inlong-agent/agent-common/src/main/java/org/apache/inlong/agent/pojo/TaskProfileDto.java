@@ -277,12 +277,12 @@ public class TaskProfileDto {
         redisTask.setReadTimeout(config.getTimeout());
         redisTask.setReplId(config.getReplId());
         redisTask.setCommand(config.getCommand());
-        redisTask.setDbNumber(config.getDbNumber());
+        redisTask.setDbName(config.getDbName());
         redisTask.setKeys(config.getKeys());
         redisTask.setFieldOrMember(config.getFieldOrMember());
         redisTask.setIsSubscribe(config.getIsSubscribe());
         redisTask.setSyncFreq(config.getSyncFreq());
-        redisTask.setSubOperations(config.getSubOperations());
+        redisTask.setSubscriptionOperation(config.getSubscriptionOperation());
 
         return redisTask;
     }

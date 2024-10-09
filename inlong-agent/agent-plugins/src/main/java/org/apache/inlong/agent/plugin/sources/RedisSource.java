@@ -92,14 +92,14 @@ public class RedisSource extends AbstractSource {
     private String readTimeout;
     private String replId;
     private String snapShot;
-    private String dbNumber;
+    private String dbName;
     private String redisCommand;
 
     private String fieldOrMember;
     private boolean destroyed;
     private boolean isSubscribe;
     private Set<String> keys;
-    private Set<String> subOperations;
+    private Set<String> subscribeOperations;
     private Replicator redisReplicator;
     private BlockingQueue<SourceData> redisQueue;
     private ScheduledExecutorService executor;
@@ -136,7 +136,7 @@ public class RedisSource extends AbstractSource {
         this.readTimeout = profile.get(TaskConstants.TASK_REDIS_READTIMEOUT, "");
         this.replId = profile.get(TaskConstants.TASK_REDIS_REPLID, "");
         this.snapShot = profile.get(TaskConstants.TASK_REDIS_OFFSET, "-1");
-        this.dbNumber = profile.get(TaskConstants.TASK_REDIS_DB_NUMBER, "0");
+        this.dbName = profile.get(TaskConstants.TASK_REDIS_DB_NAME);
         this.keys = new ConcurrentSkipListSet<>(Arrays.asList(profile.get(TaskConstants.TASK_REDIS_KEYS).split(",")));
         this.isSubscribe = profile.getBoolean(TaskConstants.TASK_REDIS_IS_SUBSCRIBE, false);
         this.instanceId = profile.getInstanceId();
@@ -146,8 +146,8 @@ public class RedisSource extends AbstractSource {
         try {
             if (isSubscribe) {
                 // use subscribe mode
-                this.subOperations = new ConcurrentSkipListSet<>(
-                        Arrays.asList(profile.get(TaskConstants.TASK_REDIS_SUBOPERATION).split(",")));
+                this.subscribeOperations = new ConcurrentSkipListSet<>(
+                        Arrays.asList(profile.get(TaskConstants.TASK_REDIS_SUBSCRIPTION_OPERATION).split(",")));
                 this.executor = (ScheduledExecutorService) Executors.newSingleThreadExecutor();
                 this.redisReplicator = new RedisReplicator(uri);
                 initReplicator();
@@ -364,8 +364,8 @@ public class RedisSource extends AbstractSource {
     private String getRedisUri() {
         StringBuffer sb = new StringBuffer("redis://");
         sb.append(hostName).append(":").append(port);
-        if (!StringUtils.isEmpty(dbNumber)) {
-            sb.append("/").append(dbNumber);
+        if (!StringUtils.isEmpty(dbName)) {
+            sb.append("/").append(dbName);
         }
         sb.append("?");
         if (!StringUtils.isEmpty(authPassword)) {
@@ -393,9 +393,9 @@ public class RedisSource extends AbstractSource {
     }
 
     private void initReplicator() {
-        if (!subOperations.isEmpty()) {
+        if (!subscribeOperations.isEmpty()) {
             DefaultCommandParser replicatorCommandParser = new DefaultCommandParser();
-            for (String subOperation : subOperations) {
+            for (String subOperation : subscribeOperations) {
                 this.redisReplicator.addCommandParser(CommandName.name(subOperation), replicatorCommandParser);
             }
             this.redisReplicator.addEventListener((replicator, event) -> {

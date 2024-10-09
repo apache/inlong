@@ -134,7 +134,7 @@ public class TestRedisSource {
         profile.set(TaskConstants.TASK_REDIS_COMMAND, command);
         profile.set(TaskConstants.TASK_REDIS_KEYS, keys);
         profile.set(TaskConstants.TASK_AUDIT_VERSION, "0");
-        profile.set(TaskConstants.TASK_REDIS_SUBOPERATION, subOperation);
+        profile.set(TaskConstants.TASK_REDIS_SUBSCRIPTION_OPERATION, subOperation);
         profile.setInstanceId(instanceId);
     }
 

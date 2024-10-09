@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
+
 @Data
 public class RedisTask {
 
@@ -29,13 +30,13 @@ public class RedisTask {
     private String readTimeout;
     private String queueSize;
     private String replId;
-    private String dbNumber;
+    private String dbName;
     private String command;
     private String keys;
     private String fieldOrMember;
     private Boolean isSubscribe;
     private String syncFreq;
-    private String subOperations;
+    private String subscriptionOperation;
 
     @Data
     public static class RedisTaskConfig {
@@ -48,12 +49,12 @@ public class RedisTask {
         private String timeout;
         private String queueSize;
         private String replId;
-        private String dbNumber;
+        private String dbName;
         private String command;
         private String keys;
         private String fieldOrMember;
         private Boolean isSubscribe;
         private String syncFreq;
-        private String subOperations;
+        private String subscriptionOperation;
     }
 }
