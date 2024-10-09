@@ -97,4 +97,50 @@ public class TestCardinalityFunction extends AbstractFunctionStringTestBase {
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=2", output.get(0));
     }
+
+    @Test
+    public void testCardinalityForMapFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select cardinality(map(string1,numeric1,string2)) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case3: cardinality(map('he',-1,'xxd'))
+        data = "he|xxd|cloud|-1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        transformSql = "select cardinality(map(string1,numeric1,string2,string3)) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case4: cardinality(map('he', 5, 'xxd', 'cloud'))
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=2", output.get(0));
+
+        transformSql =
+                "select cardinality(map(string1,numeric1,map(string2,string3),map(numeric2,numeric3))) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case6: cardinality(map('he', 5, map('xxd', 'cloud'),map(3, 3)))
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=2", output.get(0));
+
+    }
 }
