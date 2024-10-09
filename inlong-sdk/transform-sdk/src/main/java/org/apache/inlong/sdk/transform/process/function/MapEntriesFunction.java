@@ -26,7 +26,12 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.Arrays;
 import java.util.Map;
-
+/**
+ * MapEntriesFunction
+ * description: MAP_ENTRIES(map)--Returns an array of all entries in the given map. No order guaranteed.
+ * for example: map_entries(Map('he',1,'xxd','cloud'))--return [he=1, xxd=cloud]
+ *              map_entries(Map(1,2,'cloud','xxd'))--return [xxd=cloud, 1=2]
+ */
 @TransformFunction(names = {"map_entries"})
 public class MapEntriesFunction implements ValueParser {
 

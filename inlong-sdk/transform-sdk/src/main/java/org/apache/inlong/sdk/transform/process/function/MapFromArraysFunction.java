@@ -28,7 +28,13 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+/**
+ * MapFromArraysFunction
+ * description: MAP_FROM_ARRAYS(array_of_keys, array_of_values)--Returns a map created from an arrays of keys and values.
+ *              Note that the lengths of two arrays should be the same.
+ * for example: map_from_arrays(array('he', 'xxd'),array(1, 3))--return {he=1, xxd=3}
+ *              map_from_arrays(array('xxd', array('cloud')),array(1, array(2)))--return {1=xxd, [2]=[cloud]}
+ */
 @Slf4j
 @TransformFunction(names = {"map_from_arrays"})
 public class MapFromArraysFunction implements ValueParser {

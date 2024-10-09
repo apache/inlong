@@ -29,7 +29,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * MapUnionFunction
+ * description: MAP_UNION(map1, …)--Returns a map created by merging at least one map. These maps should have a common
+ *              map type. If there are overlapping keys, the value from ‘map2’ will overwrite the value from ‘map1’
+ *              , the value from ‘map3’ will overwrite the value from ‘map2’, the value from ‘mapn’ will overwrite
+ *              the value from ‘map(n-1)’. If any of maps is null, return null.
+ * for example: map_union(map('he', 1),map('xxd', 3))--return {he=1, xxd=3}
+ *              map_union(map('he', 1),map('he', 3))--return {he=3}
+ */
 @TransformFunction(names = {"map_union"})
 public class MapUnionFunction implements ValueParser {
 

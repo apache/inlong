@@ -26,7 +26,12 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.Arrays;
 import java.util.Map;
-
+/**
+ * MapKeysFunction
+ * description: MAP_KEYS(map)--Returns the keys of the map as array. No order guaranteed.
+ * for example: map_keys(Map('he',1,'xxd','cloud'))--return [he, xxd]
+ *              map_keys(Map('xxd','cloud',map(1,2),map(3,'apple')))--return [xxd, {1=2}]
+ */
 @TransformFunction(names = {"map_keys"})
 public class MapKeysFunction implements ValueParser {
 

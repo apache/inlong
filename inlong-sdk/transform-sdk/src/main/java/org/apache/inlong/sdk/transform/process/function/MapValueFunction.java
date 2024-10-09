@@ -26,7 +26,12 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.Arrays;
 import java.util.Map;
-
+/**
+ * MapValueFunction
+ * description: MAP_VALUES(map)--Returns the values of the map as array. No order guaranteed.
+ * for example: map_values(Map('he',1,'xxd','cloud'))--return [1, cloud]
+ *              map_values(Map('xxd','cloud',map(1,2),map(3,'apple')))--return [cloud, {3=apple}]
+ */
 @TransformFunction(names = {"map_values"})
 public class MapValueFunction implements ValueParser {
 
