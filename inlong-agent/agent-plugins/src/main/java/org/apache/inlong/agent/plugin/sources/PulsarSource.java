@@ -50,7 +50,6 @@ public class PulsarSource extends AbstractSource {
     private String serviceUrl;
     private String subscription;
     private String subscriptionType;
-    private SubscriptionInitialPosition subscriptionPosition;
     private PulsarClient pulsarClient;
     private Long timestamp;
     private final static String PULSAR_SUBSCRIPTION_PREFIX = "inlong-agent-";
@@ -69,12 +68,6 @@ public class PulsarSource extends AbstractSource {
             topic = profile.getInstanceId();
             serviceUrl = profile.get(TASK_PULSAR_SERVICE_URL);
             subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, PULSAR_SUBSCRIPTION_PREFIX + inlongStreamId);
-            String position = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION, SubscriptionInitialPosition.Latest.name());
-            if (position.equals(SUBSCRIPTION_CUSTOM)) {
-                subscriptionPosition = SubscriptionInitialPosition.Latest;
-            } else {
-                subscriptionPosition = SubscriptionInitialPosition.valueOf(position);
-            }
             subscriptionType = profile.get(TASK_PULSAR_SUBSCRIPTION_TYPE, SubscriptionType.Shared.name());
             timestamp = profile.getLong(TASK_PULSAR_RESET_TIME, 0);
             pulsarClient = PulsarClient.builder().serviceUrl(serviceUrl).build();
@@ -122,16 +115,28 @@ public class PulsarSource extends AbstractSource {
     private Consumer<byte[]> getConsumer() {
         Consumer<byte[]> consumer = null;
         try {
-            consumer = pulsarClient.newConsumer(Schema.BYTES)
-                    .topic(topic)
-                    .subscriptionName(subscription)
-                    .subscriptionInitialPosition(subscriptionPosition)
-                    .subscriptionType(SubscriptionType.valueOf(subscriptionType))
-                    .subscribe();
-            if (!isRestoreFromDB && timestamp != 0L) {
-                consumer.seek(timestamp);
-                LOGGER.info("Reset consume from {}", timestamp);
+            String position = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION, SubscriptionInitialPosition.Latest.name());
+            if (position.equals(SUBSCRIPTION_CUSTOM)) {
+                consumer = pulsarClient.newConsumer(Schema.BYTES)
+                        .topic(topic)
+                        .subscriptionName(subscription)
+                        .subscriptionType(SubscriptionType.valueOf(subscriptionType))
+                        .subscribe();
+                if (!isRestoreFromDB) {
+                    if (timestamp == 0L) {
+                        LOGGER.error("Reset consume but timestamp is 0L");
+                    } else {
+                        consumer.seek(timestamp);
+                        LOGGER.info("Reset consume from {}", timestamp);
+                    }
+                }
             } else {
+                consumer = pulsarClient.newConsumer(Schema.BYTES)
+                        .topic(topic)
+                        .subscriptionName(subscription)
+                        .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(position))
+                        .subscriptionType(SubscriptionType.valueOf(subscriptionType))
+                        .subscribe();
                 LOGGER.info("Skip to reset consume");
             }
             return consumer;
