@@ -26,11 +26,14 @@ import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.JdbcConfig;
 import org.apache.inlong.audit.entities.SinkConfig;
 import org.apache.inlong.audit.entities.SourceConfig;
+import org.apache.inlong.audit.entities.StatData;
+import org.apache.inlong.audit.sink.AuditSink;
 import org.apache.inlong.audit.sink.CacheSink;
 import org.apache.inlong.audit.sink.JdbcSink;
 import org.apache.inlong.audit.source.JdbcSource;
 import org.apache.inlong.audit.utils.JdbcUtils;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +41,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_ENABLE_STAT_AUDIT_DAY;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATA_QUEUE_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_ENABLE_STAT_AUDIT_DAY;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_REALTIME_STAT_BACK_TIMES;
@@ -60,113 +65,70 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_SOURCE_STAT_SQL;
 public class EtlService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EtlService.class);
-    private JdbcSource mysqlSourceOfTemp;
-    private JdbcSource mysqlSourceOfTenMinutesCache;
-    private JdbcSource mysqlSourceOfHalfHourCache;
-    private JdbcSource mysqlSourceOfHourCache;
-    private JdbcSink mysqlSinkOfDay;
-    private final List<JdbcSource> auditJdbcSources = new LinkedList<>();
-    private JdbcSink mysqlSinkOfTemp;
-    private CacheSink cacheSinkOfTenMinutesCache;
-    private CacheSink cacheSinkOfHalfHourCache;
-    private CacheSink cacheSinkOfHourCache;
+
+    // Statistics of original audit data
+    private final List<JdbcSource> originalSources = new LinkedList<>();
     private final int queueSize;
-    private final int statBackTimes;
     private final String serviceId;
+    private final Configuration configuration;
+
+    private final List<JdbcSource> dataFlowSources = new LinkedList<>();
+    private final List<AuditSink> dataFlowSinks = new LinkedList<>();
 
     public EtlService() {
-        queueSize = Configuration.getInstance().get(KEY_DATA_QUEUE_SIZE,
+        configuration = Configuration.getInstance();
+        queueSize = configuration.get(KEY_DATA_QUEUE_SIZE,
                 DEFAULT_DATA_QUEUE_SIZE);
-        statBackTimes = Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
-                DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES);
-        serviceId = Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID);
+        serviceId = configuration.get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID);
     }
 
-    /**
-     * Start the etl service.
-     */
     public void start() {
-        mysqlToMysqlOfDay();
-        mysqlToTenMinutesCache();
-        mysqlToHalfHourCache();
-        mysqlToHourCache();
+        int statBackTimes = configuration.get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
+                DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES);
+
+        startDataFlow(AuditCycle.MINUTE_10, statBackTimes, TenMinutesCache.getInstance().getCache());
+        startDataFlow(AuditCycle.MINUTE_30, statBackTimes, HalfHourCache.getInstance().getCache());
+        startDataFlow(AuditCycle.HOUR, statBackTimes, HourCache.getInstance().getCache());
+
+        if (configuration.get(KEY_ENABLE_STAT_AUDIT_DAY, DEFAULT_ENABLE_STAT_AUDIT_DAY)) {
+            statBackTimes = configuration.get(KEY_SUMMARY_DAILY_STAT_BACK_TIMES, DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES);
+            startDataFlow(AuditCycle.DAY, statBackTimes, null);
+        }
     }
 
-    /**
-     * Aggregate data from mysql data source and store the aggregated data in the target mysql table.
-     * The audit data cycle is days,and stored in table of day.
-     */
-    private void mysqlToMysqlOfDay() {
+    private void startDataFlow(AuditCycle cycle, int backTimes, Cache<String, StatData> cache) {
         DataQueue dataQueue = new DataQueue(queueSize);
+        JdbcSource source = new JdbcSource(dataQueue, buildMysqlSourceConfig(cycle, backTimes));
+        source.start();
+        dataFlowSources.add(source);
 
-        mysqlSourceOfTemp = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.DAY,
-                Configuration.getInstance().get(KEY_SUMMARY_DAILY_STAT_BACK_TIMES,
-                        DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES)));
-        mysqlSourceOfTemp.start();
-
-        SinkConfig sinkConfig = buildMysqlSinkConfig(Configuration.getInstance().get(KEY_MYSQL_SINK_INSERT_DAY_SQL,
-                DEFAULT_MYSQL_SINK_INSERT_DAY_SQL));
-        mysqlSinkOfDay = new JdbcSink(dataQueue, sinkConfig);
-        mysqlSinkOfDay.start();
+        AuditSink sink;
+        if (cache != null) {
+            sink = new CacheSink(dataQueue, cache);
+        } else {
+            SinkConfig sinkConfig = buildMysqlSinkConfig(configuration.get(KEY_MYSQL_SINK_INSERT_DAY_SQL,
+                    DEFAULT_MYSQL_SINK_INSERT_DAY_SQL));
+            sink = new JdbcSink(dataQueue, sinkConfig);
+        }
+        sink.start();
+        dataFlowSinks.add(sink);
     }
 
-    /**
-     * Aggregate data from mysql data source and store in local cache for openapi.
-     */
-    private void mysqlToTenMinutesCache() {
-        DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfTenMinutesCache =
-                new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_10, statBackTimes));
-        mysqlSourceOfTenMinutesCache.start();
-
-        cacheSinkOfTenMinutesCache = new CacheSink(dataQueue, TenMinutesCache.getInstance().getCache());
-        cacheSinkOfTenMinutesCache.start();
-    }
-
-    /**
-     * Aggregate data from mysql data source and store in local cache for openapi.
-     */
-    private void mysqlToHalfHourCache() {
-        DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfHalfHourCache =
-                new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_30, statBackTimes));
-        mysqlSourceOfHalfHourCache.start();
-
-        cacheSinkOfHalfHourCache = new CacheSink(dataQueue, HalfHourCache.getInstance().getCache());
-        cacheSinkOfHalfHourCache.start();
-    }
-
-    /**
-     * Aggregate data from mysql data source and store in local cache for openapi.
-     */
-    private void mysqlToHourCache() {
-        DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfHourCache = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.HOUR, statBackTimes));
-        mysqlSourceOfHourCache.start();
-
-        cacheSinkOfHourCache = new CacheSink(dataQueue, HourCache.getInstance().getCache());
-        cacheSinkOfHourCache.start();
-    }
-
-    /**
-     * Aggregate data from clickhouse data source and store the aggregated data in the target mysql table.
-     * The default audit data cycle is 5 minutes,and stored in a temporary table.
-     * Support multiple audit source clusters.
-     */
     public void auditSourceToMysql() {
         DataQueue dataQueue = new DataQueue(queueSize);
         List<JdbcConfig> sourceList = ConfigService.getInstance().getAuditSourceByServiceId(serviceId);
         for (JdbcConfig jdbcConfig : sourceList) {
             JdbcSource jdbcSource = new JdbcSource(dataQueue, buildAuditJdbcSourceConfig(jdbcConfig));
             jdbcSource.start();
-            auditJdbcSources.add(jdbcSource);
+            originalSources.add(jdbcSource);
             LOGGER.info("Audit source to mysql jdbc config:{}", jdbcConfig);
         }
 
-        SinkConfig sinkConfig = buildMysqlSinkConfig(Configuration.getInstance().get(KEY_MYSQL_SINK_INSERT_TEMP_SQL,
+        SinkConfig sinkConfig = buildMysqlSinkConfig(configuration.get(KEY_MYSQL_SINK_INSERT_TEMP_SQL,
                 DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL));
-        mysqlSinkOfTemp = new JdbcSink(dataQueue, sinkConfig);
-        mysqlSinkOfTemp.start();
+        JdbcSink sink = new JdbcSink(dataQueue, sinkConfig);
+        sink.start();
+        dataFlowSinks.add(sink);
     }
 
     /**
@@ -193,7 +155,7 @@ public class EtlService {
     private SourceConfig buildMysqlSourceConfig(AuditCycle auditCycle, int statBackTimes) {
         JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
         return new SourceConfig(auditCycle,
-                Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_TEMP_SQL,
+                configuration.get(KEY_MYSQL_SOURCE_QUERY_TEMP_SQL,
                         DEFAULT_MYSQL_SOURCE_QUERY_TEMP_SQL),
                 statBackTimes,
                 jdbcConfig.getDriverClass(),
@@ -209,9 +171,9 @@ public class EtlService {
      */
     private SourceConfig buildAuditJdbcSourceConfig(JdbcConfig jdbcConfig) {
         return new SourceConfig(AuditCycle.MINUTE_5,
-                Configuration.getInstance().get(KEY_SOURCE_STAT_SQL,
+                configuration.get(KEY_SOURCE_STAT_SQL,
                         DEFAULT_SOURCE_STAT_SQL),
-                Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
+                configuration.get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
                         DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES),
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
@@ -224,21 +186,14 @@ public class EtlService {
      * Stop the etl service,and destroy related resources.
      */
     public void stop() {
-        mysqlSourceOfTemp.destroy();
-        mysqlSinkOfDay.destroy();
-
-        for (JdbcSource source : auditJdbcSources) {
+        for (JdbcSource source : originalSources) {
             source.destroy();
         }
-        if (null != mysqlSinkOfTemp)
-            mysqlSinkOfTemp.destroy();
-
-        mysqlSourceOfTenMinutesCache.destroy();
-        mysqlSourceOfHalfHourCache.destroy();
-        mysqlSourceOfHourCache.destroy();
-
-        cacheSinkOfTenMinutesCache.destroy();
-        cacheSinkOfHalfHourCache.destroy();
-        cacheSinkOfHourCache.destroy();
+        for (JdbcSource source : dataFlowSources) {
+            source.destroy();
+        }
+        for (AuditSink sink : dataFlowSinks) {
+            sink.destroy();
+        }
     }
 }

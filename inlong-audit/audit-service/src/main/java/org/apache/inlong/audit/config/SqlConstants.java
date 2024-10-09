@@ -170,8 +170,12 @@ public class SqlConstants {
     public static final String KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL = "audit.data.temp.delete.partition.sql";
     public static final String DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL =
             "ALTER TABLE audit_data_temp DROP PARTITION %s";
-
-    public static final String KEY_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL = "audit.data.temp.check.partition.sql";
-    public static final String DEFAULT_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL =
-            "SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_NAME = 'audit_data_temp' and PARTITION_NAME = ?";
+    public static final String KEY_TABLE_AUDIT_DATA_CHECK_PARTITION_SQL = "audit.data.check.partition.sql";
+    public static final String DEFAULT_TABLE_AUDIT_DATA_CHECK_PARTITION_SQL =
+            "SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_NAME = '%s' and PARTITION_NAME = '%s'";
+    public static final String KEY_TABLE_AUDIT_DATA_DAY_ADD_PARTITION_SQL = "audit.data.day.add.partition.sql";
+    public static final String DEFAULT_TABLE_AUDIT_DATA_DAY_ADD_PARTITION_SQL =
+            "ALTER TABLE audit_data_day ADD PARTITION (PARTITION %s VALUES LESS THAN (TO_DAYS('%s')))";
+    public static final String TABLE_AUDIT_DATA_DAY = "audit_data_day";
+    public static final String TABLE_AUDIT_DATA_TEMP = "audit_data_temp";
 }
