@@ -317,7 +317,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addInstance(InstanceProfile profile) {
-        if (instanceMap.size() >= instanceLimit) {
+        if (instanceMap.size() > instanceLimit) {
             LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
             actionQueue.offer(new InstanceAction(ActionType.ADD, profile));
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);

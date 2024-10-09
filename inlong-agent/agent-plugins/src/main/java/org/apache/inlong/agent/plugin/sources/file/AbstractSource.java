@@ -38,7 +38,6 @@ import org.apache.inlong.common.metric.MetricRegister;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +54,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
@@ -356,9 +353,7 @@ public abstract class AbstractSource implements Source {
     }
 
     private Message createMessage(SourceData sourceData) {
-        String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
-        header.put(PROXY_KEY_DATA, proxyPartitionKey);
         header.put(OFFSET, sourceData.getOffset());
         header.put(PROXY_KEY_STREAM_ID, inlongStreamId);
         if (extendedHandler != null) {
@@ -424,6 +419,9 @@ public abstract class AbstractSource implements Source {
 
     @Override
     public boolean sourceFinish() {
+        if (isRealTime) {
+            return false;
+        }
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
     }
 }
