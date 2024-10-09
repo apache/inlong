@@ -89,7 +89,6 @@ public class MySqlSourceReader<T>
     private final MySqlSourceReaderContext mySqlSourceReaderContext;
     private MySqlBinlogSplit suspendedBinlogSplit;
     private final DebeziumDeserializationSchema<T> metricSchema;
-
     private final OpenTelemetryLogger openTelemetryLogger;
 
     public MySqlSourceReader(
@@ -112,7 +111,10 @@ public class MySqlSourceReader<T>
         this.mySqlSourceReaderContext = context;
         this.suspendedBinlogSplit = null;
         this.metricSchema = metricSchema;
-        this.openTelemetryLogger = new OpenTelemetryLogger(); // initialize OpenTelemetryLogger
+        // initialize OpenTelemetryLogger
+        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                .setServiceName(this.getClass().getSimpleName())
+                .setLocalHostIp(this.context.getLocalHostName()).build();
     }
 
     @Override
