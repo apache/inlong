@@ -20,7 +20,9 @@ package org.apache.inlong.sort.base.util;
 import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter;
 import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.OpenTelemetrySdkBuilder;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
+import io.opentelemetry.sdk.logs.SdkLoggerProviderBuilder;
 import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
@@ -36,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * OpenTelemetryLogger to collect logs and send to OpenTelemetry
+ */
 public class OpenTelemetryLogger {
 
     private OpenTelemetrySdk SDK; // OpenTelemetry SDK
@@ -48,53 +53,129 @@ public class OpenTelemetryLogger {
 
     private final Level logLevel; // Log4j Log Level
 
+    private final String localHostIp; // Local Host IP
+
     private static final Logger LOG = LoggerFactory.getLogger(OpenTelemetryLogger.class);
 
-    public OpenTelemetryLogger() {
-        // Default Service Name
-        serviceName = "inlong-sort-connector";
-        // Get OpenTelemetry Exporter Endpoint from Environment Variable
-        if (System.getenv("OTEL_EXPORTER_ENDPOINT") != null) {
-            endpoint = System.getenv("OTEL_EXPORTER_ENDPOINT");
-        } else {
-            endpoint = "localhost:4317";
-        }
-        // Default Log4j Layout
-        this.layout = PatternLayout.newBuilder()
-                .withPattern("%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n")
-                .withCharset(StandardCharsets.UTF_8)
-                .build();
-        // Default Log4j Log Level
-        this.logLevel = Level.INFO;
+    public OpenTelemetryLogger(Builder builder) {
+        this.serviceName = builder.serviceName;
+        this.endpoint = builder.endpoint;
+        this.layout = builder.layout;
+        this.logLevel = builder.logLevel;
+        this.localHostIp = builder.localHostIp;
     }
 
-    public OpenTelemetryLogger(String serviceName, String endpoint, Layout<?> layout, Level logLevel) {
+    public OpenTelemetryLogger(String serviceName, String endpoint, Layout<?> layout, Level logLevel,
+            String localHostIp) {
         this.serviceName = serviceName;
         this.endpoint = endpoint;
         this.layout = layout;
         this.logLevel = logLevel;
+        this.localHostIp = localHostIp;
     }
 
+    /**
+     * OpenTelemetryLogger Builder
+     */
+    public static final class Builder {
+
+        private String endpoint; // OpenTelemetry Exporter Endpoint
+
+        private String serviceName; // OpenTelemetry Service Name
+
+        private Layout<?> layout; // Log4j Layout
+
+        private Level logLevel; // Log4j Log Level
+
+        private String localHostIp;
+
+        public Builder() {
+        }
+
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+            return this;
+        }
+
+        public Builder setLayout(Layout<?> layout) {
+            this.layout = layout;
+            return this;
+        }
+
+        public Builder setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+            return this;
+        }
+
+        public Builder setLogLevel(Level logLevel) {
+            this.logLevel = logLevel;
+            return this;
+        }
+
+        public Builder setLocalHostIp(String localHostIp) {
+            this.localHostIp = localHostIp;
+            return this;
+        }
+
+        public OpenTelemetryLogger build() {
+            if (this.serviceName == null) {
+                this.serviceName = "unnamed_service";
+            }
+            if (this.endpoint == null) {
+                if (System.getenv("OTEL_EXPORTER_ENDPOINT") != null) {
+                    this.endpoint = System.getenv("OTEL_EXPORTER_ENDPOINT");
+                } else {
+                    this.endpoint = "localhost:4317";
+                }
+            }
+            if (this.layout == null) {
+                this.layout = PatternLayout.newBuilder()
+                        .withPattern("%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n")
+                        .withCharset(StandardCharsets.UTF_8)
+                        .build();
+            }
+            if (this.logLevel == null) {
+                this.logLevel = Level.INFO;
+            }
+            return new OpenTelemetryLogger(this);
+        }
+
+    }
+
+    /**
+     * Create OpenTelemetry SDK with OpenTelemetry Exporter
+     */
     private void createOpenTelemetrySdk() {
         // Create OpenTelemetry SDK
-        SDK = OpenTelemetrySdk.builder()
-                .setLoggerProvider(
-                        SdkLoggerProvider.builder()
-                                .setResource(
-                                        Resource.getDefault().toBuilder()
-                                                .put(ResourceAttributes.SERVICE_NAME, this.serviceName)
-                                                .build())
-                                .addLogRecordProcessor(
-                                        BatchLogRecordProcessor.builder(
-                                                OtlpGrpcLogRecordExporter.builder()
-                                                        .setEndpoint("http://" + this.endpoint)
-                                                        .build())
-                                                .build())
-                                .build())
+        OpenTelemetrySdkBuilder sdkBuilder = OpenTelemetrySdk.builder();
+        // Create Logger Provider Builder
+        SdkLoggerProviderBuilder loggerProviderBuilder = SdkLoggerProvider.builder();
+        // get Resource
+        Resource resource = Resource.getDefault().toBuilder()
+                .put(ResourceAttributes.SERVICE_NAMESPACE, "inlong_sort")
+                .put(ResourceAttributes.SERVICE_NAME, this.serviceName)
+                .put(ResourceAttributes.HOST_NAME, this.localHostIp)
                 .build();
+        // set Resource
+        loggerProviderBuilder.setResource(resource);
+        // Create OpenTelemetry Exporter
+        OtlpGrpcLogRecordExporter exporter = OtlpGrpcLogRecordExporter.builder()
+                .setEndpoint("http://" + this.endpoint)
+                .build();
+        // Create BatchLogRecordProcessor use OpenTelemetry Exporter
+        BatchLogRecordProcessor batchLogRecordProcessor = BatchLogRecordProcessor.builder(exporter).build();
+        // Add BatchLogRecordProcessor to Logger Provider Builder
+        loggerProviderBuilder.addLogRecordProcessor(batchLogRecordProcessor);
+        // set Logger Provider
+        sdkBuilder.setLoggerProvider(loggerProviderBuilder.build());
+        // Build OpenTelemetry SDK
+        SDK = sdkBuilder.build();
     }
 
-    public void addOpenTelemetryAppender() {
+    /**
+     * Add OpenTelemetryAppender to Log4j
+     */
+    private void addOpenTelemetryAppender() {
         org.apache.logging.log4j.spi.LoggerContext context = LogManager.getContext(false);
         LoggerContext loggerContext = (LoggerContext) context;
         Configuration config = loggerContext.getConfiguration();
@@ -114,7 +195,10 @@ public class OpenTelemetryLogger {
         loggerContext.updateLoggers();
     }
 
-    public void removeOpenTelemetryAppender() {
+    /**
+     * Remove OpenTelemetryAppender from Log4j
+     */
+    private void removeOpenTelemetryAppender() {
         org.apache.logging.log4j.spi.LoggerContext context = LogManager.getContext(false);
         LoggerContext loggerContext = (LoggerContext) context;
         Configuration config = loggerContext.getConfiguration();
@@ -129,6 +213,9 @@ public class OpenTelemetryLogger {
         loggerContext.updateLoggers();
     }
 
+    /**
+     * Install OpenTelemetryLogger for the application
+     */
     public void install() {
         addOpenTelemetryAppender();
         createOpenTelemetrySdk();
@@ -136,6 +223,9 @@ public class OpenTelemetryLogger {
         LOG.info("OpenTelemetryLogger installed");
     }
 
+    /**
+     * Uninstall OpenTelemetryLogger
+     */
     public void uninstall() {
         LOG.info("OpenTelemetryLogger uninstalled");
         SDK.close();
