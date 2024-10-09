@@ -71,4 +71,9 @@ export const allDefaultClusters: MetaExportWithBackendList<ClusterMetaType> = [
     value: 'SORT_KAFKA',
     LoadEntity: () => import('./SortKafka'),
   },
+  {
+    label: 'Sort Http',
+    value: 'SORT_HTTP',
+    LoadEntity: () => import('./SortHttp'),
+  },
 ];

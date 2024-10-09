@@ -96,4 +96,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'KUDU',
     LoadEntity: () => import('./Kudu'),
   },
+  {
+    label: 'Http',
+    value: 'HTTP',
+    LoadEntity: () => import('./Http'),
+  },
 ];
