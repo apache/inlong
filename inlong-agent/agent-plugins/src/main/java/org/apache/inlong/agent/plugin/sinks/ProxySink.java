@@ -99,7 +99,6 @@ public class ProxySink extends AbstractSink {
                 MemoryManager.getInstance().printDetail(AGENT_GLOBAL_WRITER_PERMIT, "proxy sink");
                 return false;
             }
-            cache.generateExtraMap(proxyMessage.getDataKey());
             // add message to package proxy
             boolean suc = cache.add(proxyMessage);
             if (suc) {

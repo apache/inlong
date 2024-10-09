@@ -105,6 +105,8 @@ public class FilterDefinition extends TransformDefinition {
 
         private TargetValue targetValue;
 
+        private List<TargetValue> targetValues;
+
         private RuleRelation relationWithPost;
     }
 

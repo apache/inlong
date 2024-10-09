@@ -100,6 +100,7 @@ public class ProxyClientConfig {
     private LoadBalance loadBalance;
 
     private int maxRetry;
+    private int senderMaxAttempt = ConfigConstants.DEFAULT_SENDER_MAX_ATTEMPT;
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp,
@@ -547,5 +548,12 @@ public class ProxyClientConfig {
 
     public void setMaxRetry(int maxRetry) {
         this.maxRetry = maxRetry;
+    }
+    public int getSenderMaxAttempt() {
+        return senderMaxAttempt;
+    }
+
+    public void setSenderAttempt(int senderMaxAttempt) {
+        this.senderMaxAttempt = senderMaxAttempt;
     }
 }

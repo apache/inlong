@@ -67,6 +67,26 @@ public final class Constants {
 
     public static final String CURRENT_EMIT_EVENT_TIME_LAG = "currentEmitEventTimeLag";
 
+    public static final String DESERIALIZE_TIME_LAG = "deserializeTimeLag";
+
+    public static final String NUM_DESERIALIZE_SUCCESS = "numDeserializeSuccess";
+
+    public static final String NUM_DESERIALIZE_ERROR = "numDeserializeError";
+
+    public static final String NUM_SNAPSHOT_CREATE = "numSnapshotCreate";
+
+    public static final String NUM_SNAPSHOT_ERROR = "numSnapshotError";
+
+    public static final String NUM_SNAPSHOT_COMPLETE = "numSnapshotComplete";
+
+    public static final String SNAPSHOT_TO_CHECKPOINT_TIME_LAG = "snapshotToCheckpointTimeLag";
+
+    public static final String NUM_SERIALIZE_SUCCESS = "numSerializeSuccess";
+
+    public static final String NUM_SERIALIZE_ERROR = "numSerializeError";
+
+    public static final String SERIALIZE_TIME_LAG = "serializeTimeLag";
+
     /**
      * Timestamp when the read phase changed
      */

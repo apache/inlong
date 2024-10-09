@@ -50,6 +50,7 @@ public class HttpIdConfig extends IdConfig {
     private List<String> fieldList;
     private Charset sourceCharset;
     private Charset sinkCharset;
+    private DataFlowConfig dataFlowConfig;
 
     public static HttpIdConfig create(DataFlowConfig dataFlowConfig) {
         HttpSinkConfig sinkConfig = (HttpSinkConfig) dataFlowConfig.getSinkConfig();
@@ -83,6 +84,7 @@ public class HttpIdConfig extends IdConfig {
                 .fieldList(fields)
                 .sinkCharset(sinkCharset)
                 .sourceCharset(sourceCharset)
+                .dataFlowConfig(dataFlowConfig)
                 .build();
     }
 }

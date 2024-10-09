@@ -39,7 +39,7 @@ import java.util.List;
 @JsonTypeName("singleValueFilter")
 @Data
 @NoArgsConstructor
-public class SingleValueFilterFunction implements FilterFunction, Serializable {
+public class SingleValueFilterFunction extends FilterFunction implements Serializable {
 
     private static final long serialVersionUID = 8953419088907830331L;
 
@@ -49,8 +49,6 @@ public class SingleValueFilterFunction implements FilterFunction, Serializable {
     private FunctionParam target;
     @JsonProperty("compareOperator")
     private SingleValueCompareOperator compareOperator;
-    @JsonProperty("logicOperator")
-    private LogicOperator logicOperator;
 
     @JsonCreator
     public SingleValueFilterFunction(

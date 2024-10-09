@@ -45,6 +45,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -90,6 +91,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceFieldEntityMapper sourceFieldMapper;
     @Autowired
     private GroupCheckService groupCheckService;
+    @Autowired
+    private UserService userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -296,6 +299,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to update source info");
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
@@ -334,7 +339,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
         }
-
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to delete source info");
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
         SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
         // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
@@ -537,10 +543,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public List<Integer> batchAddDataAddTask(String groupId, String streamId, List<DataAddTaskRequest> requestList,
+    public List<Integer> batchAddDataAddTask(String groupId, List<DataAddTaskRequest> requestList,
             String operator) {
         List<Integer> result = new ArrayList<>();
-        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(groupId, streamId));
+        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(groupId, null));
         for (DataAddTaskRequest request : requestList) {
             request.setAuditVersion(auditVersion);
             int id = addDataAddTask(request, operator);

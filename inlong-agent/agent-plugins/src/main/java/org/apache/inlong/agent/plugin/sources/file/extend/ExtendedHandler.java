@@ -18,20 +18,23 @@
 package org.apache.inlong.agent.plugin.sources.file.extend;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.plugin.Message;
 
 import java.util.Map;
 
 // For some private, customized extension processing
 public abstract class ExtendedHandler {
 
-    public ExtendedHandler(InstanceProfile profile) {
+    protected InstanceProfile profile;
 
+    public ExtendedHandler(InstanceProfile profile) {
+        this.profile = profile;
     }
 
     // Modify the header by the body
-    public void dealWithHeader(Map<String, String> header, byte[] body) {
+    abstract public void dealWithHeader(Map<String, String> header, byte[] body);
 
-    }
+    abstract public boolean filterMessage(Message msg);
 
     public static class Constants {
 

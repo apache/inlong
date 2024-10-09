@@ -59,7 +59,6 @@ public class MapSinkEncoder implements SinkEncoder<Map<String, Object>> {
             try {
                 esMap.put(fieldName, converter.convert(strValue));
             } catch (Throwable t) {
-                log.warn("failed to serialize field ={}, value={}", fieldName, strValue, t);
                 esMap.put(fieldName, null);
             }
         }

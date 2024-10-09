@@ -18,29 +18,29 @@
 package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
 public class HttpRequest {
 
     private final HttpUriRequest request;
-    private final ProfileEvent event;
+    private final ProfileEvent profileEvent;
+    private final DispatchProfile dispatchProfile;
     private final long sendTime;
     private int remainRetryTimes;
 
-    public HttpRequest(HttpUriRequest request, ProfileEvent event, int remainRetryTimes) {
+    public HttpRequest(HttpUriRequest request, ProfileEvent profileEvent, DispatchProfile dispatchProfile,
+            int remainRetryTimes) {
         this.request = request;
-        this.event = event;
+        this.profileEvent = profileEvent;
+        this.dispatchProfile = dispatchProfile;
         this.sendTime = System.currentTimeMillis();
         this.remainRetryTimes = remainRetryTimes;
     }
 
     public HttpUriRequest getRequest() {
         return request;
-    }
-
-    public ProfileEvent getEvent() {
-        return event;
     }
 
     public long getSendTime() {
@@ -54,4 +54,21 @@ public class HttpRequest {
     public void setRemainRetryTimes(int remainRetryTimes) {
         this.remainRetryTimes = remainRetryTimes;
     }
+
+    /**
+     * get profileEvent
+     * @return the profileEvent
+     */
+    public ProfileEvent getProfileEvent() {
+        return profileEvent;
+    }
+
+    /**
+     * get dispatchProfile
+     * @return the dispatchProfile
+     */
+    public DispatchProfile getDispatchProfile() {
+        return dispatchProfile;
+    }
+
 }

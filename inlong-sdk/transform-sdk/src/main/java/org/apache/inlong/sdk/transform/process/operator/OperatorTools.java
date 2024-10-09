@@ -32,6 +32,7 @@ import org.reflections.scanners.Scanners;
 
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -145,6 +146,14 @@ public class OperatorTools {
             return (Timestamp) value;
         } else {
             return Timestamp.valueOf(String.valueOf(value));
+        }
+    }
+
+    public static byte[] parseBytes(Object value) {
+        if (value instanceof byte[]) {
+            return (byte[]) value;
+        } else {
+            return (String.valueOf(value)).getBytes(StandardCharsets.UTF_8);
         }
     }
 

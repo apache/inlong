@@ -32,9 +32,10 @@ import {
 } from './config';
 import { Table } from 'antd';
 import i18n from '@/i18n';
+import { AuditProps } from '@/ui/pages/ModuleAudit';
 
 export const auditModule = 'audit';
-const Comp: React.FC = () => {
+const Comp: React.FC<AuditProps> = ({ auditData }) => {
   const [form] = useForm();
 
   const [query, setQuery] = useState({
@@ -114,7 +115,7 @@ const Comp: React.FC = () => {
         <FormGenerator
           form={form}
           layout="inline"
-          content={getFormContent(query, onSearch, onDataStreamSuccess)}
+          content={getFormContent(query, onSearch, onDataStreamSuccess, auditData)}
           style={{ marginBottom: 30 }}
           onFilter={allValues =>
             setQuery({

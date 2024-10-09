@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from 'antd';
 import { PageContainer, Container } from '@/ui/components/PageContainer';
 import { useHistory, useParams } from '@/ui/hooks';
@@ -25,6 +25,7 @@ import i18n from '@/i18n';
 import IpModule, { ipModule as ipModuleName } from './IpModule';
 import IdModule, { idModule as idModuleName } from './IdModule';
 import AuditModule, { auditModule as auditModuleName } from '@/ui/pages/ModuleAudit/AuditModule';
+import request from '@/core/utils/request';
 const tabList = [
   {
     tab: i18n.t('pages.ModuleAudit.Id'),
@@ -50,7 +51,9 @@ const tabListMap = tabList.reduce(
   }),
   {},
 );
-
+export interface AuditProps {
+  auditData?: any[];
+}
 const Comp: React.FC = () => {
   const history = useHistory();
   const { type } = useParams<Record<string, string>>();
@@ -63,7 +66,20 @@ const Comp: React.FC = () => {
       pathname: `/system/${value}`,
     });
   };
-
+  const [auditData, setAuditData] = useState([]);
+  useEffect(() => {
+    request('/audit/getAuditBases').then(res1 => {
+      request({
+        url: '/audit/getAuditBases',
+        params: {
+          isMetric: true,
+        },
+      }).then(res2 => {
+        res1.push(...res2);
+        setAuditData(res1);
+      });
+    });
+  }, []);
   return (
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Container>
@@ -76,7 +92,7 @@ const Comp: React.FC = () => {
           headStyle={{ border: 'none' }}
           tabProps={{ size: 'middle' }}
         >
-          {tabListMap[module]}
+          {React.cloneElement(tabListMap[module], { auditData: auditData })}
         </Card>
       </Container>
     </PageContainer>

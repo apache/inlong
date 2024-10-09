@@ -95,9 +95,9 @@ public class TransformDefinitionTest {
     private List<FilterRule> createFilterRule() {
         List<FilterRule> filterRules = Lists.newArrayList();
         filterRules.add(new FilterRule(new StreamField(0, FieldType.STRING.toString(), "name", null, null),
-                OperationType.not_null, null, RuleRelation.OR));
+                OperationType.not_null, null, null, RuleRelation.OR));
         filterRules.add(new FilterRule(new StreamField(1, FieldType.INT.toString(), "age", null, null),
-                OperationType.gt, new TargetValue(true, null, "50"), null));
+                OperationType.gt, new TargetValue(true, null, "50"), null, null));
         return filterRules;
     }
 

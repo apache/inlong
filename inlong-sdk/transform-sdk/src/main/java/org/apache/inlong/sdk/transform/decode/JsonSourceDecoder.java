@@ -99,19 +99,16 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
                 // error data
                 return new JsonSourceData(root, null);
             }
+            // node is not array
             if (!node.isArray()) {
                 current = newElement;
-            } else {
-                if (!newElement.isJsonArray()) {
-                    // error data
-                    return new JsonSourceData(root, null);
-                }
-                JsonArray newArray = newElement.getAsJsonArray();
-                if (node.getArrayIndex() >= newArray.size()) {
-                    // error data
-                    return new JsonSourceData(root, null);
-                }
-                current = newArray.get(node.getArrayIndex());
+                continue;
+            }
+            // node is an array
+            current = getElementFromArray(node, newElement);
+            if (current == null) {
+                // error data
+                return new JsonSourceData(root, null);
             }
         }
         if (!current.isJsonArray()) {
@@ -120,5 +117,25 @@ public class JsonSourceDecoder implements SourceDecoder<String> {
         }
         childRoot = current.getAsJsonArray();
         return new JsonSourceData(root, childRoot);
+    }
+
+    private JsonElement getElementFromArray(JsonNode node, JsonElement curElement) {
+        if (node.getArrayIndices().isEmpty()) {
+            // error data
+            return null;
+        }
+        for (int index : node.getArrayIndices()) {
+            if (!curElement.isJsonArray()) {
+                // error data
+                return null;
+            }
+            JsonArray newArray = curElement.getAsJsonArray();
+            if (index >= newArray.size()) {
+                // error data
+                return null;
+            }
+            curElement = newArray.get(index);
+        }
+        return curElement;
     }
 }

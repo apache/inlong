@@ -36,7 +36,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 
+ *
  * BufferQueueChannel
  */
 public class BufferQueueChannel extends AbstractChannel {
@@ -45,6 +45,7 @@ public class BufferQueueChannel extends AbstractChannel {
 
     public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = "maxBufferQueueSizeKb";
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
+    public static final String KEY_TASK_NAME = "taskName";
     public static final int DEFAULT_MAX_BUFFERQUEUE_SIZE_KB = 128 * 1024;
 
     // global buffer size
@@ -54,6 +55,7 @@ public class BufferQueueChannel extends AbstractChannel {
     protected Timer channelTimer;
     private AtomicLong takeCounter = new AtomicLong(0);
     private AtomicLong putCounter = new AtomicLong(0);
+    private String taskName;
 
     /**
      * Constructor
@@ -66,7 +68,7 @@ public class BufferQueueChannel extends AbstractChannel {
 
     /**
      * put
-     * 
+     *
      * @param  event
      * @throws ChannelException
      */
@@ -88,7 +90,7 @@ public class BufferQueueChannel extends AbstractChannel {
 
     /**
      * take
-     * 
+     *
      * @return                  Event
      * @throws ChannelException
      */
@@ -106,7 +108,7 @@ public class BufferQueueChannel extends AbstractChannel {
 
     /**
      * getTransaction
-     * 
+     *
      * @return
      */
     @Override
@@ -138,7 +140,8 @@ public class BufferQueueChannel extends AbstractChannel {
         TimerTask channelTask = new TimerTask() {
 
             public void run() {
-                LOG.info("queueSize:{},availablePermits:{},put:{},take:{}",
+                LOG.info("taskName:{},queueSize:{},availablePermits:{},put:{},take:{}",
+                        taskName,
                         bufferQueue.size(),
                         bufferQueue.availablePermits(),
                         putCounter.getAndSet(0),
@@ -152,11 +155,12 @@ public class BufferQueueChannel extends AbstractChannel {
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
     public void configure(Context context) {
+        this.taskName = context.getString(KEY_TASK_NAME);
     }
 
     /**

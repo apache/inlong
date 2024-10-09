@@ -19,7 +19,7 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
-import java.util.Map;
+import java.util.List;
 
 @Data
 public class FileTask {
@@ -46,8 +46,8 @@ public class FileTask {
 
     private String dataSeparator;
 
-    // JSON string, the content format is Map<String,Object>
-    private String properties;
+    // The streamIds to be filtered out
+    private String filterStreams;
 
     // Monitor interval for file
     private Long monitorInterval;
@@ -121,8 +121,8 @@ public class FileTask {
         // Column separator of data source
         private String dataSeparator;
 
-        // Properties for file
-        private Map<String, Object> properties;
+        // The streamIds to be filtered out
+        private List<String> filterStreams;
 
         // Monitor interval for file
         private Long monitorInterval;

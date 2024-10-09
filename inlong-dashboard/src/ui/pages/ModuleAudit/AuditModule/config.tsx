@@ -158,7 +158,7 @@ export const getSourceDataWithCommas = sourceData => {
 
 let endTimeVisible = true;
 
-export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => [
+export const getFormContent = (initialValues, onSearch, onDataStreamSuccess, auditData) => [
   {
     type: 'select',
     label: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
@@ -303,34 +303,16 @@ export const getFormContent = (initialValues, onSearch, onDataStreamSuccess) => 
       allowClear: true,
       showSearch: true,
       dropdownMatchSelectWidth: false,
-      options: {
-        requestAuto: true,
-        requestTrigger: ['onOpen'],
-        requestService: () => {
-          return request({
-            url: '/audit/getAuditBases',
-            params: {
-              isMetric: true,
-            },
+      options: auditData?.reduce((accumulator, item) => {
+        const existingItem = accumulator.find((i: { value: any }) => i.value === item.auditId);
+        if (!existingItem) {
+          accumulator.push({
+            label: i18n?.language === 'cn' ? item.nameInChinese : item.nameInEnglish,
+            value: item.auditId,
           });
-        },
-        requestParams: {
-          formatResult: result => {
-            return result?.reduce((accumulator, item) => {
-              const existingItem = accumulator.find(
-                (i: { value: any }) => i.value === item.auditId,
-              );
-              if (!existingItem) {
-                accumulator.push({
-                  label: i18n?.language === 'cn' ? item.nameInChinese : item.nameInEnglish,
-                  value: item.auditId,
-                });
-              }
-              return accumulator;
-            }, []);
-          },
-        },
-      },
+        }
+        return accumulator;
+      }, []),
       filterOption: (keyword: string, option: { label: any }) => {
         return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
       },

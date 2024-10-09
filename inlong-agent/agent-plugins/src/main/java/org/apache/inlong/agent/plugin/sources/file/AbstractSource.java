@@ -309,6 +309,37 @@ public abstract class AbstractSource implements Source {
 
     @Override
     public Message read() {
+        SourceData sourceData = readFromQueue();
+        while (sourceData != null) {
+            Message msg = createMessage(sourceData);
+            if (filterSourceData(msg)) {
+                long auditTime = 0;
+                if (isRealTime) {
+                    auditTime = AgentUtils.getCurrentTime();
+                } else {
+                    auditTime = profile.getSinkDataTime();
+                }
+                Map<String, String> header = msg.getHeader();
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
+                        auditTime, 1, sourceData.getData().length, auditVersion);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId,
+                        header.get(PROXY_KEY_STREAM_ID),
+                        AgentUtils.getCurrentTime(), 1, sourceData.getData().length, auditVersion);
+                return msg;
+            }
+            sourceData = readFromQueue();
+        }
+        return null;
+    }
+
+    private boolean filterSourceData(Message msg) {
+        if (extendedHandler != null) {
+            return extendedHandler.filterMessage(msg);
+        }
+        return true;
+    }
+
+    private SourceData readFromQueue() {
         SourceData sourceData = null;
         try {
             sourceData = queue.poll(READ_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -321,7 +352,7 @@ public abstract class AbstractSource implements Source {
         }
         LOGGER.debug("Read from source queue {} {}", new String(sourceData.getData()), inlongGroupId);
         MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.getData().length);
-        return createMessage(sourceData);
+        return sourceData;
     }
 
     private Message createMessage(SourceData sourceData) {
@@ -333,16 +364,6 @@ public abstract class AbstractSource implements Source {
         if (extendedHandler != null) {
             extendedHandler.dealWithHeader(header, sourceData.getData());
         }
-        long auditTime = 0;
-        if (isRealTime) {
-            auditTime = AgentUtils.getCurrentTime();
-        } else {
-            auditTime = profile.getSinkDataTime();
-        }
-        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                auditTime, 1, sourceData.getData().length, auditVersion);
-        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                AgentUtils.getCurrentTime(), 1, sourceData.getData().length, auditVersion);
         Message finalMsg = new DefaultMessage(sourceData.getData(), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {

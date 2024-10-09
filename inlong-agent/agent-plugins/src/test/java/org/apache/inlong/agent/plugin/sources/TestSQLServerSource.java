@@ -49,7 +49,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -134,8 +136,8 @@ public class TestSQLServerSource {
         final String tableName = "test_source";
         final String serverName = "server-01";
 
-        TaskProfile taskProfile = helper.getTaskProfile(1, "", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
-                "GMT+8:00");
+        TaskProfile taskProfile = helper.getTaskProfile(1, "", "csv", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+                "GMT+8:00", null);
         instanceProfile = taskProfile.createInstanceProfile("",
                 "", taskProfile.getCycleUnit(), "20240725", AgentUtils.getCurrentTime());
         instanceProfile.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);

@@ -53,6 +53,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
     public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
+    public static final String DEFAULT_REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
     public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
     public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
     public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
@@ -167,6 +168,9 @@ public class TaskProfileDto {
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
         fileTask.setStartTime(taskConfig.getStartTime());
         fileTask.setEndTime(taskConfig.getEndTime());
+        if (taskConfig.getFilterStreams() != null) {
+            fileTask.setFilterStreams(GSON.toJson(taskConfig.getFilterStreams()));
+        }
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         } else {
@@ -271,8 +275,14 @@ public class TaskProfileDto {
         redisTask.setPort(config.getPort());
         redisTask.setSsl(config.getSsl());
         redisTask.setReadTimeout(config.getTimeout());
-        redisTask.setQueueSize(config.getQueueSize());
         redisTask.setReplId(config.getReplId());
+        redisTask.setCommand(config.getCommand());
+        redisTask.setDbName(config.getDbName());
+        redisTask.setKeys(config.getKeys());
+        redisTask.setFieldOrMember(config.getFieldOrMember());
+        redisTask.setIsSubscribe(config.getIsSubscribe());
+        redisTask.setSyncFreq(config.getSyncFreq());
+        redisTask.setSubscriptionOperation(config.getSubscriptionOperation());
 
         return redisTask;
     }
@@ -518,6 +528,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case REDIS:
+                task.setTaskClass(DEFAULT_REDIS_TASK);
                 RedisTask redisTask = getRedisTask(dataConfig);
                 task.setRedisTask(redisTask);
                 task.setSource(REDIS_SOURCE);

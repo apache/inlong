@@ -70,7 +70,10 @@ public class FunctionTools {
     }
 
     public static ValueParser getTransformFunction(Function func) {
-        String functionName = func.getName();
+        if (func == null) {
+            return null;
+        }
+        String functionName = func.getName().toLowerCase();
         Class<?> clazz = functionMap.get(functionName);
         if (clazz == null) {
             return new ColumnParser(func);

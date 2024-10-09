@@ -30,6 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import javax.annotation.Nonnull;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ import java.util.List;
  */
 @JsonTypeName("betweenFunction")
 @Data
-public class BetweenFunction implements FilterFunction {
+public class BetweenFunction extends FilterFunction implements Serializable {
 
     @Nonnull
     @JsonProperty("field")
@@ -49,9 +50,6 @@ public class BetweenFunction implements FilterFunction {
     @Nonnull
     @JsonProperty("end")
     private final FunctionParam end;
-    @Nonnull
-    @JsonProperty("logicOperator")
-    private final LogicOperator logicOperator;
 
     @JsonCreator
     public BetweenFunction(

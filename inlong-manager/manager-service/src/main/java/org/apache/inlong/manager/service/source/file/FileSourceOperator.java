@@ -35,7 +35,6 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,18 +113,24 @@ public class FileSourceOperator extends AbstractSourceOperator {
         StreamSourceEntity sourceEntity = sourceMapper.selectById(request.getSourceId());
         try {
             List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(sourceEntity.getId());
-            int dataAddTaskSize = CollectionUtils.isNotEmpty(dataAddTaskList) ? dataAddTaskList.size() : 0;
             FileSourceDTO dto = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
             dto.setStartTime(sourceRequest.getStartTime());
             dto.setEndTime(sourceRequest.getEndTime());
             dto.setRetry(true);
+            dto.setAuditVersion(request.getAuditVersion());
+            dto.setFilterStreams(sourceRequest.getFilterStreams());
             StreamSourceEntity dataAddTaskEntity =
                     CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
             dataAddTaskEntity.setId(null);
-            dataAddTaskEntity.setSourceName(sourceEntity.getSourceName() + "-" + (dataAddTaskSize + 1));
+            dataAddTaskEntity.setSourceName(
+                    sourceEntity.getSourceName() + "-" + request.getAuditVersion() + "-" + sourceEntity.getId());
             dataAddTaskEntity.setExtParams(objectMapper.writeValueAsString(dto));
             dataAddTaskEntity.setTaskMapId(sourceEntity.getId());
-            return sourceMapper.insert(dataAddTaskEntity);
+            Integer id = sourceMapper.insert(dataAddTaskEntity);
+            SourceRequest dataAddTaskRequest =
+                    CommonBeanUtils.copyProperties(dataAddTaskEntity, SourceRequest::new, true);
+            updateAgentTaskConfig(dataAddTaskRequest, operator);
+            return id;
         } catch (Exception e) {
             LOGGER.error("serialize extParams of File SourceDTO failure: ", e);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

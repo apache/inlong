@@ -20,6 +20,8 @@ package org.apache.inlong.sdk.transform.process.parser;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.pojo.IntervalInfo;
+import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 
@@ -27,30 +29,52 @@ import java.math.BigDecimal;
 
 /**
  * SubtractionParser
- * 
+ * Description: Support subtraction between numerical values and time
  */
 @TransformParser(values = Subtraction.class)
 public class SubtractionParser implements ValueParser {
 
-    private ValueParser left;
+    private final ValueParser left;
 
-    private ValueParser right;
+    private final ValueParser right;
 
     public SubtractionParser(Subtraction expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        if (this.left instanceof IntervalParser && this.right instanceof IntervalParser) {
+            return null;
+        } else if (this.left instanceof IntervalParser || this.right instanceof IntervalParser) {
+            IntervalParser intervalParser = null;
+            ValueParser dateParser = null;
+            if (this.left instanceof IntervalParser) {
+                intervalParser = (IntervalParser) this.left;
+                dateParser = this.right;
+            } else {
+                intervalParser = (IntervalParser) this.right;
+                dateParser = this.left;
+            }
+            Object intervalInfoObj = intervalParser.parse(sourceData, rowIndex, context);
+            Object dateObj = dateParser.parse(sourceData, rowIndex, context);
+            if (intervalInfoObj == null || dateObj == null) {
+                return null;
+            }
+            return DateUtil.dateTypeAdd(OperatorTools.parseString(dateObj),
+                    (IntervalInfo) intervalInfoObj, false);
+        } else {
+            return numericalOperation(sourceData, rowIndex, context);
+        }
+    }
+
+    private BigDecimal numericalOperation(SourceData sourceData, int rowIndex, Context context) {
         Object leftObj = this.left.parse(sourceData, rowIndex, context);
         Object rightObj = this.right.parse(sourceData, rowIndex, context);
+        if (leftObj == null || rightObj == null) {
+            return null;
+        }
         BigDecimal leftValue = OperatorTools.parseBigDecimal(leftObj);
         BigDecimal rightValue = OperatorTools.parseBigDecimal(rightObj);
         return leftValue.subtract(rightValue);

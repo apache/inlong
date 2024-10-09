@@ -26,6 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
@@ -50,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("deprecation")
 public class HttpSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(HttpSinkContext.class);
@@ -79,7 +81,7 @@ public class HttpSinkContext extends SinkContext {
     private String nodeId;
     private Map<String, HttpIdConfig> idConfigMap = new ConcurrentHashMap<>();
     private ObjectMapper objectMapper = new ObjectMapper();
-    private final BufferQueue<HttpRequest> dispatchQueue;
+    private final BufferQueue<DispatchProfile> dispatchQueue;
     private AtomicLong offerCounter = new AtomicLong(0);
     private AtomicLong takeCounter = new AtomicLong(0);
     private AtomicLong backCounter = new AtomicLong(0);
@@ -96,7 +98,7 @@ public class HttpSinkContext extends SinkContext {
     private int logMaxLength = DEFAULT_LOG_MAX_LENGTH;
 
     public HttpSinkContext(String sinkName, Context context, Channel channel,
-            BufferQueue<HttpRequest> dispatchQueue) {
+            BufferQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.sinkContext = context;
         this.dispatchQueue = dispatchQueue;
@@ -190,8 +192,8 @@ public class HttpSinkContext extends SinkContext {
         this.maxConnect = httpNodeConfig.getMaxConnect();
 
         this.maxConnectPerRoute = sinkContext.getInteger(KEY_MAX_CONNECT_PER_ROUTE, DEFAULT_MAX_CONNECT_PER_ROUTE);
-        this.connectionRequestTimeout =
-                sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT, DEFAULT_CONNECTION_REQUEST_TIMEOUT);
+        this.connectionRequestTimeout = sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT,
+                DEFAULT_CONNECTION_REQUEST_TIMEOUT);
         this.socketTimeout = sinkContext.getInteger(KEY_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT);
         this.maxRedirects = sinkContext.getInteger(KEY_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
         this.logMaxLength = sinkContext.getInteger(KEY_LOG_MAX_LENGTH, DEFAULT_LOG_MAX_LENGTH);
@@ -206,8 +208,8 @@ public class HttpSinkContext extends SinkContext {
         this.maxConnect = sinkContext.getInteger(KEY_MAX_CONNECT_TOTAL, DEFAULT_MAX_CONNECT_TOTAL);
 
         this.maxConnectPerRoute = sinkContext.getInteger(KEY_MAX_CONNECT_PER_ROUTE, DEFAULT_MAX_CONNECT_PER_ROUTE);
-        this.connectionRequestTimeout =
-                sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT, DEFAULT_CONNECTION_REQUEST_TIMEOUT);
+        this.connectionRequestTimeout = sinkContext.getInteger(KEY_CONNECTION_REQUEST_TIMEOUT,
+                DEFAULT_CONNECTION_REQUEST_TIMEOUT);
         this.socketTimeout = sinkContext.getInteger(KEY_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT);
         this.maxRedirects = sinkContext.getInteger(KEY_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
         this.logMaxLength = sinkContext.getInteger(KEY_LOG_MAX_LENGTH, DEFAULT_LOG_MAX_LENGTH);
@@ -239,7 +241,7 @@ public class HttpSinkContext extends SinkContext {
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        metricItem.readFailCount.incrementAndGet();
+        metricItem.sendFailCount.incrementAndGet();
     }
 
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
@@ -293,27 +295,25 @@ public class HttpSinkContext extends SinkContext {
         this.sinkContext = sinkContext;
     }
 
-    public void offerDispatchQueue(HttpRequest httpRequest) {
-        this.offerCounter.incrementAndGet();
-        dispatchQueue.acquire(httpRequest.getEvent().getBody().length);
-        dispatchQueue.offer(httpRequest);
-    }
-
-    public HttpRequest takeDispatchQueue() {
-        HttpRequest httpRequest = this.dispatchQueue.pollRecord();
-        if (httpRequest != null) {
+    public DispatchProfile takeDispatchQueue() {
+        DispatchProfile dispatchProfile = this.dispatchQueue.pollRecord();
+        if (dispatchProfile != null) {
             this.takeCounter.incrementAndGet();
         }
-        return httpRequest;
+        return dispatchProfile;
     }
 
-    public void backDispatchQueue(HttpRequest httpRequest) {
+    public void backDispatchQueue(DispatchProfile dispatchProfile) {
         this.backCounter.incrementAndGet();
-        dispatchQueue.offer(httpRequest);
+        dispatchQueue.offer(dispatchProfile);
     }
 
-    public void releaseDispatchQueue(HttpRequest httpRequest) {
-        dispatchQueue.release(httpRequest.getEvent().getBody().length);
+    public void releaseDispatchQueue(ProfileEvent event) {
+        dispatchQueue.release(event.getBody().length);
+    }
+
+    public void releaseDispatchQueue(DispatchProfile dispatchProfile) {
+        dispatchQueue.release(dispatchProfile.getSize());
     }
 
     public String getBaseUrl() {

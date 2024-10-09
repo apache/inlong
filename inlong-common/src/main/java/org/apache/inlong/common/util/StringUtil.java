@@ -283,4 +283,8 @@ public class StringUtil {
         }
         return charStr;
     }
+
+    public static boolean isEmpty(Object str) {
+        return str == null || str.toString().isEmpty();
+    }
 }

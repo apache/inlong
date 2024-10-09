@@ -45,8 +45,6 @@ import java.util.Properties;
 public abstract class AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfiguration.class);
-    private static final JsonParser JSON_PARSER = new JsonParser();
-
     private final Map<String, JsonPrimitive> configStorage = new HashMap<>();
 
     /**
@@ -81,7 +79,7 @@ public abstract class AbstractConfiguration {
             if (inputStream != null) {
                 reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 if (isJson) {
-                    JsonElement tmpElement = JSON_PARSER.parse(reader).getAsJsonObject();
+                    JsonElement tmpElement = JsonParser.parseReader(reader).getAsJsonObject();
                     updateConfig(new HashMap<>(10), 0, tmpElement);
                 } else {
                     Properties properties = new Properties();
@@ -103,7 +101,7 @@ public abstract class AbstractConfiguration {
      * @param jsonStr json string
      */
     public void loadJsonStrResource(String jsonStr) {
-        JsonElement tmpElement = JSON_PARSER.parse(jsonStr);
+        JsonElement tmpElement = JsonParser.parseString(jsonStr);
         updateConfig(new HashMap<>(10), 0, tmpElement);
     }
 

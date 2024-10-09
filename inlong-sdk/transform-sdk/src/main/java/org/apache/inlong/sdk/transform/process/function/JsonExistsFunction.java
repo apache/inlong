@@ -22,51 +22,49 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONPath;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 /**
- * ReplicateFunction
- * description: replicate(string, numeric)--Repeat the string numeric times and return a new string
+ * JsonExistsFunction
+ * description: JSON_EXISTS(jsonValue, path)--Determines whether a JSON string satisfies a given path search criterion.
+ * for example: JSON_EXISTS('{"a": true}', '$.a')--return true
+ *              JSON_EXISTS('{"a": true}', '$.b')--return false
+ *              JSON_EXISTS('{"a": [{ "b": 1 }]}', '$.a[0].b')--return true
  */
-@TransformFunction(names = {"replicate"})
-public class ReplicateFunction implements ValueParser {
+@TransformFunction(names = {"json_exists"})
+public class JsonExistsFunction implements ValueParser {
 
-    private ValueParser stringParser;
+    private final ValueParser jsonParser;
 
-    private ValueParser countParser;
+    private final ValueParser pathParser;
 
-    public ReplicateFunction(Function expr) {
+    public JsonExistsFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
-        stringParser = OperatorTools.buildParser(expressions.get(0));
-        countParser = OperatorTools.buildParser(expressions.get(1));
+        this.jsonParser = OperatorTools.buildParser(expressions.get(0));
+        this.pathParser = OperatorTools.buildParser(expressions.get(1));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        Object countObj = countParser.parse(sourceData, rowIndex, context);
-        String str = OperatorTools.parseString(stringObj);
-        double count = OperatorTools.parseBigDecimal(countObj).doubleValue();
-        return repeat(str, count);
-    }
-    private String repeat(String str, double count) {
-        if (count == 0) {
-            return "";
+        Object jsonObj = jsonParser.parse(sourceData, rowIndex, context);
+        Object pathObj = pathParser.parse(sourceData, rowIndex, context);
+        if (jsonObj == null || pathObj == null) {
+            return false;
         }
-        if (count == 1) {
-            return str;
+        String path = OperatorTools.parseString(pathObj);
+        String jsonString = OperatorTools.parseString(jsonObj);
+        if (path.isEmpty()) {
+            return false;
         }
-        StringBuilder repeatedStr = new StringBuilder();
-        StringBuilder originStr = new StringBuilder(str);
-        while (count > 0) {
-            if (count % 2 != 0) {
-                repeatedStr.append(originStr);
-            }
-            count = Math.floor(count / 2);
-            originStr.append(originStr);
+
+        Object json = JSON.parse(jsonString);
+        if (json == null) {
+            return false;
         }
-        return repeatedStr.toString();
+        return JSONPath.contains(json, path);
     }
 }

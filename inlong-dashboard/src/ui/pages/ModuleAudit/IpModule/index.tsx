@@ -23,10 +23,10 @@ import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
 import { timestampFormat } from '@/core/utils';
 import { getFormContent, toTableData, getTableColumns } from './config';
+import { AuditProps } from '@/ui/pages/ModuleAudit';
 
 export const ipModule = 'ip';
-
-const Comp: React.FC = () => {
+const Comp: React.FC<AuditProps> = ({ auditData }) => {
   const [form] = useForm();
 
   const [query, setQuery] = useState({
@@ -100,7 +100,7 @@ const Comp: React.FC = () => {
     <>
       <HighTable
         filterForm={{
-          content: getFormContent(query, onSearch),
+          content: getFormContent(query, onSearch, auditData),
           onFilter,
         }}
         table={{

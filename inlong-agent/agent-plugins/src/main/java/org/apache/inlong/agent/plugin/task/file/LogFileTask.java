@@ -241,7 +241,7 @@ public class LogFileTask extends AbstractTask {
             runAtLeastOneTime = true;
         }
         dealWithEventMap();
-        if (instanceQueue.isEmpty() && allInstanceFinished()) {
+        if (allInstanceFinished()) {
             LOGGER.info("retry task finished, send action to task manager, taskId {}", getTaskId());
             TaskAction action = new TaskAction(org.apache.inlong.agent.core.task.ActionType.FINISH, taskProfile);
             taskManager.submitAction(action);
@@ -264,6 +264,9 @@ public class LogFileTask extends AbstractTask {
             LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
             fileInfos.forEach((fileInfo) -> {
                 addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
+                if (retry) {
+                    instanceCount++;
+                }
             });
         });
     }

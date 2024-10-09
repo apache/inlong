@@ -27,12 +27,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = SourceType.FILE)
 @ApiModel(value = "File data add task request")
 public class FileDataAddTaskRequest extends DataAddTaskRequest {
+
+    @ApiModelProperty("filterStreams")
+    private List<String> filterStreams;
 
     @ApiModelProperty("Start time")
     private Long startTime;

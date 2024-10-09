@@ -25,8 +25,6 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * ShaFunction
  * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
@@ -48,7 +46,6 @@ public class ShaFunction implements ValueParser {
         if (msgObj == null) {
             return null;
         }
-        String msg = msgObj.toString();
-        return DigestUtils.sha1Hex(msg.getBytes(StandardCharsets.UTF_8));
+        return DigestUtils.sha1Hex(OperatorTools.parseBytes(msgObj));
     }
 }

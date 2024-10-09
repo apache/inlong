@@ -60,12 +60,12 @@ public class TestDateDiffFunction extends AbstractFunctionTemporalTestBase {
         // case4: datediff('2018-12-10 12:30:00', '')
         output = processor.transform("2018-12-10 12:30:00|", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case5: datediff('2018-12', '2018-12-12')
         output = processor.transform("2018-12|2018-12-12", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
 
         // case6: datediff('1970-01-01',null)
         transformSql = "select datediff(string1,xxd) from source";
@@ -75,6 +75,6 @@ public class TestDateDiffFunction extends AbstractFunctionTemporalTestBase {
                         SinkEncoderFactory.createKvEncoder(kvSink));
         output = processor.transform("1970-01-01|1970-01-02", new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=null", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }

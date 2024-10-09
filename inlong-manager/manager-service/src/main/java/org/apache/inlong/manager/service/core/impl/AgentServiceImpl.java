@@ -67,6 +67,7 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.module.ModuleDTO;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.node.AgentClusterNodeOperator;
@@ -229,8 +230,19 @@ public class AgentServiceImpl implements AgentService {
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
+                    List<StreamSourceEntity> needDeletedList = sourceMapper.selectByByTimeout(retentionDays);
                     sourceMapper.logicalDeleteByTimeout(retentionDays);
-                    LOGGER.info("clean sub task successfully");
+                    if (CollectionUtils.isNotEmpty(needDeletedList)) {
+                        for (StreamSourceEntity sourceEntity : needDeletedList) {
+                            LOGGER.info("begin to clean sub task for source={}", sourceEntity);
+                            StreamSourceOperator sourceOperator =
+                                    operatorFactory.getInstance(sourceEntity.getSourceType());
+                            SourceRequest request =
+                                    CommonBeanUtils.copyProperties(sourceEntity, SourceRequest::new, true);
+                            sourceOperator.updateAgentTaskConfig(request, sourceEntity.getModifier());
+                            LOGGER.info("success to clean sub task successfully, ={}", sourceEntity.getId());
+                        }
+                    }
                 } catch (Throwable t) {
                     LOGGER.error("clean sub task error", t);
                 }

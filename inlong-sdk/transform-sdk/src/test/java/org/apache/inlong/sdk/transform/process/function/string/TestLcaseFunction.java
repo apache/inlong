@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.temporal;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
@@ -28,44 +28,37 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestTimestampAdd extends AbstractFunctionTemporalTestBase {
+/**
+ * TestTransformFromBase64FunctionProcessor
+ * description: test the lcase function in transform processor
+ */
+public class TestLcaseFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testTimestampAdd() throws Exception {
-        String transformSql1 = "select timestamp_add('day',string2,string1) from source";
+    public void testLcaseFunction() throws Exception {
+        String transformSql1 = "select lcase(string1) from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: timestamp_add('day',3,'1970-01-01')
-        List<String> output1 = processor1.transform("1970-01-01|3", new HashMap<>());
+        // case1: lcase("ApPlE")
+        List<String> output1 = processor1.transform("ApPlE|", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=1970-01-04", output1.get(0));
+        Assert.assertEquals(output1.get(0), "result=apple");
 
-        // case2: timestamp_add('day',-3,'1970-01-01 00:00:44')
-        List<String> output2 = processor1.transform("1970-01-01 00:00:44|-3", new HashMap<>());
+        // case2: lcase("")
+        List<String> output2 = processor1.transform("|", new HashMap<>());
         Assert.assertEquals(1, output2.size());
-        Assert.assertEquals("result=1969-12-29 00:00:44", output2.get(0));
+        Assert.assertEquals(output2.get(0), "result=");
 
-        String transformSql2 = "select timestamp_add('MINUTE',string2,string1) from source";
+        // case3: lcase(null)
+        String transformSql2 = "select lcase(xxd) from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: timestamp_add('MINUTE',3,'1970-01-01 00:00:44')
-        List<String> output3 = processor2.transform("1970-01-01 00:00:44|3", new HashMap<>());
+        List<String> output3 = processor2.transform("ApPlE|", new HashMap<>());
         Assert.assertEquals(1, output3.size());
-        Assert.assertEquals("result=1970-01-01 00:03:44", output3.get(0));
-
-        // case4: timestamp_add('MINUTE',-3,'1970-01-01 00:00:44')
-        List<String> output4 = processor2.transform("1970-01-01 00:00:44|-3", new HashMap<>());
-        Assert.assertEquals(1, output4.size());
-        Assert.assertEquals("result=1969-12-31 23:57:44", output4.get(0));
-
-        // case5: timestamp_add('MINUTE',-3,'1970-01-01')
-        List<String> output5 = processor2.transform("1970-01-01|-3", new HashMap<>());
-        Assert.assertEquals(1, output5.size());
-        Assert.assertEquals("result=1969-12-31 23:57:00", output5.get(0));
+        Assert.assertEquals(output3.get(0), "result=");
     }
 }

@@ -41,6 +41,11 @@ public abstract class AbstractParserTestBase {
             field.setName("numeric" + i);
             srcFields.add(field);
         }
+        for (int i = 1; i < 5; i++) {
+            FieldInfo field = new FieldInfo();
+            field.setName("string" + i);
+            srcFields.add(field);
+        }
         FieldInfo field = new FieldInfo();
         field.setName("result");
         dstFields.add(field);

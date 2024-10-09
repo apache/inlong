@@ -26,7 +26,6 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.apache.commons.codec.digest.MessageDigestAlgorithms.SHA_224;
@@ -56,18 +55,18 @@ public class Sha2Function implements ValueParser {
         if (msgObj == null || lenObj == null) {
             return null;
         }
-        String msg = msgObj.toString();
+        byte[] msgBytes = OperatorTools.parseBytes(msgObj);
         int len = Integer.parseInt(lenObj.toString());
         switch (len) {
             case 0:
             case 256:
-                return DigestUtils.sha256Hex(msg.getBytes(StandardCharsets.UTF_8));
+                return DigestUtils.sha256Hex(msgBytes);
             case 224:
-                return new DigestUtils(SHA_224).digestAsHex(msg.getBytes(StandardCharsets.UTF_8));
+                return new DigestUtils(SHA_224).digestAsHex(msgBytes);
             case 384:
-                return DigestUtils.sha384Hex(msg.getBytes(StandardCharsets.UTF_8));
+                return DigestUtils.sha384Hex(msgBytes);
             case 512:
-                return DigestUtils.sha512Hex(msg.getBytes(StandardCharsets.UTF_8));
+                return DigestUtils.sha512Hex(msgBytes);
             default:
                 return null;
         }
