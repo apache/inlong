@@ -17,11 +17,25 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.LoadBalance;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
+import org.apache.inlong.sdk.dataproxy.config.HostInfo;
+import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
+import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
+import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -37,18 +51,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
-import org.apache.inlong.sdk.dataproxy.LoadBalance;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
-import org.apache.inlong.sdk.dataproxy.config.HostInfo;
-import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
-import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
-import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
-import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClientMgr {
 
@@ -532,8 +534,9 @@ public class ClientMgr {
                     if (hostInfo == null) {
                         continue;
                     }
-                    Optional<HostInfo> optionalHostInfo = hostInfos.stream().filter(hostInfo1 -> hostInfo1.equals(hostInfo))
-                            .findFirst();
+                    Optional<HostInfo> optionalHostInfo =
+                            hostInfos.stream().filter(hostInfo1 -> hostInfo1.equals(hostInfo))
+                                    .findFirst();
                     if (optionalHostInfo.isPresent()) {
                         continue;
                     }
@@ -551,9 +554,9 @@ public class ClientMgr {
             removeNotExistHost(notExistHosts);
 
             updateAndInitConnection(hostInfos);
-        }catch (Exception e){
-            logger.error("update  Connection error",e);
-        } finally{
+        } catch (Exception e) {
+            logger.error("update  Connection error", e);
+        } finally {
             writeUnlock();
         }
 
@@ -573,8 +576,8 @@ public class ClientMgr {
 
     private void updateAndInitConnection(List<HostInfo> hostInfos) {
         int needSize = realSize - clientMap.size();
-        if(needSize > 0) {
-            /* Build new channels*/
+        if (needSize > 0) {
+            /* Build new channels */
             for (HostInfo hostInfo : hostInfos) {
                 NettyClient nettyClient = clientMap.get(hostInfo);
                 if (nettyClient != null && nettyClient.isActive()) {

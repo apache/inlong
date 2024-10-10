@@ -689,7 +689,7 @@ public class Sender {
         callbacks.clear();
     }
 
-    public void clearCallBackByChannel(Channel channel){
+    public void clearCallBackByChannel(Channel channel) {
         callbacks.remove(channel);
     }
 
