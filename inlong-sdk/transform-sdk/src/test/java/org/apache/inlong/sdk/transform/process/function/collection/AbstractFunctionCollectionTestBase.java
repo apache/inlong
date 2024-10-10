@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.condition;
+package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
@@ -24,7 +24,11 @@ import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractFunctionFlowControlTestBase {
+/**
+ * AbstractFunctionStringTestBase
+ * description: define static parameters for StringFunction tests
+ */
+public abstract class AbstractFunctionCollectionTestBase {
 
     protected static final List<FieldInfo> srcFields = new ArrayList<>();
     protected static final List<FieldInfo> dstFields = new ArrayList<>();
@@ -32,7 +36,12 @@ public abstract class AbstractFunctionFlowControlTestBase {
     protected static final KvSinkInfo kvSink;
 
     static {
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 4; i++) {
+            FieldInfo field = new FieldInfo();
+            field.setName("string" + i);
+            srcFields.add(field);
+        }
+        for (int i = 1; i < 4; i++) {
             FieldInfo field = new FieldInfo();
             field.setName("numeric" + i);
             srcFields.add(field);

@@ -24,7 +24,6 @@ import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestJsonArraysFunction extends AbstractFunctionStringTestBase {
+public class TestJsonArraysFunction extends AbstractFunctionJsonTestBase {
 
     private static final List<FieldInfo> srcFields = new ArrayList<>();
     private static final List<FieldInfo> dstFields = new ArrayList<>();

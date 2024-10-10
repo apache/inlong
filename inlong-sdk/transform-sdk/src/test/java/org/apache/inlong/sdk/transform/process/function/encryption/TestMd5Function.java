@@ -21,14 +21,13 @@ import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-import org.apache.inlong.sdk.transform.process.function.arithmetic.AbstractFunctionArithmeticTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
-public class TestMd5Function extends AbstractFunctionArithmeticTestBase {
+public class TestMd5Function extends AbstractFunctionEncryptionTestBase {
 
     @Test
     public void testMd5Function() throws Exception {

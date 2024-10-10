@@ -34,7 +34,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestIfFunction extends AbstractFunctionFlowControlTestBase {
+public class TestIfFunction extends AbstractFunctionConditionTestBase {
 
     private static final List<FieldInfo> srcFields = new ArrayList<>();
     private static final List<FieldInfo> dstFields = new ArrayList<>();

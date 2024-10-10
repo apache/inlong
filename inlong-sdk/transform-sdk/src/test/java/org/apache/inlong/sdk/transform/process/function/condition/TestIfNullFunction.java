@@ -28,7 +28,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestIfNullFunction extends AbstractFunctionFlowControlTestBase {
+public class TestIfNullFunction extends AbstractFunctionConditionTestBase {
 
     @Test
     public void testIfNullFunction() throws Exception {
