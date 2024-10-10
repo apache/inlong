@@ -62,6 +62,7 @@ import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -952,7 +953,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         // all cluster nodes belong to the same clusterId
-        response.setClusterId(nodeEntities.get(0).getParentId());
+        Integer clusterId = nodeEntities.get(0).getParentId();
+        Integer maxPacketLength = null;
+        response.setClusterId(clusterId);
+        InlongClusterEntity dataProxyCluster = clusterMapper.selectById(clusterId);
+        if (dataProxyCluster != null && StringUtils.isNotBlank(dataProxyCluster.getExtParams())) {
+            DataProxyClusterDTO dataProxyClusterDTO = DataProxyClusterDTO.getFromJson(dataProxyCluster.getExtParams());
+            maxPacketLength = dataProxyClusterDTO.getMaxPacketLength();
+        }
 
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeList = new ArrayList<>();
@@ -970,6 +978,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
             nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
+            nodeInfo.setMaxPacketLength(maxPacketLength);
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);
@@ -990,6 +999,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (clusterEntity == null) {
             LOGGER.debug("not any dataproxy cluster for clusterName={}, protocol={}", clusterName, protocolType);
             return response;
+        }
+        Integer maxPacketLength = null;
+        if (StringUtils.isNotBlank(clusterEntity.getExtParams())) {
+            DataProxyClusterDTO dataProxyClusterDTO = DataProxyClusterDTO.getFromJson(clusterEntity.getExtParams());
+            maxPacketLength = dataProxyClusterDTO.getMaxPacketLength();
         }
         List<InlongClusterNodeEntity> nodeEntities =
                 clusterNodeMapper.selectByParentId(clusterEntity.getId(), protocolType);
@@ -1027,6 +1041,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
             nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
+            nodeInfo.setMaxPacketLength(maxPacketLength);
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);

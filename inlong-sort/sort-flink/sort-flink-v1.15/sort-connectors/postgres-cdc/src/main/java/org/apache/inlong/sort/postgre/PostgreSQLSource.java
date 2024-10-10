@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.postgre;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.connector.postgresql.PostgresConnector;
 
@@ -53,6 +55,7 @@ public class PostgreSQLSource {
         private String[] tableList;
         private Properties dbzProperties;
         private DebeziumDeserializationSchema<T> deserializer;
+        private MetricOption metricOption;
 
         /**
          * The name of the Postgres logical decoding plug-in installed on the server. Supported
@@ -146,6 +149,12 @@ public class PostgreSQLSource {
             return this;
         }
 
+        /** metricOption used to instantiate SourceExactlyMetric */
+        public Builder<T> metricOption(MetricOption metricOption) {
+            this.metricOption = metricOption;
+            return this;
+        }
+
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
@@ -178,7 +187,7 @@ public class PostgreSQLSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator());
+                    deserializer, props, null, Validator.getDefaultValidator(), metricOption);
         }
     }
 }

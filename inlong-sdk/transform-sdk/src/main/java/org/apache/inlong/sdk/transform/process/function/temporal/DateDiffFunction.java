@@ -22,15 +22,15 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * DateDiffFunction
@@ -44,9 +44,6 @@ public class DateDiffFunction implements ValueParser {
 
     private final ValueParser leftDateParser;
     private final ValueParser rightDateParser;
-    private static final DateTimeFormatter DEFAULT_FORMAT_DATE_TIME =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter DEFAULT_FORMAT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public DateDiffFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
@@ -67,24 +64,11 @@ public class DateDiffFunction implements ValueParser {
             return null;
         }
         try {
-            LocalDate left = getLocalDate(leftDate);
-            LocalDate right = getLocalDate(rightDate);
+            LocalDate left = Objects.requireNonNull(DateUtil.parseLocalDateTime(leftDate)).toLocalDate();
+            LocalDate right = Objects.requireNonNull(DateUtil.parseLocalDateTime(rightDate)).toLocalDate();
             return ChronoUnit.DAYS.between(right, left);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public LocalDate getLocalDate(String dateString) {
-        DateTimeFormatter formatter = null;
-        LocalDate dateTime = null;
-        if (dateString.indexOf(' ') != -1) {
-            formatter = DEFAULT_FORMAT_DATE_TIME;
-            dateTime = LocalDateTime.parse(dateString, formatter).toLocalDate();
-        } else {
-            formatter = DEFAULT_FORMAT_DATE;
-            dateTime = LocalDate.parse(dateString, formatter);
-        }
-        return dateTime;
     }
 }

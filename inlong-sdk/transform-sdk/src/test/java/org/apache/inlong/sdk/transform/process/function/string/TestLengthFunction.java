@@ -32,24 +32,48 @@ public class TestLengthFunction extends AbstractFunctionStringTestBase {
 
     @Test
     public void testLengthFunction() throws Exception {
-        String transformSql = "select length(string1) from source";
-        TransformConfig config = new TransformConfig(transformSql);
-        TransformProcessor<String, String> processor1 = TransformProcessor
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
+        transformSql = "select length(string1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
         // case1: length('hello world')
-        List<String> output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
-        Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=11", output1.get(0));
+        data = "hello world|apple|cloud|2|1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=11", output.get(0));
 
         transformSql = "select length(xxd) from source";
         config = new TransformConfig(transformSql);
-        processor1 = TransformProcessor
+        processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
         // case2: length(null)
-        output1 = processor1.transform("hello world|apple|cloud|2|1|3", new HashMap<>());
-        Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=", output1.get(0));
+        data = "hello world|apple|cloud|2|1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        transformSql = "select length(string1,string2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case3: length(应龙, utf-8)
+        data = "应龙|utf-8|cloud|2|1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=6", output.get(0));
+
+        // case4: length(应龙, gbk)
+        data = "应龙|gbk|cloud|2|1|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=4", output.get(0));
     }
 }

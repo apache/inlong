@@ -20,22 +20,17 @@ package org.apache.inlong.sdk.transform.process.parser;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.IntervalExpression;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * IntervalParser  <-> INTERVAL expr unit ->  Pair(factor,Map(ChronoField,Count)):
+ * IntervalParser  <-> INTERVAL expr unit ->  IntervalInfo:
  * <p>
  * `factor`:
  * <p>
@@ -62,11 +57,6 @@ public class IntervalParser implements ValueParser {
     private final String intervalType;
     private final ValueParser dateParser;
     private final String parameter;
-
-    private static final List<ChronoField> CHRONO_FIELD_LIST = Arrays.asList(ChronoField.YEAR,
-            ChronoField.MONTH_OF_YEAR,
-            ChronoField.DAY_OF_MONTH, ChronoField.HOUR_OF_DAY, ChronoField.MINUTE_OF_HOUR, ChronoField.SECOND_OF_MINUTE,
-            ChronoField.MICRO_OF_SECOND);
     private static final Map<String, DateTimeFormatter> DT_FORMATTER_MAP = new ConcurrentHashMap<>();
 
     static {
@@ -105,13 +95,13 @@ public class IntervalParser implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         DateTimeFormatter dateTimeFormatter = DT_FORMATTER_MAP.get(intervalType);
 
-        String dataStr = parameter;
+        String dateStr = parameter;
         if (dateParser != null) {
             Object dateObj = dateParser.parse(sourceData, rowIndex, context);
             if (dateObj == null) {
                 return null;
             }
-            dataStr = OperatorTools.parseString(dateObj);
+            dateStr = OperatorTools.parseString(dateObj);
         }
 
         int factor = 1;
@@ -128,24 +118,11 @@ public class IntervalParser implements ValueParser {
         }
 
         try {
-            factor = dataStr.charAt(0) == '-' ? -factor : factor;
+            factor = dateStr.charAt(0) == '-' ? -factor : factor;
             if (factor < 0) {
-                dataStr = dataStr.substring(1);
+                dateStr = dateStr.substring(1);
             }
-            TemporalAccessor temporalAccessor = dateTimeFormatter.parse(dataStr);
-            HashMap<ChronoField, Long> map = new HashMap<>();
-            for (ChronoField field : CHRONO_FIELD_LIST) {
-                try {
-                    long num = temporalAccessor.getLong(field);
-                    if (num == 0) {
-                        continue;
-                    }
-                    map.put(field, temporalAccessor.getLong(field));
-                } catch (Exception ignored) {
-
-                }
-            }
-            return Pair.of(factor, map);
+            return DateUtil.parseIntervalInfo(dateTimeFormatter, dateStr, factor);
         } catch (Exception e) {
             log.error("Interval parse error", e);
             return null;

@@ -44,6 +44,8 @@ public abstract class SinkInfo {
     public static final String CSV = "csv";
     public static final String KV = "kv";
     public static final String ES_MAP = "es_map";
+    public static final String PARQUET = "parquet";
+    public static final String PB = "pb";
 
     @JsonIgnore
     private String type;

@@ -32,6 +32,11 @@ public class TestSubstringFunction extends AbstractFunctionStringTestBase {
 
     @Test
     public void testSubstringFunction() throws Exception {
+        String transformSql = null, data = null;
+        TransformConfig config = null;
+        TransformProcessor<String, String> processor = null;
+        List<String> output = null;
+
         String transformSql1 = "select substring(string2, numeric1) from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
         TransformProcessor<String, String> processor1 = TransformProcessor
@@ -41,6 +46,7 @@ public class TestSubstringFunction extends AbstractFunctionStringTestBase {
         List<String> output1 = processor1.transform("apple|banana|cloud|2|1|3", new HashMap<>());
         Assert.assertEquals(1, output1.size());
         Assert.assertEquals(output1.get(0), "result=anana");
+
         String transformSql2 = "select substring(string1, numeric1, numeric3) from source";
         TransformConfig config2 = new TransformConfig(transformSql2);
         TransformProcessor<String, String> processor2 = TransformProcessor
@@ -54,5 +60,58 @@ public class TestSubstringFunction extends AbstractFunctionStringTestBase {
         List<String> output3 = processor2.transform("apple|banana|cloud|2|1|9", new HashMap<>());
         Assert.assertEquals(1, output3.size());
         Assert.assertEquals(output3.get(0), "result=pple");
+
+        transformSql = "select substring(string1 from numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case4: substring('hello world' from 7)
+        data = "hello world|||7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=world", output.get(0));
+
+        transformSql = "select substring(string1 from numeric1 for numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case5: substring('hello world' from 7 for 3)
+        data = "hello world|||7|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=wor", output.get(0));
+
+        transformSql = "select substring(string1 from numericx for numericx) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case6: substring('hello world' from null for null)
+        data = "hello world|||||";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        String transformSql3 = "select mid(string2, numeric1) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case7: mid('banana', 2)
+        List<String> output4 = processor3.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=anana");
+
+        String transformSql4 = "select mid(string1, numeric1, numeric3) from source";
+        TransformConfig config4 = new TransformConfig(transformSql4);
+        TransformProcessor<String, String> processor4 = TransformProcessor
+                .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case8: mid('apple', 2, 3)
+        List<String> output5 = processor4.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=ppl");
     }
 }

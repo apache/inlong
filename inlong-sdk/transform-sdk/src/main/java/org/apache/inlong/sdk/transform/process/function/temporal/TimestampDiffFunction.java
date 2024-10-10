@@ -22,15 +22,15 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.utils.DateUtil;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * TimestampDiffFunction  -> TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)
@@ -42,14 +42,9 @@ import java.util.List;
 @TransformFunction(names = {"timestamp_diff", "timestampdiff"})
 public class TimestampDiffFunction implements ValueParser {
 
-    private ValueParser unitParser;
-    private ValueParser firstDateTimeParser;
-    private ValueParser secondDateTimeParser;
-    private static final DateTimeFormatter DEFAULT_FORMAT_DATE_MRO_TIME =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-    private static final DateTimeFormatter DEFAULT_FORMAT_DATE_TIME =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter DEFAULT_FORMAT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final ValueParser unitParser;
+    private final ValueParser firstDateTimeParser;
+    private final ValueParser secondDateTimeParser;
 
     public TimestampDiffFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
@@ -73,8 +68,8 @@ public class TimestampDiffFunction implements ValueParser {
             return null;
         }
         try {
-            LocalDateTime left = getLocalDate(firstDateTime);
-            LocalDateTime right = getLocalDate(secondDateTime);
+            LocalDateTime left = Objects.requireNonNull(DateUtil.parseLocalDateTime(firstDateTime));
+            LocalDateTime right = Objects.requireNonNull(DateUtil.parseLocalDateTime(secondDateTime));
             switch (unit) {
                 case "MICROSECOND":
                     return ChronoUnit.MICROS.between(left, right);
@@ -100,21 +95,5 @@ public class TimestampDiffFunction implements ValueParser {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public LocalDateTime getLocalDate(String dateString) {
-        DateTimeFormatter formatter = null;
-        LocalDateTime dateTime = null;
-        if (dateString.indexOf('.') != -1) {
-            formatter = DEFAULT_FORMAT_DATE_MRO_TIME;
-            dateTime = LocalDateTime.parse(dateString, formatter);
-        } else if (dateString.indexOf(' ') != -1) {
-            formatter = DEFAULT_FORMAT_DATE_TIME;
-            dateTime = LocalDateTime.parse(dateString, formatter);
-        } else {
-            formatter = DEFAULT_FORMAT_DATE;
-            dateTime = LocalDate.parse(dateString, formatter).atStartOfDay();
-        }
-        return dateTime;
     }
 }

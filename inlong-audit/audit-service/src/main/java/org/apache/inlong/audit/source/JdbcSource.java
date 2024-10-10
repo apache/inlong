@@ -24,6 +24,7 @@ import org.apache.inlong.audit.entities.StartEndTime;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.service.ConfigService;
 import org.apache.inlong.audit.utils.CacheUtils;
+import org.apache.inlong.audit.utils.JdbcUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -51,26 +52,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.DATE_FORMAT;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_THREAD_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_THREAD_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
@@ -181,23 +169,12 @@ public class JdbcSource {
      * Create data source
      */
     protected void createDataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(sourceConfig.getDriverClassName());
-        config.setJdbcUrl(sourceConfig.getJdbcUrl());
-        config.setUsername(sourceConfig.getUsername());
-        config.setPassword(sourceConfig.getPassword());
-        config.setConnectionTimeout(Configuration.getInstance().get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
-                DEFAULT_CONNECTION_TIMEOUT));
-        config.addDataSourceProperty(CACHE_PREP_STMTS,
-                Configuration.getInstance().get(KEY_CACHE_PREP_STMTS, DEFAULT_CACHE_PREP_STMTS));
-        config.addDataSourceProperty(PREP_STMT_CACHE_SIZE,
-                Configuration.getInstance().get(KEY_PREP_STMT_CACHE_SIZE, DEFAULT_PREP_STMT_CACHE_SIZE));
-        config.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT,
-                Configuration.getInstance().get(KEY_PREP_STMT_CACHE_SQL_LIMIT, DEFAULT_PREP_STMT_CACHE_SQL_LIMIT));
-        config.setMaximumPoolSize(
-                Configuration.getInstance().get(KEY_DATASOURCE_POOL_SIZE,
-                        DEFAULT_DATASOURCE_POOL_SIZE));
-        dataSource = new HikariDataSource(config);
+        HikariConfig hikariConfig = JdbcUtils.buildHikariConfig(
+                sourceConfig.getDriverClassName(),
+                sourceConfig.getJdbcUrl(),
+                sourceConfig.getUserName(),
+                sourceConfig.getPassword());
+        dataSource = new HikariDataSource(hikariConfig);
     }
 
     /**

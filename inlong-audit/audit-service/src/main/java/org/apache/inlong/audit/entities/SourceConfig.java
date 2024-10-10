@@ -32,7 +32,7 @@ public class SourceConfig {
     private int statBackTimes;
     private final String driverClassName;
     private final String jdbcUrl;
-    private final String username;
+    private final String userName;
     private final String password;
     private boolean needJoin = false;
 
@@ -48,7 +48,7 @@ public class SourceConfig {
         this.statBackTimes = statBackTimes;
         this.driverClassName = driverClassName;
         this.jdbcUrl = jdbcUrl;
-        this.username = username;
+        this.userName = username;
         this.password = password;
     }
 }

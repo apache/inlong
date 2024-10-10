@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.postgre;
 
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
@@ -100,7 +99,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private final MetricOption metricOption;
+
+    /** Self-defined Flink metrics, which will be set by DebeziumSourceFunction with setter */
     private SourceExactlyMetric sourceExactlyMetric;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
@@ -115,8 +115,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             ValueValidator validator,
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
-            DebeziumChangelogMode changelogMode,
-            MetricOption metricOption) {
+            DebeziumChangelogMode changelogMode) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters);
         this.physicalConverter =
@@ -127,18 +126,27 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.validator = checkNotNull(validator);
         this.changelogMode = checkNotNull(changelogMode);
-        this.metricOption = metricOption;
     }
 
     @Override
     public void open() {
-        if (metricOption != null) {
-            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
-        }
     }
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
+        long deserializeStartTime = System.currentTimeMillis();
+        try {
+            doDeserialize(record, out, deserializeStartTime);
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeError();
+            }
+            throw e;
+        }
+    }
+
+    private void doDeserialize(SourceRecord record, Collector<RowData> out, long deserializeStartTime)
+            throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
@@ -173,6 +181,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                 out = new MetricsCollector<>(out, sourceExactlyMetric);
             }
             emit(record, after, out);
+        }
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.incNumDeserializeSuccess();
+            sourceExactlyMetric.recordDeserializeDelay(System.currentTimeMillis() - deserializeStartTime);
         }
     }
 
@@ -219,7 +231,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
         private DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
-        private MetricOption metricOption;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
@@ -251,10 +262,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             this.changelogMode = changelogMode;
             return this;
         }
-        public Builder setMetricOption(MetricOption metricOption) {
-            this.metricOption = metricOption;
-            return this;
-        }
 
         public RowDataDebeziumDeserializeSchema build() {
             return new RowDataDebeziumDeserializeSchema(
@@ -264,8 +271,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     validator,
                     serverTimeZone,
                     userDefinedConverterFactory,
-                    changelogMode,
-                    metricOption);
+                    changelogMode);
         }
     }
 
@@ -703,5 +709,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         if (sourceExactlyMetric != null) {
             sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
+    }
+
+    /** setter to enable DebeziumSourceFunction to set the metric */
+    public void setSourceExactlyMetric(SourceExactlyMetric sourceExactlyMetric) {
+        this.sourceExactlyMetric = sourceExactlyMetric;
     }
 }

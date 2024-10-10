@@ -53,6 +53,11 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
+            <artifactId>pulsar</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
         </dependency>
         <dependency>
@@ -157,6 +162,13 @@
             <artifactId>jedis</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client</artifactId>
+            <version>${pulsar.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -243,6 +255,14 @@
                             <artifactId>sort-connector-redis-v1.15</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sort-connector-redis.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-pulsar-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-pulsar.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>

@@ -23,21 +23,31 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * LengthFunction
- * description: length(string)
- * - return the length of the string
+ * description: length(string,[charsetName])
+ * - return the byte length of the string
  * - return NULL if the string is NULL
  */
 @TransformFunction(names = {"length"})
 public class LengthFunction implements ValueParser {
 
     private final ValueParser stringParser;
+    private ValueParser charSetNameParser;
+    private final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
     public LengthFunction(Function expr) {
-        stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        List<Expression> expressions = expr.getParameters().getExpressions();
+        stringParser = OperatorTools.buildParser(expressions.get(0));
+        if (expressions.size() > 1) {
+            charSetNameParser = OperatorTools.buildParser(expressions.get(1));
+        }
     }
 
     @Override
@@ -46,6 +56,12 @@ public class LengthFunction implements ValueParser {
         if (stringObject == null) {
             return null;
         }
-        return OperatorTools.parseString(stringObject).length();
+        Charset charset = DEFAULT_CHARSET;
+        if (charSetNameParser != null) {
+            charset = Charset.forName(OperatorTools.parseString(
+                    charSetNameParser.parse(sourceData, rowIndex, context)));
+        }
+        String str = OperatorTools.parseString(stringObject);
+        return str.getBytes(charset).length;
     }
 }

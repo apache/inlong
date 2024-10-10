@@ -60,6 +60,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Remove unnecessary packages
+        run: |
+          echo "=== Before pruning ==="
+          df -h
+          echo "Listing 100 largest packages"
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+          df -h
+          echo "Removing large packages"
+          sudo apt-get remove -y '^dotnet-.*'
+          sudo apt-get remove -y '^mongodb-.*'
+          sudo apt-get remove -y azure-cli google-chrome-stable google-cloud-cli microsoft-edge-stable firefox powershell mono-devel libgl1-mesa-dri
+          df -h
+          echo "Removing large directories"
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/graalvm/
+          sudo rm -rf /usr/local/.ghcup/
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/lib/node_modules
+          sudo rm -rf /opt/hostedtoolcache
+          echo
+          echo "=== After pruning ==="
+          df -h
+
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -83,17 +110,6 @@ jobs:
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
-
-      - name: Remove unnecessary packages
-        run: |
-          echo "=== Before pruning ==="
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          echo
-          echo "=== After pruning ==="
-          df -h
 
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000

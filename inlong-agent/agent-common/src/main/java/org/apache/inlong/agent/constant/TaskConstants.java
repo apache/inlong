@@ -178,6 +178,22 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SQLSERVER_UNIX_TIMESTAMP_FORMAT_ENABLE =
             "task.sqlserverTask.unixTimestampFormatEnable";
 
+    public static final String TASK_REDIS_PORT = "task.redisTask.port";
+    public static final String TASK_REDIS_HOSTNAME = "task.redisTask.hostname";
+    public static final String TASK_REDIS_SSL = "task.redisTask.ssl";
+    public static final String TASK_REDIS_AUTHUSER = "task.redisTask.authUser";
+    public static final String TASK_REDIS_AUTHPASSWORD = "task.redisTask.authPassword";
+    public static final String TASK_REDIS_READTIMEOUT = "task.redisTask.readTimeout";
+    public static final String TASK_REDIS_REPLID = "task.redisTask.replId";
+    public static final String TASK_REDIS_OFFSET = "task.redisTask.offset";
+    public static final String TASK_REDIS_DB_NAME = "task.redisTask.dbName";
+    public static final String TASK_REDIS_COMMAND = "task.redisTask.command";
+    public static final String TASK_REDIS_KEYS = "task.redisTask.keys";
+    public static final String TASK_REDIS_FIELD_OR_MEMBER = "task.redisTask.fieldOrMember";
+    public static final String TASK_REDIS_IS_SUBSCRIBE = "task.redisTask.isSubscribe";
+    public static final String TASK_REDIS_SUBSCRIPTION_OPERATION = "task.redisTask.subscriptionOperation";
+    public static final String TASK_REDIS_SYNC_FREQ = "task.redisTask.syncFreq";
+
     public static final String TASK_STATE = "task.state";
 
     public static final String INSTANCE_STATE = "instance.state";

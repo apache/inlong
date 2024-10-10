@@ -38,7 +38,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_SINK_
 /**
  * Cache sink
  */
-public class CacheSink {
+public class CacheSink implements AuditSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheSink.class);
     private final ScheduledExecutorService sinkTimer = Executors.newSingleThreadScheduledExecutor();

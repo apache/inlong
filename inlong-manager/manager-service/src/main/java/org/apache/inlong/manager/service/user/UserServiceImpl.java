@@ -50,11 +50,13 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserLoginLockStatus;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -349,6 +351,17 @@ public class UserServiceImpl implements UserService {
         // login successfully, clear error count
         userLoginLockStatus.setLoginErrorCount(0);
         loginLockStatusMap.put(username, userLoginLockStatus);
+    }
+
+    @Override
+    public void checkUser(String inCharges, String user, String errMsg) {
+        Set<String> userRoles = LoginUserUtils.getLoginUser().getRoles();
+        boolean isAdmin = false;
+        if (CollectionUtils.isNotEmpty(userRoles)) {
+            isAdmin = userRoles.contains(UserRoleCode.INLONG_ADMIN) || userRoles.contains(UserRoleCode.TENANT_ADMIN);
+        }
+        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
+        Preconditions.expectTrue(isInCharge || isAdmin, errMsg);
     }
 
     public void removeInChargeForGroup(String user, String operator) {

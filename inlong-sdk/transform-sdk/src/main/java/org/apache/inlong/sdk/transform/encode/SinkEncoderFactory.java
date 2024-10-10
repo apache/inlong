@@ -20,6 +20,8 @@ package org.apache.inlong.sdk.transform.encode;
 import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.ParquetSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.PbSinkInfo;
 
 public class SinkEncoderFactory {
 
@@ -34,4 +36,13 @@ public class SinkEncoderFactory {
     public static MapSinkEncoder createMapEncoder(MapSinkInfo mapSinkInfo) {
         return new MapSinkEncoder(mapSinkInfo);
     }
+
+    public static ParquetSinkEncoder createParquetEncoder(ParquetSinkInfo parquetSinkInfo) {
+        return new ParquetSinkEncoder(parquetSinkInfo);
+    }
+
+    public static PbSinkEncoder createPbEncoder(PbSinkInfo pbSinkInfo) {
+        return new PbSinkEncoder(pbSinkInfo);
+    }
+
 }
