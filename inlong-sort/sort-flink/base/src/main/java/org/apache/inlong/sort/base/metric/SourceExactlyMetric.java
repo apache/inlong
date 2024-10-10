@@ -372,6 +372,12 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         }
     }
 
+    public void decNumDeserializeSuccess() {
+        if (numDeserializeSuccess != null) {
+            numDeserializeSuccess.dec();
+        }
+    }
+
     public void incNumDeserializeError() {
         if (numDeserializeError != null) {
             numDeserializeError.inc();

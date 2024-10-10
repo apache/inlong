@@ -86,7 +86,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             keyDeserialization.open(context);
         }
         if (metricOption != null) {
-            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption, context.getMetricGroup());
         }
         valueDeserialization.open(context);
     }
@@ -94,27 +94,43 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
     @Override
     public void deserialize(Message<byte[]> message, Collector<RowData> collector)
             throws IOException {
-        // Get the key row data
-        List<RowData> keyRowData = new ArrayList<>();
-        if (keyDeserialization != null) {
-            keyDeserialization.deserialize(message.getKeyBytes(), new ListCollector<>(keyRowData));
+        try {
+            long deserializeStartTime = System.currentTimeMillis();
+            // increase the number of deserialize success first, if deserialize failed, decrease it
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeSuccess();
+            }
+            // Get the key row data
+            List<RowData> keyRowData = new ArrayList<>();
+            if (keyDeserialization != null) {
+                keyDeserialization.deserialize(message.getKeyBytes(), new ListCollector<>(keyRowData));
+            }
+
+            // Get the value row data
+            List<RowData> valueRowData = new ArrayList<>();
+
+            if (upsertMode && message.getData().length == 0) {
+                rowDataConverter.projectToRowWithNullValueRow(message, keyRowData, collector);
+                return;
+            }
+
+            MetricsCollector<RowData> metricsCollector =
+                    new MetricsCollector<>(collector, sourceExactlyMetric);
+
+            valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
+
+            rowDataConverter.projectToProducedRowAndCollect(
+                    message, keyRowData, valueRowData, metricsCollector);
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.recordDeserializeDelay(System.currentTimeMillis() - deserializeStartTime);
+            }
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeError();
+                sourceExactlyMetric.decNumDeserializeSuccess();
+            }
+            throw e;
         }
-
-        // Get the value row data
-        List<RowData> valueRowData = new ArrayList<>();
-
-        if (upsertMode && message.getData().length == 0) {
-            rowDataConverter.projectToRowWithNullValueRow(message, keyRowData, collector);
-            return;
-        }
-
-        MetricsCollector<RowData> metricsCollector =
-                new MetricsCollector<>(collector, sourceExactlyMetric);
-
-        valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
-
-        rowDataConverter.projectToProducedRowAndCollect(
-                message, keyRowData, valueRowData, metricsCollector);
     }
 
     @Override
@@ -138,5 +154,10 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         if (sourceExactlyMetric != null) {
             sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
+    }
+
+    /** getter for PulsarSourceReader to record metrics */
+    public SourceExactlyMetric getSourceExactlyMetric() {
+        return sourceExactlyMetric;
     }
 }
