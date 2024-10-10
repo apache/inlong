@@ -28,6 +28,15 @@ public class ProxyConfigEntry implements java.io.Serializable {
     private int load;
     private int switchStat;
     private boolean isInterVisit;
+    private int maxPacketLength;
+
+    public int getMaxPacketLength() {
+        return maxPacketLength;
+    }
+
+    public void setMaxPacketLength(int maxPacketLength) {
+        this.maxPacketLength = maxPacketLength;
+    }
 
     public int getLoad() {
         return load;
@@ -81,7 +90,8 @@ public class ProxyConfigEntry implements java.io.Serializable {
     @Override
     public String toString() {
         return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
-                + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat + "]";
+                + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat + ", maxPacketLength="
+                + maxPacketLength + "]";
     }
 
     public int getClusterId() {
