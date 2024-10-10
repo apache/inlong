@@ -60,6 +60,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Release space size
       - name: Remove unnecessary packages
         run: |
           echo "=== Before pruning ==="
@@ -68,8 +69,10 @@ jobs:
           dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
           df -h
           echo "Removing large packages"
-          sudo apt-get remove -y '^dotnet-.*'
+          echo "Removing mongodb-.* packages..."
           sudo apt-get remove -y '^mongodb-.*'
+          echo "Removed mongodb-.* packages..."
+          df -h
           sudo apt-get remove -y azure-cli google-chrome-stable google-cloud-cli microsoft-edge-stable firefox powershell mono-devel libgl1-mesa-dri
           df -h
           echo "Removing large directories"

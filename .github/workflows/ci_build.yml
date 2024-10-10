@@ -69,11 +69,6 @@ jobs:
           dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
           df -h
           echo "Removing large packages"
-          echo "Removing dotnet-.* packages..."
-          df -h
-          sudo apt-get remove -y '^dotnet-.*'
-          echo "Removed dotnet-.* packages..."
-          df -h
           echo "Removing mongodb-.* packages..."
           sudo apt-get remove -y '^mongodb-.*'
           echo "Removed mongodb-.* packages..."
