@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
@@ -523,10 +524,71 @@ public class ClientMgr {
     }
 
     private void updateAllConnection(List<HostInfo> hostInfos) {
-        closeAllConnection();
-        /* Build new channels */
-        for (HostInfo hostInfo : hostInfos) {
-            initConnection(hostInfo);
+
+        try {
+            writeLock();
+            List<HostInfo> notExistHosts = new ArrayList<>();
+            if (!clientMap.isEmpty()) {
+                logger.info("ready to close not in new HostInfo connections!");
+                for (HostInfo hostInfo : clientMap.keySet()) {
+                    if (hostInfo == null) {
+                        continue;
+                    }
+                    Optional<HostInfo> optionalHostInfo =
+                            hostInfos.stream().filter(hostInfo1 -> hostInfo1.equals(hostInfo))
+                                    .findFirst();
+                    if (optionalHostInfo.isPresent()) {
+                        continue;
+                    }
+                    NettyClient client = clientMap.get(hostInfo);
+                    if (client != null && client.isActive()) {
+                        sender.waitForAckForChannel(client.getChannel());
+                        client.close();
+                        clientList.remove(client);
+                        sender.clearCallBackByChannel(client.getChannel());
+                    }
+                    logger.info("ready to close not in new HostInfo connections!");
+                    notExistHosts.add(hostInfo);
+                }
+            }
+            removeNotExistHost(notExistHosts);
+
+            updateAndInitConnection(hostInfos);
+        } catch (Exception e) {
+            logger.error("update  Connection error", e);
+        } finally {
+            writeUnlock();
+        }
+
+    }
+
+    private void removeNotExistHost(List<HostInfo> notExistHosts) {
+        for (HostInfo notExistHost : notExistHosts) {
+
+            clientMap.remove(notExistHost);
+            clientMapData.remove(notExistHost);
+            clientMapHB.remove(notExistHost);
+
+            channelLoadMapData.remove(notExistHost);
+            channelLoadMapHB.remove(notExistHost);
+        }
+    }
+
+    private void updateAndInitConnection(List<HostInfo> hostInfos) {
+        int needSize = realSize - clientMap.size();
+        if (needSize > 0) {
+            /* Build new channels */
+            for (HostInfo hostInfo : hostInfos) {
+                NettyClient nettyClient = clientMap.get(hostInfo);
+                if (nettyClient != null && nettyClient.isActive()) {
+                    logger.info("this client {} has open!", hostInfo.getHostName());
+                } else {
+                    initConnection(hostInfo);
+                    if (--needSize == 0) {
+                        break;
+                    }
+                }
+            }
         }
     }
 
