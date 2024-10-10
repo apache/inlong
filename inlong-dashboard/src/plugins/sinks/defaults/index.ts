@@ -126,4 +126,9 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     value: 'KUDU',
     LoadEntity: () => import('./Kudu'),
   },
+  {
+    label: 'Http',
+    value: 'HTTP',
+    LoadEntity: () => import('./Http'),
+  },
 ];
