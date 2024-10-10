@@ -146,6 +146,7 @@ services:
       - OTEL_EXPORTER_ENDPOINT=logcollector:4317
     command: taskmanager
 
+  # The following services are used to collect logs for InLong-sort, not effective by default, you can enable them by add `--profile sort-report up` to the `docker-compose` command
   # opentelemetry collector
   logcollector:
     image: otel/opentelemetry-collector-contrib:0.110.0
