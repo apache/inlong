@@ -263,7 +263,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN;
         }
         addIndexCnt(groupId, streamId, 1);
@@ -335,7 +335,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN;
         }
         addIndexCnt(groupId, streamId, 1);
@@ -398,7 +398,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN;
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -467,7 +467,7 @@ public class DefaultMessageSender implements MessageSender {
                 extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES;
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN;
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -536,7 +536,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         addIndexCnt(groupId, streamId, 1);
@@ -601,7 +601,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         addIndexCnt(groupId, streamId, 1);
@@ -658,7 +658,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -724,7 +724,7 @@ public class DefaultMessageSender implements MessageSender {
                 extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -842,7 +842,7 @@ public class DefaultMessageSender implements MessageSender {
                 || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -865,7 +865,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
         }
         boolean isCompressEnd = false;
@@ -898,7 +898,7 @@ public class DefaultMessageSender implements MessageSender {
                 || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             return SendResult.INVALID_ATTRIBUTES.toString();
         }
-        if (!ProxyUtils.bodyLengthCheck(bodyList, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN.toString();
         }
         addIndexCnt(groupId, streamId, bodyList.size());
@@ -924,7 +924,7 @@ public class DefaultMessageSender implements MessageSender {
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES.toString();
         }
-        if (!ProxyUtils.bodyLengthCheck(body, maxPacketLength)) {
+        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
             return SendResult.BODY_EXCEED_MAX_LEN.toString();
         }
         if (msgtype == 7 || msgtype == 8) {
