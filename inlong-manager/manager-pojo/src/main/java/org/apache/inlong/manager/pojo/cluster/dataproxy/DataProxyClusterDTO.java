@@ -49,6 +49,9 @@ public class DataProxyClusterDTO {
     @ApiModelProperty("Load of the DataProxy cluster, default is 20")
     private Integer load = 20;
 
+    @ApiModelProperty("Max packet length of the DataProxy cluster")
+    private Integer maxPacketLength;
+
     /**
      * Get the dto instance from the request
      */
@@ -57,6 +60,7 @@ public class DataProxyClusterDTO {
                 .isIntranet(request.getIsIntranet())
                 .isSwitch(request.getIsSwitch())
                 .load(request.getLoad())
+                .maxPacketLength(request.getMaxPacketLength())
                 .build();
     }
 

@@ -47,6 +47,9 @@ public class DataProxyClusterInfo extends ClusterInfo {
     @ApiModelProperty("Load of the DataProxy cluster, default is 20")
     private Integer load = 20;
 
+    @ApiModelProperty("Max packet length of the DataProxy cluster")
+    private Integer maxPacketLength;
+
     public DataProxyClusterInfo() {
         this.setType(ClusterType.DATAPROXY);
     }
