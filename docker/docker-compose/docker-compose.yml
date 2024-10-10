@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-version: '2.4'
+version: '3.0'
 
 services:
   mysql:
@@ -153,6 +153,7 @@ services:
     volumes:
       - ./log-system/otel-config.yaml:/otel-config.yaml
     command: [ "--config=/otel-config.yaml"]
+    profiles: [sort-report]
     ports:
       - "4317:4317"
 
@@ -161,6 +162,7 @@ services:
     image: grafana/loki:3.0.0
     ports:
       - "3100:3100"
+    profiles: [sort-report]
     volumes:
       - ./log-system/loki.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
@@ -193,3 +195,4 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
+    profiles: [sort-report]
