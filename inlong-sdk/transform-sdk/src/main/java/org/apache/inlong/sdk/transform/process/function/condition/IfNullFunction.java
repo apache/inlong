@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
@@ -23,45 +23,51 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 
 /**
- * FromBase64Function
- * description: Returns the base64-decoded result from string; returns NULL if string is NULL
+ * IfNullFunction
+ * description: IFNULL(expr1,expr2)
+ * - return expr1 if expr1 is not NULL
+ * - return expr2 otherwise
  */
-@TransformFunction(names = {"from_base64"})
-public class FromBase64Function implements ValueParser {
+@Slf4j
+@TransformFunction(names = {"ifnull", "if_null"})
+public class IfNullFunction implements ValueParser {
 
-    private final ValueParser stringParser;
+    private final ValueParser firstExprParser;
+    private final ValueParser secondExprParser;
 
-    public FromBase64Function(Function expr) {
+    public IfNullFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
-        stringParser = OperatorTools.buildParser(expressions.get(0));
+        firstExprParser = OperatorTools.buildParser(expressions.get(0));
+        secondExprParser = OperatorTools.buildParser(expressions.get(1));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null) {
-            return null;
-        }
-        String encodedString = OperatorTools.parseString(stringObj);
-
-        if (encodedString == null) {
-            return null;
-        }
-
         try {
-            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-            return new String(decodedBytes, StandardCharsets.UTF_8);
-        } catch (IllegalArgumentException e) {
-            // handle decoding exceptions and log exception information
-            throw new RuntimeException("Invalid Base64 input: " + encodedString, e);
+            Object firstExprObj = firstExprParser.parse(sourceData, rowIndex, context);
+            if (firstExprObj == null) {
+                return parseSecondExpr(sourceData, rowIndex, context);
+            }
+            return firstExprObj;
+        } catch (Exception e) {
+            log.error("Value parsing failed", e);
+            return parseSecondExpr(sourceData, rowIndex, context);
+        }
+    }
+
+    private Object parseSecondExpr(SourceData sourceData, int rowIndex, Context context) {
+        try {
+            return secondExprParser.parse(sourceData, rowIndex, context);
+        } catch (Exception e) {
+            log.error("Value parsing failed", e);
+            return null;
         }
     }
 }

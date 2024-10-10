@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.encrption;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
@@ -24,29 +24,27 @@ import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
-import org.apache.commons.codec.digest.DigestUtils;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * ShaFunction
- * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
- * return NULL if the parameter is NULL
- * return a string of 40 hexadecimal digits.
+ * ToBase64Function
+ * description: to_base64(string1)--returns the base64-encoded result from string1
  */
-@TransformFunction(names = {"sha"})
-public class ShaFunction implements ValueParser {
+@TransformFunction(names = {"to_base64"})
+public class ToBase64Function implements ValueParser {
 
-    private final ValueParser msgParser;
+    private final ValueParser stringParser;
 
-    public ShaFunction(Function expr) {
-        msgParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public ToBase64Function(Function expr) {
+        stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object msgObj = msgParser.parse(sourceData, rowIndex, context);
-        if (msgObj == null) {
-            return null;
-        }
-        return DigestUtils.sha1Hex(OperatorTools.parseBytes(msgObj));
+        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        String string = OperatorTools.parseString(stringObj);
+        return Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8));
     }
 }

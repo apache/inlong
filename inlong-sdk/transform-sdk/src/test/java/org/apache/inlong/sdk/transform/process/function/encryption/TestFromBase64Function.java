@@ -15,50 +15,48 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.arithmetic;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 
-public class TestMd5Function extends AbstractFunctionArithmeticTestBase {
+public class TestFromBase64Function extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testMd5Function() throws Exception {
-        String transformSql = "select md5(numeric1) from source";
+    public void testFromBase64Function() throws Exception {
+        String transformSql = "select from_base64(string1) from source";
         TransformConfig config = new TransformConfig(transformSql);
         TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: md5("1")
-        List<String> output1 = processor.transform("1|4|6|8");
+
+        // case1: from_base64('aGVsbG8gd29ybGQ=') -> 'hello world'
+        List<String> output1 = processor.transform("aGVsbG8gd29ybGQ=|apple|banana|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("result=c4ca4238a0b923820dcc509a6f75849b", output1.get(0));
+        Assert.assertEquals(output1.get(0), "result=hello world");
 
-        // case2: md5("-1")
-        List<String> output2 = processor.transform("-1|4|6|8");
-        Assert.assertEquals(1, output2.size());
-        Assert.assertEquals("result=6bb61e3b7bce0931da574d19d1d82c88", output2.get(0));
-
-        // case3: md5("")
-        List<String> output3 = processor.transform("|4|6|8");
-        Assert.assertEquals(1, output3.size());
-        Assert.assertEquals("result=d41d8cd98f00b204e9800998ecf8427e", output3.get(0));
-
-        // case4: md5(null)
-        transformSql = "select md5(numericxx) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+        String transformSql2 = "select from_base64(stringX) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        List<String> output4 = processor.transform("1|4|6|8");
-        Assert.assertEquals(1, output4.size());
-        Assert.assertEquals("result=", output4.get(0));
+        // case2: from_base64(null) -> null
+        List<String> output2 = processor2.transform("|apple|banana|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=");
+
+        // case3: from_base64('QXBhY2hlIEluTG9uZw==') -> 'Apache InLong'
+        List<String> output3 = processor.transform("QXBhY2hlIEluTG9uZw==|apple|banana|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=Apache InLong");
     }
 }

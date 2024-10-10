@@ -15,61 +15,51 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.encrption;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-
 import org.apache.inlong.sdk.transform.process.function.arithmetic.AbstractFunctionArithmeticTestBase;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class TestSha2Function extends AbstractFunctionArithmeticTestBase {
+public class TestMd5Function extends AbstractFunctionArithmeticTestBase {
 
     @Test
-    public void testSha2Function() throws Exception {
-        String transformSql = null, data = null;
-        TransformConfig config = null;
-        TransformProcessor<String, String> processor = null;
-        List<String> output = null;
+    public void testMd5Function() throws Exception {
+        String transformSql = "select md5(numeric1) from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case1: md5("1")
+        List<String> output1 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals("result=c4ca4238a0b923820dcc509a6f75849b", output1.get(0));
 
-        // case1: sha2("",3)
-        transformSql = "select sha2(numeric1,numeric2) from source";
+        // case2: md5("-1")
+        List<String> output2 = processor.transform("-1|4|6|8");
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals("result=6bb61e3b7bce0931da574d19d1d82c88", output2.get(0));
+
+        // case3: md5("")
+        List<String> output3 = processor.transform("|4|6|8");
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals("result=d41d8cd98f00b204e9800998ecf8427e", output3.get(0));
+
+        // case4: md5(null)
+        transformSql = "select md5(numericxx) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        data = "|3|3|5";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
-
-        // case2: sha2("5",224)
-        data = "5|224|3|5";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17", output.get(0));
-
-        // case3: sha2("5",0)
-        data = "5|0|3|5";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", output.get(0));
-
-        // case4: sha2(null,224)
-        transformSql = "select sha2(xxd,224) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-        data = "3|224|3|5";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
+        List<String> output4 = processor.transform("1|4|6|8");
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals("result=", output4.get(0));
     }
 }

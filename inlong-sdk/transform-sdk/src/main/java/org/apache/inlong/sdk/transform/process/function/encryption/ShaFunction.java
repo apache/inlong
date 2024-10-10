@@ -15,42 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.flowcontrol;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
-import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-
-import java.util.List;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * IfFunction
- * description: if(expr,r1,r2) -- expr is an expression, if it holds, return r1; otherwise, return r2
+ * ShaFunction
+ * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
+ * return NULL if the parameter is NULL
+ * return a string of 40 hexadecimal digits.
  */
-@TransformFunction(names = {"if"})
-public class IfFunction implements ValueParser {
+@TransformFunction(names = {"sha"})
+public class ShaFunction implements ValueParser {
 
-    private final ExpressionOperator expressionOperator;
-    private final ValueParser tureValueParser;
-    private final ValueParser falseValueParser;
+    private final ValueParser msgParser;
 
-    public IfFunction(Function expr) {
-        List<Expression> expressions = expr.getParameters().getExpressions();
-        expressionOperator = OperatorTools.buildOperator(expressions.get(0));
-        tureValueParser = OperatorTools.buildParser(expressions.get(1));
-        falseValueParser = OperatorTools.buildParser(expressions.get(2));
+    public ShaFunction(Function expr) {
+        msgParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        boolean condition = expressionOperator.check(sourceData, rowIndex, context);
-        return condition ? tureValueParser.parse(sourceData, rowIndex, context)
-                : falseValueParser.parse(sourceData, rowIndex, context);
+        Object msgObj = msgParser.parse(sourceData, rowIndex, context);
+        if (msgObj == null) {
+            return null;
+        }
+        return DigestUtils.sha1Hex(OperatorTools.parseBytes(msgObj));
     }
 }

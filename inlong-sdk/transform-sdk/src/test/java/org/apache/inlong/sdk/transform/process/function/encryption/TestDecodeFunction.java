@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.collection;
+package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,63 +28,41 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestMapValuesFunction extends AbstractFunctionStringTestBase {
+public class TestNullIfFunction extends AbstractFunctionFlowControlTestBase {
 
     @Test
-    public void testMapValuesFunction() throws Exception {
+    public void testNullIfFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select map_values(map(string1,numeric1,string2)) from source";
+        // case1: nullif(5, 3)
+        transformSql = "select nullif(numeric1,numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=5", output.get(0));
 
-        // case1: map_values(Map('he',7,'xxd'))
-        data = "he|xxd|cloud|7|3|3";
+        // case2: nullif(5, 5)
+        data = "5|5|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
 
-        transformSql = "select map_values(map(string1,numeric1,string2,string3)) from source";
+        // case3: nullif(null,3)
+        transformSql = "select nullif(xxd,numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case2: map_values(Map('he',1,'xxd','cloud'))
-        data = "he|xxd|cloud|1|3|3";
+        data = "5|3|3|5";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[1, cloud]", output.get(0));
-
-        transformSql = "select map_values(map(numeric1,numeric2,string1,string2)) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case3: map_values(Map(1,2,'cloud','xxd'))
-        data = "1|2|3|xxd|cloud|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[cloud, 2]", output.get(0));
-
-        transformSql =
-                "select map_values(map(numeric1,numeric2,map(string1,string2),map(string3,numeric3))) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-
-        // case4: map_values(Map('xxd','cloud',map(1,2),map(3,'apple')))
-        data = "1|2|3|xxd|cloud|apple";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[cloud, {3=apple}]", output.get(0));
-
+        Assert.assertEquals("result=", output.get(0));
     }
 }

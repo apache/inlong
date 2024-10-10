@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
@@ -33,15 +33,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 /**
- * DecodeFunction
- * description: decode(binary, string)
- *      Decode using the supplied character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
+ * EncodeFunction
+ * description: encode(string1, string2)
+ *      Encode using the provided character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
  *      If either parameter is empty, the result will also be empty.
  */
-@TransformFunction(names = {"decode"})
-public class DecodeFunction implements ValueParser {
+@TransformFunction(names = {"encode"})
+public class EncodeFunction implements ValueParser {
 
-    private ValueParser binaryParser;
+    private ValueParser stringParser;
 
     private ValueParser characterSetParser;
 
@@ -58,34 +58,34 @@ public class DecodeFunction implements ValueParser {
         SUPPORTED_CHARSETS = Collections.unmodifiableSet(charsets);
     }
 
-    public DecodeFunction(Function expr) {
+    public EncodeFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         if (expressions != null && expressions.size() == 2) {
-            binaryParser = OperatorTools.buildParser(expressions.get(0));
+            stringParser = OperatorTools.buildParser(expressions.get(0));
             characterSetParser = OperatorTools.buildParser(expressions.get(1));
         }
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object binaryObj = binaryParser.parse(sourceData, rowIndex, context);
+        Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         Object characterObj = characterSetParser.parse(sourceData, rowIndex, context);
-        if (binaryObj == null || characterObj == null) {
+        if (stringObj == null || characterObj == null) {
             return null;
         }
+        String stringValue = OperatorTools.parseString(stringObj);
         String characterSetValue = OperatorTools.parseString(characterObj).toUpperCase();
-        return decode((byte[]) binaryObj, characterSetValue);
+        return encode(stringValue, characterSetValue);
     }
 
-    private String decode(byte[] binaryString, String charsetName) {
-        if (binaryString == null || charsetName == null || charsetName.isEmpty()) {
-            return "";
+    private byte[] encode(String stringValue, String characterSetValue) {
+        if (stringValue == null || stringValue.isEmpty() || characterSetValue == null || characterSetValue.isEmpty()) {
+            return new byte[0];
         }
-
-        if (Charset.isSupported(charsetName) && SUPPORTED_CHARSETS.contains(charsetName)) {
-            Charset charset = Charset.forName(charsetName);
-            return new String(binaryString, charset);
+        if (Charset.isSupported(characterSetValue) && SUPPORTED_CHARSETS.contains(characterSetValue)) {
+            Charset charset = Charset.forName(characterSetValue);
+            return stringValue.getBytes(charset);
         }
-        return "";
+        return null;
     }
 }

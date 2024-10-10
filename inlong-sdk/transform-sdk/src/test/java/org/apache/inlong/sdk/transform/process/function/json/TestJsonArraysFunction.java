@@ -24,8 +24,8 @@ import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-
 import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
+
 import org.junit.Assert;
 import org.junit.Test;
 

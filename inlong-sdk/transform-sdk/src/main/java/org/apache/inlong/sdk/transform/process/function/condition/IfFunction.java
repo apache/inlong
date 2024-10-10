@@ -15,39 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.arithmetic;
+package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
+import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import org.apache.commons.codec.digest.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
- * Md5Function
- * description: MD5(string): Return the MD5 hash value of a string in the form of a 32-bit hexadecimal digit string; If the string is NULL, return NULL.
+ * IfFunction
+ * description: if(expr,r1,r2) -- expr is an expression, if it holds, return r1; otherwise, return r2
  */
-@TransformFunction(names = {"md5"})
-public class Md5Function implements ValueParser {
+@TransformFunction(names = {"if"})
+public class IfFunction implements ValueParser {
 
-    private ValueParser msgParser;
+    private final ExpressionOperator expressionOperator;
+    private final ValueParser tureValueParser;
+    private final ValueParser falseValueParser;
 
-    public Md5Function(Function expr) {
-        msgParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+    public IfFunction(Function expr) {
+        List<Expression> expressions = expr.getParameters().getExpressions();
+        expressionOperator = OperatorTools.buildOperator(expressions.get(0));
+        tureValueParser = OperatorTools.buildParser(expressions.get(1));
+        falseValueParser = OperatorTools.buildParser(expressions.get(2));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object msgObj = msgParser.parse(sourceData, rowIndex, context);
-        if (msgObj == null) {
-            return null;
-        }
-        String msg = msgObj.toString();
-        return DigestUtils.md5Hex(msg.getBytes(StandardCharsets.UTF_8));
+        boolean condition = expressionOperator.check(sourceData, rowIndex, context);
+        return condition ? tureValueParser.parse(sourceData, rowIndex, context)
+                : falseValueParser.parse(sourceData, rowIndex, context);
     }
 }
