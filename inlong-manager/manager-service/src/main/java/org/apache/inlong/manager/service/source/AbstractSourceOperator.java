@@ -421,53 +421,17 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             if (existEntity != null) {
                 agentTaskConfigEntity = CommonBeanUtils.copyProperties(existEntity, AgentTaskConfigEntity::new, true);
             }
-            List<StreamSourceEntity> normalSourceEntities = sourceMapper.selectByStatusAndCluster(
-                    SourceStatus.NORMAL_STATUS_SET.stream().map(SourceStatus::getCode)
-                            .collect(Collectors.toList()),
-                    clusterName, ip, uuid);
-            List<StreamSourceEntity> taskLists = new ArrayList<>(normalSourceEntities);
-            List<StreamSourceEntity> stopSourceEntities = sourceMapper.selectByStatusAndCluster(
-                    SourceStatus.STOP_STATUS_SET.stream().map(SourceStatus::getCode)
-                            .collect(Collectors.toList()),
-                    clusterName, ip, uuid);
-            taskLists.addAll(stopSourceEntities);
-            LOGGER.debug("success to add task : {}", taskLists.size());
-            List<DataConfig> runningTaskConfig = Lists.newArrayList();
-            List<CmdConfig> cmdConfigs = sourceCmdConfigMapper.queryCmdByAgentIp(request.getAgentIp()).stream()
-                    .map(cmd -> {
-                        CmdConfig cmdConfig = new CmdConfig();
-                        cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
-                        cmdConfig.setOp(cmd.getCmdType());
-                        cmdConfig.setId(cmd.getId());
-                        cmdConfig.setTaskId(cmd.getTaskId());
-                        return cmdConfig;
-                    }).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(taskLists)) {
+
+            LOGGER.debug("begin to get agent config info for {}", request);
+            Set<String> tagSet = new HashSet<>(16);
+            InlongClusterEntity agentClusterInfo = clusterMapper.selectByNameAndType(request.getInlongClusterName(),
+                    ClusterType.AGENT);
+            if (agentClusterInfo == null) {
                 agentTaskConfigEntity.setIsDeleted(agentTaskConfigEntity.getId());
                 agentTaskConfigEntityMapper.updateByIdSelective(agentTaskConfigEntity);
                 return;
             }
-            for (StreamSourceEntity sourceEntity : taskLists) {
-                int op = sourceEntity.getStatus() % MODULUS_100;
-                DataConfig dataConfig = getDataConfig(sourceEntity, op);
-                runningTaskConfig.add(dataConfig);
-            }
-            TaskResult taskResult =
-                    TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
-            String md5 = DigestUtils.md5Hex(GSON.toJson(taskResult));
-            taskResult.setMd5(md5);
-            taskResult.setCode(AgentResponseCode.SUCCESS);
-            agentTaskConfigEntity.setAgentIp(request.getAgentIp());
-            agentTaskConfigEntity.setClusterName(request.getInlongClusterName());
-            agentTaskConfigEntity.setTaskParams(objectMapper.writeValueAsString(taskResult));
-
-            LOGGER.debug("begin to get agent config info for {}", request);
-            Set<String> tagSet = new HashSet<>(16);
-            InlongGroupEntity groupEntity =
-                    groupMapper.selectByGroupIdWithoutTenant(request.getInlongGroupId());
-            String clusterTag = groupEntity.getInlongClusterTag();
-            InlongClusterEntity agentClusterInfo = clusterMapper.selectByNameAndType(request.getInlongClusterName(),
-                    ClusterType.AGENT);
+            String clusterTag = agentClusterInfo.getClusterTags();
             AgentConfigInfo agentConfigInfo = AgentConfigInfo.builder()
                     .cluster(AgentConfigInfo.AgentClusterInfo.builder()
                             .parentId(agentClusterInfo.getId())
@@ -492,6 +456,47 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             agentConfigInfo.setMd5(configMd5);
             agentConfigInfo.setCode(AgentResponseCode.SUCCESS);
             agentTaskConfigEntity.setConfigParams(objectMapper.writeValueAsString(agentConfigInfo));
+
+            List<StreamSourceEntity> normalSourceEntities = sourceMapper.selectByStatusAndCluster(
+                    SourceStatus.NORMAL_STATUS_SET.stream().map(SourceStatus::getCode)
+                            .collect(Collectors.toList()),
+                    clusterName, ip, uuid);
+            List<StreamSourceEntity> taskLists = new ArrayList<>(normalSourceEntities);
+            List<StreamSourceEntity> stopSourceEntities = sourceMapper.selectByStatusAndCluster(
+                    SourceStatus.STOP_STATUS_SET.stream().map(SourceStatus::getCode)
+                            .collect(Collectors.toList()),
+                    clusterName, ip, uuid);
+            taskLists.addAll(stopSourceEntities);
+            LOGGER.debug("success to add task : {}", taskLists.size());
+            List<DataConfig> runningTaskConfig = Lists.newArrayList();
+            List<CmdConfig> cmdConfigs = sourceCmdConfigMapper.queryCmdByAgentIp(request.getAgentIp()).stream()
+                    .map(cmd -> {
+                        CmdConfig cmdConfig = new CmdConfig();
+                        cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
+                        cmdConfig.setOp(cmd.getCmdType());
+                        cmdConfig.setId(cmd.getId());
+                        cmdConfig.setTaskId(cmd.getTaskId());
+                        return cmdConfig;
+                    }).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(taskLists)) {
+                agentTaskConfigEntity.setTaskParams(null);
+                agentTaskConfigEntityMapper.updateByIdSelective(agentTaskConfigEntity);
+                return;
+            }
+            for (StreamSourceEntity sourceEntity : taskLists) {
+                int op = sourceEntity.getStatus() % MODULUS_100;
+                DataConfig dataConfig = getDataConfig(sourceEntity, op);
+                runningTaskConfig.add(dataConfig);
+            }
+            TaskResult taskResult =
+                    TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
+            String md5 = DigestUtils.md5Hex(GSON.toJson(taskResult));
+            taskResult.setMd5(md5);
+            taskResult.setCode(AgentResponseCode.SUCCESS);
+            agentTaskConfigEntity.setAgentIp(request.getAgentIp());
+            agentTaskConfigEntity.setClusterName(request.getInlongClusterName());
+            agentTaskConfigEntity.setTaskParams(objectMapper.writeValueAsString(taskResult));
+
             agentClusterInfo.setModifier(operator);
             if (existEntity == null) {
                 agentTaskConfigEntity.setCreator(operator);
