@@ -92,6 +92,46 @@ public class ProxyUtils {
         return true;
     }
 
+    /**
+     * Check if the body length exceeds the maximum limit, if the maximum limit is less than or equal to 0, it is not checked
+     * @param body
+     * @param maxLen
+     * @return
+     */
+    public static boolean bodyLengthCheck(byte[] body, int maxLen) {
+        // Not valid if the maximum limit is less than or equal to 0
+        if (maxLen <= 0) {
+            return true;
+        }
+        if (body.length > maxLen) {
+            logger.error("body length is too long, max length is {}", maxLen);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if the total body length exceeds the maximum limit, if the maximum limit is less than or equal to 0, it is not checked
+     * @param bodyList
+     * @param maxLen
+     * @return
+     */
+    public static boolean bodyLengthCheck(List<byte[]> bodyList, int maxLen) {
+        // Not valid if the maximum limit is less than or equal to 0
+        if (maxLen <= 0) {
+            return true;
+        }
+        int size = 0;
+        for (byte[] body : bodyList) {
+            size += body.length;
+            if (size > maxLen) {
+                logger.error("body length is too long, max length is {}", maxLen);
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static long covertZeroDt(long dt) {
         if (dt == 0) {
             return System.currentTimeMillis();
