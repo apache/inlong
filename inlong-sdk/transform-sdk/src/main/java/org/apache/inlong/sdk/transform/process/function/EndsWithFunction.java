@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
@@ -12,8 +29,7 @@ import java.util.List;
 
 /**
  * EndsWithFunction
- * description: endswith(expr, endExpr)
- * Returns whether expr ends with endExpr.
+ * description: Returns whether expr ends with endExpr.
  */
 @TransformFunction(names = {"endswith"})
 public class EndsWithFunction implements ValueParser {
@@ -66,4 +82,3 @@ public class EndsWithFunction implements ValueParser {
         return (a instanceof String && b instanceof String) || (a instanceof byte[] && b instanceof byte[]);
     }
 }
-
