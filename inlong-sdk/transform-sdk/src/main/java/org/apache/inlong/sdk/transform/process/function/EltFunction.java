@@ -28,6 +28,13 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * EltFunction -> elt(index, expr[, exprs]*)
+ * description:
+ * - Returns the index-th expression.
+ * - index must be an integer between 1 and the number of expressions.
+ * - Returns NULL if index is NULL or out of range.
+ */
 @TransformFunction(names = {"elt"})
 public class EltFunction implements ValueParser {
 
