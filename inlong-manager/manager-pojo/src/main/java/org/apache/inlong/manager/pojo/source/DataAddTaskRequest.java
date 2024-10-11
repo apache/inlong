@@ -25,6 +25,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 
+import java.util.List;
+
 /**
  * Data add task information
  */
@@ -33,8 +35,15 @@ import javax.validation.constraints.NotBlank;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class DataAddTaskRequest {
 
-    @ApiModelProperty(value = "Source ID")
+    @ApiModelProperty(value = "Group Id")
+    @NotBlank(message = "inlongGroupId cannot be blank")
+    private String groupId;
+
+    @ApiModelProperty(value = "Source ID", hidden = true)
     private Integer sourceId;
+
+    @ApiModelProperty(value = "Agent ip List")
+    private List<String> agentIpList;
 
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     @NotBlank(message = "sourceType cannot be blank")

@@ -195,6 +195,14 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
+     * Set local IP
+     * @param localIP
+     */
+    public void setLocalIP(String localIP) {
+        config.setLocalIP(localIP);
+    }
+
+    /**
      * Set AuditProxy from the manager host
      */
     public void setAuditProxy(AuditComponent component, String managerHost, String secretId, String secretKey) {

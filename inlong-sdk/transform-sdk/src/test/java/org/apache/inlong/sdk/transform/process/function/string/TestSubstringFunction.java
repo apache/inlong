@@ -93,5 +93,25 @@ public class TestSubstringFunction extends AbstractFunctionStringTestBase {
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
+
+        String transformSql3 = "select mid(string2, numeric1) from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case7: mid('banana', 2)
+        List<String> output4 = processor3.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output4.size());
+        Assert.assertEquals(output4.get(0), "result=anana");
+
+        String transformSql4 = "select mid(string1, numeric1, numeric3) from source";
+        TransformConfig config4 = new TransformConfig(transformSql4);
+        TransformProcessor<String, String> processor4 = TransformProcessor
+                .create(config4, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case8: mid('apple', 2, 3)
+        List<String> output5 = processor4.transform("apple|banana|cloud|2|1|3", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=ppl");
     }
 }

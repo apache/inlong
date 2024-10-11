@@ -68,6 +68,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -533,25 +534,32 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
+    public List<Integer> addDataAddTask(DataAddTaskRequest request, String operator) {
         LOGGER.info("begin to add data add task info: {}", request);
-        StreamSourceEntity entity = sourceMapper.selectById(request.getSourceId());
-        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
-        int id = sourceOperator.addDataAddTask(request, operator);
-        LOGGER.info("success to add data add task info: {}", request);
-        return id;
-    }
-
-    @Override
-    public List<Integer> batchAddDataAddTask(String groupId, List<DataAddTaskRequest> requestList,
-            String operator) {
-        List<Integer> result = new ArrayList<>();
-        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(groupId, null));
-        for (DataAddTaskRequest request : requestList) {
-            request.setAuditVersion(auditVersion);
-            int id = addDataAddTask(request, operator);
-            result.add(id);
+        String auditVersion = String.valueOf(sourceMapper.selectDataAddTaskCount(request.getGroupId(), null));
+        request.setAuditVersion(auditVersion);
+        List<String> agentIpList = request.getAgentIpList();
+        List<StreamSourceEntity> entityList = new ArrayList<>();
+        List<Integer> resultIdList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(agentIpList)) {
+            entityList = sourceMapper.selectByRelatedId(request.getGroupId(), null, null);
+        } else {
+            for (String agentIp : agentIpList) {
+                List<StreamSourceEntity> sourceEntityList = sourceMapper.selectByAgentIp(agentIp);
+                entityList.addAll(sourceEntityList);
+            }
         }
-        return result;
+        for (StreamSourceEntity sourceEntity : entityList) {
+            if (sourceEntity.getTaskMapId() != null || !Objects.equals(sourceEntity.getInlongGroupId(),
+                    request.getGroupId())) {
+                continue;
+            }
+            StreamSourceOperator sourceOperator = operatorFactory.getInstance(sourceEntity.getSourceType());
+            request.setSourceId(sourceEntity.getId());
+            int id = sourceOperator.addDataAddTask(request, operator);
+            resultIdList.add(id);
+        }
+        LOGGER.info("success to add data add task info: {}, data add task size: {}", request, resultIdList.size());
+        return resultIdList;
     }
 }
