@@ -28,52 +28,62 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLengthFunction extends AbstractFunctionStringTestBase {
+public class TestJsonArrayInsertFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testLengthFunction() throws Exception {
+    public void testJsonArrayInsertFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select length(string1) from source";
+        transformSql = "select json_array_insert(string1,string2,string3) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: length('hello world')
-        data = "hello world|apple|cloud|2|1|3";
+
+        // case1: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[1], x)
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[1]|x|";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=11", output.get(0));
+        Assert.assertEquals("result=[\"a\",\"x\",{\"b\":[1,2]},[3,4]]", output.get(0));
 
-        transformSql = "select length(xxd) from source";
+        // case2: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], x)
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[100]|x|";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=[\"a\",{\"b\":[1,2]},[3,4],\"x\"]", output.get(0));
+
+        // case3: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], x)
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[1].b[0]|x|";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=[\"a\",{\"b\":[\"x\",1,2]},[3,4]]", output.get(0));
+
+        // case4: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], y)
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[2][1]|y|";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=[\"a\",{\"b\":[1,2]},[3,\"y\",4]]", output.get(0));
+
+        transformSql = "select json_array_insert(string1,string2,string3,numeric1,numeric2) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case2: length(null)
-        data = "hello world|apple|cloud|2|1|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=", output.get(0));
 
-        transformSql = "select length(string1,string2) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-        // case3: length(应龙, utf-8)
-        data = "应龙|utf-8|cloud|2|1|3";
+        // case5: json_array_append(["a", {"b": [1, 2]}, [3, 4]], "$[0]", "x", "$[2][1]", "y")
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[0]|x|$[2][1]|y";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=6", output.get(0));
+        Assert.assertEquals("result=[\"x\",\"a\",{\"b\":[1,2]},[3,4]]", output.get(0));
 
-        // case4: length(应龙, gbk)
-        data = "应龙|gbk|cloud|2|1|3";
+        // case6: json_array_append(["a", {"b": [1, 2]}, [3, 4]], "$[0]", "x", "$[3][1]", "y")
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[0]|x|$[3][1]|y";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=4", output.get(0));
+        Assert.assertEquals("result=[\"x\",\"a\",{\"b\":[1,2]},[3,\"y\",4]]", output.get(0));
+
     }
 }

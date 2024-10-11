@@ -22,45 +22,38 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
-import java.nio.charset.Charset;
-import java.util.List;
-
+import java.util.Arrays;
+import java.util.Map;
 /**
- * LengthFunction
- * description: length(string,[charsetName])
- * - return the byte length of the string
- * - return NULL if the string is NULL
+ * MapKeysFunction
+ * description: MAP_KEYS(map)--Returns the keys of the map as array. No order guaranteed.
+ * for example: map_keys(Map('he',1,'xxd','cloud'))--return [he, xxd]
+ *              map_keys(Map('xxd','cloud',map(1,2),map(3,'apple')))--return [xxd, {1=2}]
  */
-@TransformFunction(names = {"length"})
-public class LengthFunction implements ValueParser {
+@TransformFunction(names = {"map_keys"})
+public class MapKeysFunction implements ValueParser {
 
-    private final ValueParser stringParser;
-    private ValueParser charSetNameParser;
-    private final Charset DEFAULT_CHARSET = Charset.defaultCharset();
+    private final ValueParser mapParser;
 
-    public LengthFunction(Function expr) {
-        List<Expression> expressions = expr.getParameters().getExpressions();
-        stringParser = OperatorTools.buildParser(expressions.get(0));
-        if (expressions.size() > 1) {
-            charSetNameParser = OperatorTools.buildParser(expressions.get(1));
-        }
+    public MapKeysFunction(Function expr) {
+        this.mapParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object stringObject = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObject == null) {
+        Object mapObj = mapParser.parse(sourceData, rowIndex, context);
+        if (mapObj == null) {
             return null;
         }
-        Charset charset = DEFAULT_CHARSET;
-        if (charSetNameParser != null) {
-            charset = Charset.forName(OperatorTools.parseString(
-                    charSetNameParser.parse(sourceData, rowIndex, context)));
+        if (mapObj instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) mapObj;
+            if (map.isEmpty()) {
+                return null;
+            }
+            return Arrays.toString(map.keySet().toArray());
         }
-        String str = OperatorTools.parseString(stringObject);
-        return str.getBytes(charset).length;
+        return null;
     }
 }

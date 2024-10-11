@@ -28,52 +28,63 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLengthFunction extends AbstractFunctionStringTestBase {
+public class TestMapFromArraysFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testLengthFunction() throws Exception {
+    public void testMapFromArraysFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select length(string1) from source";
+        transformSql = "select map_from_arrays(map(string1,numeric1,string2)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: length('hello world')
-        data = "hello world|apple|cloud|2|1|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=11", output.get(0));
 
-        transformSql = "select length(xxd) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-        // case2: length(null)
-        data = "hello world|apple|cloud|2|1|3";
+        // case1: map_from_arrays(Map('he',7,'xxd'))
+        data = "he|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
 
-        transformSql = "select length(string1,string2) from source";
+        transformSql = "select map_from_arrays(array(string1,string2),array(numeric1,numeric2)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case3: length(应龙, utf-8)
-        data = "应龙|utf-8|cloud|2|1|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=6", output.get(0));
 
-        // case4: length(应龙, gbk)
-        data = "应龙|gbk|cloud|2|1|3";
+        // case2: map_from_arrays(array('he', 'xxd'),array(1, 3))
+        data = "he|xxd|cloud|1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=4", output.get(0));
+        Assert.assertEquals("result={he=1, xxd=3}", output.get(0));
+
+        transformSql = "select map_from_arrays(array(string1,string2),array(numeric1)) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case3: map_from_arrays(array(xxd,cloud),array(1))
+        data = "1|2|3|xxd|cloud|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        transformSql =
+                "select map_from_arrays(array(string1,array(string2)),array(numeric1,array(numeric2))) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case4: map_from_arrays(array('xxd', array('cloud')),array(1, array(2)))
+        data = "1|2|3|xxd|cloud|apple";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result={1=xxd, [2]=[cloud]}", output.get(0));
+
     }
 }

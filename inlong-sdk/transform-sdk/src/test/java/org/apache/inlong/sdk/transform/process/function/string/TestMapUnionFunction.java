@@ -28,52 +28,69 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestLengthFunction extends AbstractFunctionStringTestBase {
+public class TestMapUnionFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testLengthFunction() throws Exception {
+    public void testMapUnionFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select length(string1) from source";
+        transformSql = "select map_union(map(string1,numeric1,string2)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case1: length('hello world')
-        data = "hello world|apple|cloud|2|1|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=11", output.get(0));
 
-        transformSql = "select length(xxd) from source";
-        config = new TransformConfig(transformSql);
-        processor = TransformProcessor
-                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
-                        SinkEncoderFactory.createKvEncoder(kvSink));
-        // case2: length(null)
-        data = "hello world|apple|cloud|2|1|3";
+        // case1: map_union(NULL)
+        data = "he|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
 
-        transformSql = "select length(string1,string2) from source";
+        transformSql = "select map_union(map(string1,numeric1),map(string2,numeric2)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case3: length(应龙, utf-8)
-        data = "应龙|utf-8|cloud|2|1|3";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=6", output.get(0));
 
-        // case4: length(应龙, gbk)
-        data = "应龙|gbk|cloud|2|1|3";
+        // case2: map_union(map('he', 1),map('xxd', 3))
+        data = "he|xxd|cloud|1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=4", output.get(0));
+        Assert.assertEquals("result={he=1, xxd=3}", output.get(0));
+
+        // case3: map_union(map('he', 1),map('he', 3))
+        data = "he|he|cloud|1|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result={he=3}", output.get(0));
+
+        transformSql = "select map_union(map(string1,numeric1),map(string2,numeric2)" +
+                ",map(string3,numeric3)) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case4: map_union(map('xxd', 1),map('cloud', 2),map('xxd', 3))
+        data = "xxd|cloud|xxd|1|2|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result={cloud=2, xxd=3}", output.get(0));
+
+        transformSql = "select map_union(map(numeric1,numeric2),map(string1,string2),map()) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case5: map_union(map(1, 2),map('xxd', 'cloud'),NULL)
+        data = "1|2|3|xxd|cloud|apple";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
     }
 }
