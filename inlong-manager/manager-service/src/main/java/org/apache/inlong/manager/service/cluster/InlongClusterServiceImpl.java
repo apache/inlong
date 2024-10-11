@@ -960,6 +960,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (dataProxyCluster != null && StringUtils.isNotBlank(dataProxyCluster.getExtParams())) {
             DataProxyClusterDTO dataProxyClusterDTO = DataProxyClusterDTO.getFromJson(dataProxyCluster.getExtParams());
             maxPacketLength = dataProxyClusterDTO.getMaxPacketLength();
+            response.setMaxPacketLength(maxPacketLength);
         }
 
         // TODO consider the data proxy load and re-balance
@@ -978,7 +979,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
             nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
-            nodeInfo.setMaxPacketLength(maxPacketLength);
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);
@@ -1004,6 +1004,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (StringUtils.isNotBlank(clusterEntity.getExtParams())) {
             DataProxyClusterDTO dataProxyClusterDTO = DataProxyClusterDTO.getFromJson(clusterEntity.getExtParams());
             maxPacketLength = dataProxyClusterDTO.getMaxPacketLength();
+            response.setMaxPacketLength(maxPacketLength);
         }
         List<InlongClusterNodeEntity> nodeEntities =
                 clusterNodeMapper.selectByParentId(clusterEntity.getId(), protocolType);
@@ -1041,7 +1042,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
             nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
-            nodeInfo.setMaxPacketLength(maxPacketLength);
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);

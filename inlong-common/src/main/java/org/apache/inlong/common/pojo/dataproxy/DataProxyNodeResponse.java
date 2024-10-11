@@ -51,6 +51,11 @@ public class DataProxyNodeResponse {
     private Integer load = 20;
 
     /**
+     * Node max packet length
+     */
+    private Integer maxPacketLength;
+
+    /**
      * List of the cluster node
      */
     private List<DataProxyNodeInfo> nodeList;
