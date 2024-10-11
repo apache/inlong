@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
+import org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.pulsar.client.api.Consumer;
@@ -59,6 +60,11 @@ public class PulsarSource extends AbstractSource {
     private long offset = 0L;
 
     public PulsarSource() {
+    }
+
+    @Override
+    protected void initExtendClass() {
+        extendClass = DefaultExtendedHandler.class.getCanonicalName();
     }
 
     @Override

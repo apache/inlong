@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
-import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.message.DefaultMessage;
@@ -58,7 +57,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
-import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
@@ -101,6 +99,7 @@ public abstract class AbstractSource implements Source {
     protected long auditVersion;
     protected String instanceId;
     protected InstanceProfile profile;
+    protected String extendClass;
     private ExtendedHandler extendedHandler;
     protected boolean isRealTime = false;
     protected volatile long emptyCount = 0;
@@ -131,6 +130,8 @@ public abstract class AbstractSource implements Source {
         initExtendHandler();
         initSource(profile);
     }
+
+    protected abstract void initExtendClass();
 
     protected abstract void initSource(InstanceProfile profile);
 
@@ -279,28 +280,26 @@ public abstract class AbstractSource implements Source {
     }
 
     private void initExtendHandler() {
-        if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
-            Constructor<?> constructor =
-                    null;
-            try {
-                constructor = Class.forName(
-                        profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
-                        .getDeclaredConstructor(InstanceProfile.class);
-            } catch (NoSuchMethodException e) {
-                LOGGER.error("init {} NoSuchMethodException error", instanceId, e);
-            } catch (ClassNotFoundException e) {
-                LOGGER.error("init {} ClassNotFoundException error", instanceId, e);
-            }
-            constructor.setAccessible(true);
-            try {
-                extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
-            } catch (InstantiationException e) {
-                LOGGER.error("init {} InstantiationException error", instanceId, e);
-            } catch (IllegalAccessException e) {
-                LOGGER.error("init {} IllegalAccessException error", instanceId, e);
-            } catch (InvocationTargetException e) {
-                LOGGER.error("init {} InvocationTargetException error", instanceId, e);
-            }
+        initExtendClass();
+        Constructor<?> constructor =
+                null;
+        try {
+            constructor = Class.forName(extendClass)
+                    .getDeclaredConstructor(InstanceProfile.class);
+        } catch (NoSuchMethodException e) {
+            LOGGER.error("init {} NoSuchMethodException error", instanceId, e);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("init {} ClassNotFoundException error", instanceId, e);
+        }
+        constructor.setAccessible(true);
+        try {
+            extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
+        } catch (InstantiationException e) {
+            LOGGER.error("init {} InstantiationException error", instanceId, e);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("init {} IllegalAccessException error", instanceId, e);
+        } catch (InvocationTargetException e) {
+            LOGGER.error("init {} InvocationTargetException error", instanceId, e);
         }
     }
 
