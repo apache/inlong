@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 
@@ -104,7 +105,7 @@ public class ProxyUtils {
             return true;
         }
         // Reserve space for attribute
-        if (body.length > maxLen - 10000) {
+        if (body.length > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
             logger.debug("body length is too long, max length is {}", maxLen);
             return false;
         }
@@ -126,7 +127,7 @@ public class ProxyUtils {
         for (byte[] body : bodyList) {
             size += body.length;
             // Reserve space for attribute
-            if (size > maxLen - 10000) {
+            if (size > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
                 logger.debug("body length is too long, max length is {}", maxLen);
                 return false;
             }

@@ -76,4 +76,7 @@ public class ConfigConstants {
 
     public static int DEFAULT_SENDER_MAX_ATTEMPT = 1;
 
+    /* Reserved attribute data size(bytes). */
+    public static int RESERVED_ATTRIBUTE_LENGTH = 10000;
+
 }
