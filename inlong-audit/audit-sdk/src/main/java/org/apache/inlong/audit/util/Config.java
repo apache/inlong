@@ -31,7 +31,7 @@ import java.util.Enumeration;
 public class Config {
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
-    private String localIP = "";
+    private String localIP;
     private String dockerId = "";
     private static final int CGROUP_FILE_LENGTH = 50;
     private static final int DOCKERID_LENGTH = 10;
@@ -40,7 +40,9 @@ public class Config {
         initIP();
         initDockerId();
     }
-
+    public void setLocalIP(String localIP) {
+        this.localIP = localIP;
+    }
     public String getLocalIP() {
         return localIP;
     }
@@ -50,6 +52,9 @@ public class Config {
     }
 
     private void initIP() {
+        if (localIP != null) {
+            return;
+        }
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
                 NetworkInterface intf = en.nextElement();
