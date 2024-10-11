@@ -52,6 +52,7 @@ public class BaseTestsHelper {
         LOGGER.info("try to create {}, result is {}", testRootDir, result);
         InstallerConfiguration.getInstallerConf().set(AgentConstants.AGENT_HOME, testRootDir.toString());
         InstallerConfiguration.getInstallerConf().set(FetcherConstants.AGENT_MANAGER_ADDR, "");
+        InstallerConfiguration.getInstallerConf().set(AgentConstants.AGENT_LOCAL_IP, "127.0.0.1");
         return this;
     }
 

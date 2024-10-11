@@ -48,6 +48,7 @@ public class AgentBaseTestsHelper {
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);
         AgentConfiguration.getAgentConf().set(AgentConstants.AGENT_HOME, testRootDir.toString());
+        AgentConfiguration.getAgentConf().set(AgentConstants.AGENT_LOCAL_IP, "127.0.0.1");
         return this;
     }
 
