@@ -543,7 +543,6 @@ public class ClientMgr {
     private List<HostInfo> findUnHealthyHostList(List<HostInfo> hostInfos) {
         List<HostInfo> unHealthyHostList = new ArrayList<>();
         if (!clientMap.isEmpty()) {
-            logger.info("ready to close not in new HostInfo connections!");
             for (HostInfo hostInfo : clientMap.keySet()) {
                 if (hostInfo == null) {
                     continue;
