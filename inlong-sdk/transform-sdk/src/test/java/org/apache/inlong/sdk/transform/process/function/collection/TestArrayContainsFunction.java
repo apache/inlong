@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function.string;
+package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,62 +29,73 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestJsonArrayInsertFunction extends AbstractFunctionStringTestBase {
+public class TestArrayContainsFunction extends AbstractFunctionStringTestBase {
 
     @Test
-    public void testJsonArrayInsertFunction() throws Exception {
+    public void testArrayContainsFunction() throws Exception {
         String transformSql = null, data = null;
         TransformConfig config = null;
         TransformProcessor<String, String> processor = null;
         List<String> output = null;
 
-        transformSql = "select json_array_insert(string1,string2,string3) from source";
+        transformSql = "select array_contains(array(string1,numeric1,string2),string3) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case1: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[1], x)
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[1]|x|";
+        // case1: array_contains(array('he',7,'xxd'), 'cloud')
+        data = "he|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",\"x\",{\"b\":[1,2]},[3,4]]", output.get(0));
+        Assert.assertEquals("result=false", output.get(0));
 
-        // case2: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], x)
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[100]|x|";
+        // case2: array_contains(array('he',-1,''),'')
+        data = "he|||-1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",{\"b\":[1,2]},[3,4],\"x\"]", output.get(0));
+        Assert.assertEquals("result=true", output.get(0));
 
-        // case3: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], x)
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[1].b[0]|x|";
+        // case3: array_contains(array('he',-1,'xxd'),'')
+        data = "he|xxd||-1|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",{\"b\":[\"x\",1,2]},[3,4]]", output.get(0));
+        Assert.assertEquals("result=false", output.get(0));
 
-        // case4: json_array_append(["a", {"b": [1, 2]}, [3, 4]], $[100], y)
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[2][1]|y|";
-        output = processor.transform(data, new HashMap<>());
-        Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",{\"b\":[1,2]},[3,\"y\",4]]", output.get(0));
-
-        transformSql = "select json_array_insert(string1,string2,string3,numeric1,numeric2) from source";
+        transformSql = "select array_contains(array(array(string1)), array(string2)) from source";
         config = new TransformConfig(transformSql);
         processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        // case5: json_array_append(["a", {"b": [1, 2]}, [3, 4]], "$[0]", "x", "$[2][1]", "y")
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[0]|x|$[2][1]|y";
+        // case4: array_contains(array(array('he')), array('he'))
+        data = "he|he|cloud|5|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"x\",\"a\",{\"b\":[1,2]},[3,4]]", output.get(0));
+        Assert.assertEquals("result=true", output.get(0));
 
-        // case6: json_array_append(["a", {"b": [1, 2]}, [3, 4]], "$[0]", "x", "$[3][1]", "y")
-        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[0]|x|$[3][1]|y";
+        // case5: array_contains(array(array('he')), array('xxd'))
+        data = "he|xxd|cloud|5|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"x\",\"a\",{\"b\":[1,2]},[3,\"y\",4]]", output.get(0));
+        Assert.assertEquals("result=false", output.get(0));
 
+        transformSql = "select array_contains(array(),numeric1) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case6: array_contains(array(),5)
+        data = "he|xxd|cloud|5|3|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
+
+        // case7: array_contains(array(),'')
+        data = "||";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=", output.get(0));
     }
 }

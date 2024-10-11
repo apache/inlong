@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
