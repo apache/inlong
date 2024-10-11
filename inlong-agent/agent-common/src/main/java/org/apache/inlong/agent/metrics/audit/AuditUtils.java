@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.metrics.audit;
 
 import org.apache.inlong.agent.conf.AbstractConfiguration;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditComponent;
 
@@ -59,7 +60,6 @@ public class AuditUtils {
     public static int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 1073741842;
     public static int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 1073741843;
     private static boolean IS_AUDIT = true;
-    private static AbstractConfiguration conf;
 
     /**
      * Init audit config
@@ -69,6 +69,7 @@ public class AuditUtils {
         if (IS_AUDIT) {
             AuditOperator.getInstance().setAuditProxy(AuditComponent.AGENT, conf.get(AGENT_MANAGER_ADDR),
                     conf.get(AGENT_MANAGER_AUTH_SECRET_ID), conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
+            AuditOperator.getInstance().setLocalIP(conf.get(AgentConstants.AGENT_LOCAL_IP));
         }
     }
 
