@@ -28,13 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 /**
- * ArrayDistinctFunction
- * description: ARRAY_DISTINCT(haystack)--Returns an array with unique elements. If the array itself is null,
- *              the function will return null. Keeps ordering of elements.
- * for example: array_distinct(array('he',-1,'he'))--return [he, -1]
+ * ArrayDistinctFunction  ->  ARRAY_DISTINCT(array)
+ * description:
+ * - Return NULL if 'array' is null
+ * - Return an array with unique elements.
  */
-@TransformFunction(names = {"array_distinct"})
+@TransformFunction(names = {"array_distinct"}, parameter = "(Array array)", descriptions = {
+        "- Return \"\" if 'array' is NULL;",
+        "- Return an array with unique elements.",
+}, examples = {
+        "array_distinct(array('he',-1,'he')) = [he, -1]"
+})
 public class ArrayDistinctFunction implements ValueParser {
 
     private final ValueParser arrayParser;

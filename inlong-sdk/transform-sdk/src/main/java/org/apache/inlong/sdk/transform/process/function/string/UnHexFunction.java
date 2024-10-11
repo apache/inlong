@@ -27,11 +27,18 @@ import net.sf.jsqlparser.expression.Function;
 
 /**
  * UnHexFunction  -> unhex(str)
- * description: unhex(str) interprets each pair of characters in the argument as a hexadecimal number and converts it to the byte represented by the number.
- * return null if str is null;
- * return a binary string otherwise.
+ * description:
+ * Return null if 'str' is null;
+ * Return the result of interpreting each pair of characters in the argument as the character corresponding
+ *        to its hexadecimal number.
  */
-@TransformFunction(names = {"unhex"})
+@TransformFunction(names = {"unhex"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the result of interpreting each pair of characters in the argument as the character" +
+                " corresponding to its hexadecimal number.",
+}, examples = {
+        "unhex(\"696E6C6F6E67\") = \"inlong\""
+})
 public class UnHexFunction implements ValueParser {
 
     private ValueParser valueParser;

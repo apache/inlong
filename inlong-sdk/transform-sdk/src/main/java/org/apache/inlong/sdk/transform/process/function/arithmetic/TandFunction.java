@@ -28,10 +28,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * TandFunction
- * description: tand(numeric)--returns the tangent of numeric in units of degrees
+ * TandFunction  -> tand(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the tangent of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"tand"})
+@TransformFunction(names = {"tand"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the tangent of 'numeric' in units of degrees."
+}, examples = {
+        "tand(15) = 0.2679491924311227"
+})
 public class TandFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +50,9 @@ public class TandFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.tan(Math.toRadians(numberValue.doubleValue()));
     }

@@ -36,14 +36,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * CompressFunction
- * description: compress(string_to_compress[,compress_type(default:deflater)])
- * - Return NULL if string_to_compress is NULL.
- * - Return "" if string_to_compress is "".
- * - Return the result as a binary string.
+ * CompressFunction  ->  compress(string_to_compress[,compress_type(default:deflater)])
+ * description:
+ * - Return NULL if 'string_to_compress' is NULL
+ * - Return "" if 'string_to_compress' is ""
+ * - Return the result as a binary string
+ * Note: This function supports three compression algorithms: deflater, gzip and zip. 'compress_type' defaults to defer.
+ * In addition, in order to output the compressed results in the form of strings, this method uses the ISO_8859_1
+ * character set.
  */
 @Slf4j
-@TransformFunction(names = {"compress"})
+@TransformFunction(names = {
+        "compress"}, parameter = "(String string_to_compress [, String compress_type])", descriptions = {
+                "- Return \"\" if 'string_to_compress' is NULL;",
+                "- Return \"\" if 'string_to_compress' is \"\";",
+                "- Return the result as a binary string.",
+                "Note: This function supports three compression algorithms: deflater, gzip, and zip. " +
+                        "'compress_type' defaults to defer. In addition, in order to output the compressed " +
+                        "results in the form of strings, this method uses the ISO_8859_1 character set."
+        }, examples = {
+                "length(compress(replicate(string1,100)),'ISO_8859_1') = 33",
+                "length(compress(''),'ISO_8859_1') = 0"
+        })
 public class CompressFunction implements ValueParser {
 
     private final ValueParser stringParser;

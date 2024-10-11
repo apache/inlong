@@ -23,20 +23,23 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 
 /**
- * NullIfFunction
- * description: NULLIF(expr1,expr2)
- * - return NULL if expr1 = expr2 is true
- * - returns expr1 otherwise
+ * NullIfFunction  ->  NULLIF(expr1,expr2)
+ * description:
+ * - Return NULL if expr1 = expr2 is true
+ * - Return expr1 otherwise
  */
-@Slf4j
-@TransformFunction(names = {"nullif", "null_if"})
+@TransformFunction(names = {"nullif", "null_if"}, parameter = "(Expr expr1, Expr expr2)", descriptions = {
+        "- Return \"\" if 'expr1' = 'expr2' is true;",
+        "- Return 'expr1' otherwise."
+}, examples = {
+        "nullif(5, 3) = 5"
+})
 public class NullIfFunction implements ValueParser {
 
     private final ValueParser firstExprParser;

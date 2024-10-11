@@ -23,18 +23,27 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * GreatestFunction
- * description: GREATEST(value1[, value2]*)--Returns the greatest value of the list of arguments.
- *              Returns NULL if any argument is NULL.
+ * GreatestFunction  ->  GREATEST(value1[, value2, ...])
+ * description:
+ * - Return NULL if any parameter is null
+ * - Return the greatest value of the list of arguments.
  */
-@TransformFunction(names = {"greatest"})
+@Slf4j
+@TransformFunction(names = {"greatest"}, parameter = "(Numeric value1 [,Numeric value2,...])", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the greatest value of the list of arguments."
+}, examples = {
+        "greatest(3.141592653589793, 3, greatest(4, 1)) = 4"
+})
 public class GreatestFunction implements ValueParser {
 
     private List<ValueParser> parserList;

@@ -30,15 +30,21 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 /**
- * MapFunction
- * description: MAP(ANY1, ANY2, ANY3, ANY4, ...)--Returns a map created from a list of
- *              key-value pairs ((value1, value2), (value3, value4), …).
- * for example: Map('he',7,'xxd')--return null
- *              Map('he',1,'xxd','cloud')--return {he=1, xxd=cloud}
- *              Map('xxd','cloud',map(1,2),map(3,'apple'))--return {xxd=cloud, {1=2}={3=apple}}
+ * MapFunction  ->  MAP(value1, value2, ...)
+ * description:
+ * - Return NULL if the number of parameters is not even
+ * - Return a map created from a list of key-value pairs ((value1, value2), ... )
  */
-@TransformFunction(names = {"map"})
+@TransformFunction(names = {"map"}, parameter = "([String value1, String value2, ...])", descriptions = {
+        "- Return \"\" if the number of parameters is not even;",
+        "- Return a map created from a list of key-value pairs ((value1, value2), ... )."
+}, examples = {
+        "Map('he',7,'xxd') = null",
+        "Map('he',1,'xxd','cloud') = {he=1, xxd=cloud}",
+        "Map('xxd','cloud',map(1,2),map(3,'apple')) = {xxd=cloud, {1=2}={3=apple}}"
+})
 public class MapFunction implements ValueParser {
 
     private List<ValueParser> parserList;

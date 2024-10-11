@@ -31,14 +31,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * JsonArraysFunction
- * description: JSON_ARRAYS()--Builds a JSON array string from a list of values. This function returns a JSON string.
- *              The values can be arbitrary expressions.
- * for example: JSON_ARRAYS()--'[]'
- *              JSON_ARRAYS(1, '2')--'[1,"2"]'
- *              JSON_ARRAYS(JSON_ARRAY(1))--'[[1]]'
+ * JsonArraysFunction  ->  JSON_ARRAYS([value1, value2, ...])
+ * description:
+ * - Return a JSON array string constructed from a list of values
  */
-@TransformFunction(names = {"json_arrays"})
+@TransformFunction(names = {"json_arrays"}, parameter = "([String value1, String value2, ...])", descriptions = {
+        "- Return a JSON array string constructed from a list of values."
+}, examples = {
+        "JSON_ARRAYS() = []",
+        "JSON_ARRAYS(1, '2') = [1,\"2\"]",
+        "JSON_ARRAYS(JSON_ARRAY(1)) = [[1]]"
+})
 public class JsonArraysFunction implements ValueParser {
 
     private List<ValueParser> parserList;

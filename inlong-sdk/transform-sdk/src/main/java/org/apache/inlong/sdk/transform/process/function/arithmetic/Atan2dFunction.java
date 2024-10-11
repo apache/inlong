@@ -28,10 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * Atan2dFunction
- * description: asind(numeric)--returns the arc sine of numeric in units of degrees
+ * Atan2dFunction  ->  atan2d(numericx,numericy)
+ * description:
+ * - Return NULL if 'numericx' or 'numericy' is NULL;
+ * - Return inverse tangent of 'numericy'/'numericx', result in degrees.
  */
-@TransformFunction(names = {"atan2d"})
+@TransformFunction(names = {"atan2d"}, parameter = "(Numeric numericx, Numeric numericy)", descriptions = {
+        "- Return \"\" if 'numericx' or 'numericy' is NULL;",
+        "- Return inverse tangent of 'numericy'/'numericx', result in degrees."
+}, examples = {
+        "atan2d(1, 1) = 45.0",
+        "atan2d(1, 0) = 90.0",
+        "atan2d(0, -1) = 180.0"
+})
 public class Atan2dFunction implements ValueParser {
 
     private ValueParser xParser;
@@ -47,8 +56,8 @@ public class Atan2dFunction implements ValueParser {
         Object xObj = xParser.parse(sourceData, rowIndex, context);
         Object yObj = yParser.parse(sourceData, rowIndex, context);
 
-        if (xObj == null) {
-            throw new NullPointerException("Parsed number object on the x-axis is null");
+        if (xObj == null || yObj == null) {
+            return null;
         }
 
         BigDecimal xValue = OperatorTools.parseBigDecimal(xObj);

@@ -32,13 +32,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 /**
- * EncodeFunction
- * description: encode(string1, string2)
- *      Encode using the provided character set (' US-ASCII ', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
- *      If either parameter is empty, the result will also be empty.
+ * EncodeFunction  ->  encode(strInfo, charsetStr)
+ * Description:
+ * - Return NULL if any parameter is NULL
+ * - Return the result of encoding strInfo using the character set specified by charsetStr
+ * Note: charsetStr is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
  */
-@TransformFunction(names = {"encode"})
+@TransformFunction(names = {"encode"}, parameter = "(String strInfo,String charsetStr)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the result of encoding 'strInfo' using the character set specified by 'charsetStr'.",
+        "- Note: 'charsetStr' is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16')."
+}, examples = {
+        "decode(encode('Hello','UTF-8'),'UTF-8') = \"Hello\""
+})
 public class EncodeFunction implements ValueParser {
 
     private ValueParser stringParser;

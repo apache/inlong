@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SqrtFunction
- * description: sqrt(numeric)--returns the square root of numeric
+ * SqrtFunction  ->  sqrt(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the square root of 'numeric'
  */
-@TransformFunction(names = {"sqrt"})
+@TransformFunction(names = {"sqrt"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the square root of 'numeric'."
+}, examples = {
+        "sqrt(9) = 3.0"
+})
 public class SqrtFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public SqrtFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.sqrt(numberValue.doubleValue());
     }

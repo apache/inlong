@@ -29,13 +29,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * ArrayPrependFunction
- * description: ARRAY_PREPEND(array, element)--Appends an element to the beginning of the array and returns the result.
- *              If the array itself is null, the function will return null. If an element to add is null, the null
- *              element will be added to the beginning of the array.
- * for example: array_prepend(array(4,3),3)--return [3, 4, 3]
+ * ArrayPrependFunction  ->  ARRAY_PREPEND(array, element)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return the result of appending an element to the beginning of the array.
  */
-@TransformFunction(names = {"array_prepend"})
+@TransformFunction(names = {"array_prepend"}, parameter = "(Array array,Object element)", descriptions = {
+        "- Return \"\" if 'array' is null;",
+        "- Return the result of appending an element to the beginning of the array."
+}, examples = {
+        "array_prepend(array(4,3),3) = [3, 4, 3]"
+})
 public class ArrayPrependFunction implements ValueParser {
 
     private final ValueParser arrayParser;

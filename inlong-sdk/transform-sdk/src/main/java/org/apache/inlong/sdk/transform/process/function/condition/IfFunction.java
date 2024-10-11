@@ -30,10 +30,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * IfFunction
- * description: if(expr,r1,r2) -- expr is an expression, if it holds, return r1; otherwise, return r2
+ * IfFunction  ->  if(expr,r1,r2)
+ * description:
+ * - Return r1 if expr holds
+ * - Return r2 otherwise
  */
-@TransformFunction(names = {"if"})
+@TransformFunction(names = {"if"}, parameter = "(Expr expr1,Expr expr2,Expr expr3)", descriptions = {
+        "- Return 'expr2' if 'expr1' returns true;",
+        "- Return 'expr3' otherwise."
+}, examples = {
+        "if(1 = 1,true,false) = true"
+})
 public class IfFunction implements ValueParser {
 
     private final ExpressionOperator expressionOperator;

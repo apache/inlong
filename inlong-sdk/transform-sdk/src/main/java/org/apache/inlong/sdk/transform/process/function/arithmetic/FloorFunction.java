@@ -28,31 +28,32 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * FloorFunction
- * description: floor(numeric)--rounds numeric down, and returns the largest number that is less than or equal to numeric
+ * FloorFunction  ->  floor(numeric)
+ * Description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the largest number that is less than or equal to 'numeric'.
  */
-@TransformFunction(names = {"floor"})
+@TransformFunction(names = {"floor"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the largest number that is less than or equal to 'numeric'."
+}, examples = {
+        "floor(1.23) = 1.0",
+        "floor(-5.67) = -6.0"
+})
 public class FloorFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public FloorFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.floor(numberValue.doubleValue());
     }

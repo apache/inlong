@@ -29,13 +29,20 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * LeftFunction
- * description: left(string,length)
+ * LeftFunction  ->  left(string,length)
+ * description:
  * - return null if either string or length is null
  * - return "" if it is less than or equal to zero
  * - return a substring of length starting from the right side of the string.
  */
-@TransformFunction(names = {"left"})
+@TransformFunction(names = {"left"}, parameter = "(String str, Integer len)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return \"\" if 'len' is less than or equal to zero;",
+        "- Return a substring of len starting from the right side of the 'str'."
+}, examples = {
+        "left('hello world',100) = \"hello world\"",
+        "left('hello world',-15) = \"\""
+})
 public class LeftFunction implements ValueParser {
 
     private final ValueParser stringParser;

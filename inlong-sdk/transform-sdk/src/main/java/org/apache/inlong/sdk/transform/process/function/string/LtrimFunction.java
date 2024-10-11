@@ -26,12 +26,17 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * TrimFunction
- * description: ltrim(string)
- * - Return NULL if str is NULL.
+ * LtrimFunction  ->  ltrim(str)
+ * description:
+ * - Return NULL if str is NULL
  * - Return the string str without leading spaces
  */
-@TransformFunction(names = {"ltrim"})
+@TransformFunction(names = {"ltrim"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the string 'str' without leading spaces."
+}, examples = {
+        "ltrim(' in long ') = \"in long \""
+})
 public class LtrimFunction implements ValueParser {
 
     private ValueParser stringParser;

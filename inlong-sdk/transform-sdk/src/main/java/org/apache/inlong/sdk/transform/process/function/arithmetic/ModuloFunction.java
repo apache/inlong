@@ -30,10 +30,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * ModuloFunction
- * description: MOD(NUMERIC1, NUMERIC2) : Return the remainder of numeric1 divided by numeric2.
+ * ModuloFunction  ->  MOD(NUMERIC1, NUMERIC2)
+ * description:
+ * - Return NULL if any parameter is null
+ * - Return the remainder of 'numeric1' divided by 'numeric2'
  */
-@TransformFunction(names = {"mod"})
+@TransformFunction(names = {"mod"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the remainder of 'numeric1' divided by 'numeric2'."
+}, examples = {
+        "mod(3,2) = 1",
+        "mod(-3.1415926,100) = -3.1415926"
+})
 public class ModuloFunction implements ValueParser {
 
     private ValueParser dividendParser;
@@ -49,6 +57,9 @@ public class ModuloFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object dividendObj = dividendParser.parse(sourceData, rowIndex, context);
         Object divisorObj = divisorParser.parse(sourceData, rowIndex, context);
+        if (divisorObj == null || dividendObj == null) {
+            return null;
+        }
         BigDecimal dividend = OperatorTools.parseBigDecimal(dividendObj);
         BigDecimal divisor = OperatorTools.parseBigDecimal(divisorObj);
         return dividend.remainder(divisor);

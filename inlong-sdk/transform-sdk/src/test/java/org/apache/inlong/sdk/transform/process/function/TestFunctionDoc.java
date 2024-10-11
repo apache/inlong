@@ -17,22 +17,15 @@
 
 package org.apache.inlong.sdk.transform.process.function;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import com.google.gson.Gson;
+import org.junit.Test;
 
-@Retention(RUNTIME)
-@Target(TYPE)
-public @interface TransformFunction {
+public class TestFunctionDoc extends AbstractFunctionStringTestBase {
 
-    String[] names();
-
-    String parameter() default "";
-
-    String[] descriptions() default {};
-
-    String[] examples() default {};
-
+    @Test
+    public void TestFunctionDoc() throws Exception {
+        System.out.println(new Gson().toJson(FunctionTools.getFunctionDoc()));
+    }
 }

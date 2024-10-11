@@ -26,10 +26,17 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * LowerFunction
- * description: LOWER(s): Convert all letters of the string s to lowercase letters
+ * LowerFunction  ->  LOWER(str)
+ * description:
+ * - Return NULL if str is NULL
+ * - Return the string obtained by converting all letters of the string to lowercase letters
  */
-@TransformFunction(names = {"lower", "lcase"})
+@TransformFunction(names = {"lower", "lcase"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the string obtained by converting all letters of 'str' to lowercase letters."
+}, examples = {
+        "lower(\"ApPlE\") = \"apple\""
+})
 public class LowerFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -41,8 +48,9 @@ public class LowerFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null)
+        if (stringObj == null) {
             return null;
+        }
         return stringObj.toString().toLowerCase();
     }
 }

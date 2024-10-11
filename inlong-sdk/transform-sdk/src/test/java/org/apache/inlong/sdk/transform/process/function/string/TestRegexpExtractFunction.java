@@ -33,7 +33,7 @@ import java.util.regex.PatternSyntaxException;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class TestRegexExtractFunction extends AbstractFunctionStringTestBase {
+public class TestRegexpExtractFunction extends AbstractFunctionStringTestBase {
 
     @Test
     public void testRegexpExtractFunction() throws Exception {

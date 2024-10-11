@@ -26,14 +26,22 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
+
 /**
- * ArrayContainsFunction
- * description: ARRAY_CONTAINS(haystack, needle)--Returns whether the given element exists in an array. Checking for
- *              null elements in the array is supported. If the array itself is null, the function will return null.
- * for example: array_contains(array('he',7,'xxd'), 'cloud')--return false
- *              array_contains(array('he',-1,''),'')--return true
+ * ArrayContainsFunction  ->  array_contains(haystack, needle)
+ * description:
+ * - Return NULL if the array itself is null
+ * - Return whether the given element exists in an array.
+ * Note: Checking for null elements in the array is supported.
  */
-@TransformFunction(names = {"array_contains"})
+@TransformFunction(names = {"array_contains"}, parameter = "(Array array, Object needle)", descriptions = {
+        "- Return \"\" if 'array' is NULL;",
+        "- Return whether the given element exists in 'array'.",
+        "Note: Checking for null elements in the array is supported."
+}, examples = {
+        "array_contains(array('he',7,'xxd'), 'cloud') = false",
+        "array_contains(array('he',-1,''),'') = true"
+})
 public class ArrayContainsFunction implements ValueParser {
 
     private final ValueParser arrayParser;

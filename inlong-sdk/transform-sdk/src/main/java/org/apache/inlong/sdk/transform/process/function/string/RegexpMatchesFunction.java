@@ -34,18 +34,29 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * RegexpMatchesFunction
- * description: REGEX_MATCHES(source_string, pattern [, flags]) → set of text[]--returns the result
- *              of the first match of the specified regular expression from a string
- * parameters: 1) source_string: the string to be matched
- *             2) pattern: POSIX regular expression for matching
- *             3) flags: one or more characters that control the behavior of a function,
- *                'g' flag can be used when we want to match all the substrings that occur,
- *                'i' flag to ignore case for matching,
- *                'x' flag to extend syntax (ignoring whitespace and comments in regular expressions)
- *                'm' and 'n' flag allows regular expressions to match across multiple lines
+ * RegexpMatchesFunction  ->  REGEX_MATCHES(source_string, regexp [, flags])
+ * description:
+ * - Return NULL if any of the arguments are NULL or invalid
+ * - Return the result of the first match of the specified regular expression 'regexp' from 'source_string'
+ * Note: 'flags' is one of  ('g' flag can be used when we want to match all the substrings that occur,
+ *                 'i' flag to ignore case for matching),
+ *                 'x' flag to extend syntax (ignoring whitespace and comments in regular expressions),
+ *                 'm' and 'n' flag allows regular expressions to match across multiple lines)
  */
-@TransformFunction(names = {"regexp_matches"})
+@TransformFunction(names = {
+        "regexp_matches"}, parameter = "(String source_string, String regexp [,String flags])", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or invalid;",
+                "- Return the result of the first match of the specified regular expression 'regexp' from 'source_string'.",
+                "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur,"
+                        +
+                        "'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and "
+                        +
+                        "comments in regular expressions), 'm' and 'n' -> flag allows regular expressions to match " +
+                        "across multiple lines)"
+        }, examples = {
+                "regexp_matches(\"The quick brown fox\", \"quick\") = [{\"quick\"}]",
+                "regexp_matches(\"foo 123 bar 456\", \"\\\\d+\", \"g\") = [{\"123\"},{\"456\"}]"
+        })
 public class RegexpMatchesFunction implements ValueParser {
 
     private ValueParser inputParser;

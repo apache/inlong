@@ -31,15 +31,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 /**
- * MapUnionFunction
- * description: MAP_UNION(map1, …)--Returns a map created by merging at least one map. These maps should have a common
- *              map type. If there are overlapping keys, the value from ‘map2’ will overwrite the value from ‘map1’
- *              , the value from ‘map3’ will overwrite the value from ‘map2’, the value from ‘mapn’ will overwrite
- *              the value from ‘map(n-1)’. If any of maps is null, return null.
- * for example: map_union(map('he', 1),map('xxd', 3))--return {he=1, xxd=3}
- *              map_union(map('he', 1),map('he', 3))--return {he=3}
+ * MapUnionFunction  ->  MAP_UNION([map1, map2, ...])
+ * description:
+ * - Return NULL if any of maps is null
+ * - Return a map created by merging at least one map.These maps should have a common map type,the following map will overwrite the previous one.
  */
-@TransformFunction(names = {"map_union"})
+@TransformFunction(names = {"map_union"}, parameter = "([Map map1, Map map2, ...])", descriptions = {
+        "- Return \"\" if any of maps is null;",
+        "- Return a map created by merging at least one map.These maps should have a common map type, " +
+                "the following map will overwrite the previous one."
+}, examples = {
+        "map_union(map('he', 1),map('xxd', 3)) = {he=1, xxd=3}",
+        "map_union(map('he', 1),map('he', 3)) = {he=3}"
+})
 public class MapUnionFunction implements ValueParser {
 
     private List<ValueParser> parserList;

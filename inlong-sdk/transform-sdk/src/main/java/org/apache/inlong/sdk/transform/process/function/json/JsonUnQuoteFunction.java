@@ -26,16 +26,24 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import net.sf.jsqlparser.expression.Function;
+
 /**
- * JsonUnQuoteFunction
- * description: JSON_UNQUOTE(string)--Unquotes JSON value, unescapes escaped special characters (’"’, ‘', ‘/’, ‘b’,
- *              ‘f’, ’n’, ‘r’, ’t’, ‘u’ hex hex hex hex), and returns the result as a string. If the argument is NULL,
- *              returns NULL. If the value does not start and end with double quotes or if it starts and ends with double
- *              quotes but is not a valid JSON string literal, the value is passed through unmodified.
- * for example: json_unquote('Hello, World!')--return "Hello, World!"
- *              json_unquote('Complex string with / and \\')--return "Complex string with / and \\"
+ * JsonUnQuoteFunction  ->  JSON_UNQUOTE(string)
+ * description:
+ * - Return NULL if str is NULL
+ * - Return the value unmodified if the value does not start and end with double quotes or if it starts and ends with
+ *          double quotes but is not a valid JSON string literal
+ * Note: JSON_UNQUOTE will unescapes escaped special characters ('"', '', '/', 'b', 'f', 'n', 'r', 't')
  */
-@TransformFunction(names = {"json_unquote"})
+@TransformFunction(names = {"json_unquote"}, parameter = "(String data)", descriptions = {
+        "- Return \"\" if data is NULL;",
+        "- Return the 'data' unmodified if the value does not start and end with double quotes or if it starts" +
+                " and ends with double quotes but is not a valid JSON string literal.",
+        "Note: JSON_UNQUOTE will unescapes escaped special characters ('\"', '', '/', 'b', 'f', 'n', 'r', 't')"
+}, examples = {
+        "json_unquote('Hello, World!') = \"Hello, World!\"",
+        "json_unquote('Complex string with / and \\\\') = \"Complex string with / and \\\\\""
+})
 public class JsonUnQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;

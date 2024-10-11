@@ -35,11 +35,18 @@ import java.util.Objects;
 /**
  * TimestampDiffFunction  -> TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)
  * Description:
- * - returns NULL if datetime_expr1 or datetime_expr2 is NULL.
- * - returns datetime_expr2 − datetime_expr1, where datetime_expr1 and datetime_expr2 are date or datetime expressions.
- * The unit parameter: MICROSECOND (microseconds), SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR.
+ * - Return NULL if any parameter is null;
+ * - Return 'datetime_expr2' − 'datetime_expr1', where 'datetime_expr1' and 'datetime_expr2' are date or datetime expressions.
+ * The 'unit' parameter: MICROSECOND (microseconds), SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR.
  */
-@TransformFunction(names = {"timestamp_diff", "timestampdiff"})
+@TransformFunction(names = {"timestamp_diff",
+        "timestampdiff"}, parameter = "(String unit, String datetime_expr1, String datetime_expr2)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return 'datetime_expr2' − 'datetime_expr1', where 'datetime_expr1' and 'datetime_expr2' are date or datetime expressions.",
+                "Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR)."
+        }, examples = {
+                "timestampdiff('MONTH','2003-02-01','2003-05-01') = 3"
+        })
 public class TimestampDiffFunction implements ValueParser {
 
     private final ValueParser unitParser;

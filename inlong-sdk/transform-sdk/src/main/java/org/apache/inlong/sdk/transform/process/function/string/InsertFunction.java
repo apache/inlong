@@ -27,27 +27,30 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
+
 /**
- * InsertFunction
- *
- * Description:
- * Returns a string where a specified substring is replaced by another string, starting at a given position and for a specified length.
- * If the position is out of the string's bounds, the original string is returned.
- * If the length exceeds the remaining length of the string from the given position, the replacement continues to the end of the string.
- * If any argument is null, the function returns null.
- *
- * Arguments:
- * - str: The original string.
- * - pos: The position to start the replacement (1-based index).
- * - len: The number of characters to replace.
- * - newstr: The string to insert.
- *
- * Examples:
- * - INSERT('12345678', 3, 4, 'word') = '12word78'
- * - INSERT('12345678', -1, 4, 'word') = '12345678'
- * - INSERT('12345678', 3, 100, 'word') = '12word'
+ * InsertFunction  ->  insert(str,pos,len,newStr)
+ * description:
+ * - Return NULL If any parameter is NULL
+ * - Return the result of replacing the substring of length len with newStr starting from the given position pos in Str.
+ * Note: If the position is out of the string's bounds, the original string is returned.If the length exceeds the
+ *       remaining length of the string from the given position, the replacement continues to the end of the string.
+ *       If any argument is null, the function returns null.
  */
-@TransformFunction(names = {"insert"})
+@TransformFunction(names = {
+        "insert"}, parameter = "(String str,Integer pos,Integer len,String newStr)", descriptions = {
+                "- Return \"\" If any parameter is NULL;",
+                "- Return the result of replacing the substring of length len with 'newStr' starting from the given position 'pos' in 'str'.",
+                "Note: If the position is out of the string's bounds, the original string is returned.If the length exceeds the "
+                        +
+                        "remaining length of the string from the given position, the replacement continues to the end of the string."
+                        +
+                        "If any argument is null, the function returns null."
+        }, examples = {
+                "INSERT('12345678', 3, 4, 'word') = '12word78'",
+                "INSERT('12345678', -1, 4, 'word') = '12345678'",
+                "INSERT('12345678', 3, 100, 'word') = '12word'"
+        })
 public class InsertFunction implements ValueParser {
 
     private ValueParser strParser;

@@ -25,26 +25,23 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 /**
- * ReverseFunction
- * description: reverse(string)--returns the string with the order of the characters reversed.
- * returns NULL if string is a empty string.
+ * ReverseFunction  ->  reverse(str)
+ * description:
+ * - Return NULL if 'str' is a empty string or NULL
+ * - Return the 'str' with the order of the characters reversed
  */
-@TransformFunction(names = {"reverse"})
+@TransformFunction(names = {"reverse"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is a empty string or NULL;",
+        "- Return the 'str' with the order of the characters reversed."
+}, examples = {
+        "reverse('apple') = \"elppa\""
+})
 public class ReverseFunction implements ValueParser {
 
     private ValueParser stringParser;
     public ReverseFunction(Function expr) {
         stringParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
-
-    /**
-     * parse
-     * Parse and reverse string by reverse() in StringBuilder.
-     * @param sourceData
-     * @param rowIndex
-     * @param context
-     * @return
-     */
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {

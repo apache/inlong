@@ -29,12 +29,17 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 
 /**
- *  LocalTimeFunction
- *  description:
- *  localTime([string1]) returns the current time in the specified time zone.
- *  (by default: the current time in the system time zone)
+ * LocalTimeFunction  ->  localTime([timeZoneStr])
+ * description:
+ * - Return the current time in the specified time zone.
+ * Note: timeZoneStr is the system time zone
  */
-@TransformFunction(names = {"localtime", "current_time"})
+@TransformFunction(names = {"localtime", "current_time"}, parameter = "([String timeZoneStr])", descriptions = {
+        "- Return the current time in the specified time zone."
+}, examples = {
+        "localTime() = currentTime",
+        "currentTime(\"UTC\") = currentTime"
+})
 public class LocalTimeFunction implements ValueParser {
 
     private ValueParser stringParser;

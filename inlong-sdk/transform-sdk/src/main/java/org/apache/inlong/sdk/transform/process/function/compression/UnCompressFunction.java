@@ -35,14 +35,24 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * UnCompressFunction
- * description: uncompress(string_to_uncompress[,compress_type(default:deflater)])
- * - Return NULL if string_to_uncompress is NULL.
- * - Return "" if string_to_uncompress is "".
+ * UnCompressFunction -> uncompress(string_to_uncompress [,compress_type])
+ * description:
+ * - Return NULL if 'string_to_uncompress' is NULL;
+ * - Return "" if 'string_to_uncompress' is "";
  * - Return the result as a string.
+ * Note: This function supports three compression algorithms: deflater, gzip, and zip. compress_type defaults to defer.
  */
 @Slf4j
-@TransformFunction(names = {"uncompress"})
+@TransformFunction(names = {
+        "uncompress"}, parameter = "(String string_to_uncompress, String compress_type)", descriptions = {
+                "- Return \"\" if 'string_to_uncompress' is NULL;",
+                "- Return \"\" if 'string_to_uncompress' is \"\";",
+                "- Return the result as a string.",
+                "Note: This function supports three compression algorithms: deflater, gzip and zip. " +
+                        "'compress_type' defaults to defer."
+        }, examples = {
+                "uncompress(compress('inlong')) = \"inlong\""
+        })
 public class UnCompressFunction implements ValueParser {
 
     private final ValueParser stringParser;

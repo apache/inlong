@@ -27,12 +27,17 @@ import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * ShaFunction
- * description: sha(string): Compute the SHA-1 160 bit checksum of a string.
- * return NULL if the parameter is NULL
- * return a string of 40 hexadecimal digits.
+ * ShaFunction  ->  sha(str)
+ * description:
+ * - Return NULL if 'str' is NULL
+ * - Return a string of 40 hexadecimal digits (the SHA-1 160 bit)
  */
-@TransformFunction(names = {"sha"})
+@TransformFunction(names = {"sha"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return a string of 40 hexadecimal digits (the SHA-1 160 bit)."
+}, examples = {
+        "sha(\"5\") = \"ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4\""
+})
 public class ShaFunction implements ValueParser {
 
     private final ValueParser msgParser;

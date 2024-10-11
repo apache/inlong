@@ -25,10 +25,15 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * EFunction
- * returns the mathematical constant E
+ * EFunction  ->  E()
+ * Description:
+ * - Return the mathematical constant.
  */
-@TransformFunction(names = {"e"})
+@TransformFunction(names = {"e"}, parameter = "()", descriptions = {
+        "- Return the mathematical constant."
+}, examples = {
+        "e() = 2.718281828459045"
+})
 public class EFunction implements ValueParser {
 
     public EFunction(Function expr) {

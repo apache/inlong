@@ -26,15 +26,25 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * LengthFunction  -> FindInSetFunction(str,strList)
- * description:
- * - return a value in the range of 1 to N if the string str is in the string list strList consisting of N substrings.
- * - return 0 if str is not in strList or if strList is the empty string.
- * - return NULL if either argument is NULL.
- * Note: `strList` is a string composed of substrings separated by ',' characters. This function does not work properly
- * if the first argument contains a comma (,) character.
+ * FindInSetFunction  ->  FIND_IN_SET(str,strList)
+ * Description:
+ * - Return NULL if either argument is NULL
+ * - Return 0 if str is not in strList or if strList is the empty string
+ * - Return a value in the range of 1 to N if the string str is in the string list strList consisting of N substrings.
+ * Note: strList is a string composed of substrings separated by ',' characters. This function does not work properly
+ *       if the first argument contains a comma (,) character.
  */
-@TransformFunction(names = {"find_in_set"})
+@TransformFunction(names = {"find_in_set"}, parameter = "(String str,String strList)", descriptions = {
+        "- Return \"\" if either argument is NULL;",
+        "- Return 0 if 'str' is not in 'strList' or if 'strList' is the empty string;",
+        "- Return a value in the range of 1 to N if the string 'str' is in the string list 'strList' consisting of N substrings.",
+        "Note: strList is a string composed of substrings separated by ',' characters. This function does not work properly"
+                +
+                "if the first argument contains a comma (,) character."
+}, examples = {
+        "FIND_IN_SET('b','a,b,b,c,d') = 2",
+        "FIND_IN_SET('','a,,b,c,d') = 2"
+})
 public class FindInSetFunction implements ValueParser {
 
     private final ValueParser strParser;

@@ -31,12 +31,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * TimestampAddFunction
- * Description: Add integer expression intervals to the date or date time expression expr.
- *  The unit of the time interval is specified by the unit parameter, which should be one of the following values:
- *  MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR.
+ * TimestampAddFunction  ->  timestamp_add(unit,cnt,baseDateStr)
+ * description:
+ * - Return NULL if any parameter is null;
+ * - Return the result of adding the integer expression interval to the date or datetime expression 'baseDateStr'.
+ * Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR).
  */
-@TransformFunction(names = {"timestamp_add", "timestampadd"})
+@TransformFunction(names = {"timestamp_add",
+        "timestampadd"}, parameter = "(String unit, Integer cnt, String baseDateStr)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return the result of adding the integer expression interval to the date or datetime expression 'baseDateStr'.",
+                "Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR)."
+        }, examples = {
+                "timestamp_add('MICROSECOND',3,'1970-01-01 00:00:44') = \"1970-01-01 00:00:44.000003\""
+        })
 public class TimestampAddFunction implements ValueParser {
 
     private final ValueParser intervalParser;
@@ -52,9 +60,15 @@ public class TimestampAddFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        String interval = intervalParser.parse(sourceData, rowIndex, context).toString();
-        Long amount = Long.parseLong(amountParser.parse(sourceData, rowIndex, context).toString());
-        String dateString = datetimeParser.parse(sourceData, rowIndex, context).toString();
+        Object amountObj = amountParser.parse(sourceData, rowIndex, context);
+        Object intervalObj = intervalParser.parse(sourceData, rowIndex, context);
+        Object dateTimeObj = datetimeParser.parse(sourceData, rowIndex, context);
+        if (amountObj == null || intervalObj == null || dateTimeObj == null) {
+            return null;
+        }
+        String interval = intervalObj.toString();
+        Long amount = Long.parseLong(amountObj.toString());
+        String dateString = dateTimeObj.toString();
         return evalDate(dateString, interval, amount);
     }
 
@@ -99,6 +113,8 @@ public class TimestampAddFunction implements ValueParser {
             case "YEAR":
                 dateTime = dateTime.plusYears(amount);
                 break;
+            default:
+                return null;
         }
         StringBuilder format = new StringBuilder("yyyy-MM-dd");
         if (hasTime) {

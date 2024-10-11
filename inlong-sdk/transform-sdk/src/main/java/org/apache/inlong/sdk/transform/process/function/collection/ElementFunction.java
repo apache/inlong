@@ -28,13 +28,20 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ElementFunction
- * description: ELEMENT(array)--Returns the sole element of array (whose cardinality should be one); returns NULL if
- *              array is empty. Throws an exception if array has more than one element.
- * for example: element(array('he'))--return he
+ * ElementFunction  ->  ELEMENT(array)
+ * description:
+ * - Return NULL if 'array' is empty or NULL;
+ * - Return the sole element of 'array' (whose cardinality should be one).
+ * Note: Throws an exception if array has more than one element.
  */
 @Slf4j
-@TransformFunction(names = {"element"})
+@TransformFunction(names = {"element"}, parameter = "(Array array)", descriptions = {
+        "- Return \"\" if 'array' is empty or NULL;",
+        "- Return the sole element of 'array' (whose cardinality should be one).",
+        "Note: Throws an exception if array has more than one element."
+}, examples = {
+        "element(array('he')) = he"
+})
 public class ElementFunction implements ValueParser {
 
     private final ValueParser valueParser;

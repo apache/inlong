@@ -29,10 +29,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * ReplaceFunction
- * description: replace(s, s1, s2)--replace string s1 in string s with string s2.
+ * ReplaceFunction  ->  replace(s, s1, s2)
+ * description:
+ * - Return NULL if any parameter is null
+ * - Return the result of replacing string 's1' with string 's2' in string 's'
  */
-@TransformFunction(names = {"replace"})
+@TransformFunction(names = {"replace"}, parameter = "(String s, String s1, String s2)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the result of replacing string 's1' with string 's2' in string 's'."
+}, examples = {
+        "replace('Hello World', '', 'J') = \"JHJeJlJlJoJ JWJoJrJlJdJ\""
+})
 public class ReplaceFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -51,6 +58,9 @@ public class ReplaceFunction implements ValueParser {
         Object strObj = stringParser.parse(sourceData, rowIndex, context);
         Object targetObj = targetParser.parse(sourceData, rowIndex, context);
         Object replacementObj = replacementParser.parse(sourceData, rowIndex, context);
+        if (strObj == null || targetObj == null || replacementObj == null) {
+            return null;
+        }
         String str = OperatorTools.parseString(strObj);
         String target = OperatorTools.parseString(targetObj);
         String replacement = OperatorTools.parseString(replacementObj);

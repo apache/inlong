@@ -23,18 +23,27 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 
 /**
- * ContainsFunction
- * description: contains(left, right) - Returns a boolean.
- * The value is True if right is found inside left, otherwise, returns False.
- * Both left or right must be of STRING type.
+ * ContainsFunction  ->  contains(left, right)
+ * description:
+ * - Return NULL if left or right is NULL
+ * - Return True if right is found inside left
+ * - Return False otherwise
  */
-@TransformFunction(names = {"contains"})
+@Slf4j
+@TransformFunction(names = {"contains"}, parameter = "(String leftStr , String rightStr)", descriptions = {
+        "- Return \"\" if 'leftStr' or rightStr is NULL;",
+        "- Return True if 'rightStr' is found inside 'leftStr';",
+        "- Return False otherwise."
+}, examples = {
+        "contains('Transform SQL', 'SQL') = true"
+})
 public class ContainsFunction implements ValueParser {
 
     private ValueParser leftStrParser;
@@ -50,6 +59,9 @@ public class ContainsFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object leftStrObj = leftStrParser.parse(sourceData, rowIndex, context);
         Object rightStrObj = rightStrParser.parse(sourceData, rowIndex, context);
+        if (leftStrObj == null || rightStrObj == null) {
+            return null;
+        }
         String leftStr = OperatorTools.parseString(leftStrObj);
         String rightStr = OperatorTools.parseString(rightStrObj);
         return (leftStr == null || rightStr == null) ? null : leftStr.contains(rightStr);

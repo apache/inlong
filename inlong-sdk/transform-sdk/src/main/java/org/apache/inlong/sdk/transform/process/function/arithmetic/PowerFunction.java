@@ -28,34 +28,34 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * PowerFunction
- * description: power(numeric1, numeric2)--returns numeric1.power(numeric2)
+ * PowerFunction  ->  power(numeric1, numeric2)
+ * description:
+ * - Return NULL if any parameter is NULL
+ * - Return 'numeric1'.power('numeric2')
  */
-@TransformFunction(names = {"power"})
+@TransformFunction(names = {"power"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
+        "- Return \"\" if any parameter is NULL.",
+        "- Return 'numeric1'.power('numeric2')."
+}, examples = {
+        "power(4,0.5) = 2.0"
+})
 public class PowerFunction implements ValueParser {
 
     private ValueParser baseParser;
     private ValueParser exponentParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public PowerFunction(Function expr) {
         baseParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
         exponentParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object baseObj = baseParser.parse(sourceData, rowIndex, context);
         Object exponentObj = exponentParser.parse(sourceData, rowIndex, context);
+        if (baseObj == null || exponentObj == null) {
+            return null;
+        }
         BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
         BigDecimal exponentValue = OperatorTools.parseBigDecimal(exponentObj);
         return Math.pow(baseValue.doubleValue(), exponentValue.doubleValue());

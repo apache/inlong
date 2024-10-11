@@ -29,12 +29,18 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * LengthFunction
- * description: char_length(string)
- * - return the character length of the string
- * - return NULL if the string is NULL
+ * CharLengthFunction  ->  char_length(string)
+ * Description:
+ * - Return NULL if the string is NULL
+ * - Return the character length of the string
  */
-@TransformFunction(names = {"char_length"})
+@TransformFunction(names = {"char_length"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the character length of 'str'."
+}, examples = {
+        "char_length('hello world') = 11",
+        "case2: char_length('应龙') = 2"
+})
 public class CharLengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

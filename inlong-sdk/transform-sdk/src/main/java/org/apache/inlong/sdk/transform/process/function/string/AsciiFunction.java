@@ -29,29 +29,28 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * ASCIIFunction
- * description: ASCII(string) -- Returns the numeric value of the first character of string. Returns NULL if string is NULL.
+ * ASCIIFunction  ASCII(string)
+ * description:
+ * - Return NULL if string is NULL.
+ * - Return the numeric value of the first character of string.
  */
-@TransformFunction(names = {"ascii"})
+@TransformFunction(names = {"ascii"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the numeric value of the first character of 'str'."
+}, examples = {
+        "ascii('abc') = 97",
+        "ascii('A') = 65",
+        "ascii(null) = \"\""
+})
 public class AsciiFunction implements ValueParser {
 
     private final ValueParser stringParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public AsciiFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         stringParser = OperatorTools.buildParser(expressions.get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);

@@ -27,17 +27,22 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
-/*
- * SplitIndexFunction
- *
- * Description:
- * Split_index(string1, string2, integer) -> string
- * Splits string1 by delimiter string2 and returns the string at the given index integer(zero-based).
- * - Returns null if the index is negative or any of the arguments is null.
- * - Returns null if the index is out of bounds of the split strings.
- *
+
+/**
+ * SplitIndexFunction  ->  Split_index(str, delimiter, index)
+ * description:
+ * - Return NULL if the index is negative or any of the arguments is NULL
+ * - Return NULL if the index is out of bounds of the split strings
+ * - Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'
  */
-@TransformFunction(names = {"split_index", "splitindex"})
+@TransformFunction(names = {"split_index",
+        "splitindex"}, parameter = "(String str, String delimiter, Integer index)", descriptions = {
+                "- Return \"\" if the index is negative or any of the arguments is NULL;",
+                "- Return \"\" NULL if the index is out of bounds of the split strings;",
+                "- Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'."
+        }, examples = {
+                "split_index('a,b,c', ',', 1) = \"b\""
+        })
 public class SplitIndexFunction implements ValueParser {
 
     private final ValueParser strParser;

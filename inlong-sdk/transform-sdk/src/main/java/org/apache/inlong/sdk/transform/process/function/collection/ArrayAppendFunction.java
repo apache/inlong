@@ -27,13 +27,17 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ArrayAppendFunction
- * description: ARRAY_APPEND(array, element)--Appends an element to the end of the array and returns the result.
- *              If the array itself is null, the function will return null. If an element to add is null, the null
- *              element will be added to the end of the array.
- * for example: array_append(array('he',7,'xxd'), 'cloud')--return[he, 7, xxd, cloud]
+ * ArrayAppendFunction  ->  ARRAY_APPEND(array, element)
+ * description:
+ * - Return NULL if either argument is NULL
+ * - Return the result of appends an element to the end of the 'array'
  */
-@TransformFunction(names = {"array_append"})
+@TransformFunction(names = {"array_append"}, parameter = "(Array array, Object element)", descriptions = {
+        "- Return \"\" if either argument is NULL;",
+        "- Return the result of appends an element to the end of the 'array'."
+}, examples = {
+        "array_append(array('he',7,'xxd'), 'cloud') = [he, 7, xxd, cloud]"
+})
 public class ArrayAppendFunction implements ValueParser {
 
     private final ValueParser arrayParser;

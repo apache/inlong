@@ -30,13 +30,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * IfNullFunction
- * description: IFNULL(expr1,expr2)
- * - return expr1 if expr1 is not NULL
- * - return expr2 otherwise
+ * IfNullFunction  ->  IFNULL(expr1,expr2)
+ * description:
+ * - Return expr1 if expr1 is not NULL
+ * - Return expr2 otherwise
  */
 @Slf4j
-@TransformFunction(names = {"ifnull", "if_null"})
+@TransformFunction(names = {"ifnull", "if_null"}, parameter = "(Expr expr1,Expr expr2)", descriptions = {
+        "- Return 'expr1' if 'expr1' returns not NULL;",
+        "- Return 'expr2' otherwise."
+}, examples = {
+        "ifnull(null, 3) = 3",
+        "ifnull(6,'YES') = 6"
+})
 public class IfNullFunction implements ValueParser {
 
     private final ValueParser firstExprParser;

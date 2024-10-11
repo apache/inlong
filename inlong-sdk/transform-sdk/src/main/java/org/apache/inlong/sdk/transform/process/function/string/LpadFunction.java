@@ -29,16 +29,24 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * LpadFunction
- * description: Lpad(s1,len,s2) Fill string s2 at the beginning of string s1 to make the string length len
- * - return null if any of the three parameters is null or len is less than 0
- * - return the substring of s1 with subscripts in the range of [0, len) if len is less than or equal to the length of s1
+ * LpadFunction  ->  Lpad(str1,len,str2)
+ * description:  Fill string s2 at the beginning of string s1 to make the string length len
+ * - Return null if any of the three parameters is null or len is less than 0
+ * - Return the substring of s1 with subscripts in the range of [0, len) if len is less than or equal to the length of s1
  * - if s2 is ""
- *      - return "" if len is longer than the length of s1
+ *      - Return "" if len is longer than the length of s1
  * - if s2 is not ""
- *      - return the filled string
+ *      - Return the filled string
  */
-@TransformFunction(names = {"lpad"})
+@TransformFunction(names = {"lpad"}, parameter = "(String str1, Integer len, String str2)", descriptions = {
+        "- Return null if any of the three parameters is null or 'len' is less than 0;",
+        "- Return the substring of 'str1' with subscripts in the range of [0, 'len') if 'len' is less than or equal to the length of 'str1';",
+        "- Return \"\" if 'len' is longer than the length of 'str1' and 'str2' is \"\";",
+        "- Return the filled string if 'str2' is not \"\"."
+}, examples = {
+        "lpad('he',7,'xxd') = \"xxdxxhe\"",
+        "lpad('he',1,'') = \"h\""
+})
 public class LpadFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

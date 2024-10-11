@@ -29,10 +29,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * StartsWithFunction
- * description: Returns whether expr starts with startExpr.
+ * StartsWithFunction  ->  startswith(s1,s2)
+ * description:
+ * - Return NULL if either argument is NULL;
+ * - Return whether 's2' starts with 's2'.
  */
-@TransformFunction(names = {"startswith"})
+@TransformFunction(names = {"startswith"}, parameter = "(String s1, String s2)", descriptions = {
+        "- Return \"\" if either argument is NULL;",
+        "- Return whether 's2' starts with 's2'."
+}, examples = {
+        "startswith('Apache InLong', 'A') = true"
+})
 public class StartsWithFunction implements ValueParser {
 
     private ValueParser exprParser;

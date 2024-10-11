@@ -33,13 +33,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * UnixTimestampFunction
+ * UnixTimestampFunction  -> unix_timestamp([dateStr[, format]])
  * description:
- * unix_timestamp(): returns current Unix timestamp in seconds
- * unix_timestamp(string1[, string2]): converts date time string string1 in format string2
- * (by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds)
+ * - Return current Unix timestamp in seconds if no parameter is specified;
+ * - Return the result of converting the date and time string 'dateStr' to the format 'format'
+ *          (by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds)
+ *          if there is a parameter specified
  */
-@TransformFunction(names = {"unix_timestamp"})
+@TransformFunction(names = {"unix_timestamp"}, parameter = "([String dateStr [, String format]])", descriptions = {
+        "- Return current Unix timestamp in seconds if no parameter is specified;",
+        "- Return the result of converting the date and time string 'dateStr' to the format 'format' " +
+                "(by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds) " +
+                "if there is a parameter specified"
+}, examples = {
+        "unix_timestamp('1970/01/01 08:00:44', 'yyyy/MM/dd HH:mm:ss') = \"1970/01/01 08:00:44\""
+})
 public class UnixTimestampFunction implements ValueParser {
 
     private ValueParser stringParser;

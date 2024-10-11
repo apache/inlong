@@ -28,14 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * ArrayFunction
- * description: ARRAY(ANY1, ANY2, ...)--Returns an array created from a list of values (value1, value2, …).
- * for example: array('he',7,'xxd')--return [he, 7, xxd]
- *              array(array('he',5),'xxd')--return [[he, 5], xxd]
- *              array(array('he',5),array('',''))--return [[he, 5], [, ]]
+ * ArrayFunction  ->  ARRAY(ANY1, ANY2, ...)
+ * description:
+ * - Return an array created from a list of values (value1, value2, …)
  */
-@TransformFunction(names = {"array"})
+@TransformFunction(names = {"array"}, parameter = "(String value1 [,String value2, ....])", descriptions = {
+        "- Return an array created from a list of values ('value1', 'value2', ....)."
+}, examples = {
+        "array('he',7,'xxd') = [he, 7, xxd]",
+        "array(array('he',5),'xxd') = return [[he, 5], xxd]",
+        "array(array('he',5),array('','')) = return [[he, 5], [, ]]"
+})
 public class ArrayFunction implements ValueParser {
 
     private List<ValueParser> parserList;

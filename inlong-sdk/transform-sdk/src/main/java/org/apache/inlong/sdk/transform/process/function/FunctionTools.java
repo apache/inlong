@@ -19,7 +19,9 @@ package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
@@ -29,6 +31,8 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,8 +69,43 @@ public class FunctionTools {
                     return clazz;
                 });
             }
-
         }
+    }
+
+    private static class FunctionDocHolder {
+
+        final static List<FunctionInfo> functionDocList = Lists.newCopyOnWriteArrayList();
+
+        static {
+            initFunctionDoc();
+        }
+
+        private static void initFunctionDoc() {
+            Collection<Class<?>> clazzList = functionMap.values();
+            for (Class<?> clazz : clazzList) {
+                TransformFunction annotation = clazz.getAnnotation(TransformFunction.class);
+                if (annotation == null || ArrayUtils.isEmpty(annotation.names())) {
+                    continue;
+                }
+                StringBuilder name = new StringBuilder();
+                StringBuilder explanation = new StringBuilder();
+                StringBuilder example = new StringBuilder();
+                for (String functionName : annotation.names()) {
+                    name.append(functionName.concat(annotation.parameter() + "\r\n"));
+                }
+                for (String functionExplanation : annotation.descriptions()) {
+                    explanation.append(functionExplanation.concat("\r\n"));
+                }
+                for (String functionExample : annotation.examples()) {
+                    example.append(functionExample.concat("\r\n"));
+                }
+                functionDocList.add(new FunctionInfo(name.toString(), explanation.toString(), example.toString()));
+            }
+        }
+    }
+
+    public static List<FunctionInfo> getFunctionDoc() {
+        return FunctionDocHolder.functionDocList;
     }
 
     public static ValueParser getTransformFunction(Function func) {

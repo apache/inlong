@@ -26,12 +26,19 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * IsDecimalFunction
- * description: is_decimal(string)
- * - return true if string can be parsed to a valid numeric.
- * - return false otherwise (Including cases where string is null and '').
+ * IsDecimalFunction  ->  is_decimal(string)
+ * description:
+ * - Return true if string can be parsed to a valid numeric.
+ * - Return false otherwise (Including cases where string is null and '').
  */
-@TransformFunction(names = {"is_decimal"})
+@TransformFunction(names = {"is_decimal"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return true if 'str' can be parsed to a valid numeric;",
+        "- Return false otherwise (Including cases where string is null and '')."
+}, examples = {
+        "is_decimal('3he') = false",
+        "is_decimal('3.5') = true",
+})
 public class IsDecimalFunction implements ValueParser {
 
     private final ValueParser stringParser;

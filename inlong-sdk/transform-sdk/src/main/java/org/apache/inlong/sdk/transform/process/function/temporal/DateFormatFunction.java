@@ -34,39 +34,38 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DateFormatFunction
- * description: date_format(timestamp,format)--converts timestamp(in seconds) to a value of string in the format
- * specified by the date format string. The format string is compatible with Java’s SimpleDateFormat
+ * DateFormatFunction  ->  date_format(timestamp,format)
+ * Description:
+ * - Return NULL if any parameter is NULL
+ * - Return a string value that converts a timestamp (in seconds) to a date format string in the specified format
+ * Note: The format string is compatible with Java’s SimpleDateFormat
  */
-@TransformFunction(names = {"date_format"})
+@TransformFunction(names = {"date_format"}, parameter = "(String timestampStr, String formatStr)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return a string value that converts a timestamp (in seconds) to a date format string in the specified format.",
+        "Note: The format string is compatible with Java’s SimpleDateFormat"
+}, examples = {
+        "date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss') = \"2024/08/01 22:56:56\""
+})
 public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;
     private ValueParser formatParser;
     private static final Map<String, SimpleDateFormat> SIMPLE_DATE_FORMATS = new ConcurrentHashMap<>();
 
-    /**
-     * Constructor
-     *
-     * @param expr
-     */
     public DateFormatFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         timestampParser = OperatorTools.buildParser(expressions.get(0));
         formatParser = OperatorTools.buildParser(expressions.get(1));
     }
 
-    /**
-     * parse
-     *
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object timestampObj = timestampParser.parse(sourceData, rowIndex, context);
         Object formatObj = formatParser.parse(sourceData, rowIndex, context);
+        if (timestampObj == null || formatObj == null) {
+            return null;
+        }
         Timestamp timestamp = OperatorTools.parseTimestamp(timestampObj);
         String format = OperatorTools.parseString(formatObj);
         SimpleDateFormat sdf = getSimpleDateFormat(format);
@@ -74,12 +73,6 @@ public class DateFormatFunction implements ValueParser {
         return sdf.format(date);
     }
 
-    /**
-     * getSimpleDateFormat
-     *
-     * @param pattern
-     * @return
-     */
     private SimpleDateFormat getSimpleDateFormat(String pattern) {
         SimpleDateFormat sdf = SIMPLE_DATE_FORMATS.get(pattern);
         if (sdf == null) {

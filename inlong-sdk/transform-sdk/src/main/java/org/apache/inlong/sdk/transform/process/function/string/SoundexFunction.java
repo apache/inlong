@@ -28,11 +28,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.nio.charset.StandardCharsets;
 
 /**
- * SoundexFunction
- * description: soundex(string)---Returns a four character code representing the sound of a string. This method returns a string, or null if parameter is null.
- * See https://en.wikipedia.org/wiki/Soundex for more information.
+ * SoundexFunction  ->  soundex(str)
+ * description:
+ * - Return NULL if 'str' is NULL
+ * - Return a four character code representing the sound of 'str'
  */
-@TransformFunction(names = {"soundex"})
+@TransformFunction(names = {"soundex"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return a four character code representing the sound of 'str'."
+}, examples = {
+        "soundex('hello world') = \"H464\""
+})
 public class SoundexFunction implements ValueParser {
 
     private ValueParser stringParser;

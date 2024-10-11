@@ -29,10 +29,18 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Md5Function
- * description: MD5(string): Return the MD5 hash value of a string in the form of a 32-bit hexadecimal digit string; If the string is NULL, return NULL.
+ * Md5Function  ->  MD5(string)
+ * description:
+ * - Return NULL if the string is NULL
+ * - Return the MD5 hash value of a string in the form of a 32-bit hexadecimal digit string
  */
-@TransformFunction(names = {"md5"})
+@TransformFunction(names = {"md5"}, parameter = "(String string)", descriptions = {
+        "- Return \"\" if the 'string' is NULL;",
+        "- Return the MD5 hash value of 'string' in the form of a 32-bit hexadecimal digit string."
+}, examples = {
+        "md5(\"\") = \"d41d8cd98f00b204e9800998ecf8427e\"",
+        "md5(\"1\") = \"c4ca4238a0b923820dcc509a6f75849b\""
+})
 public class Md5Function implements ValueParser {
 
     private ValueParser msgParser;

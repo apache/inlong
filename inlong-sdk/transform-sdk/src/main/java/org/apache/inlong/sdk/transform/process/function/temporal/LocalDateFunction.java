@@ -29,12 +29,18 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 /**
- *  LocalDateFunction
- *  description:
- *  localDate([string1]) returns the current date in the specified time zone.
- *  (by default: the current date in the system time zone)
+ * LocalDateFunction  ->  localDate([timeZoneStr])
+ * description:
+ * - Return the current date in the specified time zone.
+ * Note: timeZoneStr is the system time zone
  */
-@TransformFunction(names = {"localdate", "currentdate", "current_date", "curdate"})
+@TransformFunction(names = {"localdate", "currentdate", "current_date",
+        "curdate"}, parameter = "([String timeZoneStr])", descriptions = {
+                "- Return the current date in the specified 'timeZoneStr'."
+        }, examples = {
+                "localDate(\"UTC\") = currentDate",
+                "localDate() = currentDate"
+        })
 public class LocalDateFunction implements ValueParser {
 
     private ValueParser stringParser;

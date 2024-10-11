@@ -31,11 +31,17 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * RandFunction
- * description: Rand()--Returns a pseudo-random double precision value in the range [0.0, 1.0)
- *              Rand(Integer)--Returns a pseudo-random double precision value in the range [0.0, 1.0) with an initial seed of Integer.
+ * RandFunction  ->  Rand([seed])
+ * description:
+ * - Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL
+ * - Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial seed of Integer
  */
-@TransformFunction(names = {"rand"})
+@TransformFunction(names = {"rand"}, parameter = "(Integer seed)", descriptions = {
+        "- Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL;",
+        "- Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial 'seed' of Integer."
+}, examples = {
+        "rand(1)", "rand()"
+})
 public class RandFunction implements ValueParser {
 
     private ValueParser seedParser;
@@ -51,6 +57,7 @@ public class RandFunction implements ValueParser {
             }
         }
     }
+
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         if (seedParser != null) {

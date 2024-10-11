@@ -28,12 +28,18 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.Arrays;
 import java.util.Map;
 /**
- * MapValueFunction
- * description: MAP_VALUES(map)--Returns the values of the map as array. No order guaranteed.
- * for example: map_values(Map('he',1,'xxd','cloud'))--return [1, cloud]
- *              map_values(Map('xxd','cloud',map(1,2),map(3,'apple')))--return [cloud, {3=apple}]
+ * MapValueFunction  ->  MAP_VALUES(map)
+ * description:
+ * - Return NULL if map is null
+ * - Return the values of the map as array. No order guaranteed.
  */
-@TransformFunction(names = {"map_values"})
+@TransformFunction(names = {"map_values"}, parameter = "(Map map)", descriptions = {
+        "- Return \"\" if 'map' is null;",
+        "- Return the values of the 'map' as array. No order guaranteed."
+}, examples = {
+        "map_values(Map('he',1,'xxd','cloud')) = [1, cloud]",
+        "map_values(Map('xxd','cloud',map(1,2),map(3,'apple'))) = [cloud, {3=apple}]"
+})
 public class MapValueFunction implements ValueParser {
 
     private final ValueParser mapParser;

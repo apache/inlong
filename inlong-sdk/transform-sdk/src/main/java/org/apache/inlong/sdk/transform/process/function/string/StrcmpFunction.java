@@ -29,14 +29,21 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * StrcmpFunction
- * description:  strcmp(s1,s2)
- * return NULL if either argument is NULL
- * return 0 if the strings are the same
- * return -1 if the first argument is smaller than the second according to the current sort order
- * return 1 otherwise
+ * StrcmpFunction  ->  strcmp(s1,s2)
+ * description:
+ * - Return NULL if either argument is NULL
+ * - Return 0 if the strings are the same
+ * - Return -1 if the first argument is smaller than the second according to the current sort order
+ * - Return 1 otherwise
  */
-@TransformFunction(names = {"strcmp"})
+@TransformFunction(names = {"strcmp"}, parameter = "(String s1, String s2)", descriptions = {
+        "- Return \"\" if either argument is NULL;",
+        "- Return 0 if the strings are the same;",
+        "- Return -1 if 's1' is smaller than 's2' according to the current sort order;",
+        "- Return 1 otherwise."
+}, examples = {
+        "strcmp('hello world','banana') = 1"
+})
 public class StrcmpFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

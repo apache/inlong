@@ -31,11 +31,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * NumNonNullsFunction  ->  num_nulls(expr1,expr2,...)
+ * NumNullsFunction  ->  num_nulls(expr1,expr2,...)
  * description:
- * - return the number of null arguments.
+ * - Return the number of null arguments.
  */
-@TransformFunction(names = {"num_nulls"})
+@TransformFunction(names = {"num_nulls"}, parameter = "([Expr expr1, Expr expr2, ...])", descriptions = {
+        "- Return the number of null arguments."
+}, examples = {
+        "num_nulls(5, null, null, null) = 3"
+})
 public class NumNullsFunction implements ValueParser {
 
     private final List<ValueParser> nodeList;

@@ -31,13 +31,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpInstrFunction
- * description: REGEXP_INSTR(str, regexp)--Returns the position of the first substring in str that matches regexp.
- *              Result indexes begin at 1, 0 if there is no match.
- *              Returns an INTEGER representation of the first matched substring index.
- *              NULL if any of the arguments are NULL or regexp is invalid.
+ * RegexpInstrFunction  ->  REGEXP_INSTR(str, regexp)
+ * description:
+ * - Return NULL if any of the arguments are NULL or invalid
+ * - Return the position of the first substring in 'str' that matches 'regexp'
+ * Note: Result indexes begin at 1, 0 if there is no match.
  */
-@TransformFunction(names = {"regexp_instr"})
+@TransformFunction(names = {"regexp_instr"}, parameter = "(String str, String regexp)", descriptions = {
+        "- Return \"\" if any of the arguments are NULL or invalid;",
+        "- Return the position of the first substring in 'str' that matches 'regexp'."
+}, examples = {
+        "regexp_instr(\"abc123def\", \"(\\\\d+)\") = 4"
+})
 public class RegexpInstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;

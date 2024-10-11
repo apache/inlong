@@ -37,12 +37,23 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * FromUnixTimeFunction
- * description: form_unixtime(numeric[, string])--returns a representation of the numeric argument as a value in string
- * format(default is ‘yyyy-MM-dd HH:mm:ss’). numeric is an internal timestamp value representing seconds
- * since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function.
+ * FromUnixTimeFunction  ->  form_unixtime(numeric[, formatStr])
+ * description:
+ * - Return NULL if numeric is NULL
+ * - Return a representation of the numeric argument as a value in string
+ * Note: formatStr defaults to 'yyyy-MM-dd HH:mm:ss'. numeric is an internal timestamp value representing seconds
+ *       since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function.
  */
-@TransformFunction(names = {"from_unix_time", "form_unixtime"})
+@TransformFunction(names = {"from_unix_time",
+        "form_unixtime"}, parameter = "(Numeric numeric,String formatStr)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return a representation of the numeric argument as a value in string.",
+                "Note: 'formatStr' defaults to 'yyyy-MM-dd HH:mm:ss'. numeric is an internal timestamp value representing"
+                        +
+                        " seconds since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function."
+        }, examples = {
+                "from_unix_time(44) = \"1970-01-01 08:00:44\""
+        })
 public class FromUnixTimeFunction implements ValueParser {
 
     private ValueParser numericParser;

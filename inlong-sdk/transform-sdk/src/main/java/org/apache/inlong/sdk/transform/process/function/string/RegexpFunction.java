@@ -29,13 +29,21 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
- * RegexpFunction
- * description: REGEX(string1, string2)--Returns TRUE if any (possibly empty) substring of string1 matches the Java
- *              regular expression string2, otherwise FALSE. Returns NULL if any of arguments is NULL.
- *              SIMILAR(string1, string2)--Same as above
+ * RegexpFunction  ->  REGEX(str, regexp)
+ * description:
+ * - Return NULL if any of the arguments are NULL or invalid
+ * - Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'
  */
-@TransformFunction(names = {"regex", "similar", "regexp_like"})
+@TransformFunction(names = {"regex", "similar",
+        "regexp_like"}, parameter = "(String str, String regexp)", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or invalid;",
+                "- Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'."
+        }, examples = {
+                "regexp(\"The quick brown fox\", \"quick\") = true",
+                "regexp(\"The quick brown fox\", \"cold\") = false"
+        })
 public class RegexpFunction implements ValueParser {
 
     private ValueParser inputParser;

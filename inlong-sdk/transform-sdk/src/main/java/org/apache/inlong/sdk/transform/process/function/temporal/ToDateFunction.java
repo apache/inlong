@@ -33,10 +33,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ToDateFunction
- * description: to_date(string1[, string2])--converts a date string string1 with format string2 (by default ‘yyyy-MM-dd’) to a date
+ * ToDateFunction  ->  to_date(str[, format])
+ * description:
+ * - Return NULL if 'str' is NULL;
+ * - Return the result of converting the date string 'str' to a date in the format 'format'(default is 'yyyy-MM-dd') .
  */
-@TransformFunction(names = {"to_date"})
+@TransformFunction(names = {"to_date"}, parameter = "(String str [,String format])", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the result of converting the date string 'str' to a date in the format 'format'(default is 'yyyy-MM-dd')."
+}, examples = {
+        "to_date('20240815', 'yyyyMMdd') = \"2024-08-15\""
+})
 public class ToDateFunction implements ValueParser {
 
     private ValueParser stringParser1;
@@ -44,11 +51,6 @@ public class ToDateFunction implements ValueParser {
     private static final Map<String, DateTimeFormatter> INPUT_FORMATTERS = new ConcurrentHashMap<>();
     private static final DateTimeFormatter OUTPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    /**
-     * Constructor
-     *
-     * @param expr
-     */
     public ToDateFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         // Determine the number of arguments and build parser
@@ -58,13 +60,6 @@ public class ToDateFunction implements ValueParser {
         }
     }
 
-    /**
-     * parse
-     *
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj1 = stringParser1.parse(sourceData, rowIndex, context);
@@ -78,12 +73,6 @@ public class ToDateFunction implements ValueParser {
         return date.format(OUTPUT_FORMATTER);
     }
 
-    /**
-     * getDateTimeFormatter
-     *
-     * @param pattern
-     * @return
-     */
     private DateTimeFormatter getDateTimeFormatter(String pattern) {
         DateTimeFormatter formatter = INPUT_FORMATTERS.get(pattern);
         if (formatter == null) {

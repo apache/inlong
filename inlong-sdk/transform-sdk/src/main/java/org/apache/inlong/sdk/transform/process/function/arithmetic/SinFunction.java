@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SinFunction
- * description: sin(numeric)--returns the sine of numeric
+ * SinFunction  ->  sin(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the sine of 'numeric'
  */
-@TransformFunction(names = {"sin"})
+@TransformFunction(names = {"sin"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the sine of 'numeric'."
+}, examples = {
+        "sin(0) = 0.0"
+})
 public class SinFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public SinFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.sin(numberValue.doubleValue());
     }

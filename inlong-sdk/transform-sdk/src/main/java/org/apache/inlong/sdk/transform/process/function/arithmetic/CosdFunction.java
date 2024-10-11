@@ -23,15 +23,24 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
 /**
- * CosdFunction
- * description: cosd(numeric)--returns the cosine of numeric in units of degrees
+ * CosdFunction  ->  cosd(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the cosine of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"cosd"})
+@Slf4j
+@TransformFunction(names = {"cosd"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the cosine of 'numeric' in units of degrees."
+}, examples = {
+        "cosd(15) = 0.9659258262890683"
+})
 public class CosdFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +52,9 @@ public class CosdFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.cos(Math.toRadians(numberValue.doubleValue()));
     }

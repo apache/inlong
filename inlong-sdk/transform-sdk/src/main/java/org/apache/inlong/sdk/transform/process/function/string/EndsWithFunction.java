@@ -29,10 +29,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * EndsWithFunction
- * description: Returns whether expr ends with endExpr.
+ * EndsWithFunction  ->  endswith(s1,s2)
+ * description:
+ * - Return NULL if either argument is NULL;
+ * - Return whether 's2' ends with 's2'.
  */
-@TransformFunction(names = {"endswith"})
+@TransformFunction(names = {"endswith"}, parameter = "(String s1, String s2)", descriptions = {
+        "- Return \"\" if either argument is NULL;",
+        "- Return whether 's2' ends with 's2'."
+}, examples = {
+        "endswith('Apache InLong', 'Long') = true"
+})
 public class EndsWithFunction implements ValueParser {
 
     private ValueParser exprParser;

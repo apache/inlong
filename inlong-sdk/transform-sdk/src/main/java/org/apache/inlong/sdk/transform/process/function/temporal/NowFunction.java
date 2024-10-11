@@ -25,25 +25,20 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * NowFunction
- * 
+ * NowFunction  ->  now()
+ * description:
+ * - Return the current SQL timestamp for the local time zone
  */
-@TransformFunction(names = {"now"})
+@TransformFunction(names = {"now"}, parameter = "()", descriptions = {
+        "- Return the current SQL timestamp for the local time zone."
+}, examples = {
+        "now()"
+})
 public class NowFunction implements ValueParser {
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public NowFunction(Function expr) {
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         return String.valueOf(System.currentTimeMillis());

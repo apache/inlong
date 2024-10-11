@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SinhFunction
- * description: sinh(numeric)--returns the hyperbolic sine of numeric
+ * SinhFunction  ->  sinh(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the hyperbolic sine of 'numeric'
  */
-@TransformFunction(names = {"sinh"})
+@TransformFunction(names = {"sinh"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the hyperbolic sine of 'numeric'."
+}, examples = {
+        "sinh(1) = 1.1752011936438014"
+})
 public class SinhFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public SinhFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.sinh(numberValue.doubleValue());
     }

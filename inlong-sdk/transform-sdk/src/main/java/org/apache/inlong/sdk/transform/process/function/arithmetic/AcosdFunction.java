@@ -28,10 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * AcosdFunction
- * description: acosd(numeric)--returns the arc cosine of numeric in units of degrees
+ * AcosdFunction   ->   acosd(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the arc cosine of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"acosd"})
+@TransformFunction(names = {"acosd"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the arc cosine of 'numeric' in units of degrees."
+}, examples = {
+        "acosd(1) = 0.0",
+        "acosd(0) = 90.0",
+        "acosd(-1) = 180.0"
+})
 public class AcosdFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +52,9 @@ public class AcosdFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.toDegrees(Math.acos(numberValue.doubleValue()));
     }

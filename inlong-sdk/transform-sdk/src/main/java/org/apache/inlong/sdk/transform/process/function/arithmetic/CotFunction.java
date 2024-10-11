@@ -23,15 +23,26 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
 /**
- * CotFunction
- * description: cot(numeric) -- returns the cotangent of the numeric (in radians)
+ * CotFunction  ->  cot(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the cotangent of the 'numeric' (in radians).
  */
-@TransformFunction(names = {"cot"})
+@Slf4j
+@TransformFunction(names = {"cot"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the cotangent of the 'numeric' (in radians)."
+}, examples = {
+        "cot(1) = 0.6420926159343306",
+        "cot(0.5) = 1.830487721712452",
+        "cot(-1) = -0.6420926159343306"
+})
 public class CotFunction implements ValueParser {
 
     private final ValueParser valueParser;
@@ -43,7 +54,9 @@ public class CotFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object valueObj = valueParser.parse(sourceData, rowIndex, context);
-
+        if (valueObj == null) {
+            return null;
+        }
         BigDecimal value = OperatorTools.parseBigDecimal(valueObj);
 
         // Calculate tan(x) and take the inverse to find cot(x)

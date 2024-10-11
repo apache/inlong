@@ -27,15 +27,20 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ArrayPositionFunction
- * description: ARRAY_POSITION(haystack, needle)--Returns the position of the first occurrence of element in the given
- *              array as int. Returns 0 if the given value could not be found in the array. Returns null if either of
- *              the arguments are null. And this is not zero based, but 1-based index. The first element in the array
- *              has index 1.
- * for example: array_position(array('he',7,'xxd'),'he')--return 1
- *              array_position(array('he',7,''),'_')--return 0
+ * ArrayPositionFunction  ->  ARRAY_POSITION(array, element)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return the position of the first occurrence of 'element' in the given 'array' as int;
+ * - Return 0 if the given value could not be found in the 'array'.
  */
-@TransformFunction(names = {"array_position"})
+@TransformFunction(names = {"array_position"}, parameter = "(Array array,Object element)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the position of the first occurrence of 'element' in the given 'array' as int (starts from 1);",
+        "- Return 0 if the given value could not be found in the 'array'."
+}, examples = {
+        "array_position(array('he',7,'xxd'),'he') = 1",
+        "array_position(array('he',7,''),'_') = 0"
+})
 public class ArrayPositionFunction implements ValueParser {
 
     private final ValueParser arrayParser;

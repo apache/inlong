@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.NullValue;
@@ -31,12 +32,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ConcatWsFunction
- * description: concat_ws(string1, string2, string3,…)--Returns a string that concatenates STRING2,
- * STRING3, … with a separator STRING1. The separator is added between the strings to be concatenated.
- * Returns NULL If STRING1 is NULL.
+ * ConcatWsFunction  ->  concat_ws(string1, string2, string3,...)
+ * description:
+ * - Return NULL If STRING1 is NULL.
+ * - Return a string that concatenates (STRING2, STRING3, ...) with a separator STRING1.
  */
-@TransformFunction(names = {"concat_ws"})
+@Slf4j
+@TransformFunction(names = {"concat_ws"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
+        "- Return NULL If 'STRING1' is NULL;",
+        "- Return a string that concatenates ('STRING2', 'STRING3', ...) with a separator STRING1."
+}, examples = {
+        "concat_ws('-', 'apple', 'banana', 'cloud') = \"apple-banana-cloud\"",
+        "concat_ws('-', 'apple', '', 'cloud') = \"apple--cloud\"",
+        "concat_ws('-', 'apple', null, 'cloud') = \"apple-cloud\""
+})
 public class ConcatWsFunction implements ValueParser {
 
     private final String separator;

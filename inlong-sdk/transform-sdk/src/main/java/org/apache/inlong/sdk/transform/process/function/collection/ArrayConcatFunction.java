@@ -29,13 +29,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * ArrayConcatFunction
- * description: ARRAY_CONCAT(array1, …)--Returns an array that is the result of concatenating at least one array.
- *              This array contains all the elements in the first array, followed by all the elements in the second
- *              array, and so forth, up to the Nth array. If any input array is NULL, the function returns NULL.
- * for example: array_concat(array('he',7),array('xxd', 'cloud'))--return [he, 7, xxd, cloud]
+ * ArrayConcatFunction  ->  array_concat([array1,array2,...])
+ * description:
+ * - Return NULL if any input array is NULL
+ * - Return an array that is the result of concatenating at least one array.
  */
-@TransformFunction(names = {"array_concat"})
+@TransformFunction(names = {"array_concat"}, parameter = "([Array array1, Array array2, ...])", descriptions = {
+        "- Return \"\" if any input array is NULL;",
+        "- Return an array that is the result of concatenating at least one array."
+}, examples = {
+        "array_concat(array('he',7),array('xxd', 'cloud')) = [he, 7, xxd, cloud]"
+})
 public class ArrayConcatFunction implements ValueParser {
 
     private List<ValueParser> parserList;
