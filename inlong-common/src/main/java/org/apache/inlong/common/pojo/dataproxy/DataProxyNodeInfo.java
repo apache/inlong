@@ -50,9 +50,4 @@ public class DataProxyNodeInfo {
      */
     private Integer nodeLoad;
 
-    /**
-     * Node max packet length
-     */
-    private Integer maxPacketLength;
-
 }
