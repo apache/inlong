@@ -49,7 +49,7 @@ public class TestUrlDecodeFunction extends AbstractFunctionStringTestBase {
         TransformProcessor<String, String> processor2 = TransformProcessor
                 .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        // case2: url_decode(null) -> null
+        // case2: url_decode(null)
         List<String> output2 = processor2.transform("|apple|banana|cloud|1", new HashMap<>());
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=");
