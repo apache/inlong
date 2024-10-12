@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,14 +38,12 @@ import java.util.Map;
  * - Return a map created from an arrays of keys and values
  */
 @Slf4j
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "map_from_arrays"}, parameter = "(Array array_of_keys, Array array_of_values)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return a map created from an arrays of keys and values."
-        }, examples = {
-                "map_from_arrays(array('he', 'xxd'),array(1, 3)) = {he=1, xxd=3}",
-                "map_from_arrays(array('xxd', array('cloud')),array(1, array(2))) = {1=xxd, [2]=[cloud]}"
-        })
+                "- Return a map created from an arrays of keys and values."}, examples = {
+                        "map_from_arrays(array('he', 'xxd'),array(1, 3)) = {he=1, xxd=3}",
+                        "map_from_arrays(array('xxd', array('cloud')),array(1, array(2))) = {1=xxd, [2]=[cloud]}"})
 public class MapFromArraysFunction implements ValueParser {
 
     private ValueParser keyArrayParser;

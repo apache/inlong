@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,14 +35,13 @@ import java.util.List;
  * - Return NULL if any parameter is NULL
  * - Return the string parsed from the path in json_doc
  */
-@TransformFunction(names = {"json_query"}, parameter = "(String json_doc, String path)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the string parsed from the 'path' in 'json_doc'."
-}, examples = {
-        "json_query({\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}, $.people)" +
-                " = [{\"name\":\"Alice\"},{\"name\":\"Bob\"}]",
-        "json_query({\\\"list\\\": [null, {\\\"name\\\": \\\"John\\\"}]}, $.list[1].name) = John"
-})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_query"}, parameter = "(String json_doc, String path)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the string parsed from the 'path' in 'json_doc'."}, examples = {
+                        "json_query({\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}, $.people)"
+                                + " = [{\"name\":\"Alice\"},{\"name\":\"Bob\"}]",
+                        "json_query({\\\"list\\\": [null, {\\\"name\\\": \\\"John\\\"}]}, $.list[1].name) = John"})
 public class JsonQueryFunction implements ValueParser {
 
     private final ValueParser jsonParser;

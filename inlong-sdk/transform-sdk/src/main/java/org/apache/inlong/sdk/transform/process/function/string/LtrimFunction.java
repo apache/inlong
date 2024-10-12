@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -31,12 +32,9 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if str is NULL
  * - Return the string str without leading spaces
  */
-@TransformFunction(names = {"ltrim"}, parameter = "(String str)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"ltrim"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if 'str' is NULL;",
-        "- Return the string 'str' without leading spaces."
-}, examples = {
-        "ltrim(' in long ') = \"in long \""
-})
+        "- Return the string 'str' without leading spaces."}, examples = {"ltrim(' in long ') = \"in long \""})
 public class LtrimFunction implements ValueParser {
 
     private ValueParser stringParser;

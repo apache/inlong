@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,12 +38,11 @@ import java.util.List;
  * - Return the string of the connection (string1, string2,...)
  */
 @Slf4j
-@TransformFunction(names = {"concat"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
-        "- Return NULL If any parameter is NULL;",
-        "- Return the string of the connection ('string1', 'string2',...)."
-}, examples = {
-        "CONCAT(\"AA\", \"BB\", \"CC\") = \"AABBCC\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "concat"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
+                "- Return NULL If any parameter is NULL;",
+                "- Return the string of the connection ('string1', 'string2',...)."}, examples = {
+                        "CONCAT(\"AA\", \"BB\", \"CC\") = \"AABBCC\""})
 public class ConcatFunction implements ValueParser {
 
     private List<ValueParser> nodeList;

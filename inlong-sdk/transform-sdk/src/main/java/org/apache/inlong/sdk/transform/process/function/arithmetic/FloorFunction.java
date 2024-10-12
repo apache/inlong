@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,13 +34,12 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the largest number that is less than or equal to 'numeric'.
  */
-@TransformFunction(names = {"floor"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the largest number that is less than or equal to 'numeric'."
-}, examples = {
-        "floor(1.23) = 1.0",
-        "floor(-5.67) = -6.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "floor"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the largest number that is less than or equal to 'numeric'."}, examples = {
+                        "floor(1.23) = 1.0",
+                        "floor(-5.67) = -6.0"})
 public class FloorFunction implements ValueParser {
 
     private ValueParser numberParser;

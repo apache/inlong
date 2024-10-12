@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -31,12 +32,11 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if x is NULL
  * - Return radians of x, Convert degrees to radians
  */
-@TransformFunction(names = {"radians"}, parameter = "(Numeric x)", descriptions = {
-        "- Return \"\" if 'x' is NULL;",
-        "- Return radians of 'x', Convert degrees to radians."
-}, examples = {
-        "radians(18.97) = 0.33108895910332425"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "radians"}, parameter = "(Numeric x)", descriptions = {
+                "- Return \"\" if 'x' is NULL;",
+                "- Return radians of 'x', Convert degrees to radians."}, examples = {
+                        "radians(18.97) = 0.33108895910332425"})
 public class RadiansFunction implements ValueParser {
 
     private ValueParser degreeParser;

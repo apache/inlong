@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,11 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the arc sine of 'numeric'.
  */
-@TransformFunction(names = {"asin"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the arc sine of 'numeric' in units of degrees."
-}, examples = {
-        "asin(0.5) = 0.5235987755982989",
-        "asin(0) = 0.0",
-        "asin(-0.5) = -0.5235987755982989"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "asin"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the arc sine of 'numeric' in units of degrees."}, examples = {
+                        "asin(0.5) = 0.5235987755982989", "asin(0) = 0.0", "asin(-0.5) = -0.5235987755982989"})
 public class AsinFunction implements ValueParser {
 
     private ValueParser numberParser;

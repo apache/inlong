@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -31,12 +32,11 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if str is NULL
  * - Return the string obtained by converting all letters of the string to lowercase letters
  */
-@TransformFunction(names = {"lower", "lcase"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return the string obtained by converting all letters of 'str' to lowercase letters."
-}, examples = {
-        "lower(\"ApPlE\") = \"apple\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"lower",
+        "lcase"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return the string obtained by converting all letters of 'str' to lowercase letters."}, examples = {
+                        "lower(\"ApPlE\") = \"apple\""})
 public class LowerFunction implements ValueParser {
 
     private ValueParser stringParser;

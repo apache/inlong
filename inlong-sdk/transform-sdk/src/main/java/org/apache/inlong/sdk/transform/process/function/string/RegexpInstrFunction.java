@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,12 +38,11 @@ import java.util.regex.Pattern;
  * - Return the position of the first substring in 'str' that matches 'regexp'
  * Note: Result indexes begin at 1, 0 if there is no match.
  */
-@TransformFunction(names = {"regexp_instr"}, parameter = "(String str, String regexp)", descriptions = {
-        "- Return \"\" if any of the arguments are NULL or invalid;",
-        "- Return the position of the first substring in 'str' that matches 'regexp'."
-}, examples = {
-        "regexp_instr(\"abc123def\", \"(\\\\d+)\") = 4"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "regexp_instr"}, parameter = "(String str, String regexp)", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or invalid;",
+                "- Return the position of the first substring in 'str' that matches 'regexp'."}, examples = {
+                        "regexp_instr(\"abc123def\", \"(\\\\d+)\") = 4"})
 public class RegexpInstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;

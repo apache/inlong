@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,17 +36,14 @@ import java.util.ArrayList;
  * Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'.
  *       Positive values are counted from the beginning of the array while negative from the end.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_slice"}, parameter = "(Array array, Integer start_offset[, Integer end_offset])", descriptions = {
                 "- Return \"\" if 'array' or 'start_offset' is null;",
                 "- Return a subarray of the input 'array' between 'start_offset' and 'end_offset' inclusive;",
                 "- Return an empty array if 'start_offset' is after 'end_offset' or both are out of 'array' bounds.",
-                "Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'. " +
-                        "Positive values are counted from the beginning of the array while negative from the end."
-        }, examples = {
-                "array_slice(array('he',7,'xxd'),1,2) = ['he', 7]",
-                "array_slice(array('he','xxd','b'),-2,-1) = [3, 'xxd']"
-        })
+                "Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'. Positive values are counted from the beginning of the array while negative from the end."}, examples = {
+                        "array_slice(array('he',7,'xxd'),1,2) = ['he', 7]",
+                        "array_slice(array('he','xxd','b'),-2,-1) = [3, 'xxd']"})
 public class ArraySliceFunction implements ValueParser {
 
     private ValueParser arrayParser;

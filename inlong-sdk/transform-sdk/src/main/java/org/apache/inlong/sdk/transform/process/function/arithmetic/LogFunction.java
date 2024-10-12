@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,11 @@ import java.util.List;
  * - Return the natural logarithm of 'numeric1' when called with one argument
  * - Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments
  */
-@TransformFunction(names = {"log"}, parameter = "(Numeric numeric1 [, Numeric numeric2])", descriptions = {
-        "- Return the natural logarithm of 'numeric1' when called with one argument;",
-        "- Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments."
-}, examples = {
-        "log(1) = 0.0",
-        "log(2,8) = 3.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "log"}, parameter = "(Numeric numeric1 [, Numeric numeric2])", descriptions = {
+                "- Return the natural logarithm of 'numeric1' when called with one argument;",
+                "- Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments."}, examples = {
+                        "log(1) = 0.0", "log(2,8) = 3.0"})
 public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;

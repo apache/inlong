@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,11 @@ import java.util.List;
  * - Return NULL if any parameter is NULL;
  * - Return the result of truncating 'numeric' values to 'cnt' decimal places.
  */
-@TransformFunction(names = {"truncate", "trunc"}, parameter = "(Numeric numeric, Integer cnt)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the result of truncating 'numeric' values to 'cnt' decimal places."
-}, examples = {
-        "truncate(42.324, 2) = 42.32",
-        "trunc(42.324, -1) = 40"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {"truncate",
+        "trunc"}, parameter = "(Numeric numeric, Integer cnt)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the result of truncating 'numeric' values to 'cnt' decimal places."}, examples = {
+                        "truncate(42.324, 2) = 42.32", "trunc(42.324, -1) = 40"})
 public class TruncateFunction implements ValueParser {
 
     private ValueParser bigDecimalParser;

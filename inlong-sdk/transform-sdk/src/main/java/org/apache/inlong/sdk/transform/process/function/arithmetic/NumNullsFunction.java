@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,11 +36,9 @@ import java.util.List;
  * description:
  * - Return the number of null arguments.
  */
-@TransformFunction(names = {"num_nulls"}, parameter = "([Expr expr1, Expr expr2, ...])", descriptions = {
-        "- Return the number of null arguments."
-}, examples = {
-        "num_nulls(5, null, null, null) = 3"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "num_nulls"}, parameter = "([Expr expr1, Expr expr2, ...])", descriptions = {
+                "- Return the number of null arguments."}, examples = {"num_nulls(5, null, null, null) = 3"})
 public class NumNullsFunction implements ValueParser {
 
     private final List<ValueParser> nodeList;

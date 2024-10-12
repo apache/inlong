@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,11 @@ import java.util.List;
  * - Return a new form of STRING with the first character of each word converted to uppercase
  *          and the rest characters to lowercase.
  */
-@TransformFunction(names = {"initcap", "init_cap"}, parameter = "(String s1, String s2)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return a new form of 'str' with the first character of each word converted to uppercase " +
-                "and the rest characters to lowercase."
-}, examples = {
-        "initcap('hello world') = \"Hello world\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"initcap",
+        "init_cap"}, parameter = "(String s1, String s2)", descriptions = {"- Return \"\" if 'str' is NULL;",
+                "- Return a new form of 'str' with the first character of each word converted to uppercase "
+                        + "and the rest characters to lowercase."}, examples = {
+                                "initcap('hello world') = \"Hello world\""})
 public class InitCapFunction implements ValueParser {
 
     private ValueParser stringParser;

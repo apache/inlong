@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
@@ -33,13 +34,10 @@ import net.sf.jsqlparser.expression.Function;
  * - return true if expr is NULL
  * - return false otherwise.
  */
-@TransformFunction(names = {"isnull"}, parameter = "(Expr expr)", descriptions = {
-        "- Return true if 'expr' is NULL;",
-        "- Return false otherwise."
-}, examples = {
-        "isnull(5 + 3) = false",
-        "isnull(5 / 0) = true"
-})
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "isnull"}, parameter = "(Expr expr)", descriptions = {
+                "- Return true if 'expr' is NULL;",
+                "- Return false otherwise."}, examples = {"isnull(5 + 3) = false", "isnull(5 / 0) = true"})
 public class IsNullFunction implements ValueParser {
 
     private ValueParser stringParser;

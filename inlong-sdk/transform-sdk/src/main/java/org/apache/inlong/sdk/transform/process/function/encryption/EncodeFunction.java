@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,13 +41,12 @@ import java.util.Set;
  * - Return the result of encoding strInfo using the character set specified by charsetStr
  * Note: charsetStr is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16').
  */
-@TransformFunction(names = {"encode"}, parameter = "(String strInfo,String charsetStr)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the result of encoding 'strInfo' using the character set specified by 'charsetStr'.",
-        "- Note: 'charsetStr' is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16')."
-}, examples = {
-        "decode(encode('Hello','UTF-8'),'UTF-8') = \"Hello\""
-})
+@TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
+        "encode"}, parameter = "(String strInfo,String charsetStr)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the result of encoding 'strInfo' using the character set specified by 'charsetStr'.",
+                "- Note: 'charsetStr' is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16')."}, examples = {
+                        "decode(encode('Hello','UTF-8'),'UTF-8') = \"Hello\""})
 public class EncodeFunction implements ValueParser {
 
     private ValueParser stringParser;

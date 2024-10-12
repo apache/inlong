@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,11 @@ import java.math.BigDecimal;
  * - Return 0 if 'x' is equal to 0
  * - Return 1 if 'x' is a positive number
  */
-@TransformFunction(names = {"sign"}, parameter = "(Numeric x)", descriptions = {
-        "- Return \"\" if 'x' is NULL;",
-        "- Return -1 if 'x' is a negative number;",
-        "- Return 0 if 'x' is equal to 0;",
-        "- Return 1 if 'x' is a positive number."
-}, examples = {
-        "sign(-3.5) = -1"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "sign"}, parameter = "(Numeric x)", descriptions = {
+                "- Return \"\" if 'x' is NULL;", "- Return -1 if 'x' is a negative number;",
+                "- Return 0 if 'x' is equal to 0;",
+                "- Return 1 if 'x' is a positive number."}, examples = {"sign(-3.5) = -1"})
 public class SignFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,12 +34,10 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL
  * - Return the square root of 'numeric'
  */
-@TransformFunction(names = {"sqrt"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the square root of 'numeric'."
-}, examples = {
-        "sqrt(9) = 3.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "sqrt"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the square root of 'numeric'."}, examples = {"sqrt(9) = 3.0"})
 public class SqrtFunction implements ValueParser {
 
     private ValueParser numberParser;

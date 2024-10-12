@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,11 @@ import java.math.BigDecimal;
  * - Return NULL if 'numericx' or 'numericy' is NULL;
  * - Return inverse tangent of 'numericy'/'numericx', result in degrees.
  */
-@TransformFunction(names = {"atan2d"}, parameter = "(Numeric numericx, Numeric numericy)", descriptions = {
-        "- Return \"\" if 'numericx' or 'numericy' is NULL;",
-        "- Return inverse tangent of 'numericy'/'numericx', result in degrees."
-}, examples = {
-        "atan2d(1, 1) = 45.0",
-        "atan2d(1, 0) = 90.0",
-        "atan2d(0, -1) = 180.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "atan2d"}, parameter = "(Numeric numericx, Numeric numericy)", descriptions = {
+                "- Return \"\" if 'numericx' or 'numericy' is NULL;",
+                "- Return inverse tangent of 'numericy'/'numericx', result in degrees."}, examples = {
+                        "atan2d(1, 1) = 45.0", "atan2d(1, 0) = 90.0", "atan2d(0, -1) = 180.0"})
 public class Atan2dFunction implements ValueParser {
 
     private ValueParser xParser;

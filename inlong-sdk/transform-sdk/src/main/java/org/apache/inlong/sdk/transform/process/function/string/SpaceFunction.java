@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -32,12 +33,9 @@ import net.sf.jsqlparser.expression.Function;
  * - Return "" if 'N' is less than or equal to 0
  * - Return a string consisting of 'N' space characters
  */
-@TransformFunction(names = {"space"}, parameter = "(Integer N)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"space"}, parameter = "(Integer N)", descriptions = {
         "- Return \"\" if 'N' is NULL or less than or equal to 0;",
-        "- Return a string consisting of 'N' space characters."
-}, examples = {
-        "space(5) = \"     \""
-})
+        "- Return a string consisting of 'N' space characters."}, examples = {"space(5) = \"     \""})
 public class SpaceFunction implements ValueParser {
 
     private final ValueParser cntParser;

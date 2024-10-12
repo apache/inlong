@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,12 +37,10 @@ import java.util.List;
  * Return NULL if any argument is NULL.
  * Return the least value of the list of arguments.
  */
-@TransformFunction(names = {"least"}, parameter = "(Numeric value1 [, Numeric value2, ...])", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the least value of the list of arguments."
-}, examples = {
-        "least(3.14, least(7, 2, 1)) = 1"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "least"}, parameter = "(Numeric value1 [, Numeric value2, ...])", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the least value of the list of arguments."}, examples = {"least(3.14, least(7, 2, 1)) = 1"})
 public class LeastFunction implements ValueParser {
 
     private List<ValueParser> parserList;

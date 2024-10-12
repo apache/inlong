@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,14 +39,13 @@ import java.util.List;
  * - Return a string that concatenates (STRING2, STRING3, ...) with a separator STRING1.
  */
 @Slf4j
-@TransformFunction(names = {"concat_ws"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
-        "- Return NULL If 'STRING1' is NULL;",
-        "- Return a string that concatenates ('STRING2', 'STRING3', ...) with a separator STRING1."
-}, examples = {
-        "concat_ws('-', 'apple', 'banana', 'cloud') = \"apple-banana-cloud\"",
-        "concat_ws('-', 'apple', '', 'cloud') = \"apple--cloud\"",
-        "concat_ws('-', 'apple', null, 'cloud') = \"apple-cloud\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "concat_ws"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
+                "- Return NULL If 'STRING1' is NULL;",
+                "- Return a string that concatenates ('STRING2', 'STRING3', ...) with a separator STRING1."}, examples = {
+                        "concat_ws('-', 'apple', 'banana', 'cloud') = \"apple-banana-cloud\"",
+                        "concat_ws('-', 'apple', '', 'cloud') = \"apple--cloud\"",
+                        "concat_ws('-', 'apple', null, 'cloud') = \"apple-cloud\""})
 public class ConcatWsFunction implements ValueParser {
 
     private final String separator;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,13 +34,12 @@ import java.util.Map;
  * - Return NULL if map is null
  * - Return the values of the map as array. No order guaranteed.
  */
-@TransformFunction(names = {"map_values"}, parameter = "(Map map)", descriptions = {
-        "- Return \"\" if 'map' is null;",
-        "- Return the values of the 'map' as array. No order guaranteed."
-}, examples = {
-        "map_values(Map('he',1,'xxd','cloud')) = [1, cloud]",
-        "map_values(Map('xxd','cloud',map(1,2),map(3,'apple'))) = [cloud, {3=apple}]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "map_values"}, parameter = "(Map map)", descriptions = {
+                "- Return \"\" if 'map' is null;",
+                "- Return the values of the 'map' as array. No order guaranteed."}, examples = {
+                        "map_values(Map('he',1,'xxd','cloud')) = [1, cloud]",
+                        "map_values(Map('xxd','cloud',map(1,2),map(3,'apple'))) = [cloud, {3=apple}]"})
 public class MapValueFunction implements ValueParser {
 
     private final ValueParser mapParser;

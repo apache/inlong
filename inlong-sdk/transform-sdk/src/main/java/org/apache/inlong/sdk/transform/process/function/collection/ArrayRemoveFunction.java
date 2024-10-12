@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,11 @@ import java.util.List;
  * - Return NULL if 'array' is null;
  * - Return the result of removing all elements that equal to 'element' from 'array'.
  */
-@TransformFunction(names = {"array_remove"}, parameter = "(Array array,Object element)", descriptions = {
-        "- Return \"\" if 'array' is null;",
-        "- Return the result of removing all elements that equal to 'element' from 'array'."
-}, examples = {
-        "array_remove(array('he',7,'xxd'),'he') = [7, xxd]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_remove"}, parameter = "(Array array,Object element)", descriptions = {
+                "- Return \"\" if 'array' is null;",
+                "- Return the result of removing all elements that equal to 'element' from 'array'."}, examples = {
+                        "array_remove(array('he',7,'xxd'),'he') = [7, xxd]"})
 public class ArrayRemoveFunction implements ValueParser {
 
     private final ValueParser arrayParser;

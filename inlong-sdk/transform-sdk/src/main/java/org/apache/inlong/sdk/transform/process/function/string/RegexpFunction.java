@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,12 @@ import java.util.regex.Pattern;
  * - Return NULL if any of the arguments are NULL or invalid
  * - Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'
  */
-@TransformFunction(names = {"regex", "similar",
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"regex", "similar",
         "regexp_like"}, parameter = "(String str, String regexp)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'."
-        }, examples = {
-                "regexp(\"The quick brown fox\", \"quick\") = true",
-                "regexp(\"The quick brown fox\", \"cold\") = false"
-        })
+                "- Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'."}, examples = {
+                        "regexp(\"The quick brown fox\", \"quick\") = true",
+                        "regexp(\"The quick brown fox\", \"cold\") = false"})
 public class RegexpFunction implements ValueParser {
 
     private ValueParser inputParser;

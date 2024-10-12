@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -32,12 +33,10 @@ import org.apache.commons.math3.special.Erf;
  * - Return NULL if 'numeric' is NULL;
  * - Return the error function value of the input value.
  */
-@TransformFunction(names = {"erf"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the error function value of the input value."
-}, examples = {
-        "erf(3) = 0.9999779095030014"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "erf"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the error function value of the input value."}, examples = {"erf(3) = 0.9999779095030014"})
 public class ErfFunction implements ValueParser {
 
     private final ValueParser numParser;

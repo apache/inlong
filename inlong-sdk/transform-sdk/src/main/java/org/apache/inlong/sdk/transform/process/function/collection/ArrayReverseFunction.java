@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,12 +35,11 @@ import java.util.Collections;
  * - Return NULL if 'array' is null;
  * - Return an array in reverse order.
  */
-@TransformFunction(names = {"array_reverse"}, parameter = "(Array array)", descriptions = {
-        "- Return \"\" if 'array' is null;",
-        "- Return an array in reverse order."
-}, examples = {
-        "array_reverse(array('he',7,'xxd')) = [xxd, 7, he]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_reverse"}, parameter = "(Array array)", descriptions = {
+                "- Return \"\" if 'array' is null;",
+                "- Return an array in reverse order."}, examples = {
+                        "array_reverse(array('he',7,'xxd')) = [xxd, 7, he]"})
 public class ArrayReverseFunction implements ValueParser {
 
     private final ValueParser arrayParser;

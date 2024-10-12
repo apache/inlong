@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,11 @@ import java.math.BigDecimal;
  * - Return the cotangent of the 'numeric' (in radians).
  */
 @Slf4j
-@TransformFunction(names = {"cot"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the cotangent of the 'numeric' (in radians)."
-}, examples = {
-        "cot(1) = 0.6420926159343306",
-        "cot(0.5) = 1.830487721712452",
-        "cot(-1) = -0.6420926159343306"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "cot"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the cotangent of the 'numeric' (in radians)."}, examples = {
+                        "cot(1) = 0.6420926159343306", "cot(0.5) = 1.830487721712452", "cot(-1) = -0.6420926159343306"})
 public class CotFunction implements ValueParser {
 
     private final ValueParser valueParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,17 +41,13 @@ import java.util.Map;
  * Note: The keyword is one of ('HOST', 'PATH', 'QUERY', 'REF', 'PROTOCOL', 'AUTHORITY', 'FILE', 'USERINFO').
  *       Also a value of a particular key in QUERY can be extracted by providing the key as the third argument.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "parse_url"}, parameter = "(String urlStr, String keyword[, String parameter])", descriptions = {
                 "- Return NULL any required parameter is NULL;",
                 "- Return the specified part from the 'urlStr'. Valid values for 'keyword'.",
-                "Note: The 'keyword' is one of ('HOST', 'PATH', 'QUERY', 'REF', 'PROTOCOL', 'AUTHORITY', 'FILE', 'USERINFO')."
-                        +
-                        "Also a value of a particular key in QUERY can be extracted by providing the key as the third argument."
-        }, examples = {
-                "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'QUERY', 'k1') = v1",
-                "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'PROTOCOL') = http"
-        })
+                "Note: The 'keyword' is one of ('HOST', 'PATH', 'QUERY', 'REF', 'PROTOCOL', 'AUTHORITY', 'FILE', 'USERINFO'). Also a value of a particular key in QUERY can be extracted by providing the key as the third argument."}, examples = {
+                        "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'QUERY', 'k1') = v1",
+                        "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'PROTOCOL') = http"})
 public class ParseUrlFunction implements ValueParser {
 
     private ValueParser urlParser;

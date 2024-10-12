@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,10 @@ import java.util.List;
  * description:
  * - Return a JSON array string constructed from a list of values
  */
-@TransformFunction(names = {"json_arrays"}, parameter = "([String value1, String value2, ...])", descriptions = {
-        "- Return a JSON array string constructed from a list of values."
-}, examples = {
-        "JSON_ARRAYS() = []",
-        "JSON_ARRAYS(1, '2') = [1,\"2\"]",
-        "JSON_ARRAYS(JSON_ARRAY(1)) = [[1]]"
-})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_arrays"}, parameter = "([String value1, String value2, ...])", descriptions = {
+                "- Return a JSON array string constructed from a list of values."}, examples = {"JSON_ARRAYS() = []",
+                        "JSON_ARRAYS(1, '2') = [1,\"2\"]", "JSON_ARRAYS(JSON_ARRAY(1)) = [[1]]"})
 public class JsonArraysFunction implements ValueParser {
 
     private List<ValueParser> parserList;

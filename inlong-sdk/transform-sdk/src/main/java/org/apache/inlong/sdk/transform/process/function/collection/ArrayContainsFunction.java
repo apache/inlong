@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,14 +35,12 @@ import java.util.ArrayList;
  * - Return whether the given element exists in an array.
  * Note: Checking for null elements in the array is supported.
  */
-@TransformFunction(names = {"array_contains"}, parameter = "(Array array, Object needle)", descriptions = {
-        "- Return \"\" if 'array' is NULL;",
-        "- Return whether the given element exists in 'array'.",
-        "Note: Checking for null elements in the array is supported."
-}, examples = {
-        "array_contains(array('he',7,'xxd'), 'cloud') = false",
-        "array_contains(array('he',-1,''),'') = true"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_contains"}, parameter = "(Array array, Object needle)", descriptions = {
+                "- Return \"\" if 'array' is NULL;", "- Return whether the given element exists in 'array'.",
+                "Note: Checking for null elements in the array is supported."}, examples = {
+                        "array_contains(array('he',7,'xxd'), 'cloud') = false",
+                        "array_contains(array('he',-1,''),'') = true"})
 public class ArrayContainsFunction implements ValueParser {
 
     private final ValueParser arrayParser;

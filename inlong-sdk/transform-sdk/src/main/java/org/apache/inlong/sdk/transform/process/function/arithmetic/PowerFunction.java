@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,12 +34,10 @@ import java.math.BigDecimal;
  * - Return NULL if any parameter is NULL
  * - Return 'numeric1'.power('numeric2')
  */
-@TransformFunction(names = {"power"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
-        "- Return \"\" if any parameter is NULL.",
-        "- Return 'numeric1'.power('numeric2')."
-}, examples = {
-        "power(4,0.5) = 2.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "power"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
+                "- Return \"\" if any parameter is NULL.",
+                "- Return 'numeric1'.power('numeric2')."}, examples = {"power(4,0.5) = 2.0"})
 public class PowerFunction implements ValueParser {
 
     private ValueParser baseParser;

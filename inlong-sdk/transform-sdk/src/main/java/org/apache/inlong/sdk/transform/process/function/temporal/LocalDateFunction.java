@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,13 +35,10 @@ import java.time.ZoneId;
  * - Return the current date in the specified time zone.
  * Note: timeZoneStr is the system time zone
  */
-@TransformFunction(names = {"localdate", "currentdate", "current_date",
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"localdate", "currentdate", "current_date",
         "curdate"}, parameter = "([String timeZoneStr])", descriptions = {
-                "- Return the current date in the specified 'timeZoneStr'."
-        }, examples = {
-                "localDate(\"UTC\") = currentDate",
-                "localDate() = currentDate"
-        })
+                "- Return the current date in the specified 'timeZoneStr'."}, examples = {
+                        "localDate(\"UTC\") = currentDate", "localDate() = currentDate"})
 public class LocalDateFunction implements ValueParser {
 
     private ValueParser stringParser;

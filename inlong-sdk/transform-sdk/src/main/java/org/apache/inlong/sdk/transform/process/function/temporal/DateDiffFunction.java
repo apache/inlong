@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -39,14 +40,13 @@ import java.util.Objects;
  * - Return null if one of the two parameters has an incorrect date format
  * - Return the number of days between the dates dateStr1->dateStr2.
  */
-@TransformFunction(names = {"datediff"}, parameter = "(String dateStr1, String dateStr2)", descriptions = {
-        "- Return \"\" if one of the two parameters is null or \"\";",
-        "- Return \"\" if one of the two parameters has an incorrect date format;",
-        "- Return the number of days between the dates 'dateStr1'->'dateStr2'."
-}, examples = {
-        "datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00') = 1",
-        "datediff('2018-12', '2018-12-12') = \"\""
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "datediff"}, parameter = "(String dateStr1, String dateStr2)", descriptions = {
+                "- Return \"\" if one of the two parameters is null or \"\";",
+                "- Return \"\" if one of the two parameters has an incorrect date format;",
+                "- Return the number of days between the dates 'dateStr1'->'dateStr2'."}, examples = {
+                        "datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00') = 1",
+                        "datediff('2018-12', '2018-12-12') = \"\""})
 public class DateDiffFunction implements ValueParser {
 
     private final ValueParser leftDateParser;

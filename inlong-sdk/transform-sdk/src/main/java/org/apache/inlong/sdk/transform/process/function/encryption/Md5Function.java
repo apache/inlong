@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,13 +35,12 @@ import java.nio.charset.StandardCharsets;
  * - Return NULL if the string is NULL
  * - Return the MD5 hash value of a string in the form of a 32-bit hexadecimal digit string
  */
-@TransformFunction(names = {"md5"}, parameter = "(String string)", descriptions = {
-        "- Return \"\" if the 'string' is NULL;",
-        "- Return the MD5 hash value of 'string' in the form of a 32-bit hexadecimal digit string."
-}, examples = {
-        "md5(\"\") = \"d41d8cd98f00b204e9800998ecf8427e\"",
-        "md5(\"1\") = \"c4ca4238a0b923820dcc509a6f75849b\""
-})
+@TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
+        "md5"}, parameter = "(String string)", descriptions = {
+                "- Return \"\" if the 'string' is NULL;",
+                "- Return the MD5 hash value of 'string' in the form of a 32-bit hexadecimal digit string."}, examples = {
+                        "md5(\"\") = \"d41d8cd98f00b204e9800998ecf8427e\"",
+                        "md5(\"1\") = \"c4ca4238a0b923820dcc509a6f75849b\""})
 public class Md5Function implements ValueParser {
 
     private ValueParser msgParser;

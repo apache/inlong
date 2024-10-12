@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,18 +39,13 @@ import java.util.Map;
  * Note: Both 'pairDelimiter' and 'keyValueDelimiter' are treated as regular expressions.So special characters
  *       (e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter literally.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "str_to_map"}, parameter = "(String s1, String pairDelimiter, String keyValueDelimiter)", descriptions = {
                 "- Return \"\" if 'str' is NULL;",
-                "- Return a map after splitting the 'str' into key/value pairs using 'pairDelimiter'(default is ',') " +
-                        "and 'keyValueDelimiter'(default is '=');",
-                "Note: Both 'pairDelimiter' and 'keyValueDelimiter' are treated as regular expressions.So special " +
-                        "characters(e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter " +
-                        "literally."
-        }, examples = {
-                "str_to_map('key1=value1,key2=value2,key3=value3') = {key1=value1, key2=value2, key3=value3}",
-                "str_to_map(\"name->John!age->30!city->China\" , \"!\" , \"->\") = {name=John, age=30, city=China}"
-        })
+                "- Return a map after splitting the 'str' into key/value pairs using 'pairDelimiter'(default is ',') and 'keyValueDelimiter'(default is '=');",
+                "Note: Both 'pairDelimiter' and 'keyValueDelimiter' are treated as regular expressions.So special characters(e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter literally."}, examples = {
+                        "str_to_map('key1=value1,key2=value2,key3=value3') = {key1=value1, key2=value2, key3=value3}",
+                        "str_to_map(\"name->John!age->30!city->China\" , \"!\" , \"->\") = {name=John, age=30, city=China}"})
 public class StrToMapFunction implements ValueParser {
 
     private ValueParser inputParser;

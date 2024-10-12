@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.compression;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.function.compression.factory.UnCompressionAlgorithmFactory;
 import org.apache.inlong.sdk.transform.process.function.compression.handler.UncompressHandler;
@@ -43,16 +44,12 @@ import java.util.List;
  * Note: This function supports three compression algorithms: deflater, gzip, and zip. compress_type defaults to defer.
  */
 @Slf4j
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.COMPRESSION_TYPE, names = {
         "uncompress"}, parameter = "(String string_to_uncompress, String compress_type)", descriptions = {
-                "- Return \"\" if 'string_to_uncompress' is NULL;",
-                "- Return \"\" if 'string_to_uncompress' is \"\";",
+                "- Return \"\" if 'string_to_uncompress' is NULL;", "- Return \"\" if 'string_to_uncompress' is \"\";",
                 "- Return the result as a string.",
-                "Note: This function supports three compression algorithms: deflater, gzip and zip. " +
-                        "'compress_type' defaults to defer."
-        }, examples = {
-                "uncompress(compress('inlong')) = \"inlong\""
-        })
+                "Note: This function supports three compression algorithms: deflater, gzip and zip. 'compress_type' defaults to defer."}, examples = {
+                        "uncompress(compress('inlong')) = \"inlong\""})
 public class UnCompressFunction implements ValueParser {
 
     private final ValueParser stringParser;

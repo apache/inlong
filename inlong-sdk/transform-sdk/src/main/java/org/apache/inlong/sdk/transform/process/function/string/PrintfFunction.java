@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,12 +34,10 @@ import java.util.List;
  * description:
  * - Return a formatted string from printf-style format strings
  */
-@TransformFunction(names = {"printf"}, parameter = "(String strfmt [, Object obj, ...])", descriptions = {
-        "- Return a formatted string from printf-style format strings."
-}, examples = {
-        "printf(\"User %s has %d points and a balance of %.2f.\", \"Bob\", 1500, 99.99) = \"" +
-                "User Bob has 1500 points and a balance of 99.99.\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "printf"}, parameter = "(String strfmt [, Object obj, ...])", descriptions = {
+                "- Return a formatted string from printf-style format strings."}, examples = {
+                        "printf(\"User %s has %d points and a balance of %.2f.\", \"Bob\", 1500, 99.99) = \" User Bob has 1500 points and a balance of 99.99.\""})
 public class PrintfFunction implements ValueParser {
 
     private ValueParser strfmtParser;

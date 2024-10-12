@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,13 +34,9 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the absolute value of 'numeric'.
  */
-@TransformFunction(names = {"abs"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the absolute value of 'numeric'."
-}, examples = {
-        "abs(2) = 2",
-        "abs(-4.25) = 4.25"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "abs"}, parameter = "(Numeric numeric)", descriptions = {"- Return \"\" if 'numeric' is NULL;",
+                "- Return the absolute value of 'numeric'."}, examples = {"abs(2) = 2", "abs(-4.25) = 4.25"})
 public class AbsFunction implements ValueParser {
 
     private ValueParser numberParser;

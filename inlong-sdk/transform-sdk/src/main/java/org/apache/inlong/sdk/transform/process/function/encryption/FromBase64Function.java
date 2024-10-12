@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,12 +37,11 @@ import java.util.List;
  * - Return NULL if base64Str is NULL
  * - Return the base64-decoded result from string
  */
-@TransformFunction(names = {"from_base64"}, parameter = "(String base64Str)", descriptions = {
-        "- Return \"\" if 'base64Str' is NULL;",
-        "- Return the base64-decoded result from 'base64Str'."
-}, examples = {
-        "from_base64('QXBhY2hlIEluTG9uZw==') = \"Apache InLong\""
-})
+@TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
+        "from_base64"}, parameter = "(String base64Str)", descriptions = {
+                "- Return \"\" if 'base64Str' is NULL;",
+                "- Return the base64-decoded result from 'base64Str'."}, examples = {
+                        "from_base64('QXBhY2hlIEluTG9uZw==') = \"Apache InLong\""})
 public class FromBase64Function implements ValueParser {
 
     private final ValueParser stringParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,16 +36,11 @@ import java.nio.charset.StandardCharsets;
  *          escape pattern), or the encoding scheme is not supported;
  * - Return the result of translating 'str' into ‘application/x-www-form-urlencoded’ format using the UTF-8 encoding scheme.
  */
-@TransformFunction(names = {"url_encode"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL, or there is an issue with the decoding process(such as encountering an illegal "
-                +
-                "escape pattern), or the encoding scheme is not supported;",
-        "- Return the result of translating 'str' into 'application/x-www-form-urlencoded' format using the UTF-8 " +
-                "encoding scheme."
-}, examples = {
-        "url_encode('https://apache.inlong.com/search?q=java url encode') = " +
-                "\"https%3A%2F%2Fapache.inlong.com%2Fsearch%3Fq%3Djava+url+encode\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "url_encode"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is NULL, or there is an issue with the decoding process(such as encountering an illegal escape pattern), or the encoding scheme is not supported;",
+                "- Return the result of translating 'str' into 'application/x-www-form-urlencoded' format using the UTF-8 encoding scheme."}, examples = {
+                        "url_encode('https://apache.inlong.com/search?q=java url encode') = \"https%3A%2F%2Fapache.inlong.com%2Fsearch%3Fq%3Djava+url+encode\""})
 public class UrlEncodeFunction implements ValueParser {
 
     private final ValueParser stringParser;

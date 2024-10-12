@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,12 @@ import java.util.ArrayList;
  * - Return the position of the first occurrence of 'element' in the given 'array' as int;
  * - Return 0 if the given value could not be found in the 'array'.
  */
-@TransformFunction(names = {"array_position"}, parameter = "(Array array,Object element)", descriptions = {
-        "- Return \"\" if any parameter is null;",
-        "- Return the position of the first occurrence of 'element' in the given 'array' as int (starts from 1);",
-        "- Return 0 if the given value could not be found in the 'array'."
-}, examples = {
-        "array_position(array('he',7,'xxd'),'he') = 1",
-        "array_position(array('he',7,''),'_') = 0"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_position"}, parameter = "(Array array,Object element)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return the position of the first occurrence of 'element' in the given 'array' as int (starts from 1);",
+                "- Return 0 if the given value could not be found in the 'array'."}, examples = {
+                        "array_position(array('he',7,'xxd'),'he') = 1", "array_position(array('he',7,''),'_') = 0"})
 public class ArrayPositionFunction implements ValueParser {
 
     private final ValueParser arrayParser;

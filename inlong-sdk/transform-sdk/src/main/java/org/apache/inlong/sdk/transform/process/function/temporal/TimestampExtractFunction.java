@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -46,12 +47,11 @@ public abstract class TimestampExtractFunction implements ValueParser {
         HOUR, MINUTE, SECOND
     }
 
-    @TransformFunction(names = {"hour"}, parameter = "(String timestamp)", descriptions = {
-            "- Return \"\" if 'timestamp' is null;",
-            "- Return the hour of a day (an integer between 0 and 23) from SQL 'timestamp'."
-    }, examples = {
-            "hour(2024-08-12 12:23:34) = 12"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "hour"}, parameter = "(String timestamp)", descriptions = {
+                    "- Return \"\" if 'timestamp' is null;",
+                    "- Return the hour of a day (an integer between 0 and 23) from SQL 'timestamp'."}, examples = {
+                            "hour(2024-08-12 12:23:34) = 12"})
     public static class HourExtractFunction extends TimestampExtractFunction {
 
         public HourExtractFunction(Function expr) {
@@ -59,12 +59,11 @@ public abstract class TimestampExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"minute"}, parameter = "(String timestamp)", descriptions = {
-            "- Return \"\" if 'timestamp' is null;",
-            "- Return the minute of an hour (an integer between 0 and 59) from SQL 'timestamp'."
-    }, examples = {
-            "minute(2024-08-12 12:23:34) = 23"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "minute"}, parameter = "(String timestamp)", descriptions = {
+                    "- Return \"\" if 'timestamp' is null;",
+                    "- Return the minute of an hour (an integer between 0 and 59) from SQL 'timestamp'."}, examples = {
+                            "minute(2024-08-12 12:23:34) = 23"})
     public static class MinuteExtractFunction extends TimestampExtractFunction {
 
         public MinuteExtractFunction(Function expr) {
@@ -72,12 +71,11 @@ public abstract class TimestampExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"second"}, parameter = "(String timestamp)", descriptions = {
-            "- Return \"\" if 'timestamp' is null;",
-            "- Return the second of a minute (an integer between 0 and 59) from SQL 'timestamp'."
-    }, examples = {
-            "second(2024-08-12 12:23:34) = 34"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "second"}, parameter = "(String timestamp)", descriptions = {
+                    "- Return \"\" if 'timestamp' is null;",
+                    "- Return the second of a minute (an integer between 0 and 59) from SQL 'timestamp'."}, examples = {
+                            "second(2024-08-12 12:23:34) = 34"})
     public static class SecondExtractFunction extends TimestampExtractFunction {
 
         public SecondExtractFunction(Function expr) {

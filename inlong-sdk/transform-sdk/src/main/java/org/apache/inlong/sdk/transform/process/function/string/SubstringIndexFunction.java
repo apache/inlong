@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,16 +37,12 @@ import java.util.List;
  * - Return everything to the left of the last count occurrences of 'delim' (counting from the left), if 'count' is positive;
  * - Return everything to the right of the last count occurrences of 'delim' (counting from the right) if 'count' is negative.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "substring_index"}, parameter = "(String str, String delim, Integer count)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return everything to the left of the last count occurrences of 'delim' (counting from the " +
-                        "left), if 'count' is positive;",
-                "- Return everything to the right of the last count occurrences of 'delim' (counting from the " +
-                        "right) if 'count' is negative."
-        }, examples = {
-                "SUBSTRING_INDEX('AA. ',' ',1) = \"AA.\""
-        })
+                "- Return everything to the left of the last count occurrences of 'delim' (counting from the left), if 'count' is positive;",
+                "- Return everything to the right of the last count occurrences of 'delim' (counting from the right) if 'count' is negative."}, examples = {
+                        "SUBSTRING_INDEX('AA. ',' ',1) = \"AA.\""})
 public class SubstringIndexFunction implements ValueParser {
 
     private ValueParser stringParser;

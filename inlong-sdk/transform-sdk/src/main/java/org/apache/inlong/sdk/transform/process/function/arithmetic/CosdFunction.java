@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,10 @@ import java.math.BigDecimal;
  * - Return the cosine of 'numeric' in units of degrees.
  */
 @Slf4j
-@TransformFunction(names = {"cosd"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the cosine of 'numeric' in units of degrees."
-}, examples = {
-        "cosd(15) = 0.9659258262890683"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "cosd"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the cosine of 'numeric' in units of degrees."}, examples = {"cosd(15) = 0.9659258262890683"})
 public class CosdFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,11 @@ import java.util.List;
  * - Return -1 if the first argument is smaller than the second according to the current sort order
  * - Return 1 otherwise
  */
-@TransformFunction(names = {"strcmp"}, parameter = "(String s1, String s2)", descriptions = {
-        "- Return \"\" if either argument is NULL;",
-        "- Return 0 if the strings are the same;",
-        "- Return -1 if 's1' is smaller than 's2' according to the current sort order;",
-        "- Return 1 otherwise."
-}, examples = {
-        "strcmp('hello world','banana') = 1"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "strcmp"}, parameter = "(String s1, String s2)", descriptions = {
+                "- Return \"\" if either argument is NULL;", "- Return 0 if the strings are the same;",
+                "- Return -1 if 's1' is smaller than 's2' according to the current sort order;",
+                "- Return 1 otherwise."}, examples = {"strcmp('hello world','banana') = 1"})
 public class StrcmpFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

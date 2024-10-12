@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,14 +35,12 @@ import java.util.Map;
  * - Return the number of elements in array if the input is array.
  * - Return the number of entries in map if the input is map.
  */
-@TransformFunction(names = {"cardinality"}, parameter = "(Object input)", descriptions = {
-        "- Return \"\" if the input is NULL;",
-        "- Return the number of elements in array if the input is array;",
-        "- Return the number of entries in map if the input is map."
-}, examples = {
-        "cardinality(array('he',7,'xxd')) = 3",
-        "cardinality(map('he',7,'xxd',3)) = 2"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "cardinality"}, parameter = "(Object input)", descriptions = {
+                "- Return \"\" if the input is NULL;",
+                "- Return the number of elements in array if the input is array;",
+                "- Return the number of entries in map if the input is map."}, examples = {
+                        "cardinality(array('he',7,'xxd')) = 3", "cardinality(map('he',7,'xxd',3)) = 2"})
 public class CardinalityFunction implements ValueParser {
 
     private final ValueParser valueParser;

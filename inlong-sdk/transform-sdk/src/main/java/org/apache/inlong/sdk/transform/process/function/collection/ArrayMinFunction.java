@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -32,12 +33,10 @@ import java.util.ArrayList;
  * - Return NULL if 'array' is null;
  * - Return the maximum value from the 'array'.
  */
-@TransformFunction(names = {"array_min"}, parameter = "(Array array)", descriptions = {
-        "- Return \"\" if any parameter is null;",
-        "- Return the minimum value from the 'array'."
-}, examples = {
-        "array_min(array(4,3,56)) = 3"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_min"}, parameter = "(Array array)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return the minimum value from the 'array'."}, examples = {"array_min(array(4,3,56)) = 3"})
 public class ArrayMinFunction implements ValueParser {
 
     private final ValueParser arrayParser;

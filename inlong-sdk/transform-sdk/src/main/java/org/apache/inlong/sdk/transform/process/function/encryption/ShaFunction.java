@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -32,12 +33,11 @@ import org.apache.commons.codec.digest.DigestUtils;
  * - Return NULL if 'str' is NULL
  * - Return a string of 40 hexadecimal digits (the SHA-1 160 bit)
  */
-@TransformFunction(names = {"sha"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return a string of 40 hexadecimal digits (the SHA-1 160 bit)."
-}, examples = {
-        "sha(\"5\") = \"ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4\""
-})
+@TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
+        "sha"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return a string of 40 hexadecimal digits (the SHA-1 160 bit)."}, examples = {
+                        "sha(\"5\") = \"ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4\""})
 public class ShaFunction implements ValueParser {
 
     private final ValueParser msgParser;

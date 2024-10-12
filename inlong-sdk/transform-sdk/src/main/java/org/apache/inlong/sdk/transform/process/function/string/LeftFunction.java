@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,11 @@ import java.util.List;
  * - return "" if it is less than or equal to zero
  * - return a substring of length starting from the right side of the string.
  */
-@TransformFunction(names = {"left"}, parameter = "(String str, Integer len)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return \"\" if 'len' is less than or equal to zero;",
-        "- Return a substring of len starting from the right side of the 'str'."
-}, examples = {
-        "left('hello world',100) = \"hello world\"",
-        "left('hello world',-15) = \"\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "left"}, parameter = "(String str, Integer len)", descriptions = {
+                "- Return \"\" if any parameter is NULL;", "- Return \"\" if 'len' is less than or equal to zero;",
+                "- Return a substring of len starting from the right side of the 'str'."}, examples = {
+                        "left('hello world',100) = \"hello world\"", "left('hello world',-15) = \"\""})
 public class LeftFunction implements ValueParser {
 
     private final ValueParser stringParser;

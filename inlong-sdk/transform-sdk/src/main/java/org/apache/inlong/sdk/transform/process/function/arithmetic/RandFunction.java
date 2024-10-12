@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,12 +37,11 @@ import java.util.Random;
  * - Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL
  * - Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial seed of Integer
  */
-@TransformFunction(names = {"rand"}, parameter = "(Integer seed)", descriptions = {
-        "- Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL;",
-        "- Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial 'seed' of Integer."
-}, examples = {
-        "rand(1)", "rand()"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "rand"}, parameter = "(Integer seed)", descriptions = {
+                "- Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL;",
+                "- Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial 'seed' of Integer."}, examples = {
+                        "rand(1)", "rand()"})
 public class RandFunction implements ValueParser {
 
     private ValueParser seedParser;

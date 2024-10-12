@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,17 +38,12 @@ import java.util.List;
  * - Return the result string of padding string 's2' at the end of string 's1' to make the length of the string 'len'
  *          if 's2' is not ""
  */
-@TransformFunction(names = {"rpad"}, parameter = "(String str)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"rpad"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if any of the three parameters is NULL or 'len' is less than 0;",
-        "- Return the substring of 's1' with subscripts in the range of [0, 'len') if 'len' is less " +
-                "than or equal to the length of 's1';",
+        "- Return the substring of 's1' with subscripts in the range of [0, 'len') if 'len' is less than or equal to the length of 's1';",
         "- Return \"\" if 's2' is \"\" and 'len' is longer than the length of 's1';",
-        "- Return the result string of padding string 's2' at the end of string 's1' to make the length of the " +
-                "string 'len' if 's2' is not \"\"."
-}, examples = {
-        "rpad('he',1,'xxd') = \"h\"",
-        "rpad('he',7,'') = \"\""
-})
+        "- Return the result string of padding string 's2' at the end of string 's1' to make the length of the string 'len' if 's2' is not \"\"."}, examples = {
+                "rpad('he',1,'xxd') = \"h\"", "rpad('he',7,'') = \"\""})
 public class RpadFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

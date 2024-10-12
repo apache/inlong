@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,11 @@ import java.util.List;
  * - Return NULL if 'index' is NULL or out of range;
  * - Return the index-th('index' starts from 1) expression.
  */
-@TransformFunction(names = {"elt"}, parameter = "(Integer index, Expr expr1[, Expr expr2, ...])", descriptions = {
-        "- Return \"\" if 'index' is NULL or out of range;",
-        "- Return the index-th('index' starts from 1) expression."
-}, examples = {
-        "elt(2, 'a', 'b', 'c') = \"b\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "elt"}, parameter = "(Integer index, Expr expr1[, Expr expr2, ...])", descriptions = {
+                "- Return \"\" if 'index' is NULL or out of range;",
+                "- Return the index-th('index' starts from 1) expression."}, examples = {
+                        "elt(2, 'a', 'b', 'c') = \"b\""})
 public class EltFunction implements ValueParser {
 
     private ValueParser indexParser;

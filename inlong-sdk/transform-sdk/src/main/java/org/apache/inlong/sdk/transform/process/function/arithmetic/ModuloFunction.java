@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,11 @@ import java.util.List;
  * - Return NULL if any parameter is null
  * - Return the remainder of 'numeric1' divided by 'numeric2'
  */
-@TransformFunction(names = {"mod"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
-        "- Return \"\" if any parameter is null;",
-        "- Return the remainder of 'numeric1' divided by 'numeric2'."
-}, examples = {
-        "mod(3,2) = 1",
-        "mod(-3.1415926,100) = -3.1415926"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "mod"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return the remainder of 'numeric1' divided by 'numeric2'."}, examples = {"mod(3,2) = 1",
+                        "mod(-3.1415926,100) = -3.1415926"})
 public class ModuloFunction implements ValueParser {
 
     private ValueParser dividendParser;

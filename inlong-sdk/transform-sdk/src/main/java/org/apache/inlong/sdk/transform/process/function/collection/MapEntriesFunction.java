@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,13 +35,11 @@ import java.util.Map;
  * - Return NULL if mapStr is NULL
  * - Return an array of all entries in the given map
  */
-@TransformFunction(names = {"map_entries"}, parameter = "(Map map)", descriptions = {
-        "- Return \"\" if 'map' is NULL;",
-        "- Return an array of all entries in the given 'map'."
-}, examples = {
-        "map_entries(Map('he',1,'xxd','cloud')) = [he=1, xxd=cloud]",
-        "map_entries(Map(1,2,'cloud','xxd')) = [xxd=cloud, 1=2]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "map_entries"}, parameter = "(Map map)", descriptions = {
+                "- Return \"\" if 'map' is NULL;", "- Return an array of all entries in the given 'map'."}, examples = {
+                        "map_entries(Map('he',1,'xxd','cloud')) = [he=1, xxd=cloud]",
+                        "map_entries(Map(1,2,'cloud','xxd')) = [xxd=cloud, 1=2]"})
 public class MapEntriesFunction implements ValueParser {
 
     private final ValueParser mapParser;

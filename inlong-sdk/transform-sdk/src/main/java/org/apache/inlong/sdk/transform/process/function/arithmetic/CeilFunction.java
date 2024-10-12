@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,13 +34,12 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the smallest number that is greater than or equal to 'numeric'.
  */
-@TransformFunction(names = {"ceil"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return NULL if 'numeric' is NULL;",
-        "- Return the smallest number that is greater than or equal to 'numeric'.",
-}, examples = {
-        "ceil(-5.67) = -5.0",
-        "ceil(1.23) = 2.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "ceil"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return NULL if 'numeric' is NULL;",
+                "- Return the smallest number that is greater than or equal to 'numeric'.",}, examples = {
+                        "ceil(-5.67) = -5.0",
+                        "ceil(1.23) = 2.0"})
 public class CeilFunction implements ValueParser {
 
     private ValueParser numberParser;

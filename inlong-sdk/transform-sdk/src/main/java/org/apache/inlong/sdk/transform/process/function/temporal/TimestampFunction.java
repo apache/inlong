@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,14 +39,12 @@ import java.util.List;
  * - Return the date or datetime expression expr as a datetime value if there is only one parameter;
  * - Return the result of the date or date time expression 'datetime_expr1' plus the time expression 'datetime_expr2' if there are two parameters.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
         "timestamp"}, parameter = "(String unit, String datetime_expr1, String datetime_expr2)", descriptions = {
                 "- Return \"\" if 'datetime_expr1' or 'datetime_expr2' is NULL;",
                 "- Return the date or datetime expression expr as a datetime value if there is only one parameter;",
-                "- Return the result of the date or date time expression 'datetime_expr1' plus the time expression 'datetime_expr2' if there are two parameters."
-        }, examples = {
-                "timestamp('2003-12-31 12:00:00.600000','12:00:00') = \"2004-01-01 00:00:00.600000\""
-        })
+                "- Return the result of the date or date time expression 'datetime_expr1' plus the time expression 'datetime_expr2' if there are two parameters."}, examples = {
+                        "timestamp('2003-12-31 12:00:00.600000','12:00:00') = \"2004-01-01 00:00:00.600000\""})
 public class TimestampFunction implements ValueParser {
 
     private ValueParser dateTimeExprParser;

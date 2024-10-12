@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,12 +35,11 @@ import java.util.List;
  * - Return NULL if 'numeric' is NULL
  * - Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely
  */
-@TransformFunction(names = {"min_scale"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely."
-}, examples = {
-        "min_scale(3.1415000000000) = 4"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "min_scale"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely."}, examples = {
+                        "min_scale(3.1415000000000) = 4"})
 public class MinScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

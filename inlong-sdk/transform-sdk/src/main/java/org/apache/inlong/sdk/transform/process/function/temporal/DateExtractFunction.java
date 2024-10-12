@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -55,12 +56,10 @@ public abstract class DateExtractFunction implements ValueParser {
         YEAR, QUARTER, MONTH, WEEK, DAY_OF_YEAR, DAY_OF_MONTH, DAY_OF_WEEK, DAY_NAME
     }
 
-    @TransformFunction(names = {"year"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the year from SQL date."
-    }, examples = {
-            "year(2024-08-08) = 2024"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "year"}, parameter = "(String dateStr)", descriptions = {
+                    "- Return \"\" if 'dateStr' is null;",
+                    "- Return the year from SQL date."}, examples = {"year(2024-08-08) = 2024"})
     public static class YearExtractFunction extends DateExtractFunction {
 
         public YearExtractFunction(Function expr) {
@@ -68,12 +67,11 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"quarter"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the quarter of a year (an integer between 1 and 4) from 'dateStr'."
-    }, examples = {
-            "quarter(2024-08-08) = 3"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "quarter"}, parameter = "(String dateStr)", descriptions = {
+                    "- Return \"\" if 'dateStr' is null;",
+                    "- Return the quarter of a year (an integer between 1 and 4) from 'dateStr'."}, examples = {
+                            "quarter(2024-08-08) = 3"})
     public static class QuarterExtractFunction extends DateExtractFunction {
 
         public QuarterExtractFunction(Function expr) {
@@ -81,12 +79,11 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"month"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the month of a year (an integer between 1 and 12) from 'dateStr'."
-    }, examples = {
-            "month(2024-08-08) = 8"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "month"}, parameter = "(String dateStr)", descriptions = {
+                    "- Return \"\" if 'dateStr' is null;",
+                    "- Return the month of a year (an integer between 1 and 12) from 'dateStr'."}, examples = {
+                            "month(2024-08-08) = 8"})
     public static class MonthExtractFunction extends DateExtractFunction {
 
         public MonthExtractFunction(Function expr) {
@@ -94,12 +91,11 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"week"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the week of a year (an integer between 1 and 53) from 'dateStr'."
-    }, examples = {
-            "week(2024-02-29) = 9"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+            "week"}, parameter = "(String dateStr)", descriptions = {
+                    "- Return \"\" if 'dateStr' is null;",
+                    "- Return the week of a year (an integer between 1 and 53) from 'dateStr'."}, examples = {
+                            "week(2024-02-29) = 9"})
     public static class WeekExtractFunction extends DateExtractFunction {
 
         public WeekExtractFunction(Function expr) {
@@ -107,12 +103,10 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_year", "dayofyear"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the day of a year (an integer between 1 and 366) from 'dateStr'."
-    }, examples = {
-            "dayofyear(2024-02-29) = 60"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"day_of_year",
+            "dayofyear"}, parameter = "(String dateStr)", descriptions = {"- Return \"\" if 'dateStr' is null;",
+                    "- Return the day of a year (an integer between 1 and 366) from 'dateStr'."}, examples = {
+                            "dayofyear(2024-02-29) = 60"})
     public static class DayOfYearExtractFunction extends DateExtractFunction {
 
         public DayOfYearExtractFunction(Function expr) {
@@ -120,12 +114,10 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_month", "dayofmonth"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the day of a month (an integer between 1 and 31) from 'dateStr'."
-    }, examples = {
-            "dayofmonth(2024-02-29) = 29"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"day_of_month",
+            "dayofmonth"}, parameter = "(String dateStr)", descriptions = {"- Return \"\" if 'dateStr' is null;",
+                    "- Return the day of a month (an integer between 1 and 31) from 'dateStr'."}, examples = {
+                            "dayofmonth(2024-02-29) = 29"})
     public static class DayOfMonthExtractFunction extends DateExtractFunction {
 
         public DayOfMonthExtractFunction(Function expr) {
@@ -133,12 +125,10 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_of_week", "dayofweek"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the day of a week (an integer between 1(Sunday) and 7(Saturday)) from 'dateStr'."
-    }, examples = {
-            "dayofweek(2024-02-29) = 5"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"day_of_week",
+            "dayofweek"}, parameter = "(String dateStr)", descriptions = {"- Return \"\" if 'dateStr' is null;",
+                    "- Return the day of a week (an integer between 1(Sunday) and 7(Saturday)) from 'dateStr'."}, examples = {
+                            "dayofweek(2024-02-29) = 5"})
     public static class DayOfWeekExtractFunction extends DateExtractFunction {
 
         public DayOfWeekExtractFunction(Function expr) {
@@ -146,12 +136,10 @@ public abstract class DateExtractFunction implements ValueParser {
         }
     }
 
-    @TransformFunction(names = {"day_name", "dayname"}, parameter = "(String dateStr)", descriptions = {
-            "- Return \"\" if 'dateStr' is null;",
-            "- Return the name of the day of the week from 'dateStr'."
-    }, examples = {
-            "dayname(2024-02-29) = THURSDAY"
-    })
+    @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"day_name",
+            "dayname"}, parameter = "(String dateStr)", descriptions = {"- Return \"\" if 'dateStr' is null;",
+                    "- Return the name of the day of the week from 'dateStr'."}, examples = {
+                            "dayname(2024-02-29) = THURSDAY"})
     public static class DayNameExtractFunction extends DateExtractFunction {
 
         public DayNameExtractFunction(Function expr) {

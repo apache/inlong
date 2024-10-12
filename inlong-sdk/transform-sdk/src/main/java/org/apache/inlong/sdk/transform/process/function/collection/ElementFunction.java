@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,12 @@ import java.util.ArrayList;
  * Note: Throws an exception if array has more than one element.
  */
 @Slf4j
-@TransformFunction(names = {"element"}, parameter = "(Array array)", descriptions = {
-        "- Return \"\" if 'array' is empty or NULL;",
-        "- Return the sole element of 'array' (whose cardinality should be one).",
-        "Note: Throws an exception if array has more than one element."
-}, examples = {
-        "element(array('he')) = he"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "element"}, parameter = "(Array array)", descriptions = {
+                "- Return \"\" if 'array' is empty or NULL;",
+                "- Return the sole element of 'array' (whose cardinality should be one).",
+                "Note: Throws an exception if array has more than one element."}, examples = {
+                        "element(array('he')) = he"})
 public class ElementFunction implements ValueParser {
 
     private final ValueParser valueParser;

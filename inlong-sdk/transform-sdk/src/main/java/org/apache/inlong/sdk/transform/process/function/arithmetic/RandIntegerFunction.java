@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,13 +37,12 @@ import java.util.Random;
  * - Return a pseudorandom integer value in the range [0, 'INT1') with an initial seed 'INT2'
  * Note: Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound.
  */
-@TransformFunction(names = {"rand_integer"}, parameter = "(Integer INT1, [Integer INT2])", descriptions = {
-        "- Return a pseudorandom integer value in the range [0, 'INT1') if 'INT2' is NULL;",
-        "- Return a pseudorandom integer value in the range [0, 'INT1') with an initial seed 'INT2'.",
-        "Note: Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound."
-}, examples = {
-        "rand_integer(10)", "rand_integer(88, 89)"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "rand_integer"}, parameter = "(Integer INT1, [Integer INT2])", descriptions = {
+                "- Return a pseudorandom integer value in the range [0, 'INT1') if 'INT2' is NULL;",
+                "- Return a pseudorandom integer value in the range [0, 'INT1') with an initial seed 'INT2'.",
+                "Note: Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound."}, examples = {
+                        "rand_integer(10)", "rand_integer(88, 89)"})
 public class RandIntegerFunction implements ValueParser {
 
     private ValueParser firstIntParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,12 @@ import java.util.List;
  * - Return NULL if the index is out of bounds of the split strings
  * - Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'
  */
-@TransformFunction(names = {"split_index",
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"split_index",
         "splitindex"}, parameter = "(String str, String delimiter, Integer index)", descriptions = {
                 "- Return \"\" if the index is negative or any of the arguments is NULL;",
                 "- Return \"\" NULL if the index is out of bounds of the split strings;",
-                "- Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'."
-        }, examples = {
-                "split_index('a,b,c', ',', 1) = \"b\""
-        })
+                "- Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'."}, examples = {
+                        "split_index('a,b,c', ',', 1) = \"b\""})
 public class SplitIndexFunction implements ValueParser {
 
     private final ValueParser strParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,13 +35,10 @@ import java.util.List;
  * - Return NULL if the string is NULL
  * - Return the character length of the string
  */
-@TransformFunction(names = {"char_length"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return the character length of 'str'."
-}, examples = {
-        "char_length('hello world') = 11",
-        "case2: char_length('应龙') = 2"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "char_length"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is NULL;", "- Return the character length of 'str'."}, examples = {
+                        "char_length('hello world') = 11", "case2: char_length('应龙') = 2"})
 public class CharLengthFunction implements ValueParser {
 
     private final ValueParser stringParser;
