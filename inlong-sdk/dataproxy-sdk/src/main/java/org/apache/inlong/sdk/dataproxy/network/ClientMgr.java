@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
@@ -316,6 +317,46 @@ public class ClientMgr {
         return bSuccess;
     }
 
+    /**
+     * create conn, as DataConn or HBConn
+     *
+     * @param host
+     * @return
+     */
+    private void initConnection(HostInfo host, NettyClient client) {
+        if (clientMapData.size() < aliveConnections) {
+            // create data channel
+            clientMapData.put(host, client);
+            clientList.add(client);
+            clientMap.put(host, client);
+            logger.info("build a connection success! {},channel {}", host.getHostName(), client.getChannel());
+            logger.info("client map size {},client list size {}", clientMapData.size(), clientList.size());
+        } else {
+            // data channel list is enough, create hb channel
+            clientMapHB.put(host, client);
+            clientMap.put(host, client);
+            logger.info("build a HBconnection success! {},channel {}", host.getHostName(), client.getChannel());
+        }
+    }
+
+    /**
+     * create conn list, as DataConn or HBConn
+     *
+     * @param host
+     * @return
+     */
+    private Map<HostInfo, NettyClient> initConnectionList(List<HostInfo> host) {
+        Map<HostInfo, NettyClient> hostInfoNettyClientMap = new HashMap<>();
+        for (HostInfo hostInfo : host) {
+            NettyClient client = new NettyClient(bootstrap, hostInfo.getHostName(),
+                    hostInfo.getPortNumber(), configure);
+            if (client.connect()) {
+                hostInfoNettyClientMap.put(hostInfo, client);
+            }
+        }
+        return hostInfoNettyClientMap;
+    }
+
     public void resetClient(Channel channel) {
         if (channel == null) {
             return;
@@ -523,10 +564,84 @@ public class ClientMgr {
     }
 
     private void updateAllConnection(List<HostInfo> hostInfos) {
-        closeAllConnection();
-        /* Build new channels */
-        for (HostInfo hostInfo : hostInfos) {
-            initConnection(hostInfo);
+
+        List<HostInfo> unHealthyHostList = findUnHealthyHostList(hostInfos);
+        List<HostInfo> newlyAddList = findNewlyAddList(hostInfos);
+        Map<HostInfo, NettyClient> hostInfoNettyClientMap = initConnectionList(newlyAddList);
+        logger.info("unhealthyHostList = {},newlyAddList = {}", unHealthyHostList, newlyAddList);
+        try {
+            writeLock();
+            replaceUnHealthyHostList(unHealthyHostList, hostInfoNettyClientMap);
+        } catch (Exception e) {
+            logger.error("update  Connection error", e);
+        } finally {
+            writeUnlock();
+        }
+
+    }
+
+    private List<HostInfo> findUnHealthyHostList(List<HostInfo> hostInfos) {
+        List<HostInfo> unHealthyHostList = new ArrayList<>();
+        if (!clientMap.isEmpty()) {
+            for (HostInfo hostInfo : clientMap.keySet()) {
+                if (hostInfo == null) {
+                    continue;
+                }
+                Optional<HostInfo> optionalHostInfo =
+                        hostInfos.stream().filter(hostInfo1 -> hostInfo1.equals(hostInfo))
+                                .findFirst();
+                NettyClient client = clientMap.get(hostInfo);
+                if (optionalHostInfo.isPresent() && client.isActive()) {
+                    continue;
+                }
+                unHealthyHostList.add(hostInfo);
+            }
+        }
+        return unHealthyHostList;
+    }
+
+    private List<HostInfo> findNewlyAddList(List<HostInfo> hostInfos) {
+        List<HostInfo> newlyAddList = new ArrayList<>();
+        if (!clientMap.isEmpty()) {
+            for (HostInfo hostInfo : hostInfos) {
+                if (hostInfo == null) {
+                    continue;
+                }
+                Optional<HostInfo> optionalHostInfo =
+                        clientMap.keySet().stream().filter(hostInfo1 -> hostInfo1.equals(hostInfo))
+                                .findFirst();
+                if (optionalHostInfo.isPresent()) {
+                    continue;
+                }
+                newlyAddList.add(hostInfo);
+            }
+        }
+        return newlyAddList;
+    }
+
+    private void replaceUnHealthyHostList(List<HostInfo> unHealthyHostList,
+            Map<HostInfo, NettyClient> hostInfoNettyClientMap) {
+        int index = 0;
+        List<HostInfo> hostInfos = new ArrayList<>(hostInfoNettyClientMap.keySet());
+        for (HostInfo unHealthyHost : unHealthyHostList) {
+            NettyClient client = clientMap.get(unHealthyHost);
+            logger.info("ready to close not in new HostInfo connections!");
+            if (client != null && client.isActive()) {
+                sender.waitForAckForChannel(client.getChannel());
+                sender.clearCallBackByChannel(client.getChannel());
+                boolean close = client.close();
+                clientList.remove(client);
+                logger.info("close connections! = {} for host = {}", close, unHealthyHost);
+            }
+            clientMap.remove(unHealthyHost);
+            clientMapData.remove(unHealthyHost);
+            clientMapHB.remove(unHealthyHost);
+            channelLoadMapData.remove(unHealthyHost);
+            channelLoadMapHB.remove(unHealthyHost);
+            if (index < hostInfos.size()) {
+                HostInfo hostInfo = hostInfos.get(index++);
+                initConnection(hostInfo, hostInfoNettyClientMap.get(hostInfo));
+            }
         }
     }
 
