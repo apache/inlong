@@ -317,6 +317,46 @@ public class ClientMgr {
         return bSuccess;
     }
 
+    /**
+     * create conn, as DataConn or HBConn
+     *
+     * @param host
+     * @return
+     */
+    private void initConnection(HostInfo host, NettyClient client) {
+        if (clientMapData.size() < aliveConnections) {
+            // create data channel
+            clientMapData.put(host, client);
+            clientList.add(client);
+            clientMap.put(host, client);
+            logger.info("build a connection success! {},channel {}", host.getHostName(), client.getChannel());
+            logger.info("client map size {},client list size {}", clientMapData.size(), clientList.size());
+        } else {
+            // data channel list is enough, create hb channel
+            clientMapHB.put(host, client);
+            clientMap.put(host, client);
+            logger.info("build a HBconnection success! {},channel {}", host.getHostName(), client.getChannel());
+        }
+    }
+
+    /**
+     * create conn list, as DataConn or HBConn
+     *
+     * @param host
+     * @return
+     */
+    private Map<HostInfo, NettyClient> initConnectionList(List<HostInfo> host) {
+        Map<HostInfo, NettyClient> hostInfoNettyClientMap = new HashMap<>();
+        for (HostInfo hostInfo : host) {
+            NettyClient client = new NettyClient(bootstrap, hostInfo.getHostName(),
+                    hostInfo.getPortNumber(), configure);
+            if (client.connect()) {
+                hostInfoNettyClientMap.put(hostInfo, client);
+            }
+        }
+        return hostInfoNettyClientMap;
+    }
+
     public void resetClient(Channel channel) {
         if (channel == null) {
             return;
@@ -525,13 +565,13 @@ public class ClientMgr {
 
     private void updateAllConnection(List<HostInfo> hostInfos) {
 
+        List<HostInfo> unHealthyHostList = findUnHealthyHostList(hostInfos);
+        List<HostInfo> newlyAddList = findNewlyAddList(hostInfos);
+        Map<HostInfo, NettyClient> hostInfoNettyClientMap = initConnectionList(newlyAddList);
+        logger.info("unhealthyHostList = {},newlyAddList = {}", unHealthyHostList, newlyAddList);
         try {
             writeLock();
-            List<HostInfo> unHealthyHostList = findUnHealthyHostList(hostInfos);
-            List<HostInfo> newlyAddList = findNewlyAddList(hostInfos);
-            logger.info("unhealthyHostList = {},newlyAddList = {}", unHealthyHostList, newlyAddList);
-            updateAndInitConnection(newlyAddList, unHealthyHostList.size());
-            removeUnHealthyHostList(unHealthyHostList);
+            replaceUnHealthyHostList(unHealthyHostList, hostInfoNettyClientMap);
         } catch (Exception e) {
             logger.error("update  Connection error", e);
         } finally {
@@ -579,7 +619,10 @@ public class ClientMgr {
         return newlyAddList;
     }
 
-    private void removeUnHealthyHostList(List<HostInfo> unHealthyHostList) {
+    private void replaceUnHealthyHostList(List<HostInfo> unHealthyHostList,
+            Map<HostInfo, NettyClient> hostInfoNettyClientMap) {
+        int index = 0;
+        List<HostInfo> hostInfos = new ArrayList<>(hostInfoNettyClientMap.keySet());
         for (HostInfo unHealthyHost : unHealthyHostList) {
             NettyClient client = clientMap.get(unHealthyHost);
             logger.info("ready to close not in new HostInfo connections!");
@@ -595,23 +638,9 @@ public class ClientMgr {
             clientMapHB.remove(unHealthyHost);
             channelLoadMapData.remove(unHealthyHost);
             channelLoadMapHB.remove(unHealthyHost);
-        }
-    }
-
-    private void updateAndInitConnection(List<HostInfo> hostInfos, int unHealthySize) {
-        int needSize = realSize - (clientMap.size() - unHealthySize);
-        if (needSize > 0) {
-            /* Build new channels */
-            for (HostInfo hostInfo : hostInfos) {
-                NettyClient nettyClient = clientMap.get(hostInfo);
-                if (nettyClient != null && nettyClient.isActive()) {
-                    logger.info("this client {} has open!", hostInfo.getHostName());
-                } else {
-                    initConnection(hostInfo);
-                    if (--needSize == 0) {
-                        break;
-                    }
-                }
+            if (index < hostInfos.size()) {
+                HostInfo hostInfo = hostInfos.get(index++);
+                initConnection(hostInfo, hostInfoNettyClientMap.get(hostInfo));
             }
         }
     }
