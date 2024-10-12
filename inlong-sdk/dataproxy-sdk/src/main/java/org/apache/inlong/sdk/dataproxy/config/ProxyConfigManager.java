@@ -632,7 +632,6 @@ public class ProxyConfigManager extends Thread {
         if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
             isSwitch = proxyCluster.getIsSwitch();
         }
-
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
         proxyEntry.setClusterId(clusterId);
         proxyEntry.setGroupId(clientConfig.getInlongGroupId());
@@ -641,6 +640,8 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
         proxyEntry.setSize(nodeList.size());
+        proxyEntry.setMaxPacketLength(
+                proxyCluster.getMaxPacketLength() != null ? proxyCluster.getMaxPacketLength() : -1);
         return proxyEntry;
     }
 
