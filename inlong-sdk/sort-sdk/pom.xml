@@ -23,10 +23,10 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>1.14.0-SNAPSHOT</version>
+        <version>2.0.0</version>
     </parent>
     <artifactId>sort-sdk</artifactId>
-    <version>1.14.0-SNAPSHOT</version>
+    <version>2.0.0</version>
 
     <name>Apache InLong - Sort SDK</name>
 
