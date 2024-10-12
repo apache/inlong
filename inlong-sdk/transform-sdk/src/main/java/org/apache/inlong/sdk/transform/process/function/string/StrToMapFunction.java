@@ -30,14 +30,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 /**
- * StrToMapFunction
- * description: str_to_map(string1, string2, string3) - Returns a map after splitting the string1 into key/value pairs
- *              using delimiters. string2 is the pair delimiter, default is ‘,’. And string3 is the key-value delimiter,
- *              default is ‘=’. Both pair delimiter and key-value delimiter are treated as regular expressions.So special
- *              characters (e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter literally.
- * for example: STR_TO_MAP('item1:10,item2:5,item3:2', ':', ',')--{'item1' -> 10, 'item2' -> 5, 'item3' -> 2}
+ * StrToMapFunction  ->  str_to_map(str, pairDelimiter, keyValueDelimiter)
+ * description:
+ * - Return NULL if 'str' is NULL
+ * - Return a map after splitting the 'str' into key/value pairs using 'pairDelimiter'(default is ',')
+ *          and 'keyValueDelimiter'(default is '=')
+ * Note: Both 'pairDelimiter' and 'keyValueDelimiter' are treated as regular expressions.So special characters
+ *       (e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter literally.
  */
-@TransformFunction(names = {"str_to_map"})
+@TransformFunction(names = {
+        "str_to_map"}, parameter = "(String s1, String pairDelimiter, String keyValueDelimiter)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return a map after splitting the 'str' into key/value pairs using 'pairDelimiter'(default is ',') " +
+                        "and 'keyValueDelimiter'(default is '=');",
+                "Note: Both 'pairDelimiter' and 'keyValueDelimiter' are treated as regular expressions.So special " +
+                        "characters(e.g. <([{^-=$!|]})?*+.>) need to be properly escaped before using as a delimiter " +
+                        "literally."
+        }, examples = {
+                "str_to_map('key1=value1,key2=value2,key3=value3') = {key1=value1, key2=value2, key3=value3}",
+                "str_to_map(\"name->John!age->30!city->China\" , \"!\" , \"->\") = {name=John, age=30, city=China}"
+        })
 public class StrToMapFunction implements ValueParser {
 
     private ValueParser inputParser;

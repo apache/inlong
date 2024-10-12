@@ -33,12 +33,18 @@ import java.util.List;
 /**
  * GcdFunction -> gcd(numeric_type,numeric_type)
  * description:
- * - return 0 if both inputs are zero;
- * - return greatest common divisor (the largest positive number that divides both inputs with no remainder).
- * Note: numeric_type includes floating-point number and integer
+ * - Return NULL if any parameter is null
+ * - Return 0 if both inputs are zero
+ * - Return greatest common divisor (the largest positive number that divides both inputs with no remainder).
  */
 @Slf4j
-@TransformFunction(names = {"gcd"})
+@TransformFunction(names = {"gcd"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return 0 if both inputs are zero;",
+        "- Return greatest common divisor (the largest positive number that divides both inputs with no remainder).",
+}, examples = {
+        "gcd(3.141,3.846) = 0.003"
+})
 public class GcdFunction implements ValueParser {
 
     private final ValueParser firstNumParser;

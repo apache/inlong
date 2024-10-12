@@ -31,17 +31,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpExtractFunction
- * description: REGEXP_EXTRACT(string1, string2[, integer])--Returns a string from string1 which extracted with a specified
- *              regular expression string2 and a regexp match group index integer.The regexp match group index starts
- *              from 1 and 0 means matching the whole regexp. In addition, the regexp match group index should not exceed
- *              the number of the defined groups.
- * for example: REGEXP_EXTRACT("abc123def", "(\\d+)", 1)--return 123
- *              REGEXP_EXTRACT("Name: John, Age: 25, Location: NY", "Name: (\\w+), Age: (\\d+), Location: (\\w+)", 2)--return 25
- *              REGEXP_EXTRACT("abc123def", "(\\d+)", 2)--return null
- *              REGEXP_EXTRACT("abc123def", "abcdef", 1)--return null
+ * RegexpExtractFunction  ->  REGEXP_EXTRACT(str, regexp [, extractIndex])
+ * description:
+ * - Return NULL if any of the arguments are NULL or invalid
+ * - Return a string from 'str' which extracted with a specified regexp expression 'regexp' and a regexp match group
+ * index 'extractIndex'.
+ * Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to extract and starts
+ * from 1, also the default value if not specified. 0 means matching the entire 'regexp' expression.In addition,
+ * the regexp match group index should not exceed the number of the defined groups
  */
-@TransformFunction(names = {"regexp_extract"})
+@TransformFunction(names = {
+        "regexp_extract"}, parameter = "(String str, String regexp, [Integer extractIndex])", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or invalid;",
+                "- Return a string from 'str' which extracted with a specified regexp expression 'regexp' and a regexp "
+                        +
+                        "match group index 'extractIndex'.",
+                "Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to " +
+                        "extract and starts from 1, also the default value if not specified. 0 means matching the " +
+                        "entire 'regexp' expression. In addition, the regexp match group index should not exceed " +
+                        "the number of the defined groups."
+        }, examples = {
+                "REGEXP_EXTRACT(\"abc123def\", \"(\\\\d+)\", 1) = 123",
+                "REGEXP_EXTRACT(\"Name: John, Age: 25, Location: NY\", \"Name: (\\\\w+), Age: (\\\\d+), Location: (\\\\w+)\", 2) = 25",
+                "REGEXP_EXTRACT(\"abc123def\", \"(\\\\d+)\", 2) = null",
+                "REGEXP_EXTRACT(\"abc123def\", \"abcdef\", 1) = null"
+        })
 public class RegexpExtractFunction implements ValueParser {
 
     private ValueParser inputStringParser;

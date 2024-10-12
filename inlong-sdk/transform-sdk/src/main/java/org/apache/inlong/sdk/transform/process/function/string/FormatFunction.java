@@ -39,7 +39,13 @@ import java.util.Locale;
  * return NULL if X or D is NULL.
  * return the result of formatting the number X to "#,###,###.##" format, rounded to D decimal places.
  */
-@TransformFunction(names = {"format"})
+@TransformFunction(names = {"format"}, parameter = "(Numeric X,Integer D)", descriptions = {
+        "- Return \"\" if 'X' or 'D' is NULL;",
+        "- Return the result of formatting the number 'X' to \"#,###,###.##\" format, rounded to 'D' decimal places."
+}, examples = {
+        "FORMAT(12332.123456, 4) = \"12,332.1235\"",
+        "FORMAT(12332.2,0) = \"12,332\""
+})
 public class FormatFunction implements ValueParser {
 
     private ValueParser numberParser;

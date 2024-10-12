@@ -26,12 +26,18 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * IsDigitFunction
- * description: is_digit(string)
+ * IsDigitFunction  ->  is_digit(string)
+ * description:
  * - return true if all characters in string are digit.
  * - return false otherwise (Including cases where string is null and '').
  */
-@TransformFunction(names = {"is_digit"})
+@TransformFunction(names = {"is_digit"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" If 'str' is NULL;",
+        "- Return true if all characters in 'str' are digit;",
+        "- Return false otherwise (Including cases where 'str' is null and '')."
+}, examples = {
+        "is_digit('3.5') = false"
+})
 public class IsDigitFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -30,13 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * EltFunction -> elt(index, expr[, exprs]*)
+ * EltFunction  ->  elt(index, expr1[, expr2, ...])
  * description:
- * - Returns the index-th expression.
- * - index must be an integer between 1 and the number of expressions.
- * - Returns NULL if index is NULL or out of range.
+ * - Return NULL if 'index' is NULL or out of range;
+ * - Return the index-th('index' starts from 1) expression.
  */
-@TransformFunction(names = {"elt"})
+@TransformFunction(names = {"elt"}, parameter = "(Integer index, Expr expr1[, Expr expr2, ...])", descriptions = {
+        "- Return \"\" if 'index' is NULL or out of range;",
+        "- Return the index-th('index' starts from 1) expression."
+}, examples = {
+        "elt(2, 'a', 'b', 'c') = \"b\""
+})
 public class EltFunction implements ValueParser {
 
     private ValueParser indexParser;

@@ -28,10 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * Atan2Function
- * description: atan2(numeric)--returns the arc tangent of a coordinate (numeric1, numeric2).
+ * Atan2Function  ->  atan2(numericx,numericy)
+ * description:
+ * - Return NULL if 'numericx' or 'numericy' is NULL;
+ * - Return the arc tangent of a coordinate ('numericx', 'numericy').
  */
-@TransformFunction(names = {"atan2"})
+@TransformFunction(names = {"atan2"}, parameter = "(Numeric numeric)", descriptions = {
+        "Return \"\" if 'numericx' or 'numericy' is NULL;",
+        "Return the arc tangent of a coordinate ('numericx', 'numericy')."
+}, examples = {
+        "atan2(1, 1) = 0.7853981633974483",
+        "atan2(1, 0) = 1.5707963267948966",
+        "atan2(0, -1) = 3.141592653589793"
+})
 public class Atan2Function implements ValueParser {
 
     private ValueParser xParser;
@@ -47,8 +56,8 @@ public class Atan2Function implements ValueParser {
         Object xObj = xParser.parse(sourceData, rowIndex, context);
         Object yObj = yParser.parse(sourceData, rowIndex, context);
 
-        if (xObj == null) {
-            throw new NullPointerException("Parsed number object on the x-axis is null");
+        if (xObj == null || yObj == null) {
+            return null;
         }
 
         BigDecimal xValue = OperatorTools.parseBigDecimal(xObj);

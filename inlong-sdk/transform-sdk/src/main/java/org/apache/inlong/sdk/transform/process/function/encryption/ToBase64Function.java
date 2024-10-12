@@ -29,10 +29,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * ToBase64Function
- * description: to_base64(string1)--returns the base64-encoded result from string1
+ * ToBase64Function  ->  to_base64(str)
+ * description:
+ * - Return NULL if 'str' is NULL;
+ * - Return the base64-encoded result from 'str'.
  */
-@TransformFunction(names = {"to_base64"})
+@TransformFunction(names = {"to_base64"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the base64-encoded result from 'str'."
+}, examples = {
+        "to_base64('app-fun') = \"YXBwLWZ1bg==\""
+})
 public class ToBase64Function implements ValueParser {
 
     private final ValueParser stringParser;
@@ -44,6 +51,9 @@ public class ToBase64Function implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null) {
+            return null;
+        }
         String string = OperatorTools.parseString(stringObj);
         return Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8));
     }

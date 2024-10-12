@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * ExpFunction
- * description: exp(numeric)--returns e raised to the power of numeric
+ * ExpFunction  ->  exp(numeric)
+ * Description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return e raised to the power of 'numeric'.
  */
-@TransformFunction(names = {"exp"})
+@TransformFunction(names = {"exp"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return e raised to the power of 'numeric'."
+}, examples = {
+        "exp(2) = 7.38905609893065"
+})
 public class ExpFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public ExpFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.exp(numberValue.doubleValue());
     }

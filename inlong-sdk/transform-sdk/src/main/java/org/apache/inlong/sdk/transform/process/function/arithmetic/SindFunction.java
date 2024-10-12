@@ -28,10 +28,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SindFunction
- * description: sind(numeric)--returns the sine of numeric in units of degrees
+ * SindFunction  ->  sind(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the sine of 'numeric' in units of degrees
  */
-@TransformFunction(names = {"sind"})
+@TransformFunction(names = {"sind"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the sine of 'numeric' in units of degrees."
+}, examples = {
+        "sind(15) = 0.25881904510252074"
+})
 public class SindFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +50,9 @@ public class SindFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.sin(Math.toRadians(numberValue.doubleValue()));
     }

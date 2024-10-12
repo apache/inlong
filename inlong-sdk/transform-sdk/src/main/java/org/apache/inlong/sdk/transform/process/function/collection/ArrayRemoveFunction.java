@@ -28,13 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * ArrayRemoveFunction
- * description: ARRAY_REMOVE(haystack, needle)--Removes all elements that equal to element from array. If the array
- *              itself is null, the function will return null. Keeps ordering of elements.
- * for example: array_remove(array('he',7,'xxd'),'he')--return [7, xxd]
+ * ArrayRemoveFunction  ->  ARRAY_REMOVE(array, element)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return the result of removing all elements that equal to 'element' from 'array'.
  */
-@TransformFunction(names = {"array_remove"})
+@TransformFunction(names = {"array_remove"}, parameter = "(Array array,Object element)", descriptions = {
+        "- Return \"\" if 'array' is null;",
+        "- Return the result of removing all elements that equal to 'element' from 'array'."
+}, examples = {
+        "array_remove(array('he',7,'xxd'),'he') = [7, xxd]"
+})
 public class ArrayRemoveFunction implements ValueParser {
 
     private final ValueParser arrayParser;

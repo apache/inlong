@@ -30,11 +30,19 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import java.util.List;
 
 /**
- * SubstringFunction -> substring(string FROM INT1 [ FOR INT2 ])
+ * SubstringFunction  ->  substring(str FROM pos [ FOR len ]) or substring(str,pos,len)
  * description:
- * return a substring of STRING starting from position INT1 with length INT2 (to the end by default)
+ * - Return NULL if 'str' is NULL
+ * - Return a substring of 'str' starting from position 'pos' with length 'len' (to the end by default)
  */
-@TransformFunction(names = {"substring", "substr", "mid"})
+@TransformFunction(names = {"substring", "substr",
+        "mid"}, parameter = "(String s1, Integer pos, Integer len)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return a substring of 'str' starting from position 'pos' with length 'len' (to the end by default).",
+                "Note: This function also supports \"substring(str FROM pos [ FOR len ])\"."
+        }, examples = {
+                "substring('apple', 1, 3) = \"app\""
+        })
 public class SubstringFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -60,6 +68,9 @@ public class SubstringFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         Object startPositionObj = startPositionParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null || startPositionObj == null) {
+            return null;
+        }
         String str = OperatorTools.parseString(stringObj);
         int start = OperatorTools.parseBigDecimal(startPositionObj).intValue();
         if (start > str.length()) {

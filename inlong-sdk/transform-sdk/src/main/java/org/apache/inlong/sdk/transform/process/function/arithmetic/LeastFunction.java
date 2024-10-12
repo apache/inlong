@@ -29,12 +29,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * LeastFunction
- * description: LEAST(value1[, value2]*)--Returns the least value of the list of arguments.
- *              Returns NULL if any argument is NULL.
+ * LeastFunction  ->  LEAST(value1[, value2, ...])
+ * description:
+ * Return NULL if any argument is NULL.
+ * Return the least value of the list of arguments.
  */
-@TransformFunction(names = {"least"})
+@TransformFunction(names = {"least"}, parameter = "(Numeric value1 [, Numeric value2, ...])", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the least value of the list of arguments."
+}, examples = {
+        "least(3.14, least(7, 2, 1)) = 1"
+})
 public class LeastFunction implements ValueParser {
 
     private List<ValueParser> parserList;

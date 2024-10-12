@@ -26,10 +26,17 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * UpperFunction
- * description: UPPER(s): Convert a string to uppercase
+ * UpperFunction  -> UPPER(s)
+ * description:
+ * - Return NULL if 's' is NULL;
+ * - Return the result of converting 's' to uppercase
  */
-@TransformFunction(names = {"upper", "ucase"})
+@TransformFunction(names = {"upper", "ucase"}, parameter = "(String s)", descriptions = {
+        "- Return \"\" if 's' is NULL;",
+        "- Return the result of converting 's' to uppercase"
+}, examples = {
+        "upper(\"ApPlE\") = \"APPLE\""
+})
 public class UpperFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -41,8 +48,9 @@ public class UpperFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
-        if (stringObj == null)
+        if (stringObj == null) {
             return null;
+        }
         return stringObj.toString().toUpperCase();
     }
 }

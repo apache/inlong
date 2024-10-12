@@ -29,24 +29,27 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * LocateFunction
- * description: locate(string1, string2[, integer])
- * - returns the position of the first occurrence of string1 in string2 after position integer
- * - returns 0 if not found
- * - returns NULL if any of arguments is NULL
+ * LocateFunction  ->  locate(string1, string2[, integer])
+ * description:
+ * - Return NULL if any of arguments is NULL
+ * - Return 0 if not found
+ * - Return the position of the first occurrence of string1 in string2 after position integer
  */
-@TransformFunction(names = {"locate", "instr"})
+@TransformFunction(names = {"locate",
+        "instr"}, parameter = "(String str1, String str2, Integer pos)", descriptions = {
+                "- Return \"\" if any of arguments is NULL'",
+                "- Return 0 if not found'",
+                "- Return the position of the first occurrence of 'str1' in 'str2' after position 'pos'."
+        }, examples = {
+                "locate('app', 'apple') = 1",
+                "locate('app', 'appapp', 2) = 4"
+        })
 public class LocateFunction implements ValueParser {
 
     private ValueParser stringParser1;
     private ValueParser stringParser2;
     private ValueParser startPositionParser;
 
-    /**
-     * Constructor
-     *
-     * @param expr
-     */
     public LocateFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         // Determine the number of arguments and build parser
@@ -57,13 +60,6 @@ public class LocateFunction implements ValueParser {
         }
     }
 
-    /**
-     * parse
-     *
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj1 = stringParser1.parse(sourceData, rowIndex, context);

@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * LnFunction
- * description: ln(numeric)--returns the natural logarithm (base e) of numeric
+ * LnFunction  ->  ln(numeric)
+ * description:
+ * - Return NULL if numeric is NULL
+ * - Return the natural logarithm (base e) of numeric
  */
-@TransformFunction(names = {"ln"})
+@TransformFunction(names = {"ln"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if numeric is NULL;",
+        "- Return the natural logarithm (base e) of numeric."
+}, examples = {
+        "ln(10) = 2.302585092994046"
+})
 public class LnFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public LnFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.log(numberValue.doubleValue());
     }

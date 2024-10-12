@@ -31,12 +31,19 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
- * HexFunction
+ * HexFunction  ->  hex(dataStr)
  * description:
- * - If the input argument is a numeric value (such as an integer), the HEX function converts the value to the corresponding hexadecimal string.
- * - If the input argument is a string, the HEX function converts each character in the string to its corresponding hexadecimal ASCII encoding and returns the hexadecimal representation of the entire string.
+ * - Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric
+ * - Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise
  */
-@TransformFunction(names = {"hex"})
+@TransformFunction(names = {"hex"}, parameter = "(String dataStr)", descriptions = {
+        "- Return \"\" if dataStr is NULL;",
+        "- Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric;",
+        "- Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise."
+}, examples = {
+        "hex(1007) = \"3EF\"",
+        "hex('abc') = \"616263\""
+})
 public class HexFunction implements ValueParser {
 
     private static final Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$");

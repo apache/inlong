@@ -26,11 +26,19 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
+
 /**
- * TanFunction
- * description: tan(numeric)--returns the tangent of numeric
+ * TanFunction  -> tan(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the tangent of 'numeric'.
  */
-@TransformFunction(names = {"tan"})
+@TransformFunction(names = {"tan"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the tangent of 'numeric'."
+}, examples = {
+        "tan(1) = 1.5574077246549023"
+})
 public class TanFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -42,6 +50,9 @@ public class TanFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.tan(numberValue.doubleValue());
     }

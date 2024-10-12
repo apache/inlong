@@ -33,26 +33,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TranslateFunction
- * translate(expression, find_chars, replace_chars)
- * Description:
- * For a given expression, replaces all occurrences of specified characters with specified substitutes.
- * Existing characters are mapped to replacement characters by their positions in the find_chars and replace_chars arguments.
- * If more characters are specified in the find_chars argument than in the replace_chars argument, the extra characters from the find_chars argument are omitted in the return value.
- *
- * Translate function is similar to the replace function and the regexp_replace function,
- * except that replace substitutes one entire string with another string and regexp_replace lets you search a string for a regular expression pattern,
- * while translate makes multiple single-character substitutions.
- *
- * Arguments:
- *      expression: The expression to be translated.
- *      find_chars: A string containing the characters to be replaced.
- *      replace_chars: A string containing the characters to substitute.
- * examples:
- *      case1: translate(harry@inlong.com, '@', '.') -> original_expression: harry@inlong.com  target_expression: harry.inlong.com
- *      case2: translate(hello WorD, 'WD', 'wd') -> original_expression: hello WorD  target_expression: hello word
+ * TranslateFunction  ->  translate(origin_string, find_chars, replace_chars)
+ * description:
+ * - Return NULL if any parameter is NULL;
+ * - Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the characters in 'replace_chars'.
+ * Note: If more characters are specified in the find_chars argument than in the replace_chars argument, the
+ * extra characters from the find_chars argument are omitted in the return value.
  */
-@TransformFunction(names = {"translate"})
+@TransformFunction(names = {
+        "translate"}, parameter = "(String origin_string, String find_chars, String replace_chars)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the characters in 'replace_chars'."
+        }, examples = {
+                "translate(apache@inlong.com, '@', '.') = \"apache.inlong.com\"",
+                "translate(hello WorD, 'WD', 'wd') = \"hello word\""
+        })
 public class TranslateFunction implements ValueParser {
 
     private ValueParser originalStrParser;
@@ -73,6 +68,9 @@ public class TranslateFunction implements ValueParser {
         Object originalStrObject = originalStrParser.parse(sourceData, rowIndex, context);
         Object findCharsObject = findCharsParser.parse(sourceData, rowIndex, context);
         Object replaceCharsObject = replaceCharsParser.parse(sourceData, rowIndex, context);
+        if (originalStrObject == null || findCharsObject == null || replaceCharsObject == null) {
+            return null;
+        }
         String originalStr = OperatorTools.parseString(originalStrObject);
         String findChars = OperatorTools.parseString(findCharsObject);
         String replaceChars = OperatorTools.parseString(replaceCharsObject);

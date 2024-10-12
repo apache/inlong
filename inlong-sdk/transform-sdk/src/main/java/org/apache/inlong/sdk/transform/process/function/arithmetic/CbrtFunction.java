@@ -28,10 +28,16 @@ import net.sf.jsqlparser.expression.Function;
 /**
  * CbrtFunction   -> cbrt(numeric)
  * description:
- * - return NULL if numeric is NULL
- * - return cube root
+ * - Return NULL if 'numeric' is NULL;
+ * - Return cube root.
  */
-@TransformFunction(names = {"cbrt"})
+@TransformFunction(names = {"cbrt"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return NULL if 'numeric' is NULL;",
+        "- Return cube root.",
+}, examples = {
+        "cbrt(5) = 1.7099759466766968",
+        "cbrt(27) = 3.0"
+})
 public class CbrtFunction implements ValueParser {
 
     private ValueParser numParser;

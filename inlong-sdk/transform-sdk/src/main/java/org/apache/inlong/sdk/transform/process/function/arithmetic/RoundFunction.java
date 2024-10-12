@@ -31,10 +31,19 @@ import java.math.RoundingMode;
 import java.util.List;
 
 /**
- * RoundFunction
- * description: ROUND(x [,y]) -- Return the nearest integer to x, with optional parameter y indicating the number of decimal places to be rounded. If omitted, return the integer.
+ * RoundFunction  ->  ROUND(x [,y])
+ * description:
+ * - Return NULL if 'x' is NULL
+ * - Return the nearest integer to 'x', with optional parameter 'y' indicating the number of decimal places to be rounded
  */
-@TransformFunction(names = {"round"})
+@TransformFunction(names = {"round"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'x' is NULL;",
+        "- Return the nearest integer to 'x', with optional parameter 'y' indicating the number of decimal " +
+                "places to be rounded."
+}, examples = {
+        "round(3.5) = 4",
+        "round(3.14159265358979323846,10) = 3.1415926536"
+})
 public class RoundFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -51,6 +60,9 @@ public class RoundFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal number = OperatorTools.parseBigDecimal(numberObj);
         if (reservedDigitsParser != null) {
             Object reservedDigitsObj = reservedDigitsParser.parse(sourceData, rowIndex, context);

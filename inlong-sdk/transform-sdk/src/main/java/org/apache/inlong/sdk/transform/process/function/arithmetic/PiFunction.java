@@ -24,10 +24,15 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Function;
 /**
- * PiFunction
- * returns the mathematical constant PI
+ * PiFunction  ->  pi()
+ * description:
+ * - Return the mathematical constant PI
  */
-@TransformFunction(names = {"pi"})
+@TransformFunction(names = {"pi"}, parameter = "()", descriptions = {
+        "- Return the mathematical constant PI."
+}, examples = {
+        "pi() = 3.141592653589793"
+})
 public class PiFunction implements ValueParser {
 
     public PiFunction(Function expr) {

@@ -30,11 +30,21 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * RegexpReplaceFunction
- * description: REGEXP_REPLACE(string1, string2, string3)--Returns a string from STRING1 with all the substrings that
- *              match a regular expression STRING2 consecutively being replaced with STRING3.
+ * RegexpReplaceFunction  ->  REGEXP_REPLACE(source_string, regexp, replacement)
+ * description:
+ * - Return NULL if any of the arguments are NULL or invalid
+ * - Return a string from 'source_string' with all the substrings that match a regular expression 'regexp'
+ *          consecutively being replaced with 'replacement'.
  */
-@TransformFunction(names = {"regexp_replace"})
+@TransformFunction(names = {
+        "regexp_replace"}, parameter = "(String source_string, String regexp, String replacement)", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or invalid;",
+                "- Return a string from 'source_string' with all the substrings that match a regular expression 'regexp' "
+                        +
+                        "consecutively being replaced with 'replacement'."
+        }, examples = {
+                "regexp_replace('foobarbaz', 'b..', 'X') = \"fooXbaz\""
+        })
 public class RegexpReplaceFunction implements ValueParser {
 
     private ValueParser inputStringParser;

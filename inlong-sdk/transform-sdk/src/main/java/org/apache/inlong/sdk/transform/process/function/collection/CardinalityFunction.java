@@ -28,13 +28,20 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.Map;
 /**
- * CardinalityFunction
- * description: CARDINALITY(array)--Returns the number of elements in array.
- *              CARDINALITY(map)--Returns the number of entries in map.
- * for example: cardinality(array('he',7,'xxd'))--return 3
- *              cardinality(map('he',7,'xxd',3))--return 2
+ * CardinalityFunction  ->  CARDINALITY(array) or CARDINALITY(map)
+ * description:
+ * - Return NULL if the input is NULL;
+ * - Return the number of elements in array if the input is array.
+ * - Return the number of entries in map if the input is map.
  */
-@TransformFunction(names = {"cardinality"})
+@TransformFunction(names = {"cardinality"}, parameter = "(Object input)", descriptions = {
+        "- Return \"\" if the input is NULL;",
+        "- Return the number of elements in array if the input is array;",
+        "- Return the number of entries in map if the input is map."
+}, examples = {
+        "cardinality(array('he',7,'xxd')) = 3",
+        "cardinality(map('he',7,'xxd',3)) = 2"
+})
 public class CardinalityFunction implements ValueParser {
 
     private final ValueParser valueParser;

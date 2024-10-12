@@ -26,12 +26,17 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * TrimFunction
- * description: rtrim(string)
- * - Return NULL if str is NULL.
- * - Return the string str with trailing space characters removed.
+ * RtrimFunction  ->  rtrim(str)
+ * description:
+ * - Return NULL if 'str' is NULL
+ * - Return the string 'str' with trailing space characters removed
  */
-@TransformFunction(names = {"rtrim"})
+@TransformFunction(names = {"rtrim"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the string 'str' with trailing space characters removed."
+}, examples = {
+        "rtrim(' in long ') = \" in long\""
+})
 public class RtrimFunction implements ValueParser {
 
     private ValueParser stringParser;

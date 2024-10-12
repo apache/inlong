@@ -26,12 +26,19 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * IsAlphaFunction
- * description: is_alpha(string)
- * - return true if all characters in string are letter
- * - return false otherwise (Including cases where string is null and '').
+ * IsAlphaFunction  ->  is_alpha(string)
+ * description:
+ * - Return true if all characters in string are letter
+ * - Return false otherwise (Including cases where string is null and '').
  */
-@TransformFunction(names = {"is_alpha"})
+@TransformFunction(names = {"is_alpha"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" If 'str' is NULL;",
+        "- Return true if all characters in 'str' are letter;",
+        "- Return false otherwise (Including cases where string is null and '')."
+}, examples = {
+        "is_alpha('inlong') = true",
+        "is_alpha('inlong~') = false",
+})
 public class IsAlphaFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -28,31 +28,32 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * CeilFunction
- * description: ceil(numeric)--rounds numeric up, and returns the smallest number that is greater than or equal to numeric
+ * CeilFunction  ->  ceil(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the smallest number that is greater than or equal to 'numeric'.
  */
-@TransformFunction(names = {"ceil"})
+@TransformFunction(names = {"ceil"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return NULL if 'numeric' is NULL;",
+        "- Return the smallest number that is greater than or equal to 'numeric'.",
+}, examples = {
+        "ceil(-5.67) = -5.0",
+        "ceil(1.23) = 2.0"
+})
 public class CeilFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public CeilFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.ceil(numberValue.doubleValue());
     }

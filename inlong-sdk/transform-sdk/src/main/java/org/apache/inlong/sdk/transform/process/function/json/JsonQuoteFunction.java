@@ -25,22 +25,22 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import com.alibaba.fastjson.JSON;
 import net.sf.jsqlparser.expression.Function;
+
 /**
- * JsonQuoteFunction
- * description: JSON_QUOTE(string)--Quotes a string as a JSON value by wrapping it with double quote characters,
- *              escaping interior quote and special characters (’"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’), and returning
- *              the result as a string. If the argument is NULL, the function returns NULL.
- *
- *              JSON_STRING(string)--Serializes a value into JSON. returns a JSON string containing the serialized value.
- *              If the value is NULL, the function returns NULL.
- *
- * for example: json_quote('Hello, World!')--return "Hello, World!"
- *              json_quote('Complex string with / and \\')--return "Complex string with / and \\"
- *
- *              json_string(1)--return 1
- *              json_string(true)--return "true"
+ * JsonQuoteFunction  ->  JSON_QUOTE(str) or JSON_STRING(str)
+ * description:
+ * - Return NULL if str is NULL
+ * - Return a valid JSON string converted from a string (JSON_QUOTE) or any type of data (JSON_STRING)
+ * Note: JSON_QUOTE will escape interior quote and special characters (’"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’)
  */
-@TransformFunction(names = {"json_quote", "json_string"})
+@TransformFunction(names = {"json_quote", "json_string"}, parameter = "(String data)", descriptions = {
+        "- Return \"\" if data is NULL;",
+        "- Return a valid JSON string converted from a string (JSON_QUOTE) or any type of data (JSON_STRING).",
+        "Note: JSON_QUOTE will escape interior quote and special characters (’\"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’)"
+}, examples = {
+        "json_quote('Column1\\tColumn2) = \\\"Column1\\\\tColumn2\\\"",
+        "json_string(true) = \"true\""
+})
 public class JsonQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;

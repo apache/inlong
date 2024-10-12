@@ -29,15 +29,20 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 /**
- * ArrayExceptFunction
- * description: ARRAY_EXCEPT(array1, array2)--Returns an ARRAY that contains the elements from array1 that are not in
- *              array2, without duplicates. If no elements remain after excluding the elements in array2 from array1,
- *              the function returns an empty ARRAY. If one or both arguments are NULL, the function returns NULL.
- *              The order of the elements from array1 is kept.
- * for example: array_except(array('he',7,'xxd'),array('he'))--return [7, xxd]
- *              array_except(array('he',7,'xxd'),array('cloud'))--return [he, 7, xxd]
+ * ArrayExceptFunction  ->  ARRAY_EXCEPT(array1, array2)
+ * description:
+ * - Return NULL if any parameter is null;
+ * - Return an ARRAY that contains the elements from 'array1' that are not in 'array2', without duplicates;
+ * - Return an empty ARRAY if no elements remain after excluding the elements in 'array2' from 'array1'.
  */
-@TransformFunction(names = {"array_except"})
+@TransformFunction(names = {"array_except"}, parameter = "(Array array1, Array array2)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return an ARRAY that contains the elements from 'array1' that are not in 'array2', without duplicates;",
+        "- Return an empty ARRAY if no elements remain after excluding the elements in 'array2' from 'array1'."
+}, examples = {
+        "array_except(array('he',7,'xxd'),array('he')) = [7, xxd]",
+        "array_except(array('he',7,'xxd'),array('cloud')) = [he, 7, xxd]"
+})
 public class ArrayExceptFunction implements ValueParser {
 
     private final ValueParser leftArrayParser;

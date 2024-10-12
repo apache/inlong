@@ -33,9 +33,13 @@ import java.util.List;
 /**
  * NumNonNullsFunction  ->  num_nonnulls(expr1,expr2,...)
  * description:
- * - return the number of non-null arguments.
+ * - Return the number of non-null arguments.
  */
-@TransformFunction(names = {"num_nonnulls"})
+@TransformFunction(names = {"num_nonnulls"}, parameter = "([Expr expr1, Expr expr2, ...])", descriptions = {
+        "- Return the number of non-null arguments."
+}, examples = {
+        "num_nonnulls(5, 3, null, null) = 2"
+})
 public class NumNonNullsFunction implements ValueParser {
 
     private final List<ValueParser> nodeList;

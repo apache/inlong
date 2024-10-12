@@ -27,13 +27,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
 /**
- * ArrayReverseFunction
- * description: ARRAY_REVERSE(haystack)--Returns an array in reverse order. If the array itself is null,
- *              the function will return null.
- * for example: array_reverse(array('he',7,'xxd'))--return [xxd, 7, he]
+ * ArrayReverseFunction  ->  ARRAY_REVERSE(array, element)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return an array in reverse order.
  */
-@TransformFunction(names = {"array_reverse"})
+@TransformFunction(names = {"array_reverse"}, parameter = "(Array array)", descriptions = {
+        "- Return \"\" if 'array' is null;",
+        "- Return an array in reverse order."
+}, examples = {
+        "array_reverse(array('he',7,'xxd')) = [xxd, 7, he]"
+})
 public class ArrayReverseFunction implements ValueParser {
 
     private final ValueParser arrayParser;

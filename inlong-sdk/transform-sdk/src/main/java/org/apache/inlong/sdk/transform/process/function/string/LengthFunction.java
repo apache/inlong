@@ -30,12 +30,20 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * LengthFunction
- * description: length(string,[charsetName])
- * - return the byte length of the string
+ * LengthFunction  ->  length(string,[charset])
+ * description:
  * - return NULL if the string is NULL
+ * - return the byte length of the string
+ * Note: charset defaults to matching with JVM.
  */
-@TransformFunction(names = {"length"})
+@TransformFunction(names = {"length"}, parameter = "(String str, String charset)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the byte length of the 'str'.",
+        "Note: charset defaults to matching with JVM."
+}, examples = {
+        "length(应龙, utf-8) = 6",
+        "length('hello world') = 11"
+})
 public class LengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

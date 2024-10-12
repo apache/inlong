@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
@@ -30,18 +31,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ConcatFunction
- * 
+ * ConcatFunction  ->  concat(string1, string2, ...)
+ * description:
+ * - Return NULL If any parameter is NULL
+ * - Return the string of the connection (string1, string2,...)
  */
-@TransformFunction(names = {"concat"})
+@Slf4j
+@TransformFunction(names = {"concat"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
+        "- Return NULL If any parameter is NULL;",
+        "- Return the string of the connection ('string1', 'string2',...)."
+}, examples = {
+        "CONCAT(\"AA\", \"BB\", \"CC\") = \"AABBCC\""
+})
 public class ConcatFunction implements ValueParser {
 
     private List<ValueParser> nodeList;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public ConcatFunction(Function expr) {
         if (expr.getParameters() == null) {
             this.nodeList = new ArrayList<>();
@@ -55,12 +60,6 @@ public class ConcatFunction implements ValueParser {
         }
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         StringBuilder builder = new StringBuilder();

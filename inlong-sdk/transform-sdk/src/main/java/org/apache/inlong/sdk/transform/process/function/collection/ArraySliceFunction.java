@@ -27,17 +27,25 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ArraySliceFunction
- * description: ARRAY_SLICE(array, start_offset[, end_offset])--Returns a subarray of the input array between
- *              ‘start_offset’ and ’end_offset’ inclusive. The offsets are 1-based however 0 is also treated as the
- *              beginning of the array. Positive values are counted from the beginning of the array while negative from
- *              the end. If ’end_offset’ is omitted then this offset is treated as the length of the array. If ‘
- *              start_offset’ is after ’end_offset’ or both are out of array bounds an empty array will be returned.
- *              Returns null if any input is null.
- * for example: array_slice(array('he',7,'xxd'),1,2)--return [he, 7]
- *              array_slice(array('he',3,'b'),-2,-1)--return [3, xxd]
+ * ArraySliceFunction  ->  ARRAY_SLICE(array, start_offset[, end_offset])
+ * description:
+ * - Return NULL if 'array' or 'start_offset' is null;
+ * - Return a subarray of the input 'array' between 'start_offset' and 'end_offset' inclusive;
+ * - Return an empty array if 'start_offset' is after 'end_offset' or both are out of 'array' bounds.
+ * Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'.
+ *       Positive values are counted from the beginning of the array while negative from the end.
  */
-@TransformFunction(names = {"array_slice"})
+@TransformFunction(names = {
+        "array_slice"}, parameter = "(Array array, Integer start_offset[, Integer end_offset])", descriptions = {
+                "- Return \"\" if 'array' or 'start_offset' is null;",
+                "- Return a subarray of the input 'array' between 'start_offset' and 'end_offset' inclusive;",
+                "- Return an empty array if 'start_offset' is after 'end_offset' or both are out of 'array' bounds.",
+                "Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'. " +
+                        "Positive values are counted from the beginning of the array while negative from the end."
+        }, examples = {
+                "array_slice(array('he',7,'xxd'),1,2) = ['he', 7]",
+                "array_slice(array('he','xxd','b'),-2,-1) = [3, 'xxd']"
+        })
 public class ArraySliceFunction implements ValueParser {
 
     private ValueParser arrayParser;

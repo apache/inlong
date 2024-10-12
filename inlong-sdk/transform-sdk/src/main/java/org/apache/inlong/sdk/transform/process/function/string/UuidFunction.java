@@ -25,11 +25,18 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 import java.util.UUID;
+
 /**
- * UuidFunction
- * returns a UUID (universally unique identifier) string based on RFC 4122 Type 4 (pseudo-randomly generated) UUID
+ * UuidFunction  -> UPPER(s)
+ * description:
+ * - Return a UUID (universally unique identifier) string based on RFC 4122 Type 4 (pseudo-randomly generated) UUID.
  */
-@TransformFunction(names = {"uuid"})
+@TransformFunction(names = {"uuid"}, parameter = "(String s)", descriptions = {
+        "- Return a UUID (universally unique identifier) string based on RFC 4122 Type 4 " +
+                "(pseudo-randomly generated) UUID."
+}, examples = {
+        "uuid()"
+})
 public class UuidFunction implements ValueParser {
 
     private final UUID uuid;

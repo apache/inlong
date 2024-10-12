@@ -28,10 +28,21 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * SignFunction
- * description: sign(x): Return the sign of x, where x is a negative number, 0, and positive numbers return -1, 0, and 1, respectively
+ * SignFunction  ->  sign(x)
+ * description:
+ * - Return NULL if 'x' is NULL
+ * - Return -1 if 'x' is a negative number
+ * - Return 0 if 'x' is equal to 0
+ * - Return 1 if 'x' is a positive number
  */
-@TransformFunction(names = {"sign"})
+@TransformFunction(names = {"sign"}, parameter = "(Numeric x)", descriptions = {
+        "- Return \"\" if 'x' is NULL;",
+        "- Return -1 if 'x' is a negative number;",
+        "- Return 0 if 'x' is equal to 0;",
+        "- Return 1 if 'x' is a positive number."
+}, examples = {
+        "sign(-3.5) = -1"
+})
 public class SignFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +54,9 @@ public class SignFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         double value = numberValue.doubleValue();
         if (value > 0) {

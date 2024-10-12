@@ -30,20 +30,23 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * LogFunction
- * description: log(numeric) or log(numeric1, numeric2)--When called with one argument, returns the natural logarithm
- * of numeric. When called with two arguments, this function returns the logarithm of numeric2 to the base numeric1
+ * LogFunction  ->  log(numeric1,[numeric2])
+ * description:
+ * - Return the natural logarithm of 'numeric1' when called with one argument
+ * - Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments
  */
-@TransformFunction(names = {"log"})
+@TransformFunction(names = {"log"}, parameter = "(Numeric numeric1 [, Numeric numeric2])", descriptions = {
+        "- Return the natural logarithm of 'numeric1' when called with one argument;",
+        "- Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments."
+}, examples = {
+        "log(1) = 0.0",
+        "log(2,8) = 3.0"
+})
 public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;
     private final ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public LogFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         // Determine the number of arguments and build parser
@@ -55,12 +58,6 @@ public class LogFunction implements ValueParser {
         }
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);

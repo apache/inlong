@@ -28,11 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 /**
- * BinFunction
- * description: bin(integer)--Returns a string representation of an integer in binary format. If the integer is NULL, NULL is returned.
+ * BinFunction  ->  bin(integer)
+ * description:
+ * - Return NULL if 'integer' is NULL;
+ * - Return a string representation of 'integer' in binary format.
  */
-@TransformFunction(names = {"bin"})
+@TransformFunction(names = {"bin"}, parameter = "(Integer integer)", descriptions = {
+        "- Return \"\" if 'integer' is NULL;",
+        "- Return a string representation of 'integer' in binary format."
+}, examples = {
+        "bin(4) = 100"
+})
 public class BinFunction implements ValueParser {
 
     private ValueParser valueParser;
@@ -50,6 +58,9 @@ public class BinFunction implements ValueParser {
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         if (valueParser != null) {
             Object valueObj = valueParser.parse(sourceData, rowIndex, context);
+            if (valueObj == null) {
+                return null;
+            }
             BigDecimal value = OperatorTools.parseBigDecimal(valueObj);
             return Integer.toBinaryString(value.intValue());
         }

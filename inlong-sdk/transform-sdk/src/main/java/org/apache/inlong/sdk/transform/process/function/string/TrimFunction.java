@@ -26,11 +26,17 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * TrimFunction
- * description: trim(string)--Remove Spaces before and after the string.
- *              btrim(string)--Remove Spaces before and after the string.
+ * TrimFunction  ->  trim(str) or btrim(string)
+ * description:
+ * - Return NULL if 'str' is NULL;
+ * - Return the result of deleting spaces before and after the 'str'.
  */
-@TransformFunction(names = {"trim", "btrim"})
+@TransformFunction(names = {"trim", "btrim"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the result of deleting spaces before and after the 'str'."
+}, examples = {
+        "trim(' in long ') = \"in long\""
+})
 public class TrimFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -42,6 +48,9 @@ public class TrimFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
+        if (stringObj == null) {
+            return null;
+        }
         return OperatorTools.parseString(stringObj).trim();
     }
 }

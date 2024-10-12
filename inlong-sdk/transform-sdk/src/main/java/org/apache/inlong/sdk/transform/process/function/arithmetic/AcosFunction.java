@@ -28,31 +28,33 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * AcosFunction
- * description: acos(numeric)--returns the arc cosine of numeric
+ * AcosFunction  ->  acos(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the arc cosine of 'numeric'.
  */
-@TransformFunction(names = {"acos"})
+@TransformFunction(names = {"acos"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the arc cosine of 'numeric'."
+}, examples = {
+        "acos(1) = 0.0",
+        "acos(0) = 1.5707963267948966",
+        "acos(-1) = 3.141592653589793"
+})
 public class AcosFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public AcosFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.acos(numberValue.doubleValue());
     }

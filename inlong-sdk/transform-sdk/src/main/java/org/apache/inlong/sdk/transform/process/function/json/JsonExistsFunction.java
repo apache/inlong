@@ -30,13 +30,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 /**
- * JsonExistsFunction
- * description: JSON_EXISTS(jsonValue, path)--Determines whether a JSON string satisfies a given path search criterion.
- * for example: JSON_EXISTS('{"a": true}', '$.a')--return true
- *              JSON_EXISTS('{"a": true}', '$.b')--return false
- *              JSON_EXISTS('{"a": [{ "b": 1 }]}', '$.a[0].b')--return true
+ * JsonExistsFunction  ->  JSON_EXISTS(jsonValue, path)
+ * description:
+ * - Return true if a JSON string satisfies a given path search criterion
+ * - Return false otherwise
  */
-@TransformFunction(names = {"json_exists"})
+@TransformFunction(names = {"json_exists"}, parameter = "(String json_doc, String path)", descriptions = {
+        "- Return true if 'json_doc' satisfies a given 'path' search criterion;",
+        "- Return false otherwise."
+}, examples = {
+        "JSON_EXISTS('{\"a\": true}', '$.a') = true",
+        "JSON_EXISTS('{\"a\": true}', '$.b') = false",
+        "JSON_EXISTS('{\"a\": [{ \"b\": 1 }]}', '$.a[0].b') = true"
+})
 public class JsonExistsFunction implements ValueParser {
 
     private final ValueParser jsonParser;

@@ -29,14 +29,19 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 /**
- * JsonQueryFunction
- * description: JSON_QUERY(jsonValue, path)--Extracts JSON values from a JSON string.
- * for example: json_query({\"people\": [{\"name\": \"Alice\"}, {\"name\": \"Bob\"}]}, $.people)
- *              --return [{"name":"Alice"},{"name":"Bob"}]
- *              json_query({\"list\": [null, {\"name\": \"John\"}]}, $.list[1].name)
- *              --return John
+ * JsonQueryFunction  ->  JSON_QUERY(json_doc, path)
+ * description:
+ * - Return NULL if any parameter is NULL
+ * - Return the string parsed from the path in json_doc
  */
-@TransformFunction(names = {"json_query"})
+@TransformFunction(names = {"json_query"}, parameter = "(String json_doc, String path)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the string parsed from the 'path' in 'json_doc'."
+}, examples = {
+        "json_query({\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}, $.people)" +
+                " = [{\"name\":\"Alice\"},{\"name\":\"Bob\"}]",
+        "json_query({\\\"list\\\": [null, {\\\"name\\\": \\\"John\\\"}]}, $.list[1].name) = John"
+})
 public class JsonQueryFunction implements ValueParser {
 
     private final ValueParser jsonParser;

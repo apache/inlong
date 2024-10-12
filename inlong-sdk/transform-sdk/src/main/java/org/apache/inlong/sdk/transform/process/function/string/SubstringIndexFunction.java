@@ -31,12 +31,21 @@ import java.util.List;
 
 /**
  * SubstringIndexFunction  -> SUBSTRING_INDEX(str,delim,count)
- * description: Returns the substring from string str before count occurrences of the delimiter delim
- * return NULL if any parameter is NULL;
- * return everything to the left of the final delimiter (counting from the left) if count is positive;
- * return everything to the right of the final delimiter (counting from the right) if count is negative.
+ * description:
+ * - Return NULL if any parameter is NULL;
+ * - Return everything to the left of the last count occurrences of 'delim' (counting from the left), if 'count' is positive;
+ * - Return everything to the right of the last count occurrences of 'delim' (counting from the right) if 'count' is negative.
  */
-@TransformFunction(names = {"substring_index"})
+@TransformFunction(names = {
+        "substring_index"}, parameter = "(String str, String delim, Integer count)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return everything to the left of the last count occurrences of 'delim' (counting from the " +
+                        "left), if 'count' is positive;",
+                "- Return everything to the right of the last count occurrences of 'delim' (counting from the " +
+                        "right) if 'count' is negative."
+        }, examples = {
+                "SUBSTRING_INDEX('AA. ',' ',1) = \"AA.\""
+        })
 public class SubstringIndexFunction implements ValueParser {
 
     private ValueParser stringParser;

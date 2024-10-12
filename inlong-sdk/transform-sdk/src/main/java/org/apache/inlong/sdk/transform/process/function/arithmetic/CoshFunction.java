@@ -23,15 +23,26 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
 /**
- * CoshFunction
- * description: cosh(numeric)--returns the hyperbolic cosine of numeric
+ * CoshFunction  ->  cosh(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL';
+ * - Return the hyperbolic cosine of 'numeric'.
  */
-@TransformFunction(names = {"cosh"})
+@Slf4j
+@TransformFunction(names = {"cosh"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the hyperbolic cosine of 'numeric'."
+}, examples = {
+        "cosh(1) = 1.543080634815244",
+        "cosh(0) = 1.0",
+        "cosh(-1) = 1.543080634815244"
+})
 public class CoshFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +54,9 @@ public class CoshFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.cosh(numberValue.doubleValue());
     }

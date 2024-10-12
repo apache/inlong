@@ -28,10 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * AtandFunction
- * description: atand(numeric)--returns the arc tangent of numeric in units of degrees
+ * AtandFunction  ->  atand(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the arc tangent of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"atand"})
+@TransformFunction(names = {"atand"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the arc tangent of 'numeric' in units of degrees."
+}, examples = {
+        "atand(1) = 45.0",
+        "atand(0) = 0.0",
+        "atand(-1) = -45.0"
+})
 public class AtandFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +52,9 @@ public class AtandFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.toDegrees(Math.atan(numberValue.doubleValue()));
     }

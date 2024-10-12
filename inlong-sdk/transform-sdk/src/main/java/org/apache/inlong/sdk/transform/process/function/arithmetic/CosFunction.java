@@ -23,36 +23,38 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
 /**
- * CosFunction
- * description: cos(numeric)--returns the cosine of numeric
+ * CosFunction  ->  cos(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the cosine of 'numeric'.
  */
-@TransformFunction(names = {"cos"})
+@Slf4j
+@TransformFunction(names = {"cos"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the cosine of 'numeric'."
+}, examples = {
+        "cos(0) = 1.0"
+})
 public class CosFunction implements ValueParser {
 
     private ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public CosFunction(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.cos(numberValue.doubleValue());
     }

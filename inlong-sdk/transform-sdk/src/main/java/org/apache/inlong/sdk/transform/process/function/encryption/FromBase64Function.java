@@ -31,10 +31,17 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * FromBase64Function
- * description: Returns the base64-decoded result from string; returns NULL if string is NULL
+ * FromBase64Function  ->  from_base64(base64Str)
+ * description:
+ * - Return NULL if base64Str is NULL
+ * - Return the base64-decoded result from string
  */
-@TransformFunction(names = {"from_base64"})
+@TransformFunction(names = {"from_base64"}, parameter = "(String base64Str)", descriptions = {
+        "- Return \"\" if 'base64Str' is NULL;",
+        "- Return the base64-decoded result from 'base64Str'."
+}, examples = {
+        "from_base64('QXBhY2hlIEluTG9uZw==') = \"Apache InLong\""
+})
 public class FromBase64Function implements ValueParser {
 
     private final ValueParser stringParser;

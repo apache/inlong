@@ -33,14 +33,21 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * CoalesceFunction
- * description: COALESCE(value1 [, value2]*)--Returns the first argument that is not NULL.If all arguments are NULL,
- *              it returns NULL as well. The return type is the least restrictive, common type of all of its arguments.
- *              The return type is nullable if all arguments are nullable as well.
- * for example: COALESCE(f0, f1, 'default') -- Returns the first non-null value among f0 and f1,
- *              or 'default' if f0 and f1 are both NULL
+ * CoalesceFunction  ->  COALESCE(value1 [, value2, ...])
+ * description:
+ * - Return the first argument that is not NULL
+ * - Return NULL If all arguments are NULL
+ * Note: The return type is the least restrictive, common type of all of its arguments.
+ * The return type is nullable if all arguments are nullable as well.
  */
-@TransformFunction(names = {"coalesce"})
+@TransformFunction(names = {"coalesce"}, parameter = "(String value1 [, String value2, ...])", descriptions = {
+        "- Return \"\" If all arguments are NULL or \"\";",
+        "- Return the first argument that is not NULL or \"\".",
+        "Note: The return type is the least restrictive, common type of all of its arguments." +
+                "The return type is nullable if all arguments are nullable as well."
+}, examples = {
+        "coalesce('', 'SQL', 'hh') = \"SQL\""
+})
 public class CoalesceFunction implements ValueParser {
 
     private List<ValueParser> parserList;

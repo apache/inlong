@@ -29,12 +29,22 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * UrlDecodeFunction
- * description: Decodes a given string in ‘application/x-www-form-urlencoded’ format using the UTF-8 encoding scheme.
- * If the input is NULL, or there is an issue with the decoding process(such as encountering an illegal escape pattern),
- * or the encoding scheme is not supported, the function returns NULL.
+ * UrlDecodeFunction  ->  url_decode(str)
+ * description:
+ * - Return NULL if 'str' is NULL, or there is an issue with the decoding process(such as encountering an illegal
+ *          escape pattern), or the encoding scheme is not supported;
+ * - Return the result of decoding a given 'str' in 'application/x-www-form-urlencoded' format using the UTF-8 encoding scheme.
  */
-@TransformFunction(names = {"url_decode"})
+@TransformFunction(names = {"url_decode"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL, or there is an issue with the decoding process(such as encountering an illegal "
+                +
+                "escape pattern), or the encoding scheme is not supported;",
+        "- Return the result of decoding a given 'str' in 'application/x-www-form-urlencoded' format using the UTF-8 " +
+                "encoding scheme."
+}, examples = {
+        "url_decode('https%3A%2F%2Fapache.inlong.com%2Fsearch%3Fq%3Djava+url+encode') = " +
+                "\"https://apache.inlong.com/search?q=java url encode\""
+})
 public class UrlDecodeFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -30,12 +30,18 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * JsonValueFunction
- * description: JSON_VALUE(jsonValue, path)--Extracts a scalar from a JSON string.
- * for example: json_value({"a": 1}, $.a)--return 1
- *              json_value({\"person\": {\"name\": \"Alice\" ,\"age\": 30}}, $.person.name)--return Alice
+ * JsonValueFunction  ->  JSON_VALUE(json_doc, path)
+ * description:
+ * - Return NULL if any parameter is NULL
+ * - Return the scalar extracted from JSON string (json_doc) based on path
  */
-@TransformFunction(names = {"json_value"})
+@TransformFunction(names = {"json_value"}, parameter = "(String json_doc,String path)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the scalar extracted from JSON string ('json_doc') based on 'path'."
+}, examples = {
+        "json_value({\"a\": 1}, $.a) = 1",
+        "json_value({\\\"person\\\": {\\\"name\\\": \\\"Alice\\\" ,\\\"age\\\": 30}}, $.person.name) = Alice"
+})
 public class JsonValueFunction implements ValueParser {
 
     private final ValueParser jsonParser;

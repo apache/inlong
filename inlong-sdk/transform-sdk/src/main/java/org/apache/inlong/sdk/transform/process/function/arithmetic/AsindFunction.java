@@ -28,10 +28,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * AsindFunction
- * description: asind(numeric)--returns the arc sine of numeric in units of degrees
+ * AsindFunction  ->  asind(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the arc sine of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"asind"})
+@TransformFunction(names = {"asind"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the arc sine of 'numeric' in units of degrees."
+}, examples = {
+        "asind(0.5) = 30.000000000000004",
+        "asind(0) = 0.0",
+        "asind(-0.5) = -30.000000000000004"
+})
 public class AsindFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +52,9 @@ public class AsindFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.toDegrees(Math.asin(numberValue.doubleValue()));
     }

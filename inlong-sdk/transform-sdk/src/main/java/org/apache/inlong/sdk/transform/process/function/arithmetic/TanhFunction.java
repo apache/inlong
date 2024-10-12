@@ -28,10 +28,17 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * TanhFunction
- * description: tanh(numeric)--returns the hyperbolic tangent of numeric
+ * TanhFunction  -> tanh(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return the hyperbolic tangent of 'numeric'.
  */
-@TransformFunction(names = {"tanh"})
+@TransformFunction(names = {"tanh"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the hyperbolic tangent of 'numeric'."
+}, examples = {
+        "tanh(1) = 0.7615941559557649"
+})
 public class TanhFunction implements ValueParser {
 
     private ValueParser numberParser;
@@ -43,6 +50,9 @@ public class TanhFunction implements ValueParser {
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.tanh(numberValue.doubleValue());
     }

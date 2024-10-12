@@ -27,12 +27,17 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ArrayMaxFunction
- * description: ARRAY_MAX(array)--Returns the maximum value from the array, if array itself is null
- *              , the function returns null.
- * for example: array_max(array(4,3,56))--return 56
+ * ArrayMaxFunction  ->  ARRAY_MAX(array)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return the maximum value from the 'array'.
  */
-@TransformFunction(names = {"array_max"})
+@TransformFunction(names = {"array_max"}, parameter = "(Array array)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the maximum value from the 'array'."
+}, examples = {
+        "array_max(array(4,3,56)) = 56"
+})
 public class ArrayMaxFunction implements ValueParser {
 
     private final ValueParser arrayParser;

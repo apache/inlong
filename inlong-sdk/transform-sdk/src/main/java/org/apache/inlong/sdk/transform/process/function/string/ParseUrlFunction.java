@@ -33,13 +33,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * ParseUrlFunction
- * description: Returns the specified part from the URL. Valid values for string2
- * include ‘HOST’, ‘PATH’, ‘QUERY’, ‘REF’, ‘PROTOCOL’, ‘AUTHORITY’, ‘FILE’, and ‘USERINFO’.
- * Returns NULL if any of arguments is NULL.
- * Also a value of a particular key in QUERY can be extracted by providing the key as the third argument string3.
+ * ParseUrlFunction  ->  parse_url(urlStr, keyword[, parameter])
+ * description:
+ * - Return NULL any required parameter is NULL
+ * - Return the specified part from the urlStr. Valid values for keyword.
+ * Note: The keyword is one of ('HOST', 'PATH', 'QUERY', 'REF', 'PROTOCOL', 'AUTHORITY', 'FILE', 'USERINFO').
+ *       Also a value of a particular key in QUERY can be extracted by providing the key as the third argument.
  */
-@TransformFunction(names = {"parse_url"})
+@TransformFunction(names = {
+        "parse_url"}, parameter = "(String urlStr, String keyword[, String parameter])", descriptions = {
+                "- Return NULL any required parameter is NULL;",
+                "- Return the specified part from the 'urlStr'. Valid values for 'keyword'.",
+                "Note: The 'keyword' is one of ('HOST', 'PATH', 'QUERY', 'REF', 'PROTOCOL', 'AUTHORITY', 'FILE', 'USERINFO')."
+                        +
+                        "Also a value of a particular key in QUERY can be extracted by providing the key as the third argument."
+        }, examples = {
+                "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'QUERY', 'k1') = v1",
+                "parse_url('http://inlong.apache.org/p.php?k1=v1&k2=v2#Ref1', 'PROTOCOL') = http"
+        })
 public class ParseUrlFunction implements ValueParser {
 
     private ValueParser urlParser;

@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * Log2Function
- * description: log2(numeric)--returns the base 2 logarithm of numeric
+ * Log2Function  ->  log2(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the base 2 logarithm of 'numeric'
  */
-@TransformFunction(names = {"log2"})
+@TransformFunction(names = {"log2"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the base 2 logarithm of 'numeric'."
+}, examples = {
+        "log2(32) = 5"
+})
 public class Log2Function implements ValueParser {
 
     private final ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public Log2Function(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.log(numberValue.doubleValue()) / Math.log(2);
     }

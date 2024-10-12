@@ -23,7 +23,6 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
@@ -31,15 +30,21 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
- * RadixConvertFunction  ->  radix_convert(N,from_base,to_base)
- * description: Converts numbers between different number bases. The minimum base is 2 and the maximum base is 36.
- *              If from_base is a negative number, N is regarded as a signed number. Otherwise, N is treated as
- *              unsigned. This function works with 64-bit precision.
- * - returns NULL if any of its arguments are NULL.
- * - returns conversion results otherwise.
+ * RadixConvertFunction  ->  radix_convert(numeric,from_base,to_base)
+ * description:
+ * - Return NULL if any of its arguments are NULL
+ * - Return the result of converting 'numeric' from 'from_base' to 'to_base'
+ * Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number.
+ *       Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision.
  */
-@Slf4j
-@TransformFunction(names = {"radix_convert"})
+@TransformFunction(names = {"radix_convert"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if any of its arguments are NULL;",
+        "- Return the result of converting 'numeric' from 'from_base' to 'to_base'.",
+        "Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number." +
+                "Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision."
+}, examples = {
+        "radix_convert('6E',18,8) = 172"
+})
 public class RadixConvertFunction implements ValueParser {
 
     private final ValueParser numParser;

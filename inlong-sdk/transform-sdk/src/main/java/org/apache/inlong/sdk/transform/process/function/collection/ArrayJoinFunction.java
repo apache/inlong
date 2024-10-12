@@ -29,17 +29,24 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * ArrayJoinFunction
- * description: ARRAY_JOIN(array, delimiter[, nullReplacement])--Returns a string that represents the concatenation of
- *              the elements in the given array and the elements’ data type in the given array is string. The delimiter
- *              is a string that separates each pair of consecutive elements of the array. The optional nullReplacement
- *              is a string that replaces null elements in the array. If nullReplacement is not specified, null elements
- *              in the array will be omitted from the resulting string. Returns null if input array or delimiter or
- *              nullReplacement are null.
- * for example: array_join(array('he',7,'xxd'),'~')--return he~7~xxd
- *              array_join(array('he',3,''),'~','oo')--return he~3~oo
+ * ArrayJoinFunction  ->  ARRAY_JOIN(array, delimiter[, nullReplacement])
+ * description:
+ * - Return NULL if any parameter is null;
+ * - Return a string indicating that the elements in the given 'array' are concatenated using 'delimiter',
+ *        and empty array elements are filled with 'nullReplacement'.
+ * Note: If nullReplacement is not specified, null elements in the array will be omitted from the resulting string.
  */
-@TransformFunction(names = {"array_join"})
+@TransformFunction(names = {
+        "array_join"}, parameter = "(Array array, String delimiter[, String nullReplacement])", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return a string indicating that the elements in the given 'array' are concatenated using a 'delimiter', "
+                        +
+                        "and empty array elements are filled with 'nullReplacement'.",
+                "- Note: If nullReplacement is not specified, null elements in the array will be omitted from the resulting string."
+        }, examples = {
+                "array_join(array('he',7,'xxd'),'~') = he~7~xxd",
+                "array_join(array('he',3,''),'~','oo') = he~3~oo"
+        })
 public class ArrayJoinFunction implements ValueParser {
 
     private ValueParser arrayParser;

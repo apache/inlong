@@ -30,17 +30,18 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 /**
- * TruncateFunction
- * description: returns the number that intercepts integer2 decimal places.
- *              If numeric1 or integer2 is NULL, NULL is returned.
- *              If integer2 is 0, the result has no decimal point or fractional part.
- *              integer2 can be negative, making the integer2 digit to the left of the decimal point of the value zero.
- *              This function can also be used by passing only one numeric1 argument without setting Integer2.
- *              If Integer2 is not set, Integer2 is 0
- * for example: truncate(42.324, 2)--return 42.32
- *              truncate(42.324)--return 42.0
+ * TruncateFunction  ->  truncate(numeric, cnt)
+ * description:
+ * - Return NULL if any parameter is NULL;
+ * - Return the result of truncating 'numeric' values to 'cnt' decimal places.
  */
-@TransformFunction(names = {"truncate", "trunc"})
+@TransformFunction(names = {"truncate", "trunc"}, parameter = "(Numeric numeric, Integer cnt)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the result of truncating 'numeric' values to 'cnt' decimal places."
+}, examples = {
+        "truncate(42.324, 2) = 42.32",
+        "trunc(42.324, -1) = 40"
+})
 public class TruncateFunction implements ValueParser {
 
     private ValueParser bigDecimalParser;

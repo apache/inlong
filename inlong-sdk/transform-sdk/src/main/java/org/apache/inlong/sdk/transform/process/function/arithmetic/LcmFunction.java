@@ -23,7 +23,6 @@ import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
@@ -33,14 +32,20 @@ import java.math.RoundingMode;
 import java.util.List;
 
 /**
- * LcmFunction -> lcm(numeric_type,numeric_type)
+ * LcmFunction  ->  lcm(numeric1,numeric2)
  * description:
- * - return 0 if either input is zero
- * - return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)
- * Note: numeric_type includes floating-point number and integer
+ * - Return NULL if any parameter is NULL
+ * - Return 0 if either input is zero
+ * - Return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)
  */
-@Slf4j
-@TransformFunction(names = {"lcm"})
+@TransformFunction(names = {"lcm"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return 0 if either input is zero;",
+        "- Return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)."
+}, examples = {
+        "lcm(6,3) = 6",
+        "lcm(3.141,3.846) = 4026.762"
+})
 public class LcmFunction implements ValueParser {
 
     private final ValueParser firstNumParser;
@@ -59,14 +64,9 @@ public class LcmFunction implements ValueParser {
         if (firstNumObj == null || secondNumObj == null) {
             return null;
         }
-        try {
-            BigDecimal firstNum = OperatorTools.parseBigDecimal(firstNumObj);
-            BigDecimal secondNum = OperatorTools.parseBigDecimal(secondNumObj);
-            return lcm(firstNum, secondNum).toPlainString();
-        } catch (Exception e) {
-            log.error("Parse error", e);
-            return null;
-        }
+        BigDecimal firstNum = OperatorTools.parseBigDecimal(firstNumObj);
+        BigDecimal secondNum = OperatorTools.parseBigDecimal(secondNumObj);
+        return lcm(firstNum, secondNum).toPlainString();
     }
 
     public static BigInteger gcd(BigDecimal a, BigDecimal b) {

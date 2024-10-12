@@ -31,10 +31,15 @@ import java.util.List;
 /**
  * MinScaleFunction  ->  min_scale(numeric)
  * description:
- * return NULL if numeric is NULL
- * return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely
+ * - Return NULL if 'numeric' is NULL
+ * - Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely
  */
-@TransformFunction(names = {"min_scale"})
+@TransformFunction(names = {"min_scale"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely."
+}, examples = {
+        "min_scale(3.1415000000000) = 4"
+})
 public class MinScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

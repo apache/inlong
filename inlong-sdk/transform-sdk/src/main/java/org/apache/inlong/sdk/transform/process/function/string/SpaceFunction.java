@@ -26,13 +26,18 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import net.sf.jsqlparser.expression.Function;
 
 /**
- * SpaceFunction
- * description: SPACE(N)
- * - return NULL if N is NULL.
- * - return "" if N is less than or equal to 0
- * - return a string consisting of N space characters
+ * SpaceFunction  ->  SPACE(N)
+ * description:
+ * - Return NULL if 'N' is NULL
+ * - Return "" if 'N' is less than or equal to 0
+ * - Return a string consisting of 'N' space characters
  */
-@TransformFunction(names = {"space"})
+@TransformFunction(names = {"space"}, parameter = "(Integer N)", descriptions = {
+        "- Return \"\" if 'N' is NULL or less than or equal to 0;",
+        "- Return a string consisting of 'N' space characters."
+}, examples = {
+        "space(5) = \"     \""
+})
 public class SpaceFunction implements ValueParser {
 
     private final ValueParser cntParser;

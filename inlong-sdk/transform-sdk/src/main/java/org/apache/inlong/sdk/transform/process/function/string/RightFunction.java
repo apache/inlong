@@ -29,13 +29,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.util.List;
 
 /**
- * RightFunction
- * description: right(string,length)
- * - return null if either string or length is null
- * - return "" if it is less than or equal to zero
- * - return a substring of length starting from the right side of the string.
+ * RightFunction  ->  right(str,len)
+ * description:
+ * - Return NULL if either 'str' or 'len' is NULL
+ * - Return "" if it is less than or equal to zero
+ * - Return a substring of 'len' starting from the right side of the 'str'.
  */
-@TransformFunction(names = {"right"})
+@TransformFunction(names = {"right"}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if either 'str' or 'len' is NULL;",
+        "- Return \"\" if it is less than or equal to zero;",
+        "- Return a substring of 'len' starting from the right side of the 'str'."
+}, examples = {
+        "right('hello world',100) = \"hello world\""
+})
 public class RightFunction implements ValueParser {
 
     private final ValueParser stringParser;

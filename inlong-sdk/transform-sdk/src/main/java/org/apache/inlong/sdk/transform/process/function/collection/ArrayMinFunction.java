@@ -27,12 +27,17 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.ArrayList;
 /**
- * ArrayMinFunction
- * description: ARRAY_MIN(array)--Returns the minimum value from the array, if array itself is null
- *              , the function returns null.
- * for example: array_max(array(4,3,56))--return 3
+ * ArrayMaxFunction  ->  ARRAY_MIN(array)
+ * description:
+ * - Return NULL if 'array' is null;
+ * - Return the maximum value from the 'array'.
  */
-@TransformFunction(names = {"array_min"})
+@TransformFunction(names = {"array_min"}, parameter = "(Array array)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the minimum value from the 'array'."
+}, examples = {
+        "array_min(array(4,3,56)) = 3"
+})
 public class ArrayMinFunction implements ValueParser {
 
     private final ValueParser arrayParser;

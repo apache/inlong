@@ -31,12 +31,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RegexpSubstrFunction
- * description: REGEXP_SUBSTR(str, regexp)--Returns the first substring in str that matches regexp.
- *              Returns an STRING representation of the first matched substring. NULL if any of the arguments are NULL
- *              or regexp if invalid or pattern is not found.
+ * RegexpReplaceFunction  ->  REGEXP_SUBSTR(str, regexp)
+ * description:
+ * - Return NULL if any of the arguments are NULL or regexp if invalid or pattern is not found
+ * - Return the first substring in 'str' that matches 'regexp'
  */
-@TransformFunction(names = {"regex_substr"})
+@TransformFunction(names = {"regex_substr"}, parameter = "(String source_string, String regexp)", descriptions = {
+        "- Return \"\" if any of the arguments are NULL or regexp if invalid or pattern is not found;",
+        "- Return the first substring in 'str' that matches 'regexp'."
+}, examples = {
+        "regex_substr(\"abc123def\", \"(\\\\d+)\") = 123"
+})
 public class RegexpSubstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;

@@ -27,12 +27,17 @@ import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.math3.special.Erf;
 
 /**
- * ErfcFunction  ->  erfc(x)
- * description:
- * - return NULL if x is NULL.
- * - return complementary error (1 - erf(x), without loss of precision for large inputs)
+ * ErfcFunction  ->  erfc(numeric)
+ * Description:
+ * - Return NULL if 'numeric' is NULL;
+ * - Return complementary error (1 - erf('numeric'), without loss of precision for large inputs).
  */
-@TransformFunction(names = {"erfc"})
+@TransformFunction(names = {"erfc"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return complementary error (1 - erf('numeric'), without loss of precision for large inputs)."
+}, examples = {
+        "erfc(1) = 0.15729920705028488"
+})
 public class ErfcFunction implements ValueParser {
 
     private final ValueParser numParser;

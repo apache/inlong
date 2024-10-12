@@ -15,24 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.function;
+package org.apache.inlong.sdk.transform.process.pojo;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import lombok.Data;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+@Data
+public class FunctionInfo {
 
-@Retention(RUNTIME)
-@Target(TYPE)
-public @interface TransformFunction {
+    String functionName;
+    String explanation;
+    String example;
 
-    String[] names();
+    public FunctionInfo() {
+    }
 
-    String parameter() default "";
-
-    String[] descriptions() default {};
-
-    String[] examples() default {};
-
+    public FunctionInfo(String functionName, String explanation, String example) {
+        this.functionName = functionName;
+        this.explanation = explanation;
+        this.example = example;
+    }
 }

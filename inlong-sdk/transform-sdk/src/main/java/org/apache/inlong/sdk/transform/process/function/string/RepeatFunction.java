@@ -28,11 +28,17 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.util.List;
 /**
- * RepeatFunction
- * description: repeat(string, numeric)--Repeat the string numeric times and return a new string
- *              replicate(string, numeric)--Repeat the string numeric times and return a new string
+ * RepeatFunction  ->  repeat(str, times)
+ * description:
+ * - Return NULL if any parameter is null
+ * - Return a new string that repeats the 'str' by a certain number of 'times'
  */
-@TransformFunction(names = {"repeat", "replicate"})
+@TransformFunction(names = {"repeat", "replicate"}, parameter = "(String str, Integer times)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return a new string that repeats the 'str' by a certain number of 'times'."
+}, examples = {
+        "repeat('apple', 2) = \"appleapple\""
+})
 public class RepeatFunction implements ValueParser {
 
     private ValueParser stringParser;

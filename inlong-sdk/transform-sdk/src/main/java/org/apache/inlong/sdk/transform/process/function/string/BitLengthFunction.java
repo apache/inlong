@@ -31,13 +31,20 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * BitLengthFunction
- * description: bit_length(string,[charset])
- * - return NULL if the string is NULL.
- * - return number of bits in string.
+ * BitLengthFunction  -> bit_length(string,[charset])
+ * description:
+ * - Return NULL if the string is NULL.
+ * - Return number of bits in string.
  */
 @Slf4j
-@TransformFunction(names = {"bit_length"})
+@TransformFunction(names = {"bit_length"}, parameter = "(String str,[String charset])", descriptions = {
+        "- Return \"\" if the 'str' is NULL;",
+        "- Return number of bits in 'str'.",
+        "Note: Charset is aligned with the JVM by default."
+}, examples = {
+        "bit_length(\"hello world\") = 88",
+        "bit_length(\"hello 你好\",\"utf-8\") = 96"
+})
 public class BitLengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -28,31 +28,31 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * Log10Function
- * description: log10(numeric)--returns the base 10 logarithm of numeric
+ * Log10Function  ->  log10(numeric)
+ * description:
+ * - Return NULL if 'numeric' is NULL
+ * - Return the base 10 logarithm of 'numeric'
  */
-@TransformFunction(names = {"log10"})
+@TransformFunction(names = {"log10"}, parameter = "(Numeric numeric)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return the base 10 logarithm of 'numeric'."
+}, examples = {
+        "log10(1000) = 3.0"
+})
 public class Log10Function implements ValueParser {
 
     private final ValueParser numberParser;
 
-    /**
-     * Constructor
-     * @param expr
-     */
     public Log10Function(Function expr) {
         numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
-    /**
-     * parse
-     * @param sourceData
-     * @param rowIndex
-     * @return
-     */
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
         Object numberObj = numberParser.parse(sourceData, rowIndex, context);
+        if (numberObj == null) {
+            return null;
+        }
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.log10(numberValue.doubleValue());
     }
