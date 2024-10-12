@@ -91,9 +91,9 @@ public class JsonArrayAppendFunction implements ValueParser {
 
             // Attempt to append a value to the array pointed to by the specified path
             try {
-                jsonObject = appendValueToArray(jsonObject, path, value);
+                jsonObject = appendValueToArray(jsonObject, path, JSON.parse(value.toString()));
             } catch (Exception e) {
-                throw new IllegalArgumentException("Error processing path: " + path, e);
+                jsonObject = appendValueToArray(jsonObject, path, value);
             }
         }
 
