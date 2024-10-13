@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.kafka.source.reader;
 
+import org.apache.inlong.sort.base.util.OpenTelemetryLogger;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
 
 import org.apache.flink.annotation.Internal;
@@ -37,6 +38,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.logging.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,7 @@ public class KafkaSourceReader<T>
     private final KafkaSourceReaderMetrics kafkaSourceReaderMetrics;
     private final boolean commitOffsetsOnCheckpoint;
     private final KafkaDeserializationSchema<RowData> metricSchema;
+    private final OpenTelemetryLogger openTelemetryLogger;
 
     public KafkaSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>> elementsQueue,
@@ -87,6 +90,22 @@ public class KafkaSourceReader<T>
                     "Offset commit on checkpoint is disabled. "
                             + "Consuming offset will not be reported back to Kafka cluster.");
         }
+        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                .setLogLevel(Level.ERROR)
+                .setServiceName(this.getClass().getSimpleName())
+                .setLocalHostIp(this.context.getLocalHostName()).build();
+    }
+
+    @Override
+    public void start() {
+        this.openTelemetryLogger.install();
+        super.start();
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        openTelemetryLogger.uninstall(); // 关闭日志上报功能
     }
 
     @Override
