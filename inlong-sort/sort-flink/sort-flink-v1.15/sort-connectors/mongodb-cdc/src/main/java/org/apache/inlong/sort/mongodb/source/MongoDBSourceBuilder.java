@@ -191,6 +191,7 @@ public class MongoDBSourceBuilder<T> {
         return this;
     }
 
+    /** The metric option used to collect metrics when inlong.metric.labels is present in flink sql. */
     public MongoDBSourceBuilder<T> metricOption(MetricOption metricOption) {
         this.metricOption = metricOption;
         return this;
