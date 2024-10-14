@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.dirtydata;
 
 /**
- * connector base option constant
+ * Connector base option constant
  */
 public final class Constants {
 
