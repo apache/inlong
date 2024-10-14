@@ -144,6 +144,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .debeziumProperties(dbzProperties)
                         .startupOptions(startupOptions)
                         .deserializer(deserializer)
+                        .metricOption(metricOption)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.sqlserver;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
+
 import com.ververica.cdc.debezium.Validator;
 import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
 import com.ververica.cdc.debezium.internal.DebeziumOffset;
@@ -61,6 +64,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -199,17 +204,24 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /** Buffer the events from the source and record the errors from the debezium. */
     private transient Handover handover;
 
+    private transient SourceExactlyMetric sourceExactlyMetric;
+
+    private final MetricOption metricOption;
+
+    private transient Map<Long, Long> checkpointStartTimeMap;
+
     // ---------------------------------------------------------------------------------------
 
     public DebeziumSourceFunction(
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator) {
+            Validator validator, MetricOption metricOption) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -222,6 +234,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
+        if (metricOption != null) {
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption, getRuntimeContext().getMetricGroup());
+        }
+        if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
+            ((RowDataDebeziumDeserializeSchema) deserializer)
+                    .setSourceExactlyMetric(sourceExactlyMetric);
+        }
+        this.checkpointStartTimeMap = new HashMap<>();
     }
 
     // ------------------------------------------------------------------------
@@ -306,17 +326,33 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
-        if (handover.hasError()) {
-            LOG.debug("snapshotState() called on closed source");
-            throw new FlinkRuntimeException(
-                    "Call snapshotState() on closed source, checkpoint failed.");
-        } else {
-            snapshotOffsetState(functionSnapshotContext.getCheckpointId());
-            snapshotHistoryRecordsState();
-        }
-        if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
-            ((RowDataDebeziumDeserializeSchema) deserializer)
-                    .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
+        try {
+            if (handover.hasError()) {
+                LOG.debug("snapshotState() called on closed source");
+                throw new FlinkRuntimeException(
+                        "Call snapshotState() on closed source, checkpoint failed.");
+            } else {
+                snapshotOffsetState(functionSnapshotContext.getCheckpointId());
+                snapshotHistoryRecordsState();
+            }
+            if (deserializer instanceof RowDataDebeziumDeserializeSchema) {
+                ((RowDataDebeziumDeserializeSchema) deserializer)
+                        .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
+            }
+            if (checkpointStartTimeMap != null) {
+                checkpointStartTimeMap.put(functionSnapshotContext.getCheckpointId(), System.currentTimeMillis());
+            } else {
+                LOG.error("checkpointStartTimeMap is null, can't record the start time of checkpoint");
+            }
+
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumSnapshotCreate();
+            }
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumSnapshotCreate();
+            }
+            throw e;
         }
     }
 
@@ -497,6 +533,16 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 RowDataDebeziumDeserializeSchema schema = (RowDataDebeziumDeserializeSchema) deserializer;
                 schema.flushAudit();
                 schema.updateLastCheckpointId(checkpointId);
+            }
+            if (checkpointStartTimeMap != null) {
+                Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
+                if (snapShotStartTimeById != null && sourceExactlyMetric != null) {
+                    sourceExactlyMetric.incNumSnapshotComplete();
+                    sourceExactlyMetric.recordSnapshotToCheckpointDelay(
+                            System.currentTimeMillis() - snapShotStartTimeById);
+                }
+            } else {
+                LOG.error("checkpointStartTimeMap is null, can't get the start time of checkpoint");
             }
         } catch (Exception e) {
             // ignore exception if we are no longer running
