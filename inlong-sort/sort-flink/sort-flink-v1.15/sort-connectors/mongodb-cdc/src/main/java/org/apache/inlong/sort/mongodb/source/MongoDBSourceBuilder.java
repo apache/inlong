@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.mongodb.source;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.mongodb.DebeziumDeserializationSchema;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
@@ -54,6 +55,7 @@ public class MongoDBSourceBuilder<T> {
 
     private final MongoDBSourceConfigFactory configFactory = new MongoDBSourceConfigFactory();
     private DebeziumDeserializationSchema<T> deserializer;
+    private MetricOption metricOption;
 
     /** The comma-separated list of hostname and port pairs of mongodb servers. */
     public MongoDBSourceBuilder<T> hosts(String hosts) {
@@ -186,6 +188,11 @@ public class MongoDBSourceBuilder<T> {
      */
     public MongoDBSourceBuilder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
         this.deserializer = deserializer;
+        return this;
+    }
+
+    public MongoDBSourceBuilder<T> metricOption(MetricOption metricOption) {
+        this.metricOption = metricOption;
         return this;
     }
 
