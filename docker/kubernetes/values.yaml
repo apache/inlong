@@ -28,25 +28,25 @@ components:
 images:
   agent:
     repository: inlong/agent
-    tag: latest
+    tag: 2.0.0
   dashboard:
     repository: inlong/dashboard
-    tag: latest
+    tag: 2.0.0
   dataproxy:
     repository: inlong/dataproxy
-    tag: latest
+    tag: 2.0.0
   tubemqManager:
     repository: inlong/tubemq-manager
-    tag: latest
+    tag: 2.0.0
   tubemqServer:
     repository: inlong/tubemq-all
-    tag: latest
+    tag: 2.0.0
   manager:
     repository: inlong/manager
-    tag: latest
+    tag: 2.0.0
   audit:
     repository: inlong/audit
-    tag: latest
+    tag: 2.0.0
   mysql:
     repository: mysql
     tag: 8.0.28
