@@ -117,8 +117,11 @@ public class JsonArrayInsertFunction implements ValueParser {
 
         // If the index exceeds the length of the array, insert at the end
         if (index >= array.size()) {
-            array.add(value);
-        } else {
+            index = array.size();
+        }
+        try {
+            array.add(index, JSON.parse(value.toString()));
+        } catch (Exception ignored) {
             array.add(index, value);
         }
     }
