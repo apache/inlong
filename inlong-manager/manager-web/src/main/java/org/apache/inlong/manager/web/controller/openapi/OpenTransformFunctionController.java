@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
@@ -24,13 +25,13 @@ import org.apache.inlong.manager.service.transform.TransformFunctionDocService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-
-import java.util.List;
 
 /**
  * Open InLong transform function controller
@@ -43,9 +44,10 @@ public class OpenTransformFunctionController {
     @Resource
     private TransformFunctionDocService transformFunctionDocService;
 
-    @RequestMapping(value = "/function/docs", method = RequestMethod.GET)
+    @RequestMapping(value = "/function/docs", method = RequestMethod.POST)
     @ApiOperation(value = "Get transform function docs list with optional type filtering and pagination")
-    public Response<List<TransformFunctionDocResponse>> listDocs(TransformFunctionDocRequest request) {
+    public Response<PageResult<TransformFunctionDocResponse>> listDocs(
+            @Validated @RequestBody TransformFunctionDocRequest request) {
         return Response.success(transformFunctionDocService.getFunctionDocs(request));
     }
 

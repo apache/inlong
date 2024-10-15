@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
-
-import java.util.List;
 /**
  * Service layer interface for transform function docs
  */
@@ -32,6 +31,6 @@ public interface TransformFunctionDocService {
      * @param request the TransformFunctionDocRequest request
      * @return list of TransformFunctionDocResponse
      */
-    List<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request);
+    PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request);
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.sdk.transform.process.function.FunctionTools;
@@ -24,7 +25,6 @@ import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
     private final Map<String, List<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
 
     @Override
-    public List<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
+    public PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
         String type = request.getType();
         int pageNum = request.getPageNum();
         int pageSize = request.getPageSize();
@@ -45,7 +45,7 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
             List<FunctionInfo> functionInfos = functionDocMap.get(type);
 
             if (functionInfos == null || functionInfos.isEmpty()) {
-                return new ArrayList<>();
+                return PageResult.empty(0L);
             }
             return paginateFunctionInfos(functionInfos, pageNum, pageSize);
         }
@@ -57,8 +57,8 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         return paginateFunctionInfos(allFunctionInfos, pageNum, pageSize);
     }
 
-    private List<TransformFunctionDocResponse> paginateFunctionInfos(List<FunctionInfo> functionInfos, int pageNum,
-            int pageSize) {
+    private PageResult<TransformFunctionDocResponse> paginateFunctionInfos(List<FunctionInfo> functionInfos,
+            int pageNum, int pageSize) {
 
         // pagination handle
         int totalItems = functionInfos.size();
@@ -66,16 +66,18 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         int endIndex = Math.min(startIndex + pageSize, totalItems);
 
         if (startIndex >= totalItems) {
-            return new ArrayList<>();
+            return PageResult.empty((long) totalItems);
         }
         List<FunctionInfo> pagedFunctionInfos = functionInfos.subList(startIndex, endIndex);
 
-        return pagedFunctionInfos.stream()
+        List<TransformFunctionDocResponse> responseList = pagedFunctionInfos.stream()
                 .map(functionInfo -> new TransformFunctionDocResponse(
                         functionInfo.getFunctionName(),
                         functionInfo.getExplanation(),
                         functionInfo.getExample()))
                 .collect(Collectors.toList());
+
+        return new PageResult<>(responseList, (long) totalItems, pageNum, pageSize);
     }
 
 }
