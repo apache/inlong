@@ -47,19 +47,19 @@ public class TestJsonArrayAppendFunction extends AbstractFunctionJsonTestBase {
         data = "[\\\"a\\\",[\\\"b\\\",\\\"c\\\"],\\\"d\\\"]|$[1]|1|";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",[\"b\",\"c\",\"1\"],\"d\"]", output.get(0));
+        Assert.assertEquals("result=[\"a\",[\"b\",\"c\",1],\"d\"]", output.get(0));
 
         // case2: json_array_append(["a", ["b", "c"], "d"], $[0],2)
         data = "[\\\"a\\\",[\\\"b\\\",\\\"c\\\"],\\\"d\\\"]|$[0]|2|";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[[\"a\",\"2\"],[\"b\",\"c\"],\"d\"]", output.get(0));
+        Assert.assertEquals("result=[[\"a\",2],[\"b\",\"c\"],\"d\"]", output.get(0));
 
         // case3: json_array_append(["a", ["b", "c"], "d"],$[1][0],3)
         data = "[\\\"a\\\",[\\\"b\\\",\\\"c\\\"],\\\"d\\\"]|$[1][0]|3|";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[\"a\",[[\"b\",\"3\"],\"c\"],\"d\"]", output.get(0));
+        Assert.assertEquals("result=[\"a\",[[\"b\",3],\"c\"],\"d\"]", output.get(0));
 
         // case4: json_array_append("{\"a\": 1, \"b\": [2, 3], \"c\": 4}",$.b,"x")
         data = "{\\\"a\\\": 1, \\\"b\\\": [2, 3], \\\"c\\\": 4}|$.b|x|";
@@ -88,6 +88,12 @@ public class TestJsonArrayAppendFunction extends AbstractFunctionJsonTestBase {
         data = "[\\\"a\\\", [\\\"b\\\", \\\"c\\\"], \\\"d\\\"]|$[0]|2|$[1]|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=[[\"a\",\"2\"],[\"b\",\"c\",\"3\"],\"d\"]", output.get(0));
+        Assert.assertEquals("result=[[\"a\",2],[\"b\",\"c\",3],\"d\"]", output.get(0));
+
+        // case8: json_array_append(["a", ["b", "c"], "d"],$[0],"[\"inlong\"]",$[0][1],3)
+        data = "[\\\"a\\\", [\\\"b\\\", \\\"c\\\"], \\\"d\\\"]|$[0]|[\\\"inlong\\\"]|$[0][1]|3";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=[[\"a\",[\"inlong\",3]],[\"b\",\"c\"],\"d\"]", output.get(0));
     }
 }

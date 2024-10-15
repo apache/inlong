@@ -19,13 +19,11 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
@@ -34,23 +32,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JsonArrayAppendFunction   ->   JSON_ARRAY_APPEND(json_doc, path, val[, path, val] ...)
+ * JsonSetFunction   ->  JSON_SET(json_doc, path, val[, path, val, ...] )
  * description:
- * - Return NULL if any argument is NULL.
- * - Return the result of appends values to the end of the indicated arrays within a JSON document.
+ * - return NULL if any argument is NULL or the 'json_doc' argument is not a valid JSON document or any path argument
+ *          is not a valid path expression or contains a * or ** wildcard;
+ * - return the result of inserting or updating data in 'json_doc'.
  */
-@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
-        "json_array_append"}, parameter = "(String json_doc, String path1, String val1[,String path2, String val2, ...])", descriptions = {
-                "- Return \"\" if any argument is NULL;",
-                "- Return the result of appends values to the end of the indicated arrays within a JSON document."
+@TransformFunction(names = {
+        "json_set"}, parameter = "(String json_doc, String path1, String val1[, String path2, String val2, ...] )", descriptions = {
+                "- Return \"\" if any argument is NULL or the 'json_doc' argument is not a valid JSON document or any path argument"
+                        +
+                        " is not a valid path expression or contains a * or ** wildcard;",
+                "- Return the result of inserting or updating data in 'json_doc'."
         }, examples = {
-                "json_array_append([\"a\", [\"b\", \"c\"], \"d\"],$[0],2,$[1],3) = [[\"a\",\"2\"],[\"b\",\"c\",\"3\"],\"d\"]"})
-public class JsonArrayAppendFunction implements ValueParser {
+                "json_set({\\\"name\\\":\\\"Alice\\\"},\"$.name\",\"inlong\") = {\"name\":\"inlong\"}"
+        })
+public class JsonSetFunction implements ValueParser {
 
     private ValueParser jsonDocParser;
     private List<ValueParser> pathValuePairsParser;
 
-    public JsonArrayAppendFunction(Function expr) {
+    public JsonSetFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         jsonDocParser = OperatorTools.buildParser(expressions.get(0));
         pathValuePairsParser = new ArrayList<>();
@@ -69,66 +71,35 @@ public class JsonArrayAppendFunction implements ValueParser {
         for (ValueParser valueParser : pathValuePairsParser) {
             pathValuePairs.add(valueParser.parse(sourceData, rowIndex, context));
         }
-        return jsonArrayAppend(jsonDocObj.toString(), pathValuePairs);
+        return jsonSet(jsonDocObj.toString(), pathValuePairs);
     }
 
-    public static String jsonArrayAppend(String jsonDoc, ArrayList<Object> pathValuePairs) {
+    private String jsonSet(String jsonDoc, ArrayList<Object> pathValuePairs) {
         if (jsonDoc == null || pathValuePairs == null || pathValuePairs.size() % 2 != 0) {
             return null;
         }
 
-        Object jsonObject;
-        try {
-            jsonObject = JSON.parse(jsonDoc);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid JSON document", e);
-        }
+        Object json = JSON.parse(jsonDoc);
 
-        // Process each pair of path and val
         for (int i = 0; i < pathValuePairs.size(); i += 2) {
             String path = (String) pathValuePairs.get(i);
             Object value = pathValuePairs.get(i + 1);
 
-            // Attempt to append a value to the array pointed to by the specified path
-            try {
-                jsonObject = appendValueToArray(jsonObject, path, JSON.parse(value.toString()));
-            } catch (Exception e) {
-                jsonObject = appendValueToArray(jsonObject, path, value);
+            if (path == null || path.contains("*") || path.contains("**")) {
+                throw new IllegalArgumentException("Invalid path expression: " + path);
             }
-        }
-
-        return JSON.toJSONString(jsonObject);
-    }
-
-    /**
-     * Append values to an array at a specified path
-     *
-     * @param jsonObject The object parsed by jsonDoc
-     * @param path       path
-     * @param value      value
-     */
-    private static Object appendValueToArray(Object jsonObject, String path, Object value) {
-        Object targetNode = JSONPath.eval(jsonObject, path);
-
-        if (targetNode == null) {
-            throw new IllegalArgumentException("Target path does not exist.");
-        }
-
-        // If it is already an array type, simply append it
-        if (targetNode instanceof JSONArray) {
-            JSONArray array = (JSONArray) targetNode;
-            array.add(value);
-        }
-        // If it is a non array type, convert it to an array and append it
-        else {
-            JSONArray newArray = new JSONArray();
-            newArray.add(targetNode);
-            newArray.add(value);
             if ("$".equals(path)) {
-                return newArray;
+                json = JSON.parse(value.toString());
+                continue;
             }
-            JSONPath.set(jsonObject, path, newArray);
+            // Insert or update data, if the path does not exist, insert new data
+            try {
+                JSONPath.set(json, path, JSON.parse(value.toString()));
+            } catch (Exception ignored) {
+                JSONPath.set(json, path, value);
+            }
         }
-        return jsonObject;
+
+        return json.toString();
     }
 }
