@@ -39,9 +39,11 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_value"}, parameter = "(String json_doc,String path)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the scalar extracted from JSON string ('json_doc') based on 'path'."}, examples = {
-                        "json_value({\"a\": 1}, $.a) = 1",
-                        "json_value({\\\"person\\\": {\\\"name\\\": \\\"Alice\\\" ,\\\"age\\\": 30}}, $.person.name) = Alice"})
+                "- Return the scalar extracted from JSON string ('json_doc') based on 'path'."
+        }, examples = {
+                "json_value({\"a\": 1}, $.a) = 1",
+                "json_value({\\\"person\\\": {\\\"name\\\": \\\"Alice\\\" ,\\\"age\\\": 30}}, $.person.name) = Alice"
+        })
 public class JsonValueFunction implements ValueParser {
 
     private final ValueParser jsonParser;

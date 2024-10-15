@@ -38,8 +38,11 @@ import java.util.ArrayList;
         "array_position"}, parameter = "(Array array,Object element)", descriptions = {
                 "- Return \"\" if any parameter is null;",
                 "- Return the position of the first occurrence of 'element' in the given 'array' as int (starts from 1);",
-                "- Return 0 if the given value could not be found in the 'array'."}, examples = {
-                        "array_position(array('he',7,'xxd'),'he') = 1", "array_position(array('he',7,''),'_') = 0"})
+                "- Return 0 if the given value could not be found in the 'array'."
+        }, examples = {
+                "array_position(array('he',7,'xxd'),'he') = 1",
+                "array_position(array('he',7,''),'_') = 0"
+        })
 public class ArrayPositionFunction implements ValueParser {
 
     private final ValueParser arrayParser;

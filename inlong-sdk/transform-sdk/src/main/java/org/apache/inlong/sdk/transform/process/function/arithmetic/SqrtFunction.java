@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "sqrt"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the square root of 'numeric'."}, examples = {"sqrt(9) = 3.0"})
+                "- Return the square root of 'numeric'."
+        }, examples = {"sqrt(9) = 3.0"})
 public class SqrtFunction implements ValueParser {
 
     private ValueParser numberParser;

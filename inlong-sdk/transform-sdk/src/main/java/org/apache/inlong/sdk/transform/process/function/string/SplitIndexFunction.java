@@ -36,12 +36,14 @@ import java.util.List;
  * - Return NULL if the index is out of bounds of the split strings
  * - Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"split_index",
-        "splitindex"}, parameter = "(String str, String delimiter, Integer index)", descriptions = {
-                "- Return \"\" if the index is negative or any of the arguments is NULL;",
-                "- Return \"\" NULL if the index is out of bounds of the split strings;",
-                "- Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'."}, examples = {
-                        "split_index('a,b,c', ',', 1) = \"b\""})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "split_index",
+        "splitindex"
+}, parameter = "(String str, String delimiter, Integer index)", descriptions = {
+        "- Return \"\" if the index is negative or any of the arguments is NULL;",
+        "- Return \"\" NULL if the index is out of bounds of the split strings;",
+        "- Return the string at the given 'index' integer(zero-based) after splitting 'str' by 'delimiter'."
+}, examples = {"split_index('a,b,c', ',', 1) = \"b\""})
 public class SplitIndexFunction implements ValueParser {
 
     private final ValueParser strParser;

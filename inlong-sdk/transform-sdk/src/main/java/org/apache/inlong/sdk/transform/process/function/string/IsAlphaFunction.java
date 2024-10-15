@@ -35,8 +35,11 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "is_alpha"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" If 'str' is NULL;", "- Return true if all characters in 'str' are letter;",
-                "- Return false otherwise (Including cases where string is null and '')."}, examples = {
-                        "is_alpha('inlong') = true", "is_alpha('inlong~') = false",})
+                "- Return false otherwise (Including cases where string is null and '')."
+        }, examples = {
+                "is_alpha('inlong') = true",
+                "is_alpha('inlong~') = false"
+        })
 public class IsAlphaFunction implements ValueParser {
 
     private final ValueParser stringParser;

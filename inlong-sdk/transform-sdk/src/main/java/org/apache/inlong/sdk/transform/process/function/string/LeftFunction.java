@@ -38,9 +38,13 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "left"}, parameter = "(String str, Integer len)", descriptions = {
-                "- Return \"\" if any parameter is NULL;", "- Return \"\" if 'len' is less than or equal to zero;",
-                "- Return a substring of len starting from the right side of the 'str'."}, examples = {
-                        "left('hello world',100) = \"hello world\"", "left('hello world',-15) = \"\""})
+                "- Return \"\" if any parameter is NULL;",
+                "- Return \"\" if 'len' is less than or equal to zero;",
+                "- Return a substring of len starting from the right side of the 'str'."
+        }, examples = {
+                "left('hello world',100) = \"hello world\"",
+                "left('hello world',-15) = \"\""
+        })
 public class LeftFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -32,10 +32,13 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if 's' is NULL;
  * - Return the result of converting 's' to uppercase
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"upper",
-        "ucase"}, parameter = "(String s)", descriptions = {
-                "- Return \"\" if 's' is NULL;",
-                "- Return the result of converting 's' to uppercase"}, examples = {"upper(\"ApPlE\") = \"APPLE\""})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "upper",
+        "ucase"
+}, parameter = "(String s)", descriptions = {
+        "- Return \"\" if 's' is NULL;",
+        "- Return the result of converting 's' to uppercase"
+}, examples = {"upper(\"ApPlE\") = \"APPLE\""})
 public class UpperFunction implements ValueParser {
 
     private ValueParser stringParser;

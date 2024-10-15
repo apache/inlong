@@ -38,8 +38,11 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_arrays"}, parameter = "([String value1, String value2, ...])", descriptions = {
-                "- Return a JSON array string constructed from a list of values."}, examples = {"JSON_ARRAYS() = []",
-                        "JSON_ARRAYS(1, '2') = [1,\"2\"]", "JSON_ARRAYS(JSON_ARRAY(1)) = [[1]]"})
+                "- Return a JSON array string constructed from a list of values."}, examples = {
+                        "JSON_ARRAYS() = []",
+                        "JSON_ARRAYS(1, '2') = [1,\"2\"]",
+                        "JSON_ARRAYS(JSON_ARRAY(1)) = [[1]]"
+                })
 public class JsonArraysFunction implements ValueParser {
 
     private List<ValueParser> parserList;

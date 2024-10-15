@@ -38,8 +38,8 @@ import java.util.Collections;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_reverse"}, parameter = "(Array array)", descriptions = {
                 "- Return \"\" if 'array' is null;",
-                "- Return an array in reverse order."}, examples = {
-                        "array_reverse(array('he',7,'xxd')) = [xxd, 7, he]"})
+                "- Return an array in reverse order."
+        }, examples = {"array_reverse(array('he',7,'xxd')) = [xxd, 7, he]"})
 public class ArrayReverseFunction implements ValueParser {
 
     private final ValueParser arrayParser;

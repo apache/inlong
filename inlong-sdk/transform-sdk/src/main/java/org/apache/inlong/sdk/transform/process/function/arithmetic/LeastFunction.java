@@ -40,7 +40,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "least"}, parameter = "(Numeric value1 [, Numeric value2, ...])", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the least value of the list of arguments."}, examples = {"least(3.14, least(7, 2, 1)) = 1"})
+                "- Return the least value of the list of arguments."
+        }, examples = {"least(3.14, least(7, 2, 1)) = 1"})
 public class LeastFunction implements ValueParser {
 
     private List<ValueParser> parserList;

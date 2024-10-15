@@ -47,9 +47,17 @@ import java.util.stream.Collectors;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_matches"}, parameter = "(String source_string, String regexp [,String flags])", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return the result of the first match of the specified regular expression 'regexp' from 'source_string'. Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur, 'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and comments in regular expressions), 'm' and 'n' -> flag allows regular expressions to match across multiple lines)"}, examples = {
-                        "regexp_matches(\"The quick brown fox\", \"quick\") = [{\"quick\"}]",
-                        "regexp_matches(\"foo 123 bar 456\", \"\\\\d+\", \"g\") = [{\"123\"},{\"456\"}]"})
+                "- Return the result of the first match of the specified regular expression 'regexp' from 'source_string'. "
+                        +
+                        "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur"
+                        +
+                        ", 'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and comments "
+                        +
+                        "in regular expressions), 'm' and 'n' -> flag allows regular expressions to match across multiple lines)"
+        }, examples = {
+                "regexp_matches(\"The quick brown fox\", \"quick\") = [{\"quick\"}]",
+                "regexp_matches(\"foo 123 bar 456\", \"\\\\d+\", \"g\") = [{\"123\"},{\"456\"}]"
+        })
 public class RegexpMatchesFunction implements ValueParser {
 
     private ValueParser inputParser;

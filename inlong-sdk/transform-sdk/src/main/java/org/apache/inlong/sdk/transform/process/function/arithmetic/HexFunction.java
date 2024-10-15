@@ -41,8 +41,8 @@ import java.util.regex.Pattern;
         "hex"}, parameter = "(String dataStr)", descriptions = {
                 "- Return \"\" if dataStr is NULL;",
                 "- Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric;",
-                "- Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise."}, examples = {
-                        "hex(1007) = \"3EF\"", "hex('abc') = \"616263\""})
+                "- Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise."
+        }, examples = {"hex(1007) = \"3EF\"", "hex('abc') = \"616263\""})
 public class HexFunction implements ValueParser {
 
     private static final Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$");

@@ -37,9 +37,12 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "atand"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the arc tangent of 'numeric' in units of degrees."}, examples = {"atand(1) = 45.0",
-                        "atand(0) = 0.0",
-                        "atand(-1) = -45.0"})
+                "- Return the arc tangent of 'numeric' in units of degrees."
+        }, examples = {
+                "atand(1) = 45.0",
+                "atand(0) = 0.0",
+                "atand(-1) = -45.0"
+        })
 public class AtandFunction implements ValueParser {
 
     private ValueParser numberParser;

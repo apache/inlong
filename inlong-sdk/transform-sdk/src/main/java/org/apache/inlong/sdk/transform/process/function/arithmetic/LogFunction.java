@@ -39,8 +39,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "log"}, parameter = "(Numeric numeric1 [, Numeric numeric2])", descriptions = {
                 "- Return the natural logarithm of 'numeric1' when called with one argument;",
-                "- Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments."}, examples = {
-                        "log(1) = 0.0", "log(2,8) = 3.0"})
+                "- Return the logarithm of 'numeric2' to the base 'numeric1' when called with two arguments."
+        }, examples = {"log(1) = 0.0", "log(2,8) = 3.0"})
 public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;

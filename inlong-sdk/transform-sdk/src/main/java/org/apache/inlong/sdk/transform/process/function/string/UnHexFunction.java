@@ -35,8 +35,9 @@ import net.sf.jsqlparser.expression.Function;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"unhex"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if 'str' is NULL;",
-        "- Return the result of interpreting each pair of characters in the argument as the character corresponding to its hexadecimal number.",}, examples = {
-                "unhex(\"696E6C6F6E67\") = \"inlong\""})
+        "- Return the result of interpreting each pair of characters in the argument as the character " +
+                "corresponding to its hexadecimal number."
+}, examples = {"unhex(\"696E6C6F6E67\") = \"inlong\""})
 public class UnHexFunction implements ValueParser {
 
     private ValueParser valueParser;

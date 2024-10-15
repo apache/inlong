@@ -34,7 +34,8 @@ import net.sf.jsqlparser.expression.Function;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"ltrim"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if 'str' is NULL;",
-        "- Return the string 'str' without leading spaces."}, examples = {"ltrim(' in long ') = \"in long \""})
+        "- Return the string 'str' without leading spaces."
+}, examples = {"ltrim(' in long ') = \"in long \""})
 public class LtrimFunction implements ValueParser {
 
     private ValueParser stringParser;

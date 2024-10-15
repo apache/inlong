@@ -38,9 +38,11 @@ import java.util.ArrayList;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_contains"}, parameter = "(Array array, Object needle)", descriptions = {
                 "- Return \"\" if 'array' is NULL;", "- Return whether the given element exists in 'array'.",
-                "Note: Checking for null elements in the array is supported."}, examples = {
-                        "array_contains(array('he',7,'xxd'), 'cloud') = false",
-                        "array_contains(array('he',-1,''),'') = true"})
+                "Note: Checking for null elements in the array is supported."
+        }, examples = {
+                "array_contains(array('he',7,'xxd'), 'cloud') = false",
+                "array_contains(array('he',-1,''),'') = true"
+        })
 public class ArrayContainsFunction implements ValueParser {
 
     private final ValueParser arrayParser;

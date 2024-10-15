@@ -46,10 +46,12 @@ import java.util.List;
 @Slf4j
 @TransformFunction(type = FunctionConstant.COMPRESSION_TYPE, names = {
         "uncompress"}, parameter = "(String string_to_uncompress, String compress_type)", descriptions = {
-                "- Return \"\" if 'string_to_uncompress' is NULL;", "- Return \"\" if 'string_to_uncompress' is \"\";",
+                "- Return \"\" if 'string_to_uncompress' is NULL;",
+                "- Return \"\" if 'string_to_uncompress' is \"\";",
                 "- Return the result as a string.",
-                "Note: This function supports three compression algorithms: deflater, gzip and zip. 'compress_type' defaults to defer."}, examples = {
-                        "uncompress(compress('inlong')) = \"inlong\""})
+                "Note: This function supports three compression algorithms: deflater, gzip and zip. 'compress_type' " +
+                        "defaults to defer."
+        }, examples = {"uncompress(compress('inlong')) = \"inlong\""})
 public class UnCompressFunction implements ValueParser {
 
     private final ValueParser stringParser;

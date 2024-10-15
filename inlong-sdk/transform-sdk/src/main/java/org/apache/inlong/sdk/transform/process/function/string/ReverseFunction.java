@@ -34,8 +34,8 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "reverse"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" if 'str' is a empty string or NULL;",
-                "- Return the 'str' with the order of the characters reversed."}, examples = {
-                        "reverse('apple') = \"elppa\""})
+                "- Return the 'str' with the order of the characters reversed."
+        }, examples = {"reverse('apple') = \"elppa\""})
 public class ReverseFunction implements ValueParser {
 
     private ValueParser stringParser;

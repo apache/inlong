@@ -34,8 +34,8 @@ import net.sf.jsqlparser.expression.Function;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"rtrim"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if 'str' is NULL;",
-        "- Return the string 'str' with trailing space characters removed."}, examples = {
-                "rtrim(' in long ') = \" in long\""})
+        "- Return the string 'str' with trailing space characters removed."
+}, examples = {"rtrim(' in long ') = \" in long\""})
 public class RtrimFunction implements ValueParser {
 
     private ValueParser stringParser;

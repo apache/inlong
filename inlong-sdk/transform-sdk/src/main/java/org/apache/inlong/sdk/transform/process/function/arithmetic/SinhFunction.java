@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "sinh"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the hyperbolic sine of 'numeric'."}, examples = {"sinh(1) = 1.1752011936438014"})
+                "- Return the hyperbolic sine of 'numeric'."
+        }, examples = {"sinh(1) = 1.1752011936438014"})
 public class SinhFunction implements ValueParser {
 
     private ValueParser numberParser;

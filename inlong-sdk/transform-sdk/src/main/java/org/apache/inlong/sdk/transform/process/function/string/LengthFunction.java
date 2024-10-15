@@ -39,9 +39,13 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "length"}, parameter = "(String str, String charset)", descriptions = {
-                "- Return \"\" if 'str' is NULL;", "- Return the byte length of the 'str'.",
-                "Note: charset defaults to matching with JVM."}, examples = {"length(应龙, utf-8) = 6",
-                        "length('hello world') = 11"})
+                "- Return \"\" if 'str' is NULL;",
+                "- Return the byte length of the 'str'.",
+                "Note: charset defaults to matching with JVM."
+        }, examples = {
+                "length(应龙, utf-8) = 6",
+                "length('hello world') = 11"
+        })
 public class LengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

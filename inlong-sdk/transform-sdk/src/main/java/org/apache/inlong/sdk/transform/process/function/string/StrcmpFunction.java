@@ -39,9 +39,11 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "strcmp"}, parameter = "(String s1, String s2)", descriptions = {
-                "- Return \"\" if either argument is NULL;", "- Return 0 if the strings are the same;",
+                "- Return \"\" if either argument is NULL;",
+                "- Return 0 if the strings are the same;",
                 "- Return -1 if 's1' is smaller than 's2' according to the current sort order;",
-                "- Return 1 otherwise."}, examples = {"strcmp('hello world','banana') = 1"})
+                "- Return 1 otherwise."
+        }, examples = {"strcmp('hello world','banana') = 1"})
 public class StrcmpFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

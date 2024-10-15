@@ -44,9 +44,12 @@ import java.util.Map;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "translate"}, parameter = "(String origin_string, String find_chars, String replace_chars)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the characters in 'replace_chars'."}, examples = {
-                        "translate(apache@inlong.com, '@', '.') = \"apache.inlong.com\"",
-                        "translate(hello WorD, 'WD', 'wd') = \"hello word\""})
+                "- Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the " +
+                        "characters in 'replace_chars'."
+        }, examples = {
+                "translate(apache@inlong.com, '@', '.') = \"apache.inlong.com\"",
+                "translate(hello WorD, 'WD', 'wd') = \"hello word\""
+        })
 public class TranslateFunction implements ValueParser {
 
     private ValueParser originalStrParser;

@@ -41,8 +41,8 @@ import static org.apache.commons.codec.digest.MessageDigestAlgorithms.SHA_224;
 @TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
         "sha2"}, parameter = "(String str, Integer hash_length)", descriptions = {
                 "- Return \"\" if either argument is NULL or the 'hash_length' is not one of (224,256,384,512);",
-                "- Return scale of the argument (the number of decimal digits in the fractional part)."}, examples = {
-                        "sha2(\"5\",224) = \"b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17\""})
+                "- Return scale of the argument (the number of decimal digits in the fractional part)."
+        }, examples = {"sha2(\"5\",224) = \"b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17\""})
 public class Sha2Function implements ValueParser {
 
     private final ValueParser msgParser;

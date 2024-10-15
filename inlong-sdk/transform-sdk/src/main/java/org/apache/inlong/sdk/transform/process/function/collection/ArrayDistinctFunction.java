@@ -39,8 +39,8 @@ import java.util.Set;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_distinct"}, parameter = "(Array array)", descriptions = {
                 "- Return \"\" if 'array' is NULL;",
-                "- Return an array with unique elements.",}, examples = {
-                        "array_distinct(array('he',-1,'he')) = [he, -1]"})
+                "- Return an array with unique elements."
+        }, examples = {"array_distinct(array('he',-1,'he')) = [he, -1]"})
 public class ArrayDistinctFunction implements ValueParser {
 
     private final ValueParser arrayParser;

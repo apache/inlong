@@ -37,9 +37,10 @@ import java.util.List;
  * - Return a substring of 'len' starting from the right side of the 'str'.
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"right"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if either 'str' or 'len' is NULL;", "- Return \"\" if it is less than or equal to zero;",
-        "- Return a substring of 'len' starting from the right side of the 'str'."}, examples = {
-                "right('hello world',100) = \"hello world\""})
+        "- Return \"\" if either 'str' or 'len' is NULL;",
+        "- Return \"\" if it is less than or equal to zero;",
+        "- Return a substring of 'len' starting from the right side of the 'str'."
+}, examples = {"right('hello world',100) = \"hello world\""})
 public class RightFunction implements ValueParser {
 
     private final ValueParser stringParser;

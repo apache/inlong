@@ -40,9 +40,11 @@ import java.util.Set;
         "array_except"}, parameter = "(Array array1, Array array2)", descriptions = {
                 "- Return \"\" if any parameter is null;",
                 "- Return an ARRAY that contains the elements from 'array1' that are not in 'array2', without duplicates;",
-                "- Return an empty ARRAY if no elements remain after excluding the elements in 'array2' from 'array1'."}, examples = {
-                        "array_except(array('he',7,'xxd'),array('he')) = [7, xxd]",
-                        "array_except(array('he',7,'xxd'),array('cloud')) = [he, 7, xxd]"})
+                "- Return an empty ARRAY if no elements remain after excluding the elements in 'array2' from 'array1'."
+        }, examples = {
+                "array_except(array('he',7,'xxd'),array('he')) = [7, xxd]",
+                "array_except(array('he',7,'xxd'),array('cloud')) = [he, 7, xxd]"
+        })
 public class ArrayExceptFunction implements ValueParser {
 
     private final ValueParser leftArrayParser;

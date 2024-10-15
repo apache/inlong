@@ -37,7 +37,11 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
         "isnull"}, parameter = "(Expr expr)", descriptions = {
                 "- Return true if 'expr' is NULL;",
-                "- Return false otherwise."}, examples = {"isnull(5 + 3) = false", "isnull(5 / 0) = true"})
+                "- Return false otherwise."
+        }, examples = {
+                "isnull(5 + 3) = false",
+                "isnull(5 / 0) = true"
+        })
 public class IsNullFunction implements ValueParser {
 
     private ValueParser stringParser;

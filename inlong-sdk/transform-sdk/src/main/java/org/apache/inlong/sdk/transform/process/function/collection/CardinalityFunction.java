@@ -39,8 +39,11 @@ import java.util.Map;
         "cardinality"}, parameter = "(Object input)", descriptions = {
                 "- Return \"\" if the input is NULL;",
                 "- Return the number of elements in array if the input is array;",
-                "- Return the number of entries in map if the input is map."}, examples = {
-                        "cardinality(array('he',7,'xxd')) = 3", "cardinality(map('he',7,'xxd',3)) = 2"})
+                "- Return the number of entries in map if the input is map."
+        }, examples = {
+                "cardinality(array('he',7,'xxd')) = 3",
+                "cardinality(map('he',7,'xxd',3)) = 2"
+        })
 public class CardinalityFunction implements ValueParser {
 
     private final ValueParser valueParser;

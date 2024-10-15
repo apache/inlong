@@ -32,11 +32,13 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if 'str' is NULL;
  * - Return the result of deleting spaces before and after the 'str'.
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"trim",
-        "btrim"}, parameter = "(String str)", descriptions = {
-                "- Return \"\" if 'str' is NULL;",
-                "- Return the result of deleting spaces before and after the 'str'."}, examples = {
-                        "trim(' in long ') = \"in long\""})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "trim",
+        "btrim"
+}, parameter = "(String str)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the result of deleting spaces before and after the 'str'."
+}, examples = {"trim(' in long ') = \"in long\""})
 public class TrimFunction implements ValueParser {
 
     private ValueParser stringParser;

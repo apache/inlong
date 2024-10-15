@@ -40,8 +40,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
         "from_base64"}, parameter = "(String base64Str)", descriptions = {
                 "- Return \"\" if 'base64Str' is NULL;",
-                "- Return the base64-decoded result from 'base64Str'."}, examples = {
-                        "from_base64('QXBhY2hlIEluTG9uZw==') = \"Apache InLong\""})
+                "- Return the base64-decoded result from 'base64Str'."
+        }, examples = {"from_base64('QXBhY2hlIEluTG9uZw==') = \"Apache InLong\""})
 public class FromBase64Function implements ValueParser {
 
     private final ValueParser stringParser;

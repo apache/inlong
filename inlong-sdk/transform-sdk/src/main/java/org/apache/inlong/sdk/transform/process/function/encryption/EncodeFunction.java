@@ -45,8 +45,8 @@ import java.util.Set;
         "encode"}, parameter = "(String strInfo,String charsetStr)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
                 "- Return the result of encoding 'strInfo' using the character set specified by 'charsetStr'.",
-                "- Note: 'charsetStr' is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16')."}, examples = {
-                        "decode(encode('Hello','UTF-8'),'UTF-8') = \"Hello\""})
+                "- Note: 'charsetStr' is one of ('US-ASCII', 'ISO-8859-1', 'UTF-8', 'UTF-16BE', 'UTF-16LE', 'UTF-16')."
+        }, examples = {"decode(encode('Hello','UTF-8'),'UTF-8') = \"Hello\""})
 public class EncodeFunction implements ValueParser {
 
     private ValueParser stringParser;

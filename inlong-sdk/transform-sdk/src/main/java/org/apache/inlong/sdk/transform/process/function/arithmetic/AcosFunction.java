@@ -35,9 +35,14 @@ import java.math.BigDecimal;
  * - Return the arc cosine of 'numeric'.
  */
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
-        "acos"}, parameter = "(Numeric numeric)", descriptions = {"- Return \"\" if 'numeric' is NULL;",
-                "- Return the arc cosine of 'numeric'."}, examples = {"acos(1) = 0.0", "acos(0) = 1.5707963267948966",
-                        "acos(-1) = 3.141592653589793"})
+        "acos"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the arc cosine of 'numeric'."
+        }, examples = {
+                "acos(1) = 0.0",
+                "acos(0) = 1.5707963267948966",
+                "acos(-1) = 3.141592653589793"
+        })
 public class AcosFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -41,8 +41,8 @@ import java.util.regex.Pattern;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_instr"}, parameter = "(String str, String regexp)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return the position of the first substring in 'str' that matches 'regexp'."}, examples = {
-                        "regexp_instr(\"abc123def\", \"(\\\\d+)\") = 4"})
+                "- Return the position of the first substring in 'str' that matches 'regexp'."
+        }, examples = {"regexp_instr(\"abc123def\", \"(\\\\d+)\") = 4"})
 public class RegexpInstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;

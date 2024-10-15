@@ -38,8 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "min_scale"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely."}, examples = {
-                        "min_scale(3.1415000000000) = 4"})
+                "- Return minimum scale (number of fractional decimal digits) needed to represent the supplied value precisely."
+        }, examples = {"min_scale(3.1415000000000) = 4"})
 public class MinScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

@@ -36,11 +36,15 @@ import java.util.List;
  * - Return NULL if 'str' is NULL
  * - Return a substring of 'str' starting from position 'pos' with length 'len' (to the end by default)
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"substring", "substr",
-        "mid"}, parameter = "(String s1, Integer pos, Integer len)", descriptions = {"- Return \"\" if 'str' is NULL;",
-                "- Return a substring of 'str' starting from position 'pos' with length 'len' (to the end by default).",
-                "Note: This function also supports \"substring(str FROM pos [ FOR len ])\"."}, examples = {
-                        "substring('apple', 1, 3) = \"app\""})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "substring",
+        "substr",
+        "mid"
+}, parameter = "(String s1, Integer pos, Integer len)", descriptions = {
+        "- Return \"\" if 'str' is NULL;",
+        "- Return a substring of 'str' starting from position 'pos' with length 'len' (to the end by default).",
+        "Note: This function also supports \"substring(str FROM pos [ FOR len ])\"."
+}, examples = {"substring('apple', 1, 3) = \"app\""})
 public class SubstringFunction implements ValueParser {
 
     private ValueParser stringParser;

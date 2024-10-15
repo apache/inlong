@@ -42,8 +42,8 @@ import java.util.regex.Pattern;
         "regexp_count"}, parameter = "(Integer INT1, [Integer INT2])", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or 'regexp' is invalid;",
                 "- Return the number of times 'str' matches the 'regexp' pattern.",
-                "Note: 'regexp' must be a Java regular expression."}, examples = {
-                        "regexp_count(\"The quick brown fox quick\", \"quick\") = 2"})
+                "Note: 'regexp' must be a Java regular expression."
+        }, examples = {"regexp_count(\"The quick brown fox quick\", \"quick\") = 2"})
 public class RegexpCountFunction implements ValueParser {
 
     private ValueParser inputStringParser;

@@ -42,8 +42,11 @@ import java.util.List;
         "- Return \"\" if any of the three parameters is NULL or 'len' is less than 0;",
         "- Return the substring of 's1' with subscripts in the range of [0, 'len') if 'len' is less than or equal to the length of 's1';",
         "- Return \"\" if 's2' is \"\" and 'len' is longer than the length of 's1';",
-        "- Return the result string of padding string 's2' at the end of string 's1' to make the length of the string 'len' if 's2' is not \"\"."}, examples = {
-                "rpad('he',1,'xxd') = \"h\"", "rpad('he',7,'') = \"\""})
+        "- Return the result string of padding string 's2' at the end of string 's1' to make the length of the string 'len' if 's2' is not \"\"."
+}, examples = {
+        "rpad('he',1,'xxd') = \"h\"",
+        "rpad('he',7,'') = \"\""
+})
 public class RpadFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

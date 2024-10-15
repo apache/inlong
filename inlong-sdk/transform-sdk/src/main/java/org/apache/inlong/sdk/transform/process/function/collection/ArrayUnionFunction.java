@@ -39,8 +39,8 @@ import java.util.Set;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_union"}, parameter = "(Array array1[, Array array2, ...])", descriptions = {
                 "- Return \"\" if any input array is NULL;",
-                "- Return an array that is the result of concatenating at least one array."}, examples = {
-                        "array_concat(array('he',7),array('xxd', 'cloud')) = [he, 7, xxd, cloud]"})
+                "- Return an array that is the result of concatenating at least one array."
+        }, examples = {"array_concat(array('he',7),array('xxd', 'cloud')) = [he, 7, xxd, cloud]"})
 public class ArrayUnionFunction implements ValueParser {
 
     private final ValueParser leftArrayParser;

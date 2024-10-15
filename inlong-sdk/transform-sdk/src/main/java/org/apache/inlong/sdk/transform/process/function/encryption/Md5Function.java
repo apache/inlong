@@ -38,9 +38,11 @@ import java.nio.charset.StandardCharsets;
 @TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
         "md5"}, parameter = "(String string)", descriptions = {
                 "- Return \"\" if the 'string' is NULL;",
-                "- Return the MD5 hash value of 'string' in the form of a 32-bit hexadecimal digit string."}, examples = {
-                        "md5(\"\") = \"d41d8cd98f00b204e9800998ecf8427e\"",
-                        "md5(\"1\") = \"c4ca4238a0b923820dcc509a6f75849b\""})
+                "- Return the MD5 hash value of 'string' in the form of a 32-bit hexadecimal digit string."
+        }, examples = {
+                "md5(\"\") = \"d41d8cd98f00b204e9800998ecf8427e\"",
+                "md5(\"1\") = \"c4ca4238a0b923820dcc509a6f75849b\""
+        })
 public class Md5Function implements ValueParser {
 
     private ValueParser msgParser;

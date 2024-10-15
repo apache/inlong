@@ -44,9 +44,11 @@ import java.util.Objects;
         "datediff"}, parameter = "(String dateStr1, String dateStr2)", descriptions = {
                 "- Return \"\" if one of the two parameters is null or \"\";",
                 "- Return \"\" if one of the two parameters has an incorrect date format;",
-                "- Return the number of days between the dates 'dateStr1'->'dateStr2'."}, examples = {
-                        "datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00') = 1",
-                        "datediff('2018-12', '2018-12-12') = \"\""})
+                "- Return the number of days between the dates 'dateStr1'->'dateStr2'."
+        }, examples = {
+                "datediff('2018-12-10 12:30:00', '2018-12-09 13:30:00') = 1",
+                "datediff('2018-12', '2018-12-12') = \"\""
+        })
 public class DateDiffFunction implements ValueParser {
 
     private final ValueParser leftDateParser;

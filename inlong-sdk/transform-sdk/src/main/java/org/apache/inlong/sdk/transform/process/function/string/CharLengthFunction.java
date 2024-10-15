@@ -37,8 +37,12 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "char_length"}, parameter = "(String str)", descriptions = {
-                "- Return \"\" if 'str' is NULL;", "- Return the character length of 'str'."}, examples = {
-                        "char_length('hello world') = 11", "case2: char_length('应龙') = 2"})
+                "- Return \"\" if 'str' is NULL;",
+                "- Return the character length of 'str'."
+        }, examples = {
+                "char_length('hello world') = 11",
+                "case2: char_length('应龙') = 2"
+        })
 public class CharLengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

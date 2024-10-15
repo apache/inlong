@@ -41,9 +41,11 @@ import net.sf.jsqlparser.expression.Function;
                 "- Return \"\" if data is NULL;",
                 "- Return the 'data' unmodified if the value does not start and end with double quotes or if it starts"
                         + " and ends with double quotes but is not a valid JSON string literal.",
-                "Note: JSON_UNQUOTE will unescapes escaped special characters ('\"', '', '/', 'b', 'f', 'n', 'r', 't')"}, examples = {
-                        "json_unquote('Hello, World!') = \"Hello, World!\"",
-                        "json_unquote('Complex string with / and \\\\') = \"Complex string with / and \\\\\""})
+                "Note: JSON_UNQUOTE will unescapes escaped special characters ('\"', '', '/', 'b', 'f', 'n', 'r', 't')"
+        }, examples = {
+                "json_unquote('Hello, World!') = \"Hello, World!\"",
+                "json_unquote('Complex string with / and \\\\') = \"Complex string with / and \\\\\""
+        })
 public class JsonUnQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;

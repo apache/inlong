@@ -38,8 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_prepend"}, parameter = "(Array array,Object element)", descriptions = {
                 "- Return \"\" if 'array' is null;",
-                "- Return the result of appending an element to the beginning of the array."}, examples = {
-                        "array_prepend(array(4,3),3) = [3, 4, 3]"})
+                "- Return the result of appending an element to the beginning of the array."
+        }, examples = {"array_prepend(array(4,3),3) = [3, 4, 3]"})
 public class ArrayPrependFunction implements ValueParser {
 
     private final ValueParser arrayParser;

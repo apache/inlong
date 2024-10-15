@@ -41,9 +41,10 @@ import java.util.List;
 @Slf4j
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "gcd"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
-                "- Return \"\" if any parameter is NULL;", "- Return 0 if both inputs are zero;",
-                "- Return greatest common divisor (the largest positive number that divides both inputs with no remainder).",}, examples = {
-                        "gcd(3.141,3.846) = 0.003"})
+                "- Return \"\" if any parameter is NULL;",
+                "- Return 0 if both inputs are zero;",
+                "- Return greatest common divisor (the largest positive number that divides both inputs with no remainder)."
+        }, examples = {"gcd(3.141,3.846) = 0.003"})
 public class GcdFunction implements ValueParser {
 
     private final ValueParser firstNumParser;

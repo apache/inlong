@@ -40,10 +40,13 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_join"}, parameter = "(Array array, String delimiter[, String nullReplacement])", descriptions = {
                 "- Return \"\" if any parameter is null;",
-                "- Return a string indicating that the elements in the given 'array' are concatenated using a 'delimiter', and empty array elements are filled with 'nullReplacement'.",
+                "- Return a string indicating that the elements in the given 'array' are concatenated using a 'delimiter'"
+                        +
+                        ", and empty array elements are filled with 'nullReplacement'.",
                 "- Note: If nullReplacement is not specified, null elements in the array will be omitted from the resulting string."}, examples = {
                         "array_join(array('he',7,'xxd'),'~') = he~7~xxd",
-                        "array_join(array('he',3,''),'~','oo') = he~3~oo"})
+                        "array_join(array('he',3,''),'~','oo') = he~3~oo"
+                })
 public class ArrayJoinFunction implements ValueParser {
 
     private ValueParser arrayParser;

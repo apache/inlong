@@ -45,8 +45,8 @@ import java.util.concurrent.ConcurrentHashMap;
         "date_format"}, parameter = "(String timestampStr, String formatStr)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
                 "- Return a string value that converts a timestamp (in seconds) to a date format string in the specified format.",
-                "Note: The format string is compatible with Java’s SimpleDateFormat"}, examples = {
-                        "date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss') = \"2024/08/01 22:56:56\""})
+                "Note: The format string is compatible with Java’s SimpleDateFormat"
+        }, examples = {"date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss') = \"2024/08/01 22:56:56\""})
 public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;

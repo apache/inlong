@@ -37,12 +37,17 @@ import java.util.regex.Pattern;
  * - Return NULL if any of the arguments are NULL or invalid
  * - Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"regex", "similar",
-        "regexp_like"}, parameter = "(String str, String regexp)", descriptions = {
-                "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'."}, examples = {
-                        "regexp(\"The quick brown fox\", \"quick\") = true",
-                        "regexp(\"The quick brown fox\", \"cold\") = false"})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "regex",
+        "similar",
+        "regexp_like"
+}, parameter = "(String str, String regexp)", descriptions = {
+        "- Return \"\" if any of the arguments are NULL or invalid;",
+        "- Return TRUE if any (possibly empty) substring of 'str' matches the Java regular expression 'regexp'."
+}, examples = {
+        "regexp(\"The quick brown fox\", \"quick\") = true",
+        "regexp(\"The quick brown fox\", \"cold\") = false"
+})
 public class RegexpFunction implements ValueParser {
 
     private ValueParser inputParser;

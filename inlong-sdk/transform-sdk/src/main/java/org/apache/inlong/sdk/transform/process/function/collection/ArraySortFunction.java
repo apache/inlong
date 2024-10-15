@@ -44,10 +44,18 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_sort"}, parameter = "(Array array[,Boolean ascending_order[,Boolean null_first]])", descriptions = {
                 "- Return \"\" if 'array' is null;", "- Return the array in sorted order.",
-                "Note: The function sorts an array, defaulting to ascending order with NULLs at the start when only the array is input. Specifying 'ascending_order' as true orders the array in ascending with NULLs first, and setting it to false orders it in descending with NULLs last. Independently, 'null_first' as true moves NULLs to the beginning, and as false to the end, irrespective of the sorting order."}, examples = {
-                        "array_sort(array('he',7,'xxd')) = [7, he, xxd]", "array_sort(array(3,7,5)) = [3, 5, 7]",
-                        "array_sort(array(,3,7),false,false) = [7, 3, ]",
-                        "array_sort(array(3,7,),true,false) = [3, 7, ]"})
+                "Note: The function sorts an array, defaulting to ascending order with NULLs at the start when only the "
+                        +
+                        "array is input. Specifying 'ascending_order' as true orders the array in ascending with NULLs first"
+                        +
+                        ", and setting it to false orders it in descending with NULLs last. Independently, 'null_first' as true "
+                        +
+                        "moves NULLs to the beginning, and as false to the end, irrespective of the sorting order."
+        }, examples = {
+                "array_sort(array('he',7,'xxd')) = [7, he, xxd]", "array_sort(array(3,7,5)) = [3, 5, 7]",
+                "array_sort(array(,3,7),false,false) = [7, 3, ]",
+                "array_sort(array(3,7,),true,false) = [3, 7, ]"
+        })
 public class ArraySortFunction implements ValueParser {
 
     private ValueParser arrayParser;

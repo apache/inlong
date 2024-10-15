@@ -39,8 +39,11 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "mod"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
                 "- Return \"\" if any parameter is null;",
-                "- Return the remainder of 'numeric1' divided by 'numeric2'."}, examples = {"mod(3,2) = 1",
-                        "mod(-3.1415926,100) = -3.1415926"})
+                "- Return the remainder of 'numeric1' divided by 'numeric2'."
+        }, examples = {
+                "mod(3,2) = 1",
+                "mod(-3.1415926,100) = -3.1415926"
+        })
 public class ModuloFunction implements ValueParser {
 
     private ValueParser dividendParser;

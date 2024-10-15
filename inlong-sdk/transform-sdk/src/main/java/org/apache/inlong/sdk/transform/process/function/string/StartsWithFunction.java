@@ -38,7 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "startswith"}, parameter = "(String s1, String s2)", descriptions = {
                 "- Return \"\" if either argument is NULL;",
-                "- Return whether 's2' starts with 's2'."}, examples = {"startswith('Apache InLong', 'A') = true"})
+                "- Return whether 's2' starts with 's2'."
+        }, examples = {"startswith('Apache InLong', 'A') = true"})
 public class StartsWithFunction implements ValueParser {
 
     private ValueParser exprParser;

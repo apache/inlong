@@ -42,9 +42,10 @@ import java.util.List;
         "radix_convert"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if any of its arguments are NULL;",
                 "- Return the result of converting 'numeric' from 'from_base' to 'to_base'.",
-                "Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number."
-                        + "Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision."}, examples = {
-                                "radix_convert('6E',18,8) = 172"})
+                "Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number. "
+                        +
+                        "Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision."
+        }, examples = {"radix_convert('6E',18,8) = 172"})
 public class RadixConvertFunction implements ValueParser {
 
     private final ValueParser numParser;

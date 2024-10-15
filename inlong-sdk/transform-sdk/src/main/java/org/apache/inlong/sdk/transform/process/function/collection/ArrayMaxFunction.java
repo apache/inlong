@@ -36,7 +36,8 @@ import java.util.ArrayList;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_max"}, parameter = "(Array array)", descriptions = {
                 "- Return \"\" if any parameter is null;",
-                "- Return the maximum value from the 'array'."}, examples = {"array_max(array(4,3,56)) = 56"})
+                "- Return the maximum value from the 'array'."
+        }, examples = {"array_max(array(4,3,56)) = 56"})
 public class ArrayMaxFunction implements ValueParser {
 
     private final ValueParser arrayParser;

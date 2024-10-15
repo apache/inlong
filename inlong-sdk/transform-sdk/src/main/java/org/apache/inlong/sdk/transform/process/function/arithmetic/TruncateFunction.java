@@ -36,11 +36,16 @@ import java.util.List;
  * - Return NULL if any parameter is NULL;
  * - Return the result of truncating 'numeric' values to 'cnt' decimal places.
  */
-@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {"truncate",
-        "trunc"}, parameter = "(Numeric numeric, Integer cnt)", descriptions = {
-                "- Return \"\" if any parameter is NULL;",
-                "- Return the result of truncating 'numeric' values to 'cnt' decimal places."}, examples = {
-                        "truncate(42.324, 2) = 42.32", "trunc(42.324, -1) = 40"})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "truncate",
+        "trunc"
+}, parameter = "(Numeric numeric, Integer cnt)", descriptions = {
+        "- Return \"\" if any parameter is NULL;",
+        "- Return the result of truncating 'numeric' values to 'cnt' decimal places."
+}, examples = {
+        "truncate(42.324, 2) = 42.32",
+        "trunc(42.324, -1) = 40"
+})
 public class TruncateFunction implements ValueParser {
 
     private ValueParser bigDecimalParser;

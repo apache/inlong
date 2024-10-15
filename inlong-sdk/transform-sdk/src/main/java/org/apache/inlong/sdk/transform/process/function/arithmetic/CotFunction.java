@@ -40,7 +40,10 @@ import java.math.BigDecimal;
         "cot"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
                 "- Return the cotangent of the 'numeric' (in radians)."}, examples = {
-                        "cot(1) = 0.6420926159343306", "cot(0.5) = 1.830487721712452", "cot(-1) = -0.6420926159343306"})
+                        "cot(1) = 0.6420926159343306",
+                        "cot(0.5) = 1.830487721712452",
+                        "cot(-1) = -0.6420926159343306"
+                })
 public class CotFunction implements ValueParser {
 
     private final ValueParser valueParser;

@@ -35,8 +35,8 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "radians"}, parameter = "(Numeric x)", descriptions = {
                 "- Return \"\" if 'x' is NULL;",
-                "- Return radians of 'x', Convert degrees to radians."}, examples = {
-                        "radians(18.97) = 0.33108895910332425"})
+                "- Return radians of 'x', Convert degrees to radians."
+        }, examples = {"radians(18.97) = 0.33108895910332425"})
 public class RadiansFunction implements ValueParser {
 
     private ValueParser degreeParser;

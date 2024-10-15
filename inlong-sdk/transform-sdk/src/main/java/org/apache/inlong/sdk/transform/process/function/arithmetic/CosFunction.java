@@ -39,7 +39,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "cos"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the cosine of 'numeric'."}, examples = {"cos(0) = 1.0"})
+                "- Return the cosine of 'numeric'."
+        }, examples = {"cos(0) = 1.0"})
 public class CosFunction implements ValueParser {
 
     private ValueParser numberParser;

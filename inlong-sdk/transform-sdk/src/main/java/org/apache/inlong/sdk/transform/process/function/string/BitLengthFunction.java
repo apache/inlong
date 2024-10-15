@@ -40,9 +40,13 @@ import java.util.List;
 @Slf4j
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "bit_length"}, parameter = "(String str,[String charset])", descriptions = {
-                "- Return \"\" if the 'str' is NULL;", "- Return number of bits in 'str'.",
-                "Note: Charset is aligned with the JVM by default."}, examples = {"bit_length(\"hello world\") = 88",
-                        "bit_length(\"hello 你好\",\"utf-8\") = 96"})
+                "- Return \"\" if the 'str' is NULL;",
+                "- Return number of bits in 'str'.",
+                "Note: Charset is aligned with the JVM by default."
+        }, examples = {
+                "bit_length(\"hello world\") = 88",
+                "bit_length(\"hello 你好\",\"utf-8\") = 96"
+        })
 public class BitLengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

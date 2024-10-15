@@ -37,9 +37,11 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "chr"}, parameter = "(Integer integer)", descriptions = {
                 "- Return NULL if 'integer' is NULL;",
-                "- Return the ASCII character having the binary equivalent to 'integer'.",}, examples = {
-                        "chr(97) = \"a\"",
-                        "chr(353) = \"a\""})
+                "- Return the ASCII character having the binary equivalent to 'integer'."
+        }, examples = {
+                "chr(97) = \"a\"",
+                "chr(353) = \"a\""
+        })
 public class ChrFunction implements ValueParser {
 
     private ValueParser numberParser;

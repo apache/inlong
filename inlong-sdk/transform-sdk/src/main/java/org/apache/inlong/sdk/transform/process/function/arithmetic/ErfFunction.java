@@ -36,7 +36,8 @@ import org.apache.commons.math3.special.Erf;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "erf"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the error function value of the input value."}, examples = {"erf(3) = 0.9999779095030014"})
+                "- Return the error function value of the input value."
+        }, examples = {"erf(3) = 0.9999779095030014"})
 public class ErfFunction implements ValueParser {
 
     private final ValueParser numParser;

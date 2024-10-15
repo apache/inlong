@@ -41,13 +41,14 @@ import java.util.List;
  * Note: 'dateStr1' and 'dateStr2' are strings converted to TIME or DATETIME expressions.
  */
 @Slf4j
-@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"timediff",
-        "time_diff"}, parameter = "(String dateStr1, String dateStr2)", descriptions = {
-                "- Return \"\" if 'dateStr1' or 'dateStr2' is NULL and the conversion types of 'dateStr1' and "
-                        + "'dateStr2' are different;",
-                "- Return 'dateStr1' - 'dateStr2' expressed as a time value.",
-                "Note: 'dateStr1' and 'dateStr2' are strings converted to TIME or DATETIME expressions."}, examples = {
-                        "timediff('23:59:59.000001','01:01:01.000002') = \"22:58:57.999998\""})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "timediff",
+        "time_diff"
+}, parameter = "(String dateStr1, String dateStr2)", descriptions = {
+        "- Return \"\" if 'dateStr1' or 'dateStr2' is NULL and the conversion types of 'dateStr1' and 'dateStr2' are different;",
+        "- Return 'dateStr1' - 'dateStr2' expressed as a time value.",
+        "Note: 'dateStr1' and 'dateStr2' are strings converted to TIME or DATETIME expressions."
+}, examples = {"timediff('23:59:59.000001','01:01:01.000002') = \"22:58:57.999998\""})
 public class TimeDiffFunction implements ValueParser {
 
     private final ValueParser leftDateParser;

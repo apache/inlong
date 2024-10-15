@@ -38,10 +38,13 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_query"}, parameter = "(String json_doc, String path)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the string parsed from the 'path' in 'json_doc'."}, examples = {
-                        "json_query({\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}, $.people)"
-                                + " = [{\"name\":\"Alice\"},{\"name\":\"Bob\"}]",
-                        "json_query({\\\"list\\\": [null, {\\\"name\\\": \\\"John\\\"}]}, $.list[1].name) = John"})
+                "- Return the string parsed from the 'path' in 'json_doc'."
+        }, examples = {
+                "json_query({\\\"people\\\": [{\\\"name\\\": \\\"Alice\\\"}, {\\\"name\\\": \\\"Bob\\\"}]}, $.people) = "
+                        +
+                        "[{\"name\":\"Alice\"},{\"name\":\"Bob\"}]",
+                "json_query({\\\"list\\\": [null, {\\\"name\\\": \\\"John\\\"}]}, $.list[1].name) = John"
+        })
 public class JsonQueryFunction implements ValueParser {
 
     private final ValueParser jsonParser;

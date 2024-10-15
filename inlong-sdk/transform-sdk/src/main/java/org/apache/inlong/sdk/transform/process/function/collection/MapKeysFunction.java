@@ -37,9 +37,11 @@ import java.util.Map;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "map_keys"}, parameter = "(Map map)", descriptions = {
                 "- Return \"\" if 'map' is NULL;",
-                "- Return the keys of the 'map' as array. No order guaranteed."}, examples = {
-                        "map_keys(Map('he',1,'xxd','cloud')) = [he, xxd]",
-                        "map_keys(Map('xxd','cloud',map(1,2),map(3,'apple'))) = [xxd, {1=2}]"})
+                "- Return the keys of the 'map' as array. No order guaranteed."
+        }, examples = {
+                "map_keys(Map('he',1,'xxd','cloud')) = [he, xxd]",
+                "map_keys(Map('xxd','cloud',map(1,2),map(3,'apple'))) = [xxd, {1=2}]"
+        })
 public class MapKeysFunction implements ValueParser {
 
     private final ValueParser mapParser;

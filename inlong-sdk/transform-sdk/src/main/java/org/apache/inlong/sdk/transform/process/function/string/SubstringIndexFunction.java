@@ -41,8 +41,8 @@ import java.util.List;
         "substring_index"}, parameter = "(String str, String delim, Integer count)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
                 "- Return everything to the left of the last count occurrences of 'delim' (counting from the left), if 'count' is positive;",
-                "- Return everything to the right of the last count occurrences of 'delim' (counting from the right) if 'count' is negative."}, examples = {
-                        "SUBSTRING_INDEX('AA. ',' ',1) = \"AA.\""})
+                "- Return everything to the right of the last count occurrences of 'delim' (counting from the right) if 'count' is negative."
+        }, examples = {"SUBSTRING_INDEX('AA. ',' ',1) = \"AA.\""})
 public class SubstringIndexFunction implements ValueParser {
 
     private ValueParser stringParser;

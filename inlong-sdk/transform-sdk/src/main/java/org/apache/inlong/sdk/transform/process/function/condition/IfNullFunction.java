@@ -37,10 +37,16 @@ import java.util.List;
  * - Return expr2 otherwise
  */
 @Slf4j
-@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {"ifnull",
-        "if_null"}, parameter = "(Expr expr1,Expr expr2)", descriptions = {
-                "- Return 'expr1' if 'expr1' returns not NULL;",
-                "- Return 'expr2' otherwise."}, examples = {"ifnull(null, 3) = 3", "ifnull(6,'YES') = 6"})
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "ifnull",
+        "if_null"
+}, parameter = "(Expr expr1,Expr expr2)", descriptions = {
+        "- Return 'expr1' if 'expr1' returns not NULL;",
+        "- Return 'expr2' otherwise."
+}, examples = {
+        "ifnull(null, 3) = 3",
+        "ifnull(6,'YES') = 6"
+})
 public class IfNullFunction implements ValueParser {
 
     private final ValueParser firstExprParser;

@@ -39,8 +39,12 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "cotd"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if numeric is NULL;",
-                "- Return the cotangent of numeric in units of degrees."}, examples = {
-                        "cotd(0) = \"\"", "cotd(45) = 1.0000000000000002", "cotd(-1) = -57.28996163075943"})
+                "- Return the cotangent of numeric in units of degrees."
+        }, examples = {
+                "cotd(0) = \"\"",
+                "cotd(45) = 1.0000000000000002",
+                "cotd(-1) = -57.28996163075943"
+        })
 public class CotdFunction implements ValueParser {
 
     private ValueParser numberParser;

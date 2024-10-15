@@ -36,8 +36,8 @@ import java.util.ArrayList;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_append"}, parameter = "(Array array, Object element)", descriptions = {
                 "- Return \"\" if either argument is NULL;",
-                "- Return the result of appends an element to the end of the 'array'."}, examples = {
-                        "array_append(array('he',7,'xxd'), 'cloud') = [he, 7, xxd, cloud]"})
+                "- Return the result of appends an element to the end of the 'array'."
+        }, examples = {"array_append(array('he',7,'xxd'), 'cloud') = [he, 7, xxd, cloud]"})
 public class ArrayAppendFunction implements ValueParser {
 
     private final ValueParser arrayParser;

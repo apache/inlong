@@ -39,8 +39,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_remove"}, parameter = "(Array array,Object element)", descriptions = {
                 "- Return \"\" if 'array' is null;",
-                "- Return the result of removing all elements that equal to 'element' from 'array'."}, examples = {
-                        "array_remove(array('he',7,'xxd'),'he') = [7, xxd]"})
+                "- Return the result of removing all elements that equal to 'element' from 'array'."
+        }, examples = {"array_remove(array('he',7,'xxd'),'he') = [7, xxd]"})
 public class ArrayRemoveFunction implements ValueParser {
 
     private final ValueParser arrayParser;

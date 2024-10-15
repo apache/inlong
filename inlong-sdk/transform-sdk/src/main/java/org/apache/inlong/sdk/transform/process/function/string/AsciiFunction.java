@@ -36,8 +36,13 @@ import java.util.List;
  * - Return the numeric value of the first character of string.
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"ascii"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL;", "- Return the numeric value of the first character of 'str'."}, examples = {
-                "ascii('abc') = 97", "ascii('A') = 65", "ascii(null) = \"\""})
+        "- Return \"\" if 'str' is NULL;",
+        "- Return the numeric value of the first character of 'str'."
+}, examples = {
+        "ascii('abc') = 97",
+        "ascii('A') = 65",
+        "ascii(null) = \"\""
+})
 public class AsciiFunction implements ValueParser {
 
     private final ValueParser stringParser;

@@ -42,8 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
         "to_date"}, parameter = "(String str [,String format])", descriptions = {
                 "- Return \"\" if 'str' is NULL;",
-                "- Return the result of converting the date string 'str' to a date in the format 'format'(default is 'yyyy-MM-dd')."}, examples = {
-                        "to_date('20240815', 'yyyyMMdd') = \"2024-08-15\""})
+                "- Return the result of converting the date string 'str' to a date in the format 'format'(default is 'yyyy-MM-dd')."
+        }, examples = {"to_date('20240815', 'yyyyMMdd') = \"2024-08-15\""})
 public class ToDateFunction implements ValueParser {
 
     private ValueParser stringParser1;

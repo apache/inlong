@@ -38,7 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "endswith"}, parameter = "(String s1, String s2)", descriptions = {
                 "- Return \"\" if either argument is NULL;",
-                "- Return whether 's2' ends with 's2'."}, examples = {"endswith('Apache InLong', 'Long') = true"})
+                "- Return whether 's2' ends with 's2'."
+        }, examples = {"endswith('Apache InLong', 'Long') = true"})
 public class EndsWithFunction implements ValueParser {
 
     private ValueParser exprParser;

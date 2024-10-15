@@ -34,9 +34,10 @@ import net.sf.jsqlparser.expression.Function;
  */
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "is_digit"}, parameter = "(String str)", descriptions = {
-                "- Return \"\" If 'str' is NULL;", "- Return true if all characters in 'str' are digit;",
-                "- Return false otherwise (Including cases where 'str' is null and '')."}, examples = {
-                        "is_digit('3.5') = false"})
+                "- Return \"\" If 'str' is NULL;",
+                "- Return true if all characters in 'str' are digit;",
+                "- Return false otherwise (Including cases where 'str' is null and '')."
+        }, examples = {"is_digit('3.5') = false"})
 public class IsDigitFunction implements ValueParser {
 
     private final ValueParser stringParser;

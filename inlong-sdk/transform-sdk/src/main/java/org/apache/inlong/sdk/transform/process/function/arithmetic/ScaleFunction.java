@@ -38,8 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "scale"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return scale of the argument (the number of decimal digits in the fractional part)."}, examples = {
-                        "scale(3.1415000000000) = 13"})
+                "- Return scale of the argument (the number of decimal digits in the fractional part)."
+        }, examples = {"scale(3.1415000000000) = 13"})
 public class ScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

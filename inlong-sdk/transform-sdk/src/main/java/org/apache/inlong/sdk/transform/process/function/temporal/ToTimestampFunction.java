@@ -46,8 +46,9 @@ import java.util.List;
  */
 @TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
         "to_timestamp"}, parameter = "(String str [,String format])", descriptions = {"- Return \"\" if 'str' is NULL;",
-                "- Return the result of converting the date and time string 'str' to the 'format' (by default: yyyy-MM-dd HH:mm:ss if not specified) under the 'UTC+0' time zone to a timestamp."}, examples = {
-                        "to_timestamp('1970/01/01 00:00:44', 'yyyy/MM/dd HH:mm:ss') = \"1970-01-01 00:00:44.0\""})
+                "- Return the result of converting the date and time string 'str' to the 'format' (by default: " +
+                        "yyyy-MM-dd HH:mm:ss if not specified) under the 'UTC+0' time zone to a timestamp."
+        }, examples = {"to_timestamp('1970/01/01 00:00:44', 'yyyy/MM/dd HH:mm:ss') = \"1970-01-01 00:00:44.0\""})
 public class ToTimestampFunction implements ValueParser {
 
     private ValueParser stringParser;

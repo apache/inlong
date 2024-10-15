@@ -35,10 +35,13 @@ import java.util.List;
  * - Return NULL if expr1 = expr2 is true
  * - Return expr1 otherwise
  */
-@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {"nullif",
-        "null_if"}, parameter = "(Expr expr1, Expr expr2)", descriptions = {
-                "- Return \"\" if 'expr1' = 'expr2' is true;",
-                "- Return 'expr1' otherwise."}, examples = {"nullif(5, 3) = 5"})
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "nullif",
+        "null_if"
+}, parameter = "(Expr expr1, Expr expr2)", descriptions = {
+        "- Return \"\" if 'expr1' = 'expr2' is true;",
+        "- Return 'expr1' otherwise."
+}, examples = {"nullif(5, 3) = 5"})
 public class NullIfFunction implements ValueParser {
 
     private final ValueParser firstExprParser;

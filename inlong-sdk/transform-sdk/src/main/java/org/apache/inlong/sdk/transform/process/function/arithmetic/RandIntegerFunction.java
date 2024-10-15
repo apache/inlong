@@ -41,8 +41,8 @@ import java.util.Random;
         "rand_integer"}, parameter = "(Integer INT1, [Integer INT2])", descriptions = {
                 "- Return a pseudorandom integer value in the range [0, 'INT1') if 'INT2' is NULL;",
                 "- Return a pseudorandom integer value in the range [0, 'INT1') with an initial seed 'INT2'.",
-                "Note: Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound."}, examples = {
-                        "rand_integer(10)", "rand_integer(88, 89)"})
+                "Note: Two RAND_INTEGER functions will return idential sequences of numbers if they have the same initial seed and bound."
+        }, examples = {"rand_integer(10)", "rand_integer(88, 89)"})
 public class RandIntegerFunction implements ValueParser {
 
     private ValueParser firstIntParser;

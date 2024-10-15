@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "ln"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if numeric is NULL;",
-                "- Return the natural logarithm (base e) of numeric."}, examples = {"ln(10) = 2.302585092994046"})
+                "- Return the natural logarithm (base e) of numeric."
+        }, examples = {"ln(10) = 2.302585092994046"})
 public class LnFunction implements ValueParser {
 
     private ValueParser numberParser;

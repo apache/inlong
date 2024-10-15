@@ -38,8 +38,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "trim_scale"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the result of reducing the proportion of values (decimal places) by removing trailing zeros."}, examples = {
-                        "trim_scale(3.1415000000000) = 3.1415"})
+                "- Return the result of reducing the proportion of values (decimal places) by removing trailing zeros."
+        }, examples = {"trim_scale(3.1415000000000) = 3.1415"})
 public class TrimScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

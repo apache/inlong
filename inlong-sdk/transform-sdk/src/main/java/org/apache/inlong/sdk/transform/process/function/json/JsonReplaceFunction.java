@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -39,7 +40,7 @@ import java.util.List;
  * Note: An error occurs if the 'json_doc' argument is not a valid JSON document or any path argument is not a valid
  *       path expression or contains a * or ** wildcard.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_replace"}, parameter = "(String json_doc, String path1, String val1[, String path2, String val2, ...] )", descriptions = {
                 "- Return \"\" if any argument is NULL or the 'json_doc' argument is not a valid JSON document or any "
                         +
@@ -47,8 +48,7 @@ import java.util.List;
                 "- Return the result of replacing existing values in 'json_doc'."
         }, examples = {
                 "json_replace(\"{ \\\"a\\\": 1, \\\"b\\\": [2, 3]}\", \"$.a\", 10, \"$.c\", \"[true, false]\") = " +
-                        "{\"a\": 10, \"b\": [2, 3]}"
-        })
+                        "{\"a\": 10, \"b\": [2, 3]}"})
 public class JsonReplaceFunction implements ValueParser {
 
     private ValueParser jsonDocParser;

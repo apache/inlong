@@ -39,7 +39,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "bin"}, parameter = "(Integer integer)", descriptions = {
                 "- Return \"\" if 'integer' is NULL;",
-                "- Return a string representation of 'integer' in binary format."}, examples = {"bin(4) = 100"})
+                "- Return a string representation of 'integer' in binary format."
+        }, examples = {"bin(4) = 100"})
 public class BinFunction implements ValueParser {
 
     private ValueParser valueParser;

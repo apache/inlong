@@ -49,11 +49,17 @@ import java.util.List;
 @Slf4j
 @TransformFunction(type = FunctionConstant.COMPRESSION_TYPE, names = {
         "compress"}, parameter = "(String string_to_compress [, String compress_type])", descriptions = {
-                "- Return \"\" if 'string_to_compress' is NULL;", "- Return \"\" if 'string_to_compress' is \"\";",
+                "- Return \"\" if 'string_to_compress' is NULL;",
+                "- Return \"\" if 'string_to_compress' is \"\";",
                 "- Return the result as a binary string.",
-                "Note: This function supports three compression algorithms: deflater, gzip, and zip. 'compress_type' defaults to defer. In addition, in order to output the compressed results in the form of strings, this method uses the ISO_8859_1 character set."}, examples = {
-                        "length(compress(replicate(string1,100)),'ISO_8859_1') = 33",
-                        "length(compress(''),'ISO_8859_1') = 0"})
+                "Note: This function supports three compression algorithms: deflater, gzip, and zip. 'compress_type' " +
+                        "defaults to defer. In addition, in order to output the compressed results in the form of strings, "
+                        +
+                        "this method uses the ISO_8859_1 character set."
+        }, examples = {
+                "length(compress(replicate(string1,100)),'ISO_8859_1') = 33",
+                "length(compress(''),'ISO_8859_1') = 0"
+        })
 public class CompressFunction implements ValueParser {
 
     private final ValueParser stringParser;

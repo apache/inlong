@@ -43,8 +43,9 @@ import java.util.List;
         "timestamp"}, parameter = "(String unit, String datetime_expr1, String datetime_expr2)", descriptions = {
                 "- Return \"\" if 'datetime_expr1' or 'datetime_expr2' is NULL;",
                 "- Return the date or datetime expression expr as a datetime value if there is only one parameter;",
-                "- Return the result of the date or date time expression 'datetime_expr1' plus the time expression 'datetime_expr2' if there are two parameters."}, examples = {
-                        "timestamp('2003-12-31 12:00:00.600000','12:00:00') = \"2004-01-01 00:00:00.600000\""})
+                "- Return the result of the date or date time expression 'datetime_expr1' plus the time expression " +
+                        "'datetime_expr2' if there are two parameters."
+        }, examples = {"timestamp('2003-12-31 12:00:00.600000','12:00:00') = \"2004-01-01 00:00:00.600000\""})
 public class TimestampFunction implements ValueParser {
 
     private ValueParser dateTimeExprParser;

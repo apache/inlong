@@ -41,11 +41,17 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "insert"}, parameter = "(String str,Integer pos,Integer len,String newStr)", descriptions = {
                 "- Return \"\" If any parameter is NULL;",
-                "- Return the result of replacing the substring of length len with 'newStr' starting from the given position 'pos' in 'str'.",
-                "Note: If the position is out of the string's bounds, the original string is returned.If the length exceeds the remaining length of the string from the given position, the replacement continues to the end of the string. If any argument is null, the function returns null."}, examples = {
-                        "INSERT('12345678', 3, 4, 'word') = '12word78'",
-                        "INSERT('12345678', -1, 4, 'word') = '12345678'",
-                        "INSERT('12345678', 3, 100, 'word') = '12word'"})
+                "- Return the result of replacing the substring of length len with 'newStr' starting from the given " +
+                        "position 'pos' in 'str'.",
+                "Note: If the position is out of the string's bounds, the original string is returned.If the length " +
+                        "exceeds the remaining length of the string from the given position, the replacement continues "
+                        +
+                        "to the end of the string. If any argument is null, the function returns null."
+        }, examples = {
+                "INSERT('12345678', 3, 4, 'word') = '12word78'",
+                "INSERT('12345678', -1, 4, 'word') = '12345678'",
+                "INSERT('12345678', 3, 100, 'word') = '12word'"
+        })
 public class InsertFunction implements ValueParser {
 
     private ValueParser strParser;

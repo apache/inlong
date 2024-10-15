@@ -35,10 +35,14 @@ import java.time.ZoneId;
  * - Return the current time in the specified time zone.
  * Note: timeZoneStr is the system time zone
  */
-@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"localtime",
-        "current_time"}, parameter = "([String timeZoneStr])", descriptions = {
-                "- Return the current time in the specified time zone."}, examples = {"localTime() = currentTime",
-                        "currentTime(\"UTC\") = currentTime"})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "localtime",
+        "current_time"
+}, parameter = "([String timeZoneStr])", descriptions = {
+        "- Return the current time in the specified time zone."}, examples = {
+                "localTime() = currentTime",
+                "currentTime(\"UTC\") = currentTime"
+        })
 public class LocalTimeFunction implements ValueParser {
 
     private ValueParser stringParser;

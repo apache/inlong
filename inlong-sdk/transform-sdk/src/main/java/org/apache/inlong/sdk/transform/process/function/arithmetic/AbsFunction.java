@@ -35,8 +35,13 @@ import java.math.BigDecimal;
  * - Return the absolute value of 'numeric'.
  */
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
-        "abs"}, parameter = "(Numeric numeric)", descriptions = {"- Return \"\" if 'numeric' is NULL;",
-                "- Return the absolute value of 'numeric'."}, examples = {"abs(2) = 2", "abs(-4.25) = 4.25"})
+        "abs"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the absolute value of 'numeric'."
+        }, examples = {
+                "abs(2) = 2",
+                "abs(-4.25) = 4.25"
+        })
 public class AbsFunction implements ValueParser {
 
     private ValueParser numberParser;

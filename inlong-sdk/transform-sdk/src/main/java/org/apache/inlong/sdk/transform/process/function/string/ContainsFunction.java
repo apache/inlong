@@ -42,7 +42,8 @@ import java.util.List;
         "contains"}, parameter = "(String leftStr , String rightStr)", descriptions = {
                 "- Return \"\" if 'leftStr' or rightStr is NULL;",
                 "- Return True if 'rightStr' is found inside 'leftStr';",
-                "- Return False otherwise."}, examples = {"contains('Transform SQL', 'SQL') = true"})
+                "- Return False otherwise."}, examples = {"contains('Transform SQL', 'SQL') = true"
+                })
 public class ContainsFunction implements ValueParser {
 
     private ValueParser leftStrParser;

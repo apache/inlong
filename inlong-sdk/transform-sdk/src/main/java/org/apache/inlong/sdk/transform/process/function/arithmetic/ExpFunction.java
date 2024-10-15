@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "exp"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return e raised to the power of 'numeric'."}, examples = {"exp(2) = 7.38905609893065"})
+                "- Return e raised to the power of 'numeric'."
+        }, examples = {"exp(2) = 7.38905609893065"})
 public class ExpFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -39,7 +39,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
         "if"}, parameter = "(Expr expr1,Expr expr2,Expr expr3)", descriptions = {
                 "- Return 'expr2' if 'expr1' returns true;",
-                "- Return 'expr3' otherwise."}, examples = {"if(1 = 1,true,false) = true"})
+                "- Return 'expr3' otherwise."
+        }, examples = {"if(1 = 1,true,false) = true"})
 public class IfFunction implements ValueParser {
 
     private final ExpressionOperator expressionOperator;

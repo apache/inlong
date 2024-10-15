@@ -40,8 +40,8 @@ import java.util.ArrayList;
         "element"}, parameter = "(Array array)", descriptions = {
                 "- Return \"\" if 'array' is empty or NULL;",
                 "- Return the sole element of 'array' (whose cardinality should be one).",
-                "Note: Throws an exception if array has more than one element."}, examples = {
-                        "element(array('he')) = he"})
+                "Note: Throws an exception if array has more than one element."
+        }, examples = {"element(array('he')) = he"})
 public class ElementFunction implements ValueParser {
 
     private final ValueParser valueParser;

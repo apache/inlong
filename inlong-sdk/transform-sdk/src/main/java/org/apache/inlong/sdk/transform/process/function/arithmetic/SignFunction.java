@@ -38,9 +38,11 @@ import java.math.BigDecimal;
  */
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "sign"}, parameter = "(Numeric x)", descriptions = {
-                "- Return \"\" if 'x' is NULL;", "- Return -1 if 'x' is a negative number;",
+                "- Return \"\" if 'x' is NULL;",
+                "- Return -1 if 'x' is a negative number;",
                 "- Return 0 if 'x' is equal to 0;",
-                "- Return 1 if 'x' is a positive number."}, examples = {"sign(-3.5) = -1"})
+                "- Return 1 if 'x' is a positive number."
+        }, examples = {"sign(-3.5) = -1"})
 public class SignFunction implements ValueParser {
 
     private ValueParser numberParser;

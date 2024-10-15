@@ -36,11 +36,17 @@ import java.util.List;
  * - Return 0 if not found
  * - Return the position of the first occurrence of string1 in string2 after position integer
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"locate",
-        "instr"}, parameter = "(String str1, String str2, Integer pos)", descriptions = {
-                "- Return \"\" if any of arguments is NULL'", "- Return 0 if not found'",
-                "- Return the position of the first occurrence of 'str1' in 'str2' after position 'pos'."}, examples = {
-                        "locate('app', 'apple') = 1", "locate('app', 'appapp', 2) = 4"})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "locate",
+        "instr"
+}, parameter = "(String str1, String str2, Integer pos)", descriptions = {
+        "- Return \"\" if any of arguments is NULL'",
+        "- Return 0 if not found'",
+        "- Return the position of the first occurrence of 'str1' in 'str2' after position 'pos'."
+}, examples = {
+        "locate('app', 'apple') = 1",
+        "locate('app', 'appapp', 2) = 4"
+})
 public class LocateFunction implements ValueParser {
 
     private ValueParser stringParser1;

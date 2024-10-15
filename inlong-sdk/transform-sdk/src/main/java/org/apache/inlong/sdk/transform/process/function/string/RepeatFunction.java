@@ -34,11 +34,13 @@ import java.util.List;
  * - Return NULL if any parameter is null
  * - Return a new string that repeats the 'str' by a certain number of 'times'
  */
-@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"repeat",
-        "replicate"}, parameter = "(String str, Integer times)", descriptions = {
-                "- Return \"\" if any parameter is null;",
-                "- Return a new string that repeats the 'str' by a certain number of 'times'."}, examples = {
-                        "repeat('apple', 2) = \"appleapple\""})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "repeat",
+        "replicate"
+}, parameter = "(String str, Integer times)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return a new string that repeats the 'str' by a certain number of 'times'."
+}, examples = {"repeat('apple', 2) = \"appleapple\""})
 public class RepeatFunction implements ValueParser {
 
     private ValueParser stringParser;

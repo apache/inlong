@@ -42,8 +42,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "greatest"}, parameter = "(Numeric value1 [,Numeric value2,...])", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the greatest value of the list of arguments."}, examples = {
-                        "greatest(3.141592653589793, 3, greatest(4, 1)) = 4"})
+                "- Return the greatest value of the list of arguments."
+        }, examples = {"greatest(3.141592653589793, 3, greatest(4, 1)) = 4"})
 public class GreatestFunction implements ValueParser {
 
     private List<ValueParser> parserList;

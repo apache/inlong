@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "power"}, parameter = "(Numeric numeric1, Numeric numeric2)", descriptions = {
                 "- Return \"\" if any parameter is NULL.",
-                "- Return 'numeric1'.power('numeric2')."}, examples = {"power(4,0.5) = 2.0"})
+                "- Return 'numeric1'.power('numeric2')."
+        }, examples = {"power(4,0.5) = 2.0"})
 public class PowerFunction implements ValueParser {
 
     private ValueParser baseParser;

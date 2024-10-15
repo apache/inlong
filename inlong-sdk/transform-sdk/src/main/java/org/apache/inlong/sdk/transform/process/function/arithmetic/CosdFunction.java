@@ -39,7 +39,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "cosd"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the cosine of 'numeric' in units of degrees."}, examples = {"cosd(15) = 0.9659258262890683"})
+                "- Return the cosine of 'numeric' in units of degrees."
+        }, examples = {"cosd(15) = 0.9659258262890683"})
 public class CosdFunction implements ValueParser {
 
     private ValueParser numberParser;

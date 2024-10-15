@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "log10"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the base 10 logarithm of 'numeric'."}, examples = {"log10(1000) = 3.0"})
+                "- Return the base 10 logarithm of 'numeric'."
+        }, examples = {"log10(1000) = 3.0"})
 public class Log10Function implements ValueParser {
 
     private final ValueParser numberParser;

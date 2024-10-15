@@ -38,8 +38,10 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array"}, parameter = "(String value1 [,String value2, ....])", descriptions = {
                 "- Return an array created from a list of values ('value1', 'value2', ....)."}, examples = {
-                        "array('he',7,'xxd') = [he, 7, xxd]", "array(array('he',5),'xxd') = return [[he, 5], xxd]",
-                        "array(array('he',5),array('','')) = return [[he, 5], [, ]]"})
+                        "array('he',7,'xxd') = [he, 7, xxd]",
+                        "array(array('he',5),'xxd') = return [[he, 5], xxd]",
+                        "array(array('he',5),array('','')) = return [[he, 5], [, ]]"
+                })
 public class ArrayFunction implements ValueParser {
 
     private List<ValueParser> parserList;

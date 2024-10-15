@@ -40,8 +40,10 @@ import net.sf.jsqlparser.expression.Function;
                 "- Return \"\" if either argument is NULL;",
                 "- Return 0 if 'str' is not in 'strList' or if 'strList' is the empty string;",
                 "- Return a value in the range of 1 to N if the string 'str' is in the string list 'strList' consisting of N substrings.",
-                "Note: strList is a string composed of substrings separated by ',' characters. This function does not work properly if the first argument contains a comma (,) character."}, examples = {
-                        "FIND_IN_SET('b','a,b,b,c,d') = 2", "FIND_IN_SET('','a,,b,c,d') = 2"})
+                "Note: strList is a string composed of substrings separated by ',' characters. This function does not work properly if the "
+                        +
+                        "first argument contains a comma (,) character."
+        }, examples = {"FIND_IN_SET('b','a,b,b,c,d') = 2", "FIND_IN_SET('','a,,b,c,d') = 2"})
 public class FindInSetFunction implements ValueParser {
 
     private final ValueParser strParser;

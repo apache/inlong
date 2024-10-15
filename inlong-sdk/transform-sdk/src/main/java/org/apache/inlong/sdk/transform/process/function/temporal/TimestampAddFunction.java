@@ -38,12 +38,14 @@ import java.util.List;
  * - Return the result of adding the integer expression interval to the date or datetime expression 'baseDateStr'.
  * Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR).
  */
-@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"timestamp_add",
-        "timestampadd"}, parameter = "(String unit, Integer cnt, String baseDateStr)", descriptions = {
-                "- Return \"\" if any parameter is null;",
-                "- Return the result of adding the integer expression interval to the date or datetime expression 'baseDateStr'.",
-                "Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR)."}, examples = {
-                        "timestamp_add('MICROSECOND',3,'1970-01-01 00:00:44') = \"1970-01-01 00:00:44.000003\""})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "timestamp_add",
+        "timestampadd"
+}, parameter = "(String unit, Integer cnt, String baseDateStr)", descriptions = {
+        "- Return \"\" if any parameter is null;",
+        "- Return the result of adding the integer expression interval to the date or datetime expression 'baseDateStr'.",
+        "Note: 'unit' is one of (MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR)."
+}, examples = {"timestamp_add('MICROSECOND',3,'1970-01-01 00:00:44') = \"1970-01-01 00:00:44.000003\""})
 public class TimestampAddFunction implements ValueParser {
 
     private final ValueParser intervalParser;

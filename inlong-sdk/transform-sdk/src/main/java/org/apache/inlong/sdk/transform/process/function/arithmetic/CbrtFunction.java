@@ -35,7 +35,11 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "cbrt"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return NULL if 'numeric' is NULL;",
-                "- Return cube root.",}, examples = {"cbrt(5) = 1.7099759466766968", "cbrt(27) = 3.0"})
+                "- Return cube root.",
+        }, examples = {
+                "cbrt(5) = 1.7099759466766968",
+                "cbrt(27) = 3.0"
+        })
 public class CbrtFunction implements ValueParser {
 
     private ValueParser numParser;

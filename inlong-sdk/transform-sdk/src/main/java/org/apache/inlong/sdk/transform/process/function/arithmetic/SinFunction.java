@@ -36,7 +36,9 @@ import java.math.BigDecimal;
  */
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "sin"}, parameter = "(Numeric numeric)", descriptions = {
-                "- Return \"\" if 'numeric' is NULL;", "- Return the sine of 'numeric'."}, examples = {"sin(0) = 0.0"})
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the sine of 'numeric'."
+        }, examples = {"sin(0) = 0.0"})
 public class SinFunction implements ValueParser {
 
     private ValueParser numberParser;

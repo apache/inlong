@@ -38,8 +38,8 @@ import java.util.Base64;
 @TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
         "to_base64"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" if 'str' is NULL;",
-                "- Return the base64-encoded result from 'str'."}, examples = {
-                        "to_base64('app-fun') = \"YXBwLWZ1bg==\""})
+                "- Return the base64-encoded result from 'str'."
+        }, examples = {"to_base64('app-fun') = \"YXBwLWZ1bg==\""})
 public class ToBase64Function implements ValueParser {
 
     private final ValueParser stringParser;

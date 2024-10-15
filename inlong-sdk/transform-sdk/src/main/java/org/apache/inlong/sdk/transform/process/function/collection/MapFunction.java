@@ -41,9 +41,11 @@ import java.util.Map;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "map"}, parameter = "([String value1, String value2, ...])", descriptions = {
                 "- Return \"\" if the number of parameters is not even;",
-                "- Return a map created from a list of key-value pairs ((value1, value2), ... )."}, examples = {
-                        "Map('he',7,'xxd') = null", "Map('he',1,'xxd','cloud') = {he=1, xxd=cloud}",
-                        "Map('xxd','cloud',map(1,2),map(3,'apple')) = {xxd=cloud, {1=2}={3=apple}}"})
+                "- Return a map created from a list of key-value pairs ((value1, value2), ... )."
+        }, examples = {
+                "Map('he',7,'xxd') = null", "Map('he',1,'xxd','cloud') = {he=1, xxd=cloud}",
+                "Map('xxd','cloud',map(1,2),map(3,'apple')) = {xxd=cloud, {1=2}={3=apple}}"
+        })
 public class MapFunction implements ValueParser {
 
     private List<ValueParser> parserList;

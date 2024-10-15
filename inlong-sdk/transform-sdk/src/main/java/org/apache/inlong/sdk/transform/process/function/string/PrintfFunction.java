@@ -37,7 +37,9 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "printf"}, parameter = "(String strfmt [, Object obj, ...])", descriptions = {
                 "- Return a formatted string from printf-style format strings."}, examples = {
-                        "printf(\"User %s has %d points and a balance of %.2f.\", \"Bob\", 1500, 99.99) = \" User Bob has 1500 points and a balance of 99.99.\""})
+                        "printf(\"User %s has %d points and a balance of %.2f.\", \"Bob\", 1500, 99.99) = \" User Bob has "
+                                +
+                                "1500 points and a balance of 99.99.\""})
 public class PrintfFunction implements ValueParser {
 
     private ValueParser strfmtParser;

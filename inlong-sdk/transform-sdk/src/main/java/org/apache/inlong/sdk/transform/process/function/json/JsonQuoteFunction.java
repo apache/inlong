@@ -34,12 +34,17 @@ import net.sf.jsqlparser.expression.Function;
  * - Return a valid JSON string converted from a string (JSON_QUOTE) or any type of data (JSON_STRING)
  * Note: JSON_QUOTE will escape interior quote and special characters (’"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’)
  */
-@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {"json_quote",
-        "json_string"}, parameter = "(String data)", descriptions = {
-                "- Return \"\" if data is NULL;",
-                "- Return a valid JSON string converted from a string (JSON_QUOTE) or any type of data (JSON_STRING).",
-                "Note: JSON_QUOTE will escape interior quote and special characters (’\"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’)"}, examples = {
-                        "json_quote('Column1\\tColumn2) = \\\"Column1\\\\tColumn2\\\"", "json_string(true) = \"true\""})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_quote",
+        "json_string"
+}, parameter = "(String data)", descriptions = {
+        "- Return \"\" if data is NULL;",
+        "- Return a valid JSON string converted from a string (JSON_QUOTE) or any type of data (JSON_STRING).",
+        "Note: JSON_QUOTE will escape interior quote and special characters (’\"’, ‘', ‘/’, ‘b’, ‘f’, ’n’, ‘r’, ’t’)"
+}, examples = {
+        "json_quote('Column1\\tColumn2) = \\\"Column1\\\\tColumn2\\\"",
+        "json_string(true) = \"true\""
+})
 public class JsonQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;

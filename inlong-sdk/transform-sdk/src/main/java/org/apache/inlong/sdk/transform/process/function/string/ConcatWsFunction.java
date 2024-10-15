@@ -42,10 +42,12 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "concat_ws"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
                 "- Return NULL If 'STRING1' is NULL;",
-                "- Return a string that concatenates ('STRING2', 'STRING3', ...) with a separator STRING1."}, examples = {
-                        "concat_ws('-', 'apple', 'banana', 'cloud') = \"apple-banana-cloud\"",
-                        "concat_ws('-', 'apple', '', 'cloud') = \"apple--cloud\"",
-                        "concat_ws('-', 'apple', null, 'cloud') = \"apple-cloud\""})
+                "- Return a string that concatenates ('STRING2', 'STRING3', ...) with a separator STRING1."
+        }, examples = {
+                "concat_ws('-', 'apple', 'banana', 'cloud') = \"apple-banana-cloud\"",
+                "concat_ws('-', 'apple', '', 'cloud') = \"apple--cloud\"",
+                "concat_ws('-', 'apple', null, 'cloud') = \"apple-cloud\""
+        })
 public class ConcatWsFunction implements ValueParser {
 
     private final String separator;

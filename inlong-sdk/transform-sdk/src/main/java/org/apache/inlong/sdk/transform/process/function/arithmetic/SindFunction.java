@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "sind"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the sine of 'numeric' in units of degrees."}, examples = {"sind(15) = 0.25881904510252074"})
+                "- Return the sine of 'numeric' in units of degrees."
+        }, examples = {"sind(15) = 0.25881904510252074"})
 public class SindFunction implements ValueParser {
 
     private ValueParser numberParser;

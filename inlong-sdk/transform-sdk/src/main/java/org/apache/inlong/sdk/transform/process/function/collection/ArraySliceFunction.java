@@ -41,9 +41,13 @@ import java.util.ArrayList;
                 "- Return \"\" if 'array' or 'start_offset' is null;",
                 "- Return a subarray of the input 'array' between 'start_offset' and 'end_offset' inclusive;",
                 "- Return an empty array if 'start_offset' is after 'end_offset' or both are out of 'array' bounds.",
-                "Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'. Positive values are counted from the beginning of the array while negative from the end."}, examples = {
-                        "array_slice(array('he',7,'xxd'),1,2) = ['he', 7]",
-                        "array_slice(array('he','xxd','b'),-2,-1) = [3, 'xxd']"})
+                "Note: If 'end_offset' is omitted then this offset is treated as the length of the 'array'. Positive values "
+                        +
+                        "are counted from the beginning of the array while negative from the end."
+        }, examples = {
+                "array_slice(array('he',7,'xxd'),1,2) = ['he', 7]",
+                "array_slice(array('he','xxd','b'),-2,-1) = [3, 'xxd']"
+        })
 public class ArraySliceFunction implements ValueParser {
 
     private ValueParser arrayParser;

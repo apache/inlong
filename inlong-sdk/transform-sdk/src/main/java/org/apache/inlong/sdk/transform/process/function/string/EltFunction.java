@@ -39,8 +39,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "elt"}, parameter = "(Integer index, Expr expr1[, Expr expr2, ...])", descriptions = {
                 "- Return \"\" if 'index' is NULL or out of range;",
-                "- Return the index-th('index' starts from 1) expression."}, examples = {
-                        "elt(2, 'a', 'b', 'c') = \"b\""})
+                "- Return the index-th('index' starts from 1) expression."
+        }, examples = {"elt(2, 'a', 'b', 'c') = \"b\""})
 public class EltFunction implements ValueParser {
 
     private ValueParser indexParser;

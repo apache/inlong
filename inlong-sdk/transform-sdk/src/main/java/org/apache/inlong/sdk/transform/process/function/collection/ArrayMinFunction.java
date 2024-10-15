@@ -36,7 +36,8 @@ import java.util.ArrayList;
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "array_min"}, parameter = "(Array array)", descriptions = {
                 "- Return \"\" if any parameter is null;",
-                "- Return the minimum value from the 'array'."}, examples = {"array_min(array(4,3,56)) = 3"})
+                "- Return the minimum value from the 'array'."
+        }, examples = {"array_min(array(4,3,56)) = 3"})
 public class ArrayMinFunction implements ValueParser {
 
     private final ValueParser arrayParser;

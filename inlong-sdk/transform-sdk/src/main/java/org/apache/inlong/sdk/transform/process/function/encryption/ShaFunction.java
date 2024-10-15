@@ -36,8 +36,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 @TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
         "sha"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" if 'str' is NULL;",
-                "- Return a string of 40 hexadecimal digits (the SHA-1 160 bit)."}, examples = {
-                        "sha(\"5\") = \"ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4\""})
+                "- Return a string of 40 hexadecimal digits (the SHA-1 160 bit)."
+        }, examples = {"sha(\"5\") = \"ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4\""})
 public class ShaFunction implements ValueParser {
 
     private final ValueParser msgParser;

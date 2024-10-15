@@ -45,8 +45,10 @@ import java.util.List;
         "coalesce"}, parameter = "(String value1 [, String value2, ...])", descriptions = {
                 "- Return \"\" If all arguments are NULL or \"\";",
                 "- Return the first argument that is not NULL or \"\".",
-                "Note: The return type is the least restrictive, common type of all of its arguments. The return type is nullable if all arguments are nullable as well."}, examples = {
-                        "coalesce('', 'SQL', 'hh') = \"SQL\""})
+                "Note: The return type is the least restrictive, common type of all of its arguments. The return type "
+                        +
+                        "is nullable if all arguments are nullable as well."
+        }, examples = {"coalesce('', 'SQL', 'hh') = \"SQL\""})
 public class CoalesceFunction implements ValueParser {
 
     private List<ValueParser> parserList;

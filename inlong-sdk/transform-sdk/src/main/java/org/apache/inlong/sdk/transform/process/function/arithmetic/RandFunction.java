@@ -40,8 +40,8 @@ import java.util.Random;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "rand"}, parameter = "(Integer seed)", descriptions = {
                 "- Return a pseudo-random double precision value in the range [0.0, 1.0) if seed is NULL;",
-                "- Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial 'seed' of Integer."}, examples = {
-                        "rand(1)", "rand()"})
+                "- Return a pseudo-random double precision value in the range [0.0, 1.0) with an initial 'seed' of Integer."
+        }, examples = {"rand(1)", "rand()"})
 public class RandFunction implements ValueParser {
 
     private ValueParser seedParser;

@@ -41,8 +41,8 @@ import java.util.List;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "concat"}, parameter = "(String string1 [, String string2, ...])", descriptions = {
                 "- Return NULL If any parameter is NULL;",
-                "- Return the string of the connection ('string1', 'string2',...)."}, examples = {
-                        "CONCAT(\"AA\", \"BB\", \"CC\") = \"AABBCC\""})
+                "- Return the string of the connection ('string1', 'string2',...)."
+        }, examples = {"CONCAT(\"AA\", \"BB\", \"CC\") = \"AABBCC\""})
 public class ConcatFunction implements ValueParser {
 
     private List<ValueParser> nodeList;

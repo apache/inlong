@@ -40,8 +40,10 @@ import java.util.regex.Pattern;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_replace"}, parameter = "(String source_string, String regexp, String replacement)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return a string from 'source_string' with all the substrings that match a regular expression 'regexp' consecutively being replaced with 'replacement'."}, examples = {
-                        "regexp_replace('foobarbaz', 'b..', 'X') = \"fooXbaz\""})
+                "- Return a string from 'source_string' with all the substrings that match a regular expression 'regexp' "
+                        +
+                        "consecutively being replaced with 'replacement'."
+        }, examples = {"regexp_replace('foobarbaz', 'b..', 'X') = \"fooXbaz\""})
 public class RegexpReplaceFunction implements ValueParser {
 
     private ValueParser inputStringParser;

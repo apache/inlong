@@ -35,8 +35,11 @@ import net.sf.jsqlparser.expression.Function;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "is_decimal"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" if 'str' is NULL;", "- Return true if 'str' can be parsed to a valid numeric;",
-                "- Return false otherwise (Including cases where string is null and '')."}, examples = {
-                        "is_decimal('3he') = false", "is_decimal('3.5') = true",})
+                "- Return false otherwise (Including cases where string is null and '')."
+        }, examples = {
+                "is_decimal('3he') = false",
+                "is_decimal('3.5') = true"
+        })
 public class IsDecimalFunction implements ValueParser {
 
     private final ValueParser stringParser;

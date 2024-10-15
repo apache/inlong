@@ -37,7 +37,8 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "tan"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the tangent of 'numeric'."}, examples = {"tan(1) = 1.5574077246549023"})
+                "- Return the tangent of 'numeric'."
+        }, examples = {"tan(1) = 1.5574077246549023"})
 public class TanFunction implements ValueParser {
 
     private ValueParser numberParser;

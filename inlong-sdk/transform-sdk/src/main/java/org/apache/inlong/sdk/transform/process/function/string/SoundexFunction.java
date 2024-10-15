@@ -37,8 +37,8 @@ import java.nio.charset.StandardCharsets;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "soundex"}, parameter = "(String str)", descriptions = {
                 "- Return \"\" if 'str' is NULL;",
-                "- Return a four character code representing the sound of 'str'."}, examples = {
-                        "soundex('hello world') = \"H464\""})
+                "- Return a four character code representing the sound of 'str'."
+        }, examples = {"soundex('hello world') = \"H464\""})
 public class SoundexFunction implements ValueParser {
 
     private ValueParser stringParser;

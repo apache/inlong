@@ -37,8 +37,12 @@ import java.math.BigDecimal;
 @TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
         "asind"}, parameter = "(Numeric numeric)", descriptions = {
                 "- Return \"\" if 'numeric' is NULL;",
-                "- Return the arc sine of 'numeric' in units of degrees."}, examples = {
-                        "asind(0.5) = 30.000000000000004", "asind(0) = 0.0", "asind(-0.5) = -30.000000000000004"})
+                "- Return the arc sine of 'numeric' in units of degrees."
+        }, examples = {
+                "asind(0.5) = 30.000000000000004",
+                "asind(0) = 0.0",
+                "asind(-0.5) = -30.000000000000004"
+        })
 public class AsindFunction implements ValueParser {
 
     private ValueParser numberParser;

@@ -37,9 +37,12 @@ import java.util.Map;
  */
 @TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
         "map_entries"}, parameter = "(Map map)", descriptions = {
-                "- Return \"\" if 'map' is NULL;", "- Return an array of all entries in the given 'map'."}, examples = {
-                        "map_entries(Map('he',1,'xxd','cloud')) = [he=1, xxd=cloud]",
-                        "map_entries(Map(1,2,'cloud','xxd')) = [xxd=cloud, 1=2]"})
+                "- Return \"\" if 'map' is NULL;",
+                "- Return an array of all entries in the given 'map'."
+        }, examples = {
+                "map_entries(Map('he',1,'xxd','cloud')) = [he=1, xxd=cloud]",
+                "map_entries(Map(1,2,'cloud','xxd')) = [xxd=cloud, 1=2]"
+        })
 public class MapEntriesFunction implements ValueParser {
 
     private final ValueParser mapParser;

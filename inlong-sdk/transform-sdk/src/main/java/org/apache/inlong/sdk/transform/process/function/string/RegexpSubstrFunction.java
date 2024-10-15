@@ -40,8 +40,8 @@ import java.util.regex.Pattern;
 @TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regex_substr"}, parameter = "(String source_string, String regexp)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or regexp if invalid or pattern is not found;",
-                "- Return the first substring in 'str' that matches 'regexp'."}, examples = {
-                        "regex_substr(\"abc123def\", \"(\\\\d+)\") = 123"})
+                "- Return the first substring in 'str' that matches 'regexp'."
+        }, examples = {"regex_substr(\"abc123def\", \"(\\\\d+)\") = 123"})
 public class RegexpSubstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;
