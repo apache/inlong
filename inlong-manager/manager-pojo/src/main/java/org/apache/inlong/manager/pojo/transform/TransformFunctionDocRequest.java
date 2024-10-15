@@ -29,7 +29,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel("Paging query request for TransformFunctionDocRequest")
 public class TransformFunctionDocRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Function type to filter by")
+    @ApiModelProperty(value = "Function type")
     private String type;
 
 }
