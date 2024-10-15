@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.source;
 
+import org.apache.inlong.audit.metric.MetricsManager;
 import org.apache.inlong.audit.protocol.AuditApi.AuditMessageBody;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply.RSP_CODE;
@@ -142,13 +143,20 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     private AuditReply handleRequest(AuditRequest auditRequest) throws Exception {
         if (auditRequest == null) {
+
+            MetricsManager.getInstance().addReceiveCountInvalid(1);
+
             throw new Exception("audit request cannot be null");
         }
+
         AuditReply reply = AuditReply.newBuilder()
                 .setRequestId(auditRequest.getRequestId())
                 .setRspCode(RSP_CODE.SUCCESS)
                 .build();
         List<AuditMessageBody> bodyList = auditRequest.getMsgBodyList();
+
+        MetricsManager.getInstance().addReceiveSuccess(bodyList.size(), 1, auditRequest.getSerializedSize());
+
         int errorMsgBody = 0;
         LOGGER.debug("Receive message count: {}", auditRequest.getMsgBodyCount());
         for (AuditMessageBody auditMessageBody : bodyList) {
@@ -156,6 +164,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (msgDays >= this.msgValidThresholdDays) {
                 LOGGER.debug("Discard the data as it is from {} days ago, only the data with a log timestamp"
                         + " less than {} days is valid", msgDays, this.msgValidThresholdDays);
+
+                MetricsManager.getInstance().addReceiveCountExpired(1);
+
                 continue;
             }
             AuditData auditData = new AuditData();
@@ -194,6 +205,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
 
         if (errorMsgBody != 0) {
+
+            MetricsManager.getInstance().addReceiveCountInvalid(errorMsgBody);
+
             reply = reply.toBuilder()
                     .setMessage("writing data error, discard it, error body count=" + errorMsgBody)
                     .setRspCode(RSP_CODE.FAILED)

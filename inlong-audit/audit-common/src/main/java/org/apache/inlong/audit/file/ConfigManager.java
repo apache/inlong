@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class ConfigManager {
 
@@ -94,12 +95,28 @@ public class ConfigManager {
         return null;
     }
 
-    public String getValue(String key) {
+    public <T> T getValue(String key, T defaultValue, Function<String, T> parser) {
         ConfigHolder holder = holderMap.get(DEFAULT_CONFIG_PROPERTIES);
-        if (holder != null) {
-            return holder.getHolder().get(key);
+        if (holder == null) {
+            return defaultValue;
         }
-        return null;
+        Object value = holder.getHolder().get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        try {
+            return parser.apply((String) value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public String getValue(String key, String defaultValue) {
+        return getValue(key, defaultValue, Function.identity());
+    }
+
+    public int getValue(String key, int defaultValue) {
+        return getValue(key, defaultValue, Integer::parseInt);
     }
 
     private boolean updatePropertiesHolder(Map<String, String> result,
