@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.sink;
 
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
+import org.apache.inlong.audit.metric.MetricsManager;
 import org.apache.inlong.audit.sink.pulsar.CreatePulsarClientCallBack;
 import org.apache.inlong.audit.sink.pulsar.PulsarClientService;
 import org.apache.inlong.audit.sink.pulsar.SendMessageCallBack;
@@ -319,6 +320,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public void handleMessageSendSuccess(Object result, EventStat eventStat) {
+        MetricsManager.getInstance().addSendSuccess(1);
         /*
          * Statistics pulsar performance
          */
@@ -346,6 +348,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public void handleMessageSendException(EventStat eventStat, Object e) {
+        MetricsManager.getInstance().addSendFailed(1);
         if (e instanceof TooLongFrameException) {
             PulsarSink.this.overflow = true;
         } else if (e instanceof ProducerQueueIsFullError) {

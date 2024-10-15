@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.pulsar.source.reader;
 
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 import org.apache.inlong.sort.pulsar.table.PulsarTableDeserializationSchema;
 
 import org.apache.flink.annotation.Internal;
@@ -41,6 +42,7 @@ import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -66,6 +68,11 @@ public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT
     private final PulsarDeserializationSchema<OUT> deserializationSchema;
     private boolean started = false;
 
+    private SourceExactlyMetric sourceExactlyMetric;
+
+    /** The map to store the start time of each checkpoint. */
+    private transient Map<Long, Long> checkpointStartTimeMap;
+
     public PulsarUnorderedSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<PulsarMessage<OUT>>> elementsQueue,
             Supplier<PulsarUnorderedPartitionSplitReader<OUT>> splitReaderSupplier,
@@ -86,6 +93,11 @@ public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT
         this.transactionsToCommit = Collections.synchronizedSortedMap(new TreeMap<>());
         this.transactionsOfFinishedSplits = Collections.synchronizedList(new ArrayList<>());
         this.deserializationSchema = deserializationSchema;
+        if (deserializationSchema instanceof PulsarTableDeserializationSchema) {
+            this.sourceExactlyMetric =
+                    ((PulsarTableDeserializationSchema) deserializationSchema).getSourceExactlyMetric();
+        }
+        this.checkpointStartTimeMap = new HashMap<>();
     }
 
     @Override
@@ -141,26 +153,38 @@ public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT
 
     @Override
     public List<PulsarPartitionSplit> snapshotState(long checkpointId) {
-        LOG.debug("Trigger the new transaction for downstream readers.");
-        if (deserializationSchema instanceof PulsarTableDeserializationSchema) {
-            ((PulsarTableDeserializationSchema) deserializationSchema).updateCurrentCheckpointId(checkpointId);
-        }
-        List<PulsarPartitionSplit> splits =
-                ((PulsarUnorderedFetcherManager<OUT>) splitFetcherManager).snapshotState();
-
-        if (coordinatorClient == null) {
-            return splits;
-        }
-        // Snapshot the transaction status and commit it after checkpoint finishing.
-        List<TxnID> txnIDs =
-                transactionsToCommit.computeIfAbsent(checkpointId, id -> new ArrayList<>());
-        for (PulsarPartitionSplit split : splits) {
-            TxnID uncommittedTransactionId = split.getUncommittedTransactionId();
-            if (uncommittedTransactionId != null) {
-                txnIDs.add(uncommittedTransactionId);
+        try {
+            // record the start time of each checkpoint
+            if (checkpointStartTimeMap != null) {
+                checkpointStartTimeMap.put(checkpointId, System.currentTimeMillis());
             }
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumSnapshotCreate();
+            }
+            LOG.debug("Trigger the new transaction for downstream readers.");
+            if (deserializationSchema instanceof PulsarTableDeserializationSchema) {
+                ((PulsarTableDeserializationSchema) deserializationSchema).updateCurrentCheckpointId(checkpointId);
+            }
+            List<PulsarPartitionSplit> splits =
+                    ((PulsarUnorderedFetcherManager<OUT>) splitFetcherManager).snapshotState();
+
+            if (coordinatorClient == null) {
+                return splits;
+            }
+            // Snapshot the transaction status and commit it after checkpoint finishing.
+            List<TxnID> txnIDs =
+                    transactionsToCommit.computeIfAbsent(checkpointId, id -> new ArrayList<>());
+            for (PulsarPartitionSplit split : splits) {
+                TxnID uncommittedTransactionId = split.getUncommittedTransactionId();
+                if (uncommittedTransactionId != null) {
+                    txnIDs.add(uncommittedTransactionId);
+                }
+            }
+            return splits;
+        } catch (Exception e) {
+            sourceExactlyMetric.incNumSnapshotError();
+            throw e;
         }
-        return splits;
     }
 
     @Override
@@ -187,6 +211,17 @@ public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT
                     (PulsarTableDeserializationSchema) deserializationSchema;
             pulsarTableDeserializationSchema.flushAudit();
             pulsarTableDeserializationSchema.updateLastCheckpointId(checkpointId);
+        }
+        // get the start time of the currently completed checkpoint
+        if (checkpointStartTimeMap != null) {
+            Long snapShotStartTimeById = checkpointStartTimeMap.remove(checkpointId);
+            if (snapShotStartTimeById != null && sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumSnapshotComplete();
+                sourceExactlyMetric
+                        .recordSnapshotToCheckpointDelay(System.currentTimeMillis() - snapShotStartTimeById);
+            }
+        } else {
+            LOG.error("checkpointStartTimeMap is null, can't get the start time of checkpoint");
         }
     }
 }

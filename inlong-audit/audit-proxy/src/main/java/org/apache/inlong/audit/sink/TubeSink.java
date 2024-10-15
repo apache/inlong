@@ -20,6 +20,7 @@ package org.apache.inlong.audit.sink;
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.file.ConfigManager;
+import org.apache.inlong.audit.metric.MetricsManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.MQInfo;
@@ -313,6 +314,8 @@ public class TubeSink extends AbstractSink implements Configurable {
      * Send message of success.
      */
     public void handleMessageSendSuccess(EventStat es) {
+        MetricsManager.getInstance().addSendSuccess(1);
+
         // Statistics tube performance
         totalTubeSuccSendCnt.incrementAndGet();
         totalTubeSuccSendSize.addAndGet(es.getEvent().getBody().length);
@@ -629,6 +632,8 @@ public class TubeSink extends AbstractSink implements Configurable {
                 handleMessageSendSuccess(myEventStat);
                 return;
             }
+
+            MetricsManager.getInstance().addSendFailed(1);
 
             // handle sent error
             if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
