@@ -19,22 +19,26 @@ package org.apache.inlong.manager.pojo.transform;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 /**
  * Response of transform function Docs
  */
 @Data
-@ApiModel("Response of transform function Docs")
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Response of transform function Doc")
 public class TransformFunctionDocResponse {
 
-    @ApiModelProperty("transform function list type")
-    private String type;
+    @ApiModelProperty("transform function names")
+    private String names;
 
-    @ApiModelProperty("transform function list details")
-    private List<TransformFunctionDocInfo> transformFunctionDocInfoList = new ArrayList<>();
+    @ApiModelProperty("transform function explanation")
+    private String explanation;
+
+    @ApiModelProperty("transform function examples")
+    private String examples;
 
 }

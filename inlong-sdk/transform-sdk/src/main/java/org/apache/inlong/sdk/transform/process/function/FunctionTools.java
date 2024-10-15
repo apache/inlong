@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 @Slf4j
 public class FunctionTools {
@@ -75,7 +75,7 @@ public class FunctionTools {
 
     private static class FunctionDocHolder {
 
-        private final static Map<String, List<FunctionInfo>> functionDocMap = new ConcurrentHashMap<>();
+        private final static Map<String, List<FunctionInfo>> functionDocMap = new ConcurrentSkipListMap<>();
 
         static {
             initFunctionDoc();

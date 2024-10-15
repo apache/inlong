@@ -17,28 +17,19 @@
 
 package org.apache.inlong.manager.pojo.transform;
 
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
-/**
- * Information of transform function Doc
- */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("transform function Doc info")
-public class TransformFunctionDocInfo {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Paging query request for TransformFunctionDocRequest")
+public class TransformFunctionDocRequest extends PageRequest {
 
-    @ApiModelProperty("transform function names")
-    private String names;
-
-    @ApiModelProperty("transform function explanation")
-    private String explanation;
-
-    @ApiModelProperty("transform function examples")
-    private String examples;
+    @ApiModelProperty(value = "Function type to filter by")
+    private String type;
 
 }

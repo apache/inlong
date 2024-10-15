@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.manager.service.transform.TransformFunctionDocService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,22 +43,10 @@ public class OpenTransformFunctionController {
     @Resource
     private TransformFunctionDocService transformFunctionDocService;
 
-    @RequestMapping(value = "/function/list", method = RequestMethod.GET)
-    @ApiOperation(value = "Get all transform function docs list")
-    public Response<List<TransformFunctionDocResponse>> listDocs() {
-        return Response.success(transformFunctionDocService.getAllFunctionDocs());
-    }
-
-    @RequestMapping(value = "/function/list/types", method = RequestMethod.GET)
-    @ApiOperation(value = "Get all transform function types list")
-    public Response<List<String>> listTypes() {
-        return Response.success(transformFunctionDocService.getAllFunctionTypes());
-    }
-
-    @RequestMapping(value = "/function/list/{type}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get transform function docs list sorted by type")
-    public Response<TransformFunctionDocResponse> list(@PathVariable(value = "type") String type) {
-        return Response.success(transformFunctionDocService.getFunctionDocsByType(type));
+    @RequestMapping(value = "/function/docs", method = RequestMethod.GET)
+    @ApiOperation(value = "Get transform function docs list with optional type filtering and pagination")
+    public Response<List<TransformFunctionDocResponse>> listDocs(TransformFunctionDocRequest request) {
+        return Response.success(transformFunctionDocService.getFunctionDocs(request));
     }
 
 }

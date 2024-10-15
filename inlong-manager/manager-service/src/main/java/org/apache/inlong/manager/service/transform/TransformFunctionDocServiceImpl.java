@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.transform;
 
-import org.apache.inlong.manager.pojo.transform.TransformFunctionDocInfo;
+import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
@@ -35,52 +35,47 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
     private final Map<String, List<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
 
     @Override
-    public List<TransformFunctionDocResponse> getAllFunctionDocs() {
+    public List<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
+        String type = request.getType();
+        int pageNum = request.getPageNum();
+        int pageSize = request.getPageSize();
 
-        return functionDocMap.entrySet().stream()
-                .map(entry -> {
-                    TransformFunctionDocResponse response = new TransformFunctionDocResponse();
-                    response.setType(entry.getKey());
+        // handle type filtering
+        if (type != null && !type.isEmpty()) {
+            List<FunctionInfo> functionInfos = functionDocMap.get(type);
 
-                    List<TransformFunctionDocInfo> docInfos = entry.getValue().stream()
-                            .map(this::convertToDocInfo)
-                            .collect(Collectors.toList());
-
-                    response.setTransformFunctionDocInfoList(docInfos);
-                    return response;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<String> getAllFunctionTypes() {
-        return new ArrayList<>(functionDocMap.keySet());
-    }
-
-    @Override
-    public TransformFunctionDocResponse getFunctionDocsByType(String type) {
-        List<FunctionInfo> functionInfos = functionDocMap.get(type);
-
-        if (functionInfos != null && !functionInfos.isEmpty()) {
-            TransformFunctionDocResponse response = new TransformFunctionDocResponse();
-            response.setType(type);
-
-            List<TransformFunctionDocInfo> docInfos = functionInfos.stream()
-                    .map(this::convertToDocInfo)
-                    .collect(Collectors.toList());
-
-            response.setTransformFunctionDocInfoList(docInfos);
-            return response;
+            if (functionInfos == null || functionInfos.isEmpty()) {
+                return new ArrayList<>();
+            }
+            return paginateFunctionInfos(functionInfos, pageNum, pageSize);
         }
-        return null;
+
+        List<FunctionInfo> allFunctionInfos = functionDocMap.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        return paginateFunctionInfos(allFunctionInfos, pageNum, pageSize);
     }
 
-    // convert FunctionInfo to TransformFunctionDocInfo
-    private TransformFunctionDocInfo convertToDocInfo(FunctionInfo functionInfo) {
-        return new TransformFunctionDocInfo(
-                functionInfo.getFunctionName(),
-                functionInfo.getExplanation(),
-                functionInfo.getExample());
+    private List<TransformFunctionDocResponse> paginateFunctionInfos(List<FunctionInfo> functionInfos, int pageNum,
+            int pageSize) {
+
+        // pagination handle
+        int totalItems = functionInfos.size();
+        int startIndex = (pageNum - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalItems);
+
+        if (startIndex >= totalItems) {
+            return new ArrayList<>();
+        }
+        List<FunctionInfo> pagedFunctionInfos = functionInfos.subList(startIndex, endIndex);
+
+        return pagedFunctionInfos.stream()
+                .map(functionInfo -> new TransformFunctionDocResponse(
+                        functionInfo.getFunctionName(),
+                        functionInfo.getExplanation(),
+                        functionInfo.getExample()))
+                .collect(Collectors.toList());
     }
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 
 import java.util.List;
@@ -26,24 +27,11 @@ import java.util.List;
 public interface TransformFunctionDocService {
 
     /**
-     * Query all the transform function information.
+     * Query the transform function information.
      *
-     * @return List of TransformFunctionResponse
+     * @param request the TransformFunctionDocRequest request
+     * @return list of TransformFunctionDocResponse
      */
-    List<TransformFunctionDocResponse> getAllFunctionDocs();
+    List<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request);
 
-    /**
-     * Query all the transform function information.
-     *
-     * @return all function types that transform had
-     */
-    List<String> getAllFunctionTypes();
-
-    /**
-     * Query the transform function information sorted by function type.
-     *
-     * @param type the transform function type
-     * @return TransformFunctionResponse including type String and List of TransformFunctionDocInfo
-     */
-    TransformFunctionDocResponse getFunctionDocsByType(String type);
 }
