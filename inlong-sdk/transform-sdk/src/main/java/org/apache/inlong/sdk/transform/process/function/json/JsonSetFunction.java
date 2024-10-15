@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,15 +39,13 @@ import java.util.List;
  *          is not a valid path expression or contains a * or ** wildcard;
  * - return the result of inserting or updating data in 'json_doc'.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_set"}, parameter = "(String json_doc, String path1, String val1[, String path2, String val2, ...] )", descriptions = {
-                "- Return \"\" if any argument is NULL or the 'json_doc' argument is not a valid JSON document or any path argument"
+                "- Return \"\" if any argument is NULL or the 'json_doc' argument is not a valid JSON document or any "
                         +
-                        " is not a valid path expression or contains a * or ** wildcard;",
+                        "path argument is not a valid path expression or contains a * or ** wildcard;",
                 "- Return the result of inserting or updating data in 'json_doc'."
-        }, examples = {
-                "json_set({\\\"name\\\":\\\"Alice\\\"},\"$.name\",\"inlong\") = {\"name\":\"inlong\"}"
-        })
+        }, examples = {"json_set({\\\"name\\\":\\\"Alice\\\"},\"$.name\",\"inlong\") = {\"name\":\"inlong\"}"})
 public class JsonSetFunction implements ValueParser {
 
     private ValueParser jsonDocParser;
