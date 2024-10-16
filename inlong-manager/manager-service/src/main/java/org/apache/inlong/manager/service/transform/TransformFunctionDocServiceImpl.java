@@ -23,13 +23,15 @@ import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,10 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
 
     private final Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
 
+    private final FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+
+    private static final int FUZZY_THRESHOLD = 3;
+
     @Override
     public PageResult<TransformFunctionDocResponse> listByCondition(TransformFunctionDocRequest request) {
         String type = request.getType();
@@ -48,14 +54,31 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         int pageSize = request.getPageSize();
 
         LOGGER.info("begin to query transform function info: {}", request);
-        List<FunctionInfo> filteredFunctionInfos = functionDocMap.entrySet().stream()
-                .filter(entry -> StringUtils.isBlank(type) || entry.getKey().equals(type))
-                .flatMap(entry -> entry.getValue().stream())
-                .filter(functionInfo -> StringUtils.isBlank(name)
-                        || functionInfo.getFunctionName().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toList());
+        List<FunctionInfo> filteredFunctionInfos = Optional.ofNullable(filterFunctionInfos(type, name, false))
+                .filter(list -> !list.isEmpty())
+                .orElseGet(() -> {
+                    LOGGER.info("do not found transform function name: {}, fuzzy match enabled", name);
+                    return filterFunctionInfos(type, name, true);
+                });
 
         return paginateFunctionInfos(filteredFunctionInfos, pageNum, pageSize);
+    }
+
+    private List<FunctionInfo> filterFunctionInfos(String type, String name, boolean fuzzyMatch) {
+        return functionDocMap.entrySet().stream()
+                .filter(entry -> Optional.ofNullable(type)
+                        .map(t -> entry.getKey().equals(t))
+                        .orElse(true))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(functionInfo -> Optional.ofNullable(name)
+                        .map(n -> fuzzyMatch ? isFuzzyMatch(n, functionInfo.getFunctionName())
+                                : functionInfo.getFunctionName().toLowerCase().contains(n.toLowerCase()))
+                        .orElse(true))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isFuzzyMatch(String input, String target) {
+        return fuzzyScore.fuzzyScore(target, input) >= FUZZY_THRESHOLD;
     }
 
     private PageResult<TransformFunctionDocResponse> paginateFunctionInfos(List<FunctionInfo> functionInfos,
@@ -66,21 +89,25 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         int startIndex = (pageNum - 1) * pageSize;
         int endIndex = Math.min(startIndex + pageSize, totalItems);
 
-        if (startIndex >= totalItems) {
-            LOGGER.error("error in transform function query pagination, startIndex: {}, totalItems: {}", startIndex,
-                    totalItems);
-            return PageResult.empty((long) totalItems);
-        }
-        List<FunctionInfo> pagedFunctionInfos = functionInfos.subList(startIndex, endIndex);
+        return Optional.of(startIndex)
+                .filter(index -> index < totalItems)
+                .map(index -> {
+                    List<TransformFunctionDocResponse> responseList =
+                            functionInfos.subList(startIndex, endIndex).stream()
+                                    .map(functionInfo -> new TransformFunctionDocResponse(
+                                            functionInfo.getFunctionName(),
+                                            functionInfo.getExplanation(),
+                                            functionInfo.getExample()))
+                                    .collect(Collectors.toList());
 
-        List<TransformFunctionDocResponse> responseList = pagedFunctionInfos.stream()
-                .map(functionInfo -> new TransformFunctionDocResponse(
-                        functionInfo.getFunctionName(),
-                        functionInfo.getExplanation(),
-                        functionInfo.getExample()))
-                .collect(Collectors.toList());
-        LOGGER.info("transform function list query success");
-        return new PageResult<>(responseList, (long) totalItems, pageNum, pageSize);
+                    LOGGER.info("Transform function list query success. Total results: {}", totalItems);
+                    return new PageResult<>(responseList, (long) totalItems, pageNum, pageSize);
+                })
+                .orElseGet(() -> {
+                    LOGGER.error("Error in transform function query pagination, startIndex: {}, totalItems: {}",
+                            startIndex, totalItems);
+                    return PageResult.empty((long) totalItems);
+                });
     }
 
 }
