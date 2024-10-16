@@ -22,9 +22,6 @@ package org.apache.inlong.sdk.dirtydata;
  */
 public final class Constants {
 
-    // The action to deal with schema update in multiple sink.
-    public static final String SINK_MULTIPLE_SCHEMA_UPDATE_POLICY = "sink.multiple.schema-update.policy";
-
     public static final String DIRTY_COLLECT_ENABLE = "dirty.collect.enable";
 
     public static final String DIRTY_SIDE_OUTPUT_CONNECTOR = "dirty.side-output.connector";
