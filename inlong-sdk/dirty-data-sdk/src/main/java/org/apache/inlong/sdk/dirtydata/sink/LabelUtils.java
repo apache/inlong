@@ -24,7 +24,7 @@ import static org.apache.inlong.sdk.dirtydata.Constants.DELIMITER;
 import static org.apache.inlong.sdk.dirtydata.Constants.KEY_VALUE_DELIMITER;
 
 /**
- * The lable utils class, it is used for parse the lables to a label map
+ * The label utils class, is used to parse the labels to a label map
  */
 public final class LabelUtils {
 
