@@ -32,13 +32,13 @@ import lombok.NoArgsConstructor;
 @ApiModel("Response of transform function Doc")
 public class TransformFunctionDocResponse {
 
-    @ApiModelProperty("transform function names")
-    private String names;
+    @ApiModelProperty("Transform function name")
+    private String name;
 
-    @ApiModelProperty("transform function explanation")
+    @ApiModelProperty("Transform function explanation")
     private String explanation;
 
-    @ApiModelProperty("transform function examples")
+    @ApiModelProperty("Transform function examples")
     private String examples;
 
 }

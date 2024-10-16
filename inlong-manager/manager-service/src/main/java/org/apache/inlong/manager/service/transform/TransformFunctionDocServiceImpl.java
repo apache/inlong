@@ -23,6 +23,9 @@ import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,19 +36,22 @@ import java.util.stream.Collectors;
 @Service
 public class TransformFunctionDocServiceImpl implements TransformFunctionDocService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransformFunctionDocServiceImpl.class);
+
     private final Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
 
     @Override
-    public PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
+    public PageResult<TransformFunctionDocResponse> listByCondition(TransformFunctionDocRequest request) {
         String type = request.getType();
         String name = request.getName();
         int pageNum = request.getPageNum();
         int pageSize = request.getPageSize();
 
+        LOGGER.info("begin to query transform function info: {}", request);
         List<FunctionInfo> filteredFunctionInfos = functionDocMap.entrySet().stream()
-                .filter(entry -> type == null || type.isEmpty() || entry.getKey().equals(type))
+                .filter(entry -> StringUtils.isBlank(type) || entry.getKey().equals(type))
                 .flatMap(entry -> entry.getValue().stream())
-                .filter(functionInfo -> name == null || name.isEmpty()
+                .filter(functionInfo -> StringUtils.isBlank(name)
                         || functionInfo.getFunctionName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
 
@@ -61,6 +67,8 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         int endIndex = Math.min(startIndex + pageSize, totalItems);
 
         if (startIndex >= totalItems) {
+            LOGGER.error("transform function querying out of paging, startIndex: {}, totalItems: {}", startIndex,
+                    totalItems);
             return PageResult.empty((long) totalItems);
         }
         List<FunctionInfo> pagedFunctionInfos = functionInfos.subList(startIndex, endIndex);
@@ -71,7 +79,7 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
                         functionInfo.getExplanation(),
                         functionInfo.getExample()))
                 .collect(Collectors.toList());
-
+        LOGGER.info("transform function list query success");
         return new PageResult<>(responseList, (long) totalItems, pageNum, pageSize);
     }
 

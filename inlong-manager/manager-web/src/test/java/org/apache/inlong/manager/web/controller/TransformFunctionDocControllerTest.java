@@ -54,7 +54,7 @@ public class TransformFunctionDocControllerTest extends WebBaseTest {
 
         // Call the controller method
         MvcResult mvcResult = mockMvc.perform(
-                MockMvcRequestBuilders.post("/openapi/transform/function/docs")
+                MockMvcRequestBuilders.post("/openapi/transform/function/list")
                         .content(JsonUtils.toJsonString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

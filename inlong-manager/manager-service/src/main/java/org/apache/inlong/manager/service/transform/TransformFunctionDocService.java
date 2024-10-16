@@ -31,6 +31,6 @@ public interface TransformFunctionDocService {
      * @param request the TransformFunctionDocRequest request
      * @return list of TransformFunctionDocResponse
      */
-    PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request);
+    PageResult<TransformFunctionDocResponse> listByCondition(TransformFunctionDocRequest request);
 
 }
