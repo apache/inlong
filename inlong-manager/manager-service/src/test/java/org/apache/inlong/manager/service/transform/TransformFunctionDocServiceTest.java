@@ -121,6 +121,8 @@ public class TransformFunctionDocServiceTest extends ServiceBaseTest {
     public void testTransformFunctionDocByNameFuzzy() {
         TransformFunctionDocRequest request = new TransformFunctionDocRequest();
         request.setType(FunctionConstant.JSON_TYPE);
+
+        // wrong function name
         request.setName("json_aray");
 
         PageResult<TransformFunctionDocResponse> functionDocs = transformFunctionDocService.listByCondition(request);
