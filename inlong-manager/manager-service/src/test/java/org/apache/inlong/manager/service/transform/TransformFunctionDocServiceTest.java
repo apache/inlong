@@ -21,16 +21,23 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
+import org.apache.inlong.sdk.transform.process.function.FunctionTools;
+import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
-import com.google.gson.Gson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+import java.util.Set;
 
 public class TransformFunctionDocServiceTest extends ServiceBaseTest {
 
     @Autowired
     private TransformFunctionDocService transformFunctionDocService;
+
+    private final Map<String, Set<FunctionInfo>> expectfunctionDocMap = FunctionTools.getFunctionDoc();
 
     @Test
     public void testTransformFunctionDoc() {
@@ -39,50 +46,69 @@ public class TransformFunctionDocServiceTest extends ServiceBaseTest {
         PageResult<TransformFunctionDocResponse> functionDocs1 = transformFunctionDocService.getFunctionDocs(request);
         // default pageNum = 1 pageSize = 10 (by PageResult)
         Assertions.assertEquals(10, functionDocs1.getList().size());
-        Assertions.assertEquals(185, functionDocs1.getTotal());
+        Assertions.assertEquals(expectfunctionDocMap.values().stream().mapToLong(Set::size).sum(),
+                functionDocs1.getTotal());
     }
 
     @Test
     public void testTransformFunctionDocPagination() {
+        int expectTotal;
         TransformFunctionDocRequest request = new TransformFunctionDocRequest();
-        request.setType("temporal");
+        request.setType(FunctionConstant.TEMPORAL_TYPE);
         PageResult<TransformFunctionDocResponse> functionDocs = transformFunctionDocService.getFunctionDocs(request);
 
-        Assertions.assertEquals(27, functionDocs.getTotal());
+        expectTotal = (int) expectfunctionDocMap.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(request.getType()))
+                .mapToLong(entry -> entry.getValue().size())
+                .sum();
+        Assertions.assertEquals(expectTotal, functionDocs.getTotal());
 
-        request.setType("json");
+        request.setType(FunctionConstant.JSON_TYPE);
         request.setPageSize(5);
         request.setPageNum(2);
         PageResult<TransformFunctionDocResponse> functionDocs1 = transformFunctionDocService.getFunctionDocs(request);
 
         Assertions.assertEquals(5, functionDocs1.getList().size());
-        Assertions.assertEquals(12, functionDocs1.getTotal());
+        expectTotal = (int) expectfunctionDocMap.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(request.getType()))
+                .mapToLong(entry -> entry.getValue().size())
+                .sum();
+        Assertions.assertEquals(expectTotal, functionDocs1.getTotal());
 
         request.setPageNum(1);
         PageResult<TransformFunctionDocResponse> functionDocs2 = transformFunctionDocService.getFunctionDocs(request);
         Assertions.assertNotEquals(functionDocs1.getList(), functionDocs2.getList());
         // out of page
-        request.setType("compression");
+        request.setType(FunctionConstant.COMPRESSION_TYPE);
         request.setPageNum(2);
         request.setPageSize(2);
         PageResult<TransformFunctionDocResponse> functionDocs3 = transformFunctionDocService.getFunctionDocs(request);
 
         Assertions.assertEquals(0, functionDocs3.getList().size());
-        Assertions.assertEquals(2, functionDocs3.getTotal());
+
+        expectTotal = (int) expectfunctionDocMap.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(request.getType()))
+                .mapToLong(entry -> entry.getValue().size())
+                .sum();
+        Assertions.assertEquals(expectTotal, functionDocs3.getTotal());
     }
 
     @Test
     public void testTransformFunctionDocByName() {
         TransformFunctionDocRequest request = new TransformFunctionDocRequest();
-        request.setType("json");
+        request.setType(FunctionConstant.JSON_TYPE);
         request.setName("json_array");
 
         PageResult<TransformFunctionDocResponse> functionDocs = transformFunctionDocService.getFunctionDocs(request);
-        // default pageNum = 1 pageSize = 10 (by PageResult)
+
         Assertions.assertEquals(3, functionDocs.getList().size());
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(functionDocs.getList()));
-        Assertions.assertEquals(3, functionDocs.getTotal());
+        int expectTotal = (int) expectfunctionDocMap.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(request.getType()))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(functionInfo -> functionInfo.getFunctionName().toLowerCase()
+                        .contains(request.getName().toLowerCase()))
+                .count();
+        Assertions.assertEquals(expectTotal, functionDocs.getTotal());
     }
 
 }

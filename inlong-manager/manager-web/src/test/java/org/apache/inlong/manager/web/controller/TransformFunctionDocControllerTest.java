@@ -23,6 +23,8 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.manager.web.WebBaseTest;
+import org.apache.inlong.sdk.transform.process.function.FunctionTools;
+import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,9 +32,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Map;
+import java.util.Set;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TransformFunctionDocControllerTest extends WebBaseTest {
+
+    private final Map<String, Set<FunctionInfo>> expectfunctionDocMap = FunctionTools.getFunctionDoc();
 
     @SuppressWarnings("rawtypes")
     @Test
@@ -41,7 +48,7 @@ public class TransformFunctionDocControllerTest extends WebBaseTest {
         // Mock the request and response
         TransformFunctionDocRequest request = new TransformFunctionDocRequest();
         PageResult<TransformFunctionDocResponse> expect = new PageResult<>();
-        expect.setTotal(185L);
+        expect.setTotal(expectfunctionDocMap.values().stream().mapToLong(Set::size).sum());
         expect.setPageNum(1);
         expect.setPageSize(10);
 
@@ -54,6 +61,7 @@ public class TransformFunctionDocControllerTest extends WebBaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
         Response<PageResult> response = getResBody(mvcResult, PageResult.class);
+
         // Verify the result
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
