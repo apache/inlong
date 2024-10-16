@@ -137,53 +137,66 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        Struct value = (Struct) record.value();
-        Schema valueSchema = record.valueSchema();
+        long deserializeStartTime = System.currentTimeMillis();
+        try {
+            Struct value = (Struct) record.value();
+            Schema valueSchema = record.valueSchema();
 
-        OperationType op = operationTypeFor(record);
-        BsonDocument documentKey =
-                checkNotNull(
-                        extractBsonDocument(
-                                value, valueSchema, MongoDBEnvelope.DOCUMENT_KEY_FIELD));
-        BsonDocument fullDocument =
-                extractBsonDocument(value, valueSchema, MongoDBEnvelope.FULL_DOCUMENT_FIELD);
-        switch (op) {
-            case INSERT:
-                GenericRowData insert = extractRowData(fullDocument);
-                insert.setRowKind(RowKind.INSERT);
-                emit(record, insert,
-                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
-                break;
-            case DELETE:
-                GenericRowData delete = extractRowData(documentKey);
-                delete.setRowKind(RowKind.DELETE);
-                emit(record, delete,
-                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
-                break;
-            case UPDATE:
-                // It’s null if another operation deletes the document
-                // before the lookup operation happens. Ignored it.
-                if (fullDocument == null) {
+            OperationType op = operationTypeFor(record);
+            BsonDocument documentKey =
+                    checkNotNull(
+                            extractBsonDocument(
+                                    value, valueSchema, MongoDBEnvelope.DOCUMENT_KEY_FIELD));
+            BsonDocument fullDocument =
+                    extractBsonDocument(value, valueSchema, MongoDBEnvelope.FULL_DOCUMENT_FIELD);
+            switch (op) {
+                case INSERT:
+                    GenericRowData insert = extractRowData(fullDocument);
+                    insert.setRowKind(RowKind.INSERT);
+                    emit(record, insert,
+                            sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                     break;
-                }
-                GenericRowData updateAfter = extractRowData(fullDocument);
-                updateAfter.setRowKind(RowKind.UPDATE_AFTER);
-                emit(record, updateAfter,
-                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
-                break;
-            case REPLACE:
-                GenericRowData replaceAfter = extractRowData(fullDocument);
-                replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
-                emit(record, replaceAfter,
-                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
-                break;
-            case INVALIDATE:
-            case DROP:
-            case DROP_DATABASE:
-            case RENAME:
-            case OTHER:
-            default:
-                break;
+                case DELETE:
+                    GenericRowData delete = extractRowData(documentKey);
+                    delete.setRowKind(RowKind.DELETE);
+                    emit(record, delete,
+                            sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
+                    break;
+                case UPDATE:
+                    // It’s null if another operation deletes the document
+                    // before the lookup operation happens. Ignored it.
+                    if (fullDocument == null) {
+                        break;
+                    }
+                    GenericRowData updateAfter = extractRowData(fullDocument);
+                    updateAfter.setRowKind(RowKind.UPDATE_AFTER);
+                    emit(record, updateAfter,
+                            sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
+                    break;
+                case REPLACE:
+                    GenericRowData replaceAfter = extractRowData(fullDocument);
+                    replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
+                    emit(record, replaceAfter,
+                            sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
+                    break;
+                case INVALIDATE:
+                case DROP:
+                case DROP_DATABASE:
+                case RENAME:
+                case OTHER:
+                default:
+                    break;
+            }
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeSuccess();
+                sourceExactlyMetric.recordDeserializeDelay(System.currentTimeMillis() - deserializeStartTime);
+            }
+
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeError();
+            }
+            throw e;
         }
     }
 
@@ -826,5 +839,10 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
         if (sourceExactlyMetric != null) {
             sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
+    }
+
+    /** setter for DebeziumSourceFunction to set SourceExactlyMetric*/
+    public void setSourceExactlyMetric(SourceExactlyMetric sourceExactlyMetric) {
+        this.sourceExactlyMetric = sourceExactlyMetric;
     }
 }
