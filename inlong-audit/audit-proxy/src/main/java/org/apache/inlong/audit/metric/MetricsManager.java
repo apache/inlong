@@ -94,5 +94,6 @@ public class MetricsManager {
     }
     public void shutdown() {
         timer.shutdown();
+        metric.stop();
     }
 }

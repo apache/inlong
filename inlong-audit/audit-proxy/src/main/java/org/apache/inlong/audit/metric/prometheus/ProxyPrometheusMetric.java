@@ -80,4 +80,9 @@ public class ProxyPrometheusMetric extends Collector implements AbstractMetric {
     public void report() {
         LOGGER.info("Report proxy prometheus metric: {} ", metricItem.toString());
     }
+
+    @Override
+    public void stop() {
+        server.close();
+    }
 }

@@ -82,4 +82,10 @@ public class StorePrometheusMetric extends Collector implements AbstractMetric {
     public void report() {
         LOGGER.info("Report store prometheus metric: {} ", metricItem.toString());
     }
+
+    @Override
+    public void stop() {
+        server.close();
+    }
+
 }

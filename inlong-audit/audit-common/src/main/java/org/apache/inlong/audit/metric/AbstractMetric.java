@@ -20,4 +20,5 @@ package org.apache.inlong.audit.metric;
 public interface AbstractMetric {
 
     public void report();
+    public void stop();
 }
