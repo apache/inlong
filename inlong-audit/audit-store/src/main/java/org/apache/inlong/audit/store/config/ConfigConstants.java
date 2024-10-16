@@ -27,5 +27,5 @@ public class ConfigConstants {
     public static final int DEFAULT_PROMETHEUS_PORT = 10083;
     public static final String KEY_STORE_METRIC_CLASSNAME = "audit.store.metric.classname";
     public static final String DEFAULT_STORE_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.StorePrometheusMetric";
+            "org.apache.inlong.audit.store.metric.prometheus.StorePrometheusMetric";
 }

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.audit.store.metric.prometheus;
 
-import io.prometheus.client.Collector;
-import io.prometheus.client.exporter.HTTPServer;
 import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.metric.AbstractMetric;
 import org.apache.inlong.audit.store.metric.MetricDimension;
 import org.apache.inlong.audit.store.metric.MetricItem;
+
+import io.prometheus.client.Collector;
+import io.prometheus.client.exporter.HTTPServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

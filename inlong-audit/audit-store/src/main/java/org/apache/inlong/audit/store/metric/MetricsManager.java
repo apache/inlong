@@ -19,6 +19,7 @@ package org.apache.inlong.audit.store.metric;
 
 import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.metric.AbstractMetric;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,8 @@ public class MetricsManager {
 
     public void init() {
         try {
-            String metricClassName = ConfigManager.getInstance().getValue(KEY_STORE_METRIC_CLASSNAME, DEFAULT_STORE_METRIC_CLASSNAME);
+            String metricClassName =
+                    ConfigManager.getInstance().getValue(KEY_STORE_METRIC_CLASSNAME, DEFAULT_STORE_METRIC_CLASSNAME);
             LOGGER.info("Metric class name: {}", metricClassName);
             Constructor<?> constructor = Class.forName(metricClassName)
                     .getDeclaredConstructor(MetricItem.class);
@@ -56,7 +58,7 @@ public class MetricsManager {
                 metricItem.resetAllMetrics();
             }, 0, 1, TimeUnit.MINUTES);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException
-                 | InvocationTargetException exception) {
+                | InvocationTargetException exception) {
             LOGGER.error("Init metrics manager has exception: ", exception);
         }
     }
