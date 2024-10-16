@@ -31,7 +31,7 @@ public final class PatternReplaceUtils {
 
     public static String replace(String pattern, Map<String, String> params) {
         if (pattern == null) {
-            return pattern;
+            return null;
         }
         Matcher matcher = REGEX_PATTERN.matcher(pattern);
         StringBuffer sb = new StringBuffer();

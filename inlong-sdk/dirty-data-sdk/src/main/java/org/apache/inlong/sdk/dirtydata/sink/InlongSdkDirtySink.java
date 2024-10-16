@@ -94,7 +94,7 @@ public class InlongSdkDirtySink implements DirtySink {
 
     private InlongSdkOptions getOptions(Configure config) {
         return InlongSdkOptions.builder()
-                .inlongManagerAddr(config.get(DIRTY_SIDE_OUTPUT_INLONG_MANAGER))
+                .inlongManagerAddr(config.get(DIRTY_SIDE_OUTPUT_INLONG_MANAGER_ADDR))
                 .inlongGroupId(config.get(DIRTY_SIDE_OUTPUT_INLONG_GROUP))
                 .inlongStreamId(config.get(DIRTY_SIDE_OUTPUT_INLONG_STREAM))
                 .inlongManagerAuthKey(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY))
