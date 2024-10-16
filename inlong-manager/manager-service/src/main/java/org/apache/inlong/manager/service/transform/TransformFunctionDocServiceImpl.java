@@ -25,7 +25,6 @@ import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,24 +38,18 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
     @Override
     public PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
         String type = request.getType();
+        String name = request.getName();
         int pageNum = request.getPageNum();
         int pageSize = request.getPageSize();
 
-        // handle type filtering
-        if (type != null && !type.isEmpty()) {
-            List<FunctionInfo> functionInfos = new ArrayList<>(functionDocMap.get(type));
-
-            if (functionInfos.isEmpty()) {
-                return PageResult.empty(0L);
-            }
-            return paginateFunctionInfos(functionInfos, pageNum, pageSize);
-        }
-
-        List<FunctionInfo> allFunctionInfos = functionDocMap.values().stream()
-                .flatMap(Set::stream)
+        List<FunctionInfo> filteredFunctionInfos = functionDocMap.entrySet().stream()
+                .filter(entry -> type == null || type.isEmpty() || entry.getKey().equals(type))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(functionInfo -> name == null || name.isEmpty()
+                        || functionInfo.getFunctionName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
 
-        return paginateFunctionInfos(allFunctionInfos, pageNum, pageSize);
+        return paginateFunctionInfos(filteredFunctionInfos, pageNum, pageSize);
     }
 
     private PageResult<TransformFunctionDocResponse> paginateFunctionInfos(List<FunctionInfo> functionInfos,

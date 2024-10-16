@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
 import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,20 @@ public class TransformFunctionDocServiceTest extends ServiceBaseTest {
 
         Assertions.assertEquals(0, functionDocs3.getList().size());
         Assertions.assertEquals(2, functionDocs3.getTotal());
+    }
+
+    @Test
+    public void testTransformFunctionDocByName() {
+        TransformFunctionDocRequest request = new TransformFunctionDocRequest();
+        request.setType("json");
+        request.setName("json_array");
+
+        PageResult<TransformFunctionDocResponse> functionDocs = transformFunctionDocService.getFunctionDocs(request);
+        // default pageNum = 1 pageSize = 10 (by PageResult)
+        Assertions.assertEquals(3, functionDocs.getList().size());
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(functionDocs.getList()));
+        Assertions.assertEquals(3, functionDocs.getTotal());
     }
 
 }
