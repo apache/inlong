@@ -15,10 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.metric;
+package org.apache.inlong.audit.store.service;
 
-public interface AbstractMetric {
+import org.apache.inlong.audit.protocol.AuditData;
 
-    public void report();
-    public void stop();
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
+
+/**
+ * Insert Data interface
+ */
+public interface InsertData {
+
+    /**
+     * insert audit data to storage.
+     */
+    void insert(AuditData msgBody);
+
+    void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId);
 }

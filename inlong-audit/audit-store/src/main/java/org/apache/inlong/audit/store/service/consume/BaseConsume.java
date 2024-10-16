@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.consume;
+package org.apache.inlong.audit.store.service.consume;
 
-import org.apache.inlong.audit.config.MessageQueueConfig;
-import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.protocol.AuditData;
-import org.apache.inlong.audit.service.InsertData;
+import org.apache.inlong.audit.store.config.MessageQueueConfig;
+import org.apache.inlong.audit.store.config.StoreConfig;
+import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.service.InsertData;
 
 import com.google.gson.Gson;
 import org.apache.pulsar.client.api.Consumer;
@@ -56,6 +57,9 @@ public abstract class BaseConsume {
      */
     protected void handleMessage(String body) throws Exception {
         AuditData msgBody = gson.fromJson(body, AuditData.class);
+
+        MetricsManager.getInstance().addReceiveSuccess(1);
+
         this.insertServiceList.forEach((service) -> {
             try {
                 service.insert(msgBody);
@@ -66,6 +70,9 @@ public abstract class BaseConsume {
     }
     protected void handleMessage(String body, Consumer<byte[]> consumer, MessageId messageId) {
         AuditData msgBody = gson.fromJson(body, AuditData.class);
+
+        MetricsManager.getInstance().addReceiveSuccess(1);
+
         this.insertServiceList.forEach((service) -> {
             try {
                 service.insert(msgBody, consumer, messageId);

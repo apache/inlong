@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.store.config;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service;
+package org.apache.inlong.audit.store.service;
 
-import org.apache.inlong.audit.config.JdbcConfig;
-import org.apache.inlong.audit.db.entities.JdbcDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
+import org.apache.inlong.audit.store.config.JdbcConfig;
+import org.apache.inlong.audit.store.entities.JdbcDataPo;
+import org.apache.inlong.audit.store.metric.MetricsManager;
 
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
@@ -113,6 +114,9 @@ public class JdbcService implements InsertData, AutoCloseable {
 
     private boolean executeBatch(List<JdbcDataPo> dataList) {
         boolean result = false;
+
+        long currentTimestamp = System.currentTimeMillis();
+
         try (PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
             for (JdbcDataPo data : dataList) {
                 statement.setString(1, data.getIp());
@@ -135,7 +139,12 @@ public class JdbcService implements InsertData, AutoCloseable {
             statement.executeBatch();
             connection.commit();
             result = true;
+
+            MetricsManager.getInstance().addSendSuccess(dataList.size(), System.currentTimeMillis() - currentTimestamp);
+
         } catch (Exception exception) {
+
+            MetricsManager.getInstance().addSendFailed(dataList.size(), System.currentTimeMillis() - currentTimestamp);
             LOG.error("Execute batch has failure!", exception);
             try {
                 reconnect();
