@@ -15,25 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.sink;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+public interface AuditSink {
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
-public class CacheUtilsTest {
-
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
-    }
+    void start();
+    void destroy();
 }

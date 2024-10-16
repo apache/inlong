@@ -15,25 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.selector;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+import org.apache.inlong.audit.service.selector.api.SelectorChangeListener;
 
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
+/**
+ * Selector change listener impl
+ */
+public class SelectorChangeListenerImpl implements SelectorChangeListener {
 
-public class CacheUtilsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
 
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
+    public void leaderChanged(boolean currentNodeIsLeader) {
+        LOGGER.info("Leader changed {}:", currentNodeIsLeader);
     }
 }

@@ -15,25 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.entities;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+/**
+ * Audit cycle
+ */
+public enum AuditCycle {
 
-import org.junit.Test;
+    MINUTE(1), MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440), UNKNOWN(1000);
 
-import static org.junit.Assert.assertEquals;
+    private final int cycle;
 
-public class CacheUtilsTest {
+    AuditCycle(int cycle) {
+        this.cycle = cycle;
+    }
 
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
+    public int getValue() {
+        return cycle;
+    }
 
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
+    /**
+     * Convert int to AuditCycle.
+     *
+     * @param value
+     * @return
+     */
+    public static AuditCycle fromInt(int value) {
+        for (AuditCycle auditCycle : AuditCycle.values()) {
+            if (auditCycle.getValue() == value) {
+                return auditCycle;
+            }
+        }
+        return UNKNOWN;
     }
 }

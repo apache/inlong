@@ -15,25 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.selector.api;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+/**
+ * Selector
+ */
+public abstract class Selector {
 
-import org.junit.Test;
+    protected boolean isLeader;
 
-import static org.junit.Assert.assertEquals;
+    public abstract void init() throws Exception;
 
-public class CacheUtilsTest {
+    public abstract boolean isLeader();
 
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
+    public abstract void releaseLeader() throws Exception;
 
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
+    public abstract void replaceLeader(String newLeaderId) throws Exception;
 
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
-    }
+    public abstract String getLeader(String serviceId);
+
+    public abstract void canSelect(boolean canSelect);
+
+    public abstract boolean rebuildSelectorDBSource();
+
+    public abstract void close();
 }

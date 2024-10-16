@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.entities;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-import org.junit.Test;
+/**
+ * Source config
+ */
+@Data
+@AllArgsConstructor
+public class SinkConfig {
 
-import static org.junit.Assert.assertEquals;
+    private String insertSql;
+    private final String driverClassName;
+    private final String jdbcUrl;
+    private final String userName;
+    private final String password;
 
-public class CacheUtilsTest {
-
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
-    }
 }

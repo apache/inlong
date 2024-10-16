@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.config;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+/**
+ * Proxy constants
+ */
+public class ProxyConstants {
 
-import org.junit.Test;
+    public static final String PROXY_SEPARATOR = ";";
+    public static final String IP_PORT_SEPARATOR = ":";
+    public static final String KEY_AUDIT_PROXY_ADDRESS_AGENT = "audit.proxy.address.agent";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_AGENT = "";
 
-import static org.junit.Assert.assertEquals;
+    public static final String KEY_AUDIT_PROXY_ADDRESS_DATAPROXY = "audit.proxy.address.dataproxy";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_DATAPROXY = "";
 
-public class CacheUtilsTest {
+    public static final String KEY_AUDIT_PROXY_ADDRESS_SORT = "audit.proxy.address.sort";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_SORT = "";
 
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
-    }
 }

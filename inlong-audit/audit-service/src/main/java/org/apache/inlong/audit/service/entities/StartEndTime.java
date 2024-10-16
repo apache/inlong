@@ -15,25 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.entities;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+import lombok.Data;
 
-import org.junit.Test;
+@Data
+public class StartEndTime {
 
-import static org.junit.Assert.assertEquals;
-
-public class CacheUtilsTest {
-
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
-    }
+    String startTime;
+    String endTime;
+    long endTimeStamp;
 }

@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.cache;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+import org.apache.inlong.audit.service.config.Configuration;
+import org.apache.inlong.audit.service.entities.AuditCycle;
 
-import org.junit.Test;
+/**
+ * Cache Of minute 30 ,for minute 30 openapi
+ */
+public class HalfHourCache extends AbstractCache {
 
-import static org.junit.Assert.assertEquals;
+    private static volatile HalfHourCache halfHourCache = null;
 
-public class CacheUtilsTest {
+    private HalfHourCache() {
+        super(AuditCycle.MINUTE_30);
+    }
 
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
+    public static HalfHourCache getInstance() {
+        if (halfHourCache == null) {
+            synchronized (Configuration.class) {
+                if (halfHourCache == null) {
+                    halfHourCache = new HalfHourCache();
+                }
+            }
+        }
+        return halfHourCache;
     }
 }

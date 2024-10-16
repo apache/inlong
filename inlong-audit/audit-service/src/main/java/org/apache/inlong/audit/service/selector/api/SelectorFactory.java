@@ -15,25 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.service.selector.api;
 
-import org.apache.inlong.audit.service.utils.CacheUtils;
+import org.apache.inlong.audit.service.selector.impl.SelectorImpl;
 
-import org.junit.Test;
+/**
+ * Selector factory
+ */
+public class SelectorFactory {
 
-import static org.junit.Assert.assertEquals;
-
-public class CacheUtilsTest {
-
-    @Test
-    public void calculateAverageDelay() {
-        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
-        assertEquals(10, averageDelay);
-
-        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
-        assertEquals(0, averageDelay);
+    public static Selector getNewElector(SelectorConfig selectorConfig) {
+        return new SelectorImpl(selectorConfig);
     }
 }
