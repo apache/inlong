@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
 
     private final FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
 
-    private static final int FUZZY_THRESHOLD = 3;
+    private static final int FUZZY_THRESHOLD = 5;
 
     @Override
     public PageResult<TransformFunctionDocResponse> listByCondition(TransformFunctionDocRequest request) {
@@ -74,6 +75,12 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
                         .map(n -> fuzzyMatch ? isFuzzyMatch(n, functionInfo.getFunctionName())
                                 : functionInfo.getFunctionName().toLowerCase().contains(n.toLowerCase()))
                         .orElse(true))
+                .collect(Collectors.toList()).stream()
+                .sorted(fuzzyMatch ?
+                // strong correlation data first
+                        Comparator.comparingInt((FunctionInfo f) -> fuzzyScore.fuzzyScore(f.getFunctionName(), name))
+                                .reversed()
+                        : Comparator.comparing(FunctionInfo::getFunctionName))
                 .collect(Collectors.toList());
     }
 
