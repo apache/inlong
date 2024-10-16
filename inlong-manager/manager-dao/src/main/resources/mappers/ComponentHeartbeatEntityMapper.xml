@@ -66,7 +66,12 @@
         select
         <include refid="Base_Column_List"/>
         from component_heartbeat
-        where component = #{request.component, jdbcType=VARCHAR}
+        <where>
+            component = #{request.component, jdbcType=VARCHAR}
+            <if test="request.instance != null and request.instance != ''">
+                and instance = #{request.instance,jdbcType=VARCHAR}
+            </if>
+        </where>
         order by modify_time desc
     </select>
 
