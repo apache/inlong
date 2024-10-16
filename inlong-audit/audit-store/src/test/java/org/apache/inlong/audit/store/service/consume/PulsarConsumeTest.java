@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.consume;
+package org.apache.inlong.audit.store.service.consume;
 
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.impl.PulsarClientImpl;

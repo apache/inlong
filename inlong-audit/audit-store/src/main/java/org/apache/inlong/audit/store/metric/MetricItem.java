@@ -15,23 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.store.metric;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.Data;
 
-@Component
-@Getter
-@Setter
-public class StoreConfig {
+import java.util.concurrent.atomic.AtomicLong;
 
-    // Supports common JDBC protocol. Such as mysql / StarRocks
-    @Value("${audit.config.store.mode:jdbc}")
-    private String store;
+@Data
+public class MetricItem {
 
-    public boolean isJdbc() {
-        return store.contains("jdbc");
+    public static final String K_DIMENSION_KEY = "dimensionName";
+    private AtomicLong receiveCountSuccess = new AtomicLong(0);
+    private AtomicLong receiveFailed = new AtomicLong(0);
+    private AtomicLong sendCountSuccess = new AtomicLong(0);
+    private AtomicLong sendCountFailed = new AtomicLong(0);
+    private AtomicLong sendDuration = new AtomicLong(0);
+    public void resetAllMetrics() {
+        receiveCountSuccess.set(0);
+        receiveFailed.set(0);
+        sendCountSuccess.set(0);
+        sendCountFailed.set(0);
+        sendDuration.set(0);
     }
 }

@@ -15,32 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.db.entities;
+package org.apache.inlong.audit.store.config;
 
-import lombok.Data;
-import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.api.MessageId;
+/**
+ * Config constants
+ */
+public class ConfigConstants {
 
-import java.sql.Timestamp;
-
-@Data
-public class JdbcDataPo {
-
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private Timestamp sdkTs;
-    private Long packetId;
-    private Timestamp logTs;
-    private String inLongGroupId;
-    private String inLongStreamId;
-    private String auditId;
-    private String auditTag;
-    private long auditVersion;
-    private Long count;
-    private Long size;
-    private Long delay;
-    private Timestamp updateTime;
-    private Consumer<byte[]> consumer;
-    private MessageId messageId;
+    public static final String AUDIT_STORE_SERVER_NAME = "audit-store";
+    public static final String KEY_PROMETHEUS_PORT = "audit.store.prometheus.port";
+    public static final int DEFAULT_PROMETHEUS_PORT = 10083;
+    public static final String KEY_STORE_METRIC_CLASSNAME = "audit.store.metric.classname";
+    public static final String DEFAULT_STORE_METRIC_CLASSNAME =
+            "org.apache.inlong.audit.metric.prometheus.StorePrometheusMetric";
 }
