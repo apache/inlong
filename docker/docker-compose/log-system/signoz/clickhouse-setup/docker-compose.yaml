@@ -1,0 +1,3 @@
+include:
+  - log-system/signoz/clickhouse-setup/test-app-docker-compose.yaml
+  - log-system/signoz/clickhouse-setup/docker-compose-minimal.yaml
