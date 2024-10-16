@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.sqlserver;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
 import io.debezium.connector.sqlserver.SqlServerConnector;
@@ -51,6 +53,7 @@ public class SqlServerSource {
         private Properties dbzProperties;
         private StartupOptions startupOptions = StartupOptions.initial();
         private DebeziumDeserializationSchema<T> deserializer;
+        private MetricOption metricOption;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -114,6 +117,12 @@ public class SqlServerSource {
             return this;
         }
 
+        /** metricOption used to instantiate SourceExactlyMetric when inlong.metric.labels is present in flink sql */
+        public Builder<T> metricOption(MetricOption metricOption) {
+            this.metricOption = metricOption;
+            return this;
+        }
+
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", SqlServerConnector.class.getCanonicalName());
@@ -154,7 +163,7 @@ public class SqlServerSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, new SqlServerValidator(props));
+                    deserializer, props, null, new SqlServerValidator(props), metricOption);
         }
     }
 }
