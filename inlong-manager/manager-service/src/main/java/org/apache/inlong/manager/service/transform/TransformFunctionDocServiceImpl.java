@@ -67,7 +67,7 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
         int endIndex = Math.min(startIndex + pageSize, totalItems);
 
         if (startIndex >= totalItems) {
-            LOGGER.error("transform function querying out of paging, startIndex: {}, totalItems: {}", startIndex,
+            LOGGER.error("error in transform function query pagination, startIndex: {}, totalItems: {}", startIndex,
                     totalItems);
             return PageResult.empty((long) totalItems);
         }
