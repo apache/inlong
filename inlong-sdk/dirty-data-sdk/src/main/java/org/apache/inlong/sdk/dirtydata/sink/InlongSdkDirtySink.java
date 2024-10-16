@@ -40,7 +40,7 @@ import static org.apache.inlong.sdk.dirtydata.Constants.DIRTY_SIDE_OUTPUT_IGNORE
 public class InlongSdkDirtySink implements DirtySink {
 
     // The inlong manager addr to init inlong sdk
-    private static final String DIRTY_SIDE_OUTPUT_INLONG_MANAGER = "dirty.side-output.inlong-sdk.inlong-manager-addr";
+    private static final String DIRTY_SIDE_OUTPUT_INLONG_MANAGER_ADDR = "dirty.side-output.inlong-sdk.inlong-manager-addr";
     // The inlong manager auth id to init inlong sdk
     private static final String DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID = "dirty.side-output.inlong-sdk.inlong-auth-id";
     // The inlong manager auth id to init inlong sdk
