@@ -25,14 +25,16 @@ import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class TransformFunctionDocServiceImpl implements TransformFunctionDocService {
 
-    private final Map<String, List<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
+    private final Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
 
     @Override
     public PageResult<TransformFunctionDocResponse> getFunctionDocs(TransformFunctionDocRequest request) {
@@ -42,16 +44,16 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
 
         // handle type filtering
         if (type != null && !type.isEmpty()) {
-            List<FunctionInfo> functionInfos = functionDocMap.get(type);
+            List<FunctionInfo> functionInfos = new ArrayList<>(functionDocMap.get(type));
 
-            if (functionInfos == null || functionInfos.isEmpty()) {
+            if (functionInfos.isEmpty()) {
                 return PageResult.empty(0L);
             }
             return paginateFunctionInfos(functionInfos, pageNum, pageSize);
         }
 
         List<FunctionInfo> allFunctionInfos = functionDocMap.values().stream()
-                .flatMap(List::stream)
+                .flatMap(Set::stream)
                 .collect(Collectors.toList());
 
         return paginateFunctionInfos(allFunctionInfos, pageNum, pageSize);

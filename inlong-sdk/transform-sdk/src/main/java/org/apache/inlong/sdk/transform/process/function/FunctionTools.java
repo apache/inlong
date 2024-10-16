@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
@@ -32,10 +31,11 @@ import org.reflections.scanners.Scanners;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @Slf4j
 public class FunctionTools {
@@ -75,7 +75,7 @@ public class FunctionTools {
 
     private static class FunctionDocHolder {
 
-        private final static Map<String, List<FunctionInfo>> functionDocMap = new ConcurrentSkipListMap<>();
+        private final static Map<String, Set<FunctionInfo>> functionDocMap = new ConcurrentSkipListMap<>();
 
         static {
             initFunctionDoc();
@@ -90,7 +90,8 @@ public class FunctionTools {
                 }
                 String type = annotation.type();
                 FunctionInfo functionInfo = getFunctionInfo(annotation);
-                functionDocMap.computeIfAbsent(type, k -> Lists.newCopyOnWriteArrayList()).add(functionInfo);
+                functionDocMap.computeIfAbsent(type, k -> new ConcurrentSkipListSet<>(Comparator.comparing(
+                        FunctionInfo::getFunctionName))).add(functionInfo);
             }
         }
 
@@ -111,7 +112,7 @@ public class FunctionTools {
         }
     }
 
-    public static Map<String, List<FunctionInfo>> getFunctionDoc() {
+    public static Map<String, Set<FunctionInfo>> getFunctionDoc() {
         return FunctionDocHolder.functionDocMap;
     }
 

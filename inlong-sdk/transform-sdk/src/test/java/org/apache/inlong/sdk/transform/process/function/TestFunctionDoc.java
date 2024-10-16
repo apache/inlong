@@ -24,14 +24,14 @@ import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TestFunctionDoc extends AbstractFunctionStringTestBase {
 
     @Test
     public void TestFunctionDoc() {
-        Map<String, List<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
+        Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
         Assert.assertEquals(8, functionDocMap.size());
         System.out.println(new Gson().toJson(functionDocMap));
     }
