@@ -43,7 +43,41 @@ public class TransformFunctionDocControllerTest extends WebBaseTest {
 
     @SuppressWarnings("rawtypes")
     @Test
-    public void testGetTransformFunctionDocs() throws Exception {
+    public void testGetApiTransformFunctionDocs() throws Exception {
+
+        // Mock the request and response
+        TransformFunctionDocRequest request = new TransformFunctionDocRequest();
+        PageResult<TransformFunctionDocResponse> expect = new PageResult<>();
+        expect.setTotal(expectfunctionDocMap.values().stream().mapToLong(Set::size).sum());
+        expect.setPageNum(1);
+        expect.setPageSize(10);
+
+        // Call the controller method
+        MvcResult mvcResult = mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/transform/function/list")
+                        .content(JsonUtils.toJsonString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        Response<PageResult> response = getResBody(mvcResult, PageResult.class);
+
+        // Verify the result
+        Assertions.assertNotNull(response);
+        Assertions.assertTrue(response.isSuccess());
+        Long total = response.getData().getTotal();
+        int pageSize = response.getData().getPageSize();
+        int pageNum = response.getData().getPageNum();
+
+        Assertions.assertEquals(expect.getTotal(), total);
+        Assertions.assertEquals(expect.getPageNum(), pageNum);
+        Assertions.assertEquals(expect.getPageSize(), pageSize);
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void testGetOpenApiTransformFunctionDocs() throws Exception {
 
         // Mock the request and response
         TransformFunctionDocRequest request = new TransformFunctionDocRequest();

@@ -25,12 +25,10 @@ import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.FunctionTools;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
-import org.apache.commons.text.similarity.FuzzyScore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,10 +38,6 @@ public class TransformFunctionDocServiceTest extends ServiceBaseTest {
     private TransformFunctionDocService transformFunctionDocService;
 
     private final Map<String, Set<FunctionInfo>> expectfunctionDocMap = FunctionTools.getFunctionDoc();
-
-    private final FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
-
-    private static final int FUZZY_THRESHOLD = 3;
 
     @Test
     public void testTransformFunctionDoc() {

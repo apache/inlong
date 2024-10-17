@@ -35,8 +35,8 @@ public class TransformFunctionDocResponse {
     @ApiModelProperty("Transform function name")
     private String name;
 
-    @ApiModelProperty("Transform function explanation")
-    private String explanation;
+    @ApiModelProperty("Transform function description")
+    private String description;
 
     @ApiModelProperty("Transform function examples")
     private String examples;

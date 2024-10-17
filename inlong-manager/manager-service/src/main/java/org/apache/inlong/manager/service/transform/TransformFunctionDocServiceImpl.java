@@ -66,22 +66,23 @@ public class TransformFunctionDocServiceImpl implements TransformFunctionDocServ
     }
 
     private List<FunctionInfo> filterFunctionInfos(String type, String name, boolean fuzzyMatch) {
-        return functionDocMap.entrySet().stream()
+        List<FunctionInfo> functionInfos = functionDocMap.entrySet().stream()
                 .filter(entry -> Optional.ofNullable(type)
                         .map(t -> entry.getKey().equals(t))
                         .orElse(true))
                 .flatMap(entry -> entry.getValue().stream())
                 .filter(functionInfo -> Optional.ofNullable(name)
-                        .map(n -> fuzzyMatch ? isFuzzyMatch(n, functionInfo.getFunctionName())
+                        .map(n -> fuzzyMatch
+                                ? isFuzzyMatch(n, functionInfo.getFunctionName())
                                 : functionInfo.getFunctionName().toLowerCase().contains(n.toLowerCase()))
                         .orElse(true))
-                .collect(Collectors.toList()).stream()
-                .sorted(fuzzyMatch ?
-                // strong correlation data first
-                        Comparator.comparingInt((FunctionInfo f) -> fuzzyScore.fuzzyScore(f.getFunctionName(), name))
-                                .reversed()
-                        : Comparator.comparing(FunctionInfo::getFunctionName))
                 .collect(Collectors.toList());
+
+        return fuzzyMatch ? functionInfos.stream()
+                // when fuzzy match enabled, strong related data first
+                .sorted(Comparator.comparingInt((FunctionInfo f) -> fuzzyScore.fuzzyScore(f.getFunctionName(), name))
+                        .reversed())
+                .collect(Collectors.toList()) : functionInfos;
     }
 
     private boolean isFuzzyMatch(String input, String target) {
