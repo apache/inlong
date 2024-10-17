@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.pulsar.source.reader;
 
+import org.apache.inlong.sort.base.util.OpenTelemetryLogger;
+
 import org.apache.flink.api.connector.source.SourceReaderContext;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.flink.connector.base.source.reader.SourceReaderBase;
@@ -44,6 +46,7 @@ abstract class PulsarSourceReaderBase<OUT>
     protected final SourceConfiguration sourceConfiguration;
     protected final PulsarClient pulsarClient;
     protected final PulsarAdmin pulsarAdmin;
+    private final OpenTelemetryLogger openTelemetryLogger;
 
     protected PulsarSourceReaderBase(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<PulsarMessage<OUT>>> elementsQueue,
@@ -62,6 +65,10 @@ abstract class PulsarSourceReaderBase<OUT>
         this.sourceConfiguration = sourceConfiguration;
         this.pulsarClient = pulsarClient;
         this.pulsarAdmin = pulsarAdmin;
+        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                .setLogLevel(org.apache.logging.log4j.Level.ERROR)
+                .setServiceName(this.getClass().getSimpleName())
+                .setLocalHostIp(this.context.getLocalHostName()).build();
     }
 
     @Override
@@ -76,6 +83,12 @@ abstract class PulsarSourceReaderBase<OUT>
     }
 
     @Override
+    public void start() {
+        this.openTelemetryLogger.install();
+        super.start();
+    }
+
+    @Override
     public void close() throws Exception {
         // Close the all the consumers first.
         super.close();
@@ -83,5 +96,6 @@ abstract class PulsarSourceReaderBase<OUT>
         // Close shared pulsar resources.
         pulsarClient.shutdown();
         pulsarAdmin.close();
+        openTelemetryLogger.uninstall();
     }
 }
