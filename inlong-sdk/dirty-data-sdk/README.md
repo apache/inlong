@@ -20,10 +20,16 @@ DataProxy).
 
 ```java
         Map<String, String> configMap = new ConcurrentHashMap<>();
+        // Enable dirty data collection
         configMap.put(DIRTY_COLLECT_ENABLE, "true");
+        // If ignore error messages during dirty data collection
         configMap.put(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS, "true");
+        // The storage where dirty data will be stored currently only supports 'inlong', 
+        // which means sending the data to DataSroxy
         configMap.put(DIRTY_SIDE_OUTPUT_CONNECTOR, "inlong");
+        // The labels of dirty side-output, format is 'key1=value1&key2=value2'
         configMap.put(DIRTY_SIDE_OUTPUT_LABELS, "key1=value1&key2=value2");
+        // The log tag of dirty side-output, it supports variable replace like '${variable}'.
         configMap.put(DIRTY_SIDE_OUTPUT_LOG_TAG, "DirtyData");
         Configure config = new Configure(configMap);
 
