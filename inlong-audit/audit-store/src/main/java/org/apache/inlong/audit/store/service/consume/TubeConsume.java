@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.consume;
+package org.apache.inlong.audit.store.service.consume;
 
-import org.apache.inlong.audit.config.MessageQueueConfig;
-import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.service.InsertData;
+import org.apache.inlong.audit.store.config.MessageQueueConfig;
+import org.apache.inlong.audit.store.config.StoreConfig;
+import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.service.InsertData;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
@@ -133,12 +134,15 @@ public class TubeConsume extends BaseConsume {
                         }
                         pullMessageConsumer.confirmConsume(csmResult.getConfirmContext(), true);
                     } else {
+                        MetricsManager.getInstance().addReceiveFailed(1);
                         LOG.error("receive messages errorCode is {}, error meddage is {}", csmResult.getErrCode(),
                                 csmResult.getErrMsg());
                     }
                 } catch (TubeClientException e) {
+                    MetricsManager.getInstance().addReceiveFailed(1);
                     LOG.error("tube consumer getMessage error {}", e.getMessage());
                 } catch (Exception e) {
+                    MetricsManager.getInstance().addReceiveFailed(1);
                     LOG.error("handle audit message error {}", e.getMessage());
                 }
 

@@ -15,10 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.metric;
+package org.apache.inlong.audit.store.config;
 
-public interface AbstractMetric {
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-    public void report();
-    public void stop();
+@Component
+@Getter
+@Setter
+public class StoreConfig {
+
+    // Supports common JDBC protocol. Such as mysql / StarRocks
+    @Value("${audit.config.store.mode:jdbc}")
+    private String store;
+
+    public boolean isJdbc() {
+        return store.contains("jdbc");
+    }
 }

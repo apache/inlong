@@ -15,17 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service;
+package org.apache.inlong.audit.store.service;
 
-import org.apache.inlong.audit.config.JdbcConfig;
-import org.apache.inlong.audit.config.MessageQueueConfig;
-import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.file.RemoteConfigJson;
-import org.apache.inlong.audit.service.consume.BaseConsume;
-import org.apache.inlong.audit.service.consume.KafkaConsume;
-import org.apache.inlong.audit.service.consume.PulsarConsume;
-import org.apache.inlong.audit.service.consume.TubeConsume;
+import org.apache.inlong.audit.store.config.JdbcConfig;
+import org.apache.inlong.audit.store.config.MessageQueueConfig;
+import org.apache.inlong.audit.store.config.StoreConfig;
+import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.service.consume.BaseConsume;
+import org.apache.inlong.audit.store.service.consume.KafkaConsume;
+import org.apache.inlong.audit.store.service.consume.PulsarConsume;
+import org.apache.inlong.audit.store.service.consume.TubeConsume;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
 import org.apache.inlong.common.pojo.audit.MQInfo;
@@ -45,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PreDestroy;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -100,6 +103,8 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (mqConsume != null) {
             mqConsume.start();
         }
+
+        MetricsManager.getInstance().init();
     }
 
     /**
@@ -176,5 +181,10 @@ public class AuditMsgConsumerServer implements InitializingBean {
             }
         }
         return null;
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        MetricsManager.getInstance().shutdown();
     }
 }

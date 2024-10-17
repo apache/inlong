@@ -15,18 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit;
+package org.apache.inlong.audit.store.metric;
 
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+public enum MetricDimension {
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-public class Application {
+    RECEIVE_COUNT_SUCCESS("receiveCountSuccess"),
+    RECEIVE_FAILED("receiveFailed"),
+    SEND_COUNT_SUCCESS("sendCountSuccess"),
+    SEND_COUNT_FAILED("sendCountFailed"),
+    SEND_DURATION("sendDuration");
 
-    public static void main(String[] args) {
-        new SpringApplicationBuilder().sources(Application.class)
-                .web(WebApplicationType.NONE).run(args);
+    private final String key;
+
+    MetricDimension(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

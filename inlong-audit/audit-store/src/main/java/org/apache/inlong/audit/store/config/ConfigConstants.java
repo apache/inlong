@@ -15,10 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.metric;
+package org.apache.inlong.audit.store.config;
 
-public interface AbstractMetric {
+/**
+ * Config constants
+ */
+public class ConfigConstants {
 
-    public void report();
-    public void stop();
+    public static final String AUDIT_STORE_SERVER_NAME = "audit-store";
+    public static final String KEY_PROMETHEUS_PORT = "audit.store.prometheus.port";
+    public static final int DEFAULT_PROMETHEUS_PORT = 10083;
+    public static final String KEY_STORE_METRIC_CLASSNAME = "audit.store.metric.classname";
+    public static final String DEFAULT_STORE_METRIC_CLASSNAME =
+            "org.apache.inlong.audit.store.metric.prometheus.StorePrometheusMetric";
 }
