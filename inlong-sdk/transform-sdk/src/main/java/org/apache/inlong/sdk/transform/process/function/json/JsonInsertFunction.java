@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -39,15 +40,14 @@ import java.util.List;
  *          or any path argument is not a valid path expression or contains a * or ** wildcard;
  * - return the result of inserting data into 'json_doc'.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_insert"}, parameter = "(String json_doc, String path1, String val1[, String path2, String val2, ...] )", descriptions = {
                 "- Return \"\" if any argument is NULL or the 'json_doc' argument is not a valid JSON document " +
                         "or any path argument is not a valid path expression or contains a * or ** wildcard.;",
                 "- Return the result of inserting data into 'json_doc'."
         }, examples = {
                 "json_insert({\"a\": {\"b\": [1, 2]}, \"c\": [3, 4]}, $.c[1][1], \"2\", \"$.c[1][1][5]\", \"1\") = " +
-                        "{\"a\":{\"b\":[1,2]},\"c\":[3,[4,[\"2\",\"1\"]]]}"
-        })
+                        "{\"a\":{\"b\":[1,2]},\"c\":[3,[4,[\"2\",\"1\"]]]}"})
 public class JsonInsertFunction implements ValueParser {
 
     private final ValueParser jsonDocParser;

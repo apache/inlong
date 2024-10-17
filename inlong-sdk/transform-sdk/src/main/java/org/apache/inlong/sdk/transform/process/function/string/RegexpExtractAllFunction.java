@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,14 +41,15 @@ import java.util.regex.Pattern;
  * Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to extract and starts
  *       from 1, also the default value if not specified. 0 means matching the entire 'regexp' expression.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_extract_all"}, parameter = "(String str, String regexp, [Integer extractIndex])", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return an array consisting of all substrings from the 'str' that match the 'regexp' expression " +
-                        "and correspond to the 'extractIndex' set of regular expressions.",
-                "Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to " +
-                        "extract and starts from 1, also the default value if not specified. 0 means matching the " +
-                        "entire 'regexp' expression."
+                "- Return an array consisting of all substrings from the 'str' that match the 'regexp' expression and "
+                        +
+                        "correspond to the 'extractIndex' set of regular expressions.",
+                "Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to extract "
+                        +
+                        "and starts from 1, also the default value if not specified. 0 means matching the entire 'regexp' expression."
         }, examples = {
                 "REGEXP_EXTRACT_ALL(\"abc123def456ghi789\", \"(\\\\d+)\", 0) = [123, 456, 789]",
                 "REGEXP_EXTRACT_ALL(\"Name: John, Age: 25, Location: NY\", \"Name: (\\\\w+), Age: (\\\\d+), Location: (\\\\w+)\", 1) = [John]",

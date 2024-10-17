@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,15 +37,13 @@ import java.util.regex.Pattern;
  * - Return a string from 'source_string' with all the substrings that match a regular expression 'regexp'
  *          consecutively being replaced with 'replacement'.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_replace"}, parameter = "(String source_string, String regexp, String replacement)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
                 "- Return a string from 'source_string' with all the substrings that match a regular expression 'regexp' "
                         +
                         "consecutively being replaced with 'replacement'."
-        }, examples = {
-                "regexp_replace('foobarbaz', 'b..', 'X') = \"fooXbaz\""
-        })
+        }, examples = {"regexp_replace('foobarbaz', 'b..', 'X') = \"fooXbaz\""})
 public class RegexpReplaceFunction implements ValueParser {
 
     private ValueParser inputStringParser;

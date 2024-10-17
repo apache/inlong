@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,11 @@ import java.util.List;
  * - Return NULL if 'integer' is NULL;
  * - Return a string representation of 'integer' in binary format.
  */
-@TransformFunction(names = {"bin"}, parameter = "(Integer integer)", descriptions = {
-        "- Return \"\" if 'integer' is NULL;",
-        "- Return a string representation of 'integer' in binary format."
-}, examples = {
-        "bin(4) = 100"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "bin"}, parameter = "(Integer integer)", descriptions = {
+                "- Return \"\" if 'integer' is NULL;",
+                "- Return a string representation of 'integer' in binary format."
+        }, examples = {"bin(4) = 100"})
 public class BinFunction implements ValueParser {
 
     private ValueParser valueParser;

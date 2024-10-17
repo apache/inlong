@@ -18,14 +18,21 @@
 package org.apache.inlong.sdk.transform.process.function;
 
 import org.apache.inlong.sdk.transform.process.function.string.AbstractFunctionStringTestBase;
+import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
 import com.google.gson.Gson;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Map;
+import java.util.Set;
 
 public class TestFunctionDoc extends AbstractFunctionStringTestBase {
 
     @Test
-    public void TestFunctionDoc() throws Exception {
-        System.out.println(new Gson().toJson(FunctionTools.getFunctionDoc()));
+    public void TestFunctionDoc() {
+        Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
+        Assert.assertEquals(8, functionDocMap.size());
+        System.out.println(new Gson().toJson(functionDocMap));
     }
 }

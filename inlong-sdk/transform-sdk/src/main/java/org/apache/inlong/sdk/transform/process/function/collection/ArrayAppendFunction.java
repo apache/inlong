@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -32,12 +33,11 @@ import java.util.ArrayList;
  * - Return NULL if either argument is NULL
  * - Return the result of appends an element to the end of the 'array'
  */
-@TransformFunction(names = {"array_append"}, parameter = "(Array array, Object element)", descriptions = {
-        "- Return \"\" if either argument is NULL;",
-        "- Return the result of appends an element to the end of the 'array'."
-}, examples = {
-        "array_append(array('he',7,'xxd'), 'cloud') = [he, 7, xxd, cloud]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_append"}, parameter = "(Array array, Object element)", descriptions = {
+                "- Return \"\" if either argument is NULL;",
+                "- Return the result of appends an element to the end of the 'array'."
+        }, examples = {"array_append(array('he',7,'xxd'), 'cloud') = [he, 7, xxd, cloud]"})
 public class ArrayAppendFunction implements ValueParser {
 
     private final ValueParser arrayParser;

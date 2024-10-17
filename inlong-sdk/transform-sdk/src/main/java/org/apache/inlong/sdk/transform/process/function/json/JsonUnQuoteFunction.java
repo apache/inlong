@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,15 +36,16 @@ import net.sf.jsqlparser.expression.Function;
  *          double quotes but is not a valid JSON string literal
  * Note: JSON_UNQUOTE will unescapes escaped special characters ('"', '', '/', 'b', 'f', 'n', 'r', 't')
  */
-@TransformFunction(names = {"json_unquote"}, parameter = "(String data)", descriptions = {
-        "- Return \"\" if data is NULL;",
-        "- Return the 'data' unmodified if the value does not start and end with double quotes or if it starts" +
-                " and ends with double quotes but is not a valid JSON string literal.",
-        "Note: JSON_UNQUOTE will unescapes escaped special characters ('\"', '', '/', 'b', 'f', 'n', 'r', 't')"
-}, examples = {
-        "json_unquote('Hello, World!') = \"Hello, World!\"",
-        "json_unquote('Complex string with / and \\\\') = \"Complex string with / and \\\\\""
-})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_unquote"}, parameter = "(String data)", descriptions = {
+                "- Return \"\" if data is NULL;",
+                "- Return the 'data' unmodified if the value does not start and end with double quotes or if it starts"
+                        + " and ends with double quotes but is not a valid JSON string literal.",
+                "Note: JSON_UNQUOTE will unescapes escaped special characters ('\"', '', '/', 'b', 'f', 'n', 'r', 't')"
+        }, examples = {
+                "json_unquote('Hello, World!') = \"Hello, World!\"",
+                "json_unquote('Complex string with / and \\\\') = \"Complex string with / and \\\\\""
+        })
 public class JsonUnQuoteFunction implements ValueParser {
 
     private ValueParser jsonParser;

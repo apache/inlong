@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,11 @@ import java.math.BigDecimal;
  * - Return the cosine of 'numeric'.
  */
 @Slf4j
-@TransformFunction(names = {"cos"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the cosine of 'numeric'."
-}, examples = {
-        "cos(0) = 1.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "cos"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the cosine of 'numeric'."
+        }, examples = {"cos(0) = 1.0"})
 public class CosFunction implements ValueParser {
 
     private ValueParser numberParser;

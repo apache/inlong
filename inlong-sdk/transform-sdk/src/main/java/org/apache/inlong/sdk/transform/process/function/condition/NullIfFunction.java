@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,12 +35,13 @@ import java.util.List;
  * - Return NULL if expr1 = expr2 is true
  * - Return expr1 otherwise
  */
-@TransformFunction(names = {"nullif", "null_if"}, parameter = "(Expr expr1, Expr expr2)", descriptions = {
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "nullif",
+        "null_if"
+}, parameter = "(Expr expr1, Expr expr2)", descriptions = {
         "- Return \"\" if 'expr1' = 'expr2' is true;",
         "- Return 'expr1' otherwise."
-}, examples = {
-        "nullif(5, 3) = 5"
-})
+}, examples = {"nullif(5, 3) = 5"})
 public class NullIfFunction implements ValueParser {
 
     private final ValueParser firstExprParser;

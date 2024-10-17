@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,13 +39,12 @@ import java.util.List;
  * - Return NULL if any argument is NULL.
  * - Return the result of appends values to the end of the indicated arrays within a JSON document.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_array_append"}, parameter = "(String json_doc, String path1, String val1[,String path2, String val2, ...])", descriptions = {
                 "- Return \"\" if any argument is NULL;",
                 "- Return the result of appends values to the end of the indicated arrays within a JSON document."
         }, examples = {
-                "json_array_append([\"a\", [\"b\", \"c\"], \"d\"],$[0],2,$[1],3) = [[\"a\",\"2\"],[\"b\",\"c\",\"3\"],\"d\"]"
-        })
+                "json_array_append([\"a\", [\"b\", \"c\"], \"d\"],$[0],2,$[1],3) = [[\"a\",\"2\"],[\"b\",\"c\",\"3\"],\"d\"]"})
 public class JsonArrayAppendFunction implements ValueParser {
 
     private ValueParser jsonDocParser;

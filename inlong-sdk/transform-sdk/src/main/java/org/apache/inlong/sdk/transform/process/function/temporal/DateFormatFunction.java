@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,13 +41,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Return a string value that converts a timestamp (in seconds) to a date format string in the specified format
  * Note: The format string is compatible with Java’s SimpleDateFormat
  */
-@TransformFunction(names = {"date_format"}, parameter = "(String timestampStr, String formatStr)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return a string value that converts a timestamp (in seconds) to a date format string in the specified format.",
-        "Note: The format string is compatible with Java’s SimpleDateFormat"
-}, examples = {
-        "date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss') = \"2024/08/01 22:56:56\""
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "date_format"}, parameter = "(String timestampStr, String formatStr)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return a string value that converts a timestamp (in seconds) to a date format string in the specified format.",
+                "Note: The format string is compatible with Java’s SimpleDateFormat"
+        }, examples = {"date_format('2024-08-01 22:56:56', 'yyyy/MM/dd HH:mm:ss') = \"2024/08/01 22:56:56\""})
 public class DateFormatFunction implements ValueParser {
 
     private ValueParser timestampParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -30,12 +31,11 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if 'str' is a empty string or NULL
  * - Return the 'str' with the order of the characters reversed
  */
-@TransformFunction(names = {"reverse"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is a empty string or NULL;",
-        "- Return the 'str' with the order of the characters reversed."
-}, examples = {
-        "reverse('apple') = \"elppa\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "reverse"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is a empty string or NULL;",
+                "- Return the 'str' with the order of the characters reversed."
+        }, examples = {"reverse('apple') = \"elppa\""})
 public class ReverseFunction implements ValueParser {
 
     private ValueParser stringParser;

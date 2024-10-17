@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -43,16 +44,14 @@ import java.util.List;
  *       “America/Los_Angeles”, or a custom ID suchas “GMT-08:00”.
  */
 @Slf4j
-@TransformFunction(names = {"convert_tz"}, parameter = "(String leftStr , String rightStr)", descriptions = {
-        "- Return NULL if any parameter is NULL;",
-        "- Return the result of converts a datetime 'string1' (with default ISO timestamp format yyyy-MM-dd HH:mm:ss’) "
-                +
-                "from time zone 'string2' to time zone 'string3'.",
-        "Note: The format of time zone should be  either an abbreviation such as “PST”, " +
-                "a full name such as “America/Los_Angeles”, or a custom ID such as “GMT-08:00”."
-}, examples = {
-        "CONVERT_TZ('1970-01-01 00:00:00', 'UTC', 'America/Los_Angeles') = \"1969-12-31 16:00:00\""
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "convert_tz"}, parameter = "(String leftStr , String rightStr)", descriptions = {
+                "- Return NULL if any parameter is NULL;",
+                "- Return the result of converts a datetime 'string1' (with default ISO timestamp format yyyy-MM-dd " +
+                        "HH:mm:ss’) from time zone 'string2' to time zone 'string3'.",
+                "Note: The format of time zone should be  either an abbreviation such as “PST”, a full name such as " +
+                        "“America/Los_Angeles”, or a custom ID such as “GMT-08:00”."
+        }, examples = {"CONVERT_TZ('1970-01-01 00:00:00', 'UTC', 'America/Los_Angeles') = \"1969-12-31 16:00:00\""})
 public class ConvertTzFunction implements ValueParser {
 
     private ValueParser dateTimeParser;

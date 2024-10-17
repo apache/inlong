@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,13 +39,12 @@ import java.util.List;
  * - Return greatest common divisor (the largest positive number that divides both inputs with no remainder).
  */
 @Slf4j
-@TransformFunction(names = {"gcd"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return 0 if both inputs are zero;",
-        "- Return greatest common divisor (the largest positive number that divides both inputs with no remainder).",
-}, examples = {
-        "gcd(3.141,3.846) = 0.003"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "gcd"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return 0 if both inputs are zero;",
+                "- Return greatest common divisor (the largest positive number that divides both inputs with no remainder)."
+        }, examples = {"gcd(3.141,3.846) = 0.003"})
 public class GcdFunction implements ValueParser {
 
     private final ValueParser firstNumParser;

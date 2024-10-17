@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,16 +41,17 @@ import java.util.regex.Pattern;
  * from 1, also the default value if not specified. 0 means matching the entire 'regexp' expression.In addition,
  * the regexp match group index should not exceed the number of the defined groups
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_extract"}, parameter = "(String str, String regexp, [Integer extractIndex])", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
                 "- Return a string from 'str' which extracted with a specified regexp expression 'regexp' and a regexp "
                         +
                         "match group index 'extractIndex'.",
-                "Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to " +
-                        "extract and starts from 1, also the default value if not specified. 0 means matching the " +
-                        "entire 'regexp' expression. In addition, the regexp match group index should not exceed " +
-                        "the number of the defined groups."
+                "Note: 'regexp' must be a Java regular expression. 'extractIndex' indicates which regexp group to extract "
+                        +
+                        "and starts from 1, also the default value if not specified. 0 means matching the entire 'regexp' "
+                        +
+                        "expression. In addition, the regexp match group index should not exceed the number of the defined groups."
         }, examples = {
                 "REGEXP_EXTRACT(\"abc123def\", \"(\\\\d+)\", 1) = 123",
                 "REGEXP_EXTRACT(\"Name: John, Age: 25, Location: NY\", \"Name: (\\\\w+), Age: (\\\\d+), Location: (\\\\w+)\", 2) = 25",

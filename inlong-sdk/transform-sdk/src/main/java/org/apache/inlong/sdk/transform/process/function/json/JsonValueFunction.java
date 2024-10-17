@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,14 @@ import java.util.List;
  * - Return NULL if any parameter is NULL
  * - Return the scalar extracted from JSON string (json_doc) based on path
  */
-@TransformFunction(names = {"json_value"}, parameter = "(String json_doc,String path)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the scalar extracted from JSON string ('json_doc') based on 'path'."
-}, examples = {
-        "json_value({\"a\": 1}, $.a) = 1",
-        "json_value({\\\"person\\\": {\\\"name\\\": \\\"Alice\\\" ,\\\"age\\\": 30}}, $.person.name) = Alice"
-})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_value"}, parameter = "(String json_doc,String path)", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the scalar extracted from JSON string ('json_doc') based on 'path'."
+        }, examples = {
+                "json_value({\"a\": 1}, $.a) = 1",
+                "json_value({\\\"person\\\": {\\\"name\\\": \\\"Alice\\\" ,\\\"age\\\": 30}}, $.person.name) = Alice"
+        })
 public class JsonValueFunction implements ValueParser {
 
     private final ValueParser jsonParser;

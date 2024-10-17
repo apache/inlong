@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,13 +38,12 @@ import java.util.List;
  * - Return False otherwise
  */
 @Slf4j
-@TransformFunction(names = {"contains"}, parameter = "(String leftStr , String rightStr)", descriptions = {
-        "- Return \"\" if 'leftStr' or rightStr is NULL;",
-        "- Return True if 'rightStr' is found inside 'leftStr';",
-        "- Return False otherwise."
-}, examples = {
-        "contains('Transform SQL', 'SQL') = true"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "contains"}, parameter = "(String leftStr , String rightStr)", descriptions = {
+                "- Return \"\" if 'leftStr' or rightStr is NULL;",
+                "- Return True if 'rightStr' is found inside 'leftStr';",
+                "- Return False otherwise."}, examples = {"contains('Transform SQL', 'SQL') = true"
+                })
 public class ContainsFunction implements ValueParser {
 
     private ValueParser leftStrParser;

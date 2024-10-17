@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,12 +34,13 @@ import java.util.List;
  * - Return NULL if any parameter is null
  * - Return a new string that repeats the 'str' by a certain number of 'times'
  */
-@TransformFunction(names = {"repeat", "replicate"}, parameter = "(String str, Integer times)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "repeat",
+        "replicate"
+}, parameter = "(String str, Integer times)", descriptions = {
         "- Return \"\" if any parameter is null;",
         "- Return a new string that repeats the 'str' by a certain number of 'times'."
-}, examples = {
-        "repeat('apple', 2) = \"appleapple\""
-})
+}, examples = {"repeat('apple', 2) = \"appleapple\""})
 public class RepeatFunction implements ValueParser {
 
     private ValueParser stringParser;

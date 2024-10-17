@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -41,15 +42,14 @@ import java.util.List;
  * Note: If multiple groups of parameters are passed in, the parameter subscripts of the latter groups
  * need to be based on the document subscripts after the previous group of parameters are updated.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
         "json_array_insert"}, parameter = "(String json_doc, String path1, String val1[, String path2, String val2, ...] )", descriptions = {
                 "- Return \"\" if any argument is NULL;",
                 "- Return the 'json_doc' inserted into the array.",
                 "Note: If multiple groups of parameters are passed in, the parameter subscripts of the latter groups " +
                         "need to be based on the document subscripts after the previous group of parameters are updated."
         }, examples = {
-                "json_array_append([\"a\", {\"b\": [1, 2]}, [3, 4]], $[1], x) = [\"a\",\"x\",{\"b\":[1,2]},[3,4]]"
-        })
+                "json_array_append([\"a\", {\"b\": [1, 2]}, [3, 4]], $[1], x) = [\"a\",\"x\",{\"b\":[1,2]},[3,4]]"})
 public class JsonArrayInsertFunction implements ValueParser {
 
     private ValueParser jsonDocParser;

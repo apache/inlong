@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,15 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the arc tangent of 'numeric' in units of degrees.
  */
-@TransformFunction(names = {"atand"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the arc tangent of 'numeric' in units of degrees."
-}, examples = {
-        "atand(1) = 45.0",
-        "atand(0) = 0.0",
-        "atand(-1) = -45.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "atand"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the arc tangent of 'numeric' in units of degrees."
+        }, examples = {
+                "atand(1) = 45.0",
+                "atand(0) = 0.0",
+                "atand(-1) = -45.0"
+        })
 public class AtandFunction implements ValueParser {
 
     private ValueParser numberParser;

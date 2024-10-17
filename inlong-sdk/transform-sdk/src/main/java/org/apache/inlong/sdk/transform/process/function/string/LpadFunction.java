@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,15 +39,18 @@ import java.util.List;
  * - if s2 is not ""
  *      - Return the filled string
  */
-@TransformFunction(names = {"lpad"}, parameter = "(String str1, Integer len, String str2)", descriptions = {
-        "- Return null if any of the three parameters is null or 'len' is less than 0;",
-        "- Return the substring of 'str1' with subscripts in the range of [0, 'len') if 'len' is less than or equal to the length of 'str1';",
-        "- Return \"\" if 'len' is longer than the length of 'str1' and 'str2' is \"\";",
-        "- Return the filled string if 'str2' is not \"\"."
-}, examples = {
-        "lpad('he',7,'xxd') = \"xxdxxhe\"",
-        "lpad('he',1,'') = \"h\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "lpad"}, parameter = "(String str1, Integer len, String str2)", descriptions = {
+                "- Return null if any of the three parameters is null or 'len' is less than 0;",
+                "- Return the substring of 'str1' with subscripts in the range of [0, 'len') if 'len' is less than or "
+                        +
+                        "equal to the length of 'str1';",
+                "- Return \"\" if 'len' is longer than the length of 'str1' and 'str2' is \"\";",
+                "- Return the filled string if 'str2' is not \"\"."
+        }, examples = {
+                "lpad('he',7,'xxd') = \"xxdxxhe\"",
+                "lpad('he',1,'') = \"h\""
+        })
 public class LpadFunction implements ValueParser {
 
     private final ValueParser leftStringParser;

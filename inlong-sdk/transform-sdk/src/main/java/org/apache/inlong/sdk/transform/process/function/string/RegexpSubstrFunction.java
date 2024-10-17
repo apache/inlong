@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,12 +37,11 @@ import java.util.regex.Pattern;
  * - Return NULL if any of the arguments are NULL or regexp if invalid or pattern is not found
  * - Return the first substring in 'str' that matches 'regexp'
  */
-@TransformFunction(names = {"regex_substr"}, parameter = "(String source_string, String regexp)", descriptions = {
-        "- Return \"\" if any of the arguments are NULL or regexp if invalid or pattern is not found;",
-        "- Return the first substring in 'str' that matches 'regexp'."
-}, examples = {
-        "regex_substr(\"abc123def\", \"(\\\\d+)\") = 123"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "regex_substr"}, parameter = "(String source_string, String regexp)", descriptions = {
+                "- Return \"\" if any of the arguments are NULL or regexp if invalid or pattern is not found;",
+                "- Return the first substring in 'str' that matches 'regexp'."
+        }, examples = {"regex_substr(\"abc123def\", \"(\\\\d+)\") = 123"})
 public class RegexpSubstrFunction implements ValueParser {
 
     private ValueParser inputStringParser;

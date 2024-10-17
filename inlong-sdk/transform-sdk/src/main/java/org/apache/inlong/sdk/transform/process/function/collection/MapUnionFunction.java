@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,15 @@ import java.util.Map;
  * - Return NULL if any of maps is null
  * - Return a map created by merging at least one map.These maps should have a common map type,the following map will overwrite the previous one.
  */
-@TransformFunction(names = {"map_union"}, parameter = "([Map map1, Map map2, ...])", descriptions = {
-        "- Return \"\" if any of maps is null;",
-        "- Return a map created by merging at least one map.These maps should have a common map type, " +
-                "the following map will overwrite the previous one."
-}, examples = {
-        "map_union(map('he', 1),map('xxd', 3)) = {he=1, xxd=3}",
-        "map_union(map('he', 1),map('he', 3)) = {he=3}"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "map_union"}, parameter = "([Map map1, Map map2, ...])", descriptions = {
+                "- Return \"\" if any of maps is null;",
+                "- Return a map created by merging at least one map.These maps should have a common map type, "
+                        + "the following map will overwrite the previous one."
+        }, examples = {
+                "map_union(map('he', 1),map('xxd', 3)) = {he=1, xxd=3}",
+                "map_union(map('he', 1),map('he', 3)) = {he=3}"
+        })
 public class MapUnionFunction implements ValueParser {
 
     private List<ValueParser> parserList;

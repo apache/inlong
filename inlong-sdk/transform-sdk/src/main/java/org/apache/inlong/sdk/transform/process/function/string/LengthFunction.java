@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,15 @@ import java.util.List;
  * - return the byte length of the string
  * Note: charset defaults to matching with JVM.
  */
-@TransformFunction(names = {"length"}, parameter = "(String str, String charset)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return the byte length of the 'str'.",
-        "Note: charset defaults to matching with JVM."
-}, examples = {
-        "length(应龙, utf-8) = 6",
-        "length('hello world') = 11"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "length"}, parameter = "(String str, String charset)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return the byte length of the 'str'.",
+                "Note: charset defaults to matching with JVM."
+        }, examples = {
+                "length(应龙, utf-8) = 6",
+                "length('hello world') = 11"
+        })
 public class LengthFunction implements ValueParser {
 
     private final ValueParser stringParser;

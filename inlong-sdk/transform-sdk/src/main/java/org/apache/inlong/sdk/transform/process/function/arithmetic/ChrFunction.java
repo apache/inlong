@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,13 +34,14 @@ import java.math.BigDecimal;
  * - Return NULL if 'integer' is NULL;
  * - Return the ASCII character having the binary equivalent to 'integer'.
  */
-@TransformFunction(names = {"chr"}, parameter = "(Integer integer)", descriptions = {
-        "- Return NULL if 'integer' is NULL;",
-        "- Return the ASCII character having the binary equivalent to 'integer'.",
-}, examples = {
-        "chr(97) = \"a\"",
-        "chr(353) = \"a\""
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "chr"}, parameter = "(Integer integer)", descriptions = {
+                "- Return NULL if 'integer' is NULL;",
+                "- Return the ASCII character having the binary equivalent to 'integer'."
+        }, examples = {
+                "chr(97) = \"a\"",
+                "chr(353) = \"a\""
+        })
 public class ChrFunction implements ValueParser {
 
     private ValueParser numberParser;

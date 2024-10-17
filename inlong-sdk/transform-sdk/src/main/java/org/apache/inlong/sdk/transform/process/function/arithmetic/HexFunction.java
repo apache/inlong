@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,12 @@ import java.util.regex.Pattern;
  * - Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric
  * - Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise
  */
-@TransformFunction(names = {"hex"}, parameter = "(String dataStr)", descriptions = {
-        "- Return \"\" if dataStr is NULL;",
-        "- Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric;",
-        "- Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise."
-}, examples = {
-        "hex(1007) = \"3EF\"",
-        "hex('abc') = \"616263\""
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "hex"}, parameter = "(String dataStr)", descriptions = {
+                "- Return \"\" if dataStr is NULL;",
+                "- Return the string obtained by converting the dataStr to hexadecimal if 'dataStr' can be parsed into numeric;",
+                "- Return the string obtained by converting the ASCII code corresponding to each character to hexadecimal otherwise."
+        }, examples = {"hex(1007) = \"3EF\"", "hex('abc') = \"616263\""})
 public class HexFunction implements ValueParser {
 
     private static final Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$");

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -44,16 +45,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Note: formatStr defaults to 'yyyy-MM-dd HH:mm:ss'. numeric is an internal timestamp value representing seconds
  *       since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function.
  */
-@TransformFunction(names = {"from_unix_time",
-        "form_unixtime"}, parameter = "(Numeric numeric,String formatStr)", descriptions = {
-                "- Return \"\" if 'numeric' is NULL;",
-                "- Return a representation of the numeric argument as a value in string.",
-                "Note: 'formatStr' defaults to 'yyyy-MM-dd HH:mm:ss'. numeric is an internal timestamp value representing"
-                        +
-                        " seconds since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function."
-        }, examples = {
-                "from_unix_time(44) = \"1970-01-01 08:00:44\""
-        })
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "from_unix_time",
+        "form_unixtime"
+}, parameter = "(Numeric numeric,String formatStr)", descriptions = {
+        "- Return \"\" if 'numeric' is NULL;",
+        "- Return a representation of the numeric argument as a value in string.",
+        "Note: 'formatStr' defaults to 'yyyy-MM-dd HH:mm:ss'. numeric is an internal timestamp value representing " +
+                "seconds since ‘1970-01-01 00:00:00’ UTC, such as produced by the UNIX_TIMESTAMP() function."
+}, examples = {"from_unix_time(44) = \"1970-01-01 08:00:44\""})
 public class FromUnixTimeFunction implements ValueParser {
 
     private ValueParser numericParser;

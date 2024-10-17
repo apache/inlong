@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,13 +35,13 @@ import java.util.List;
  * description:
  * - Return an array created from a list of values (value1, value2, …)
  */
-@TransformFunction(names = {"array"}, parameter = "(String value1 [,String value2, ....])", descriptions = {
-        "- Return an array created from a list of values ('value1', 'value2', ....)."
-}, examples = {
-        "array('he',7,'xxd') = [he, 7, xxd]",
-        "array(array('he',5),'xxd') = return [[he, 5], xxd]",
-        "array(array('he',5),array('','')) = return [[he, 5], [, ]]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array"}, parameter = "(String value1 [,String value2, ....])", descriptions = {
+                "- Return an array created from a list of values ('value1', 'value2', ....)."}, examples = {
+                        "array('he',7,'xxd') = [he, 7, xxd]",
+                        "array(array('he',5),'xxd') = return [[he, 5], xxd]",
+                        "array(array('he',5),array('','')) = return [[he, 5], [, ]]"
+                })
 public class ArrayFunction implements ValueParser {
 
     private List<ValueParser> parserList;

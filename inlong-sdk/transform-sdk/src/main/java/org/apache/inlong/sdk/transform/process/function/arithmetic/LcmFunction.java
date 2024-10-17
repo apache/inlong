@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,14 +39,11 @@ import java.util.List;
  * - Return 0 if either input is zero
  * - Return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)
  */
-@TransformFunction(names = {"lcm"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return 0 if either input is zero;",
-        "- Return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)."
-}, examples = {
-        "lcm(6,3) = 6",
-        "lcm(3.141,3.846) = 4026.762"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "lcm"}, parameter = "(Numeric numeric1,Numeric numeric2)", descriptions = {
+                "- Return \"\" if any parameter is NULL;", "- Return 0 if either input is zero;",
+                "- Return least common multiple (the smallest strictly positive number that is an integral multiple of both inputs)."}, examples = {
+                        "lcm(6,3) = 6", "lcm(3.141,3.846) = 4026.762"})
 public class LcmFunction implements ValueParser {
 
     private final ValueParser firstNumParser;

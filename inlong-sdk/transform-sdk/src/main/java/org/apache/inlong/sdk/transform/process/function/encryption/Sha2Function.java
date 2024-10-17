@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.encryption;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,12 +38,11 @@ import static org.apache.commons.codec.digest.MessageDigestAlgorithms.SHA_224;
  * - Return NULL if either argument is NULL or the hash_length(224 256 384 512) is not one of the permitted values
  * - Return a hash value containing the 'hash_length' of bits
  */
-@TransformFunction(names = {"sha2"}, parameter = "(String str, Integer hash_length)", descriptions = {
-        "- Return \"\" if either argument is NULL or the 'hash_length' is not one of (224,256,384,512);",
-        "- Return scale of the argument (the number of decimal digits in the fractional part)."
-}, examples = {
-        "sha2(\"5\",224) = \"b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17\""
-})
+@TransformFunction(type = FunctionConstant.ENCRYPTION_TYPE, names = {
+        "sha2"}, parameter = "(String str, Integer hash_length)", descriptions = {
+                "- Return \"\" if either argument is NULL or the 'hash_length' is not one of (224,256,384,512);",
+                "- Return scale of the argument (the number of decimal digits in the fractional part)."
+        }, examples = {"sha2(\"5\",224) = \"b51d18b551043c1f145f22dbde6f8531faeaf68c54ed9dd79ce24d17\""})
 public class Sha2Function implements ValueParser {
 
     private final ValueParser msgParser;

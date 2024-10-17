@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.json;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,15 @@ import java.util.List;
  * - Return true if a JSON string satisfies a given path search criterion
  * - Return false otherwise
  */
-@TransformFunction(names = {"json_exists"}, parameter = "(String json_doc, String path)", descriptions = {
-        "- Return true if 'json_doc' satisfies a given 'path' search criterion;",
-        "- Return false otherwise."
-}, examples = {
-        "JSON_EXISTS('{\"a\": true}', '$.a') = true",
-        "JSON_EXISTS('{\"a\": true}', '$.b') = false",
-        "JSON_EXISTS('{\"a\": [{ \"b\": 1 }]}', '$.a[0].b') = true"
-})
+@TransformFunction(type = FunctionConstant.JSON_TYPE, names = {
+        "json_exists"}, parameter = "(String json_doc, String path)", descriptions = {
+                "- Return true if 'json_doc' satisfies a given 'path' search criterion;",
+                "- Return false otherwise."
+        }, examples = {
+                "JSON_EXISTS('{\"a\": true}', '$.a') = true",
+                "JSON_EXISTS('{\"a\": true}', '$.b') = false",
+                "JSON_EXISTS('{\"a\": [{ \"b\": 1 }]}', '$.a[0].b') = true"
+        })
 public class JsonExistsFunction implements ValueParser {
 
     private final ValueParser jsonParser;

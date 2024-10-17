@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -29,11 +30,8 @@ import net.sf.jsqlparser.expression.Function;
  * Description:
  * - Return the mathematical constant.
  */
-@TransformFunction(names = {"e"}, parameter = "()", descriptions = {
-        "- Return the mathematical constant."
-}, examples = {
-        "e() = 2.718281828459045"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {"e"}, parameter = "()", descriptions = {
+        "- Return the mathematical constant."}, examples = {"e() = 2.718281828459045"})
 public class EFunction implements ValueParser {
 
     public EFunction(Function expr) {
