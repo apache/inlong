@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.consume;
+package org.apache.inlong.audit.store.service.consume;
 
-import org.apache.inlong.audit.config.MessageQueueConfig;
-import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.service.InsertData;
+import org.apache.inlong.audit.store.config.MessageQueueConfig;
+import org.apache.inlong.audit.store.config.StoreConfig;
+import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.service.InsertData;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -131,6 +132,8 @@ public class PulsarConsume extends BaseConsume {
                                     String body = new String(msg.getData(), StandardCharsets.UTF_8);
                                     handleMessage(body, consumer, msg.getMessageId());
                                 } catch (Exception e) {
+                                    MetricsManager.getInstance().addReceiveFailed(1);
+
                                     LOG.error("Consumer has exception topic {}, subName {}, ex {}",
                                             topic,
                                             mqConfig.getPulsarConsumerSubName(),

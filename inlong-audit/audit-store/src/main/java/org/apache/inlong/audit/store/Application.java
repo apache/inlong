@@ -15,32 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.db.entities;
+package org.apache.inlong.audit.store;
 
-import lombok.Data;
-import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.api.MessageId;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import java.sql.Timestamp;
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+public class Application {
 
-@Data
-public class JdbcDataPo {
-
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private Timestamp sdkTs;
-    private Long packetId;
-    private Timestamp logTs;
-    private String inLongGroupId;
-    private String inLongStreamId;
-    private String auditId;
-    private String auditTag;
-    private long auditVersion;
-    private Long count;
-    private Long size;
-    private Long delay;
-    private Timestamp updateTime;
-    private Consumer<byte[]> consumer;
-    private MessageId messageId;
+    public static void main(String[] args) {
+        new SpringApplicationBuilder().sources(Application.class)
+                .web(WebApplicationType.NONE).run(args);
+    }
 }

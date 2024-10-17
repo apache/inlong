@@ -15,22 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service;
+package org.apache.inlong.audit.store.entities;
 
-import org.apache.inlong.audit.protocol.AuditData;
-
+import lombok.Data;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
 
-/**
- * Insert Data interface
- */
-public interface InsertData {
+import java.sql.Timestamp;
 
-    /**
-     * insert audit data to storage.
-     */
-    void insert(AuditData msgBody);
+@Data
+public class JdbcDataPo {
 
-    void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId);
+    private String ip;
+    private String dockerId;
+    private String threadId;
+    private Timestamp sdkTs;
+    private Long packetId;
+    private Timestamp logTs;
+    private String inLongGroupId;
+    private String inLongStreamId;
+    private String auditId;
+    private String auditTag;
+    private long auditVersion;
+    private Long count;
+    private Long size;
+    private Long delay;
+    private Timestamp updateTime;
+    private Consumer<byte[]> consumer;
+    private MessageId messageId;
 }

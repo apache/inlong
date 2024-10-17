@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.metric;
+package org.apache.inlong.audit.store.metric;
 
 import org.apache.inlong.audit.file.ConfigManager;
+import org.apache.inlong.audit.metric.AbstractMetric;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PROMETHEUS_PORT;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PROXY_METRIC_CLASSNAME;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PROMETHEUS_PORT;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PROXY_METRIC_CLASSNAME;
+import static org.apache.inlong.audit.store.config.ConfigConstants.DEFAULT_STORE_METRIC_CLASSNAME;
+import static org.apache.inlong.audit.store.config.ConfigConstants.KEY_STORE_METRIC_CLASSNAME;
 
 public class MetricsManager {
 
@@ -44,16 +43,15 @@ public class MetricsManager {
 
     private AbstractMetric metric;
 
-    public void init(String metricName) {
+    public void init() {
         try {
-            ConfigManager configManager = ConfigManager.getInstance();
-            String metricClassName = configManager.getValue(KEY_PROXY_METRIC_CLASSNAME, DEFAULT_PROXY_METRIC_CLASSNAME);
+            String metricClassName =
+                    ConfigManager.getInstance().getValue(KEY_STORE_METRIC_CLASSNAME, DEFAULT_STORE_METRIC_CLASSNAME);
             LOGGER.info("Metric class name: {}", metricClassName);
             Constructor<?> constructor = Class.forName(metricClassName)
-                    .getDeclaredConstructor(String.class, MetricItem.class, int.class);
+                    .getDeclaredConstructor(MetricItem.class);
             constructor.setAccessible(true);
-            metric = (AbstractMetric) constructor.newInstance(metricName, metricItem,
-                    configManager.getValue(KEY_PROMETHEUS_PORT, DEFAULT_PROMETHEUS_PORT));
+            metric = (AbstractMetric) constructor.newInstance(metricItem);
 
             timer.scheduleWithFixedDelay(() -> {
                 metric.report();
@@ -72,26 +70,24 @@ public class MetricsManager {
     private final MetricItem metricItem = new MetricItem();
     protected final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
-    public void addReceiveCountInvalid(long count) {
-        metricItem.getReceiveCountInvalid().addAndGet(count);
-    }
-
-    public void addReceiveCountExpired(long count) {
-        metricItem.getReceiveCountExpired().addAndGet(count);
-    }
-
-    public void addReceiveSuccess(long count, long pack, long size) {
+    public void addReceiveSuccess(long count) {
         metricItem.getReceiveCountSuccess().addAndGet(count);
-        metricItem.getReceivePackSuccess().addAndGet(pack);
-        metricItem.getReceiveSizeSuccess().addAndGet(size);
     }
 
-    public void addSendSuccess(long count) {
+    public void addReceiveFailed(long pack) {
+        metricItem.getReceiveFailed().addAndGet(pack);
+    }
+
+    public void addSendSuccess(long count, long duration) {
         metricItem.getSendCountSuccess().addAndGet(count);
+        metricItem.getSendDuration().addAndGet(duration);
     }
-    public void addSendFailed(long count) {
+
+    public void addSendFailed(long count, long duration) {
         metricItem.getSendCountFailed().addAndGet(count);
+        metricItem.getSendDuration().addAndGet(duration);
     }
+
     public void shutdown() {
         timer.shutdown();
         metric.stop();

@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.consume;
+package org.apache.inlong.audit.store.service.consume;
 
-import org.apache.inlong.audit.config.JdbcConfig;
-import org.apache.inlong.audit.config.MessageQueueConfig;
-import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.service.InsertData;
-import org.apache.inlong.audit.service.JdbcService;
+import org.apache.inlong.audit.store.config.JdbcConfig;
+import org.apache.inlong.audit.store.config.MessageQueueConfig;
+import org.apache.inlong.audit.store.config.StoreConfig;
+import org.apache.inlong.audit.store.service.InsertData;
+import org.apache.inlong.audit.store.service.JdbcService;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
