@@ -112,13 +112,9 @@ public class StringUtils {
                 switch (state) {
                     // match previous kv delimiter first when there are more than one kvDelimiter
                     case STATE_KEY:
-                        if (i == 0) {
-                            stringBuilder.append(ch);
-                        } else {
-                            key = stringBuilder.toString();
-                            stringBuilder.setLength(0);
-                            state = STATE_VALUE;
-                        }
+                        key = stringBuilder.toString();
+                        stringBuilder.setLength(0);
+                        state = STATE_VALUE;
                         break;
                     case STATE_VALUE:
                         stringBuilder.append(ch);
@@ -255,6 +251,7 @@ public class StringUtils {
                     case STATE_VALUE:
                         value = stringBuilder.toString();
                         fields.put(key, value);
+                        break;
                     case STATE_KEY:
                         if (lastKey != null) {
                             value = stringBuilder.toString();
