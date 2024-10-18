@@ -100,15 +100,25 @@ public class StringUtils {
          */
         int kvState = STATE_KEY;
 
-        char lastCh = 0;
+        char nextCh = 0;
         for (int i = 0; i < text.length(); ++i) {
             char ch = text.charAt(i);
+            if ((i + 1) < text.length()) {
+                nextCh = text.charAt(i + 1);
+            } else {
+                nextCh = 0;
+            }
             if (ch == kvDelimiter) {
                 switch (state) {
+                    // match previous kv delimiter first when there are more than one kvDelimiter
                     case STATE_KEY:
-                        key = stringBuilder.toString();
-                        stringBuilder.setLength(0);
-                        state = STATE_VALUE;
+                        if (i == 0) {
+                            stringBuilder.append(ch);
+                        } else {
+                            key = stringBuilder.toString();
+                            stringBuilder.setLength(0);
+                            state = STATE_VALUE;
+                        }
                         break;
                     case STATE_VALUE:
                         stringBuilder.append(ch);
@@ -124,24 +134,19 @@ public class StringUtils {
             } else if (ch == entryDelimiter) {
                 switch (state) {
                     case STATE_KEY:
-                        key = lastKey;
-                        if (lastValue == null) {
-                            value = ch + stringBuilder.toString();
-                        } else {
-                            value = lastValue + ch + stringBuilder.toString();
-                        }
-                        fields.put(key, value);
-                        lastKey = key;
-                        lastValue = value;
-                        stringBuilder.setLength(0);
+                        stringBuilder.append(ch);
                         break;
                     case STATE_VALUE:
-                        value = stringBuilder.toString();
-                        fields.put(key, value);
-                        lastKey = key;
-                        lastValue = value;
-                        stringBuilder.setLength(0);
-                        state = STATE_KEY;
+                        if (nextCh == entryDelimiter) {
+                            stringBuilder.append(ch);
+                        } else {
+                            value = stringBuilder.toString();
+                            fields.put(key, value);
+                            lastKey = key;
+                            lastValue = value;
+                            stringBuilder.setLength(0);
+                            state = STATE_KEY;
+                        }
                         break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
@@ -154,12 +159,6 @@ public class StringUtils {
             } else if (escapeChar != null && ch == escapeChar) {
                 switch (state) {
                     case STATE_KEY:
-                        if (lastCh != 0) {
-                            stringBuilder.append(lastCh);
-                        }
-                        kvState = state;
-                        state = STATE_ESCAPING;
-                        break;
                     case STATE_VALUE:
                         kvState = state;
                         state = STATE_ESCAPING;
@@ -175,12 +174,6 @@ public class StringUtils {
             } else if (quoteChar != null && ch == quoteChar) {
                 switch (state) {
                     case STATE_KEY:
-                        if (lastCh != 0) {
-                            stringBuilder.append(lastCh);
-                        }
-                        kvState = state;
-                        state = STATE_QUOTING;
-                        break;
                     case STATE_VALUE:
                         kvState = state;
                         state = STATE_QUOTING;
@@ -196,20 +189,26 @@ public class StringUtils {
             } else if (lineDelimiter != null && ch == lineDelimiter) {
                 switch (state) {
                     case STATE_KEY:
+                        String remainingKey = stringBuilder.toString();
                         key = lastKey;
-                        stringBuilder.append(lastValue).append(lastCh);
+                        stringBuilder.setLength(0);
+                        stringBuilder.append(lastValue).append(entryDelimiter).append(remainingKey);
                         value = stringBuilder.toString();
                         fields.put(key, value);
+                        Map<String, String> copyFields = new HashMap<>();
+                        copyFields.putAll(fields);
+                        lines.add(copyFields);
+                        stringBuilder.setLength(0);
+                        fields.clear();
                         lastKey = null;
                         lastValue = null;
-                        stringBuilder.setLength(0);
                         break;
                     case STATE_VALUE:
                         lastKey = null;
                         lastValue = null;
                         value = stringBuilder.toString();
                         fields.put(key, value);
-                        Map<String, String> copyFields = new HashMap<>();
+                        copyFields = new HashMap<>();
                         copyFields.putAll(fields);
                         lines.add(copyFields);
                         stringBuilder.setLength(0);
@@ -226,14 +225,22 @@ public class StringUtils {
                 }
             } else {
                 stringBuilder.append(ch);
+                switch (state) {
+                    case STATE_ESCAPING:
+                        state = kvState;
+                }
             }
-            lastCh = ch;
         }
 
         switch (state) {
             case STATE_KEY:
                 if (lastKey != null && lastValue != null && text != null) {
-                    fields.put(lastKey, lastValue + lastCh);
+                    String remainingKey = stringBuilder.toString();
+                    key = lastKey;
+                    stringBuilder.setLength(0);
+                    stringBuilder.append(lastValue).append(entryDelimiter).append(remainingKey);
+                    value = stringBuilder.toString();
+                    fields.put(key, value);
                 }
                 lines.add(fields);
                 return lines;
@@ -244,14 +251,18 @@ public class StringUtils {
                 return lines;
             case STATE_ESCAPING:
             case STATE_QUOTING:
-                value = stringBuilder.toString();
-                String oldValue = fields.get(key);
-                if (value != null && !"".equals(value)
-                        && oldValue != null && !"".equals(oldValue)) {
-                    fields.put(key, oldValue + value);
-                } else if (value != null && !"".equals(value)) {
-                    fields.put(key, value);
+                switch (kvState) {
+                    case STATE_VALUE:
+                        value = stringBuilder.toString();
+                        fields.put(key, value);
+                    case STATE_KEY:
+                        if (lastKey != null) {
+                            value = stringBuilder.toString();
+                            String oldValue = fields.get(key);
+                            fields.put(key, oldValue + entryDelimiter + value);
+                        }
                 }
+
                 lines.add(fields);
                 return lines;
             default:
