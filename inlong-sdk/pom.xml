@@ -34,6 +34,7 @@
         <module>sort-sdk</module>
         <module>dataproxy-sdk</module>
         <module>transform-sdk</module>
+        <module>dirty-data-sdk</module>
     </modules>
 
     <properties>
