@@ -52,7 +52,7 @@ public class CsvDataTypeOperator implements DataTypeOperator {
             if (StringUtils.isNotBlank(streamInfo.getDataEscapeChar())) {
                 escapeChar = streamInfo.getDataEscapeChar().charAt(0);
             }
-            String[][] rowValues = SplitUtils.splitCsv(str, separator, escapeChar, null, '\n', true);
+            String[][] rowValues = SplitUtils.splitCsv(str, separator, escapeChar, null, null, true);
             int fieldIndex = 0;
             for (int i = 0; i < rowValues.length; i++) {
                 String[] fieldValues = rowValues[i];
