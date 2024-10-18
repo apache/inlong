@@ -19,10 +19,12 @@ package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class GroupCheckService {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private UserEntityMapper userMapper;
+    private InlongStreamEntityMapper streamMapper;
 
     /**
      * Check whether the inlong group status is temporary
@@ -58,4 +60,18 @@ public class GroupCheckService {
         return inlongGroupEntity;
     }
 
+    public InlongStreamEntity checkStreamStatus(String groupId, String streamId, String operator) {
+        InlongStreamEntity inlongStreamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (inlongStreamEntity == null) {
+            throw new BusinessException(
+                    String.format("InlongStream does not exist with groupId=%s, streamId=%s", groupId, streamId));
+        }
+
+        StreamStatus status = StreamStatus.forCode(inlongStreamEntity.getStatus());
+        if (StreamStatus.notAllowedUpdate(status)) {
+            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+        }
+
+        return inlongStreamEntity;
+    }
 }
