@@ -29,6 +29,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,7 +43,13 @@ public class TestLocalTimeFunction extends AbstractFunctionTemporalTestBase {
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
-        DateTimeFormatter fomatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter fomatter = new DateTimeFormatterBuilder()
+                .appendPattern("HH:mm")
+                .optionalStart()
+                .appendPattern(":ss")
+                .optionalEnd()
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .toFormatter();
         // case1: localTime()
         List<String> output1 = processor1.transform("", new HashMap<>());
         LocalTime expectedTime1 = LocalTime.now().withNano(0);
