@@ -15,16 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.utils;
 
 /**
- * Config constants
+ * Cache utils
  */
-public class ConfigConstants {
+public class CacheUtils {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    public static String buildCacheKey(String logTs, String inlongGroupId, String inlongStreamId,
+            String auditId, String auditTag) {
+        return new StringBuilder()
+                .append(logTs)
+                .append(inlongGroupId)
+                .append(inlongStreamId)
+                .append(auditId)
+                .append(auditTag)
+                .toString();
+    }
+
+    public static long calculateAverageDelay(long totalCount, long totalDelay) {
+        return totalCount == 0 ? 0 : (totalDelay / Math.abs(totalCount));
+    }
 }

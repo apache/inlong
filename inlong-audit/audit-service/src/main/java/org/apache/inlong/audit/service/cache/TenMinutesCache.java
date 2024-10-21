@@ -15,16 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.cache;
+
+import org.apache.inlong.audit.service.config.Configuration;
+import org.apache.inlong.audit.service.entities.AuditCycle;
 
 /**
- * Config constants
+ * Cache Of minute 10 ,for minute 10 openapi
  */
-public class ConfigConstants {
+public class TenMinutesCache extends AbstractCache {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    private static volatile TenMinutesCache tenMinutesCache = null;
+
+    private TenMinutesCache() {
+        super(AuditCycle.MINUTE_10);
+    }
+    public static TenMinutesCache getInstance() {
+        if (tenMinutesCache == null) {
+            synchronized (Configuration.class) {
+                if (tenMinutesCache == null) {
+                    tenMinutesCache = new TenMinutesCache();
+                }
+            }
+        }
+        return tenMinutesCache;
+    }
 }

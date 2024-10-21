@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.selector;
+
+import org.apache.inlong.audit.service.selector.api.SelectorChangeListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Config constants
+ * Selector change listener impl
  */
-public class ConfigConstants {
+public class SelectorChangeListenerImpl implements SelectorChangeListener {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
+
+    public void leaderChanged(boolean currentNodeIsLeader) {
+        LOGGER.info("Leader changed {}:", currentNodeIsLeader);
+    }
 }

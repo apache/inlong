@@ -15,16 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.entities;
 
 /**
- * Config constants
+ * Audit cycle
  */
-public class ConfigConstants {
+public enum AuditCycle {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    MINUTE(1), MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440), UNKNOWN(1000);
+
+    private final int cycle;
+
+    AuditCycle(int cycle) {
+        this.cycle = cycle;
+    }
+
+    public int getValue() {
+        return cycle;
+    }
+
+    /**
+     * Convert int to AuditCycle.
+     *
+     * @param value
+     * @return
+     */
+    public static AuditCycle fromInt(int value) {
+        for (AuditCycle auditCycle : AuditCycle.values()) {
+            if (auditCycle.getValue() == value) {
+                return auditCycle;
+            }
+        }
+        return UNKNOWN;
+    }
 }

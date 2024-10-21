@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.selector.api;
 
 /**
- * Config constants
+ * Selector change listener
  */
-public class ConfigConstants {
+public abstract interface SelectorChangeListener {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    public abstract void leaderChanged(boolean currentNodeIsLeader);
 }

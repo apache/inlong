@@ -17,6 +17,8 @@
 
 package org.apache.inlong.audit.utils;
 
+import org.apache.inlong.audit.service.utils.CacheUtils;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

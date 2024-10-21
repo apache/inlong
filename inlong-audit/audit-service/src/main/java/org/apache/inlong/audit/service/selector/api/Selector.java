@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.selector.api;
 
 /**
- * Config constants
+ * Selector
  */
-public class ConfigConstants {
+public abstract class Selector {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    protected boolean isLeader;
+
+    public abstract void init() throws Exception;
+
+    public abstract boolean isLeader();
+
+    public abstract void releaseLeader() throws Exception;
+
+    public abstract void replaceLeader(String newLeaderId) throws Exception;
+
+    public abstract String getLeader(String serviceId);
+
+    public abstract void canSelect(boolean canSelect);
+
+    public abstract boolean rebuildSelectorDBSource();
+
+    public abstract void close();
 }

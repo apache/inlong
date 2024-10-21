@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.metric.prometheus;
 
+import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.metric.AbstractMetric;
 import org.apache.inlong.audit.metric.MetricDimension;
 import org.apache.inlong.audit.metric.MetricItem;
@@ -31,23 +32,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PROMETHEUS_PORT;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_PROMETHEUS_PORT;
+
 /**
  * PrometheusMetric
  */
 public class ProxyPrometheusMetric extends Collector implements AbstractMetric {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyPrometheusMetric.class);
-    private static final String HELP_DESCRIPTION = "help";
+    private static final String HELP_DESCRIPTION = "Audit Proxy metrics help description";
+    private static final String AUDIT_PROXY_SERVER_NAME = "audit-proxy";
 
     private final MetricItem metricItem;
-    private final String metricName;
     private HTTPServer server;
 
-    public ProxyPrometheusMetric(String metricName, MetricItem metricItem, int prometheusPort) {
-        this.metricName = metricName;
+    public ProxyPrometheusMetric(MetricItem metricItem) {
         this.metricItem = metricItem;
         try {
-            server = new HTTPServer(prometheusPort);
+            server = new HTTPServer(ConfigManager.getInstance().getValue(KEY_PROMETHEUS_PORT, DEFAULT_PROMETHEUS_PORT));
             this.register();
         } catch (IOException e) {
             LOGGER.error("Construct proxy prometheus metric has IOException", e);
@@ -66,23 +69,30 @@ public class ProxyPrometheusMetric extends Collector implements AbstractMetric {
                 createSample(MetricDimension.SEND_COUNT_FAILED, metricItem.getSendCountFailed().doubleValue()));
 
         MetricFamilySamples metricFamilySamples =
-                new MetricFamilySamples(metricName, Type.GAUGE, HELP_DESCRIPTION, samples);
+                new MetricFamilySamples(AUDIT_PROXY_SERVER_NAME, Type.GAUGE, HELP_DESCRIPTION, samples);
 
         return Collections.singletonList(metricFamilySamples);
     }
 
     private MetricFamilySamples.Sample createSample(MetricDimension key, double value) {
-        return new MetricFamilySamples.Sample(metricName, Collections.singletonList(MetricItem.K_DIMENSION_KEY),
+        return new MetricFamilySamples.Sample(AUDIT_PROXY_SERVER_NAME,
+                Collections.singletonList(MetricItem.K_DIMENSION_KEY),
                 Collections.singletonList(key.getKey()), value);
     }
 
     @Override
     public void report() {
-        LOGGER.info("Report proxy prometheus metric: {} ", metricItem.toString());
+        if (metricItem != null) {
+            LOGGER.info("Report proxy Prometheus metric: {}", metricItem);
+        } else {
+            LOGGER.warn("MetricItem is null, nothing to report.");
+        }
     }
 
     @Override
     public void stop() {
-        server.close();
+        if (server != null) {
+            server.close();
+        }
     }
 }

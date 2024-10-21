@@ -15,9 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.metric;
+package org.apache.inlong.audit.service.metric;
 
-import org.apache.inlong.audit.file.ConfigManager;
+import org.apache.inlong.audit.metric.AbstractMetric;
+import org.apache.inlong.audit.service.config.Configuration;
+import org.apache.inlong.audit.service.entities.ApiType;
+import org.apache.inlong.audit.service.entities.AuditCycle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +31,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PROXY_METRIC_CLASSNAME;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PROXY_METRIC_CLASSNAME;
+import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_AUDIT_SERVICE_METRIC_CLASSNAME;
+import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_AUDIT_SERVICE_METRIC_CLASSNAME;
 
 public class MetricsManager {
 
@@ -44,8 +47,9 @@ public class MetricsManager {
 
     public void init() {
         try {
-            ConfigManager configManager = ConfigManager.getInstance();
-            String metricClassName = configManager.getValue(KEY_PROXY_METRIC_CLASSNAME, DEFAULT_PROXY_METRIC_CLASSNAME);
+            String metricClassName =
+                    Configuration.getInstance().get(KEY_AUDIT_SERVICE_METRIC_CLASSNAME,
+                            DEFAULT_AUDIT_SERVICE_METRIC_CLASSNAME);
             LOGGER.info("Metric class name: {}", metricClassName);
             Constructor<?> constructor = Class.forName(metricClassName)
                     .getDeclaredConstructor(MetricItem.class);
@@ -69,26 +73,16 @@ public class MetricsManager {
     private final MetricItem metricItem = new MetricItem();
     protected final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
-    public void addReceiveCountInvalid(long count) {
-        metricItem.getReceiveCountInvalid().addAndGet(count);
+    public void addApiMetric(ApiType apiType, long duration) {
+        MetricStat metricStat = metricItem.getMetricStat(apiType.name());
+        metricStat.getCount().addAndGet(1);
+        metricStat.getDuration().addAndGet(duration);
     }
 
-    public void addReceiveCountExpired(long count) {
-        metricItem.getReceiveCountExpired().addAndGet(count);
-    }
-
-    public void addReceiveSuccess(long count, long pack, long size) {
-        metricItem.getReceiveCountSuccess().addAndGet(count);
-        metricItem.getReceivePackSuccess().addAndGet(pack);
-        metricItem.getReceiveSizeSuccess().addAndGet(size);
-    }
-
-    public void addSendSuccess(long count) {
-        metricItem.getSendCountSuccess().addAndGet(count);
-    }
-
-    public void addSendFailed(long count) {
-        metricItem.getSendCountFailed().addAndGet(count);
+    public void addApiMetricNoCache(AuditCycle auditCycle, long duration) {
+        MetricStat metricStat = metricItem.getMetricStat(String.valueOf(auditCycle.getValue()));
+        metricStat.getCount().addAndGet(1);
+        metricStat.getDuration().addAndGet(duration);
     }
 
     public void shutdown() {

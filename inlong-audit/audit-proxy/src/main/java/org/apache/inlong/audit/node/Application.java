@@ -59,8 +59,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.apache.inlong.audit.config.ConfigConstants.AUDIT_PROXY_SERVER_NAME;
-
 /**
  * Application
  */
@@ -351,7 +349,7 @@ public class Application {
                 }
             });
 
-            MetricsManager.getInstance().init(AUDIT_PROXY_SERVER_NAME);
+            MetricsManager.getInstance().init();
 
         } catch (Exception e) {
             logger.error("A fatal error occurred while running. Exception follows.", e);
