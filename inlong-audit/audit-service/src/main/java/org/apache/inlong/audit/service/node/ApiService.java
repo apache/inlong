@@ -28,6 +28,7 @@ import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.ApiType;
 import org.apache.inlong.audit.service.entities.AuditCycle;
 import org.apache.inlong.audit.service.entities.StatData;
+import org.apache.inlong.audit.service.metric.MetricsManager;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
@@ -152,6 +153,9 @@ public class ApiService {
         @Override
         public void handle(HttpExchange exchange) {
             LOGGER.info("handle {}", exchange.getRequestURI().toString());
+
+            long currentTimeMillis = System.currentTimeMillis();
+
             if (null != limiter) {
                 limiter.acquire();
             }
@@ -181,6 +185,8 @@ public class ApiService {
                     }
                 }
             });
+
+            MetricsManager.getInstance().addApiMetric(apiType, System.currentTimeMillis() - currentTimeMillis);
         }
 
         private Map<String, String> parseRequestURI(String query) {

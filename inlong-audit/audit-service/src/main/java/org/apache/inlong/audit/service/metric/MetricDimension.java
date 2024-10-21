@@ -15,16 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.service.metric;
 
-/**
- * Config constants
- */
-public class ConfigConstants {
+public enum MetricDimension {
 
-    public static final String KEY_PROMETHEUS_PORT = "audit.proxy.prometheus.port";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10082;
-    public static final String KEY_PROXY_METRIC_CLASSNAME = "audit.proxy.metric.classname";
-    public static final String DEFAULT_PROXY_METRIC_CLASSNAME =
-            "org.apache.inlong.audit.metric.prometheus.ProxyPrometheusMetric";
+    COUNT("count"),
+    DURATION("duration");
+
+    private final String key;
+
+    MetricDimension(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
 }

@@ -22,6 +22,7 @@ import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.AuditCycle;
 import org.apache.inlong.audit.service.entities.CacheKeyEntity;
 import org.apache.inlong.audit.service.entities.StatData;
+import org.apache.inlong.audit.service.metric.MetricsManager;
 import org.apache.inlong.audit.service.utils.CacheUtils;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -108,10 +109,16 @@ public class AbstractCache {
             if (null != statData) {
                 result.add(statData);
             } else {
+                long currentTimeMillis = System.currentTimeMillis();
+
                 statData = fetchDataFromAuditStorage(cacheKey.getStartTime(), cacheKey.getEndTime(), inlongGroupId,
                         inlongStreamId,
                         auditId, auditTag);
                 result.add(statData);
+
+                MetricsManager.getInstance().addApiMetricNoCache(auditCycle,
+                        System.currentTimeMillis() - currentTimeMillis);
+
             }
 
         }

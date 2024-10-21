@@ -19,6 +19,7 @@ package org.apache.inlong.audit.service.node;
 
 import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
+import org.apache.inlong.audit.service.metric.MetricsManager;
 import org.apache.inlong.audit.service.selector.api.Selector;
 import org.apache.inlong.audit.service.selector.api.SelectorConfig;
 import org.apache.inlong.audit.service.selector.api.SelectorFactory;
@@ -50,6 +51,8 @@ public class Application {
 
             PartitionManager.getInstance().start();
 
+            MetricsManager.getInstance().init();
+
             // Etl service aggregate the data from the data source and store the aggregated data to the target storage
             etlService.start();
 
@@ -73,6 +76,7 @@ public class Application {
                 etlService.stop();
                 apiService.stop();
                 selector.close();
+                MetricsManager.getInstance().shutdown();
                 LOGGER.info("Stopping gracefully");
             } catch (Exception ex) {
                 LOGGER.error("Stop error: ", ex);

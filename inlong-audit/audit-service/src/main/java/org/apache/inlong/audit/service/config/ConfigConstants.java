@@ -113,4 +113,10 @@ public class ConfigConstants {
     public static final String KEY_ENABLE_STAT_AUDIT_DAY = "enable.stat.audit.day";
     public static final boolean DEFAULT_ENABLE_STAT_AUDIT_DAY = true;
 
+    public static final String KEY_AUDIT_SERVICE_PROMETHEUS_PORT = "audit.service.prometheus.port";
+    public static final int DEFAULT_AUDIT_SERVICE_PROMETHEUS_PORT = 10084;
+    public static final String KEY_AUDIT_SERVICE_METRIC_CLASSNAME = "audit.service.metric.classname";
+    public static final String DEFAULT_AUDIT_SERVICE_METRIC_CLASSNAME =
+            "org.apache.inlong.audit.service.metric.prometheus.ServicePrometheusMetric";
+
 }
