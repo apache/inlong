@@ -714,6 +714,19 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
+
+        // check ip if belongs to two different clusters at the same time
+        List<InlongClusterNodeEntity> existList =
+                clusterNodeMapper.selectByIpAndType(request.getIp(), request.getType());
+        if (CollectionUtils.isNotEmpty(existList)) {
+            InlongClusterEntity currentCluster = clusterMapper.selectById(existList.get(0).getParentId());
+            InlongClusterEntity targetCluster = clusterMapper.selectById(request.getParentId());
+            if (!Objects.equals(currentCluster.getId(), targetCluster.getId())) {
+                throw new BusinessException(
+                        String.format("current ip can not belong to cluster %s and %s at the same time",
+                                currentCluster.getName(), targetCluster.getName()));
+            }
+        }
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
