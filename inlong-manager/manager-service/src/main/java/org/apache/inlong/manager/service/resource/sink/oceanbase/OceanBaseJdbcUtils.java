@@ -71,6 +71,9 @@ public class OceanBaseJdbcUtils {
      */
     private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
+        if (StringUtils.isBlank(url) || !url.startsWith(OCEANBASE_JDBC_PREFIX)) {
+            throw new Exception("OceanusBase URL was invalid, it should start with jdbc:oceanbase");
+        }
         try {
             Class.forName(OCEANBASE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
