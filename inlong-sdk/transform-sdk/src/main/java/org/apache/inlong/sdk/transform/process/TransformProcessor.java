@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.transform.process;
 
-import net.sf.jsqlparser.schema.Column;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
 import org.apache.inlong.sdk.transform.encode.DefaultSinkData;
@@ -32,6 +31,7 @@ import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
