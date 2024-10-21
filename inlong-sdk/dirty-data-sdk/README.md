@@ -7,7 +7,7 @@ This SDK is used to collect dirty data and store it in a designated storage loca
 ### Independent SDK
 
 Independent SDK, not dependent on platform specific libraries (such as Flink), can be used by Agent,
-Data Proxy, Sort modules.
+DataProxy, Sort modules.
 
 ### Scalable multiple data storage options
 
