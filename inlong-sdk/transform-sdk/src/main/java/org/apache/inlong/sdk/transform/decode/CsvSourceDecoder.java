@@ -25,21 +25,20 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.List;
 
 /**
  * CsvSourceDecoder
  * 
  */
-public class CsvSourceDecoder implements SourceDecoder<String> {
+public class CsvSourceDecoder extends SourceDecoder<String> {
 
     protected CsvSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();
     private Character delimiter = '|';
     private Character escapeChar = null;
-    private List<FieldInfo> fields;
 
     public CsvSourceDecoder(CsvSourceInfo sourceInfo) {
+        super(sourceInfo.getFields());
         this.sourceInfo = sourceInfo;
         if (sourceInfo.getDelimiter() != null) {
             this.delimiter = sourceInfo.getDelimiter();
@@ -50,7 +49,6 @@ public class CsvSourceDecoder implements SourceDecoder<String> {
         if (!StringUtils.isBlank(sourceInfo.getCharset())) {
             this.srcCharset = Charset.forName(sourceInfo.getCharset());
         }
-        this.fields = sourceInfo.getFields();
     }
 
     @Override

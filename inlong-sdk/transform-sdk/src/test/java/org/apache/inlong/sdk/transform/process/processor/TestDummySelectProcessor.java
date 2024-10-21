@@ -14,35 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.inlong.sdk.transform.process.processor;
 
-package org.apache.inlong.sdk.transform.decode;
+import org.junit.Test;
 
-import org.apache.inlong.sdk.transform.pojo.FieldInfo;
-import org.apache.inlong.sdk.transform.process.Context;
+public class TestDummySelectProcessor extends AbstractProcessorTestBase {
 
-import com.google.common.collect.ImmutableList;
-import lombok.Getter;
+    @Test
+    public void testDummySelect() {
 
-import java.util.List;
-
-/**
- * SourceDecoder
- */
-@Getter
-public abstract class SourceDecoder<Input> {
-
-    protected final List<FieldInfo> fields;
-
-    public SourceDecoder() {
-        this(ImmutableList.of());
     }
-
-    public SourceDecoder(List<FieldInfo> fields) {
-        this.fields = fields;
-    }
-
-    public abstract SourceData decode(byte[] srcBytes, Context context);
-
-    public abstract SourceData decode(Input input, Context context);
-
 }
