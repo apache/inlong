@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.audit.entity.AuditComponent.AGENT;
 import static org.apache.inlong.audit.entity.AuditComponent.DATAPROXY;
-import static org.apache.inlong.audit.entity.AuditComponent.PUBLIC_NETWORK;
 import static org.apache.inlong.audit.entity.AuditComponent.SORT;
 
 public class AuditProxyCache {
@@ -79,9 +78,6 @@ public class AuditProxyCache {
         proxyConfigs.put(SORT.getComponent(),
                 config.get(ProxyConstants.KEY_AUDIT_PROXY_ADDRESS_SORT,
                         ProxyConstants.DEFAULT_AUDIT_PROXY_ADDRESS_SORT));
-        proxyConfigs.put(PUBLIC_NETWORK.getComponent(),
-                config.get(ProxyConstants.KEY_AUDIT_PROXY_ADDRESS_PUBLIC_NETWORK,
-                        ProxyConstants.DEFAULT_AUDIT_PROXY_ADDRESS_PUBLIC_NETWORK));
         return proxyConfigs;
     }
 
