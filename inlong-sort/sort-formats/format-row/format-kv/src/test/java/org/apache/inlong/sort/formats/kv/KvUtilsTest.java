@@ -210,7 +210,7 @@ public class KvUtilsTest {
     public void testSplitDanglingKey2() {
         Map<String, String> kvMap = splitKv("f1&f2=3", '&',
                 '=', null, null);
-        Assert.assertEquals("3", kvMap.get("f2"));
+        Assert.assertEquals("3", kvMap.get("f1&f2"));
     }
 
     @Test

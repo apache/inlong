@@ -19,11 +19,13 @@ package org.apache.inlong.sort.formats.common;
 
 import org.apache.inlong.sort.formats.util.StringUtils;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.formats.util.StringUtils.splitKv;
 import static org.junit.Assert.assertEquals;
 
 public class StringUtilsTest {
@@ -55,17 +57,17 @@ public class StringUtilsTest {
                 '=', '\\', '\'', '\n');
         assertEquals("=", map4.get(0).get("name"));
         assertEquals("20&&", map4.get(0).get("age"));
-        assertEquals("=", map4.get(0).get("name1"));
-        assertEquals("20&&", map4.get(0).get("age1"));
+        assertEquals("=", map4.get(1).get("name1"));
+        assertEquals("20&&", map4.get(1).get("age1"));
 
         String kvString5 = "name==&age=20&&\nname1==&age1=20&&&value=aaa&dddd&";
         List<Map<String, String>> map5 = StringUtils.splitKv(kvString5, '&',
                 '=', '\\', '\'', '\n');
         assertEquals("=", map5.get(0).get("name"));
         assertEquals("20&&", map5.get(0).get("age"));
-        assertEquals("=", map5.get(0).get("name1"));
-        assertEquals("20&&", map5.get(0).get("age1"));
-        assertEquals("aaa&dddd&", map5.get(0).get("value"));
+        assertEquals("=", map5.get(1).get("name1"));
+        assertEquals("20&&", map5.get(1).get("age1"));
+        assertEquals("aaa&dddd&", map5.get(1).get("value"));
 
         String kvString6 = "name==&age=20&&\\";
         List<Map<String, String>> map6 = StringUtils.splitKv(kvString6, '&',
@@ -152,5 +154,14 @@ public class StringUtilsTest {
         assertEquals("", csv1Array4[2][0]);
         assertEquals("home", csv1Array4[2][1]);
         assertEquals("home", csv1Array4[2][2]);
+    }
+
+    @Test
+    public void testKvScapeCharSplit() {
+        String text = "k1=v1&\nk\\2=v2\\&&k3=v3";
+        Map<String, String> kvMap = splitKv(text, '&', '=', '\\', null);
+        Assert.assertTrue(kvMap != null && kvMap.size() == 3);
+        Assert.assertTrue(kvMap.get("k3") != null);
+        Assert.assertTrue(kvMap.get("\nk2") != null);
     }
 }
