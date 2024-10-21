@@ -28,6 +28,7 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * LocalTimeFunction  ->  localTime([timeZoneStr])
@@ -55,11 +56,12 @@ public class LocalTimeFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         if (stringParser != null) {
             String zoneString = OperatorTools.parseString(stringParser.parse(sourceData, rowIndex, context));
-            return LocalTime.now(ZoneId.of(zoneString)).withNano(0);
+            return LocalTime.now(ZoneId.of(zoneString)).withNano(0).format(formatter);
         } else {
-            return LocalTime.now(ZoneId.systemDefault()).withNano(0);
+            return LocalTime.now(ZoneId.systemDefault()).withNano(0).format(formatter);
         }
     }
 }
