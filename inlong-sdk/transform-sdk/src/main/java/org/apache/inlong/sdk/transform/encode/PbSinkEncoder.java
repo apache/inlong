@@ -28,10 +28,9 @@ import com.google.protobuf.DynamicMessage;
 
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class PbSinkEncoder implements SinkEncoder<byte[]> {
+public class PbSinkEncoder extends SinkEncoder<byte[]> {
 
     protected PbSinkInfo sinkInfo;
 
@@ -40,9 +39,10 @@ public class PbSinkEncoder implements SinkEncoder<byte[]> {
     private final Map<String, Descriptors.FieldDescriptor.Type> fieldTypes;
 
     public PbSinkEncoder(PbSinkInfo pbSinkInfo) {
+        super(pbSinkInfo.getFields());
         this.sinkInfo = pbSinkInfo;
         this.fieldTypes = new HashMap<>();
-        for (FieldInfo field : pbSinkInfo.getFields()) {
+        for (FieldInfo field : this.fields) {
             fieldTypes.put(field.getName(), Descriptors.FieldDescriptor.Type.STRING);
         }
         // decode protoDescription
@@ -108,8 +108,4 @@ public class PbSinkEncoder implements SinkEncoder<byte[]> {
         }
     }
 
-    @Override
-    public List<FieldInfo> getFields() {
-        return sinkInfo.getFields();
-    }
 }

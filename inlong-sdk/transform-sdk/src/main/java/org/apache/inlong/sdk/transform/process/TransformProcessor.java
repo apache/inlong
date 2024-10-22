@@ -25,19 +25,19 @@ import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
+import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import com.google.common.collect.ImmutableMap;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -49,8 +49,6 @@ import java.util.Map;
  *
  */
 public class TransformProcessor<I, O> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TransformProcessor.class);
 
     private static final Map<String, Object> EMPTY_EXT_PARAMS = ImmutableMap.of();
     private static final String DUMMY_SELECT = "select *";
@@ -127,9 +125,10 @@ public class TransformProcessor<I, O> {
                 this.selectItems
                         .add(new ValueParserNode(fieldName, OperatorTools.buildParser(exprItem.getExpression())));
             } else if (item instanceof AllColumns) {
-                fieldName = item.toString();
-                this.encoder.getFields().clear();
-                this.selectItems.add(new ValueParserNode(fieldName, null));
+                for (FieldInfo fieldInfo : decoder.getFields()) {
+                    String name = fieldInfo.getName();
+                    this.selectItems.add(new ValueParserNode(name, new ColumnParser(new Column(name))));
+                }
             }
         }
     }

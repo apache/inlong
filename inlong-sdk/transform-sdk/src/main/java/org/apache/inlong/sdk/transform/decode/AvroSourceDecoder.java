@@ -36,7 +36,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AvroSourceDecoder implements SourceDecoder<byte[]> {
+public class AvroSourceDecoder extends SourceDecoder<byte[]> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvroSourceDecoder.class);
 

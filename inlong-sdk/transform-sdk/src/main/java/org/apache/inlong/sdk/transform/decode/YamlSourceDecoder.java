@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class YamlSourceDecoder implements SourceDecoder<String> {
+public class YamlSourceDecoder extends SourceDecoder<String> {
 
     protected YamlSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();

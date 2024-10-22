@@ -34,6 +34,10 @@ public class FieldInfo {
 
     }
 
+    public FieldInfo(String name) {
+        this(name, TypeConverter.DefaultTypeConverter());
+    }
+
     public FieldInfo(String name, TypeConverter converter) {
         this.name = name;
         this.converter = converter;

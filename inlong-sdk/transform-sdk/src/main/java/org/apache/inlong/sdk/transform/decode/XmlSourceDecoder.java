@@ -37,7 +37,7 @@ import java.util.Map;
  * XmlSourceDecoder
  */
 @Slf4j
-public class XmlSourceDecoder implements SourceDecoder<String> {
+public class XmlSourceDecoder extends SourceDecoder<String> {
 
     protected XmlSourceInfo sourceInfo;
     private Charset srcCharset = Charset.defaultCharset();

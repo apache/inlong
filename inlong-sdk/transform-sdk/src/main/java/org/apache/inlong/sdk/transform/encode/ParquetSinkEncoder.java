@@ -28,7 +28,6 @@ import org.apache.parquet.schema.Types;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,17 +37,14 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 /**
  * ParquetSinkEncoder
  */
-public class ParquetSinkEncoder implements SinkEncoder<ByteArrayOutputStream> {
+public class ParquetSinkEncoder extends SinkEncoder<ByteArrayOutputStream> {
 
     protected ParquetSinkInfo sinkInfo;
-    protected Charset sinkCharset = Charset.defaultCharset();
-
-    private final List<FieldInfo> fields;
     private ParquetByteArrayWriter<Object[]> writer;
 
     public ParquetSinkEncoder(ParquetSinkInfo sinkInfo) {
+        super(sinkInfo.getFields());
         this.sinkInfo = sinkInfo;
-        this.fields = sinkInfo.getFields();
         ArrayList<Type> typesList = new ArrayList<>();
         for (FieldInfo fieldInfo : this.fields) {
             typesList.add(Types.required(BINARY)
@@ -88,10 +84,6 @@ public class ParquetSinkEncoder implements SinkEncoder<ByteArrayOutputStream> {
         return writer.getByteArrayOutputStream();
     }
 
-    @Override
-    public List<FieldInfo> getFields() {
-        return this.fields;
-    }
     public byte[] mergeByteArray(List<ByteArrayOutputStream> list) {
         if (list.isEmpty()) {
             return null;

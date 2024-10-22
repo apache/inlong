@@ -41,7 +41,7 @@ import java.nio.charset.Charset;
 /**
  * PbSourceDecoder
  */
-public class ParquetSourceDecoder implements SourceDecoder<byte[]> {
+public class ParquetSourceDecoder extends SourceDecoder<byte[]> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParquetSourceDecoder.class);
 

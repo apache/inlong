@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * PbSourceDecoder
  * 
  */
-public class PbSourceDecoder implements SourceDecoder<byte[]> {
+public class PbSourceDecoder extends SourceDecoder<byte[]> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PbSourceDecoder.class);
 

@@ -32,7 +32,7 @@ import java.math.BigDecimal;
  * BsonSourceDecoder
  */
 @Slf4j
-public class BsonSourceDecoder implements SourceDecoder<byte[]> {
+public class BsonSourceDecoder extends SourceDecoder<byte[]> {
 
     private final JsonSourceDecoder decoder;
 
