@@ -298,6 +298,16 @@ public class InlongGroupClient {
         throw new RuntimeException(response.getErrMsg());
     }
 
+    public String getTenant(String groupId) {
+        Response<String> response = ClientUtils.executeHttpCall(inlongGroupApi.getTenant(groupId));
+        if (response.isSuccess()) {
+            return response.getData();
+        } else if (response.getErrMsg().contains("not exist")) {
+            return null;
+        }
+        throw new RuntimeException(response.getErrMsg());
+    }
+
     public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
         Response<List<InlongGroupTopicInfo>> response =
                 ClientUtils.executeHttpCall(inlongGroupApi.listTopics(request));

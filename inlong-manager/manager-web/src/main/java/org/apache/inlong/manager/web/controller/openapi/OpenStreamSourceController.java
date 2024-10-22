@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -129,4 +130,11 @@ public class OpenStreamSourceController {
         boolean result = sourceService.restart(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
+
+    @RequestMapping(value = "/source/addDataAddTask", method = RequestMethod.POST)
+    @ApiOperation(value = "Add supplementary recording task for stream source")
+    public Response<List<Integer>> addSub(@RequestBody DataAddTaskRequest request) {
+        return Response.success(sourceService.addDataAddTask(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
 }
