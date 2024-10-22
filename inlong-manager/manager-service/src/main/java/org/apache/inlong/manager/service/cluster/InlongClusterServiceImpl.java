@@ -117,7 +117,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -744,6 +743,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
             request.setId(id);
+            clusterNodeMapper.updateOperateLogById(id, NodeStatus.INSTALLING.getStatus(), "begin to install");
             pendingInstallRequests.add(request);
         }
         return id;
@@ -894,6 +894,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (request.getIsInstall()) {
             // when reinstall set install to false
             request.setIsInstall(false);
+            clusterNodeMapper.updateOperateLogById(request.getId(), NodeStatus.INSTALLING.getStatus(),
+                    "begin to re install");
             pendingInstallRequests.add(request);
         }
         return true;
@@ -1458,7 +1460,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             if (request == null) {
                 return;
             }
-            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(request.getType());
+            InlongClusterNodeInstallOperator clusterNodeInstallOperator =
+                    clusterNodeInstallOperatorFactory.getInstance(request.getType());
             if (request.getIsInstall()) {
                 clusterNodeInstallOperator.install(request, request.getCurrentUser());
             } else {

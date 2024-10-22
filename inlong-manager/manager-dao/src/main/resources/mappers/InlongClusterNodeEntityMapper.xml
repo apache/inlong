@@ -130,6 +130,9 @@
                 or port like CONCAT('%', #{keyword}, '%')
                 )
             </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
         </where>
         order by modify_time desc
     </select>
