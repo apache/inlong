@@ -34,6 +34,11 @@ public enum AuditCycle {
         return cycle;
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(cycle);
+    }
+
     /**
      * Convert int to AuditCycle.
      *

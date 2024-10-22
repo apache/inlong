@@ -80,7 +80,7 @@ public class MetricsManager {
     }
 
     public void addApiMetricNoCache(AuditCycle auditCycle, long duration) {
-        MetricStat metricStat = metricItem.getMetricStat(String.valueOf(auditCycle.getValue()));
+        MetricStat metricStat = metricItem.getMetricStat(auditCycle.toString());
         metricStat.getCount().addAndGet(1);
         metricStat.getDuration().addAndGet(duration);
     }
