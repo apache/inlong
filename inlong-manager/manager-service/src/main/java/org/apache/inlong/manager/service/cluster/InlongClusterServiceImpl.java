@@ -117,14 +117,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
 import static org.apache.inlong.manager.pojo.cluster.InlongClusterTagExtParam.packExtParams;
 import static org.apache.inlong.manager.pojo.cluster.InlongClusterTagExtParam.unpackExtParams;
 
@@ -137,11 +142,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
     private static final Gson GSON = new Gson();
     private final ExecutorService executorService = new ThreadPoolExecutor(
-            5,
-            10,
-            10L,
-            TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(100),
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactoryBuilder().setNameFormat("agent-install-%s").build(),
             new CallerRunsPolicy());
     private final LinkedBlockingQueue<ClusterNodeRequest> pendingInstallRequests = new LinkedBlockingQueue<>();
@@ -179,9 +184,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @PostConstruct
     private void startInstallTask() {
-        InstallTaskRunnable installTaskRunnable = new InstallTaskRunnable();
-        this.executorService.execute(installTaskRunnable);
+        processInstall();
+        setReloadTimer();
         LOGGER.info("install task started successfully");
+    }
+
+    private void setReloadTimer() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        long reloadInterval = 60000L;
+        executorService.scheduleWithFixedDelay(this::processInstall, reloadInterval, reloadInterval,
+                TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -731,6 +743,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
             request.setId(id);
+            clusterNodeMapper.updateOperateLogById(id, NodeStatus.INSTALLING.getStatus(), "begin to install");
             pendingInstallRequests.add(request);
         }
         return id;
@@ -881,6 +894,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (request.getIsInstall()) {
             // when reinstall set install to false
             request.setIsInstall(false);
+            clusterNodeMapper.updateOperateLogById(request.getId(), NodeStatus.INSTALLING.getStatus(),
+                    "begin to re install");
             pendingInstallRequests.add(request);
         }
         return true;
@@ -1434,34 +1449,35 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     private class InstallTaskRunnable implements Runnable {
 
-        private static final int WAIT_SECONDS = 60 * 1000;
+        private ClusterNodeRequest request;
+
+        public InstallTaskRunnable(ClusterNodeRequest request) {
+            this.request = request;
+        }
 
         @Override
         public void run() {
-            while (true) {
-                try {
-                    processInstall();
-                    Thread.sleep(WAIT_SECONDS);
-                } catch (Exception e) {
-                    LOGGER.error("exception occurred when install", e);
-                }
-            }
-        }
-
-        @Transactional(rollbackFor = Throwable.class)
-        public void processInstall() {
-            if (pendingInstallRequests.isEmpty()) {
+            if (request == null) {
                 return;
             }
-            ClusterNodeRequest request = pendingInstallRequests.poll();
-            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
-                    request.getType());
+            InlongClusterNodeInstallOperator clusterNodeInstallOperator =
+                    clusterNodeInstallOperatorFactory.getInstance(request.getType());
             if (request.getIsInstall()) {
                 clusterNodeInstallOperator.install(request, request.getCurrentUser());
             } else {
                 clusterNodeInstallOperator.reInstall(request, request.getCurrentUser());
             }
-
         }
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    public void processInstall() {
+        LOGGER.info("begin to process install task");
+        while (!pendingInstallRequests.isEmpty()) {
+            ClusterNodeRequest request = pendingInstallRequests.poll();
+            InstallTaskRunnable installTaskRunnable = new InstallTaskRunnable(request);
+            executorService.execute(installTaskRunnable);
+        }
+        LOGGER.info("success to process install task");
     }
 }
