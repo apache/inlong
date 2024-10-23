@@ -83,8 +83,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
 
     @Value("${agent.install.path:inlong/inlong-installer/}")
     private String agentInstallPath;
-    @Value("${agent.temp.path:inlong/agent-installer-temp/}")
-    private String agentTempPath;
+    @Value("${agent.install.temp.path:inlong/agent-installer-temp/}")
+    private String agentInstallTempPath;
     @Value("${manager.url:127.0.0.1:8083}")
     private String managerUrl;
 
@@ -134,14 +134,14 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
                     currentTime + InlongConstants.BLANK + "begin to reinstall");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
-            commandExecutor.rmDir(request, agentTempPath);
-            commandExecutor.mkdir(request, agentTempPath);
-            commandExecutor.cpDir(request, agentInstallPath + "/conf/modules.json", agentTempPath);
+            commandExecutor.rmDir(request, agentInstallTempPath);
+            commandExecutor.mkdir(request, agentInstallTempPath);
+            commandExecutor.cpDir(request, agentInstallPath + "/conf/modules.json", agentInstallTempPath);
 
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
 
-            commandExecutor.cpDir(request, agentTempPath + "/modules.json", agentInstallPath + "/conf");
+            commandExecutor.cpDir(request, agentInstallTempPath + "/modules.json", agentInstallPath + "/conf");
             String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, reStartCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.NORMAL.getStatus(),
