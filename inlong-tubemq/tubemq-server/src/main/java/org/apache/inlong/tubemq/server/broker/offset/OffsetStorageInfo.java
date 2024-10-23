@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
+package org.apache.inlong.tubemq.server.broker.offset;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 
@@ -31,8 +32,12 @@ public class OffsetStorageInfo implements Serializable {
     private final int partitionId;
     private final AtomicLong offset = new AtomicLong(0);
     private long messageId;
+    private long lstRstTerm;
     private boolean firstCreate = false;
+    private long firstOffset = TBaseConstants.META_VALUE_UNDEFINED;
+    private long createTime = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean modified = false;
+    private final AtomicLong lstUpdateTime = new AtomicLong(0);
 
     /**
      * Initial offset storage information
@@ -40,12 +45,13 @@ public class OffsetStorageInfo implements Serializable {
      * @param topic          the topic name
      * @param brokerId       the broker id
      * @param partitionId    the partition id
+     * @param lstRstTerm     the last reset term
      * @param offset         the offset
      * @param messageId      the message id
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-            long offset, long messageId) {
-        this(topic, brokerId, partitionId, offset, messageId, true);
+            long lstRstTerm, long offset, long messageId) {
+        this(topic, brokerId, partitionId, lstRstTerm, offset, messageId, true, System.currentTimeMillis());
     }
 
     /**
@@ -54,21 +60,28 @@ public class OffsetStorageInfo implements Serializable {
      * @param topic          the topic name
      * @param brokerId       the broker id
      * @param partitionId    the partition id
+     * @param lstRstTerm     the last reset term
      * @param offset         the offset
      * @param messageId      the message id
      * @param firstCreate    whether is the first record creation
+     * @param lstUpdateTime  the last update time
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-            long offset, long messageId, boolean firstCreate) {
+            long lstRstTerm, long offset, long messageId,
+            boolean firstCreate, long lstUpdateTime) {
         this.topic = topic;
         this.brokerId = brokerId;
         this.partitionId = partitionId;
+        this.lstRstTerm = lstRstTerm;
         this.offset.set(offset - offset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
         this.messageId = messageId;
         this.firstCreate = firstCreate;
         if (firstCreate) {
-            modified = true;
+            this.modified = true;
+            this.firstOffset = this.offset.get();
+            this.createTime = lstUpdateTime;
         }
+        this.lstUpdateTime.set(lstUpdateTime);
     }
 
     public boolean isFirstCreate() {
@@ -87,6 +100,10 @@ public class OffsetStorageInfo implements Serializable {
         return partitionId;
     }
 
+    public long getLstRstTerm() {
+        return lstRstTerm;
+    }
+
     public long getOffset() {
         return offset.get();
     }
@@ -95,12 +112,20 @@ public class OffsetStorageInfo implements Serializable {
         return messageId;
     }
 
-    public void setMessageId(long messageId) {
-        this.messageId = messageId;
+    public long getLstUpdateTime() {
+        return lstUpdateTime.get();
     }
 
     public boolean isModified() {
         return modified;
+    }
+
+    public long getFirstOffset() {
+        return firstOffset;
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 
     public void setModified(boolean modified) {
@@ -108,15 +133,17 @@ public class OffsetStorageInfo implements Serializable {
     }
 
     public long addAndGetOffset(long tmpOffset) {
-        firstCreate = false;
-        modified = true;
-        return offset.addAndGet(tmpOffset - tmpOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        this.firstCreate = false;
+        this.modified = true;
+        this.lstUpdateTime.set(System.currentTimeMillis());
+        return this.offset.addAndGet(tmpOffset - tmpOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
     }
 
     public long getAndSetOffset(long absOffset) {
-        firstCreate = false;
-        modified = true;
-        return offset.getAndSet(absOffset - absOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        this.firstCreate = false;
+        this.modified = true;
+        this.lstUpdateTime.set(System.currentTimeMillis());
+        return this.offset.getAndSet(absOffset - absOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
     }
 
     @Override
@@ -143,6 +170,12 @@ public class OffsetStorageInfo implements Serializable {
         if (modified != that.modified) {
             return false;
         }
+        if (lstRstTerm != that.lstRstTerm) {
+            return false;
+        }
+        if (lstUpdateTime.get() != that.lstUpdateTime.get()) {
+            return false;
+        }
         if (!topic.equals(that.topic)) {
             return false;
         }
@@ -150,13 +183,14 @@ public class OffsetStorageInfo implements Serializable {
 
     }
 
-    @Override
     public int hashCode() {
         int result = topic.hashCode();
         result = 31 * result + brokerId;
         result = 31 * result + partitionId;
         result = 31 * result + offset.hashCode();
-        result = 31 * result + (int) (messageId ^ (messageId >>> 32));
+        result = 31 * result + Long.hashCode(messageId);
+        result = 31 * result + Long.hashCode(lstUpdateTime.get());
+        result = 31 * result + Long.hashCode(lstRstTerm);
         result = 31 * result + (firstCreate ? 1 : 0);
         result = 31 * result + (modified ? 1 : 0);
         return result;
@@ -171,6 +205,10 @@ public class OffsetStorageInfo implements Serializable {
                 .append(", messageId=").append(messageId)
                 .append(", modified=").append(modified)
                 .append(", firstCreate=").append(firstCreate)
+                .append(", firstOffset=").append(firstOffset)
+                .append(", createTime=").append(createTime)
+                .append(", lstUpdateTime=").append(lstUpdateTime.get())
+                .append(", lstRstTerm=").append(lstRstTerm)
                 .append("]").toString();
     }
 }

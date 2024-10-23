@@ -108,6 +108,9 @@ public final class TServerConstants {
     // max statistics token type length
     public static final int META_MAX_STATSTYPE_LENGTH = 256;
 
-    public static final int OFFSET_HISTORY_RECORD_VERSION = 1;
-    public static final int OFFSET_HISTORY_RECORD_SHORT_VERSION = 2;
+    public static final long CFG_DEF_GROUP_OFFSETS_STG_EXPIRED_DUR_MS = 20 * 24 * 60 * 60 * 1000L;
+    public static final long CFG_MIN_GROUP_OFFSETS_STG_EXPIRED_DUR_MS = 24 * 60 * 60 * 1000L;
+    public static final long CFG_GROUP_OFFSETS_STG_EXPIRED_CHECK_DUR_MS = 10 * 60 * 1000L;
+    public static final String CFG_DEF_BACKUP_PATH = "../conf";
+    public static final int CFG_MAX_BACKUP_PATH_LENGTH = 1024;
 }

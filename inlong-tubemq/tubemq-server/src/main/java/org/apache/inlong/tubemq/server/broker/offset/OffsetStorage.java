@@ -15,29 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
+package org.apache.inlong.tubemq.server.broker.offset;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface OffsetStorage {
 
     void close();
 
+    ConcurrentHashMap<String, OffsetStorageInfo> loadGroupStgInfo(String group);
+
     OffsetStorageInfo loadOffset(String group, String topic, int partitionId);
 
-    void commitOffset(String group,
-            Collection<OffsetStorageInfo> offsetInfoList,
-            boolean isFailRetry);
+    boolean commitOffset(String group, Collection<OffsetStorageInfo> offsetInfoList, boolean isFailRetry);
 
-    Map<String, Set<String>> queryZkAllGroupTopicInfos();
-
-    Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet);
+    Map<String, Set<String>> queryGroupTopicInfo(Set<String> groups);
 
     Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
             Set<Integer> partitionIds);
 
     void deleteGroupOffsetInfo(Map<String, Map<String, Set<Integer>>> groupTopicPartMap);
+
+    Set<String> cleanExpiredGroupInfo(long checkTime, long expiredDurMs);
+
+    Set<String> cleanRmvTopicInfo(Set<String> rmvTopics);
 }

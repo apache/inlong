@@ -36,6 +36,8 @@ import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import static java.lang.Math.abs;
 
 /**
@@ -58,6 +60,12 @@ public class BrokerConfig extends AbstractFileConfig {
     // master service address
     private String masterAddressList;
     private String primaryPath;
+    private boolean enableWriteOffset2Zk = false;
+    private String offsetStgFilePath;
+    private long grpOffsetStgExpMs = TServerConstants.CFG_DEF_GROUP_OFFSETS_STG_EXPIRED_DUR_MS;
+    private long offsetStgCacheFlushMs = 5000L;
+    private long offsetStgFileSyncMs = offsetStgCacheFlushMs + 1000L;
+    private long offsetStgSyncDurWarnMs = 20000L;
     // tcp write service thread count
     private int tcpWriteServiceThread =
             Runtime.getRuntime().availableProcessors() * 2;
@@ -112,7 +120,7 @@ public class BrokerConfig extends AbstractFileConfig {
     private int rowLockWaitDurMs =
             TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
     // zookeeper config
-    private ZKConfig zkConfig = new ZKConfig();
+    private ZKConfig zkConfig;
     // tls config
     private TLSConfig tlsConfig = new TLSConfig();
     // audit configure
@@ -214,7 +222,7 @@ public class BrokerConfig extends AbstractFileConfig {
     }
 
     @Override
-    protected void loadFileSectAttributes(final Ini iniConf) {
+    protected void loadFileSectAttributes(Ini iniConf) {
         this.loadBrokerSectConf(iniConf);
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
@@ -258,9 +266,57 @@ public class BrokerConfig extends AbstractFileConfig {
             throw new IllegalArgumentException("Require primaryPath not Blank!");
         }
         this.primaryPath = brokerSect.get("primaryPath").trim();
+        if (this.primaryPath.endsWith(File.separator)) {
+            this.primaryPath = this.primaryPath.substring(0,
+                    this.primaryPath.length() - File.separator.length());
+            if (this.primaryPath.isEmpty()) {
+                throw new IllegalArgumentException(new StringBuilder(256)
+                        .append("Parameter primaryPath(")
+                        .append(brokerSect.get("primaryPath").trim())
+                        .append(" only include separator! ").toString());
+            }
+        }
         if (TStringUtils.isBlank(brokerSect.get("hostName"))) {
             throw new IllegalArgumentException(new StringBuilder(256).append("hostName is null or Blank in ")
                     .append(SECT_TOKEN_BROKER).append(" section!").toString());
+        }
+        // enableWriteOffset2Zk
+        if (TStringUtils.isNotBlank(brokerSect.get("enableWriteOffset2Zk"))) {
+            this.enableWriteOffset2Zk = getBoolean(brokerSect, "enableWriteOffset2Zk");
+        }
+        if (TStringUtils.isBlank(brokerSect.get("offsetStgFilePath"))) {
+            this.offsetStgFilePath = this.primaryPath;
+        } else {
+            this.offsetStgFilePath = brokerSect.get("offsetStgFilePath").trim();
+            if (this.offsetStgFilePath.endsWith(File.separator)) {
+                this.offsetStgFilePath = this.offsetStgFilePath.substring(0,
+                        this.offsetStgFilePath.length() - File.separator.length());
+                if (this.offsetStgFilePath.isEmpty()) {
+                    throw new IllegalArgumentException(new StringBuilder(256)
+                            .append("Parameter offsetStgFilePath(")
+                            .append(brokerSect.get("offsetStgFilePath").trim())
+                            .append(" only include separator! ").toString());
+                }
+            }
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("offsetStgCacheFlushMs"))) {
+            this.offsetStgCacheFlushMs =
+                    Math.min(getLong(brokerSect, "offsetStgCacheFlushMs"), 1000L);
+            this.offsetStgFileSyncMs = this.offsetStgCacheFlushMs + 1000L;
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("grpOffsetStgExpMs"))) {
+            this.grpOffsetStgExpMs = Math.min(getLong(brokerSect, "grpOffsetStgExpMs"),
+                    TServerConstants.CFG_MIN_GROUP_OFFSETS_STG_EXPIRED_DUR_MS);
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("offsetStgFileSyncMs"))) {
+            this.offsetStgFileSyncMs =
+                    Math.min(getLong(brokerSect, "offsetStgFileSyncMs"),
+                            this.offsetStgCacheFlushMs + 1000L);
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("offsetStgSyncDurWarnMs"))) {
+            this.offsetStgSyncDurWarnMs =
+                    Math.min(getLong(brokerSect, "offsetStgSyncDurWarnMs"),
+                            this.offsetStgFileSyncMs + 1000L);
         }
         if (TStringUtils.isNotBlank(brokerSect.get("defEthName"))) {
             this.defEthName = brokerSect.get("defEthName").trim();
@@ -522,4 +578,27 @@ public class BrokerConfig extends AbstractFileConfig {
         return masterAddressList;
     }
 
+    public boolean isEnableWriteOffset2Zk() {
+        return enableWriteOffset2Zk;
+    }
+
+    public String getOffsetStgFilePath() {
+        return offsetStgFilePath;
+    }
+
+    public long getGrpOffsetStgExpMs() {
+        return grpOffsetStgExpMs;
+    }
+
+    public long getOffsetStgCacheFlushMs() {
+        return offsetStgCacheFlushMs;
+    }
+
+    public long getOffsetStgFileSyncMs() {
+        return offsetStgFileSyncMs;
+    }
+
+    public long getOffsetStgSyncDurWarnMs() {
+        return offsetStgSyncDurWarnMs;
+    }
 }

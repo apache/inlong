@@ -17,12 +17,17 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
+import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
+import org.apache.inlong.tubemq.server.broker.BrokerServiceServer;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
+import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.topicpub.OffsetPubItem;
+import org.apache.inlong.tubemq.server.broker.offset.topicpub.TopicPubInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 import org.slf4j.Logger;
@@ -80,21 +85,92 @@ public class OffsetRecordService extends AbstractDaemonService {
             return;
         }
         // check topic writable status
-        TopicMetadata topicMetadata = storeManager.getMetadataManager()
+        TopicMetadata csmHistoryMeta = storeManager.getMetadataManager()
                 .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
-        if (topicMetadata == null || !topicMetadata.isAcceptPublish()) {
+        if (csmHistoryMeta == null || !csmHistoryMeta.isAcceptPublish()) {
             return;
+        }
+        // get broker service
+        BrokerServiceServer brokerService = broker.getBrokerServiceServer();
+        // get all topic's produce offset information
+        Map<String, TopicPubInfo> topicPubInfoMap = storeManager.getTopicPublishInfos();
+        // get group offset information
+        Map<String, OffsetHistoryInfo> onlineGroupOffsetMap = offsetManager.getOnlineGroupOffsetInfo();
+        // add consume history offset info
+        if (!onlineGroupOffsetMap.isEmpty()) {
+            // add group client info
+            addGroupOnlineInfo(brokerService, onlineGroupOffsetMap);
         }
         // get group offset information
-        Map<String, OffsetHistoryInfo> groupOffsetMap =
-                offsetManager.getOnlineGroupOffsetInfo();
-        if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
-            return;
+        Map<String, OffsetHistoryInfo> offlineGroupOffsetMap = offsetManager.getOfflineGroupOffsetInfo();
+        // append registered group topic's publish information
+        appendTopicProduceOffsets(topicPubInfoMap, onlineGroupOffsetMap);
+        // append unregistered group topic's publish information
+        appendTopicProduceOffsets(topicPubInfoMap, offlineGroupOffsetMap);
+        long currTime = System.currentTimeMillis();
+        // store online group offset records to offset storage topic
+        brokerService.appendGroupOffsetInfo(onlineGroupOffsetMap,
+                brokerAddrId, currTime, 20, 5, strBuff);
+        // store unregistered group offset records to offset storage topic
+        brokerService.appendGroupOffsetInfo(offlineGroupOffsetMap,
+                brokerAddrId, currTime, 20, 5, strBuff);
+    }
+
+    private void appendTopicProduceOffsets(Map<String, TopicPubInfo> topicPubInfoMap,
+            Map<String, OffsetHistoryInfo> groupOffsetMap) {
+        OffsetPubItem offsetPub;
+        TopicPubInfo topicPubInfo;
+        Map<String, Map<Integer, OffsetCsmRecord>> topicOffsetMap;
+        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            topicOffsetMap = entry.getValue().getOffsetMap();
+            // Get offset records by topic
+            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic : topicOffsetMap.entrySet()) {
+                if (entryTopic == null
+                        || entryTopic.getKey() == null
+                        || entryTopic.getValue() == null) {
+                    continue;
+                }
+                // Get message store instance
+                topicPubInfo = topicPubInfoMap.get(entryTopic.getKey());
+                if (topicPubInfo == null) {
+                    continue;
+                }
+                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd : entryTopic.getValue().entrySet()) {
+                    offsetPub = topicPubInfo.getTopicStorePubInfo(entryRcd.getValue().getStoreId());
+                    if (offsetPub == null) {
+                        continue;
+                    }
+                    // Append current max, min offset
+                    entryRcd.getValue().addStoreInfo(offsetPub.getIndexMin(),
+                            offsetPub.getIndexMax(), offsetPub.getDataMin(), offsetPub.getDataMax());
+                }
+            }
         }
-        // get topic's publish information
-        storeManager.getTopicPublishInfos(groupOffsetMap);
-        // store group offset records to offset storage topic
-        broker.getBrokerServiceServer().appendGroupOffsetInfo(groupOffsetMap,
-                brokerAddrId, System.currentTimeMillis(), 10, 3, strBuff);
+    }
+
+    private void addGroupOnlineInfo(BrokerServiceServer brokerService,
+            Map<String, OffsetHistoryInfo> groupOffsetMap) {
+        String groupName;
+        String[] partitionIdArr;
+        OffsetHistoryInfo historyInfo;
+        Map<String, ConsumerNodeInfo> regMap = brokerService.getConsumerRegisterMap();
+        for (Map.Entry<String, ConsumerNodeInfo> entry : regMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            partitionIdArr = entry.getKey().split(TokenConstants.ATTR_SEP);
+            groupName = partitionIdArr[0];
+            historyInfo = groupOffsetMap.get(groupName);
+            if (historyInfo == null) {
+                continue;
+            }
+            historyInfo.addGroupOnlineInfo(true, entry.getValue().isFilterConsume(),
+                    entry.getValue().getConsumerId(), brokerService.getConsumerRegisterTime(
+                            entry.getValue().getConsumerId(), entry.getKey()),
+                    partitionIdArr[1], Integer.parseInt(partitionIdArr[2]));
+        }
     }
 }

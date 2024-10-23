@@ -41,7 +41,7 @@ public class OffsetCsmRecord {
         this.storeId = storeId;
     }
 
-    public void addOffsetCfmInfo(int partitionId, long offsetCfm) {
+    public void addCsmOffsets(int partitionId, long offsetCfm, long tmpOffset) {
         OffsetCsmItem offsetCsmItem = partitionCsmMap.get(partitionId);
         if (offsetCsmItem == null) {
             OffsetCsmItem tmpItem = new OffsetCsmItem(partitionId);
@@ -50,10 +50,10 @@ public class OffsetCsmRecord {
                 offsetCsmItem = tmpItem;
             }
         }
-        offsetCsmItem.addCfmOffset(offsetCfm);
+        offsetCsmItem.addCsmOffsets(offsetCfm, tmpOffset);
     }
 
-    public void addOffsetFetchInfo(int partitionId, long offsetFetch) {
+    public void addClientRecId(int partitionId, int clientRecId) {
         OffsetCsmItem offsetCsmItem = partitionCsmMap.get(partitionId);
         if (offsetCsmItem == null) {
             OffsetCsmItem tmpItem = new OffsetCsmItem(partitionId);
@@ -62,7 +62,7 @@ public class OffsetCsmRecord {
                 offsetCsmItem = tmpItem;
             }
         }
-        offsetCsmItem.addFetchOffset(offsetFetch);
+        offsetCsmItem.addClientRecId(clientRecId);
     }
 
     public void addStoreInfo(long offsetMin, long offsetMax,

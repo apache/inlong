@@ -69,9 +69,11 @@ public class BrokerMetadataManager implements MetadataManager {
     private final Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
             new ConcurrentHashMap<>();
     private long lastRptBrokerMetaConfId = 0;
+    // group offset storage expire ms
+    private final long grpOffsetStgExpMs;
 
-    public BrokerMetadataManager() {
-
+    public BrokerMetadataManager(long grpOffsetStgExpMs) {
+        this.grpOffsetStgExpMs = grpOffsetStgExpMs;
     }
 
     @Override
@@ -107,6 +109,11 @@ public class BrokerMetadataManager implements MetadataManager {
     @Override
     public List<String> getTopics() {
         return topics;
+    }
+
+    @Override
+    public boolean isTopicExisted(String topicName) {
+        return topics.contains(topicName);
     }
 
     @Override
@@ -171,6 +178,11 @@ public class BrokerMetadataManager implements MetadataManager {
     @Override
     public Map<String, TopicMetadata> getRemovedTopicConfigMap() {
         return removedTopicConfigMap;
+    }
+
+    @Override
+    public long getGrpOffsetsStgExpMs() {
+        return grpOffsetStgExpMs;
     }
 
     /**

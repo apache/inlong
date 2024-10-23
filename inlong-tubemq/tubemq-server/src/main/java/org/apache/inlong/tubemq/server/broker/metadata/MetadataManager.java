@@ -46,6 +46,8 @@ public interface MetadataManager {
 
     List<String> getTopics();
 
+    boolean isTopicExisted(String topicName);
+
     TopicMetadata getTopicMetadata(String topic);
 
     BrokerDefMetadata getBrokerDefMetadata();
@@ -83,4 +85,6 @@ public interface MetadataManager {
     String getTopicDeletePolicy(String topic);
 
     Map<String, TopicMetadata> getTopicConfigMap();
+
+    long getGrpOffsetsStgExpMs();
 }

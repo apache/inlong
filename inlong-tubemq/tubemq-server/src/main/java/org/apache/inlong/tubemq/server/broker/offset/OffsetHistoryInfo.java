@@ -19,9 +19,8 @@ package org.apache.inlong.tubemq.server.broker.offset;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
-import org.apache.inlong.tubemq.corebase.utils.Tuple3;
-import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.corebase.utils.Tuple4;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The offset snapshot of the consumer group on the broker.
@@ -39,6 +39,9 @@ public class OffsetHistoryInfo {
 
     private final int brokerId;
     private final String groupName;
+    private boolean isOnLine = false;
+    private boolean isFilterCsm = false;
+    private final Map<String, Tuple2<Integer, Long>> clientMap = new HashMap<>();
     private final Map<String, Map<Integer, OffsetCsmRecord>> histOffsetMap = new HashMap<>();
 
     public OffsetHistoryInfo(int brokerId, String groupName) {
@@ -47,43 +50,25 @@ public class OffsetHistoryInfo {
     }
 
     /**
-     * Add confirmed offset of topic-partitionId.
+     * Add consumed offset of topic-partitionId.
      *
      * @param topicName      topic name
      * @param partitionId    partition id
      * @param cfmOffset      the confirmed offset
      */
     public void addCfmOffsetInfo(String topicName, int partitionId, long cfmOffset) {
-        final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? 0
-                : partitionId / TBaseConstants.META_STORE_INS_BASE;
-        Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
-        if (storeOffsetMap == null) {
-            Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();
-            storeOffsetMap = histOffsetMap.putIfAbsent(topicName, tmpMap);
-            if (storeOffsetMap == null) {
-                storeOffsetMap = tmpMap;
-            }
-        }
-        OffsetCsmRecord offsetCsmRecord = storeOffsetMap.get(storeId);
-        if (offsetCsmRecord == null) {
-            OffsetCsmRecord tmpRecord = new OffsetCsmRecord(storeId);
-            offsetCsmRecord = storeOffsetMap.putIfAbsent(storeId, tmpRecord);
-            if (offsetCsmRecord == null) {
-                offsetCsmRecord = tmpRecord;
-            }
-        }
-        offsetCsmRecord.addOffsetCfmInfo(partitionId, cfmOffset);
+        addCsmOffsets(topicName, partitionId, cfmOffset, 0L);
     }
 
     /**
-     * Add inflight offset of topic-partitionId.
+     * Add consumed offset of topic-partitionId.
      *
      * @param topicName      topic name
      * @param partitionId    partition id
-     * @param tmpOffset      the inflight offset
+     * @param cfmOffset      the confirmed offset
+     * @param tmpOffset      the temp offset
      */
-    public void addInflightOffsetInfo(String topicName, int partitionId, long tmpOffset) {
+    public void addCsmOffsets(String topicName, int partitionId, long cfmOffset, long tmpOffset) {
         final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
                 ? 0
                 : partitionId / TBaseConstants.META_STORE_INS_BASE;
@@ -103,7 +88,49 @@ public class OffsetHistoryInfo {
                 offsetCsmRecord = tmpRecord;
             }
         }
-        offsetCsmRecord.addOffsetFetchInfo(partitionId, tmpOffset);
+        offsetCsmRecord.addCsmOffsets(partitionId, cfmOffset, tmpOffset);
+    }
+
+    /**
+     * Add group online info
+     *
+     * @param isOnLine      whether online
+     * @param isFilterCsm   whether filter consume
+     * @param clientId      client id
+     * @param hbTime        last hb time
+     * @param topicName     topic name
+     * @param partitionId   partitionId
+     *
+     */
+    public void addGroupOnlineInfo(boolean isOnLine, boolean isFilterCsm, String clientId,
+            Long hbTime, String topicName, int partitionId) {
+        this.isOnLine = isOnLine;
+        this.isFilterCsm = isFilterCsm;
+        Tuple2<Integer, Long> clientInfo = clientMap.get(clientId);
+        if (clientInfo == null) {
+            clientMap.put(clientId, new Tuple2<>(clientMap.size(), hbTime));
+            clientInfo = clientMap.get(clientId);
+        }
+        final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
+                ? 0
+                : partitionId / TBaseConstants.META_STORE_INS_BASE;
+        Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
+        if (storeOffsetMap == null) {
+            Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();
+            storeOffsetMap = histOffsetMap.putIfAbsent(topicName, tmpMap);
+            if (storeOffsetMap == null) {
+                storeOffsetMap = tmpMap;
+            }
+        }
+        OffsetCsmRecord offsetCsmRecord = storeOffsetMap.get(storeId);
+        if (offsetCsmRecord == null) {
+            OffsetCsmRecord tmpRecord = new OffsetCsmRecord(storeId);
+            offsetCsmRecord = storeOffsetMap.putIfAbsent(storeId, tmpRecord);
+            if (offsetCsmRecord == null) {
+                offsetCsmRecord = tmpRecord;
+            }
+        }
+        offsetCsmRecord.addClientRecId(partitionId, clientInfo.getF0());
     }
 
     public String getGroupName() {
@@ -121,17 +148,37 @@ public class OffsetHistoryInfo {
      * @param dataTime    record build time
      */
     public void buildRecordInfo(StringBuilder strBuff, long dataTime) {
-        int topicCnt = 0;
-        strBuff.append("{\"dt\":\"")
-                .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(dataTime))
-                .append("\",\"bId\":").append(brokerId)
-                .append(",\"ver\":").append(TServerConstants.OFFSET_HISTORY_RECORD_SHORT_VERSION)
-                .append(",\"records\":[");
+        long lastTime;
+        int itemCnt = 0;
+        strBuff.append("{\"dt\":").append(dataTime)
+                .append(",\"bId\":").append(brokerId)
+                .append(",\"ver\":").append(TBaseConstants.OFFSET_HISTORY_RECORD_VERSION_3)
+                .append(",\"group\":\"").append(groupName)
+                .append("\",\"on\":").append(isOnLine ? 1 : 0)
+                .append(",\"flt\":").append(isFilterCsm ? 1 : 0)
+                .append(",\"clients\":[");
+        for (Map.Entry<String, Tuple2<Integer, Long>> entry : clientMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            if (itemCnt++ > 0) {
+                strBuff.append(",");
+            }
+            lastTime = 0L;
+            if (entry.getValue().getF1() != null) {
+                lastTime = entry.getValue().getF1();
+            }
+            strBuff.append("{\"recId\":").append(entry.getValue().getF0())
+                    .append(",\"cltId\":\"").append(entry.getKey()).append("\",\"lstTm\":")
+                    .append(lastTime).append("}");
+        }
+        itemCnt = 0;
+        strBuff.append("],\"records\":[");
         for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entry : histOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            if (topicCnt++ > 0) {
+            if (itemCnt++ > 0) {
                 strBuff.append(",");
             }
             int recordCnt = 0;
@@ -158,9 +205,18 @@ public class OffsetHistoryInfo {
                     if (partCnt++ > 0) {
                         strBuff.append(",");
                     }
-                    strBuff.append("{\"partId\":").append(csmOffsetItem.partitionId)
-                            .append(",\"iCfm\":").append(csmOffsetItem.offsetCfm)
-                            .append("}");
+                    if (csmOffsetItem.clientRecId == -1) {
+                        strBuff.append("{\"partId\":").append(csmOffsetItem.partitionId)
+                                .append(",\"iCfm\":").append(csmOffsetItem.cfmOffset)
+                                .append(",\"iFlt\":").append(csmOffsetItem.inflightOffset)
+                                .append("}");
+                    } else {
+                        strBuff.append("{\"partId\":").append(csmOffsetItem.partitionId)
+                                .append(",\"iCfm\":").append(csmOffsetItem.cfmOffset)
+                                .append(",\"iFlt\":").append(csmOffsetItem.inflightOffset)
+                                .append(",\"recId\":").append(csmOffsetItem.clientRecId)
+                                .append("}");
+                    }
                 }
                 strBuff.append("]}");
             }
@@ -172,10 +228,13 @@ public class OffsetHistoryInfo {
     /**
      * Parse history offset record info
      *
+     * @param topicSet  the filtered topic set
      * @param jsonData  string offset information
      * @param result    process result
      */
-    public static boolean parseRecordInfo(String jsonData, ProcessResult result) {
+    public static boolean parseRecordInfo(Set<String> topicSet,
+            String jsonData,
+            ProcessResult result) {
         JsonObject jsonObject = null;
         try {
             jsonObject = JsonParser.parseString(jsonData).getAsJsonObject();
@@ -188,27 +247,31 @@ public class OffsetHistoryInfo {
             result.setFailResult("Parse error, history offset value must be valid json format!");
             return result.isSuccess();
         }
-        if (!jsonObject.has("ver")) {
-            result.setFailResult("FIELD ver is required in history offset value!");
+        if (!isFieldExist(jsonObject, "ver", result)
+                || !isFieldExist(jsonObject, "dt", result)
+                || !isFieldExist(jsonObject, "offsets", result)) {
             return result.isSuccess();
         }
         int verValue = jsonObject.get("ver").getAsInt();
-        if (verValue < TServerConstants.OFFSET_HISTORY_RECORD_SHORT_VERSION) {
-            result.setFailResult("Only support v2 or next version in history offset value!");
+        if (verValue != TBaseConstants.OFFSET_HISTORY_RECORD_SHORT_VERSION
+                && verValue != TBaseConstants.OFFSET_HISTORY_RECORD_VERSION_3) {
+            result.setFailResult("Only support v2 or v3 version in history offset value!");
             return result.isSuccess();
         }
-        if (!jsonObject.has("records")) {
-            result.setFailResult("FIELD records is required in history offset value!");
-            return result.isSuccess();
-        }
-        List<Tuple3<String, Integer, Long>> resetOffsets = new ArrayList<>();
-        JsonArray records = jsonObject.get("records").getAsJsonArray();
+        long dtValue = jsonObject.get("dt").getAsLong();
+        boolean found = false;
+        List<Tuple4<Long, String, Integer, Long>> resetOffsets = new ArrayList<>();
+        JsonArray records = jsonObject.get("offsets").getAsJsonArray();
         for (int i = 0; i < records.size(); i++) {
             JsonObject itemInfo = records.get(i).getAsJsonObject();
             if (itemInfo == null) {
                 continue;
             }
             String topicName = itemInfo.get("topic").getAsString();
+            if (topicSet != null && !topicSet.isEmpty() && !topicSet.contains(topicName)) {
+                continue;
+            }
+            found = true;
             JsonArray offsets = itemInfo.get("offsets").getAsJsonArray();
             for (int j = 0; j < offsets.size(); j++) {
                 JsonObject storeInfo = offsets.get(j).getAsJsonObject();
@@ -220,12 +283,25 @@ public class OffsetHistoryInfo {
                     JsonObject partItem = partInfos.get(k).getAsJsonObject();
                     int partId = partItem.get("partId").getAsInt();
                     long offsetVal = partItem.get("iCfm").getAsLong();
-                    resetOffsets.add(new Tuple3<>(topicName, partId, offsetVal));
+                    resetOffsets.add(new Tuple4<>(dtValue, topicName, partId, offsetVal));
                 }
             }
         }
-        result.setSuccResult(resetOffsets);
-        return true;
+        if (found) {
+            result.setSuccResult(resetOffsets);
+        } else {
+            result.setFailResult(String.format(
+                    "Not found required topics %s in history offset value!", topicSet));
+        }
+        return result.isSuccess();
     }
 
+    private static boolean isFieldExist(JsonObject jsonObject, String key, ProcessResult result) {
+        if (!jsonObject.has(key)) {
+            result.setFailResult(String.format(
+                    "FIELD %s is required in history offset value!", key));
+            return result.isSuccess();
+        }
+        return true;
+    }
 }

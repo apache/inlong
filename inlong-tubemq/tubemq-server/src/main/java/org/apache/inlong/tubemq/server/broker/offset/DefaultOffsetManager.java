@@ -19,14 +19,19 @@ package org.apache.inlong.tubemq.server.broker.offset;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
+import org.apache.inlong.tubemq.corebase.rv.RetValue;
 import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
+import org.apache.inlong.tubemq.corebase.utils.Tuple4;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
+import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
+import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorage;
-import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
+import org.apache.inlong.tubemq.server.broker.offset.offsetfile.FileOffsetStorage;
+import org.apache.inlong.tubemq.server.broker.offset.offsetfile.GroupOffsetStgInfo;
+import org.apache.inlong.tubemq.server.broker.offset.offsetfile.OffsetStgInfo;
 import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.ZkOffsetStorage;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -35,13 +40,14 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Default offset manager.
@@ -50,25 +56,92 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultOffsetManager extends AbstractDaemonService implements OffsetService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultOffsetManager.class);
+    private final MetadataManager metadataManager;
     private final BrokerConfig brokerConfig;
-    private final OffsetStorage zkOffsetStorage;
+    private final long startTime;
+    private final AtomicBoolean isStart = new AtomicBoolean(false);
+    private final AtomicLong sync2FileTime = new AtomicLong(System.currentTimeMillis());
+    private OffsetStorage zkOffsetStorage = null;
+    private long lstExpireChkTimeMs = System.currentTimeMillis();
+    private final FileOffsetStorage fileOffsetStorage;
     private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, OffsetStorageInfo>> cfmOffsetMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, Long>> tmpOffsetMap =
             new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, OffsetHistoryInfo> offlineGroupHisInfoMap =
+            new ConcurrentHashMap<>();
 
-    public DefaultOffsetManager(final BrokerConfig brokerConfig) {
-        super("[Offset Manager]", brokerConfig.getZkConfig().getZkCommitPeriodMs());
+    public DefaultOffsetManager(final BrokerConfig brokerConfig,
+            final MetadataManager metadataManager) {
+        super("[Offset Manager]", brokerConfig.getOffsetStgCacheFlushMs());
         this.brokerConfig = brokerConfig;
-        zkOffsetStorage = new ZkOffsetStorage(brokerConfig.getZkConfig(),
-                true, brokerConfig.getBrokerId());
+        this.metadataManager = metadataManager;
+        this.fileOffsetStorage = new FileOffsetStorage(brokerConfig.getBrokerId(),
+                brokerConfig.getOffsetStgFilePath(), brokerConfig.getOffsetStgFileSyncMs(),
+                brokerConfig.getOffsetStgSyncDurWarnMs());
+        if (brokerConfig.getZkConfig() != null
+                && (this.fileOffsetStorage.isFistUseFileStg()
+                        || this.brokerConfig.isEnableWriteOffset2Zk())) {
+            this.zkOffsetStorage = new ZkOffsetStorage(
+                    brokerConfig.getZkConfig(), true, brokerConfig.getBrokerId());
+        }
+        this.startTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void start() {
+        if (!isStart.compareAndSet(false, true)) {
+            return;
+        }
+        logger.info("[Offset Manager] starting......");
+        if (this.fileOffsetStorage.isFistUseFileStg() && this.zkOffsetStorage != null) {
+            logger.info("[Offset Manager] begin load group offset info from ZooKeeper");
+            GroupOffsetStgInfo curStgInfo = loadZkOffsetStgInfo();
+            logger.info("[Offset Manager] loaded offset info from ZooKeeper, wast {} ms, store to file",
+                    System.currentTimeMillis() - this.startTime);
+            RetValue retValue = FileOffsetStorage.storeOffsetStgInfoToFile(
+                    curStgInfo, this.fileOffsetStorage.getOffsetsFileBase());
+            if (!retValue.isSuccess()) {
+                logger.error("[Offset Manager] store offset stg info failed: {}", retValue.getErrMsg());
+                System.exit(2);
+            }
+            if (!this.brokerConfig.isEnableWriteOffset2Zk()) {
+                this.zkOffsetStorage.close();
+                this.zkOffsetStorage = null;
+            }
+            logger.info("[Offset Manager] finished offset info from ZooKeeper to file!");
+        }
+        this.fileOffsetStorage.start();
         super.start();
+        logger.info("[Offset Manager] started, wast {} ms", System.currentTimeMillis() - startTime);
     }
 
     @Override
     protected void loopProcess(StringBuilder strBuff) {
+        if (!this.isStart.get()) {
+            return;
+        }
+        // clean expired groups
+        long startTime = System.currentTimeMillis();
+        if (startTime - this.lstExpireChkTimeMs > TServerConstants.CFG_GROUP_OFFSETS_STG_EXPIRED_CHECK_DUR_MS) {
+            this.lstExpireChkTimeMs = startTime;
+            Set<String> cleanGroups = this.fileOffsetStorage.cleanExpiredGroupInfo(
+                    startTime, metadataManager.getGrpOffsetsStgExpMs());
+            if (!cleanGroups.isEmpty()) {
+                for (String group : cleanGroups) {
+                    this.cfmOffsetMap.remove(group);
+                    this.tmpOffsetMap.remove(group);
+                    this.offlineGroupHisInfoMap.remove(group);
+                }
+                logger.info("[Offset Manager] clean expired group storage info, groups={}, wast={} ms",
+                        cleanGroups, System.currentTimeMillis() - startTime);
+            }
+        }
+        // sync cache data to file storage
         try {
-            commitCfmOffsets(false);
+            if (commitCfmOffsets(false)) {
+                this.sync2FileTime.set(System.currentTimeMillis());
+            }
         } catch (Throwable t) {
             logger.error("[Offset Manager] Daemon commit thread throw error ", t);
         }
@@ -76,14 +149,19 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
 
     @Override
     public void close(long waitTimeMs) {
-        if (super.stop()) {
+        if (!isStart.compareAndSet(true, false)) {
             return;
         }
+        super.stop();
         logger.info("[Offset Manager] begin reserve temporary Offset.....");
         this.commitTmpOffsets();
         logger.info("[Offset Manager] begin reserve final Offset.....");
         this.commitCfmOffsets(true);
-        this.zkOffsetStorage.close();
+        this.fileOffsetStorage.close();
+        if (this.zkOffsetStorage != null) {
+            logger.info("[Offset Manager] begin shutdown offset loader.....");
+            this.zkOffsetStorage.close();
+        }
         logger.info("[Offset Manager] Offset Manager service stopped!");
     }
 
@@ -110,7 +188,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 (readStatus == TBaseConstants.CONSUME_MODEL_READ_NORMAL)
                         ? indexMinOffset
                         : indexMaxOffset;
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+        String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
         regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, defOffset);
         getAndResetTmpOffset(group, offsetCacheKey);
         final long curOffset = regInfo.getOffset();
@@ -169,7 +247,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             final String topic, int partitionId,
             boolean isManCommit, boolean lastConsumed,
             final StringBuilder sb) {
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+        String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
         OffsetStorageInfo regInfo =
                 loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
         long requestOffset = regInfo.getOffset();
@@ -213,7 +291,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     public long getOffset(final String group, final String topic, int partitionId) {
         OffsetStorageInfo regInfo =
                 loadOrCreateOffset(group, topic, partitionId,
-                        getOffsetCacheKey(topic, partitionId), 0);
+                        OffsetStgInfo.buildOffsetKey(topic, partitionId), 0);
         return regInfo.getOffset();
     }
 
@@ -224,7 +302,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (readDalt == 0) {
             return;
         }
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+        String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
         if (isManCommit) {
             long tmpOffset = getTmpOffset(group, topic, partitionId);
             setTmpOffset(group, offsetCacheKey, readDalt + tmpOffset);
@@ -249,7 +327,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     public long commitOffset(final String group, final String topic,
             int partitionId, boolean isConsumed) {
         long updatedOffset;
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+        String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
         long tmpOffset = getAndResetTmpOffset(group, offsetCacheKey);
         if (!isConsumed) {
             tmpOffset = 0;
@@ -287,7 +365,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (store != null) {
             long indexMaxOffset = store.getIndexMaxOffset();
             reSetOffset = MixedUtils.mid(reSetOffset, store.getIndexMinOffset(), indexMaxOffset);
-            String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+            String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
             getAndResetTmpOffset(group, offsetCacheKey);
             OffsetStorageInfo regInfo =
                     loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
@@ -318,7 +396,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      */
     @Override
     public long getTmpOffset(final String group, final String topic, int partitionId) {
-        String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
+        String offsetCacheKey = OffsetStgInfo.buildOffsetKey(topic, partitionId);
         ConcurrentHashMap<String, Long> partTmpOffsetMap = tmpOffsetMap.get(group);
         if (partTmpOffsetMap != null) {
             Long tmpOffset = partTmpOffsetMap.get(offsetCacheKey);
@@ -337,44 +415,37 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      * @return booked group in memory and in zk
      */
     @Override
-    public Set<String> getBookedGroups() {
-        Set<String> groupSet =
-                new HashSet<>(cfmOffsetMap.keySet());
-        Map<String, Set<String>> localGroups =
-                zkOffsetStorage.queryZkAllGroupTopicInfos();
-        groupSet.addAll(localGroups.keySet());
-        return groupSet;
+    public Set<String> getAllBookedGroups() {
+        Map<String, Set<String>> totalGroups =
+                this.fileOffsetStorage.queryGroupTopicInfo(null);
+        return new HashSet<>(totalGroups.keySet());
     }
 
     /**
-     * Get in-memory group set
+     * Get the online group set
      *
-     * @return booked group in memory
+     * @return  the online group set
      */
-    public Set<String> getInMemoryGroups() {
-        return new HashSet<>(cfmOffsetMap.keySet());
+    public Set<String> getOnlineGroups() {
+        return new HashSet<>(this.cfmOffsetMap.keySet());
     }
 
     /**
-     * Get in-zookeeper but not in memory's group set
+     * Get the offline group set
      *
-     * @return booked group in zookeeper
+     * @return  the offline group set
      */
     @Override
-    public Set<String> getUnusedGroupInfo() {
-        Set<String> unUsedGroups = new HashSet<>();
-        Map<String, Set<String>> localGroups =
-                zkOffsetStorage.queryZkAllGroupTopicInfos();
-        for (String groupName : localGroups.keySet()) {
-            if (!cfmOffsetMap.containsKey(groupName)) {
-                unUsedGroups.add(groupName);
-            }
-        }
-        return unUsedGroups;
+    public Set<String> getOfflineGroups() {
+        Map<String, Set<String>> totalGroups =
+                this.fileOffsetStorage.queryGroupTopicInfo(null);
+        Set<String> offlineGroups = new HashSet<>(totalGroups.keySet());
+        offlineGroups.removeAll(this.cfmOffsetMap.keySet());
+        return offlineGroups;
     }
 
     /**
-     * Get the topic set subscribed by the consumer group
+     * Get the topic set subscribed by the consume group
      *
      * @param group    the queries group name
      * @return         the topic set subscribed
@@ -384,10 +455,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         Set<String> result = new HashSet<>();
         Map<String, OffsetStorageInfo> topicPartOffsetMap = cfmOffsetMap.get(group);
         if (topicPartOffsetMap == null) {
-            List<String> groupLst = new ArrayList<>(1);
-            groupLst.add(group);
+            Set<String> groups = new HashSet<>(1);
+            groups.add(group);
             Map<String, Set<String>> groupTopicInfo =
-                    zkOffsetStorage.queryZKGroupTopicInfo(groupLst);
+                    this.fileOffsetStorage.queryGroupTopicInfo(groups);
             result = groupTopicInfo.get(group);
         } else {
             for (OffsetStorageInfo storageInfo : topicPartOffsetMap.values()) {
@@ -395,6 +466,30 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
         }
         return result;
+    }
+
+    @Override
+    public void cleanRmvTopicInfo(Set<String> rmvTopics) {
+        if (rmvTopics == null || rmvTopics.isEmpty()) {
+            return;
+        }
+        int cycleCnt = 0;
+        long curSyncTime;
+        Set<String> rmvGroups;
+        do {
+            cycleCnt++;
+            curSyncTime = this.sync2FileTime.get();
+            rmvGroups = this.fileOffsetStorage.cleanRmvTopicInfo(rmvTopics);
+            if (!rmvGroups.isEmpty()) {
+                for (String group : rmvGroups) {
+                    this.cfmOffsetMap.remove(group);
+                    this.tmpOffsetMap.remove(group);
+                    this.offlineGroupHisInfoMap.remove(group);
+                }
+                logger.info("[Offset Manager] clean removed topic storage info, topics={}, groups={}",
+                        rmvTopics, rmvGroups);
+            }
+        } while (cycleCnt < 2 && curSyncTime != this.sync2FileTime.get());
     }
 
     /**
@@ -417,8 +512,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     continue;
                 }
                 Map<Integer, Long> qryResult =
-                        zkOffsetStorage.queryGroupOffsetInfo(group,
-                                entry.getKey(), entry.getValue());
+                        this.fileOffsetStorage.queryGroupOffsetInfo(group, entry.getKey(), entry.getValue());
                 Map<Integer, Tuple2<Long, Long>> offsetMap = new HashMap<>();
                 for (Map.Entry<Integer, Long> item : qryResult.entrySet()) {
                     if (item == null || item.getKey() == null || item.getValue() == null) {
@@ -437,7 +531,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 Map<Integer, Tuple2<Long, Long>> offsetMap = new HashMap<>();
                 for (Integer partitionId : entry.getValue()) {
                     String offsetCacheKey =
-                            getOffsetCacheKey(entry.getKey(), partitionId);
+                            OffsetStgInfo.buildOffsetKey(entry.getKey(), partitionId);
                     OffsetStorageInfo offsetInfo = topicPartOffsetMap.get(offsetCacheKey);
                     Long tmpOffset = tmpPartOffsetMap.get(offsetCacheKey);
                     if (tmpOffset == null) {
@@ -459,24 +553,25 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Get online groups' offset information
      *
-     * @return group offset info in memory or zk
+     * @return group offset info in memory
      */
     @Override
     public Map<String, OffsetHistoryInfo> getOnlineGroupOffsetInfo() {
+        Long tmpOffset;
         OffsetHistoryInfo recordInfo;
-        Map<String, OffsetStorageInfo> storeMap;
+        ConcurrentHashMap<String, Long> fetchOffsetMap;
         Map<String, OffsetHistoryInfo> result = new HashMap<>();
         for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            // read offset map information
-            storeMap = entry.getValue();
-            if (storeMap.isEmpty()) {
-                continue;
-            }
-            for (OffsetStorageInfo storageInfo : storeMap.values()) {
-                if (storageInfo == null) {
+            // get fetch offset map
+            fetchOffsetMap = tmpOffsetMap.get(entry.getKey());
+            // read confirm offset map information
+            for (Map.Entry<String, OffsetStorageInfo> partEntry : entry.getValue().entrySet()) {
+                if (partEntry == null
+                        || partEntry.getKey() == null
+                        || partEntry.getValue() == null) {
                     continue;
                 }
                 recordInfo = result.get(entry.getKey());
@@ -485,8 +580,60 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                             brokerConfig.getBrokerId(), entry.getKey());
                     result.put(entry.getKey(), recordInfo);
                 }
-                recordInfo.addCfmOffsetInfo(storageInfo.getTopic(),
-                        storageInfo.getPartitionId(), storageInfo.getOffset());
+                tmpOffset = 0L;
+                if (fetchOffsetMap != null) {
+                    tmpOffset = fetchOffsetMap.get(partEntry.getKey());
+                    if (tmpOffset == null) {
+                        tmpOffset = 0L;
+                    }
+                }
+                recordInfo.addCsmOffsets(partEntry.getValue().getTopic(),
+                        partEntry.getValue().getPartitionId(),
+                        partEntry.getValue().getOffset(), tmpOffset);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get unregistered groups' offset information
+     *
+     * @return group offset info in zk
+     */
+    @Override
+    public Map<String, OffsetHistoryInfo> getOfflineGroupOffsetInfo() {
+        // get offline groups
+        Map<String, Set<String>> totalGroups =
+                this.fileOffsetStorage.queryGroupTopicInfo(null);
+        Set<String> offlineGroups = new HashSet<>(totalGroups.keySet());
+        offlineGroups.removeAll(this.cfmOffsetMap.keySet());
+        // get offline history offset info
+        OffsetHistoryInfo tmpInfo;
+        Set<String> offlineGroups2 = new HashSet<>();
+        Map<String, OffsetHistoryInfo> result = new HashMap<>();
+        for (String group : offlineGroups) {
+            tmpInfo = this.offlineGroupHisInfoMap.get(group);
+            if (tmpInfo == null) {
+                offlineGroups2.add(group);
+                continue;
+            }
+            result.put(group, tmpInfo);
+        }
+        if (!offlineGroups2.isEmpty()) {
+            Map<String, OffsetHistoryInfo> extResult =
+                    this.fileOffsetStorage.getOffsetHistoryInfo(offlineGroups2);
+            if (extResult.isEmpty()) {
+                return result;
+            }
+            for (OffsetHistoryInfo historyInfo : extResult.values()) {
+                tmpInfo = this.offlineGroupHisInfoMap.get(historyInfo.getGroupName());
+                if (tmpInfo == null) {
+                    tmpInfo = this.offlineGroupHisInfoMap.putIfAbsent(historyInfo.getGroupName(), historyInfo);
+                    if (tmpInfo == null) {
+                        tmpInfo = historyInfo;
+                    }
+                    result.put(historyInfo.getGroupName(), tmpInfo);
+                }
             }
         }
         return result;
@@ -518,7 +665,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     continue;
                 }
                 // set offset value
-                offsetCacheKey = getOffsetCacheKey(tuple3.getF0(), tuple3.getF1());
+                offsetCacheKey = OffsetStgInfo.buildOffsetKey(tuple3.getF0(), tuple3.getF1());
                 getAndResetTmpOffset(group, offsetCacheKey);
                 OffsetStorageInfo regInfo = loadOrCreateOffset(group,
                         tuple3.getF0(), tuple3.getF1(), offsetCacheKey, 0);
@@ -527,6 +674,52 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 logger.info(strBuff
                         .append("[Offset Manager] Update offset by modifier=")
                         .append(modifier).append(",resetOffset=").append(tuple3.getF2())
+                        .append(",loadedOffset=").append(oldOffset)
+                        .append(",currentOffset=").append(regInfo.getOffset())
+                        .append(",group=").append(group)
+                        .append(",topic-part=").append(offsetCacheKey).toString());
+                strBuff.delete(0, strBuff.length());
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Reset offset.
+     *
+     * @param groups              the groups to reset offset
+     * @param topicPartOffsets    the reset offset information
+     * @param modifier            the modifier
+     * @return at least one record modified
+     */
+    @Override
+    public boolean modifyGroupOffset2(Set<String> groups,
+            List<Tuple4<Long, String, Integer, Long>> topicPartOffsets,
+            String modifier) {
+        long oldOffset;
+        boolean changed = false;
+        String offsetCacheKey;
+        StringBuilder strBuff = new StringBuilder(512);
+        // set offset by group
+        for (String group : groups) {
+            for (Tuple4<Long, String, Integer, Long> tuple4 : topicPartOffsets) {
+                if (tuple4 == null
+                        || tuple4.getF0() == null
+                        || tuple4.getF1() == null
+                        || tuple4.getF2() == null
+                        || tuple4.getF3() == null) {
+                    continue;
+                }
+                // set offset value
+                offsetCacheKey = OffsetStgInfo.buildOffsetKey(tuple4.getF1(), tuple4.getF2());
+                getAndResetTmpOffset(group, offsetCacheKey);
+                OffsetStorageInfo regInfo = loadOrCreateOffset(group,
+                        tuple4.getF1(), tuple4.getF2(), offsetCacheKey, 0);
+                oldOffset = regInfo.getAndSetOffset(tuple4.getF3());
+                changed = true;
+                logger.info(strBuff.append("[Offset Manager2] Update offset by modifier=").append(modifier)
+                        .append(",recordTime=").append(tuple4.getF0())
+                        .append(",resetOffset=").append(tuple4.getF3())
                         .append(",loadedOffset=").append(oldOffset)
                         .append(",currentOffset=").append(regInfo.getOffset())
                         .append(",group=").append(group)
@@ -558,14 +751,21 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
             rmvOffset(entry.getKey(), entry.getValue());
         }
-        if (onlyMemory) {
-            printBase = strBuff
-                    .append("[Offset Manager] delete offset from memory by modifier=")
-                    .append(modifier).toString();
+        this.fileOffsetStorage.deleteGroupOffsetInfo(groupTopicPartMap);
+        if (this.zkOffsetStorage != null) {
+            if (onlyMemory) {
+                printBase = strBuff
+                        .append("[Offset Manager] delete offset from memory by modifier=")
+                        .append(modifier).toString();
+            } else {
+                zkOffsetStorage.deleteGroupOffsetInfo(groupTopicPartMap);
+                printBase = strBuff
+                        .append("[Offset Manager] delete offset from memory and zk by modifier=")
+                        .append(modifier).toString();
+            }
         } else {
-            zkOffsetStorage.deleteGroupOffsetInfo(groupTopicPartMap);
             printBase = strBuff
-                    .append("[Offset Manager] delete offset from memory and zk by modifier=")
+                    .append("[Offset Manager] delete offset from memory and file by modifier=")
                     .append(modifier).toString();
         }
         strBuff.delete(0, strBuff.length());
@@ -580,6 +780,18 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     .append(",topic-partId-map=").append(entry.getValue()).toString());
             strBuff.delete(0, strBuff.length());
         }
+    }
+
+    /**
+     * Backup group offsets info to the specified path
+     *
+     * @param backupFilePath           the specified path
+     *
+     * @return  whether success
+     */
+    @Override
+    public RetValue backupGroupOffsets(String backupFilePath) {
+        return this.fileOffsetStorage.backupGroupOffsets(backupFilePath);
     }
 
     /**
@@ -637,16 +849,36 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    private void commitCfmOffsets(boolean retryable) {
+    private boolean commitCfmOffsets(boolean retryable) {
+        boolean updated = false;
         long startTime = System.currentTimeMillis();
-        for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
-            if (TStringUtils.isBlank(entry.getKey())
-                    || entry.getValue() == null || entry.getValue().isEmpty()) {
-                continue;
+        if (this.zkOffsetStorage == null) {
+            for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
+                if (TStringUtils.isBlank(entry.getKey())
+                        || entry.getValue() == null || entry.getValue().isEmpty()) {
+                    continue;
+                }
+                if (this.fileOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable)) {
+                    updated = true;
+                }
             }
-            zkOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable);
+            BrokerSrvStatsHolder.updOffsetFileSyncDataDlt(System.currentTimeMillis() - startTime);
+        } else {
+            for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
+                if (TStringUtils.isBlank(entry.getKey())
+                        || entry.getValue() == null || entry.getValue().isEmpty()) {
+                    continue;
+                }
+                if (this.fileOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable)) {
+                    updated = true;
+                }
+                this.zkOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable);
+            }
+            long endTime = System.currentTimeMillis();
+            BrokerSrvStatsHolder.updZKSyncDataDlt(endTime - startTime);
+            BrokerSrvStatsHolder.updOffsetFileSyncDataDlt(endTime - startTime);
         }
-        BrokerSrvStatsHolder.updZKSyncDataDlt(System.currentTimeMillis() - startTime);
+        return updated;
     }
 
     /**
@@ -664,19 +896,20 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             long defOffset) {
         ConcurrentHashMap<String, OffsetStorageInfo> regInfoMap = cfmOffsetMap.get(group);
         if (regInfoMap == null) {
-            ConcurrentHashMap<String, OffsetStorageInfo> tmpRegInfoMap = new ConcurrentHashMap<>();
-            regInfoMap = cfmOffsetMap.putIfAbsent(group, tmpRegInfoMap);
+            ConcurrentHashMap<String, OffsetStorageInfo> loadedStgInfo =
+                    fileOffsetStorage.loadGroupStgInfo(group);
+            regInfoMap = cfmOffsetMap.putIfAbsent(group, loadedStgInfo);
             if (regInfoMap == null) {
-                regInfoMap = tmpRegInfoMap;
+                regInfoMap = loadedStgInfo;
             }
         }
         OffsetStorageInfo regInfo = regInfoMap.get(offsetCacheKey);
         if (regInfo == null) {
             OffsetStorageInfo tmpRegInfo =
-                    zkOffsetStorage.loadOffset(group, topic, partitionId);
+                    fileOffsetStorage.loadOffset(group, topic, partitionId);
             if (tmpRegInfo == null) {
                 tmpRegInfo = new OffsetStorageInfo(topic,
-                        brokerConfig.getBrokerId(), partitionId, defOffset, 0);
+                        brokerConfig.getBrokerId(), partitionId, 0, defOffset, 0);
             }
             regInfo = regInfoMap.putIfAbsent(offsetCacheKey, tmpRegInfo);
             if (regInfo == null) {
@@ -702,8 +935,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     continue;
                 }
                 for (Integer partitionId : entry.getValue()) {
-                    String offsetCacheKey = getOffsetCacheKey(entry.getKey(), partitionId);
-                    regInfoMap.remove(offsetCacheKey);
+                    regInfoMap.remove(OffsetStgInfo.buildOffsetKey(entry.getKey(), partitionId));
                 }
             }
             if (regInfoMap.isEmpty()) {
@@ -720,8 +952,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     continue;
                 }
                 for (Integer partitionId : entry.getValue()) {
-                    String offsetCacheKey = getOffsetCacheKey(entry.getKey(), partitionId);
-                    tmpRegInfoMap.remove(offsetCacheKey);
+                    tmpRegInfoMap.remove(OffsetStgInfo.buildOffsetKey(entry.getKey(), partitionId));
                 }
             }
             if (tmpRegInfoMap.isEmpty()) {
@@ -730,9 +961,72 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    private String getOffsetCacheKey(String topic, int partitionId) {
-        return new StringBuilder(256).append(topic)
-                .append("-").append(partitionId).toString();
+    private GroupOffsetStgInfo loadZkOffsetStgInfo() {
+        Set<String> tmpSet;
+        Set<String> topicSet;
+        TopicMetadata topicMeta;
+        Map<String, Set<String>> zkAllGroups =
+                zkOffsetStorage.queryGroupTopicInfo(null);
+        // filter expired records
+        Map<String, Set<String>> notFoundMap = new HashMap<>();
+        for (Map.Entry<String, Set<String>> entry : zkAllGroups.entrySet()) {
+            for (String topicName : entry.getValue()) {
+                topicMeta = metadataManager.getTopicMetadata(topicName);
+                if (topicMeta == null || !topicMeta.isValidTopic()) {
+                    topicSet = notFoundMap.get(entry.getKey());
+                    if (topicSet == null) {
+                        tmpSet = new HashSet<>();
+                        topicSet = notFoundMap.putIfAbsent(entry.getKey(), tmpSet);
+                        if (topicSet == null) {
+                            topicSet = tmpSet;
+                        }
+                    }
+                    topicSet.add(topicName);
+                }
+            }
+        }
+        for (Map.Entry<String, Set<String>> entry : notFoundMap.entrySet()) {
+            topicSet = zkAllGroups.get(entry.getKey());
+            topicSet.removeAll(entry.getValue());
+            if (topicSet.isEmpty()) {
+                zkAllGroups.remove(entry.getKey());
+            }
+        }
+        // get stored offset values
+        Set<Integer> partIdSet;
+        OffsetStorageInfo tmpRegInfo;
+        GroupOffsetStgInfo tmpStgInfo = new GroupOffsetStgInfo(brokerConfig.getBrokerId());
+        for (Map.Entry<String, Set<String>> entry : zkAllGroups.entrySet()) {
+            if (this.isStopped()) {
+                logger.info("[Offset Manager] found service stopped, exit 1!");
+                return null;
+            }
+            topicSet = entry.getValue();
+            for (String topicName : topicSet) {
+                if (this.isStopped()) {
+                    logger.info("[Offset Manager] found service stopped, exit 2!");
+                    return null;
+                }
+                topicMeta = metadataManager.getTopicMetadata(topicName);
+                if (topicMeta == null || !topicMeta.isValidTopic()) {
+                    continue;
+                }
+                partIdSet = topicMeta.getAllPartitionIds();
+                for (Integer partId : partIdSet) {
+                    if (this.isStopped()) {
+                        logger.info("[Offset Manager] found service stopped, exit 3!");
+                        return null;
+                    }
+                    tmpRegInfo = zkOffsetStorage.loadOffset(entry.getKey(), topicName, partId);
+                    if (tmpRegInfo == null) {
+                        continue;
+                    }
+                    tmpStgInfo.addOffsetStgInfo(entry.getKey(), topicName, partId,
+                            tmpRegInfo.getOffset(), tmpRegInfo.getMessageId());
+                }
+            }
+        }
+        return tmpStgInfo;
     }
 
     private int getLagLevel(long lagValue) {

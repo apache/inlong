@@ -34,7 +34,7 @@ public class BrokerMetadataManagerTest {
 
     @Test
     public void updateBrokerTopicConfigMap() {
-        brokerMetadataManager = new BrokerMetadataManager();
+        brokerMetadataManager = new BrokerMetadataManager(2000L);
         // topic default config
         String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000";
         List<String> newTopicMetaConfInfoList = new LinkedList<>();
@@ -56,7 +56,8 @@ public class BrokerMetadataManagerTest {
 
     @Test
     public void updateBrokerRemoveTopicMap() {
-        brokerMetadataManager = new BrokerMetadataManager();
+        long grpOffsetExpMs = 1 * 60 * 60 * 1000L;
+        brokerMetadataManager = new BrokerMetadataManager(2000L);
         String newBrokerDefMetaConfInfo = "1:true:true:1000:10000:0,0,6:delete,168h:1:1000:1024:1000:1000";
         List<String> newTopicMetaConfInfoList = new LinkedList<>();
         // add topic custom config.

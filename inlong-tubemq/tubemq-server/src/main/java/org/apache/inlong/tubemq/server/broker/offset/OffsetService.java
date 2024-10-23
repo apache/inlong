@@ -17,10 +17,11 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
+import org.apache.inlong.tubemq.corebase.rv.RetValue;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
+import org.apache.inlong.tubemq.corebase.utils.Tuple4;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -31,12 +32,13 @@ import java.util.Set;
  */
 public interface OffsetService {
 
+    void start();
+
     void close(long waitTimeMs);
 
     OffsetStorageInfo loadOffset(MessageStore store, String group,
-            String topic, int partitionId,
-            int readStatus, long reqOffset,
-            StringBuilder sb);
+            String topic, int partitionId, int readStatus,
+            long reqOffset, StringBuilder sb);
 
     long getOffset(MessageStore msgStore, String group,
             String topic, int partitionId,
@@ -57,24 +59,34 @@ public interface OffsetService {
 
     long getTmpOffset(String group, String topic, int partitionId);
 
-    Set<String> getBookedGroups();
-
-    Set<String> getInMemoryGroups();
-
-    Set<String> getUnusedGroupInfo();
-
-    Set<String> getGroupSubInfo(String group);
-
     Map<String, Map<Integer, Tuple2<Long, Long>>> queryGroupOffset(
             String group, Map<String, Set<Integer>> topicPartMap);
 
     Map<String, OffsetHistoryInfo> getOnlineGroupOffsetInfo();
 
+    Map<String, OffsetHistoryInfo> getOfflineGroupOffsetInfo();
+
     boolean modifyGroupOffset(Set<String> groups,
             List<Tuple3<String, Integer, Long>> topicPartOffsets,
+            String modifier);
+
+    boolean modifyGroupOffset2(Set<String> groups,
+            List<Tuple4<Long, String, Integer, Long>> topicPartOffsets,
             String modifier);
 
     void deleteGroupOffset(boolean onlyMemory,
             Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
             String modifier);
+
+    Set<String> getAllBookedGroups();
+
+    Set<String> getOnlineGroups();
+
+    Set<String> getOfflineGroups();
+
+    Set<String> getGroupSubInfo(String group);
+
+    void cleanRmvTopicInfo(Set<String> rmvTopics);
+
+    RetValue backupGroupOffsets(String backupFilePath);
 }

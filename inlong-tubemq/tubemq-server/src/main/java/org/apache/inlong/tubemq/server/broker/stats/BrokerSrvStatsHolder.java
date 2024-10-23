@@ -127,6 +127,14 @@ public class BrokerSrvStatsHolder {
         switchableSets[getIndex()].zkExcStats.incValue();
     }
 
+    public static void incOffsetFileExcCnt() {
+        switchableSets[getIndex()].offsetFileExcStats.incValue();
+    }
+
+    public static void updOffsetFileSyncDataDlt(long dltTime) {
+        switchableSets[getIndex()].offsetFileSyncDltStats.update(dltTime);
+    }
+
     public static void updDiskSyncDataDlt(long dltTime) {
         if (detailStatsClosed) {
             return;
@@ -192,6 +200,8 @@ public class BrokerSrvStatsHolder {
                     statsSet.fileIOExcStats.getAndResetValue());
             statsMap.put(statsSet.zkExcStats.getFullName(),
                     statsSet.zkExcStats.getAndResetValue());
+            statsMap.put(statsSet.offsetFileExcStats.getFullName(),
+                    statsSet.offsetFileExcStats.getAndResetValue());
             statsMap.put(statsSet.brokerTimeoutStats.getFullName(),
                     statsSet.brokerTimeoutStats.getAndResetValue());
             statsMap.put(statsSet.brokerHBExcStats.getFullName(),
@@ -203,6 +213,7 @@ public class BrokerSrvStatsHolder {
             statsMap.put(statsSet.errPubOverFlowStats.getFullName(),
                     statsSet.errPubOverFlowStats.getAndResetValue());
             statsSet.fileSyncDltStats.snapShort(statsMap, false);
+            statsSet.offsetFileSyncDltStats.snapShort(statsMap, false);
             statsSet.zkSyncDltStats.snapShort(statsMap, false);
             statsSet.msgPubLatencyStats.snapShort(statsMap, false);
             statsSet.msgSubLatencyStats.snapShort(statsMap, false);
@@ -212,6 +223,8 @@ public class BrokerSrvStatsHolder {
                     statsSet.fileIOExcStats.getValue());
             statsMap.put(statsSet.zkExcStats.getFullName(),
                     statsSet.zkExcStats.getValue());
+            statsMap.put(statsSet.offsetFileExcStats.getFullName(),
+                    statsSet.offsetFileExcStats.getValue());
             statsMap.put(statsSet.brokerTimeoutStats.getFullName(),
                     statsSet.brokerTimeoutStats.getValue());
             statsMap.put(statsSet.brokerHBExcStats.getFullName(),
@@ -223,6 +236,7 @@ public class BrokerSrvStatsHolder {
             statsMap.put(statsSet.errPubOverFlowStats.getFullName(),
                     statsSet.errPubOverFlowStats.getValue());
             statsSet.fileSyncDltStats.getValue(statsMap, false);
+            statsSet.offsetFileSyncDltStats.getValue(statsMap, false);
             statsSet.zkSyncDltStats.getValue(statsMap, false);
             statsSet.msgPubLatencyStats.getValue(statsMap, false);
             statsSet.msgSubLatencyStats.getValue(statsMap, false);
@@ -241,6 +255,8 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(statsSet.fileIOExcStats.getAndResetValue())
                     .append(",\"").append(statsSet.zkExcStats.getFullName())
                     .append("\":").append(statsSet.zkExcStats.getAndResetValue())
+                    .append(",\"").append(statsSet.offsetFileExcStats.getFullName())
+                    .append("\":").append(statsSet.offsetFileExcStats.getAndResetValue())
                     .append(",\"").append(statsSet.brokerTimeoutStats.getFullName())
                     .append("\":").append(statsSet.brokerTimeoutStats.getAndResetValue())
                     .append(",\"").append(statsSet.brokerHBExcStats.getFullName())
@@ -253,6 +269,8 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(statsSet.errPubOverFlowStats.getAndResetValue())
                     .append(",");
             statsSet.fileSyncDltStats.snapShort(strBuff, false);
+            strBuff.append(",");
+            statsSet.offsetFileSyncDltStats.snapShort(strBuff, false);
             strBuff.append(",");
             statsSet.zkSyncDltStats.snapShort(strBuff, false);
             strBuff.append(",");
@@ -267,6 +285,8 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(statsSet.fileIOExcStats.getValue())
                     .append(",\"").append(statsSet.zkExcStats.getFullName())
                     .append("\":").append(statsSet.zkExcStats.getValue())
+                    .append(",\"").append(statsSet.offsetFileExcStats.getFullName())
+                    .append("\":").append(statsSet.offsetFileExcStats.getAndResetValue())
                     .append(",\"").append(statsSet.brokerTimeoutStats.getFullName())
                     .append("\":").append(statsSet.brokerTimeoutStats.getValue())
                     .append(",\"").append(statsSet.brokerHBExcStats.getFullName())
@@ -279,6 +299,8 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(statsSet.errPubOverFlowStats.getValue())
                     .append(",");
             statsSet.fileSyncDltStats.getValue(strBuff, false);
+            strBuff.append(",");
+            statsSet.offsetFileSyncDltStats.getValue(strBuff, false);
             strBuff.append(",");
             statsSet.zkSyncDltStats.getValue(strBuff, false);
             strBuff.append(",");
@@ -331,6 +353,11 @@ public class BrokerSrvStatsHolder {
         // Zookeeper Exception statistics
         protected final LongStatsCounter zkExcStats =
                 new LongStatsCounter("zk_exc_cnt", null);
+        protected final LongStatsCounter offsetFileExcStats =
+                new LongStatsCounter("offset_file_exc_cnt", null);
+        // Delay statistics for syncing data to File offset
+        protected final ESTHistogram offsetFileSyncDltStats =
+                new ESTHistogram("offset_file_sync_dlt", null);
         // Broker 2 Master status statistics
         protected final LongStatsCounter brokerTimeoutStats =
                 new LongStatsCounter("broker_timeout_cnt", null);
