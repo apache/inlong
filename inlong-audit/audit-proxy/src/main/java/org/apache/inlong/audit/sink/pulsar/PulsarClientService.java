@@ -19,6 +19,7 @@ package org.apache.inlong.audit.sink.pulsar;
 
 import org.apache.inlong.audit.consts.AttributeConstants;
 import org.apache.inlong.audit.file.ConfigManager;
+import org.apache.inlong.audit.metric.MetricsManager;
 import org.apache.inlong.audit.sink.EventStat;
 import org.apache.inlong.audit.utils.LogCounter;
 import org.apache.inlong.common.constant.MQType;
@@ -160,6 +161,7 @@ public class PulsarClientService {
 
         if (producer == null) {
             logger.error("Get producer is null!");
+            MetricsManager.getInstance().addSendFailed(1);
             return false;
         }
 
