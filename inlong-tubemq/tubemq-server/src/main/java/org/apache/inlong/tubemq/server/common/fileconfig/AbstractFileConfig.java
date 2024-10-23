@@ -251,8 +251,7 @@ public abstract class AbstractFileConfig {
     protected ZKConfig loadZKeeperSectConf(final Ini iniConf) {
         final Profile.Section zkeeperSect = iniConf.get(SECT_TOKEN_ZKEEPER);
         if (zkeeperSect == null) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append(SECT_TOKEN_ZKEEPER).append(" configure section is required!").toString());
+            return null;
         }
         Set<String> configKeySet = zkeeperSect.keySet();
         if (configKeySet.isEmpty()) {

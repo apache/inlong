@@ -17,11 +17,10 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore;
 
-import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
+import org.apache.inlong.tubemq.server.broker.offset.topicpub.TopicPubInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ public interface StoreService {
 
     void close();
 
-    List<String> removeTopicStore();
+    Set<String> removeTopicStore();
 
     Collection<MessageStore> getMessageStoresByTopic(String topic);
 
@@ -46,5 +45,5 @@ public interface StoreService {
     // Add the current storage offset values to
     // the consumption partition records of the specified consumption group
     // include maximum and minimum, and consume lag
-    void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap);
+    Map<String, TopicPubInfo> getTopicPublishInfos();
 }
