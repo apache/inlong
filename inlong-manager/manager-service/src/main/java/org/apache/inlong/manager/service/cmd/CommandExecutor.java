@@ -42,4 +42,7 @@ public interface CommandExecutor {
 
     CommandResult rmDir(AgentClusterNodeRequest clusterNodeRequest, String path) throws Exception;
 
+    CommandResult cpDir(AgentClusterNodeRequest clusterNodeRequest, String sourcePath, String targetPath)
+            throws Exception;
+
 }

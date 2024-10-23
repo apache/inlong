@@ -132,8 +132,14 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
                     currentTime + InlongConstants.BLANK + "begin to reinstall");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
+            commandExecutor.rmDir(request, "inlong/agent-installer-temp/");
+            commandExecutor.mkdir(request, "inlong/agent-installer-temp");
+            commandExecutor.cpDir(request, agentInstallPath + "/conf/modules.json", "inlong/agent-installer-temp");
+
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
+
+            commandExecutor.cpDir(request, "inlong/agent-installer-temp/modules.json", agentInstallPath + "/conf");
             String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, reStartCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.NORMAL.getStatus(),
