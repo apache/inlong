@@ -88,6 +88,9 @@ public interface InlongGroupApi {
     @GET("group/countByStatus")
     Call<Response<Object>> countGroupByUser();
 
+    @GET("group/getTenant/{groupId}")
+    Call<Response<String>> getTenant(@Path("groupId") String groupId);
+
     @GET("group/getTopic/{id}")
     Call<Response<Object>> getTopic(@Path("id") String id);
 
