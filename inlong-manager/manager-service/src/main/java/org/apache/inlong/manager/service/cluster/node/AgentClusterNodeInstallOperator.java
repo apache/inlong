@@ -108,6 +108,10 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
                     currentTime + InlongConstants.BLANK + "begin to install");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
+            commandExecutor.mkdir(request, agentInstallTempPath);
+            String downLoadUrl = getInstallerDownLoadUrl(request);
+            commandExecutor.downLoadPackage(request, agentInstallTempPath, downLoadUrl);
+
             deployInstaller(request, operator);
             String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);
@@ -137,7 +141,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             commandExecutor.rmDir(request, agentInstallTempPath);
             commandExecutor.mkdir(request, agentInstallTempPath);
             commandExecutor.cpDir(request, agentInstallPath + "/conf/modules.json", agentInstallTempPath);
-
+            String downLoadUrl = getInstallerDownLoadUrl(request);
+            commandExecutor.downLoadPackage(request, agentInstallTempPath, downLoadUrl);
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
 
@@ -201,8 +206,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
         commandExecutor.mkdir(request, agentInstallPath);
         String downLoadUrl = getInstallerDownLoadUrl(request);
         String fileName = downLoadUrl.substring(downLoadUrl.lastIndexOf('/') + 1);
-        commandExecutor.downLoadPackage(request, agentInstallPath, downLoadUrl);
-        commandExecutor.tarPackage(request, fileName, agentInstallPath);
+        commandExecutor.tarPackage(request, fileName, agentInstallTempPath, agentInstallPath);
         String confFile = agentInstallPath + INSTALLER_CONF_PATH;
         Map<String, String> configMap = new HashMap<>();
         configMap.put(AGENT_LOCAL_IP, request.getIp());
