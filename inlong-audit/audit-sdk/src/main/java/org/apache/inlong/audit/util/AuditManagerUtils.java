@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.apache.inlong.audit.AuditIdEnum.*;
+
 /**
  * Audit item ID generation rules: composed of basic audit item ID + extension bits.
  * Each module is assigned two basic audit item IDs, namely reception and transmission.
@@ -169,20 +171,67 @@ public class AuditManagerUtils {
     private static List<AuditInformation> combineAuditInformation(String auditType, FlowType flowType) {
         List<AuditInformation> auditInformationList = new LinkedList<>();
         boolean[] combinations = {true, false};
+
         for (boolean success : combinations) {
             for (boolean isRealtime : combinations) {
                 for (boolean discard : combinations) {
                     for (boolean retry : combinations) {
-                        if (discard && retry) {
-                            continue;
+                        if (shouldIncludeCombination(auditType, flowType, success, isRealtime, discard, retry)) {
+                            auditInformationList.add(
+                                    buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry));
                         }
-                        auditInformationList
-                                .add(buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry));
                     }
                 }
             }
         }
+
         return auditInformationList;
+    }
+
+    /**
+     * Exclude some uncommon audit scenarios
+     * @param auditType
+     * @param flowType
+     * @param success
+     * @param isRealtime
+     * @param discard
+     * @param retry
+     * @return
+     */
+    private static boolean shouldIncludeCombination(String auditType, FlowType flowType, boolean success,
+            boolean isRealtime, boolean discard, boolean retry) {
+        // Exclude the situation when retry and discard occur at the same time
+        if (discard && retry) {
+            return false;
+        }
+
+        AuditIdEnum baseAuditId = AuditIdEnum.getAuditId(auditType, flowType);
+        // Exclude the situation when non-real-time and one of SDK、Agent、DataProxy occur at the same time
+        if (!isRealtime && isExcludedWhenNotRealtime(baseAuditId)) {
+            return false;
+        }
+
+        // Exclude the situation when failed、input and one of discard and retry occur at the same time
+        if (!success && flowType == FlowType.INPUT && (discard || retry)) {
+            return false;
+        }
+
+        // Exclude the situation when failed、output and discard occur at the same time
+        if (!success && flowType == FlowType.OUTPUT && discard) {
+            return false;
+        }
+
+        // Exclude the situation when success、input and retry occur at the same time
+        if (success && flowType == FlowType.INPUT && retry) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean isExcludedWhenNotRealtime(AuditIdEnum baseAuditId) {
+        return baseAuditId == SDK_INPUT || baseAuditId == SDK_OUTPUT || baseAuditId == AGENT_INPUT
+                || baseAuditId == AGENT_OUTPUT || baseAuditId == DATA_PROXY_INPUT || baseAuditId == DATA_PROXY_OUTPUT;
     }
 
     /**
