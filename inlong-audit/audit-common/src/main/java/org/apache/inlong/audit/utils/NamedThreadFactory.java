@@ -30,7 +30,7 @@ public class NamedThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(Runnable r) {
-        return new Thread(r, baseName + "-Thread-" + counter.getAndIncrement());
+    public Thread newThread(Runnable runnable) {
+        return new Thread(runnable, baseName + "-Thread-" + counter.getAndIncrement());
     }
 }
