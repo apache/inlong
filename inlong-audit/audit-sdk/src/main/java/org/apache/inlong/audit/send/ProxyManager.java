@@ -21,6 +21,7 @@ import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.audit.entity.CommonResponse;
 import org.apache.inlong.audit.utils.HttpUtils;
+import org.apache.inlong.audit.utils.NamedThreadFactory;
 import org.apache.inlong.audit.utils.ThreadUtils;
 
 import org.slf4j.Logger;
@@ -41,7 +42,8 @@ public class ProxyManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyManager.class);
     private static final ProxyManager instance = new ProxyManager();
     private final List<String> currentIpPorts = new CopyOnWriteArrayList<>();
-    private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService timer =
+            Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("inlong-audit-proxy-manager"));
     private final static String GET_AUDIT_PROXY_API_PATH = "/inlong/manager/openapi/audit/getAuditProxy";
     private int timeoutMs = 10000;
     private int updateInterval = 60000;
@@ -166,5 +168,8 @@ public class ProxyManager {
             return null;
         }
         return new InetSocketAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+    }
+    public void shutdown() {
+        timer.shutdown();
     }
 }
