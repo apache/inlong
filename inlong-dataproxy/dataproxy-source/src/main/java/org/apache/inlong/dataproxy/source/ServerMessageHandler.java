@@ -565,7 +565,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             attrsLen = byTeAttrs.length;
         }
         // binTotalLen = mstType + uniq + attrsLen + attrs + magic
-        int binTotalLen = 1 + 4 + 2 + 2 + attrsLen;
+        int binTotalLen = 1 + 4 + 2 + attrsLen + 2;
         // allocate buffer and write fields
         ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
         binBuffer.writeInt(binTotalLen);
@@ -673,7 +673,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             loadValue = 0xffff;
         }
         // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
-        int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2 + attrsLen;
+        int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + attrsLen + 2;
         // allocate buffer and write fields
         ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
         binBuffer.writeInt(binTotalLen);
