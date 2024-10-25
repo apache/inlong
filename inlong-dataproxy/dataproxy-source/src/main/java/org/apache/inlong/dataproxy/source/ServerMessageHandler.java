@@ -558,11 +558,14 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      */
     public static ByteBuf buildBinMsgRspPackage(String attrs, long uniqVal) {
         // calculate total length
-        // binTotalLen = mstType + uniq + attrsLen + attrs + magic
-        int binTotalLen = 1 + 4 + 2 + 2;
+        int attrsLen = 0;
+        byte[] byTeAttrs = null;
         if (null != attrs) {
-            binTotalLen += attrs.length();
+            byTeAttrs = attrs.getBytes(StandardCharsets.UTF_8);
+            attrsLen = byTeAttrs.length;
         }
+        // binTotalLen = mstType + uniq + attrsLen + attrs + magic
+        int binTotalLen = 1 + 4 + 2 + 2 + attrsLen;
         // allocate buffer and write fields
         ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
         binBuffer.writeInt(binTotalLen);
@@ -573,11 +576,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         uniq[2] = (byte) ((uniqVal >> 8) & 0xFF);
         uniq[3] = (byte) (uniqVal & 0xFF);
         binBuffer.writeBytes(uniq);
-        if (null != attrs) {
-            binBuffer.writeShort(attrs.length());
-            binBuffer.writeBytes(attrs.getBytes(StandardCharsets.UTF_8));
-        } else {
-            binBuffer.writeShort(0x0);
+        binBuffer.writeShort(attrsLen);
+        if (attrsLen > 0) {
+            binBuffer.writeBytes(byTeAttrs);
         }
         binBuffer.writeShort(0xee01);
         return binBuffer;
@@ -593,8 +594,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     public static ByteBuf buildTxtMsgRspPackage(MsgType msgType, String attrs) {
         int attrsLen = 0;
         int bodyLen = 0;
+        byte[] byTeAttrs = null;
         if (attrs != null) {
-            attrsLen = attrs.length();
+            byTeAttrs = attrs.getBytes(StandardCharsets.UTF_8);
+            attrsLen = byTeAttrs.length;
         }
         // backTotalLen = mstType + bodyLen + body + attrsLen + attrs
         int backTotalLen = 1 + 4 + bodyLen + 4 + attrsLen;
@@ -604,7 +607,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         buffer.writeInt(bodyLen);
         buffer.writeInt(attrsLen);
         if (attrsLen > 0) {
-            buffer.writeBytes(attrs.getBytes(StandardCharsets.UTF_8));
+            buffer.writeBytes(byTeAttrs);
         }
         return buffer;
     }
@@ -620,15 +623,20 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     private ByteBuf buildTxtMsgRspPackage(MsgType msgType, String attrs, AbsV0MsgCodec msgObj) {
         int attrsLen = 0;
         int bodyLen = 0;
-        byte[] backBody = null;
+        byte[] backBody;
+        byte[] byTeAttrs = null;
         if (attrs != null) {
-            attrsLen = attrs.length();
+            byTeAttrs = attrs.getBytes(StandardCharsets.UTF_8);
+            attrsLen = byTeAttrs.length;
         }
         if (MsgType.MSG_ORIGINAL_RETURN.equals(msgType)) {
             backBody = msgObj.getOrigBody();
             if (backBody != null) {
                 bodyLen = backBody.length;
             }
+        } else {
+            backBody = new byte[]{50};
+            bodyLen = backBody.length;
         }
         // backTotalLen = mstType + bodyLen + body + attrsLen + attrs
         int backTotalLen = 1 + 4 + bodyLen + 4 + attrsLen;
@@ -641,7 +649,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
         buffer.writeInt(attrsLen);
         if (attrsLen > 0) {
-            buffer.writeBytes(attrs.getBytes(StandardCharsets.UTF_8));
+            buffer.writeBytes(byTeAttrs);
         }
         return buffer;
     }
@@ -656,15 +664,16 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      */
     private ByteBuf buildHBRspPackage(byte[] attrData, byte version, int loadValue) {
         // calculate total length
-        // binTotalLen = mstType + dataTime + body_ver + bodyLen + body + attrsLen + attrs + magic
-        int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2;
+        int attrsLen = 0;
         if (null != attrData) {
-            binTotalLen += attrData.length;
+            attrsLen = attrData.length;
         }
         // check load value
         if (loadValue == 0 || loadValue == (-1)) {
             loadValue = 0xffff;
         }
+        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
+        int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2 + attrsLen;
         // allocate buffer and write fields
         ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
         binBuffer.writeInt(binTotalLen);
@@ -673,11 +682,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         binBuffer.writeByte(version);
         binBuffer.writeInt(2);
         binBuffer.writeShort(loadValue);
-        if (null != attrData) {
-            binBuffer.writeShort(attrData.length);
+        binBuffer.writeShort(attrsLen);
+        if (attrsLen > 0) {
             binBuffer.writeBytes(attrData);
-        } else {
-            binBuffer.writeShort(0x0);
         }
         binBuffer.writeShort(0xee01);
         return binBuffer;
