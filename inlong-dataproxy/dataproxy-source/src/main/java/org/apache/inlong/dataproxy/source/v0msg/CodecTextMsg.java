@@ -259,8 +259,12 @@ public class CodecTextMsg extends AbsV0MsgCodec {
                 inLongMsg.addMsg(mapJoiner.join(attrMap), bodyBuffer);
                 calcCnt++;
             }
-            attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(calcCnt));
-            this.msgCount = calcCnt;
+            if (calcCnt != this.msgCount) {
+                this.msgCount = calcCnt;
+                source.fileMetricIncWithDetailStats(
+                        StatConstants.EVENT_MSG_TYPE_5_CNT_UNEQUAL, groupId);
+            }
+            attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(this.msgCount));
         } else if (MsgType.MSG_MULTI_BODY_ATTR.equals(MsgType.valueOf(msgType))) {
             attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(1));
             inLongMsg.addMsg(mapJoiner.join(attrMap), bodyData);
