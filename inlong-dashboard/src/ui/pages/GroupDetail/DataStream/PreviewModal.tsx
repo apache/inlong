@@ -89,8 +89,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     return;
   };
   const timestampSorter = (a, b) => {
-    const dateA = dayjs(a.dt, 'YYYY-MM-DD HH:mm:ss');
-    const dateB = dayjs(b.dt, 'YYYY-MM-DD HH:mm:ss');
+    const dateA = dayjs(a?.dt, 'YYYY-MM-DD HH:mm:ss');
+    const dateB = dayjs(b?.dt, 'YYYY-MM-DD HH:mm:ss');
     return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
   };
   const sortOrder: SortOrder = 'descend';
@@ -135,7 +135,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
       }, {});
       temp['id'] = temp['id'] ? temp['id'] : i;
       temp['headers'] = previewData?.[i]?.headers;
-      temp['body'] = previewData?.[i]?.body;
+      temp['preBody'] = previewData?.[i]?.body;
+      temp['attribute'] = previewData?.[i]?.attribute;
       temp['dt'] = dayjs(previewData?.[i]?.dt).format('YYYY-MM-DD HH:mm:ss');
       result.push(temp);
     }
