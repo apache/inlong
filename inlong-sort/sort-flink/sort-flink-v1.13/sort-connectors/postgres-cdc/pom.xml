@@ -121,6 +121,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>

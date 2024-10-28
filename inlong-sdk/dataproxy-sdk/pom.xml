@@ -126,6 +126,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
                             <include>org.apache.inlong:*</include>
@@ -153,7 +154,6 @@
                             <shadedPattern>org.apache.inlong.dataproxy.shaded.org.apache.thrift</shadedPattern>
                         </relocation>
                     </relocations>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <minimizeJar>true</minimizeJar>
                     <filters>
                         <filter>

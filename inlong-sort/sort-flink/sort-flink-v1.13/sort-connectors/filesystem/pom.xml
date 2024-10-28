@@ -45,6 +45,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+
                 <executions>
                     <execution>
                         <id>shade-flink</id>
@@ -53,6 +54,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>

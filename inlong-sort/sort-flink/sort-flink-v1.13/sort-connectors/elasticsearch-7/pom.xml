@@ -157,6 +157,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
                                 <includes>

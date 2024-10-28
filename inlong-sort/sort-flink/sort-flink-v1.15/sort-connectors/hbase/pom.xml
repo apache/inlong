@@ -92,6 +92,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <!--
                             Make the file hbase-default.xml under flink-sql-connector-hbase-2.2/src/main/resources
                             as the hbase-default.xml in the shaded target jar here, because we don't want to check

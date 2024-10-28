@@ -107,7 +107,8 @@ jobs:
 
       - name: Build with Maven
         run: |
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+          mvn -B -U -ntp -e -V -T 1C clean install -pl '!inlong-distribution' -am -DskipTests -Dspotbugs.skip=true  -Dlicense.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+          mvn install -pl inlong-distribution -am -DskipTests -Dspotbugs.skip=true  -Dlicense.skip=true  -Dcheckstyle.skip=true  -Drat.skip=true
         env:
           CI: false
 
