@@ -69,6 +69,12 @@
             <if test="request.operationTarget != null and request.operationTarget != ''">
                 and operation_target = #{request.operationTarget, jdbcType=VARCHAR}
             </if>
+            <if test="request.ip != null and request.ip != ''">
+                and body -&gt; '$[0].ip' = #{request.ip, jdbcType=VARCHAR}
+            </if>
+            <if test="request.port != null and request.port != ''">
+                and body -&gt; '$[0].port' = #{request.port, jdbcType=VARCHAR}
+            </if>
             <if test="request.keyword != null and request.keyword != ''">
                 and (
                 inlong_group_id like CONCAT('%', #{request.keyword}, '%')

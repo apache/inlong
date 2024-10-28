@@ -40,6 +40,10 @@ public enum OperationTarget {
 
     CLUSTER,
 
+    CLUSTER_NODE,
+
+    CLUSTER_TAG,
+
     TRANSFORM,
 
     INLONG_ROLE,
