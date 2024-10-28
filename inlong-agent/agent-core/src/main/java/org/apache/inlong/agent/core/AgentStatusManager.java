@@ -140,15 +140,16 @@ public class AgentStatusManager {
     private String processStartupTime = format.format(runtimeMXBean.getStartTime());
     private String systemStartupTime = ExcuteLinux.exeCmd("uptime -s").replaceAll("\r|\n", "");
 
-    private AgentStatusManager() {
+    private AgentStatusManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
         threadBean = ManagementFactory.getThreadMXBean();
+        this.agentManager = agentManager;
     }
 
-    public static void init() {
+    public static void init(AgentManager agentManager) {
         synchronized (AgentStatusManager.class) {
             if (manager == null) {
-                manager = new AgentStatusManager();
+                manager = new AgentStatusManager(agentManager);
             }
         }
     }
