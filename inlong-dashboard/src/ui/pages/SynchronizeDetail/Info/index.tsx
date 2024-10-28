@@ -231,6 +231,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={1400}
         col={14}
+        labelWrap
       />
 
       {!isCreate && !readonly && (
