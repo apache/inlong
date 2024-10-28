@@ -188,11 +188,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         ]}
       >
         <div>
-          <Card title="headers" bordered={false} style={{ width: 700 }}>
+          <Card title="atrributes" bordered={false} style={{ width: 700 }}>
+            <p style={{ margin: 0 }}>{JSON.stringify(originalModal?.record['attribute'])}</p>
+          </Card>
+          <Card title="headers" bordered={false} style={{ width: 700, marginTop: 10 }}>
             <p style={{ margin: 0 }}>{JSON.stringify(originalModal?.record['headers'])}</p>
           </Card>
           <Card title="body" bordered={false} style={{ width: 700, marginTop: 10 }}>
-            <p style={{ margin: 0 }}>{originalModal?.record['body']}</p>
+            <p style={{ margin: 0 }}>{originalModal?.record['preBody']}</p>
           </Card>
         </div>
       </Modal>
