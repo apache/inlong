@@ -17,21 +17,16 @@
 
 package org.apache.inlong.sdk.dirtydata;
 
-import com.google.common.base.Preconditions;
-import lombok.Builder;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.MessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.StringJoiner;
+import com.google.common.base.Preconditions;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Builder

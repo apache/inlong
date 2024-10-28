@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.sdk.dirtydata;
 
 import lombok.Builder;
-import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +26,7 @@ import java.util.StringJoiner;
 
 @Builder
 public class DirtyMessageWrapper {
+
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String delimiter;
 

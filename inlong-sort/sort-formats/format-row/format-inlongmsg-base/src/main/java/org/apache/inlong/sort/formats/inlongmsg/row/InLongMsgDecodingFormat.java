@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsg.row;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonParser;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgDeserializationSchema.MetadataConverter;
 
