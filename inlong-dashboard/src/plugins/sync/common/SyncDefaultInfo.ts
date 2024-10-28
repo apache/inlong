@@ -33,7 +33,7 @@ const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
-const format = 'HH:mm';
+export const format = 'HH:mm';
 const conventionalTimeFormat = 'YYYY-MM-DD HH:mm';
 
 export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
