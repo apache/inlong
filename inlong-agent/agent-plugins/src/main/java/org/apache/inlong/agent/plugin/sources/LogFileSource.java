@@ -323,9 +323,6 @@ public class LogFileSource extends AbstractSource {
     protected void releaseSource() {
         if (randomAccessFile != null) {
             try {
-                if (FileStaticManager.getInstance() == null) {
-                    return;
-                }
                 FileStatic data = new FileStatic();
                 data.setTaskId(taskId);
                 data.setRetry(String.valueOf(profile.isRetry()));
@@ -342,7 +339,7 @@ public class LogFileSource extends AbstractSource {
                     return;
                 }
                 data.setSendLines(offsetProfile.getOffset());
-                FileStaticManager.getInstance().putStaticMsg(data);
+                FileStaticManager.putStaticMsg(data);
                 randomAccessFile.close();
             } catch (IOException e) {
                 LOGGER.error("close randomAccessFile error", e);
