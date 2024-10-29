@@ -92,27 +92,24 @@ public class FileStaticManager {
     private final AgentConfiguration conf;
     protected BlockingQueue<FileStatic> queue;
 
-    private FileStaticManager(AgentManager agentManager) {
+    private FileStaticManager() {
         this.conf = AgentConfiguration.getAgentConf();
         queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     }
 
-    public static FileStaticManager getInstance(AgentManager agentManager) {
-        if (manager == null) {
-            synchronized (FileStaticManager.class) {
-                if (manager == null) {
-                    manager = new FileStaticManager(agentManager);
-                }
+    public static void init() {
+        synchronized (FileStaticManager.class) {
+            if (manager == null) {
+                manager = new FileStaticManager();
             }
         }
+    }
+
+    private static FileStaticManager getInstance() {
         return manager;
     }
 
-    public static FileStaticManager getInstance() {
-        return manager;
-    }
-
-    public void putStaticMsg(FileStatic data) {
+    private void doPutStaticMsg(FileStatic data) {
         data.setAgentIp(AgentUtils.fetchLocalIp());
         data.setTag(conf.get(AGENT_CLUSTER_TAG));
         data.setCluster(conf.get(AGENT_CLUSTER_NAME));
@@ -121,7 +118,13 @@ public class FileStaticManager {
         }
     }
 
-    public void sendStaticMsg(DefaultMessageSender sender) {
+    public static void putStaticMsg(FileStatic data) {
+        if (FileStaticManager.getInstance() != null) {
+            FileStaticManager.getInstance().doPutStaticMsg(data);
+        }
+    }
+
+    private void doSendStaticMsg(DefaultMessageSender sender) {
         while (!queue.isEmpty()) {
             FileStatic data = queue.poll();
             LOGGER.info("file static detail: {}", data);
@@ -136,6 +139,12 @@ public class FileStaticManager {
             if (ret != SendResult.OK) {
                 LOGGER.error("send static failed: ret {}", ret);
             }
+        }
+    }
+
+    public static void sendStaticMsg(DefaultMessageSender sender) {
+        if (FileStaticManager.getInstance() != null) {
+            FileStaticManager.getInstance().doSendStaticMsg(sender);
         }
     }
 }
