@@ -256,7 +256,7 @@ public class CodecTextMsg extends AbsV0MsgCodec {
                 }
                 byte[] record = new byte[singleMsgLen];
                 bodyBuffer.get(record);
-                inLongMsg.addMsg(mapJoiner.join(attrMap), bodyBuffer);
+                inLongMsg.addMsg(mapJoiner.join(attrMap), record);
                 calcCnt++;
             }
             if (calcCnt != this.msgCount) {
