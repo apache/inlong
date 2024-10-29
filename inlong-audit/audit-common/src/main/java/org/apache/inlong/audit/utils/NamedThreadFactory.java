@@ -15,37 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dirtydata.sink;
+package org.apache.inlong.audit.utils;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Configure {
+public class NamedThreadFactory implements ThreadFactory {
 
-    private Map<String, String> data;
+    private final String baseName;
+    private final AtomicInteger counter = new AtomicInteger(0);
 
-    public Configure(Map<String, String> data) {
-        this.data = new ConcurrentHashMap<>();
-        this.data.putAll(data);
+    public NamedThreadFactory(String baseName) {
+        this.baseName = baseName;
     }
 
-    public String get(String key, String defaultValue) {
-        String value = data.get(key);
-        if (value != null) {
-            return value;
-        }
-        return defaultValue;
-    }
-
-    public String get(String key) {
-        return data.get(key);
-    }
-
-    public Boolean getBoolean(String key, boolean defaultValue) {
-        String value = data.get(key);
-        if (value != null) {
-            return Boolean.valueOf(value);
-        }
-        return defaultValue;
+    @Override
+    public Thread newThread(Runnable runnable) {
+        return new Thread(runnable, baseName + "-Thread-" + counter.getAndIncrement());
     }
 }
