@@ -52,7 +52,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       name: 'newPassword',
       rules: [
         { required: true },
-        { pattern: /^[@0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
+        { pattern: /^[@0-9a-zA-Z_-]+$/, message: t('pages.Login.PasswordRules') },
       ],
     },
     {
@@ -61,7 +61,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       name: 'confirmPassword',
       rules: [
         { required: true },
-        { pattern: /^[@0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
+        { pattern: /^[@0-9a-zA-Z_-]+$/, message: t('pages.Login.PasswordRules') },
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
