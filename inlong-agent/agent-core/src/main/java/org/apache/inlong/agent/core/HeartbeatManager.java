@@ -75,8 +75,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
         createMessageSender();
-        AgentStatusManager.getInstance(agentManager);
-        FileStaticManager.getInstance(agentManager);
     }
 
     public static HeartbeatManager getInstance(AgentManager agentManager) {
@@ -126,8 +124,8 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     if (sender == null) {
                         createMessageSender();
                     }
-                    AgentStatusManager.getInstance().sendStatusMsg(sender);
-                    FileStaticManager.getInstance().sendStaticMsg(sender);
+                    AgentStatusManager.sendStatusMsg(sender);
+                    FileStaticManager.sendStaticMsg(sender);
                 } catch (Throwable e) {
                     LOGGER.error("interrupted while report heartbeat", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
