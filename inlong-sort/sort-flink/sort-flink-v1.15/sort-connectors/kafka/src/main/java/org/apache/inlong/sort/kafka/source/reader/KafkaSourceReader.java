@@ -105,7 +105,7 @@ public class KafkaSourceReader<T>
     @Override
     public void close() throws Exception {
         super.close();
-        openTelemetryLogger.uninstall(); // 关闭日志上报功能
+        openTelemetryLogger.uninstall();
     }
 
     @Override
