@@ -861,7 +861,7 @@
   "pages.Clusters.Node.IpRule": "请输入正确的IP地址",
   "pages.Clusters.Node.PortRule": "请输入正确的端口",
   "pages.Clusters.Node.ProtocolTypeRule": "请输入正确的协议类型",
-  "pages.Clusters.Node.BatchUpdate": "批量更新",
+  "pages.Clusters.Node.BatchUpdate": "批量操作",
   "pages.Clusters.Node.BatchNum": "分批数",
   "pages.Clusters.Node.Interval": "间隔",
   "pages.Clusters.Node.Minute": "分钟",

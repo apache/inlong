@@ -249,7 +249,7 @@ const Comp: React.FC<Props> = ({ agentList, agentTotal, parentId, ...modalProps 
     <Modal
       {...modalProps}
       title={i18n.t('pages.Clusters.Node.BatchUpdate')}
-      width={400}
+      width={600}
       footer={[
         <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
           {i18n.t('basic.Cancel')}

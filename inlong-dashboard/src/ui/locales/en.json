@@ -861,7 +861,7 @@
   "pages.Clusters.Node.IpRule": "Please enter the IP address correctly",
   "pages.Clusters.Node.PortRule": "Please enter the port address correctly",
   "pages.Clusters.Node.ProtocolTypeRule": "Please enter the protocol type correctly",
-  "pages.Clusters.Node.BatchUpdate": "Batch Update",
+  "pages.Clusters.Node.BatchUpdate": "Batch Operation",
   "pages.Clusters.Node.BatchNum": "Batch Num",
   "pages.Clusters.Node.Interval": "Interval",
   "pages.Clusters.Node.Minute": "Minute",
