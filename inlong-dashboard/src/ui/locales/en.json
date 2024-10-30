@@ -781,6 +781,7 @@
   "pages.Approvals.MyApproval": "My approval",
   "pages.Approvals.Type.Group": "Apply group",
   "pages.Approvals.Type.Consume": "Apply subscription",
+  "pages.Approvals.Copy": "Copy Approval Address",
   "pages.ConsumeCreate.SubscriptionInformation": "Subscription information",
   "pages.ConsumeCreate.Prev": "Prev",
   "pages.ConsumeCreate.Next": "Next",

@@ -781,6 +781,7 @@
   "pages.Approvals.MyApproval": "我的审批",
   "pages.Approvals.Type.Group": "申请数据流组",
   "pages.Approvals.Type.Consume": "申请订阅",
+  "pages.Approvals.Copy": "复制审批地址",
   "pages.ConsumeCreate.SubscriptionInformation": "订阅信息",
   "pages.ConsumeCreate.Prev": "上一步",
   "pages.ConsumeCreate.Next": "下一步",
