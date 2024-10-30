@@ -867,7 +867,7 @@
   "pages.Clusters.Node.Minute": "分钟",
   "pages.Clusters.Node.OperationStatusQuery": "操作状态查询",
   "pages.Clusters.Node.OperationType": "操作类型",
-  "pages.Clusters.Node.UpgradeAgentAndInstaller": "更新 agent 和 installer",
+  "pages.Clusters.Node.UpgradeAgentAndInstaller": "更新 Agent 和 Installer",
   "pages.Clusters.Node.UpgradeAgent": "更新 Agent",
   "pages.Clusters.Node.UpgradeInstaller": "更新 Installer",
   "pages.Clusters.Node.RestartAgent": "重启 Agent",
