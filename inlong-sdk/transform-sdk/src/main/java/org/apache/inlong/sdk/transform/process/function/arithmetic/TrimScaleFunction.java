@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,12 +35,11 @@ import java.util.List;
  * - Return NULL if 'numeric' is NULL;
  * - Return the result of reducing the proportion of values (decimal places) by removing trailing zeros
  */
-@TransformFunction(names = {"trim_scale"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the result of reducing the proportion of values (decimal places) by removing trailing zeros."
-}, examples = {
-        "trim_scale(3.1415000000000) = 3.1415"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "trim_scale"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the result of reducing the proportion of values (decimal places) by removing trailing zeros."
+        }, examples = {"trim_scale(3.1415000000000) = 3.1415"})
 public class TrimScaleFunction implements ValueParser {
 
     private final ValueParser numParser;

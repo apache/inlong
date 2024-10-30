@@ -73,6 +73,12 @@ const Comp: React.FC<DetailModalProps> = ({
       formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         setSinkType(result.sinkType);
+        if (result.sinkType === 'REDIS') {
+          result.properties = Object.entries(result.properties).map(([key, value]) => ({
+            keyName: key,
+            keyValue: value,
+          }));
+        }
         form.setFieldsValue(result);
       },
     },
@@ -157,6 +163,19 @@ const Comp: React.FC<DetailModalProps> = ({
     }
     if (startProcess) {
       submitData.startProcess = true;
+    }
+    if (sinkType === 'REDIS') {
+      if (Array.isArray(submitData.properties) && submitData.properties.length > 0) {
+        const propertiesObject = submitData.properties.reduce((acc, item) => {
+          if (item.keyName && item.keyValue !== undefined) {
+            acc[item.keyName] = item.keyValue;
+          }
+          return acc;
+        }, {});
+        submitData.properties = propertiesObject;
+      } else {
+        submitData.properties = {};
+      }
     }
     await request({
       url: isUpdate ? '/sink/update' : '/sink/save',

@@ -80,12 +80,12 @@ public class SenderManager {
             try {
                 InetSocketAddress inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
                 if (inetSocketAddress == null) {
-                    LOGGER.error("Audit inet socket address is null!");
+                    LOGGER.error("Audit proxy address is null!");
                     return false;
                 }
                 reconnect(inetSocketAddress, auditConfig.getSocketTimeout());
             } catch (IOException exception) {
-                LOGGER.error("Connect to {} has exception!", socket.getInetAddress(), exception);
+                LOGGER.error("Connect to audit proxy {} has exception!", socket.getInetAddress(), exception);
                 return false;
             }
         }

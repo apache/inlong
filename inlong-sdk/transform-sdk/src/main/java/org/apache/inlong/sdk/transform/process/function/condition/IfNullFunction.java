@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,7 +37,10 @@ import java.util.List;
  * - Return expr2 otherwise
  */
 @Slf4j
-@TransformFunction(names = {"ifnull", "if_null"}, parameter = "(Expr expr1,Expr expr2)", descriptions = {
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "ifnull",
+        "if_null"
+}, parameter = "(Expr expr1,Expr expr2)", descriptions = {
         "- Return 'expr1' if 'expr1' returns not NULL;",
         "- Return 'expr2' otherwise."
 }, examples = {

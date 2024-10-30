@@ -122,9 +122,9 @@ public class CommandExecutorImpl implements CommandExecutor {
     }
 
     @Override
-    public CommandResult tarPackage(AgentClusterNodeRequest clusterNodeRequest, String fileName,
+    public CommandResult tarPackage(AgentClusterNodeRequest clusterNodeRequest, String fileName, String sourcePath,
             String tarPath) throws Exception {
-        String tarCmd = "tar -zxvf " + tarPath + fileName + " -C " + tarPath;
+        String tarCmd = "tar -zxvf " + sourcePath + fileName + " -C " + tarPath;
         return execRemote(clusterNodeRequest, tarCmd);
     }
 
@@ -142,6 +142,12 @@ public class CommandExecutorImpl implements CommandExecutor {
     @Override
     public CommandResult rmDir(AgentClusterNodeRequest clusterNodeRequest, String path) throws Exception {
         return execRemote(clusterNodeRequest, "rm -rf " + path);
+    }
+
+    @Override
+    public CommandResult cpDir(AgentClusterNodeRequest clusterNodeRequest, String sourcePath, String targetPath)
+            throws Exception {
+        return execRemote(clusterNodeRequest, "cp " + sourcePath + " " + targetPath);
     }
 
 }

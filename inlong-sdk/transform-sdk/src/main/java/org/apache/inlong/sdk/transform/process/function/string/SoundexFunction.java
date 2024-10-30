@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,12 +34,11 @@ import java.nio.charset.StandardCharsets;
  * - Return NULL if 'str' is NULL
  * - Return a four character code representing the sound of 'str'
  */
-@TransformFunction(names = {"soundex"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'str' is NULL;",
-        "- Return a four character code representing the sound of 'str'."
-}, examples = {
-        "soundex('hello world') = \"H464\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "soundex"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'str' is NULL;",
+                "- Return a four character code representing the sound of 'str'."
+        }, examples = {"soundex('hello world') = \"H464\""})
 public class SoundexFunction implements ValueParser {
 
     private ValueParser stringParser;

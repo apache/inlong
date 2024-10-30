@@ -139,37 +139,49 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        Envelope.Operation op = Envelope.operationFor(record);
-        Struct value = (Struct) record.value();
-        Schema valueSchema = record.valueSchema();
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            GenericRowData insert = extractAfterRow(value, valueSchema);
-            validator.validate(insert, RowKind.INSERT);
-            insert.setRowKind(RowKind.INSERT);
-            if (sourceExactlyMetric != null) {
-                out = new MetricsCollector<>(out, sourceExactlyMetric);
-            }
-            emit(record, insert, out);
-        } else if (op == Envelope.Operation.DELETE) {
-            GenericRowData delete = extractBeforeRow(value, valueSchema);
-            validator.validate(delete, RowKind.DELETE);
-            delete.setRowKind(RowKind.DELETE);
-            emit(record, delete, out);
-        } else {
-            if (changelogMode == DebeziumChangelogMode.ALL) {
-                GenericRowData before = extractBeforeRow(value, valueSchema);
-                validator.validate(before, RowKind.UPDATE_BEFORE);
-                before.setRowKind(RowKind.UPDATE_BEFORE);
-                emit(record, before, out);
-            }
+        long deserializeStartTime = System.currentTimeMillis();
+        try {
+            Envelope.Operation op = Envelope.operationFor(record);
+            Struct value = (Struct) record.value();
+            Schema valueSchema = record.valueSchema();
+            if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+                GenericRowData insert = extractAfterRow(value, valueSchema);
+                validator.validate(insert, RowKind.INSERT);
+                insert.setRowKind(RowKind.INSERT);
+                if (sourceExactlyMetric != null) {
+                    out = new MetricsCollector<>(out, sourceExactlyMetric);
+                }
+                emit(record, insert, out);
+            } else if (op == Envelope.Operation.DELETE) {
+                GenericRowData delete = extractBeforeRow(value, valueSchema);
+                validator.validate(delete, RowKind.DELETE);
+                delete.setRowKind(RowKind.DELETE);
+                emit(record, delete, out);
+            } else {
+                if (changelogMode == DebeziumChangelogMode.ALL) {
+                    GenericRowData before = extractBeforeRow(value, valueSchema);
+                    validator.validate(before, RowKind.UPDATE_BEFORE);
+                    before.setRowKind(RowKind.UPDATE_BEFORE);
+                    emit(record, before, out);
+                }
 
-            GenericRowData after = extractAfterRow(value, valueSchema);
-            validator.validate(after, RowKind.UPDATE_AFTER);
-            after.setRowKind(RowKind.UPDATE_AFTER);
-            if (sourceExactlyMetric != null) {
-                out = new MetricsCollector<>(out, sourceExactlyMetric);
+                GenericRowData after = extractAfterRow(value, valueSchema);
+                validator.validate(after, RowKind.UPDATE_AFTER);
+                after.setRowKind(RowKind.UPDATE_AFTER);
+                if (sourceExactlyMetric != null) {
+                    out = new MetricsCollector<>(out, sourceExactlyMetric);
+                }
+                emit(record, after, out);
             }
-            emit(record, after, out);
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeSuccess();
+                sourceExactlyMetric.recordDeserializeDelay(System.currentTimeMillis() - deserializeStartTime);
+            }
+        } catch (Exception e) {
+            if (sourceExactlyMetric != null) {
+                sourceExactlyMetric.incNumDeserializeError();
+            }
+            throw e;
         }
     }
 
@@ -696,5 +708,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         if (sourceExactlyMetric != null) {
             sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
+    }
+
+    /** allow DebeziumSourceFunction to set the SourceExactlyMetric */
+    public void setSourceExactlyMetric(SourceExactlyMetric sourceExactlyMetric) {
+        this.sourceExactlyMetric = sourceExactlyMetric;
     }
 }

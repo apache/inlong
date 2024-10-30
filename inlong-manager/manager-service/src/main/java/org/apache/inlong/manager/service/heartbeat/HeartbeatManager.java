@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
+import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.AddressInfo;
@@ -211,6 +212,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             } else {
                 heartbeatMsg.setProtocolType(protocolType);
             }
+            if (Objects.equals(heartbeat.getComponentType(), ComponentTypeEnum.Agent.getType())) {
+                heartbeatMsg.setProtocolType(null);
+                heartbeatMsg.setPort(null);
+            }
             // uninstall node event
             if (NodeSrvStatus.SERVICE_UNINSTALL.equals(heartbeat.getNodeSrvStatus())) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
@@ -295,6 +300,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
             } else {
                 heartbeatMsg.setProtocolType(protocolType);
+            }
+            if (Objects.equals(heartbeat.getComponentType(), ComponentTypeEnum.Agent.getType())) {
+                heartbeatMsg.setProtocolType(null);
+                heartbeatMsg.setPort(null);
             }
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
             if (clusterNode == null) {

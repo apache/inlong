@@ -32,7 +32,7 @@ import java.util.Map;
  * KvSourceDecoder
  * 
  */
-public class KvSourceDecoder implements SourceDecoder<String> {
+public class KvSourceDecoder extends SourceDecoder<String> {
 
     protected KvSourceInfo sourceInfo;
     private Character entryDelimiter = '&';
@@ -41,9 +41,9 @@ public class KvSourceDecoder implements SourceDecoder<String> {
     private Character quoteChar = '\"';
     private Character lineDelimiter = '\n';
     private Charset srcCharset = Charset.defaultCharset();
-    private List<FieldInfo> fields;
 
     public KvSourceDecoder(KvSourceInfo sourceInfo) {
+        super(sourceInfo.getFields());
         this.sourceInfo = sourceInfo;
         if (!StringUtils.isBlank(sourceInfo.getCharset())) {
             this.srcCharset = Charset.forName(sourceInfo.getCharset());
@@ -63,8 +63,6 @@ public class KvSourceDecoder implements SourceDecoder<String> {
         if (sourceInfo.getLineDelimiter() != null) {
             this.lineDelimiter = sourceInfo.getLineDelimiter();
         }
-
-        this.fields = sourceInfo.getFields();
     }
 
     @Override

@@ -297,35 +297,6 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: EditableTable,
-    props: values => ({
-      size: 'small',
-      editing: ![110].includes(values?.status),
-      columns: getFieldListColumns(values),
-      canBatchAdd: true,
-      upsertByFieldKey: true,
-    }),
-  })
-  @IngestionField()
-  sinkFieldList: Record<string, unknown>[];
-
-  @FieldDecorator({
-    type: EditableTable,
-    initialValue: [],
-    props: values => ({
-      size: 'small',
-      editing: ![110].includes(values?.status),
-      columns: getFieldListColumns(values).filter(
-        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
-      ),
-      canBatchAdd: true,
-      upsertByFieldKey: true,
-    }),
-  })
-  @SyncCreateTableField()
-  createTableField: Record<string, unknown>[];
-
-  @FieldDecorator({
-    type: EditableTable,
     rules: [{ required: false }],
     initialValue: [],
     props: values => ({
@@ -352,6 +323,34 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   @IngestionField()
   @I18n('meta.Sinks.Redis.ExtList')
   properties: string;
+  @FieldDecorator({
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @IngestionField()
+  sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 
   @FieldDecorator({
     type: 'inputnumber',

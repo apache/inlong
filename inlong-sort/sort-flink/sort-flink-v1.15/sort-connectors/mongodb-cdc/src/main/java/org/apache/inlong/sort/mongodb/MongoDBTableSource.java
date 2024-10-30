@@ -191,13 +191,15 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                     .ifPresent(builder::heartbeatIntervalMillis);
             Optional.ofNullable(splitMetaGroupSize).ifPresent(builder::splitMetaGroupSize);
             Optional.ofNullable(splitSizeMB).ifPresent(builder::splitSizeMB);
+            Optional.ofNullable(metricOption).ifPresent(builder::metricOption);
 
             return SourceProvider.of(builder.build());
         } else {
             org.apache.inlong.sort.mongodb.MongoDBSource.Builder<RowData> builder =
                     org.apache.inlong.sort.mongodb.MongoDBSource.<RowData>builder()
                             .hosts(hosts)
-                            .deserializer(deserializer);
+                            .deserializer(deserializer)
+                            .metricOption(metricOption);
 
             Optional.ofNullable(databaseList).ifPresent(builder::databaseList);
             Optional.ofNullable(collectionList).ifPresent(builder::collectionList);

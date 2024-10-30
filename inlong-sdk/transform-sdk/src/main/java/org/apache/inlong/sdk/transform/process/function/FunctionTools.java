@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 import org.apache.inlong.sdk.transform.process.pojo.FunctionInfo;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
@@ -32,9 +31,11 @@ import org.reflections.scanners.Scanners;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @Slf4j
 public class FunctionTools {
@@ -74,7 +75,7 @@ public class FunctionTools {
 
     private static class FunctionDocHolder {
 
-        final static List<FunctionInfo> functionDocList = Lists.newCopyOnWriteArrayList();
+        private final static Map<String, Set<FunctionInfo>> functionDocMap = new ConcurrentSkipListMap<>();
 
         static {
             initFunctionDoc();
@@ -87,25 +88,32 @@ public class FunctionTools {
                 if (annotation == null || ArrayUtils.isEmpty(annotation.names())) {
                     continue;
                 }
-                StringBuilder name = new StringBuilder();
-                StringBuilder explanation = new StringBuilder();
-                StringBuilder example = new StringBuilder();
-                for (String functionName : annotation.names()) {
-                    name.append(functionName.concat(annotation.parameter() + "\r\n"));
-                }
-                for (String functionExplanation : annotation.descriptions()) {
-                    explanation.append(functionExplanation.concat("\r\n"));
-                }
-                for (String functionExample : annotation.examples()) {
-                    example.append(functionExample.concat("\r\n"));
-                }
-                functionDocList.add(new FunctionInfo(name.toString(), explanation.toString(), example.toString()));
+                String type = annotation.type();
+                FunctionInfo functionInfo = getFunctionInfo(annotation);
+                functionDocMap.computeIfAbsent(type, k -> new ConcurrentSkipListSet<>(Comparator.comparing(
+                        FunctionInfo::getFunctionName))).add(functionInfo);
             }
+        }
+
+        private static FunctionInfo getFunctionInfo(TransformFunction annotation) {
+            StringBuilder name = new StringBuilder();
+            StringBuilder explanation = new StringBuilder();
+            StringBuilder example = new StringBuilder();
+            for (String functionName : annotation.names()) {
+                name.append(functionName.concat(annotation.parameter() + "\r\n"));
+            }
+            for (String functionExplanation : annotation.descriptions()) {
+                explanation.append(functionExplanation.concat("\r\n"));
+            }
+            for (String functionExample : annotation.examples()) {
+                example.append(functionExample.concat("\r\n"));
+            }
+            return new FunctionInfo(name.toString(), explanation.toString(), example.toString());
         }
     }
 
-    public static List<FunctionInfo> getFunctionDoc() {
-        return FunctionDocHolder.functionDocList;
+    public static Map<String, Set<FunctionInfo>> getFunctionDoc() {
+        return FunctionDocHolder.functionDocMap;
     }
 
     public static ValueParser getTransformFunction(Function func) {

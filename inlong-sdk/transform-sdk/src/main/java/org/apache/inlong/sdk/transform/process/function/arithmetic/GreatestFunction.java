@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -38,12 +39,11 @@ import java.util.List;
  * - Return the greatest value of the list of arguments.
  */
 @Slf4j
-@TransformFunction(names = {"greatest"}, parameter = "(Numeric value1 [,Numeric value2,...])", descriptions = {
-        "- Return \"\" if any parameter is NULL;",
-        "- Return the greatest value of the list of arguments."
-}, examples = {
-        "greatest(3.141592653589793, 3, greatest(4, 1)) = 4"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "greatest"}, parameter = "(Numeric value1 [,Numeric value2,...])", descriptions = {
+                "- Return \"\" if any parameter is NULL;",
+                "- Return the greatest value of the list of arguments."
+        }, examples = {"greatest(3.141592653589793, 3, greatest(4, 1)) = 4"})
 public class GreatestFunction implements ValueParser {
 
     private List<ValueParser> parserList;

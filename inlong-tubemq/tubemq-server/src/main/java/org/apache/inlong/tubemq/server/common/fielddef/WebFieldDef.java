@@ -265,7 +265,11 @@ public enum WebFieldDef {
             "Reset value, default is false"),
     ENDTIME(96, "endTime", "et", WebFieldType.STRING,
             "The end record time of the historical offset of the consume group",
-            DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS);
+            DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
+    BACKUPPATH(97, "backupPath", "bPath",
+            WebFieldType.STRING, "Backup path", TServerConstants.CFG_MAX_BACKUP_PATH_LENGTH),
+    GROUPOFFSETSTORAGEEXPIREHR(98, "grpOffStgExpHr", "grpStgExp",
+            WebFieldType.INT, "Group offsets storage expired hours.", RegexDef.TMP_NUMBER);
 
     public final int id;
     public final String name;

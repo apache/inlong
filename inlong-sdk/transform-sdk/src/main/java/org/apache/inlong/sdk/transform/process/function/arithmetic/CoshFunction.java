@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,14 +36,15 @@ import java.math.BigDecimal;
  * - Return the hyperbolic cosine of 'numeric'.
  */
 @Slf4j
-@TransformFunction(names = {"cosh"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the hyperbolic cosine of 'numeric'."
-}, examples = {
-        "cosh(1) = 1.543080634815244",
-        "cosh(0) = 1.0",
-        "cosh(-1) = 1.543080634815244"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "cosh"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the hyperbolic cosine of 'numeric'."
+        }, examples = {
+                "cosh(1) = 1.543080634815244",
+                "cosh(0) = 1.0",
+                "cosh(-1) = 1.543080634815244"
+        })
 public class CoshFunction implements ValueParser {
 
     private ValueParser numberParser;

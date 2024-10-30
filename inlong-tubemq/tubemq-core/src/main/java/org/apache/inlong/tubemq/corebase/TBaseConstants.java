@@ -84,4 +84,8 @@ public class TBaseConstants {
     public static final long CFG_MIN_META_FORCE_UPDATE_PERIOD = 1 * 60 * 1000;
     public static final long CFG_STATS_MIN_SNAPSHOT_PERIOD_MS = 2000;
 
+    public static final int OFFSET_HISTORY_RECORD_SHORT_VERSION = 2;
+    public static final int OFFSET_HISTORY_RECORD_VERSION_3 = 3;
+
+    public static final int OFFSET_TOPIC_PUBLISH_RECORD_VERSION_1 = 1;
 }

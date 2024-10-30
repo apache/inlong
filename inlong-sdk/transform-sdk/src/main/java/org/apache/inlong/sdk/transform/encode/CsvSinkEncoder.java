@@ -24,21 +24,20 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.List;
 
 /**
  * CsvSinkEncoder
  */
-public class CsvSinkEncoder implements SinkEncoder<String> {
+public class CsvSinkEncoder extends SinkEncoder<String> {
 
     protected CsvSinkInfo sinkInfo;
     protected Charset sinkCharset = Charset.defaultCharset();
     private Character delimiter = '|';
     private Character escapeChar = null;
-    private List<FieldInfo> fields;
     private StringBuilder builder = new StringBuilder();
 
     public CsvSinkEncoder(CsvSinkInfo sinkInfo) {
+        super(sinkInfo.getFields());
         this.sinkInfo = sinkInfo;
         if (sinkInfo.getDelimiter() != null) {
             this.delimiter = sinkInfo.getDelimiter();
@@ -49,7 +48,6 @@ public class CsvSinkEncoder implements SinkEncoder<String> {
         if (!StringUtils.isBlank(sinkInfo.getCharset())) {
             this.sinkCharset = Charset.forName(sinkInfo.getCharset());
         }
-        this.fields = sinkInfo.getFields();
     }
 
     /**
@@ -89,11 +87,4 @@ public class CsvSinkEncoder implements SinkEncoder<String> {
         return builder.substring(0, builder.length() - 1);
     }
 
-    /**
-     * get fields
-     * @return the fields
-     */
-    public List<FieldInfo> getFields() {
-        return fields;
-    }
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,7 +35,7 @@ import java.util.List;
  * - Return NULL if string is NULL.
  * - Return the numeric value of the first character of string.
  */
-@TransformFunction(names = {"ascii"}, parameter = "(String str)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"ascii"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if 'str' is NULL;",
         "- Return the numeric value of the first character of 'str'."
 }, examples = {

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,10 +41,11 @@ import java.util.Map;
  * Note: If more characters are specified in the find_chars argument than in the replace_chars argument, the
  * extra characters from the find_chars argument are omitted in the return value.
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "translate"}, parameter = "(String origin_string, String find_chars, String replace_chars)", descriptions = {
                 "- Return \"\" if any parameter is NULL;",
-                "- Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the characters in 'replace_chars'."
+                "- Return the result of replacing all occurrences of both 'find_chars' and 'origin_string' with the " +
+                        "characters in 'replace_chars'."
         }, examples = {
                 "translate(apache@inlong.com, '@', '.') = \"apache.inlong.com\"",
                 "translate(hello WorD, 'WD', 'wd') = \"hello word\""

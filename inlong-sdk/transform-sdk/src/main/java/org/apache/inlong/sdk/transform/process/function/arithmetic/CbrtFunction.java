@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -31,13 +32,14 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if 'numeric' is NULL;
  * - Return cube root.
  */
-@TransformFunction(names = {"cbrt"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return NULL if 'numeric' is NULL;",
-        "- Return cube root.",
-}, examples = {
-        "cbrt(5) = 1.7099759466766968",
-        "cbrt(27) = 3.0"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "cbrt"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return NULL if 'numeric' is NULL;",
+                "- Return cube root.",
+        }, examples = {
+                "cbrt(5) = 1.7099759466766968",
+                "cbrt(27) = 3.0"
+        })
 public class CbrtFunction implements ValueParser {
 
     private ValueParser numParser;

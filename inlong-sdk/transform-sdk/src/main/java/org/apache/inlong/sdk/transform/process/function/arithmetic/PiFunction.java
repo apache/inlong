@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -28,11 +29,8 @@ import net.sf.jsqlparser.expression.Function;
  * description:
  * - Return the mathematical constant PI
  */
-@TransformFunction(names = {"pi"}, parameter = "()", descriptions = {
-        "- Return the mathematical constant PI."
-}, examples = {
-        "pi() = 3.141592653589793"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {"pi"}, parameter = "()", descriptions = {
+        "- Return the mathematical constant PI."}, examples = {"pi() = 3.141592653589793"})
 public class PiFunction implements ValueParser {
 
     public PiFunction(Function expr) {

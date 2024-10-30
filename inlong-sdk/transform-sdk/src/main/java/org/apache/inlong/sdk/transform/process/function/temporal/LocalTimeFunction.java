@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -27,6 +28,7 @@ import net.sf.jsqlparser.expression.Function;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * LocalTimeFunction  ->  localTime([timeZoneStr])
@@ -34,12 +36,14 @@ import java.time.ZoneId;
  * - Return the current time in the specified time zone.
  * Note: timeZoneStr is the system time zone
  */
-@TransformFunction(names = {"localtime", "current_time"}, parameter = "([String timeZoneStr])", descriptions = {
-        "- Return the current time in the specified time zone."
-}, examples = {
-        "localTime() = currentTime",
-        "currentTime(\"UTC\") = currentTime"
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "localtime",
+        "current_time"
+}, parameter = "([String timeZoneStr])", descriptions = {
+        "- Return the current time in the specified time zone."}, examples = {
+                "localTime() = currentTime",
+                "currentTime(\"UTC\") = currentTime"
+        })
 public class LocalTimeFunction implements ValueParser {
 
     private ValueParser stringParser;
@@ -52,11 +56,12 @@ public class LocalTimeFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         if (stringParser != null) {
             String zoneString = OperatorTools.parseString(stringParser.parse(sourceData, rowIndex, context));
-            return LocalTime.now(ZoneId.of(zoneString)).withNano(0);
+            return LocalTime.now(ZoneId.of(zoneString)).withNano(0).format(formatter);
         } else {
-            return LocalTime.now(ZoneId.systemDefault()).withNano(0);
+            return LocalTime.now(ZoneId.systemDefault()).withNano(0).format(formatter);
         }
     }
 }

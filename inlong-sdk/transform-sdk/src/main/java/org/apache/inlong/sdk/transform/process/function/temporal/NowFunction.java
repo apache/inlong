@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -29,11 +30,8 @@ import net.sf.jsqlparser.expression.Function;
  * description:
  * - Return the current SQL timestamp for the local time zone
  */
-@TransformFunction(names = {"now"}, parameter = "()", descriptions = {
-        "- Return the current SQL timestamp for the local time zone."
-}, examples = {
-        "now()"
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {"now"}, parameter = "()", descriptions = {
+        "- Return the current SQL timestamp for the local time zone."}, examples = {"now()"})
 public class NowFunction implements ValueParser {
 
     public NowFunction(Function expr) {

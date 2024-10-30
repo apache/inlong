@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.condition;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
@@ -35,12 +36,11 @@ import java.util.List;
  * - Return r1 if expr holds
  * - Return r2 otherwise
  */
-@TransformFunction(names = {"if"}, parameter = "(Expr expr1,Expr expr2,Expr expr3)", descriptions = {
-        "- Return 'expr2' if 'expr1' returns true;",
-        "- Return 'expr3' otherwise."
-}, examples = {
-        "if(1 = 1,true,false) = true"
-})
+@TransformFunction(type = FunctionConstant.CONDITION_TYPE, names = {
+        "if"}, parameter = "(Expr expr1,Expr expr2,Expr expr3)", descriptions = {
+                "- Return 'expr2' if 'expr1' returns true;",
+                "- Return 'expr3' otherwise."
+        }, examples = {"if(1 = 1,true,false) = true"})
 public class IfFunction implements ValueParser {
 
     private final ExpressionOperator expressionOperator;

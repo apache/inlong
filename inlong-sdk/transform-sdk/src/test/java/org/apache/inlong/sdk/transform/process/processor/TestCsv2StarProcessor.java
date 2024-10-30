@@ -76,6 +76,6 @@ public class TestCsv2StarProcessor extends AbstractProcessorTestBase {
 
         List<String> output4 = processor4.transform("2024-04-28 00:00:00|nok", new HashMap<>());
         Assert.assertEquals(1, output4.size());
-        Assert.assertEquals(output4.get(0), "2024-04-28 00:00:00|nok|nok|2024-04-28 00:00:00");
+        Assert.assertEquals(output4.get(0), "nok|2024-04-28 00:00:00");
     }
 }

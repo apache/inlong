@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,12 +36,11 @@ import java.util.Set;
  * - Return NULL if 'array' is null
  * - Return an array with unique elements.
  */
-@TransformFunction(names = {"array_distinct"}, parameter = "(Array array)", descriptions = {
-        "- Return \"\" if 'array' is NULL;",
-        "- Return an array with unique elements.",
-}, examples = {
-        "array_distinct(array('he',-1,'he')) = [he, -1]"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "array_distinct"}, parameter = "(Array array)", descriptions = {
+                "- Return \"\" if 'array' is NULL;",
+                "- Return an array with unique elements."
+        }, examples = {"array_distinct(array('he',-1,'he')) = [he, -1]"})
 public class ArrayDistinctFunction implements ValueParser {
 
     private final ValueParser arrayParser;

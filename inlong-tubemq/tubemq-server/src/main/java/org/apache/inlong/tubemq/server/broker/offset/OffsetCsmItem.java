@@ -24,24 +24,26 @@ public class OffsetCsmItem {
 
     protected int partitionId;
     // consume group confirmed offset
-    protected long offsetCfm = 0L;
+    protected long cfmOffset = 0L;
     // consume group fetched offset
-    protected long offsetFetch = 0L;
+    protected long inflightOffset = 0L;
+    // consumer clientRecId
+    protected int clientRecId = -1;
 
     public OffsetCsmItem(int partitionId) {
         this.partitionId = partitionId;
     }
 
     public void addCsmOffsets(long offsetCfm, long offsetFetch) {
-        this.offsetCfm = offsetCfm;
-        this.offsetFetch = offsetFetch;
+        this.cfmOffset = offsetCfm;
+        this.inflightOffset = offsetFetch;
     }
 
-    public void addCfmOffset(long offsetCfm) {
-        this.offsetCfm = offsetCfm;
+    public void addClientRecId(int clientRecId) {
+        this.clientRecId = clientRecId;
     }
 
-    public void addFetchOffset(long offsetFetch) {
-        this.offsetFetch = offsetFetch;
+    public long getCfmOffset() {
+        return cfmOffset;
     }
 }

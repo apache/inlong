@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
@@ -103,8 +104,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
         String streamId = request.getInlongStreamId();
+        InlongStreamEntity streamEntity = groupCheckService.checkStreamStatus(groupId, streamId, operator);
         String sourceName = request.getSourceName();
         List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
         if (CollectionUtils.isNotEmpty(existList)) {
@@ -119,7 +120,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        int id = sourceOperator.saveOpt(request, groupEntity.getStatus(), operator);
+        int id = sourceOperator.saveOpt(request, streamEntity.getStatus(), operator);
 
         LOGGER.info("success to save source info: {}", request);
         return id;
@@ -300,6 +301,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
+        String streamId = request.getInlongStreamId();
+        InlongStreamEntity streamEntity = groupCheckService.checkStreamStatus(groupId, streamId, operator);
+
         userService.checkUser(groupEntity.getInCharges(), operator,
                 "Current user does not have permission to update source info");
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
@@ -308,7 +312,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), operator);
+        sourceOperator.updateOpt(request, streamEntity.getStatus(), groupEntity.getInlongGroupMode(), operator);
 
         LOGGER.info("success to update source info: {}", request);
         return true;

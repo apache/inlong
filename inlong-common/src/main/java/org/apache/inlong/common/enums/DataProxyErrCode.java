@@ -68,6 +68,7 @@ public enum DataProxyErrCode {
     DUPLICATED_MESSAGE(120, "Duplicated message"),
     GROUPID_OR_STREAMID_NOT_CONFIGURE(121, "GroupId or StreamId not found in configure"),
     GROUPID_OR_STREAMID_INCONSTANT(122, "GroupId or StreamId inconstant"),
+    MSG_BODY_ITEMS_INVALID(123, "Msg body items invalid"),
 
     ATTR_ORDER_CONTROL_CONFLICT_ERROR(150, "Require order send but isAck is false"),
     ATTR_PROXY_CONTROL_CONFLICT_ERROR(151, "Require proxy send but isAck is false"),

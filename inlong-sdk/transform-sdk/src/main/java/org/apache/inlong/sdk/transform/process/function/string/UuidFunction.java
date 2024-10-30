@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
@@ -31,12 +32,9 @@ import java.util.UUID;
  * description:
  * - Return a UUID (universally unique identifier) string based on RFC 4122 Type 4 (pseudo-randomly generated) UUID.
  */
-@TransformFunction(names = {"uuid"}, parameter = "(String s)", descriptions = {
-        "- Return a UUID (universally unique identifier) string based on RFC 4122 Type 4 " +
-                "(pseudo-randomly generated) UUID."
-}, examples = {
-        "uuid()"
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"uuid"}, parameter = "(String s)", descriptions = {
+        "- Return a UUID (universally unique identifier) string based on RFC 4122 Type 4 (pseudo-randomly generated) UUID."}, examples = {
+                "uuid()"})
 public class UuidFunction implements ValueParser {
 
     private final UUID uuid;

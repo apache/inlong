@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -36,14 +37,15 @@ import java.util.List;
  * - Return NULL if 'x' is NULL
  * - Return the nearest integer to 'x', with optional parameter 'y' indicating the number of decimal places to be rounded
  */
-@TransformFunction(names = {"round"}, parameter = "(String str)", descriptions = {
-        "- Return \"\" if 'x' is NULL;",
-        "- Return the nearest integer to 'x', with optional parameter 'y' indicating the number of decimal " +
-                "places to be rounded."
-}, examples = {
-        "round(3.5) = 4",
-        "round(3.14159265358979323846,10) = 3.1415926536"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "round"}, parameter = "(String str)", descriptions = {
+                "- Return \"\" if 'x' is NULL;",
+                "- Return the nearest integer to 'x', with optional parameter 'y' indicating the number of decimal " +
+                        "places to be rounded."
+        }, examples = {
+                "round(3.5) = 4",
+                "round(3.14159265358979323846,10) = 3.1415926536"
+        })
 public class RoundFunction implements ValueParser {
 
     private ValueParser numberParser;

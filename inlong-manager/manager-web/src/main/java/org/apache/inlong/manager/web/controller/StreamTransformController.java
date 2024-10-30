@@ -23,12 +23,15 @@ import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformFunctionDocRequest;
+import org.apache.inlong.manager.pojo.transform.TransformFunctionDocResponse;
 import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
+import org.apache.inlong.manager.service.transform.TransformFunctionDocService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -41,6 +44,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+
 /**
  * Stream transform control layer
  */
@@ -51,6 +56,9 @@ public class StreamTransformController {
 
     @Autowired
     protected StreamTransformService streamTransformService;
+
+    @Resource
+    private TransformFunctionDocService transformFunctionDocService;
 
     @RequestMapping(value = "/transform/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.TRANSFORM)
@@ -87,6 +95,13 @@ public class StreamTransformController {
     public Response<Boolean> delete(@Validated DeleteTransformRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamTransformService.delete(request, operator));
+    }
+
+    @RequestMapping(value = "/transform/function/list", method = RequestMethod.POST)
+    @ApiOperation(value = "Get transform function docs list with optional type filtering and pagination")
+    public Response<PageResult<TransformFunctionDocResponse>> listDocs(
+            @Validated @RequestBody TransformFunctionDocRequest request) {
+        return Response.success(transformFunctionDocService.listByCondition(request));
     }
 
 }

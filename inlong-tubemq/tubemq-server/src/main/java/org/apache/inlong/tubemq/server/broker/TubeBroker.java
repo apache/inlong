@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -128,8 +129,8 @@ public class TubeBroker implements Stoppable {
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
         BrokerJMXHolder.registerMXBean();
-        this.metadataManager = new BrokerMetadataManager();
-        this.offsetManager = new DefaultOffsetManager(tubeConfig);
+        this.metadataManager = new BrokerMetadataManager(tubeConfig.getGrpOffsetStgExpMs());
+        this.offsetManager = new DefaultOffsetManager(tubeConfig, this.metadataManager);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
         this.serverAuthHandler = new SimpleCertificateBrokerHandler(this);
         this.offsetRecordService =
@@ -227,6 +228,7 @@ public class TubeBroker implements Stoppable {
         this.shutdown.set(false);
         // register to master, and heartbeat to master.
         this.register2Master();
+        this.offsetManager.start();
         this.scheduledExecutorService.scheduleAtFixedRate(
                 new Runnable() {
 
@@ -403,7 +405,8 @@ public class TubeBroker implements Stoppable {
 
                 @Override
                 public void run() {
-                    storeManager.removeTopicStore();
+                    Set<String> removedTopics = storeManager.removeTopicStore();
+                    offsetManager.cleanRmvTopicInfo(removedTopics);
                 }
             }.start();
         }

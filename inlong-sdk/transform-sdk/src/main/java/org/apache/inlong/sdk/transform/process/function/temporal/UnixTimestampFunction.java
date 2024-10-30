@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,14 +41,13 @@ import java.util.List;
  *          (by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds)
  *          if there is a parameter specified
  */
-@TransformFunction(names = {"unix_timestamp"}, parameter = "([String dateStr [, String format]])", descriptions = {
-        "- Return current Unix timestamp in seconds if no parameter is specified;",
-        "- Return the result of converting the date and time string 'dateStr' to the format 'format' " +
-                "(by default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds) " +
-                "if there is a parameter specified"
-}, examples = {
-        "unix_timestamp('1970/01/01 08:00:44', 'yyyy/MM/dd HH:mm:ss') = \"1970/01/01 08:00:44\""
-})
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "unix_timestamp"}, parameter = "([String dateStr [, String format]])", descriptions = {
+                "- Return current Unix timestamp in seconds if no parameter is specified;",
+                "- Return the result of converting the date and time string 'dateStr' to the format 'format' (by " +
+                        "default: yyyy-MM-dd HH:mm:ss if not specified) to Unix timestamp (in seconds) if there is a " +
+                        "parameter specified"
+        }, examples = {"unix_timestamp('1970/01/01 08:00:44', 'yyyy/MM/dd HH:mm:ss') = \"1970/01/01 08:00:44\""})
 public class UnixTimestampFunction implements ValueParser {
 
     private ValueParser stringParser;

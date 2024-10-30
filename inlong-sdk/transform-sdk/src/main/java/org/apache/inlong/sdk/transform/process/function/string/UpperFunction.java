@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -31,12 +32,13 @@ import net.sf.jsqlparser.expression.Function;
  * - Return NULL if 's' is NULL;
  * - Return the result of converting 's' to uppercase
  */
-@TransformFunction(names = {"upper", "ucase"}, parameter = "(String s)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "upper",
+        "ucase"
+}, parameter = "(String s)", descriptions = {
         "- Return \"\" if 's' is NULL;",
         "- Return the result of converting 's' to uppercase"
-}, examples = {
-        "upper(\"ApPlE\") = \"APPLE\""
-})
+}, examples = {"upper(\"ApPlE\") = \"APPLE\""})
 public class UpperFunction implements ValueParser {
 
     private ValueParser stringParser;

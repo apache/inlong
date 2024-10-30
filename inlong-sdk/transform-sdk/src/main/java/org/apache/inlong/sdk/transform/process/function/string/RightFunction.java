@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -35,13 +36,11 @@ import java.util.List;
  * - Return "" if it is less than or equal to zero
  * - Return a substring of 'len' starting from the right side of the 'str'.
  */
-@TransformFunction(names = {"right"}, parameter = "(String str)", descriptions = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {"right"}, parameter = "(String str)", descriptions = {
         "- Return \"\" if either 'str' or 'len' is NULL;",
         "- Return \"\" if it is less than or equal to zero;",
         "- Return a substring of 'len' starting from the right side of the 'str'."
-}, examples = {
-        "right('hello world',100) = \"hello world\""
-})
+}, examples = {"right('hello world',100) = \"hello world\""})
 public class RightFunction implements ValueParser {
 
     private final ValueParser stringParser;

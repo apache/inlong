@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.collection;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,14 +38,14 @@ import java.util.Map;
  * - Return NULL if the number of parameters is not even
  * - Return a map created from a list of key-value pairs ((value1, value2), ... )
  */
-@TransformFunction(names = {"map"}, parameter = "([String value1, String value2, ...])", descriptions = {
-        "- Return \"\" if the number of parameters is not even;",
-        "- Return a map created from a list of key-value pairs ((value1, value2), ... )."
-}, examples = {
-        "Map('he',7,'xxd') = null",
-        "Map('he',1,'xxd','cloud') = {he=1, xxd=cloud}",
-        "Map('xxd','cloud',map(1,2),map(3,'apple')) = {xxd=cloud, {1=2}={3=apple}}"
-})
+@TransformFunction(type = FunctionConstant.COLLECTION_TYPE, names = {
+        "map"}, parameter = "([String value1, String value2, ...])", descriptions = {
+                "- Return \"\" if the number of parameters is not even;",
+                "- Return a map created from a list of key-value pairs ((value1, value2), ... )."
+        }, examples = {
+                "Map('he',7,'xxd') = null", "Map('he',1,'xxd','cloud') = {he=1, xxd=cloud}",
+                "Map('xxd','cloud',map(1,2),map(3,'apple')) = {xxd=cloud, {1=2}={3=apple}}"
+        })
 public class MapFunction implements ValueParser {
 
     private List<ValueParser> parserList;

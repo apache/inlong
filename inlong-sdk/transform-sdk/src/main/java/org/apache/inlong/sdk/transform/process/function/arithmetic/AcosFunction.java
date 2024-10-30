@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,15 @@ import java.math.BigDecimal;
  * - Return NULL if 'numeric' is NULL;
  * - Return the arc cosine of 'numeric'.
  */
-@TransformFunction(names = {"acos"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if 'numeric' is NULL;",
-        "- Return the arc cosine of 'numeric'."
-}, examples = {
-        "acos(1) = 0.0",
-        "acos(0) = 1.5707963267948966",
-        "acos(-1) = 3.141592653589793"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "acos"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if 'numeric' is NULL;",
+                "- Return the arc cosine of 'numeric'."
+        }, examples = {
+                "acos(1) = 0.0",
+                "acos(0) = 1.5707963267948966",
+                "acos(-1) = 3.141592653589793"
+        })
 public class AcosFunction implements ValueParser {
 
     private ValueParser numberParser;

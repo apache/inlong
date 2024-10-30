@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -34,12 +35,11 @@ import java.util.List;
  * - Return NULL if any parameter is null
  * - Return the result of replacing string 's1' with string 's2' in string 's'
  */
-@TransformFunction(names = {"replace"}, parameter = "(String s, String s1, String s2)", descriptions = {
-        "- Return \"\" if any parameter is null;",
-        "- Return the result of replacing string 's1' with string 's2' in string 's'."
-}, examples = {
-        "replace('Hello World', '', 'J') = \"JHJeJlJlJoJ JWJoJrJlJdJ\""
-})
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
+        "replace"}, parameter = "(String s, String s1, String s2)", descriptions = {
+                "- Return \"\" if any parameter is null;",
+                "- Return the result of replacing string 's1' with string 's2' in string 's'."
+        }, examples = {"replace('Hello World', '', 'J') = \"JHJeJlJlJoJ JWJoJrJlJdJ\""})
 public class ReplaceFunction implements ValueParser {
 
     private ValueParser stringParser;

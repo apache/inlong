@@ -54,7 +54,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
-import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficStatsService;
 import org.apache.inlong.tubemq.server.broker.stats.audit.AuditUtils;

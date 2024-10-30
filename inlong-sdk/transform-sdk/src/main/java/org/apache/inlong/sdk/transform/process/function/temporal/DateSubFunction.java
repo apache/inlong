@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.temporal;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -44,21 +45,22 @@ import java.util.List;
  * - Return String otherwise (type VARCHAR).
  * Note: Regarding the type of KEYWORD, please refer to the description of Interval on the MySQL official website.
  */
-@TransformFunction(names = {"date_sub",
-        "datesub"}, parameter = "(String dateStr,String intervalExprStr)", descriptions = {
-                "- Return \"\" if 'dateStr' is NULL;",
-                "- Return DATE if the date argument is a DATE value and your calculations involve only YEAR, MONTH, and DAY parts(that is, no time parts);",
-                "- Return TIME if the date argument is a TIME value and the calculations involve only HOURS, MINUTES,and SECONDS parts (that is, no date parts);",
-                "- Return DATETIME if the first argument is a DATETIME (or TIMESTAMP) value, or if the first argument is a DATE"
-                        +
-                        "and the unit value uses HOURS, MINUTES, or SECONDS, or if the first argument is of type TIME and the"
-                        +
-                        "unit value uses YEAR, MONTH, or DAY;",
-                "- Return String otherwise (type VARCHAR).",
-                "Note: Regarding 'intervalExpr', please refer to the MySQL official website."
-        }, examples = {
-                "DATE_SUB('1992-12-31 23:59:59', INTERVAL '-1.999999' SECOND_MICROSECOND) = \"1993-01-01 00:00:00.999999\""
-        })
+@TransformFunction(type = FunctionConstant.TEMPORAL_TYPE, names = {
+        "date_sub",
+        "datesub"
+}, parameter = "(String dateStr,String intervalExprStr)", descriptions = {
+        "- Return \"\" if 'dateStr' is NULL;",
+        "- Return DATE if the date argument is a DATE value and your calculations involve only YEAR, MONTH, and " +
+                "DAY parts(that is, no time parts);",
+        "- Return TIME if the date argument is a TIME value and the calculations involve only HOURS, MINUTES,and " +
+                "SECONDS parts (that is, no date parts);",
+        "- Return DATETIME if the first argument is a DATETIME (or TIMESTAMP) value, or if the first argument is " +
+                "a DATE and the unit value uses HOURS, MINUTES, or SECONDS, or if the first argument is of type TIME " +
+                "and the unit value uses YEAR, MONTH, or DAY;",
+        "- Return String otherwise (type VARCHAR).",
+        "Note: Regarding 'intervalExpr', please refer to the MySQL official website."
+}, examples = {
+        "DATE_SUB('1992-12-31 23:59:59', INTERVAL '-1.999999' SECOND_MICROSECOND) = \"1993-01-01 00:00:00.999999\""})
 public class DateSubFunction implements ValueParser {
 
     private final ValueParser datetimeParser;

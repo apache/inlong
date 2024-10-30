@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -37,14 +38,14 @@ import java.util.List;
  * Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number.
  *       Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision.
  */
-@TransformFunction(names = {"radix_convert"}, parameter = "(Numeric numeric)", descriptions = {
-        "- Return \"\" if any of its arguments are NULL;",
-        "- Return the result of converting 'numeric' from 'from_base' to 'to_base'.",
-        "Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number." +
-                "Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision."
-}, examples = {
-        "radix_convert('6E',18,8) = 172"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "radix_convert"}, parameter = "(Numeric numeric)", descriptions = {
+                "- Return \"\" if any of its arguments are NULL;",
+                "- Return the result of converting 'numeric' from 'from_base' to 'to_base'.",
+                "Note: abs(base) between [2,36].'from_base' is a negative number, 'numeric' is regarded as a signed number. "
+                        +
+                        "Otherwise, 'numeric' is treated as unsigned. This function works with 64-bit precision."
+        }, examples = {"radix_convert('6E',18,8) = 172"})
 public class RadixConvertFunction implements ValueParser {
 
     private final ValueParser numParser;

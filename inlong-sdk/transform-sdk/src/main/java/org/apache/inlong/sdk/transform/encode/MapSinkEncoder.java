@@ -25,17 +25,17 @@ import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class MapSinkEncoder implements SinkEncoder<Map<String, Object>> {
+public class MapSinkEncoder extends SinkEncoder<Map<String, Object>> {
 
     private final MapSinkInfo sinkInfo;
     private final Map<String, TypeConverter> converters;
 
     public MapSinkEncoder(MapSinkInfo sinkInfo) {
+        super(sinkInfo.getFields());
         this.sinkInfo = sinkInfo;
         this.converters = sinkInfo.getFields()
                 .stream()
@@ -47,7 +47,7 @@ public class MapSinkEncoder implements SinkEncoder<Map<String, Object>> {
     @Override
     public Map<String, Object> encode(SinkData sinkData, Context context) {
         Map<String, Object> esMap = new HashMap<>();
-        for (FieldInfo fieldInfo : sinkInfo.getFields()) {
+        for (FieldInfo fieldInfo : fields) {
             String fieldName = fieldInfo.getName();
             String strValue = sinkData.getField(fieldName);
             TypeConverter converter = converters.get(fieldName);
@@ -64,10 +64,5 @@ public class MapSinkEncoder implements SinkEncoder<Map<String, Object>> {
         }
 
         return esMap;
-    }
-
-    @Override
-    public List<FieldInfo> getFields() {
-        return sinkInfo.getFields();
     }
 }

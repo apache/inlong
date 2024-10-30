@@ -17,7 +17,8 @@
 
 package org.apache.inlong.audit.source;
 
-import org.apache.inlong.audit.entities.StartEndTime;
+import org.apache.inlong.audit.service.entities.StartEndTime;
+import org.apache.inlong.audit.service.source.JdbcSource;
 
 import org.junit.Test;
 

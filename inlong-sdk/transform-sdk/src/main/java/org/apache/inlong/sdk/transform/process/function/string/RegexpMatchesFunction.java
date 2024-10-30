@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -43,16 +44,16 @@ import java.util.stream.Collectors;
  *                 'x' flag to extend syntax (ignoring whitespace and comments in regular expressions),
  *                 'm' and 'n' flag allows regular expressions to match across multiple lines)
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_matches"}, parameter = "(String source_string, String regexp [,String flags])", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
-                "- Return the result of the first match of the specified regular expression 'regexp' from 'source_string'.",
-                "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur,"
+                "- Return the result of the first match of the specified regular expression 'regexp' from 'source_string'. "
                         +
-                        "'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and "
+                        "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur"
                         +
-                        "comments in regular expressions), 'm' and 'n' -> flag allows regular expressions to match " +
-                        "across multiple lines)"
+                        ", 'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and comments "
+                        +
+                        "in regular expressions), 'm' and 'n' -> flag allows regular expressions to match across multiple lines)"
         }, examples = {
                 "regexp_matches(\"The quick brown fox\", \"quick\") = [{\"quick\"}]",
                 "regexp_matches(\"foo 123 bar 456\", \"\\\\d+\", \"g\") = [{\"123\"},{\"456\"}]"

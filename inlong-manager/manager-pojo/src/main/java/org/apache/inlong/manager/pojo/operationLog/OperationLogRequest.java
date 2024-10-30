@@ -44,6 +44,12 @@ public class OperationLogRequest extends PageRequest {
     @ApiModelProperty("Operation target")
     private String operationTarget;
 
+    @ApiModelProperty("Ip")
+    private String ip;
+
+    @ApiModelProperty("Port")
+    private String port;
+
     @ApiModelProperty(value = "keyword")
     private String keyword;
 

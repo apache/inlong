@@ -24,21 +24,20 @@ import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.List;
 
 /**
  * KvSinkEncoder
  */
-public class KvSinkEncoder implements SinkEncoder<String> {
+public class KvSinkEncoder extends SinkEncoder<String> {
 
     protected KvSinkInfo sinkInfo;
     protected Charset sinkCharset = Charset.defaultCharset();
     private Character entryDelimiter = '&';
     private Character kvDelimiter = '=';
-    private List<FieldInfo> fields;
     private StringBuilder builder = new StringBuilder();
 
     public KvSinkEncoder(KvSinkInfo sinkInfo) {
+        super(sinkInfo.getFields());
         this.sinkInfo = sinkInfo;
         if (!StringUtils.isBlank(sinkInfo.getCharset())) {
             this.sinkCharset = Charset.forName(sinkInfo.getCharset());
@@ -49,7 +48,6 @@ public class KvSinkEncoder implements SinkEncoder<String> {
         if (sinkInfo.getKvDelimiter() != null) {
             this.kvDelimiter = sinkInfo.getKvDelimiter();
         }
-        this.fields = sinkInfo.getFields();
     }
 
     /**
@@ -77,13 +75,5 @@ public class KvSinkEncoder implements SinkEncoder<String> {
             }
         }
         return builder.substring(0, builder.length() - 1);
-    }
-
-    /**
-     * get fields
-     * @return the fields
-     */
-    public List<FieldInfo> getFields() {
-        return fields;
     }
 }

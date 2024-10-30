@@ -121,22 +121,33 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         }
         // check body items
         if (MsgType.MSG_MULTI_BODY.equals(MsgType.valueOf(msgType))) {
-            int readPos = 0;
-            int singleMsgLen;
-            ByteBuffer bodyBuffer = ByteBuffer.wrap(bodyData);
-            int remaining = bodyBuffer.remaining();
-            while (remaining > 0) {
-                singleMsgLen = bodyBuffer.getInt(readPos);
-                if (singleMsgLen <= 0 || singleMsgLen > remaining) {
-                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ITEM_LEN_MALFORMED);
-                    this.errCode = DataProxyErrCode.BODY_EXCEED_MAX_LEN;
-                    this.errMsg = String.format(
-                            "Malformed data len, singleMsgLen(%d), buffer remaining(%d), attr: (%s)",
-                            singleMsgLen, remaining, origAttr);
-                    return false;
+            int totalCnt = 0;
+            int singleMsgLen = 0;
+            int nexPossition = 0;
+            ByteBuffer bodyBuffer = ByteBuffer.wrap(this.bodyData);
+            if (bodyBuffer.limit() <= 4) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_TYPE_5_LEN_MALFORMED);
+                this.errCode = DataProxyErrCode.MSG_BODY_ITEMS_INVALID;
+                this.errMsg = String.format(
+                        "Malformed data len, bodyLen(%d), attr: (%s)", bodyBuffer.limit(), origAttr);
+                return false;
+            }
+            while (nexPossition < bodyBuffer.limit()) {
+                bodyBuffer.position(nexPossition);
+                singleMsgLen = bodyBuffer.getInt();
+                if (singleMsgLen <= 0 || singleMsgLen > bodyBuffer.remaining()) {
+                    break;
                 }
-                readPos += 4 + singleMsgLen;
-                remaining -= 4 + singleMsgLen;
+                totalCnt++;
+                nexPossition += 4 + singleMsgLen;
+            }
+            if (totalCnt == 0) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_TYPE_5_LEN_MALFORMED);
+                this.errCode = DataProxyErrCode.MSG_BODY_ITEMS_INVALID;
+                this.errMsg = String.format(
+                        "Malformed data len, singleMsgLen(%d), buffer remaining(%d), attr: (%s)",
+                        singleMsgLen, bodyBuffer.remaining(), origAttr);
+                return false;
             }
         }
         return true;
@@ -245,11 +256,15 @@ public class CodecTextMsg extends AbsV0MsgCodec {
                 }
                 byte[] record = new byte[singleMsgLen];
                 bodyBuffer.get(record);
-                inLongMsg.addMsg(mapJoiner.join(attrMap), bodyBuffer);
+                inLongMsg.addMsg(mapJoiner.join(attrMap), record);
                 calcCnt++;
             }
-            attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(calcCnt));
-            this.msgCount = calcCnt;
+            if (calcCnt != this.msgCount) {
+                this.msgCount = calcCnt;
+                source.fileMetricIncWithDetailStats(
+                        StatConstants.EVENT_MSG_TYPE_5_CNT_UNEQUAL, groupId);
+            }
+            attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(this.msgCount));
         } else if (MsgType.MSG_MULTI_BODY_ATTR.equals(MsgType.valueOf(msgType))) {
             attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(1));
             inLongMsg.addMsg(mapJoiner.join(attrMap), bodyData);

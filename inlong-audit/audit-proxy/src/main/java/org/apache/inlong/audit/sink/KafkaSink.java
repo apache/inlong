@@ -19,6 +19,7 @@ package org.apache.inlong.audit.sink;
 
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.file.ConfigManager;
+import org.apache.inlong.audit.metric.MetricsManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.MQInfo;
@@ -385,6 +386,8 @@ public class KafkaSink extends AbstractSink implements Configurable {
     }
 
     public void handleMessageSendSuccess(EventStat es) {
+        MetricsManager.getInstance().addSendSuccess(1);
+
         // Statistics tube performance
         totalKafkaSuccSendCnt.incrementAndGet();
         totalKafkaSuccSendSize.addAndGet(es.getEvent().getBody().length);
@@ -494,6 +497,8 @@ public class KafkaSink extends AbstractSink implements Configurable {
                 } else {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             e.getMessage(), resendQueue.size(), es.getEvent().hashCode());
+
+                    MetricsManager.getInstance().addSendFailed(1);
                 }
 
                 es.incRetryCnt();

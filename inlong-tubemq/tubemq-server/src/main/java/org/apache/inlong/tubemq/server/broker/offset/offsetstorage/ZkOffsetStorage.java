@@ -19,6 +19,8 @@ package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.exception.OffsetStoreException;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetStorage;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
@@ -31,11 +33,13 @@ import org.slf4j.LoggerFactory;
 
 import java.net.BindException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A offset storage implementation with zookeeper
@@ -105,13 +109,16 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     @Override
-    public void commitOffset(String group,
-            Collection<OffsetStorageInfo> offsetInfoList,
-            boolean isFailRetry) {
+    public ConcurrentHashMap<String, OffsetStorageInfo> loadGroupStgInfo(String group) {
+        return new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public boolean commitOffset(String group, Collection<OffsetStorageInfo> offsetInfoList, boolean isFailRetry) {
         if (this.zkw == null
                 || offsetInfoList == null
                 || offsetInfoList.isEmpty()) {
-            return;
+            return false;
         }
         StringBuilder sBuilder = new StringBuilder(512);
         if (isFailRetry) {
@@ -126,7 +133,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     } catch (InterruptedException ie) {
                         logger.error(
                                 "InterruptedException when commit offset to ZooKeeper with retry " + i, ie);
-                        return;
+                        return true;
                     }
                 }
             }
@@ -137,6 +144,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                 logger.error("Error when commit offsets to ZooKeeper", e);
             }
         }
+        return true;
     }
 
     @Override
@@ -158,8 +166,9 @@ public class ZkOffsetStorage implements OffsetStorage {
         }
         String[] offsetInfoStrs =
                 offsetZkInfo.split(TokenConstants.HYPHEN);
-        return new OffsetStorageInfo(topic, brokerId, partitionId,
-                Long.parseLong(offsetInfoStrs[1]), Long.parseLong(offsetInfoStrs[0]), false);
+        return new OffsetStorageInfo(topic, brokerId, partitionId, 0,
+                Long.parseLong(offsetInfoStrs[1]), Long.parseLong(offsetInfoStrs[0]),
+                false, System.currentTimeMillis());
 
     }
 
@@ -239,26 +248,35 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     /**
      * Query booked topic info of groups stored in zookeeper.
-     * @param groupSet query groups
+     * @param groups query groups
      * @return group--topic map info
      */
     @Override
-    public Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet) {
-        String qryBrokerId;
-        Map<String, Set<String>> groupTopicMap = new HashMap<>();
+    public Map<String, Set<String>> queryGroupTopicInfo(Set<String> groups) {
         StringBuilder strBuff = new StringBuilder(512);
-        if (groupSet == null || groupSet.isEmpty()) {
-            return groupTopicMap;
-        }
-        // build path base
+        // build base path
         String groupNode = strBuff.append(this.consumerZkDir).toString();
         strBuff.delete(0, strBuff.length());
+        Set<String> tmpGroups = new HashSet<>();
+        Map<String, Set<String>> groupTopicMap = new HashMap<>();
+        if (groups == null) {
+            List<String> bookedGroups = ZKUtil.getChildren(this.zkw, groupNode);
+            if (bookedGroups != null) {
+                tmpGroups.addAll(bookedGroups);
+            }
+        } else {
+            tmpGroups.addAll(groups);
+        }
+        if (tmpGroups.isEmpty()) {
+            return groupTopicMap;
+        }
+        String qryBrokerId;
         // get the group managed by this broker
-        for (String group : groupSet) {
+        for (String group : tmpGroups) {
             String topicNode = strBuff.append(groupNode)
                     .append("/").append(group).append("/offsets").toString();
-            List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
             strBuff.delete(0, strBuff.length());
+            List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
             Set<String> topicSet = new HashSet<>();
             if (consumeTopics != null) {
                 for (String topic : consumeTopics) {
@@ -267,8 +285,8 @@ public class ZkOffsetStorage implements OffsetStorage {
                     }
                     String brokerNode = strBuff.append(topicNode)
                             .append("/").append(topic).toString();
-                    List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
                     strBuff.delete(0, strBuff.length());
+                    List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
                     if (brokerIds != null) {
                         for (String idStr : brokerIds) {
                             if (idStr != null) {
@@ -290,21 +308,6 @@ public class ZkOffsetStorage implements OffsetStorage {
             }
         }
         return groupTopicMap;
-    }
-
-    /**
-     * Get group-topic map info stored in zookeeper.
-     * <p/>
-     * The broker only cares about the content of its own node
-     *
-     */
-    @Override
-    public Map<String, Set<String>> queryZkAllGroupTopicInfos() {
-        // get all booked groups name
-        String groupNode = new StringBuilder(512)
-                .append(this.consumerZkDir).toString();
-        List<String> bookedGroups = ZKUtil.getChildren(this.zkw, groupNode);
-        return queryZKGroupTopicInfo(bookedGroups);
     }
 
     /**
@@ -352,6 +355,16 @@ public class ZkOffsetStorage implements OffsetStorage {
             strBuff.delete(0, strBuff.length());
             chkAndRmvBlankParentNode(parentNode);
         }
+    }
+
+    @Override
+    public Set<String> cleanExpiredGroupInfo(long checkTime, long expiredDurMs) {
+        return Collections.EMPTY_SET;
+    }
+
+    @Override
+    public Set<String> cleanRmvTopicInfo(Set<String> rmvTopics) {
+        return Collections.EMPTY_SET;
     }
 
     private void chkAndRmvBlankParentNode(String parentNode) {

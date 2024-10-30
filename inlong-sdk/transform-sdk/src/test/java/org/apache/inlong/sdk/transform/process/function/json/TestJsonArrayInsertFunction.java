@@ -86,5 +86,11 @@ public class TestJsonArrayInsertFunction extends AbstractFunctionStringTestBase 
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=[\"x\",\"a\",{\"b\":[1,2]},[3,\"y\",4]]", output.get(0));
 
+        // case7: json_array_append(["a", {"b": [1, 2]}, [3, 4]], "$[0]", "[\"inlong\"]", "$[0][0]", "apache")
+        data = "[\\\"a\\\", {\\\"b\\\": [1, 2]}, [3, 4]]|$[0]|[\\\"inlong\\\"]|$[0][0]|apache";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=[[\"apache\",\"inlong\"],\"a\",{\"b\":[1,2]},[3,4]]", output.get(0));
+
     }
 }

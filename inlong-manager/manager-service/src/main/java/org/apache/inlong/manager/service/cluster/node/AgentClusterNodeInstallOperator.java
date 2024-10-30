@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster.node;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ModuleType;
 import org.apache.inlong.manager.common.enums.NodeStatus;
@@ -47,6 +48,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -80,6 +83,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
 
     @Value("${agent.install.path:inlong/inlong-installer/}")
     private String agentInstallPath;
+    @Value("${agent.install.temp.path:inlong/agent-installer-temp/}")
+    private String agentInstallTempPath;
     @Value("${manager.url:127.0.0.1:8083}")
     private String managerUrl;
 
@@ -96,18 +101,25 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     @Override
     public boolean install(ClusterNodeRequest clusterNodeRequest, String operator) {
         LOGGER.info("begin to insert agent cluster node={}", clusterNodeRequest);
+        Date now = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentTime = dateFormat.format(now);
         try {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
-                    "begin to install");
+                    currentTime + InlongConstants.BLANK + "begin to install");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
+            commandExecutor.mkdir(request, agentInstallTempPath);
+            String downLoadUrl = getInstallerDownLoadUrl(request);
+            commandExecutor.downLoadPackage(request, agentInstallTempPath, downLoadUrl);
+
             deployInstaller(request, operator);
             String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
-                    NodeStatus.INSTALL_SUCCESS.getStatus(), "success to install");
+                    NodeStatus.INSTALL_SUCCESS.getStatus(), currentTime + InlongConstants.BLANK + "success to install");
         } catch (Exception e) {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
-                    NodeStatus.INSTALL_FAILED.getStatus(), e.getMessage());
+                    NodeStatus.INSTALL_FAILED.getStatus(), currentTime + InlongConstants.BLANK + e.getMessage());
             String errMsg = String.format("install agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -119,19 +131,29 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     @Override
     public boolean reInstall(ClusterNodeRequest clusterNodeRequest, String operator) {
         LOGGER.info("begin to reInstall agent cluster node={}", clusterNodeRequest);
+        Date now = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentTime = dateFormat.format(now);
         try {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.INSTALLING.getStatus(),
-                    "begin to reinstall");
+                    currentTime + InlongConstants.BLANK + "begin to reinstall");
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
+            commandExecutor.rmDir(request, agentInstallTempPath);
+            commandExecutor.mkdir(request, agentInstallTempPath);
+            commandExecutor.cpDir(request, agentInstallPath + "/conf/modules.json", agentInstallTempPath);
+            String downLoadUrl = getInstallerDownLoadUrl(request);
+            commandExecutor.downLoadPackage(request, agentInstallTempPath, downLoadUrl);
             commandExecutor.rmDir(request, agentInstallPath.substring(0, agentInstallPath.lastIndexOf(File.separator)));
             deployInstaller(request, operator);
+
+            commandExecutor.cpDir(request, agentInstallTempPath + "/modules.json", agentInstallPath + "/conf");
             String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, reStartCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.NORMAL.getStatus(),
-                    "success to reinstall");
+                    currentTime + InlongConstants.BLANK + "success to reinstall");
         } catch (Exception e) {
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
-                    NodeStatus.INSTALL_FAILED.getStatus(), e.getMessage());
+                    NodeStatus.INSTALL_FAILED.getStatus(), currentTime + InlongConstants.BLANK + e.getMessage());
             String errMsg = String.format("reInstall agent cluster node failed for ip=%s", clusterNodeRequest.getIp());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -184,8 +206,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
         commandExecutor.mkdir(request, agentInstallPath);
         String downLoadUrl = getInstallerDownLoadUrl(request);
         String fileName = downLoadUrl.substring(downLoadUrl.lastIndexOf('/') + 1);
-        commandExecutor.downLoadPackage(request, agentInstallPath, downLoadUrl);
-        commandExecutor.tarPackage(request, fileName, agentInstallPath);
+        commandExecutor.tarPackage(request, fileName, agentInstallTempPath, agentInstallPath);
         String confFile = agentInstallPath + INSTALLER_CONF_PATH;
         Map<String, String> configMap = new HashMap<>();
         configMap.put(AGENT_LOCAL_IP, request.getIp());

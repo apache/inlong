@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.arithmetic;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -33,14 +34,15 @@ import java.math.BigDecimal;
  * - Return NULL if 'numericx' or 'numericy' is NULL;
  * - Return the arc tangent of a coordinate ('numericx', 'numericy').
  */
-@TransformFunction(names = {"atan2"}, parameter = "(Numeric numeric)", descriptions = {
-        "Return \"\" if 'numericx' or 'numericy' is NULL;",
-        "Return the arc tangent of a coordinate ('numericx', 'numericy')."
-}, examples = {
-        "atan2(1, 1) = 0.7853981633974483",
-        "atan2(1, 0) = 1.5707963267948966",
-        "atan2(0, -1) = 3.141592653589793"
-})
+@TransformFunction(type = FunctionConstant.ARITHMETIC_TYPE, names = {
+        "atan2"}, parameter = "(Numeric numeric)", descriptions = {
+                "Return \"\" if 'numericx' or 'numericy' is NULL;",
+                "Return the arc tangent of a coordinate ('numericx', 'numericy')."
+        }, examples = {
+                "atan2(1, 1) = 0.7853981633974483",
+                "atan2(1, 0) = 1.5707963267948966",
+                "atan2(0, -1) = 3.141592653589793"
+        })
 public class Atan2Function implements ValueParser {
 
     private ValueParser xParser;

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.transform.process.function.string;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
+import org.apache.inlong.sdk.transform.process.function.FunctionConstant;
 import org.apache.inlong.sdk.transform.process.function.TransformFunction;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
@@ -40,21 +41,20 @@ import java.util.regex.Pattern;
  *                 'x' flag to extend syntax (ignoring whitespace and comments in regular expressions),
  *                 'm' and 'n' flag allows regular expressions to match across multiple lines)
  */
-@TransformFunction(names = {
+@TransformFunction(type = FunctionConstant.STRING_TYPE, names = {
         "regexp_split_to_array"}, parameter = "(String source_string, String regexp, String flags)", descriptions = {
                 "- Return \"\" if any of the arguments are NULL or invalid;",
                 "- Return a string from 'source_string' with all the substrings that match a regular expression 'regexp' "
                         +
                         "consecutively being replaced with 'replacement'.",
-                "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur,"
+                "Note: 'flags' is one of  ('g' -> flag can be used when we want to match all the substrings that occur, "
                         +
                         "'i' -> flag to ignore case for matching, 'x' -> flag to extend syntax (ignoring whitespace and "
                         +
-                        "comments in regular expressions), 'm' and 'n' -> flag allows regular expressions to match " +
-                        "across multiple lines)."
-        }, examples = {
-                "regexp_split_to_array(\"hello world\",\"\\s+\") = {hello, world}"
-        })
+                        "comments in regular expressions), 'm' and 'n' -> flag allows regular expressions to match across "
+                        +
+                        "multiple lines)."
+        }, examples = {"regexp_split_to_array(\"hello world\",\"\\s+\") = {hello, world}"})
 public class RegexpSplitToArrayFunction implements ValueParser {
 
     private ValueParser inputParser;

@@ -28,8 +28,7 @@ import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetCsmRecord;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
+import org.apache.inlong.tubemq.server.broker.offset.topicpub.TopicPubInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
@@ -199,7 +198,7 @@ public class MessageStoreManager implements StoreService {
     }
 
     @Override
-    public List<String> removeTopicStore() {
+    public Set<String> removeTopicStore() {
         if (isRemovingTopic.get()) {
             return null;
         }
@@ -207,8 +206,7 @@ public class MessageStoreManager implements StoreService {
             return null;
         }
         try {
-            List<String> removedTopics =
-                    new ArrayList<>();
+            Set<String> removedTopics = new HashSet<>();
             Map<String, TopicMetadata> removedTopicMap =
                     this.metadataManager.getRemovedTopicConfigMap();
             if (removedTopicMap.isEmpty()) {
@@ -411,8 +409,8 @@ public class MessageStoreManager implements StoreService {
     @Override
     public Map<String, Map<Integer, TopicPubStoreInfo>> getTopicPublishInfos(
             Set<String> topicSet) {
-        MessageStore store = null;
-        TopicMetadata topicMetadata = null;
+        MessageStore store;
+        TopicMetadata topicMetadata;
         Set<String> qryTopicSet = new HashSet<>();
         Map<String, Map<Integer, TopicPubStoreInfo>> topicPubStoreInfoMap = new HashMap<>();
         Map<String, TopicMetadata> confTopicInfo = metadataManager.getTopicConfigMap();
@@ -460,45 +458,39 @@ public class MessageStoreManager implements StoreService {
     }
 
     /**
-     * Query topic's publish info.
+     * Query all topic's publish info.
      *
-     * @param groupOffsetMap query's topic set
+     * @return the current topic's offset info
      *
      */
     @Override
-    public void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap) {
-        MessageStore store = null;
-        Map<Integer, MessageStore> storeMap;
-        Map<String, Map<Integer, OffsetCsmRecord>> topicOffsetMap;
-        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
-            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+    public Map<String, TopicPubInfo> getTopicPublishInfos() {
+        TopicPubInfo topicPubInfo;
+        Map<String, TopicPubInfo> result = new HashMap<>();
+        for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : dataStores.entrySet()) {
+            if (entry == null
+                    || entry.getKey() == null
+                    || entry.getValue() == null
+                    || entry.getValue().isEmpty()) {
                 continue;
             }
-            topicOffsetMap = entry.getValue().getOffsetMap();
-            // Get offset records by topic
-            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic : topicOffsetMap.entrySet()) {
-                if (entryTopic == null
-                        || entryTopic.getKey() == null
-                        || entryTopic.getValue() == null) {
+            for (Map.Entry<Integer, MessageStore> entry1 : entry.getValue().entrySet()) {
+                if (entry1 == null
+                        || entry1.getKey() == null
+                        || entry1.getValue() == null) {
                     continue;
                 }
-                // Get message store instance
-                storeMap = dataStores.get(entryTopic.getKey());
-                if (storeMap == null) {
-                    continue;
+                topicPubInfo = result.get(entry.getKey());
+                if (topicPubInfo == null) {
+                    topicPubInfo = new TopicPubInfo(entry.getKey());
+                    result.put(entry.getKey(), topicPubInfo);
                 }
-                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd : entryTopic.getValue().entrySet()) {
-                    store = storeMap.get(entryRcd.getValue().getStoreId());
-                    if (store == null) {
-                        continue;
-                    }
-                    // Append current max, min offset
-                    entryRcd.getValue().addStoreInfo(store.getIndexMinOffset(),
-                            store.getIndexMaxOffset(), store.getDataMinOffset(),
-                            store.getDataMaxOffset());
-                }
+                topicPubInfo.addStorePubInfo(entry1.getKey(), entry1.getValue().getPartitionNum(),
+                        entry1.getValue().getIndexMinOffset(), entry1.getValue().getIndexMaxOffset(),
+                        entry1.getValue().getDataMinOffset(), entry1.getValue().getDataMaxOffset());
             }
         }
+        return result;
     }
 
     private Set<File> getLogDirSet(final BrokerConfig tubeConfig) throws IOException {
