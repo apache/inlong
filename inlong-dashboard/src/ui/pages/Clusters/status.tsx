@@ -39,6 +39,21 @@ export const statusList: StatusProp[] = [
     value: 2,
     type: 'error',
   },
+  {
+    label: i18n.t('pages.Clusters.Node.Status.INSTALLING'),
+    value: 3,
+    type: 'primary',
+  },
+  {
+    label: i18n.t('pages.Clusters.Node.Status.INSTALLFAILED'),
+    value: 4,
+    type: 'error',
+  },
+  {
+    label: i18n.t('pages.Clusters.Node.Status.INSTALLSUCCESS'),
+    value: 5,
+    type: 'success',
+  },
 ];
 
 export const statusMap = statusList.reduce(
