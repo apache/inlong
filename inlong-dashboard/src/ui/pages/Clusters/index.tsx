@@ -169,7 +169,7 @@ const Comp: React.FC = () => {
                   {i18n.t('pages.Clusters.Node.Name')}
                 </Link>
               )}
-              {record.type !== 'DATAPROXY' && record.type !== 'AGENT' && (
+              {record.type !== 'DATAPROXY' && (
                 <Button type="link" onClick={() => onEdit(record)}>
                   {i18n.t('basic.Edit')}
                 </Button>
