@@ -23,6 +23,8 @@ import dayjs from 'dayjs';
 import i18n from '@/i18n';
 import { sinks } from '@/plugins/sinks';
 import request from '@/core/utils/request';
+import { CSVLink } from 'react-csv';
+import audit from '@/ui/pages/GroupDetail/Audit/index';
 
 export const timeStaticsDimList = [
   {
@@ -131,11 +133,11 @@ export const getSourceDataWithPercent = (sourceKeys, sourceMap) => {
 
 export const getDiff = (first, current) => {
   if (first === 0) {
-    return '0%';
+    return first.toFixed(4) + '%';
   }
   let result;
-  const diff = Math.ceil((current / first - 1) * 100);
-  result = diff > 0 ? '+' + diff + '%' : diff + '%';
+  const diff = (current / first - 1) * 100;
+  result = diff > 0 ? '+' + diff.toFixed(4) + '%' : diff.toFixed(4) + '%';
   return result;
 };
 
@@ -154,10 +156,17 @@ export const getSourceDataWithCommas = sourceData => {
   });
   return sourceData;
 };
-
 let endTimeVisible = true;
-
-export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
+export const getFormContent = (
+  inlongGroupId,
+  initialValues,
+  onSearch,
+  onDataStreamSuccess,
+  sourceData,
+  csvData,
+  fileName,
+  setInlongStreamID,
+) => [
   {
     type: 'select',
     label: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
@@ -165,6 +174,9 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     props: {
       dropdownMatchSelectWidth: false,
       showSearch: true,
+      onChange: (value, option) => {
+        setInlongStreamID(value);
+      },
       options: {
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
@@ -244,7 +256,6 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
             return Promise.resolve();
           }
           const timeDiff = value - getFieldValue('startDate');
-          console.log('timeDiff', value, getFieldValue('startDate'), timeDiff);
           if (timeDiff >= 0) {
             const isHourDiff = dim === 'HOUR' && timeDiff < 1000 * 60 * 60 * 24 * 3;
             const isDayDiff = dim === 'DAY' && timeDiff < 1000 * 60 * 60 * 24 * 7;
@@ -329,6 +340,15 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     type: (
       <Button type="primary" onClick={onSearch}>
         {i18n.t('pages.GroupDetail.Audit.Search')}
+      </Button>
+    ),
+  },
+  {
+    type: (
+      <Button type="primary" disabled={!(sourceData.length > 0)}>
+        <CSVLink data={csvData} filename={fileName}>
+          {i18n.t('pages.GroupDetail.Audit.ExportCSV')}
+        </CSVLink>
       </Button>
     ),
   },

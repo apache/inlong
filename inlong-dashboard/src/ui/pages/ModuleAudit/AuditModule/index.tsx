@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
@@ -45,7 +45,8 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
     endDate: +new Date(),
     timeStaticsDim: timeStaticsDimList[0].value,
   });
-
+  const [inlongStreamID, setInlongStreamID] = useState('');
+  const [inlongGroupId, setInlongGroupId] = useState('');
   const { data: sourceData = [], run } = useRequest(
     {
       url: '/audit/list',
@@ -61,7 +62,17 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
       formatResult: result => result.sort((a, b) => (a.auditId - b.auditId > 0 ? 1 : -1)),
     },
   );
-
+  const numToName = useCallback(
+    num => {
+      let obj = {};
+      sourceData.forEach(item => {
+        obj = { ...obj, [item.auditId]: item.auditName };
+      });
+      obj = { ...obj, logTs: i18n.t('pages.GroupDetail.Audit.Time') };
+      return obj[num];
+    },
+    [sourceData],
+  );
   const sourceDataMap = useMemo(() => {
     const flatArr = sourceData
       .reduce(
@@ -99,7 +110,29 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
     }
     run();
   };
+  const metricSum = useMemo(() => {
+    let obj = { logTs: i18n.t('pages.GroupDetail.Audit.Total') };
+    sourceData.map(item => {
+      const sum = item.auditSet?.reduce((total, cur) => {
+        return total + cur.count;
+      }, 0);
+      obj = { ...obj, [item.auditId]: sum };
+    });
+    return obj;
+  }, [sourceData]);
 
+  const csvData = useMemo(() => {
+    const result = [...toTableData(sourceData, sourceDataMap), metricSum].map(item => {
+      let obj = {};
+      Object.keys(item)
+        .reverse()
+        .forEach(key => {
+          obj = { ...obj, [numToName(key)]: item[key] };
+        });
+      return obj;
+    });
+    return result;
+  }, [sourceData, sourceDataMap, metricSum]);
   const onDataStreamSuccess = data => {
     const defaultDataStream = data[0]?.value;
     if (defaultDataStream) {
@@ -108,15 +141,28 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
       run();
     }
   };
-
+  const [fileName, setFileName] = useState('metrics.csv');
+  useEffect(() => {
+    setFileName(`metrics_${inlongGroupId}_${inlongStreamID}.csv`);
+  }, [inlongGroupId, inlongStreamID]);
   return (
     <>
       <div style={{ marginBottom: 40 }}>
         <FormGenerator
           form={form}
           layout="inline"
-          content={getFormContent(query, onSearch, onDataStreamSuccess, auditData)}
-          style={{ marginBottom: 30 }}
+          content={getFormContent(
+            query,
+            onSearch,
+            onDataStreamSuccess,
+            auditData,
+            sourceData,
+            csvData,
+            setInlongGroupId,
+            setInlongStreamID,
+            fileName,
+          )}
+          style={{ marginBottom: 30, gap: 10 }}
           onFilter={allValues =>
             setQuery({
               ...allValues,
