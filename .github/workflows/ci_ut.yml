@@ -115,12 +115,12 @@ jobs:
           sudo swapon /swapfile
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        run: mvn -B -U -ntp -e -V clean install -DskipTests -Dspotbugs.skip=true  -Dlicense.skip=true  -Dcheckstyle.skip=true  -Drat.skip=true -pl '!inlong-distribution' -am -T 1C -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
         env:
           CI: false
 
       - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V test -pl !:sort-end-to-end-tests-v1.15,!:sort-end-to-end-tests-v1.13,!:sort-end-to-end-tests-v1.18
+        run: mvn -B -U -e -V test -pl !:sort-end-to-end-tests-v1.15,!:sort-end-to-end-tests-v1.13,!:sort-end-to-end-tests-v1.18
         env:
           CI: false
 

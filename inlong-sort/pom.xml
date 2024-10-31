@@ -114,7 +114,7 @@
                             <phase>package</phase>
                             <configuration>
                                 <shadeTestJar>false</shadeTestJar>
-                                <createDependencyReducedPom>true</createDependencyReducedPom>
+                                <createDependencyReducedPom>false</createDependencyReducedPom>
                                 <dependencyReducedPomLocation>${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                                 <createSourcesJar>true</createSourcesJar>
                                 <transformers>
