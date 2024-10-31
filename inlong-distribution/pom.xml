@@ -33,32 +33,6 @@
         <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec.maven.version}</version>
-                <configuration>
-                    <executable>bash</executable>
-                    <arguments>
-                        <argument>+x</argument>
-                        <argument>${basedir}/script/backup_module_dependencies.sh</argument>
-                    </arguments>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>uncompress</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <profiles>
         <profile>
             <id>flink-all-version</id>
@@ -103,6 +77,27 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec.maven.version}</version>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>${basedir}/script/backup_module_dependencies.sh</argument>
+                            </arguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>uncompress</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -141,6 +136,27 @@
                                         <descriptor>src/main/assemblies/sort-connectors-v1.13.xml</descriptor>
                                     </descriptors>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec.maven.version}</version>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>${basedir}/script/backup_module_dependencies.sh</argument>
+                            </arguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>uncompress</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -185,6 +201,27 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec.maven.version}</version>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>${basedir}/script/backup_module_dependencies.sh</argument>
+                            </arguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>uncompress</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -223,6 +260,27 @@
                                         <descriptor>src/main/assemblies/sort-connectors-v1.18.xml</descriptor>
                                     </descriptors>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec.maven.version}</version>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>${basedir}/script/backup_module_dependencies.sh</argument>
+                            </arguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>uncompress</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>
