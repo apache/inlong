@@ -87,6 +87,11 @@ export const getFormContent = inlongGroupId => [
             })),
         },
       },
+      allowClear: true,
+      showSearch: true,
+      filterOption: (keyword: string, option: { label: any }) => {
+        return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
+      },
     },
   },
   {
@@ -96,6 +101,11 @@ export const getFormContent = inlongGroupId => [
     props: {
       dropdownMatchSelectWidth: false,
       options: targetList,
+      allowClear: true,
+      showSearch: true,
+      filterOption: (keyword: string, option: { label: any }) => {
+        return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
+      },
     },
   },
   {
@@ -105,6 +115,11 @@ export const getFormContent = inlongGroupId => [
     props: {
       dropdownMatchSelectWidth: false,
       options: typeList,
+      allowClear: true,
+      showSearch: true,
+      filterOption: (keyword: string, option: { label: any }) => {
+        return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
+      },
     },
   },
 ];

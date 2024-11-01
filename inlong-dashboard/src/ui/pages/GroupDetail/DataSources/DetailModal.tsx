@@ -60,6 +60,7 @@ const Comp: React.FC<Props> = ({
       formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         form.setFieldsValue(result);
+        form.setFieldsValue({ clusterTag: result?.inlongClusterTag });
         setType(result.sourceType);
       },
     },
@@ -89,6 +90,11 @@ const Comp: React.FC<Props> = ({
     message.success(t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };
 
+  const { run: getGroup } = useRequest(`/group/get/${inlongGroupId}`, {
+    onSuccess: result => {
+      form.setFieldsValue({ clusterTag: result?.inlongClusterTag });
+    },
+  });
   useUpdateEffect(() => {
     if (modalProps.open) {
       // open
@@ -118,7 +124,10 @@ const Comp: React.FC<Props> = ({
         <Spin spinning={loading}>
           <FormGenerator
             content={formContent}
-            onValuesChange={(c, values) => setType(values.sourceType)}
+            onValuesChange={(c, values) => {
+              setType(values.sourceType);
+              if (Object.keys(c)[0] === 'sourceType') getGroup();
+            }}
             initialValues={id ? data : { inlongGroupId }}
             form={form}
             useMaxWidth
