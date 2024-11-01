@@ -170,6 +170,10 @@ const Comp: React.FC = () => {
           allowClear: true,
           options: statusList,
           dropdownMatchSelectWidth: false,
+          showSearch: true,
+          filterOption: (keyword: string, option: { label: any }) => {
+            return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
+          },
         },
       },
       {
