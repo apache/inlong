@@ -104,7 +104,6 @@ const Comp: React.FC = () => {
   );
   const onDelete = useCallback(
     record => {
-      console.log(record);
       Modal.confirm({
         title: i18n.t('basic.DeleteConfirm'),
         onOk: async () => {

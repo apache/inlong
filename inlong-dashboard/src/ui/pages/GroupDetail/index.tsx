@@ -64,7 +64,6 @@ const Comp: React.FC = () => {
     ready: !!id,
     refreshDeps: [id],
     onSuccess: result => {
-      console.log('res', result, getLocalStorage('tenant')?.['name']);
       if (getLocalStorage('tenant')?.['name'] !== result) {
         setLocalStorage({ name: result });
         message.success(t('components.Layout.Tenant.Success'));
