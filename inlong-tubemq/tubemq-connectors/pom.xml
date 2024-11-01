@@ -29,7 +29,6 @@
     <name>Apache InLong - TubeMQ Connectors</name>
 
     <modules>
-        <module>tubemq-connector-flink</module>
         <module>tubemq-connector-flume</module>
         <module>tubemq-connector-spark</module>
     </modules>
