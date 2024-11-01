@@ -48,6 +48,7 @@ export default class MongodbSource
           data: {
             keyword,
             type: 'AGENT',
+            clusterTag: values.clusterTag,
             pageNum: 1,
             pageSize: 10,
           },

@@ -97,6 +97,15 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   sourceType: string;
 
   @FieldDecorator({
+    type: 'select',
+    hidden: true,
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.File.ClusterName')
+  clusterTag: string;
+
+  @FieldDecorator({
     type: 'input',
     rules: [
       { required: true },
