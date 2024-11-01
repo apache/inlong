@@ -37,6 +37,7 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
     startDate: dayjs().startOf('hour').valueOf(),
     endDate: dayjs().startOf('hour').valueOf(),
     auditIds: ['3', '4'],
+    ip: '',
   });
 
   const { data: sourceData = [], run } = useRequest(
@@ -167,6 +168,10 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
   const [fileName, setFileName] = useState('ip.csv');
   useEffect(() => {
     setFileName('ip_' + ip + '.csv');
+    setQuery({
+      ...query,
+      ip,
+    });
   }, [ip]);
   return (
     <>
