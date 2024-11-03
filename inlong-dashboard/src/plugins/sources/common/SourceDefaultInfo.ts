@@ -100,10 +100,9 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'select',
     hidden: true,
   })
-  @ColumnDecorator()
   @IngestionField()
   @I18n('meta.Sources.File.ClusterName')
-  clusterTag: string;
+  readonly clusterTag: string;
 
   @FieldDecorator({
     type: 'input',
