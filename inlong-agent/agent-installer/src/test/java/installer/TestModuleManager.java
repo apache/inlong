@@ -138,7 +138,7 @@ public class TestModuleManager {
             PowerMockito.doAnswer(invocation -> {
                 ModuleConfig module = invocation.getArgument(0);
                 return true;
-            }).when(manager, "isProcessAllStarted", Mockito.any());
+            }).when(manager, "isProcessAllStarted", Mockito.any(), Mockito.anyInt());
 
             PowerMockito.doReturn(null).when(manager, "getHttpManager", Mockito.any());
         } catch (Exception e) {
