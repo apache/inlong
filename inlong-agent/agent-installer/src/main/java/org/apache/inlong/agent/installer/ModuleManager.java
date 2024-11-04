@@ -80,6 +80,7 @@ public class ModuleManager extends AbstractDaemon {
     public static final String LOCAL_CONFIG_FILE = "modules.json";
     private static final Logger LOGGER = LoggerFactory.getLogger(ModuleManager.class);
     public static final int MAX_MODULE_SIZE = 10;
+    public static final int CHECK_PROCESS_TIMES = 20;
     private final InstallerConfiguration conf;
     private final String confPath;
     private final BlockingQueue<ConfigResult> configQueue;
@@ -345,7 +346,7 @@ public class ModuleManager extends AbstractDaemon {
                     }
                     break;
                 case INSTALLED:
-                    if (!isProcessAllStarted(module)) {
+                    if (!isProcessAllStarted(module, CHECK_PROCESS_TIMES)) {
                         LOGGER.info("module {}({}) process not all started try to start", module.getId(),
                                 module.getName());
                         if (!startModule(module)) {
@@ -495,7 +496,7 @@ public class ModuleManager extends AbstractDaemon {
             String ret = ExcuteLinux.exeCmd(module.getStartCommand());
             LOGGER.info("start module {}({}) proc[{}] return {} ", module.getId(), module.getName(), i, ret);
         }
-        if (isProcessAllStarted(module)) {
+        if (isProcessAllStarted(module, CHECK_PROCESS_TIMES)) {
             LOGGER.info("start module {}({}) success", module.getId(), module.getName());
             return true;
         } else {
@@ -517,21 +518,27 @@ public class ModuleManager extends AbstractDaemon {
         LOGGER.info("uninstall module {}({}) return {} ", module.getId(), module.getName(), ret);
     }
 
-    private boolean isProcessAllStarted(ModuleConfig module) {
-        String ret = ExcuteLinux.exeCmd(module.getCheckCommand());
-        if (ret == null) {
-            LOGGER.error("get module {}({}) process num failed", module.getId(), module.getName());
-            return false;
-        }
-        String[] processArray = ret.split("\n");
-        int cnt = 0;
-        for (int i = 0; i < processArray.length; i++) {
-            if (processArray[i].length() > 0) {
-                cnt++;
+    private boolean isProcessAllStarted(ModuleConfig module, int times) {
+        for (int check = 0; check < times; check++) {
+            AgentUtils.silenceSleepInSeconds(1);
+            String ret = ExcuteLinux.exeCmd(module.getCheckCommand());
+            if (ret == null) {
+                LOGGER.error("[{}] get module {}({}) process num failed", check, module.getId(), module.getName());
+                continue;
+            }
+            String[] processArray = ret.split("\n");
+            int cnt = 0;
+            for (int i = 0; i < processArray.length; i++) {
+                if (processArray[i].length() > 0) {
+                    cnt++;
+                }
+            }
+            LOGGER.info("[{}] get module {}({}) process num {}", check, module.getId(), module.getName(), cnt);
+            if (cnt >= module.getProcessesNum()) {
+                return true;
             }
         }
-        LOGGER.info("get module {}({}) process num {}", module.getId(), module.getName(), cnt);
-        return cnt >= module.getProcessesNum();
+        return false;
     }
 
     private boolean downloadModule(ModuleConfig module) {
