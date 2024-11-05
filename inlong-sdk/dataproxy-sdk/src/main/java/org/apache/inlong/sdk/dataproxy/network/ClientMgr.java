@@ -770,7 +770,7 @@ public class ClientMgr {
                 logger.info("HBClient:" + item.getKey() + ";" + item.getValue());
             }
             boolean isLoadSwitch = false;
-            int smallSize = Math.max(Math.min(listData.size(), listHB.size()), 1);
+            int smallSize = Math.min(Math.min(listData.size(), listHB.size()), 1);
             for (int i = 0; i < smallSize; i++) {
                 if ((listData.get(i).getValue() - listHB.get(i).getValue()) >= this.loadThreshold) {
                     isLoadSwitch = true;
