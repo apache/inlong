@@ -455,6 +455,10 @@ public class ProxyClientConfig {
         return metricConfig;
     }
 
+    public boolean isEnableMetric() {
+        return metricConfig.isEnableMetric();
+    }
+
     public void setMetricConfig(MetricConfig metricConfig) {
         if (metricConfig == null) {
             return;
