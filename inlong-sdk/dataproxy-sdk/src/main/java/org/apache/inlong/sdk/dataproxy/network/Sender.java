@@ -64,7 +64,7 @@ public class Sender {
     private final ClientMgr clientMgr;
     private final ProxyClientConfig configure;
     private final boolean isFile;
-    private final MetricWorkerThread metricWorker;
+    private MetricWorkerThread metricWorker = null;
     private int clusterId = -1;
 
     public Sender(ProxyClientConfig configure) throws Exception {
@@ -102,8 +102,11 @@ public class Sender {
         scanThread = new TimeoutScanThread(callbacks, currentBufferSize, configure, clientMgr);
         scanThread.start();
 
-        metricWorker = new MetricWorkerThread(configure, this);
-        metricWorker.start();
+        if (configure.isEnableMetric()) {
+            metricWorker = new MetricWorkerThread(configure, this);
+            metricWorker.start();
+        }
+
         LOGGER.info("proxy sdk is starting!");
     }
 
@@ -130,7 +133,9 @@ public class Sender {
         scanThread.shutDown();
         clientMgr.shutDown();
         threadPool.shutdown();
-        metricWorker.close();
+        if (configure.isEnableMetric()) {
+            metricWorker.close();
+        }
     }
 
     public String getExceptionStack(Throwable e) {
@@ -227,8 +232,11 @@ public class Sender {
      * @return
      */
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit) {
-        metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(), encodeObject.getStreamId(),
-                Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
+        if (configure.isEnableMetric()) {
+            metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
+                    encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getDt(),
+                    encodeObject.getPackageTime(), encodeObject.getRealCnt());
+        }
         NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         SendResult message = null;
         try {
@@ -272,7 +280,9 @@ public class Sender {
             scanThread.resetTimeoutChannel(client.getChannel());
         }
         if (message == SendResult.OK) {
-            metricWorker.recordSuccessByMessageId(encodeObject.getMessageId());
+            if (configure.isEnableMetric()) {
+                metricWorker.recordSuccessByMessageId(encodeObject.getMessageId());
+            }
         }
         return message;
     }
@@ -510,12 +520,12 @@ public class Sender {
      */
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
-                encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
-                encodeObject.getDt(), encodeObject.getRealCnt());
-
+        if (configure.isEnableMetric()) {
+            metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
+                    encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
+                    encodeObject.getDt(), encodeObject.getRealCnt());
+        }
         // send message package time
-
         NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         if (client == null) {
             throw new ProxysdkException(SendResult.NO_CONNECTION.toString());
@@ -585,7 +595,9 @@ public class Sender {
         SyncMessageCallable callable = syncCallables.remove(messageId);
         SendResult result = response.getSendResult();
         if (result == SendResult.OK) {
-            metricWorker.recordSuccessByMessageId(messageId);
+            if (configure.isEnableMetric()) {
+                metricWorker.recordSuccessByMessageId(messageId);
+            }
         } else {
             LOGGER.error("{} exception happens, error message {}", channel, response.getErrMsg());
         }
