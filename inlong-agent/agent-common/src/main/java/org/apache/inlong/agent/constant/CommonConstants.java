@@ -68,9 +68,6 @@ public class CommonConstants {
     public static final String PROXY_SENDER_MAX_RETRY = "proxy.sender.maxRetry";
     public static final int DEFAULT_PROXY_SENDER_MAX_RETRY = 5;
 
-    public static final String PROXY_IS_FILE = "proxy.isFile";
-    public static final boolean DEFAULT_IS_FILE = false;
-
     public static final String PROXY_CLIENT_IO_THREAD_NUM = "client.iothread.num";
     public static final int DEFAULT_PROXY_CLIENT_IO_THREAD_NUM =
             Runtime.getRuntime().availableProcessors();

@@ -21,7 +21,6 @@ import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
@@ -831,122 +830,6 @@ public class DefaultMessageSender implements MessageSender {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-    }
-
-    @Deprecated
-    public void asyncsendMessageData(FileCallback callback, List<byte[]> bodyList, String groupId, String streamId,
-            long dt, int sid, boolean isSupportLF, String msgUUID, long timeout, TimeUnit timeUnit,
-            Map<String, String> extraAttrMap) throws ProxysdkException {
-        dt = ProxyUtils.covertZeroDt(dt);
-        if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
-                || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
-            throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
-        }
-        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
-            throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
-        }
-        addIndexCnt(groupId, streamId, bodyList.size());
-
-        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
-
-        if (msgtype == 7 || msgtype == 8) {
-            EncodeObject encodeObject = new EncodeObject(bodyList, msgtype,
-                    isCompress, isReport, isGroupIdTransfer,
-                    dt / 1000, sid, groupId, streamId, attrs.toString(), "data", "");
-            encodeObject.setSupportLF(isSupportLF);
-            sender.asyncSendMessageIndex(encodeObject, callback, msgUUID, timeout, timeUnit);
-        }
-    }
-
-    @Deprecated
-    private void asyncSendMetric(FileCallback callback, byte[] body, String groupId, String streamId, long dt, int sid,
-            String ip, String msgUUID, long timeout, TimeUnit timeUnit, String messageKey) throws ProxysdkException {
-        dt = ProxyUtils.covertZeroDt(dt);
-        if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
-            throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
-        }
-        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
-            throw new ProxysdkException(SendResult.BODY_EXCEED_MAX_LEN.toString());
-        }
-        boolean isCompressEnd = false;
-        if (msgtype == 7 || msgtype == 8) {
-            sender.asyncSendMessageIndex(new EncodeObject(body, msgtype, isCompressEnd,
-                    isReport, isGroupIdTransfer, dt / 1000,
-                    sid, groupId, streamId, "", messageKey, ip), callback, msgUUID, timeout, timeUnit);
-        }
-    }
-
-    @Deprecated
-    public void asyncsendMessageProxy(FileCallback callback, byte[] body, String groupId, String streamId, long dt,
-            int sid, String ip, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, groupId, streamId, dt, sid, ip, msgUUID, timeout,
-                timeUnit, "minute");
-    }
-
-    @Deprecated
-    public void asyncsendMessageFile(FileCallback callback, byte[] body, String groupId, String streamId, long dt,
-            int sid, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit,
-                "file");
-    }
-
-    @Deprecated
-    public String sendMessageData(List<byte[]> bodyList, String groupId, String streamId, long dt, int sid,
-            boolean isSupportLF, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
-        dt = ProxyUtils.covertZeroDt(dt);
-        if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
-                || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
-            return SendResult.INVALID_ATTRIBUTES.toString();
-        }
-        if (!ProxyUtils.isBodyLengthValid(bodyList, maxPacketLength)) {
-            return SendResult.BODY_EXCEED_MAX_LEN.toString();
-        }
-        addIndexCnt(groupId, streamId, bodyList.size());
-
-        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
-
-        if (msgtype == 7 || msgtype == 8) {
-            EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress,
-                    isReport, isGroupIdTransfer, dt / 1000,
-                    sid, groupId, streamId, attrs.toString(), "data", "");
-            encodeObject.setSupportLF(isSupportLF);
-            Function<Sender, String> sendOperation = (sender) -> sender.syncSendMessageIndex(encodeObject, msgUUID,
-                    timeout, timeUnit);
-            return attemptSendMessageIndex(sendOperation);
-        }
-        return null;
-    }
-
-    @Deprecated
-    private String sendMetric(byte[] body, String groupId, String streamId, long dt, int sid, String ip, String msgUUID,
-            long timeout, TimeUnit timeUnit, String messageKey) {
-        dt = ProxyUtils.covertZeroDt(dt);
-        if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
-            return SendResult.INVALID_ATTRIBUTES.toString();
-        }
-        if (!ProxyUtils.isBodyLengthValid(body, maxPacketLength)) {
-            return SendResult.BODY_EXCEED_MAX_LEN.toString();
-        }
-        if (msgtype == 7 || msgtype == 8) {
-            EncodeObject encodeObject = new EncodeObject(body, msgtype, false, isReport,
-                    isGroupIdTransfer, dt / 1000, sid, groupId, streamId, "", messageKey, ip);
-            Function<Sender, String> sendOperation = (sender) -> sender.syncSendMessageIndex(encodeObject, msgUUID,
-                    timeout, timeUnit);
-            return attemptSendMessageIndex(sendOperation);
-        }
-        return null;
-    }
-
-    @Deprecated
-    public String sendMessageProxy(byte[] body, String groupId, String streamId, long dt, int sid, String ip,
-            String msgUUID, long timeout, TimeUnit timeUnit) {
-        return sendMetric(body, groupId, streamId, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
-    }
-
-    @Deprecated
-    public String sendMessageFile(byte[] body, String groupId, String streamId, long dt, int sid, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
-        return sendMetric(body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit, "file");
     }
 
     private void shutdownInternalThreads() {

@@ -39,7 +39,6 @@ public class ProxyClientConfig {
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String inlongGroupId;
-    private boolean isFile = false;
     private boolean requestByHttp = true;
     private boolean isNeedDataEncry = false;
     private boolean needAuthentication = false;
@@ -194,14 +193,6 @@ public class ProxyClientConfig {
 
     public boolean isRequestByHttp() {
         return requestByHttp;
-    }
-
-    public boolean isFile() {
-        return isFile;
-    }
-
-    public void setFile(boolean file) {
-        isFile = file;
     }
 
     public String getInlongGroupId() {

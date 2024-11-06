@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.dataproxy.threads;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.metric.MessageRecord;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
@@ -192,7 +192,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         callBack.increaseRetry();
         try {
             if (callBack.getRetryCount() < 4) {
-                sender.asyncSendMessageIndex(encodeObject, callBack,
+                sender.asyncSendMessage(encodeObject, callBack,
                         String.valueOf(System.currentTimeMillis()), 20, TimeUnit.SECONDS);
             } else {
                 logger.error("Send metric failure: {} {}", encodeObject.getBodyBytes(), encodeObject.getBodylist());
@@ -267,7 +267,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
     }
 
-    private class MetricSendCallBack extends FileCallback {
+    private class MetricSendCallBack implements SendMessageCallback {
 
         private final EncodeObject encodeObject;
         private int retryCount = 0;
@@ -285,17 +285,17 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
 
         @Override
-        public void onMessageAck(String result) {
-            if (!SendResult.OK.toString().equals(result)) {
-                tryToSendMetricToManager(encodeObject, this);
-            } else {
+        public void onMessageAck(SendResult result) {
+            if (!SendResult.OK.equals(result)) {
                 logger.debug("Send metric is ok!");
+            } else {
+                tryToSendMetricToManager(encodeObject, this);
             }
         }
 
         @Override
-        public void onMessageAck(SendResult result) {
-
+        public void onException(Throwable e) {
+            //
         }
     }
 }
