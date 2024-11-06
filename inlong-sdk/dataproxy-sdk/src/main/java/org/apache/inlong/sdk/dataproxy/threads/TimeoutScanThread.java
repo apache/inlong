@@ -18,7 +18,6 @@
 package org.apache.inlong.sdk.dataproxy.threads;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
@@ -143,13 +142,8 @@ public class TimeoutScanThread extends Thread {
                 // remove it before callback
                 QueueObject queueObject1 = messageIdCallbacks.remove(messageId);
                 if (queueObject1 != null) {
-                    if (config.isFile()) {
-                        ((FileCallback) queueObject1.getCallback()).onMessageAck(SendResult.TIMEOUT.toString());
-                        currentBufferSize.addAndGet(-queueObject1.getSize());
-                    } else {
-                        queueObject1.getCallback().onMessageAck(SendResult.TIMEOUT);
-                        currentBufferSize.decrementAndGet();
-                    }
+                    queueObject1.getCallback().onMessageAck(SendResult.TIMEOUT);
+                    currentBufferSize.decrementAndGet();
                 }
                 addTimeoutChannel(channel);
             }

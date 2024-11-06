@@ -87,7 +87,6 @@ public class SenderManager {
     private final int aliveConnectionNum;
     private final boolean isCompress;
     private final int msgType;
-    private final boolean isFile;
     private final long maxSenderTimeout;
     private final int maxSenderRetry;
     private final long retrySleepTime;
@@ -133,7 +132,6 @@ public class SenderManager {
                 CommonConstants.PROXY_SENDER_MAX_RETRY, CommonConstants.DEFAULT_PROXY_SENDER_MAX_RETRY);
         retrySleepTime = agentConf.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
-        isFile = profile.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         ioThreadNum = profile.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = profile.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
@@ -200,7 +198,6 @@ public class SenderManager {
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(managerAddr, inlongGroupId, authSecretId,
                 authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
-        proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
 
         proxyClientConfig.setIoThreadNum(ioThreadNum);
