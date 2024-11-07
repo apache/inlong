@@ -166,6 +166,7 @@ export const getFormContent = (
   csvData,
   fileName,
   setInlongStreamID,
+  inlongStreamId,
 ) => [
   {
     type: 'select',
@@ -219,7 +220,7 @@ export const getFormContent = (
             pageNum: 1,
             pageSize: 100,
             inlongGroupId,
-            inlongStreamId: values.inlongStreamId,
+            inlongStreamId: inlongStreamId,
           },
         }),
         requestParams: {
@@ -229,6 +230,9 @@ export const getFormContent = (
               value: item.id,
             })) || [],
         },
+      },
+      filterOption: (keyword: string, option: { label: any }) => {
+        return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
       },
     }),
   },
