@@ -162,6 +162,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             csvData,
             fileName,
             setInlongStreamID,
+            inlongStreamID,
           )}
           style={{ marginBottom: 30, gap: 10 }}
           onFilter={allValues =>
