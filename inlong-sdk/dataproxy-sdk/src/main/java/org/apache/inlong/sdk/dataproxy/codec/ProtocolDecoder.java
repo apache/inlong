@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
@@ -71,7 +72,13 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 attrBytes = new byte[attrLength];
                 buffer.readBytes(attrBytes);
             }
-            EncodeObject object = new EncodeObject(bodyBytes, new String(attrBytes, StandardCharsets.UTF_8));
+            EncodeObject object;
+            if (bodyBytes == null) {
+                object = new EncodeObject(new String(attrBytes, StandardCharsets.UTF_8));
+            } else {
+                object = new EncodeObject(Collections.singletonList(bodyBytes),
+                        new String(attrBytes, StandardCharsets.UTF_8));
+            }
             object.setMsgtype(5);
             out.add(object);
         } else if (msgType == 7) {

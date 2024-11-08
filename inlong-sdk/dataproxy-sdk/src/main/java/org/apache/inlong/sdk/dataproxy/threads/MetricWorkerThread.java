@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -195,7 +196,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
                 sender.asyncSendMessage(encodeObject, callBack,
                         String.valueOf(System.currentTimeMillis()), 20, TimeUnit.SECONDS);
             } else {
-                logger.error("Send metric failure: {} {}", encodeObject.getBodyBytes(), encodeObject.getBodylist());
+                logger.error("Send metric failure: {}", encodeObject.getBodylist());
             }
         } catch (Throwable ex) {
             logger.warn("Send metric throw exception", ex);
@@ -204,7 +205,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     }
 
     private void sendSingleLine(String line, String streamId, long dtTime) {
-        EncodeObject encodeObject = new EncodeObject(line.getBytes(), 7,
+        EncodeObject encodeObject = new EncodeObject(Collections.singletonList(line.getBytes()), 7,
                 false, false, false,
                 dtTime, idGenerator.getNextInt(),
                 metricConfig.getMetricGroupId(), streamId, "", "", Utils.getLocalIp());

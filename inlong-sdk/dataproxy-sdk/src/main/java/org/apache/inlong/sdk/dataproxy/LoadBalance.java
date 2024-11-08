@@ -25,10 +25,10 @@ public enum LoadBalance {
     WEIGHT_RANDOM("weight random", 3),
     WEIGHT_ROBIN("weight robin", 4);
 
-    private String name;
-    private int index;
+    private final String name;
+    private final int index;
 
-    private LoadBalance(String name, int index) {
+    LoadBalance(String name, int index) {
         this.name = name;
         this.index = index;
     }

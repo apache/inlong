@@ -35,7 +35,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
     private String pubKey;
     private byte[] aesKey;
     private String rsaEncryptedKey;
-    private AtomicLong lastUpdateTime = new AtomicLong(0);
+    private final AtomicLong lastUpdateTime = new AtomicLong(0);
 
     public EncryptConfigEntry(final String userName, final String version, final String pubKey) {
         this.userName = userName;
@@ -43,7 +43,6 @@ public class EncryptConfigEntry implements java.io.Serializable {
         this.pubKey = pubKey;
         this.aesKey = null;
         this.rsaEncryptedKey = null;
-        // this.rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
     }
 
     public String getVersion() {
