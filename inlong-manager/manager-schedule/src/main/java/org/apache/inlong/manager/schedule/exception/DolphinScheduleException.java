@@ -15,20 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.schedule.exception;
 
-import lombok.Getter;
+/**
+ * Exceptions occur in the schedule procedure.
+ * */
+public class DolphinScheduleException extends RuntimeException {
 
-@Getter
-public enum ScheduleEngineType {
+    public DolphinScheduleException(String message) {
+        super(message);
+    }
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    DOLPHINSCHEDULER("DolphinScheduler");
-
-    private final String type;
-
-    ScheduleEngineType(String type) {
-        this.type = type;
+    public DolphinScheduleException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

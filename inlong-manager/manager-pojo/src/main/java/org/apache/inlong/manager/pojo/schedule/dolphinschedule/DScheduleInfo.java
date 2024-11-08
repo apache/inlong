@@ -15,20 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.pojo.schedule.dolphinschedule;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@Getter
-public enum ScheduleEngineType {
+@Data
+public class DScheduleInfo {
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    DOLPHINSCHEDULER("DolphinScheduler");
+    @ApiModelProperty("DolphinScheduler schedule start time")
+    @JsonProperty("startTime")
+    private String startTime;
 
-    private final String type;
+    @ApiModelProperty("DolphinScheduler schedule end time")
+    @JsonProperty("endTime")
+    private String endTime;
 
-    ScheduleEngineType(String type) {
-        this.type = type;
-    }
+    @ApiModelProperty("DolphinScheduler schedule crontab expression")
+    @JsonProperty("crontab")
+    private String crontab;
+
+    @ApiModelProperty("DolphinScheduler schedule timezone id")
+    @JsonProperty("timezoneId")
+    private String timezoneId;
+
 }
