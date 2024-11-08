@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
@@ -135,7 +134,7 @@ public class FileStaticManager {
                     INLONG_AGENT_SYSTEM,
                     INLONG_FILE_STATIC,
                     AgentUtils.getCurrentTime(),
-                    "", 30, TimeUnit.SECONDS);
+                    "");
             if (ret != SendResult.OK) {
                 LOGGER.error("send static failed: ret {}", ret);
             }

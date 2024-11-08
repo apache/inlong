@@ -173,8 +173,9 @@ public class Sender {
         currentBufferSize.decrementAndGet();
     }
 
-    private SendResult syncSendInternalMessage(NettyClient client, EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
+    private SendResult syncSendInternalMessage(NettyClient client,
+            EncodeObject encodeObject, String msgUUID)
+            throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null) {
             return SendResult.NO_CONNECTION;
         }
@@ -204,11 +205,12 @@ public class Sender {
             encodeObject.setEncryptEntry(false, null, null);
         }
         encodeObject.setMsgUUID(msgUUID);
-        SyncMessageCallable callable = new SyncMessageCallable(client, encodeObject, timeout, timeUnit);
+        SyncMessageCallable callable = new SyncMessageCallable(client, encodeObject,
+                configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
         syncCallables.put(encodeObject.getMessageId(), callable);
 
         Future<SendResult> future = threadPool.submit(callable);
-        return future.get(timeout, timeUnit);
+        return future.get(configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -217,11 +219,9 @@ public class Sender {
      *
      * @param encodeObject
      * @param msgUUID
-     * @param timeout
-     * @param timeUnit
      * @return
      */
-    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit) {
+    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID) {
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                     encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getDt(),
@@ -230,7 +230,7 @@ public class Sender {
         NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         SendResult message = null;
         try {
-            message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
+            message = syncSendInternalMessage(client, encodeObject, msgUUID);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             LOGGER.error("send message error {} ", getExceptionStack(e));

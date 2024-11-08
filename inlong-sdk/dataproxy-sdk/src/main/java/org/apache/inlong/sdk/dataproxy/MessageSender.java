@@ -23,7 +23,6 @@ import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public interface MessageSender {
 
@@ -33,8 +32,7 @@ public interface MessageSender {
      * @param body The data will be sent
      *             
      */
-    SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit);
+    SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID);
 
     /**
      * This method provides a synchronized  function which you want to send data without packing
@@ -45,8 +43,8 @@ public interface MessageSender {
      * @param extraAttrMap The attributes you want to add,
      *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
-    SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
+    SendResult sendMessage(byte[] body, String groupId,
+            String streamId, long dt, String msgUUID, Map<String, String> extraAttrMap);
 
     /**
      * This method provides a synchronized  function which you want to send data  with packing
@@ -54,8 +52,7 @@ public interface MessageSender {
      *
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
-    SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit);
+    SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID);
 
     /**
      * This method provides a synchronized  function which you want to send data with packing
@@ -66,8 +63,8 @@ public interface MessageSender {
      * @param extraAttrMap The attributes you want to add,
      *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
-    SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
+    SendResult sendMessage(List<byte[]> bodyList, String groupId,
+            String streamId, long dt, String msgUUID, Map<String, String> extraAttrMap);
 
     /**
      * This method provides a synchronized  function which you want to send data without packing
@@ -80,7 +77,6 @@ public interface MessageSender {
      */
     void asyncSendMessage(SendMessageCallback callback,
             byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit,
             Map<String, String> extraAttrMap) throws ProxysdkException;
 
     /**
@@ -91,8 +87,7 @@ public interface MessageSender {
      * @param body     The data will be sent
      */
     void asyncSendMessage(SendMessageCallback callback,
-            byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException;
+            byte[] body, String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data  with packing
@@ -101,8 +96,7 @@ public interface MessageSender {
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
     void asyncSendMessage(SendMessageCallback callback,
-            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException;
+            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data with packing
@@ -115,7 +109,6 @@ public interface MessageSender {
      */
     void asyncSendMessage(SendMessageCallback callback,
             List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit,
             Map<String, String> extraAttrMap) throws ProxysdkException;
 
     /**
