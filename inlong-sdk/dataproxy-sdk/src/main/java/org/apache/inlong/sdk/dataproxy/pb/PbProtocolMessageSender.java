@@ -174,22 +174,6 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     /**
      * sendMessage
      * 
-     * @param      body
-     * @param      attributes
-     * @param      msgUUID
-     * @param      timeout
-     * @param      timeUnit
-     * @return                SendResult
-     * @deprecated
-     */
-    @Override
-    public SendResult sendMessage(byte[] body, String attributes, String msgUUID, long timeout, TimeUnit timeUnit) {
-        return SendResult.INVALID_ATTRIBUTES;
-    }
-
-    /**
-     * sendMessage
-     * 
      * @param  body
      * @param  groupId
      * @param  streamId
@@ -343,24 +327,6 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
             refResult.set(SendResult.UNKOWN_ERROR);
         }
         return refResult.get();
-    }
-
-    /**
-     * asyncSendMessage
-     * 
-     * @param      callback
-     * @param      body
-     * @param      attributes
-     * @param      msgUUID
-     * @param      timeout
-     * @param      timeUnit
-     * @throws     ProxysdkException
-     * @deprecated
-     */
-    @Override
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        throw new ProxysdkException("Not support");
     }
 
     /**
