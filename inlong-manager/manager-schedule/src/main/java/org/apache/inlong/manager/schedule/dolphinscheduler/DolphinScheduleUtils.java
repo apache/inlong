@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.schedule.dolphinscheduler;
 
+import org.apache.inlong.common.bounded.BoundaryType;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.dolphinschedule.DSTaskDefinition;
 import org.apache.inlong.manager.pojo.schedule.dolphinschedule.DSTaskParams;
@@ -670,7 +671,7 @@ public class DolphinScheduleUtils {
                 "# Build request body\n" +
                 "jsonBody=$(cat <<EOF\n" +
                 "{\n" +
-                "  \"boundaryType\": \"OFFSET\",\n" +
+                "  \"boundaryType\": \"" + BoundaryType.TIME.getType() + "\",\n" +
                 "  \"groupId\": \"" + groupId + "\",\n" +
                 "  \"lowerBoundary\": \"${lowerBoundary}\",\n" +
                 "  \"upperBoundary\": \"${upperBoundary}\"\n" +
