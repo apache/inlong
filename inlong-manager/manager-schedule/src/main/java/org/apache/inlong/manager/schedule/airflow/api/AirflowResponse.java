@@ -15,21 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.schedule.airflow.api;
 
-import lombok.Getter;
+/**
+ * A generic response wrapper for handling responses from Airflow services.
+ * @param <T> the type of data included in the response, allowing flexibility for various data types.
+ */
+public class AirflowResponse<T> {
 
-@Getter
-public enum ScheduleEngineType {
+    private final boolean success;
+    private final T data;
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    AIRFLOW("Airflow"),
-    DOLPHINSCHEDULER("DolphinScheduler");
+    public AirflowResponse(boolean success, T data) {
+        this.success = success;
+        this.data = data;
+    }
 
-    private final String type;
+    public boolean isSuccess() {
+        return success;
+    }
 
-    ScheduleEngineType(String type) {
-        this.type = type;
+    public T getData() {
+        return data;
+    }
+
+    @Override
+    public String toString() {
+        return "AirflowResponse{" +
+                "success=" + success +
+                ", data=" + data +
+                '}';
     }
 }

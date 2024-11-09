@@ -15,21 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.pojo.schedule.airflow;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@Getter
-public enum ScheduleEngineType {
+import java.util.List;
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    AIRFLOW("Airflow"),
-    DOLPHINSCHEDULER("DolphinScheduler");
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel(description = "Collection of DAGs.")
+public class DAGCollection {
 
-    private final String type;
+    @JsonProperty("dags")
+    @ApiModelProperty("List of DAGs.")
+    private List<DAG> dags = null;
 
-    ScheduleEngineType(String type) {
-        this.type = type;
-    }
+    @JsonProperty("total_entries")
+    @ApiModelProperty("The length of DAG list.")
+    private Integer totalEntries;
 }

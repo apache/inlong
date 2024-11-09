@@ -15,21 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.schedule.airflow.interceptor;
 
-import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
-@Getter
-public enum ScheduleEngineType {
+import java.io.IOException;
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    AIRFLOW("Airflow"),
-    DOLPHINSCHEDULER("DolphinScheduler");
+/**
+ * LoggingInterceptor
+ * Provide unified logging for okhttp
+ */
+@Slf4j
+public class LoggingInterceptor implements Interceptor {
 
-    private final String type;
-
-    ScheduleEngineType(String type) {
-        this.type = type;
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
+        Response response = chain.proceed(request);
+        log.info("Airflow API request information - Address: {}, URI: {}, Request method: {}, Response status code: {}",
+                request.url(), request.url().uri(), request.method(), response.code());
+        return response;
     }
 }

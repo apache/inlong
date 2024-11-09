@@ -15,21 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.schedule.airflow.util;
 
-import lombok.Getter;
+import static org.apache.inlong.manager.schedule.airflow.AirFlowAPIConstant.INLONG_OFFLINE_DAG_TASK_PREFIX;
 
-@Getter
-public enum ScheduleEngineType {
+public class DAGUtil {
 
-    NONE("None"),
-    QUARTZ("Quartz"),
-    AIRFLOW("Airflow"),
-    DOLPHINSCHEDULER("DolphinScheduler");
-
-    private final String type;
-
-    ScheduleEngineType(String type) {
-        this.type = type;
+    public static String buildDAGIdByGroupId(String groupId) {
+        return INLONG_OFFLINE_DAG_TASK_PREFIX.concat(groupId);
     }
 }
