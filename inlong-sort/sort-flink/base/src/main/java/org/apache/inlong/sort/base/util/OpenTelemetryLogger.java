@@ -28,6 +28,7 @@ import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -173,63 +174,71 @@ public class OpenTelemetryLogger {
     }
 
     /**
-     * Add OpenTelemetryAppender to Log4j
-     */
-    private void addOpenTelemetryAppender() {
-        org.apache.logging.log4j.spi.LoggerContext context = LogManager.getContext(false);
-        LoggerContext loggerContext = (LoggerContext) context;
-        Configuration config = loggerContext.getConfiguration();
-        // Create OpenTelemetryAppender
-        OpenTelemetryAppender otelAppender = OpenTelemetryAppender.builder()
-                .setName("OpenTelemetryAppender")
-                .setLayout(this.layout)
-                .build();
-        otelAppender.start();
-        // add OpenTelemetryAppender to configuration
-        config.addAppender(otelAppender);
-        // Get Root Logger Configuration
-        LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-        // Add OpenTelemetryAppender to Root Logger
-        loggerConfig.addAppender(otelAppender, this.logLevel, null);
-        // refresh logger context
-        loggerContext.updateLoggers();
-    }
-
-    /**
-     * Remove OpenTelemetryAppender from Log4j
-     */
-    private void removeOpenTelemetryAppender() {
-        org.apache.logging.log4j.spi.LoggerContext context = LogManager.getContext(false);
-        LoggerContext loggerContext = (LoggerContext) context;
-        Configuration config = loggerContext.getConfiguration();
-        config.getAppenders().values().forEach(appender -> {
-            // Remove OpenTelemetryAppender
-            if (appender instanceof OpenTelemetryAppender) {
-                config.getRootLogger().removeAppender(appender.getName());
-                appender.stop();
-            }
-        });
-        // refresh logger context
-        loggerContext.updateLoggers();
-    }
-
-    /**
      * Install OpenTelemetryLogger for the application
      */
-    public void install() {
-        addOpenTelemetryAppender();
-        createOpenTelemetrySdk();
-        OpenTelemetryAppender.install(SDK);
-        LOG.info("OpenTelemetryLogger installed");
+    public boolean install() {
+        synchronized (OpenTelemetryLogger.class) {
+            org.apache.logging.log4j.spi.LoggerContext loggerContextSpi = LogManager.getContext(false);
+            if (!(loggerContextSpi instanceof LoggerContext)) {
+                LOG.warn("LoggerContext is not instance of LoggerContext");
+                return false;
+            }
+            LoggerContext loggerContext = (LoggerContext) loggerContextSpi;
+            Configuration config = loggerContext.getConfiguration();
+            for (Appender appender : config.getAppenders().values()) {
+                if (appender instanceof OpenTelemetryAppender) {
+                    LOG.info("OpenTelemetryLogger already installed");
+                    return false;
+                }
+            }
+            // Create OpenTelemetryAppender
+            OpenTelemetryAppender otelAppender = OpenTelemetryAppender.builder()
+                    .setName("OpenTelemetryAppender")
+                    .setLayout(this.layout)
+                    .build();
+            otelAppender.start();
+            // add OpenTelemetryAppender to configuration
+            config.addAppender(otelAppender);
+            // Get Root Logger Configuration
+            LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+            // Add OpenTelemetryAppender to Root Logger
+            loggerConfig.addAppender(otelAppender, this.logLevel, null);
+            // refresh logger context
+            loggerContext.updateLoggers();
+            // create OpenTelemetry SDK
+            createOpenTelemetrySdk();
+            // install OpenTelemetryAppender
+            OpenTelemetryAppender.install(SDK);
+            LOG.info("OpenTelemetryLogger installed");
+            return true;
+        }
     }
 
     /**
      * Uninstall OpenTelemetryLogger
      */
-    public void uninstall() {
-        LOG.info("OpenTelemetryLogger uninstalled");
-        SDK.close();
-        removeOpenTelemetryAppender();
-
+    public boolean uninstall() {
+        synchronized (OpenTelemetryLogger.class) {
+            if (SDK == null) {
+                LOG.warn("OpenTelemetryLogger is not installed");
+                return false;
+            }
+            org.apache.logging.log4j.spi.LoggerContext loggerContextSpi = LogManager.getContext(false);
+            if (!(loggerContextSpi instanceof LoggerContext)) {
+                LOG.warn("LoggerContext is not instance of LoggerContext");
+                return false;
+            }
+            LoggerContext loggerContext = (LoggerContext) loggerContextSpi;
+            Configuration config = loggerContext.getConfiguration();
+            config.getAppenders().values().forEach(appender -> {
+                if (appender instanceof OpenTelemetryAppender) {
+                    LOG.info("Uninstall OpenTelemetryLogger");
+                    config.getRootLogger().removeAppender(appender.getName());
+                    appender.stop();
+                }
+            });
+            SDK.close();
+            return true;
+        }
     }
 }
