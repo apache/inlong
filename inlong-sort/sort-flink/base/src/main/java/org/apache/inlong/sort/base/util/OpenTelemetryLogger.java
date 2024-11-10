@@ -33,7 +33,9 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.message.SimpleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,7 +211,11 @@ public class OpenTelemetryLogger {
             createOpenTelemetrySdk();
             // install OpenTelemetryAppender
             OpenTelemetryAppender.install(SDK);
-            LOG.info("OpenTelemetryLogger installed");
+            otelAppender.append(
+                    new Log4jLogEvent.Builder()
+                            .setLevel(this.logLevel)
+                            .setMessage(new SimpleMessage("OpenTelemetryLogger installed"))
+                            .build());
             return true;
         }
     }
@@ -232,7 +238,11 @@ public class OpenTelemetryLogger {
             Configuration config = loggerContext.getConfiguration();
             config.getAppenders().values().forEach(appender -> {
                 if (appender instanceof OpenTelemetryAppender) {
-                    LOG.info("Uninstall OpenTelemetryLogger");
+                    appender.append(
+                            new Log4jLogEvent.Builder()
+                                    .setLevel(this.logLevel)
+                                    .setMessage(new SimpleMessage("OpenTelemetryLogger uninstalled"))
+                                    .build());
                     config.getRootLogger().removeAppender(appender.getName());
                     appender.stop();
                 }
