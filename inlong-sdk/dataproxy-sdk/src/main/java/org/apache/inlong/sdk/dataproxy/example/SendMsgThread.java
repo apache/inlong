@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class SendMsgThread extends Thread {
 
@@ -49,8 +48,7 @@ public class SendMsgThread extends Thread {
 
                 long startTime = System.currentTimeMillis();
                 SendResult result = messageSender.sendMessage("hhhh".getBytes("utf8"),
-                        "b_test", "n_test1", 0, String.valueOf(System.currentTimeMillis()), 1,
-                        TimeUnit.MILLISECONDS);
+                        "b_test", "n_test1", 0, String.valueOf(System.currentTimeMillis()));
                 long endTime = System.currentTimeMillis();
                 if (result == result.OK) {
                     logger.info("this msg is ok time {}", endTime - startTime);
