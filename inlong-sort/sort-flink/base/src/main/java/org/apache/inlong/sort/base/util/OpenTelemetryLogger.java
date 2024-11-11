@@ -182,7 +182,7 @@ public class OpenTelemetryLogger {
         synchronized (OpenTelemetryLogger.class) {
             org.apache.logging.log4j.spi.LoggerContext loggerContextSpi = LogManager.getContext(false);
             if (!(loggerContextSpi instanceof LoggerContext)) {
-                LOG.warn("LoggerContext is not instance of LoggerContext");
+                LOG.warn("LoggerContext is not instance of org.apache.logging.log4j.core.LoggerContext");
                 return false;
             }
             LoggerContext loggerContext = (LoggerContext) loggerContextSpi;
@@ -231,7 +231,7 @@ public class OpenTelemetryLogger {
             }
             org.apache.logging.log4j.spi.LoggerContext loggerContextSpi = LogManager.getContext(false);
             if (!(loggerContextSpi instanceof LoggerContext)) {
-                LOG.warn("LoggerContext is not instance of LoggerContext");
+                LOG.warn("LoggerContext is not instance of org.apache.logging.log4j.core.LoggerContext");
                 return false;
             }
             LoggerContext loggerContext = (LoggerContext) loggerContextSpi;
