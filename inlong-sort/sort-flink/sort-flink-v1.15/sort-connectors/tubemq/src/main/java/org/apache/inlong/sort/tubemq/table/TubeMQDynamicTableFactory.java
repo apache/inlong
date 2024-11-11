@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -48,22 +51,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.STREAMID;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC_PATTERN;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQProperties;
+import static org.apache.inlong.sort.base.Constants.*;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.*;
 
 /**
  * A dynamic table factory implementation for TubeMQ.
  */
+
 public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "tubemq-inlong";
@@ -120,10 +114,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validateExcept(ExtractNode.INLONG_MSG);
+        helper.validateExcept(ExtractNode.INLONG_MSG, PROPERTIES_PREFIX, DIRTY_PREFIX);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
-        innerFormat = ExtractNode.INLONG_MSG.equals(tableOptions.get(FORMAT));
+        innerFormat = tableOptions.get(FORMAT).contains(ExtractNode.INLONG_MSG);
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
@@ -132,6 +126,9 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
         String auditKeys = tableOptions.get(AUDIT_KEYS);
+
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
+        final DirtySink<byte[]> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
 
         return createTubeMQTableSource(
                 physicalDataType,
@@ -144,7 +141,9 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 properties,
                 inlongMetric,
                 auditHostAndPorts,
-                auditKeys);
+                auditKeys,
+                dirtySink,
+                dirtyOptions);
     }
 
     @Override
@@ -184,7 +183,9 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
             Configuration properties,
             String inlongMetric,
             String auditHostAndPorts,
-            String auditKeys) {
+            String auditKeys,
+            DirtySink<byte[]> dirtySink,
+            DirtyOptions dirtyOptions) {
         return new TubeMQTableSource(
                 physicalDataType,
                 valueDecodingFormat,
@@ -200,7 +201,9 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 innerFormat,
                 inlongMetric,
                 auditHostAndPorts,
-                auditKeys);
+                auditKeys,
+                dirtySink,
+                dirtyOptions);
     }
 
     protected TubeMQTableSink createTubeMQTableSink(
