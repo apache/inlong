@@ -211,6 +211,7 @@ public class OpenTelemetryLogger {
             createOpenTelemetrySdk();
             // install OpenTelemetryAppender
             OpenTelemetryAppender.install(SDK);
+            LOG.info("OpenTelemetryLogger installed");
             otelAppender.append(
                     new Log4jLogEvent.Builder()
                             .setLevel(Level.INFO)
@@ -238,6 +239,7 @@ public class OpenTelemetryLogger {
             Configuration config = loggerContext.getConfiguration();
             config.getAppenders().values().forEach(appender -> {
                 if (appender instanceof OpenTelemetryAppender) {
+                    LOG.info("OpenTelemetryLogger uninstalled");
                     appender.append(
                             new Log4jLogEvent.Builder()
                                     .setLevel(Level.INFO)
