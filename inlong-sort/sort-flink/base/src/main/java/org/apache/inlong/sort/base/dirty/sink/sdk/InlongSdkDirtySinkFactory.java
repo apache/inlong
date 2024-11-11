@@ -20,31 +20,38 @@ package org.apache.inlong.sort.base.dirty.sink.sdk;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.factories.DynamicTableFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FIELD_DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FORMAT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_ENABLE;
 
+@Slf4j
 public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
 
     private static final String IDENTIFIER = "inlong-sdk";
 
-    private static final ConfigOption<String> DIRTY_SIDE_OUTPUT_INLONG_MANAGER =
+    private static final ConfigOption<String> DIRTY_SIDE_OUTPUT_INLONG_MANAGER_ADDR =
             ConfigOptions.key("dirty.side-output.inlong-sdk.inlong-manager-addr")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("The inlong manager addr to init inlong sdk");
+
+    private static final ConfigOption<Integer> DIRTY_SIDE_OUTPUT_INLONG_MANAGER_PORT =
+            ConfigOptions.key("dirty.side-output.inlong-sdk.inlong-manager-port")
+                    .intType()
+                    .defaultValue(8083)
+                    .withDescription("The inlong manager port to init inlong sdk");
 
     private static final ConfigOption<String> DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID =
             ConfigOptions.key("dirty.side-output.inlong-sdk.inlong-auth-id")
@@ -74,24 +81,18 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
     public <T> DirtySink<T> createDirtySink(DynamicTableFactory.Context context) {
         ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
         FactoryUtil.validateFactoryOptions(this, config);
-        validate(config);
-        return new InlongSdkDirtySink<>(getOptions(config),
+        InlongSdkDirtyOptions options = getOptions(config);
+        return new InlongSdkDirtySink<>(options,
                 context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
 
-    private void validate(ReadableConfig config) {
-        String identifier = config.getOptional(DIRTY_IDENTIFIER).orElse(null);
-        if (identifier == null || identifier.trim().isEmpty()) {
-            throw new ValidationException(
-                    "The option 'dirty.identifier' is not allowed to be empty.");
-        }
-    }
-
-    private InlongSdkOptions getOptions(ReadableConfig config) {
-        return InlongSdkOptions.builder()
-                .inlongManagerAddr(config.get(DIRTY_SIDE_OUTPUT_INLONG_MANAGER))
-                .inlongGroupId(config.get(DIRTY_SIDE_OUTPUT_INLONG_GROUP))
-                .inlongStreamId(config.get(DIRTY_SIDE_OUTPUT_INLONG_STREAM))
+    private InlongSdkDirtyOptions getOptions(ReadableConfig config) {
+        return InlongSdkDirtyOptions.builder()
+                .inlongManagerAddr(config.get(DIRTY_SIDE_OUTPUT_INLONG_MANAGER_ADDR))
+                .inlongManagerPort(config.get(DIRTY_SIDE_OUTPUT_INLONG_MANAGER_PORT))
+                .sendToGroupId(config.get(DIRTY_SIDE_OUTPUT_INLONG_GROUP))
+                .sendToStreamId(config.get(DIRTY_SIDE_OUTPUT_INLONG_STREAM))
+                .csvFieldDelimiter(config.get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER))
                 .inlongManagerAuthKey(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY))
                 .inlongManagerAuthId(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID))
                 .ignoreSideOutputErrors(config.getOptional(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS).orElse(true))
@@ -107,7 +108,7 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(DIRTY_SIDE_OUTPUT_INLONG_MANAGER);
+        options.add(DIRTY_SIDE_OUTPUT_INLONG_MANAGER_ADDR);
         options.add(DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID);
         options.add(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY);
         options.add(DIRTY_SIDE_OUTPUT_INLONG_GROUP);

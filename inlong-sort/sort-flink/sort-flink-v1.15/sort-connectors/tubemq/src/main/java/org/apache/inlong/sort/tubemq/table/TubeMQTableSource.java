@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
@@ -131,6 +133,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     private String auditHostAndPorts;
     private String auditKeys;
 
+    private DirtySink<byte[]> dirtySink;
+    private DirtyOptions dirtyOptions;
+
     /**
      * Watermark strategy that is used to generate per-partition watermark.
      */
@@ -143,7 +148,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
             TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
             Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat,
-            String inlongMetric, String auditHostAndPorts, String auditKeys) {
+            String inlongMetric, String auditHostAndPorts, String auditKeys,
+            DirtySink<byte[]> dirtySink, DirtyOptions dirtyOptions) {
 
         Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
@@ -170,6 +176,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.auditKeys = auditKeys;
+        this.dirtySink = dirtySink;
+        this.dirtyOptions = dirtyOptions;
     }
 
     @Override
@@ -200,7 +208,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 physicalDataType, valueDecodingFormat, masterAddress,
                 topic, streamIdSet, consumerGroup, sessionKey, configuration,
                 watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat,
-                inlongMetric, auditHostAndPorts, auditKeys);
+                inlongMetric, auditHostAndPorts, auditKeys, dirtySink, dirtyOptions);
     }
 
     @Override
@@ -325,7 +333,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
 
         final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer =
                 new DynamicTubeMQTableDeserializationSchema(
-                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
+                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors,
+                        innerFormat, metricOption, dirtySink, dirtyOptions);
 
         final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
