@@ -22,6 +22,7 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="schedule_type" jdbcType="INTEGER" property="scheduleType"/>
+        <result column="schedule_engine" jdbcType="VARCHAR" property="scheduleEngine"/>
         <result column="schedule_unit" jdbcType="VARCHAR" property="scheduleUnit"/>
         <result column="schedule_interval" jdbcType="INTEGER" property="scheduleInterval"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
@@ -42,25 +43,25 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, schedule_type, schedule_unit, schedule_interval, start_time,
+        id, inlong_group_id, schedule_type, schedule_engine, schedule_unit, schedule_interval, start_time,
           end_time, delay_time, self_depend, task_parallelism, crontab_expression,
            status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
-        insert into schedule_config (id, inlong_group_id, schedule_type, schedule_unit,
-                                     schedule_interval, start_time, end_time, delay_time,
-                                     self_depend, task_parallelism, crontab_expression,
+        insert into schedule_config (id, inlong_group_id, schedule_type, schedule_engine,
+                                     schedule_unit, schedule_interval, start_time, end_time,
+                                     delay_time, self_depend, task_parallelism, crontab_expression,
                                      status, previous_status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{inlongGroupId, jdbcType=VARCHAR},
-                #{scheduleType, jdbcType=INTEGER}, #{scheduleUnit, jdbcType=VARCHAR},
-                #{scheduleInterval, jdbcType=INTEGER}, #{startTime, jdbcType=TIMESTAMP},
-                #{endTime, jdbcType=TIMESTAMP}, #{delayTime, jdbcType=INTEGER},
-                #{selfDepend, jdbcType=INTEGER}, #{taskParallelism, jdbcType=INTEGER},
-                #{crontabExpression, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR})
+                #{scheduleType, jdbcType=INTEGER},  #{scheduleEngine, jdbcType=VARCHAR},
+                #{scheduleUnit, jdbcType=VARCHAR}, #{scheduleInterval, jdbcType=INTEGER},
+                #{startTime, jdbcType=TIMESTAMP}, #{endTime, jdbcType=TIMESTAMP},
+                #{delayTime, jdbcType=INTEGER}, #{selfDepend, jdbcType=INTEGER},
+                #{taskParallelism, jdbcType=INTEGER}, #{crontabExpression, jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR},  #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -87,6 +88,9 @@
             </if>
             <if test="scheduleType != null">
                 schedule_type = #{scheduleType, jdbcType=INTEGER},
+            </if>
+            <if test="scheduleEngine != null">
+                schedule_engine = #{scheduleEngine, jdbcType=VARCHAR},
             </if>
             <if test="scheduleUnit !=null">
                 schedule_unit = #{scheduleUnit, jdbcType=VARCHAR},

@@ -32,6 +32,7 @@ public class ScheduleEntityTest extends DaoBaseTest {
     public static final String GROUP_ID_PREFIX = "test_group_";
     public static final String USER = "admin";
     public static final int SCHEDULE_TYPE = 0;
+    public static final String SCHEDULE_ENGINE = "Quartz";
     public static final int SCHEDULE_TYPE_NEW = 1;
     public static final String SCHEDULE_UNIT = "H";
     public static final String SCHEDULE_UNIT_NEW = "D";
@@ -63,6 +64,7 @@ public class ScheduleEntityTest extends DaoBaseTest {
         ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
         Assertions.assertEquals(scheduleEntity.getInlongGroupId(), entityQueried.getInlongGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE, entityQueried.getScheduleType());
+        Assertions.assertEquals(SCHEDULE_ENGINE, entityQueried.getScheduleEngine());
         Assertions.assertEquals(SCHEDULE_UNIT, entityQueried.getScheduleUnit());
         Assertions.assertEquals(SCHEDULE_INTERVAL, entityQueried.getScheduleInterval());
         Assertions.assertEquals(DEFAULT_TIME, entityQueried.getStartTime());
@@ -105,6 +107,7 @@ public class ScheduleEntityTest extends DaoBaseTest {
         ScheduleEntity entity = new ScheduleEntity();
         entity.setInlongGroupId(GROUP_ID_PREFIX + System.currentTimeMillis());
         entity.setScheduleType(SCHEDULE_TYPE);
+        entity.setScheduleEngine(SCHEDULE_ENGINE);
         entity.setScheduleUnit(SCHEDULE_UNIT);
         entity.setScheduleInterval(SCHEDULE_INTERVAL);
         entity.setStartTime(DEFAULT_TIME);
