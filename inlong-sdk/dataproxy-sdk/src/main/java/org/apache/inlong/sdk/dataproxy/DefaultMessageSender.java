@@ -230,9 +230,8 @@ public class DefaultMessageSender implements MessageSender {
         return sendIndexResult;
     }
 
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
-        return sendMessage(body, groupId, streamId, dt, msgUUID, timeout, timeUnit, false);
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID) {
+        return sendMessage(body, groupId, streamId, dt, msgUUID, false);
     }
 
     /**
@@ -243,13 +242,11 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @return SendResult.OK means success
      */
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, boolean isProxySend) {
+    public SendResult sendMessage(byte[] body, String groupId,
+            String streamId, long dt, String msgUUID, boolean isProxySend) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -271,8 +268,7 @@ public class DefaultMessageSender implements MessageSender {
                     new EncodeObject(Collections.singletonList(body), msgtype, isCompressEnd, isReport,
                             isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(), groupId, streamId, proxySend);
             encodeObject.setSupportLF(isSupportLF);
-            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
-                    timeout, timeUnit);
+            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID);
             return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isProxySend) {
@@ -286,13 +282,13 @@ public class DefaultMessageSender implements MessageSender {
                         "groupId=" + groupId + "&streamId=" + streamId + "&dt=" + finalDt + "&cp=snappy"
                                 + finalProxySend,
                         idGenerator.getNextId(), this.getMsgtype(),
-                        true, groupId), msgUUID, timeout, timeUnit);
+                        true, groupId), msgUUID);
             } else {
                 sendOperation = (sender) -> sender.syncSendMessage(new EncodeObject(Collections.singletonList(body),
                         "groupId=" + groupId + "&streamId=" + streamId + "&dt=" + finalDt
                                 + finalProxySend,
                         idGenerator.getNextId(), this.getMsgtype(),
-                        false, groupId), msgUUID, timeout, timeUnit);
+                        false, groupId), msgUUID);
 
             }
             return attemptSendMessage(sendOperation);
@@ -302,8 +298,8 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
-        return sendMessage(body, groupId, streamId, dt, msgUUID, timeout, timeUnit, extraAttrMap, false);
+            Map<String, String> extraAttrMap) {
+        return sendMessage(body, groupId, streamId, dt, msgUUID, extraAttrMap, false);
     }
 
     /**
@@ -314,14 +310,12 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param extraAttrMap extra attributes
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @return SendResult.OK means success
      */
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap, boolean isProxySend) {
+            Map<String, String> extraAttrMap, boolean isProxySend) {
 
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
@@ -345,8 +339,7 @@ public class DefaultMessageSender implements MessageSender {
                             isGroupIdTransfer, dt / 1000,
                             idGenerator.getNextInt(), groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
-            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
-                    timeout, timeUnit);
+            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID);
             return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId).append("&dt=").append(dt);
@@ -355,13 +348,14 @@ public class DefaultMessageSender implements MessageSender {
                 Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(
                         new EncodeObject(Collections.singletonList(body),
                                 attrs.toString(), idGenerator.getNextId(), this.getMsgtype(), true, groupId),
-                        msgUUID, timeout, timeUnit);
+                        msgUUID);
                 return attemptSendMessage(sendOperation);
             } else {
                 Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(
                         new EncodeObject(Collections.singletonList(body),
-                                attrs.toString(), idGenerator.getNextId(), this.getMsgtype(), false, groupId),
-                        msgUUID, timeout, timeUnit);
+                                attrs.toString(), idGenerator.getNextId(),
+                                this.getMsgtype(), false, groupId),
+                        msgUUID);
                 return attemptSendMessage(sendOperation);
             }
         }
@@ -369,9 +363,8 @@ public class DefaultMessageSender implements MessageSender {
 
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
-        return sendMessage(bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, false);
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID) {
+        return sendMessage(bodyList, groupId, streamId, dt, msgUUID, false);
     }
 
     /**
@@ -382,13 +375,11 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @return SendResult.OK means success
      */
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, boolean isProxySend) {
+    public SendResult sendMessage(List<byte[]> bodyList,
+            String groupId, String streamId, long dt, String msgUUID, boolean isProxySend) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -408,8 +399,7 @@ public class DefaultMessageSender implements MessageSender {
                     isGroupIdTransfer, dt / 1000,
                     idGenerator.getNextInt(), groupId, streamId, proxySend);
             encodeObject.setSupportLF(isSupportLF);
-            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
-                    timeout, timeUnit);
+            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID);
             return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isProxySend) {
@@ -422,14 +412,12 @@ public class DefaultMessageSender implements MessageSender {
                 sendOperation = (sender) -> sender.syncSendMessage(new EncodeObject(bodyList,
                         "groupId=" + groupId + "&streamId=" + streamId + "&dt=" + finalDt + "&cp=snappy" + "&cnt="
                                 + bodyList.size() + finalProxySend,
-                        idGenerator.getNextId(), this.getMsgtype(),
-                        true, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID);
             } else {
                 sendOperation = (sender) -> sender.syncSendMessage(new EncodeObject(bodyList,
                         "groupId=" + groupId + "&streamId=" + streamId + "&dt=" + finalDt + "&cnt=" + bodyList.size()
                                 + finalProxySend,
-                        idGenerator.getNextId(), this.getMsgtype(),
-                        false, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID);
             }
             return attemptSendMessage(sendOperation);
         }
@@ -437,8 +425,32 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
-        return sendMessage(bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, extraAttrMap, false);
+            String msgUUID, Map<String, String> extraAttrMap) {
+        return sendMessage(bodyList, groupId, streamId, dt, msgUUID, extraAttrMap, false);
+    }
+
+    @Override
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
+            String msgUUID, Map<String, String> extraAttrMap) throws ProxysdkException {
+
+    }
+
+    @Override
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
+            String msgUUID) throws ProxysdkException {
+
+    }
+
+    @Override
+    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
+            long dt, String msgUUID) throws ProxysdkException {
+
+    }
+
+    @Override
+    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
+            long dt, String msgUUID, Map<String, String> extraAttrMap) throws ProxysdkException {
+
     }
 
     /**
@@ -449,14 +461,12 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param extraAttrMap extra attributes
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @return SendResult.OK means success
      */
     public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap, boolean isProxySend) {
+            String msgUUID, Map<String, String> extraAttrMap, boolean isProxySend) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(
                 extraAttrMap)) {
@@ -476,8 +486,7 @@ public class DefaultMessageSender implements MessageSender {
                     isGroupIdTransfer, dt / 1000,
                     idGenerator.getNextInt(), groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
-            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID,
-                    timeout, timeUnit);
+            Function<Sender, SendResult> sendOperation = (sender) -> sender.syncSendMessage(encodeObject, msgUUID);
             return attemptSendMessage(sendOperation);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
@@ -486,13 +495,12 @@ public class DefaultMessageSender implements MessageSender {
                 attrs.append("&cp=snappy");
                 Function<Sender, SendResult> sendOperation =
                         (sender) -> sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                                idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
+                                idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID);
                 return attemptSendMessage(sendOperation);
             } else {
                 Function<Sender, SendResult> sendOperation =
                         (sender) -> sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                                idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout,
-                                timeUnit);
+                                idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID);
                 return attemptSendMessage(sendOperation);
             }
         }

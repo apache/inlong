@@ -42,7 +42,6 @@ import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
@@ -168,7 +167,7 @@ public class AgentStatusManager {
                 INLONG_AGENT_SYSTEM,
                 INLONG_AGENT_STATUS,
                 AgentUtils.getCurrentTime(),
-                "", 30, TimeUnit.SECONDS);
+                "");
         if (ret != SendResult.OK) {
             LOGGER.error("send status failed: ret {}", ret);
         }

@@ -17,13 +17,9 @@
 
 package org.apache.inlong.sort.base.dirty.sink.sdk;
 
-import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.MessageSender;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dirtydata.DirtyMessageWrapper;
+import org.apache.inlong.sdk.dirtydata.InlongSdkDirtySender;
 import org.apache.inlong.sort.base.dirty.DirtyData;
-import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
 import org.apache.inlong.sort.base.util.LabelUtils;
@@ -37,46 +33,54 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Map;
-import java.util.StringJoiner;
 
 @Slf4j
 public class InlongSdkDirtySink<T> implements DirtySink<T> {
 
-    private final InlongSdkOptions options;
+    private final InlongSdkDirtyOptions options;
     private final DataType physicalRowDataType;
-    private final String inlongGroupId;
-    private final String inlongStreamId;
-    private final SendMessageCallback callback;
 
-    private transient DateTimeFormatter dateTimeFormatter;
     private transient RowData.FieldGetter[] fieldGetters;
     private transient RowDataToJsonConverters.RowDataToJsonConverter converter;
-    private transient MessageSender sender;
+    private transient InlongSdkDirtySender dirtySender;
 
-    public InlongSdkDirtySink(InlongSdkOptions options, DataType physicalRowDataType) {
+    public InlongSdkDirtySink(InlongSdkDirtyOptions options, DataType physicalRowDataType) {
         this.options = options;
         this.physicalRowDataType = physicalRowDataType;
-        this.inlongGroupId = options.getInlongGroupId();
-        this.inlongStreamId = options.getInlongStreamId();
-        this.callback = new LogCallBack();
     }
 
     @Override
     public void invoke(DirtyData<T> dirtyData) throws Exception {
         try {
             Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
-            String groupId = Preconditions.checkNotNull(labelMap.get("groupId"));
-            String streamId = Preconditions.checkNotNull(labelMap.get("streamId"));
+            String dataGroupId = Preconditions.checkNotNull(labelMap.get("groupId"));
+            String dataStreamId = Preconditions.checkNotNull(labelMap.get("streamId"));
+            String serverType = Preconditions.checkNotNull(labelMap.get("serverType"));
+            String dataflowId = Preconditions.checkNotNull(labelMap.get("dataflowId"));
 
-            String message = join(groupId, streamId,
-                    dirtyData.getDirtyType(), dirtyData.getLabels(), formatData(dirtyData, labelMap));
-            sender.asyncSendMessage(inlongGroupId, inlongStreamId, message.getBytes(), callback);
+            String dirtyMessage = formatData(dirtyData, labelMap);
+
+            DirtyMessageWrapper wrapper = DirtyMessageWrapper.builder()
+                    .delimiter(options.getCsvFieldDelimiter())
+                    .inlongGroupId(dataGroupId)
+                    .inlongStreamId(dataStreamId)
+                    .dataflowId(dataflowId)
+                    .dataTime(dirtyData.getDataTime())
+                    .serverType(serverType)
+                    .dirtyType(dirtyData.getDirtyType().format())
+                    .dirtyMessage(dirtyData.getDirtyMessage())
+                    .ext(dirtyData.getExtParams())
+                    .data(dirtyMessage)
+                    .build();
+
+            dirtySender.sendDirtyMessage(wrapper);
         } catch (Throwable t) {
             log.error("failed to send dirty message to inlong sdk", t);
+            if (!options.isIgnoreSideOutputErrors()) {
+                throw new RuntimeException("failed to send dirty message to inlong sdk", t);
+            }
         }
     }
 
@@ -84,37 +88,26 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
     public void open(Configuration configuration) throws Exception {
         converter = FormatUtils.parseRowDataToJsonConverter(physicalRowDataType.getLogicalType());
         fieldGetters = FormatUtils.parseFieldGetters(physicalRowDataType.getLogicalType());
-        dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+        log.info("inlong sdk dirty options={}", options);
         // init sender
-        ProxyClientConfig proxyClientConfig =
-                new ProxyClientConfig(options.getInlongManagerAddr(), options.getInlongGroupId(),
-                        options.getInlongManagerAuthId(), options.getInlongManagerAuthKey());
-        sender = DefaultMessageSender.generateSenderByClusterId(proxyClientConfig);
+        dirtySender = InlongSdkDirtySender.builder()
+                .inlongManagerAddr(options.getInlongManagerAddr())
+                .inlongManagerPort(options.getInlongManagerPort())
+                .authId(options.getInlongManagerAuthId())
+                .authKey(options.getInlongManagerAuthKey())
+                .ignoreErrors(options.isIgnoreSideOutputErrors())
+                .inlongGroupId(options.getSendToGroupId())
+                .inlongStreamId(options.getSendToStreamId())
+                .build();
+        dirtySender.init();
     }
 
     @Override
     public void close() throws Exception {
-        if (sender != null) {
-            sender.close();
+        if (dirtySender != null) {
+            dirtySender.close();
         }
-    }
-
-    private String join(
-            String inlongGroup,
-            String inlongStream,
-            DirtyType type,
-            String label,
-            String formattedData) {
-
-        String now = LocalDateTime.now().format(dateTimeFormatter);
-
-        StringJoiner joiner = new StringJoiner(options.getCsvFieldDelimiter());
-        return joiner.add(inlongGroup + "." + inlongStream)
-                .add(now)
-                .add(type.name())
-                .add(label)
-                .add(formattedData).toString();
     }
 
     private String formatData(DirtyData<T> dirtyData, Map<String, String> labels) throws JsonProcessingException {
@@ -157,29 +150,5 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                         String.format("Unsupported format for: %s", options.getFormat()));
         }
         return value;
-    }
-
-    class LogCallBack implements SendMessageCallback {
-
-        @Override
-        public void onMessageAck(SendResult result) {
-            if (result == SendResult.OK) {
-                return;
-            }
-            log.error("failed to send inlong dirty message, response={}", result);
-
-            if (!options.isIgnoreSideOutputErrors()) {
-                throw new RuntimeException("writing dirty message to inlong sdk failed, response=" + result);
-            }
-        }
-
-        @Override
-        public void onException(Throwable e) {
-            log.error("failed to send inlong dirty message", e);
-
-            if (!options.isIgnoreSideOutputErrors()) {
-                throw new RuntimeException("writing dirty message to inlong sdk failed", e);
-            }
-        }
     }
 }

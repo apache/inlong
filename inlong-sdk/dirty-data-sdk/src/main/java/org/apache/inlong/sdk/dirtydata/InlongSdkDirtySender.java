@@ -18,7 +18,6 @@
 package org.apache.inlong.sdk.dirtydata;
 
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.MessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -28,19 +27,22 @@ import com.google.common.base.Preconditions;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetAddress;
+
 @Slf4j
 @Builder
-public class InlongSdkDirtySink {
+public class InlongSdkDirtySender {
 
     private String inlongGroupId;
     private String inlongStreamId;
     private String inlongManagerAddr;
+    private int inlongManagerPort;
     private String authId;
     private String authKey;
     private boolean ignoreErrors;
 
     private SendMessageCallback callback;
-    private MessageSender sender;
+    private DefaultMessageSender sender;
 
     public void init() throws Exception {
         Preconditions.checkNotNull(inlongGroupId, "inlongGroupId cannot be null");
@@ -51,14 +53,23 @@ public class InlongSdkDirtySink {
 
         this.callback = new LogCallBack();
         ProxyClientConfig proxyClientConfig =
-                new ProxyClientConfig(inlongManagerAddr, inlongGroupId, authId, authKey);
+                new ProxyClientConfig(InetAddress.getLocalHost().getHostAddress(), true,
+                        inlongManagerAddr, inlongManagerPort, inlongGroupId, authId, authKey);
+        proxyClientConfig.setReadProxyIPFromLocal(false);
         this.sender = DefaultMessageSender.generateSenderByClusterId(proxyClientConfig);
+        this.sender.setMsgtype(7);
         log.info("init InlongSdkDirtySink successfully, target group={}, stream={}", inlongGroupId, inlongStreamId);
     }
 
     public void sendDirtyMessage(DirtyMessageWrapper messageWrapper)
             throws ProxysdkException {
         sender.asyncSendMessage(inlongGroupId, inlongStreamId, messageWrapper.format().getBytes(), callback);
+    }
+
+    public void close() {
+        if (sender != null) {
+            sender.close();
+        }
     }
 
     class LogCallBack implements SendMessageCallback {

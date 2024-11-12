@@ -29,7 +29,7 @@ import java.io.Serializable;
 public interface DynamicTubeMQDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
     @PublicEvolving
-    default void open() {
+    default void open() throws Exception {
     }
 
     /**

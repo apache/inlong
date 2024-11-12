@@ -62,6 +62,7 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -86,6 +87,10 @@
                                 <includes>
                                     <include>org.apache.inlong:*</include>
                                     <include>com.fasterxml.*:*</include>
+                                    <include>com.google.protobuf:*</include>
+                                    <include>org.apache.commons:*</include>
+                                    <include>commons-collections:*</include>
+                                    <include>commons-codec:*</include>
                                 </includes>
                             </artifactSet>
 
@@ -110,6 +115,10 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.tubemq.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.tubemq.shaded.org.apache.commons</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

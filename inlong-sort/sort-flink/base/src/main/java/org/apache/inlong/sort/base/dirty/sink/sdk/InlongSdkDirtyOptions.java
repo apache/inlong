@@ -26,7 +26,7 @@ import java.io.Serializable;
 @Data
 @Builder
 @Getter
-public class InlongSdkOptions implements Serializable {
+public class InlongSdkDirtyOptions implements Serializable {
 
     private static final String DEFAULT_FORMAT = "csv";
 
@@ -36,9 +36,10 @@ public class InlongSdkOptions implements Serializable {
     private static final String DEFAULT_KV_FIELD_DELIMITER = "&";
     private static final String DEFAULT_KV_ENTRY_DELIMITER = "=";
 
-    private String inlongGroupId;
-    private String inlongStreamId;
+    private String sendToGroupId;
+    private String sendToStreamId;
     private String inlongManagerAddr;
+    private int inlongManagerPort;
     private String inlongManagerAuthKey;
     private String inlongManagerAuthId;
     private String format = DEFAULT_FORMAT;
