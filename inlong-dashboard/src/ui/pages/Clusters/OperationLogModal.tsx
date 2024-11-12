@@ -65,7 +65,6 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
   };
 
   const onFilter = allValues => {
-    console.log(allValues);
     setOptions(prev => ({
       ...prev,
       ...allValues,
