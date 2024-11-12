@@ -214,7 +214,7 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
         long serializeStartTime = System.currentTimeMillis();
         String serializedData;
         try {
-            serializedData = serializer.serialize(data);
+            serializedData = serializer.serialize(schemaUtils.filterOutTimeField(data));
         } catch (Exception e) {
             log.error("Failed to serialize data", e);
             if (sinkExactlyMetric != null) {

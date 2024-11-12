@@ -39,7 +39,6 @@ public class ProxyClientConfig {
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String inlongGroupId;
-    private boolean isFile = false;
     private boolean requestByHttp = true;
     private boolean isNeedDataEncry = false;
     private boolean needAuthentication = false;
@@ -60,14 +59,18 @@ public class ProxyClientConfig {
     private MetricConfig metricConfig = new MetricConfig();
 
     private int managerConnectionTimeout = 10000;
-    private boolean readProxyIPFromLocal = false;
-    /**
-     * Default connection, handshake, and initial request timeout in milliseconds.
-     */
-    private long connectTimeoutMillis;
-    private long requestTimeoutMillis;
-
+    // http socket timeout in milliseconds
     private int managerSocketTimeout = 30 * 1000;
+
+    private boolean readProxyIPFromLocal = false;
+
+    // connect timeout in milliseconds
+    private long connectTimeoutMs = ConfigConstants.VAL_DEF_CONNECT_TIMEOUT_MS;
+    // request timeout in milliseconds
+    private long requestTimeoutMs = ConfigConstants.VAL_DEF_REQUEST_TIMEOUT_MS;
+    // connect close wait period in milliseconds
+    private long conCloseWaitPeriodMs =
+            ConfigConstants.VAL_DEF_REQUEST_TIMEOUT_MS + ConfigConstants.VAL_DEF_CONNECT_CLOSE_DELAY_MS;
 
     // configuration for http client
     // whether discard old metric when cache is full.
@@ -118,8 +121,6 @@ public class ProxyClientConfig {
         this.proxyUpdateIntervalMinutes = ConfigConstants.PROXY_UPDATE_INTERVAL_MINUTES;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
-        this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
@@ -149,8 +150,6 @@ public class ProxyClientConfig {
         this.proxyUpdateIntervalMinutes = ConfigConstants.PROXY_UPDATE_INTERVAL_MINUTES;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
-        this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
@@ -194,14 +193,6 @@ public class ProxyClientConfig {
 
     public boolean isRequestByHttp() {
         return requestByHttp;
-    }
-
-    public boolean isFile() {
-        return isFile;
-    }
-
-    public void setFile(boolean file) {
-        isFile = file;
     }
 
     public String getInlongGroupId() {
@@ -308,20 +299,36 @@ public class ProxyClientConfig {
         this.proxyUpdateMaxRetry = proxyUpdateMaxRetry;
     }
 
-    public long getConnectTimeoutMillis() {
-        return connectTimeoutMillis;
+    public long getConnectTimeoutMs() {
+        return connectTimeoutMs;
     }
 
-    public void setConnectTimeoutMillis(long connectTimeoutMillis) {
-        this.connectTimeoutMillis = connectTimeoutMillis;
+    public void setConnectTimeoutMs(long connectTimeoutMs) {
+        if (connectTimeoutMs >= ConfigConstants.VAL_MIN_CONNECT_TIMEOUT_MS) {
+            this.connectTimeoutMs = connectTimeoutMs;
+        }
     }
 
-    public long getRequestTimeoutMillis() {
-        return requestTimeoutMillis;
+    public long getRequestTimeoutMs() {
+        return requestTimeoutMs;
     }
 
-    public void setRequestTimeoutMillis(long requestTimeoutMillis) {
-        this.requestTimeoutMillis = requestTimeoutMillis;
+    public void setRequestTimeoutMs(long requestTimeoutMs) {
+        if (requestTimeoutMs >= ConfigConstants.VAL_MIN_REQUEST_TIMEOUT_MS) {
+            this.requestTimeoutMs = requestTimeoutMs;
+            this.conCloseWaitPeriodMs =
+                    this.requestTimeoutMs + ConfigConstants.VAL_DEF_CONNECT_CLOSE_DELAY_MS;
+        }
+    }
+
+    public long getConCloseWaitPeriodMs() {
+        return conCloseWaitPeriodMs;
+    }
+
+    public void setConCloseWaitPeriodMs(long conCloseWaitPeriodMs) {
+        if (conCloseWaitPeriodMs >= 0) {
+            this.conCloseWaitPeriodMs = conCloseWaitPeriodMs;
+        }
     }
 
     public String getRsaPubKeyUrl() {

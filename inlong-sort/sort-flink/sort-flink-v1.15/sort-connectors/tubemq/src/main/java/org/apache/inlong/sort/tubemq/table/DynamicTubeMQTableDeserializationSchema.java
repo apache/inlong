@@ -17,26 +17,36 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import com.google.common.base.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDeserializationSchema<RowData> {
 
     /**
@@ -65,25 +75,36 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     private final MetricOption metricOption;
 
+    private final DirtySink<byte[]> dirtySink;
+
+    private final DirtyOptions dirtyOptions;
+
     public DynamicTubeMQTableDeserializationSchema(
             DeserializationSchema<RowData> schema,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean ignoreErrors,
             boolean innerFormat,
-            MetricOption metricOption) {
+            MetricOption metricOption,
+            DirtySink<byte[]> dirtySink,
+            DirtyOptions dirtyOptions) {
         this.deserializationSchema = schema;
         this.metadataConverters = metadataConverters;
         this.producedTypeInfo = producedTypeInfo;
         this.ignoreErrors = ignoreErrors;
         this.innerFormat = innerFormat;
         this.metricOption = metricOption;
+        this.dirtySink = dirtySink;
+        this.dirtyOptions = dirtyOptions;
     }
 
     @Override
-    public void open() {
+    public void open() throws Exception {
         if (metricOption != null) {
             sourceExactlyMetric = new SourceExactlyMetric(metricOption);
+        }
+        if (dirtySink != null) {
+            dirtySink.open(new Configuration());
         }
     }
 
@@ -103,7 +124,41 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
         if (!innerFormat) {
             metricsCollector.resetTimestamp(System.currentTimeMillis());
         }
-        deserializationSchema.deserialize(message.getData(), metricsCollector);
+
+        if (!dirtyOptions.ignoreDirty()) {
+            deserializationSchema.deserialize(message.getData(), metricsCollector);
+        } else {
+            try {
+                deserializationSchema.deserialize(message.getData(), metricsCollector);
+            } catch (Throwable t) {
+                if (dirtySink != null) {
+                    DirtyData.Builder<byte[]> builder = DirtyData.builder();
+                    try {
+
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+                        long dataTime = LocalDateTime.parse(message.getMsgTime(), formatter)
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli();
+
+                        builder.setData(message.getData())
+                                .setDirtyType(DirtyType.KEY_DESERIALIZE_ERROR)
+                                .setDirtyDataTime(dataTime)
+                                .setExtParams(message.getAttribute())
+                                .setLabels(dirtyOptions.getLabels())
+                                .setLogTag(dirtyOptions.getLogTag())
+                                .setDirtyMessage(t.getMessage())
+                                .setIdentifier(dirtyOptions.getIdentifier());
+                        dirtySink.invoke(builder.build());
+                    } catch (Exception ex) {
+                        if (!dirtyOptions.ignoreSideOutputErrors()) {
+                            throw new IOException(ex);
+                        }
+                        log.warn("Dirty sink failed", ex);
+                    }
+                }
+            }
+        }
 
         rows.forEach(row -> emitRow(message, (GenericRowData) row, out));
 

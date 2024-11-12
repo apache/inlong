@@ -21,6 +21,7 @@ public interface AttributeConstants {
 
     String SEPARATOR = "&";
     String KEY_VALUE_SEPARATOR = "=";
+    String LINE_FEED_SEP = "\n";
 
     /**
      * group id

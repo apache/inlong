@@ -19,7 +19,6 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
@@ -63,7 +62,6 @@ public class Sender {
     private final TimeoutScanThread scanThread;
     private final ClientMgr clientMgr;
     private final ProxyClientConfig configure;
-    private final boolean isFile;
     private MetricWorkerThread metricWorker = null;
     private int clusterId = -1;
 
@@ -98,7 +96,6 @@ public class Sender {
                 throw new Exception("In OutNetwork isNeedDataEncry must be true!");
             }
         }
-        this.isFile = configure.isFile();
         scanThread = new TimeoutScanThread(callbacks, currentBufferSize, configure, clientMgr);
         scanThread.start();
 
@@ -172,19 +169,13 @@ public class Sender {
         if (callback == null) {
             return;
         }
-        if (isFile) {
-            String proxyip = channel.remoteAddress().toString();
-            ((FileCallback) callback.getCallback()).onMessageAck(result.toString()
-                    + "=" + proxyip.substring(1, proxyip.indexOf(':')));
-            currentBufferSize.addAndGet(-callback.getSize());
-        } else {
-            callback.getCallback().onMessageAck(result);
-            currentBufferSize.decrementAndGet();
-        }
+        callback.getCallback().onMessageAck(result);
+        currentBufferSize.decrementAndGet();
     }
 
-    private SendResult syncSendInternalMessage(NettyClient client, EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
+    private SendResult syncSendInternalMessage(NettyClient client,
+            EncodeObject encodeObject, String msgUUID)
+            throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null) {
             return SendResult.NO_CONNECTION;
         }
@@ -214,11 +205,12 @@ public class Sender {
             encodeObject.setEncryptEntry(false, null, null);
         }
         encodeObject.setMsgUUID(msgUUID);
-        SyncMessageCallable callable = new SyncMessageCallable(client, encodeObject, timeout, timeUnit);
+        SyncMessageCallable callable = new SyncMessageCallable(client, encodeObject,
+                configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
         syncCallables.put(encodeObject.getMessageId(), callable);
 
         Future<SendResult> future = threadPool.submit(callable);
-        return future.get(timeout, timeUnit);
+        return future.get(configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -227,11 +219,9 @@ public class Sender {
      *
      * @param encodeObject
      * @param msgUUID
-     * @param timeout
-     * @param timeUnit
      * @return
      */
-    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit) {
+    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID) {
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                     encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getDt(),
@@ -240,7 +230,7 @@ public class Sender {
         NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         SendResult message = null;
         try {
-            message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
+            message = syncSendInternalMessage(client, encodeObject, msgUUID);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             LOGGER.error("send message error {} ", getExceptionStack(e));
@@ -285,190 +275,6 @@ public class Sender {
             }
         }
         return message;
-    }
-
-    private SendResult syncSendMessageIndexInternal(NettyClient client, EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
-        if (client == null || !client.isActive()) {
-            chooseProxy.remove(encodeObject.getMessageId());
-            client = clientMgr.getClientByRoundRobin();
-            if (client == null) {
-                return SendResult.NO_CONNECTION;
-            }
-            chooseProxy.put(encodeObject.getMessageId(), client);
-        }
-
-        if (encodeObject.getMsgtype() == 7) {
-            int groupIdnum = 0;
-            int streamIdnum = 0;
-            if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
-                groupIdnum = clientMgr.getGroupIdNum();
-                streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
-                        : 0;
-            }
-            encodeObject.setGroupIdNum(groupIdnum);
-            encodeObject.setStreamIdNum(streamIdnum);
-            if (groupIdnum == 0 || streamIdnum == 0) {
-                encodeObject.setGroupIdTransfer(false);
-            }
-        }
-        if (this.configure.isNeedDataEncry()) {
-            encodeObject.setEncryptEntry(true, configure.getUserName(), clientMgr.getEncryptConfigEntry());
-        } else {
-            encodeObject.setEncryptEntry(false, null, null);
-        }
-        encodeObject.setMsgUUID(msgUUID);
-        SyncMessageCallable callable = new SyncMessageCallable(client, encodeObject, timeout, timeUnit);
-        syncCallables.put(encodeObject.getMessageId(), callable);
-
-        Future<SendResult> future = threadPool.submit(callable);
-        return future.get(timeout, timeUnit);
-    }
-
-    /**
-     * sync send
-     *
-     * @param encodeObject
-     * @param msgUUID
-     * @param timeout
-     * @param timeUnit
-     * @return
-     */
-    public String syncSendMessageIndex(EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit) {
-        try {
-            SendResult message = null;
-            NettyClient client = chooseProxy.get(encodeObject.getMessageId());
-            String proxyip = encodeObject.getProxyIp();
-            if (proxyip != null && proxyip.length() != 0) {
-                client = clientMgr.getContainProxy(proxyip);
-            }
-            if (isNotValidateAttr(encodeObject.getCommonattr(), encodeObject.getAttributes())) {
-                LOGGER.error("error attr format {} {}", encodeObject.getCommonattr(),
-                        encodeObject.getAttributes());
-                return SendResult.INVALID_ATTRIBUTES.toString();
-            }
-            try {
-                message = syncSendMessageIndexInternal(client, encodeObject,
-                        msgUUID, timeout, timeUnit);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                LOGGER.error("send message error {}", getExceptionStack(e));
-                syncCallables.remove(encodeObject.getMessageId());
-                return SendResult.THREAD_INTERRUPT.toString();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                LOGGER.error("ExecutionException {}", getExceptionStack(e));
-                syncCallables.remove(encodeObject.getMessageId());
-                return SendResult.UNKOWN_ERROR.toString();
-            } catch (TimeoutException e) {
-                // TODO Auto-generated catch block
-                LOGGER.error("TimeoutException {}", getExceptionStack(e));
-                // e.printStackTrace();
-                SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
-                if (syncMessageCallable != null) {
-                    NettyClient tmpClient = syncMessageCallable.getClient();
-                    if (tmpClient != null) {
-                        Channel curChannel = tmpClient.getChannel();
-                        if (curChannel != null) {
-                            LOGGER.error("channel maybe busy {}", curChannel);
-                            scanThread.addTimeoutChannel(curChannel);
-                        }
-                    }
-                }
-                return SendResult.TIMEOUT.toString();
-            } catch (Throwable e) {
-                LOGGER.error("syncSendMessage exception {}", getExceptionStack(e));
-                syncCallables.remove(encodeObject.getMessageId());
-                return SendResult.UNKOWN_ERROR.toString();
-            }
-            scanThread.resetTimeoutChannel(client.getChannel());
-            return message.toString() + "=" + client.getServerIP();
-        } catch (Exception e) {
-            LOGGER.error("agent send error {}", getExceptionStack(e));
-            syncCallables.remove(encodeObject.getMessageId());
-            return SendResult.UNKOWN_ERROR.toString();
-        }
-    }
-
-    /**
-     * async send message index
-     *
-     * @param encodeObject
-     * @param callback
-     * @param msgUUID
-     * @param timeout
-     * @param timeUnit
-     * @throws ProxysdkException
-     */
-    public void asyncSendMessageIndex(EncodeObject encodeObject, FileCallback callback, String msgUUID, long timeout,
-            TimeUnit timeUnit) throws ProxysdkException {
-        NettyClient client = chooseProxy.get(encodeObject.getMessageId());
-        String proxyip = encodeObject.getProxyIp();
-        if (proxyip != null && proxyip.length() != 0) {
-            client = clientMgr.getContainProxy(proxyip);
-        }
-        if (client == null || !client.isActive()) {
-            chooseProxy.remove(encodeObject.getMessageId());
-            client = clientMgr.getClientByRoundRobin();
-            if (client == null) {
-                throw new ProxysdkException(SendResult.NO_CONNECTION.toString());
-            }
-            chooseProxy.put(encodeObject.getMessageId(), client);
-        }
-        if (currentBufferSize.get() >= asyncCallbackMaxSize) {
-            throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
-        }
-        int size = 1;
-        if (isFile) {
-            if (encodeObject.getBodyBytes() != null) {
-                size = encodeObject.getBodyBytes().length;
-            } else {
-                for (byte[] bytes : encodeObject.getBodylist()) {
-                    size = size + bytes.length;
-                }
-            }
-            if (currentBufferSize.addAndGet(size) >= asyncCallbackMaxSize) {
-                currentBufferSize.addAndGet(-size);
-                throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
-            }
-
-        } else {
-            if (currentBufferSize.incrementAndGet() >= asyncCallbackMaxSize) {
-                currentBufferSize.decrementAndGet();
-                throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
-            }
-        }
-        ConcurrentHashMap<String, QueueObject> tmpCallBackMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, QueueObject> msgQueueMap = callbacks.putIfAbsent(
-                client.getChannel(), tmpCallBackMap);
-        if (msgQueueMap == null) {
-            msgQueueMap = tmpCallBackMap;
-        }
-        msgQueueMap.put(encodeObject.getMessageId(), new QueueObject(System.currentTimeMillis(),
-                callback, size, timeout, timeUnit));
-        if (encodeObject.getMsgtype() == 7) {
-            int groupIdnum = 0;
-            int streamIdnum = 0;
-            if ((clientMgr.getGroupId().length() != 0) && (encodeObject.getGroupId().equals(clientMgr.getGroupId()))) {
-                groupIdnum = clientMgr.getGroupIdNum();
-                streamIdnum = (clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null)
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
-                        : 0;
-            }
-            encodeObject.setGroupIdNum(groupIdnum);
-            encodeObject.setStreamIdNum(streamIdnum);
-            if (groupIdnum == 0 || streamIdnum == 0) {
-                encodeObject.setGroupIdTransfer(false);
-            }
-        }
-        if (this.configure.isNeedDataEncry()) {
-            encodeObject.setEncryptEntry(true, configure.getUserName(), clientMgr.getEncryptConfigEntry());
-        } else {
-            encodeObject.setEncryptEntry(false, null, null);
-        }
-        encodeObject.setMsgUUID(msgUUID);
-        client.write(encodeObject);
     }
 
     /**
@@ -539,24 +345,9 @@ public class Sender {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
         int size = 1;
-        if (isFile) {
-            if (encodeObject.getBodyBytes() != null) {
-                size = encodeObject.getBodyBytes().length;
-            } else {
-                for (byte[] bytes : encodeObject.getBodylist()) {
-                    size = size + bytes.length;
-                }
-            }
-            if (currentBufferSize.addAndGet(size) >= asyncCallbackMaxSize) {
-                currentBufferSize.addAndGet(-size);
-                throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
-            }
-
-        } else {
-            if (currentBufferSize.incrementAndGet() >= asyncCallbackMaxSize) {
-                currentBufferSize.decrementAndGet();
-                throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
-            }
+        if (currentBufferSize.incrementAndGet() >= asyncCallbackMaxSize) {
+            currentBufferSize.decrementAndGet();
+            throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
         }
         ConcurrentHashMap<String, QueueObject> msgQueueMap =
                 callbacks.computeIfAbsent(client.getChannel(), (k) -> new ConcurrentHashMap<>());
@@ -623,14 +414,8 @@ public class Sender {
                     if (queueObject == null) {
                         continue;
                     }
-                    if (isFile) {
-                        ((FileCallback) queueObject.getCallback())
-                                .onMessageAck(SendResult.CONNECTION_BREAK.toString());
-                        currentBufferSize.addAndGet(-queueObject.getSize());
-                    } else {
-                        queueObject.getCallback().onMessageAck(SendResult.CONNECTION_BREAK);
-                        currentBufferSize.decrementAndGet();
-                    }
+                    queueObject.getCallback().onMessageAck(SendResult.CONNECTION_BREAK);
+                    currentBufferSize.decrementAndGet();
                 }
                 msgQueueMap.clear();
             }

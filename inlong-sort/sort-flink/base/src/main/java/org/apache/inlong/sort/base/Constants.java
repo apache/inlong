@@ -385,7 +385,7 @@ public final class Constants {
     public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_FIELD_DELIMITER =
             ConfigOptions.key("dirty.side-output.field-delimiter")
                     .stringType()
-                    .defaultValue(",")
+                    .defaultValue("|")
                     .withDescription("The field-delimiter of dirty side-output");
     public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_LINE_DELIMITER =
             ConfigOptions.key("dirty.side-output.line-delimiter")

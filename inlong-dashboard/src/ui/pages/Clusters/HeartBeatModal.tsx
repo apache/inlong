@@ -51,9 +51,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     },
     {
       refreshDeps: [options],
-      onSuccess: data => {
-        console.log(data);
-      },
+      onSuccess: data => {},
     },
   );
 

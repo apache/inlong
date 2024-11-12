@@ -89,7 +89,7 @@ public class NettyClient {
 
         try {
             // Wait until the connection is built.
-            awaitLatch.await(configure.getConnectTimeoutMillis(),
+            awaitLatch.await(configure.getConnectTimeoutMs(),
                     TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             logger.error("create connect exception! {}", e.getMessage());
@@ -123,8 +123,7 @@ public class NettyClient {
                     }
                 });
                 // Wait until the connection is close.
-                awaitLatch.await(configure.getRequestTimeoutMillis(),
-                        TimeUnit.MILLISECONDS);
+                awaitLatch.await(configure.getConCloseWaitPeriodMs(), TimeUnit.MILLISECONDS);
                 // Return if close this connection fail.
                 if (!future.isSuccess()) {
                     ret = false;

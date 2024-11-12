@@ -847,7 +847,8 @@ public class ClientMgr {
         }
         logger.debug("active host to send heartbeat! {}", hostInfo.getReferenceName());
         String hbMsg = "heartbeat:" + hostInfo.getHostName();
-        EncodeObject encodeObject = new EncodeObject(hbMsg.getBytes(StandardCharsets.UTF_8),
+        EncodeObject encodeObject = new EncodeObject(
+                Collections.singletonList(hbMsg.getBytes(StandardCharsets.UTF_8)),
                 8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
         try {
             if (configure.isNeedAuthentication()) {

@@ -74,7 +74,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         httpManager = new HttpManager(conf);
         baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
-        createMessageSender();
     }
 
     public static HeartbeatManager getInstance(AgentManager agentManager) {
@@ -120,9 +119,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     reportHeartbeat(heartbeatMsg);
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(" {} report heartbeat to manager", heartbeatMsg);
-                    }
-                    if (sender == null) {
-                        createMessageSender();
                     }
                     AgentStatusManager.sendStatusMsg(sender);
                     FileStaticManager.sendStaticMsg(sender);
@@ -205,6 +201,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             proxyClientConfig.setAliveConnections(CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
             proxyClientConfig.setIoThreadNum(CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
             proxyClientConfig.setProtocolType(ProtocolType.TCP);
+            proxyClientConfig.setRequestTimeoutMs(30000L);
             ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-heartbeat",
                     Thread.currentThread().isDaemon());
             sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);

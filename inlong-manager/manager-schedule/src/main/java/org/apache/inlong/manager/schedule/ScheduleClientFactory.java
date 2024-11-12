@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,13 +33,10 @@ public class ScheduleClientFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleClientFactory.class);
 
-    @Value("${inlong.schedule.engine:none}")
-    private String scheduleEngineName;
-
     @Autowired
     List<ScheduleEngineClient> scheduleEngineClients;
 
-    public ScheduleEngineClient getInstance() {
+    public ScheduleEngineClient getInstance(String scheduleEngineName) {
         Optional<ScheduleEngineClient> optScheduleClient =
                 scheduleEngineClients.stream().filter(t -> t.accept(scheduleEngineName)).findFirst();
         if (!optScheduleClient.isPresent()) {

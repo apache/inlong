@@ -45,7 +45,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
@@ -116,9 +116,8 @@ public class UdpClientExample {
             boolean isGroupIdTransfer, long dt, long seqId, String groupId, String streamId,
             String attr) throws UnsupportedEncodingException {
         EncodeObject encodeObject =
-                new EncodeObject(getRandomString(5).getBytes("UTF-8"), msgType,
-                        isCompress,
-                        isReport, isGroupIdTransfer, dt, seqId, groupId, streamId, attr);
+                new EncodeObject(Collections.singletonList(getRandomString(5).getBytes("UTF-8")),
+                        msgType, isCompress, isReport, isGroupIdTransfer, dt, seqId, groupId, streamId, attr);
         return encodeObject;
     }
 
@@ -142,48 +141,37 @@ public class UdpClientExample {
             byte[] body = null;
             int cnt = 1;
 
-            if (object.getBodylist() != null && object.getBodylist().size() != 0) {
+            if (object.getBodylist() != null && !object.getBodylist().isEmpty()) {
                 if (object.getCnt() > 0) {
                     cnt = object.getCnt();
                 } else {
                     cnt = object.getBodylist().size();
                 }
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                Iterator<byte[]> iter = object.getBodylist().iterator();
 
                 if (object.isSupportLF()) {
+                    int totalCnt = 0;
                     ByteArrayOutputStream data = new ByteArrayOutputStream();
-                    int len = object.getBodylist().size();
-                    for (int i = 0; i < len - 1; i++) {
-                        data.write(object.getBodylist().get(i));
-                        data.write("\n".getBytes("utf8"));
+                    for (byte[] entry : object.getBodylist()) {
+                        if (totalCnt++ > 0) {
+                            data.write("\n".getBytes("utf8"));
+                        }
+                        data.write(entry);
                     }
-                    data.write(object.getBodylist().get(len - 1));
-                    ByteBuffer databuffer = ByteBuffer.allocate(4);
-                    databuffer.putInt(data.toByteArray().length);
-                    out.write(databuffer.array());
+                    ByteBuffer dataBuffer = ByteBuffer.allocate(4);
+                    dataBuffer.putInt(data.toByteArray().length);
+                    out.write(dataBuffer.array());
                     out.write(data.toByteArray());
                 } else {
-                    while (iter.hasNext()) {
-                        byte[] entry = iter.next();
-                        ByteBuffer databuffer = ByteBuffer.allocate(4);
-                        databuffer.putInt(entry.length);
-                        out.write(databuffer.array());
+                    for (byte[] entry : object.getBodylist()) {
+                        ByteBuffer dataBuffer = ByteBuffer.allocate(4);
+                        dataBuffer.putInt(entry.length);
+                        out.write(dataBuffer.array());
                         out.write(entry);
                     }
                 }
                 body = out.toByteArray();
             }
-            if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-                ByteBuffer databuffer = ByteBuffer.allocate(4);
-                databuffer.putInt(object.getBodyBytes().length);
-                out.write(databuffer.array());
-                out.write(object.getBodyBytes());
-                body = out.toByteArray();
-            }
-
             if (body != null) {
                 if (object.isCompress()) {
                     body = processCompress(body);

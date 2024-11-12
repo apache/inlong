@@ -76,23 +76,23 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
           submitData.sshKey = '';
         }
       }
-      if (type === 'AGENT') {
-        if (submitData.installer !== undefined) {
-          if (Array.isArray(submitData.moduleIdList)) {
-            submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
-          } else {
-            submitData.moduleIdList = [submitData.moduleIdList].concat(submitData.installer);
-          }
+    }
+    if (type === 'AGENT') {
+      if (submitData.installer !== undefined) {
+        if (Array.isArray(submitData.moduleIdList)) {
+          submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
+        } else {
+          submitData.moduleIdList = [submitData.moduleIdList].concat(submitData.installer);
         }
       }
-      await request({
-        url: `/cluster/node/${isUpdate ? 'update' : 'save'}`,
-        method: 'POST',
-        data: submitData,
-      });
-      await modalProps?.onOk(submitData);
-      message.success(i18n.t('basic.OperatingSuccess'));
     }
+    await request({
+      url: `/cluster/node/${isUpdate ? 'update' : 'save'}`,
+      method: 'POST',
+      data: submitData,
+    });
+    await modalProps?.onOk(submitData);
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   const [agentInstaller, setAgentInstaller] = useState([]);
@@ -105,7 +105,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         pageSize: 9999,
       },
     });
-    console.log('result', result);
     setAgentInstaller(result.list?.sort((a, b) => b.modifyTime - a.modifyTime));
     return result;
   };

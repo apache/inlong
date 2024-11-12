@@ -46,13 +46,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PbProtocolMessageSender implements MessageSender, Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(PbProtocolMessageSender.class);
-
+    private static final String KEY_REQUEST_TIMEOUT_MS = "request.timeout.ms";
+    private static final long VAL_DEF_REQUEST_TIMEOUT_MS = 20000L;
+    private static final long VAL_MIN_REQUEST_TIMEOUT_MS = 1L;
     private String name;
     private String localIp;
     private LifecycleState lifecycleState;
     private Context context;
     private BufferQueueChannel channel;
     private ProxySdkSink sink;
+    private long requestTimeoutMs = VAL_DEF_REQUEST_TIMEOUT_MS;
 
     /**
      * Constructor
@@ -101,6 +104,10 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
         this.sink.setName(name + "-sink");
         this.sink.configure(context);
         this.sink.setChannel(channel);
+        long tmpTimeoutMs = context.getLong(KEY_REQUEST_TIMEOUT_MS, VAL_DEF_REQUEST_TIMEOUT_MS);
+        if (tmpTimeoutMs >= VAL_MIN_REQUEST_TIMEOUT_MS) {
+            this.requestTimeoutMs = tmpTimeoutMs;
+        }
     }
 
     /**
@@ -174,35 +181,16 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     /**
      * sendMessage
      * 
-     * @param      body
-     * @param      attributes
-     * @param      msgUUID
-     * @param      timeout
-     * @param      timeUnit
-     * @return                SendResult
-     * @deprecated
-     */
-    @Override
-    public SendResult sendMessage(byte[] body, String attributes, String msgUUID, long timeout, TimeUnit timeUnit) {
-        return SendResult.INVALID_ATTRIBUTES;
-    }
-
-    /**
-     * sendMessage
-     * 
      * @param  body
      * @param  groupId
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @return          SendResult
      */
     @Override
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout,
-            TimeUnit timeUnit) {
-        return this.sendMessage(body, groupId, streamId, dt, msgUUID, timeout, timeUnit, null);
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID) {
+        return this.sendMessage(body, groupId, streamId, dt, msgUUID, null);
     }
 
     /**
@@ -213,14 +201,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @param  extraAttrMap
      * @return              SendResult
      */
     @Override
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout,
-            TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(byte[] body, String groupId,
+            String streamId, long dt, String msgUUID, Map<String, String> extraAttrMap) {
         // prepare
         SdkEvent sdkEvent = new SdkEvent();
         sdkEvent.setInlongGroupId(groupId);
@@ -253,7 +239,7 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
         this.put(profile);
         // wait
         try {
-            boolean success = latch.await(timeout, timeUnit);
+            boolean success = latch.await(requestTimeoutMs, TimeUnit.MILLISECONDS);
             if (!success) {
                 refResult.set(SendResult.TIMEOUT);
             }
@@ -272,14 +258,11 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @return          SendResult
      */
     @Override
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
-        return this.sendMessage(bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, null);
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID) {
+        return this.sendMessage(bodyList, groupId, streamId, dt, msgUUID, null);
     }
 
     /**
@@ -290,14 +273,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @param  extraAttrMap
      * @return              SendResult
      */
     @Override
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(List<byte[]> bodyList,
+            String groupId, String streamId, long dt, String msgUUID, Map<String, String> extraAttrMap) {
         final AtomicReference<SendResult> refResult = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(bodyList.size());
         // prepare
@@ -334,7 +315,7 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
         this.putAll(events);
         // wait
         try {
-            boolean success = latch.await(timeout, timeUnit);
+            boolean success = latch.await(requestTimeoutMs, TimeUnit.MILLISECONDS);
             if (!success) {
                 refResult.set(SendResult.TIMEOUT);
             }
@@ -348,38 +329,18 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     /**
      * asyncSendMessage
      * 
-     * @param      callback
-     * @param      body
-     * @param      attributes
-     * @param      msgUUID
-     * @param      timeout
-     * @param      timeUnit
-     * @throws     ProxysdkException
-     * @deprecated
-     */
-    @Override
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        throw new ProxysdkException("Not support");
-    }
-
-    /**
-     * asyncSendMessage
-     * 
      * @param  callback
      * @param  body
      * @param  groupId
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @param  extraAttrMap
      * @throws ProxysdkException
      */
     @Override
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap)
+            String msgUUID, Map<String, String> extraAttrMap)
             throws ProxysdkException {
         SdkEvent sdkEvent = new SdkEvent();
         sdkEvent.setInlongGroupId(groupId);
@@ -403,14 +364,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @throws ProxysdkException
      */
     @Override
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        this.asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, timeout, timeUnit, null);
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body,
+            String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException {
+        this.asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, null);
     }
 
     /**
@@ -422,14 +381,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @throws ProxysdkException
      */
     @Override
-    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
-            long dt, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        this.asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, null);
+    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList,
+            String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException {
+        this.asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, null);
     }
 
     /**
@@ -441,15 +398,13 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @param  timeout
-     * @param  timeUnit
      * @param  extraAttrMap
      * @throws ProxysdkException
      */
     @Override
-    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
-            long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap)
-            throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback,
+            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
+            Map<String, String> extraAttrMap) throws ProxysdkException {
         List<CallbackProfile> events = new ArrayList<>(bodyList.size());
         for (byte[] body : bodyList) {
             SdkEvent sdkEvent = new SdkEvent();
@@ -479,8 +434,7 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
             throws ProxysdkException {
-        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null, 0L, null,
-                null);
+        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null, null);
     }
 
     /**
@@ -495,8 +449,8 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
             SendMessageCallback callback) throws ProxysdkException {
-        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null, 0L,
-                null, null);
+        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null,
+                null);
     }
 
 }

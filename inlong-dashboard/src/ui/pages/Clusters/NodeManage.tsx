@@ -308,7 +308,6 @@ const Comp: React.FC = () => {
       getModuleList().then(res => {
         agentInstallerList.current = res?.list;
         setAgentVersionObj(versionMap(res?.list));
-        console.log(agentInstallerList.current, agentVersionObj);
       });
     })();
   }, [type]);
@@ -324,7 +323,6 @@ const Comp: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log('window.innerWidth', window.innerWidth);
       setIsSmall(window.innerWidth < 1600);
     };
 

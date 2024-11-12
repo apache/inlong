@@ -216,7 +216,6 @@ const Comp: React.FC<Props> = ({ agentList, agentTotal, parentId, ...modalProps 
     const submitList = [];
 
     valuesToSubmitList(agentList, values, submitList);
-    console.log('submitList', submitList);
     const baseBatchSize =
       Math.floor(submitList.length / values.batchNum) === 0
         ? 1
@@ -224,7 +223,6 @@ const Comp: React.FC<Props> = ({ agentList, agentTotal, parentId, ...modalProps 
     const remainder = submitList.length % values.batchNum;
     const map = new Map();
     const batchNum = agentList.length < values.batchNum ? agentList.length : values.batchNum;
-    console.log('batchNum', batchNum, 'baseBatchSize', baseBatchSize, 'remainder', remainder);
 
     for (let i = 1; i <= batchNum; i++) {
       if (i === batchNum) {
