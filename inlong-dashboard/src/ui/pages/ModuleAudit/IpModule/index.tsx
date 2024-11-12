@@ -69,7 +69,6 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
         ? sourceData[0]
         : sourceData[1];
     const output = baseData?.auditSet?.reduce((acc, cur) => {
-      console.log('cur', cur, sourceData[0].auditId, baseData.auditId);
       acc[cur.inlongGroupId + cur.inlongStreamId] = {
         inlongGroupId: cur.inlongGroupId,
         inlongStreamId: cur.inlongStreamId,

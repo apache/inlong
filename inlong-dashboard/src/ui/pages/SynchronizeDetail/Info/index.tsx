@@ -138,11 +138,10 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
 
   const onOk = async () => {
     const values = await form.validateFields();
-
     let submitData = {
       ...values,
       version: data?.version,
-      inCharges: values.inCharges?.join(','),
+      inCharges: values.inCharges instanceof Array ? values.inCharges?.join(',') : values.inCharges,
     };
     if (values.inlongGroupMode === 2) {
       submitData = {
@@ -228,7 +227,13 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
         form={form}
         content={formContent}
         initialValues={data}
-        onValuesChange={(c, values) => setMqType(values.mqType)}
+        onValuesChange={(c, values) => {
+          setMqType(values.mqType);
+          if (c.scheduleEngine === 'DolphinScheduler') {
+            form.setFieldsValue({ scheduleType: 1 });
+            values.scheduleType = 1;
+          }
+        }}
         useMaxWidth={1400}
         col={14}
         labelWrap
