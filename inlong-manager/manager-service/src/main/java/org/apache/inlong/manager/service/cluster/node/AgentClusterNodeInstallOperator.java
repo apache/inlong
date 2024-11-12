@@ -59,6 +59,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
 
     public static final String INSTALLER_CONF_PATH = "/conf/installer.properties";
     public static final String INSTALLER_START_CMD = "/bin/installer.sh start";
+    public static final String CRONTAB_START_CMD = "/bin/crontab.sh";
     public static final String INSTALLER_RESTART_CMD = "/bin/installer.sh restart";
     public static final String INSTALLER_STOP_CMD = "/bin/installer.sh restart";
     public static final String AGENT_MANAGER_AUTH_SECRET_ID = "agent.manager.auth.secretId";
@@ -115,6 +116,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             deployInstaller(request, operator);
             String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);
+            String crontabStartCmd = agentInstallPath + CRONTAB_START_CMD;
+            commandExecutor.execRemote(request, crontabStartCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(),
                     NodeStatus.INSTALL_SUCCESS.getStatus(), currentTime + InlongConstants.BLANK + "success to install");
         } catch (Exception e) {
@@ -149,6 +152,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             commandExecutor.cpDir(request, agentInstallTempPath + "/modules.json", agentInstallPath + "/conf");
             String reStartCmd = agentInstallPath + INSTALLER_RESTART_CMD;
             commandExecutor.execRemote(request, reStartCmd);
+            String crontabStartCmd = agentInstallPath + CRONTAB_START_CMD;
+            commandExecutor.execRemote(request, crontabStartCmd);
             clusterNodeEntityMapper.updateOperateLogById(clusterNodeRequest.getId(), NodeStatus.NORMAL.getStatus(),
                     currentTime + InlongConstants.BLANK + "success to reinstall");
         } catch (Exception e) {
