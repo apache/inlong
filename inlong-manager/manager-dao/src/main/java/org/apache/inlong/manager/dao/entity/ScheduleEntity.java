@@ -33,6 +33,8 @@ public class ScheduleEntity implements Serializable {
     private String inlongGroupId;
     // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
     private Integer scheduleType;
+    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
+    private String scheduleEngine;
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
     // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
     private String scheduleUnit;

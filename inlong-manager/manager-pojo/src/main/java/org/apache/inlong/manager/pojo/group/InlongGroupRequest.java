@@ -135,6 +135,11 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
+    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
+    @ApiModelProperty(value = "Schedule engine, support Quartz, Airflow and Dolphinscheduler")
+    @Length(min = 1, max = 20, message = "length must be between 1 and 20")
+    private String scheduleEngine;
+
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
     // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
     @ApiModelProperty("TimeUnit for schedule interval")

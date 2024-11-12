@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
 import java.util.Objects;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
@@ -49,6 +50,10 @@ public class ScheduleInfo {
     // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
+
+    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
+    @ApiModelProperty("Schedule engine")
+    private String scheduleEngine;
 
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
     // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
@@ -91,6 +96,7 @@ public class ScheduleInfo {
         ScheduleInfo that = (ScheduleInfo) o;
         return Objects.equals(inlongGroupId, that.inlongGroupId)
                 && Objects.equals(scheduleType, that.scheduleType)
+                && Objects.equals(scheduleEngine, that.scheduleEngine)
                 && Objects.equals(scheduleUnit, that.scheduleUnit)
                 && Objects.equals(scheduleInterval, that.scheduleInterval)
                 && Objects.equals(startTime, that.startTime)
@@ -103,9 +109,8 @@ public class ScheduleInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, inlongGroupId, scheduleType, scheduleUnit, scheduleInterval, startTime, endTime,
-                delayTime,
-                selfDepend, taskParallelism, crontabExpression, version);
+        return Objects.hash(id, inlongGroupId, scheduleType, scheduleEngine, scheduleUnit, scheduleInterval, startTime,
+                endTime, delayTime, selfDepend, taskParallelism, crontabExpression, version);
     }
 
 }
