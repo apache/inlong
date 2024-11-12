@@ -27,7 +27,6 @@ import javax.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
 import java.util.Objects;
-import org.hibernate.validator.constraints.Length;
 
 @Data
 @ApiModel("Schedule request")
@@ -45,7 +44,7 @@ public class ScheduleInfoRequest {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
-    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
+    // schedule engine type, support [Quartz, Airflow, DolphinScheduler]
     @ApiModelProperty(value = "Schedule engine")
     private String scheduleEngine;
 

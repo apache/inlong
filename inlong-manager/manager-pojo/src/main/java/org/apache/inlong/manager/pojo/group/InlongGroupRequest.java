@@ -135,8 +135,8 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
-    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
-    @ApiModelProperty(value = "Schedule engine, support Quartz, Airflow and Dolphinscheduler")
+    // schedule engine type, support [Quartz, Airflow, DolphinScheduler]
+    @ApiModelProperty(value = "Schedule engine, support Quartz, Airflow and DolphinScheduler")
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String scheduleEngine;
 

@@ -30,7 +30,6 @@ import javax.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
 import java.util.Objects;
-import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
@@ -51,7 +50,7 @@ public class ScheduleInfo {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
-    // schedule engine type, support [Quartz, Airflow, Dolphinscheduler]
+    // schedule engine type, support [Quartz, Airflow, DolphinScheduler]
     @ApiModelProperty("Schedule engine")
     private String scheduleEngine;
 

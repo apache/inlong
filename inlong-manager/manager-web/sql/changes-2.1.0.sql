@@ -24,4 +24,4 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE `schedule_config`
-    ADD COLUMN  `schedule_engine` varchar(64)  NOT NULL DEFAULT 'Quartz' COMMENT 'Schedule engine, support Quartz, Airflow and Dolphinscheduler';
+    ADD COLUMN  `schedule_engine` varchar(64)  NOT NULL DEFAULT 'Quartz' COMMENT 'Schedule engine, support Quartz, Airflow and DolphinScheduler';
