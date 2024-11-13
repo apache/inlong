@@ -65,10 +65,10 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Value("${default.admin.password:inlong}")
     private String password;
 
-    @Value("${inlong.schedule.dolphinscheduler.url:}")
+    @Value("${inlong.schedule.dolphinscheduler.url:http://127.0.0.1:12345/dolphinscheduler}")
     private String dolphinUrl;
 
-    @Value("${inlong.schedule.dolphinscheduler.token:}")
+    @Value("${inlong.schedule.dolphinscheduler.token:default_token_value}")
     private String token;
 
     private long projectCode;
@@ -90,7 +90,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             this.dsUtils = new DolphinScheduleUtils();
             this.scheduledProcessMap = new ConcurrentHashMap<>();
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to init dolphin scheduler ", e);
+            LOGGER.error("Failed to init dolphin scheduler: ", e);
+            throw new DolphinScheduleException(String.format("Failed to init dolphin scheduler: %s", e.getMessage()));
         }
     }
 
@@ -101,7 +102,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             this.dsUtils = new DolphinScheduleUtils();
             this.scheduledProcessMap = new ConcurrentHashMap<>();
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to init dolphin scheduler ", e);
+            LOGGER.error("Failed to init dolphin scheduler: ", e);
+            throw new DolphinScheduleException(String.format("Failed to init dolphin scheduler: %s", e.getMessage()));
         }
     }
 
@@ -111,8 +113,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
      */
     @Override
     public void start() {
-        LOGGER.info("Starting dolphin scheduler engine");
-        LOGGER.info("Checking project exists...");
+        LOGGER.info("Starting dolphin scheduler engine, Checking project exists...");
         long code = dsUtils.checkAndGetUniqueId(projectBaseUrl, token, DS_DEFAULT_PROJECT_NAME);
         if (code != 0) {
             LOGGER.info("Project exists, project code: {}", code);
@@ -141,8 +142,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         String processName = scheduleInfo.getInlongGroupId() + DS_DEFAULT_PROCESS_NAME;
         String processDesc = DS_DEFAULT_PROCESS_DESC + scheduleInfo.getInlongGroupId();
 
-        LOGGER.info("Dolphin Scheduler handle register begin for {}", scheduleInfo.getInlongGroupId());
-        LOGGER.info("Checking process definition id uniqueness...");
+        LOGGER.info("Dolphin Scheduler handle register begin for {}, Checking process definition id uniqueness...",
+                scheduleInfo.getInlongGroupId());
         try {
             long processDefCode = dsUtils.checkAndGetUniqueId(processDefUrl, token, processName);
 
@@ -180,7 +181,9 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             scheduledProcessMap.putIfAbsent(processDefCode, processName);
             return online;
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to handle unregister dolphin scheduler", e);
+            LOGGER.error("Failed to handle unregister dolphin scheduler: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Failed to handle unregister dolphin scheduler: %s", e.getMessage()));
         }
     }
 
@@ -194,8 +197,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         String processName = groupId + DS_DEFAULT_PROCESS_NAME;
         String processDefUrl = projectBaseUrl + "/" + projectCode + DS_PROCESS_URL;
 
-        LOGGER.info("Dolphin Scheduler handle Unregister begin for {}", groupId);
-        LOGGER.info("Checking process definition id uniqueness...");
+        LOGGER.info("Dolphin Scheduler handle Unregister begin for {}, Checking process definition id uniqueness...",
+                groupId);
         try {
             long processDefCode = dsUtils.checkAndGetUniqueId(processDefUrl, token, processName);
             if (processDefCode != 0 || scheduledProcessMap.containsKey(processDefCode)) {
@@ -211,7 +214,9 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             LOGGER.info("Un-registered dolphin schedule info for {}", groupId);
             return !scheduledProcessMap.containsKey(processDefCode);
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to handle unregister dolphin scheduler", e);
+            LOGGER.error("Failed to handle unregister dolphin scheduler: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Failed to handle unregister dolphin scheduler: %s", e.getMessage()));
         }
     }
 
@@ -226,7 +231,9 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         try {
             return handleUnregister(scheduleInfo.getInlongGroupId()) && handleRegister(scheduleInfo);
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to handle update dolphin scheduler", e);
+            LOGGER.error("Failed to handle update dolphin scheduler: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Failed to handle update dolphin scheduler: %s", e.getMessage()));
         }
     }
 
@@ -256,7 +263,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             LOGGER.info("Dolphin scheduler engine stopped");
 
         } catch (Exception e) {
-            throw new DolphinScheduleException("Failed to stop dolphin scheduler", e);
+            LOGGER.error("Failed to stop dolphin scheduler: ", e);
+            throw new DolphinScheduleException(String.format("Failed to stop dolphin scheduler: %s", e.getMessage()));
         }
     }
 

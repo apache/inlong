@@ -152,8 +152,9 @@ public class DolphinScheduleUtils {
             return 0;
 
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in check id uniqueness", e);
-            return 0;
+            LOGGER.error("Unexpected wrong in check id uniqueness: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in check id uniqueness: %s", e.getMessage()));
         }
     }
 
@@ -184,8 +185,9 @@ public class DolphinScheduleUtils {
             }
             return 0;
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating new project", e);
-            return 0;
+            LOGGER.error("Unexpected wrong in creating new project: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in creating new project: %s", e.getMessage()));
         }
     }
 
@@ -207,8 +209,9 @@ public class DolphinScheduleUtils {
             LOGGER.info("Query all process definition success, processes info: {}", processDef);
             return processDef;
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in generating task code", e);
-            return null;
+            LOGGER.error("Unexpected wrong in query process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in query process definition: %s", e.getMessage()));
         }
     }
 
@@ -235,8 +238,9 @@ public class DolphinScheduleUtils {
             }
             return 0;
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in generating task code", e);
-            return 0;
+            LOGGER.error("Unexpected wrong in generating task code: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in generating task code: %s", e.getMessage()));
         }
     }
 
@@ -291,8 +295,9 @@ public class DolphinScheduleUtils {
             }
             return 0;
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating process definition", e);
-            return 0;
+            LOGGER.error("Unexpected wrong in creating process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in creating process definition: %s", e.getMessage()));
         }
     }
 
@@ -318,8 +323,9 @@ public class DolphinScheduleUtils {
             }
             return false;
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in release process definition", e);
-            return false;
+            LOGGER.error("Unexpected wrong in release process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in release process definition: %s", e.getMessage()));
         }
     }
 
@@ -347,7 +353,8 @@ public class DolphinScheduleUtils {
         } else if (scheduleInfo.getScheduleType() == 1) {
             crontab = scheduleInfo.getCrontabExpression();
         } else {
-            throw new IllegalArgumentException("Unsupported schedule type: " + scheduleInfo.getScheduleType());
+            LOGGER.error("Unsupported schedule type: {}", scheduleInfo.getScheduleType());
+            throw new DolphinScheduleException("Unsupported schedule type: " + scheduleInfo.getScheduleType());
         }
 
         DScheduleInfo dScheduleInfo = new DScheduleInfo();
@@ -371,8 +378,9 @@ public class DolphinScheduleUtils {
                 return data.get(DS_ID).getAsInt();
             }
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating schedule for process definition", e);
-            return 0;
+            LOGGER.error("Unexpected wrong in creating schedule for process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in creating schedule for process definition: %s", e.getMessage()));
         }
         return 0;
     }
@@ -394,8 +402,9 @@ public class DolphinScheduleUtils {
                 return response.get(DS_RESPONSE_DATA).getAsBoolean();
             }
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in online process definition", e);
-            return false;
+            LOGGER.error("Unexpected wrong in online process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in online process definition: %s", e.getMessage()));
         }
         return false;
     }
@@ -413,7 +422,9 @@ public class DolphinScheduleUtils {
         try {
             executeHttpRequest(url, HTTP_DELETE, new HashMap<>(), header);
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in deleting process definition", e);
+            LOGGER.error("Unexpected wrong in deleting process definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in deleting process definition: %s", e.getMessage()));
         }
     }
 
@@ -430,7 +441,9 @@ public class DolphinScheduleUtils {
         try {
             executeHttpRequest(url, HTTP_DELETE, new HashMap<>(), header);
         } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in deleting project definition", e);
+            LOGGER.error("Unexpected wrong in deleting project definition: ", e);
+            throw new DolphinScheduleException(
+                    String.format("Unexpected wrong in deleting project definition: %s", e.getMessage()));
         }
     }
 
@@ -517,7 +530,8 @@ public class DolphinScheduleUtils {
                 String responseBody = response.body().string();
                 return JsonParser.parseString(responseBody).getAsJsonObject();
             } else {
-                throw new IOException("Unexpected http response code " + response);
+                LOGGER.error("Unexpected http response code: {}", response);
+                throw new DolphinScheduleException("Unexpected http response code " + response);
             }
         }
     }
@@ -530,14 +544,16 @@ public class DolphinScheduleUtils {
      */
     public long calculateOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo == null) {
-            throw new IllegalArgumentException("ScheduleInfo cannot be null");
+            LOGGER.error("ScheduleInfo cannot be null");
+            throw new DolphinScheduleException("ScheduleInfo cannot be null");
         }
 
         long offset = 0;
 
         // Determine offset based on schedule type
         if (scheduleInfo.getScheduleType() == null) {
-            throw new IllegalArgumentException("Schedule type cannot be null");
+            LOGGER.error("Schedule type cannot be null");
+            throw new DolphinScheduleException("Schedule type cannot be null");
         }
 
         switch (scheduleInfo.getScheduleType()) {
@@ -548,7 +564,8 @@ public class DolphinScheduleUtils {
                 offset = calculateCronOffset(scheduleInfo);
                 break;
             default:
-                throw new IllegalArgumentException("Invalid schedule type");
+                LOGGER.error("Invalid schedule type");
+                throw new DolphinScheduleException("Invalid schedule type");
         }
 
         // Add delay time if specified
@@ -561,6 +578,7 @@ public class DolphinScheduleUtils {
 
     private long calculateNormalOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo.getScheduleInterval() == null || scheduleInfo.getScheduleUnit() == null) {
+            LOGGER.error("Schedule interval and unit cannot be null for normal scheduling");
             throw new IllegalArgumentException("Schedule interval and unit cannot be null for normal scheduling");
         }
         switch (Objects.requireNonNull(ScheduleUnit.getScheduleUnit(scheduleInfo.getScheduleUnit()))) {
@@ -581,13 +599,15 @@ public class DolphinScheduleUtils {
             case ONE_ROUND:
                 return scheduleInfo.getScheduleInterval();
             default:
-                throw new IllegalArgumentException("Invalid schedule unit");
+                LOGGER.error("Invalid schedule unit");
+                throw new DolphinScheduleException("Invalid schedule unit");
         }
     }
 
     private long calculateCronOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo.getCrontabExpression() == null) {
-            throw new IllegalArgumentException("Crontab expression cannot be null for schedule type crontab");
+            LOGGER.error("Crontab expression cannot be null for schedule type crontab");
+            throw new DolphinScheduleException("Crontab expression cannot be null for schedule type crontab");
         }
 
         try {
@@ -598,16 +618,19 @@ public class DolphinScheduleUtils {
             if (secondExecution != null) {
                 return secondExecution.getTime() - firstExecution.getTime();
             } else {
-                throw new IllegalArgumentException(
+                LOGGER.error("Unable to calculate the next execution times for the cron expression");
+                throw new DolphinScheduleException(
                         "Unable to calculate the next execution times for the cron expression");
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid cron expression", e);
+            LOGGER.error("Invalid cron expression: ", e);
+            throw new DolphinScheduleException(String.format("Invalid cron expression: %s", e.getMessage()));
         }
     }
 
     private String generateCrontabExpression(String scheduleUnit, Integer scheduleInterval) {
         if (scheduleUnit.isEmpty()) {
+            LOGGER.error("Schedule unit and interval must not be null for generating crontab expression");
             throw new DolphinScheduleException(
                     "Schedule unit and interval must not be null for generating crontab expression");
         }
@@ -636,6 +659,7 @@ public class DolphinScheduleUtils {
                 crontabExpression = String.format("* * * * * ? 0/%d", scheduleInterval);
                 break;
             default:
+                LOGGER.error("Unsupported schedule unit for generating crontab: {}", scheduleUnit);
                 throw new DolphinScheduleException("Unsupported schedule unit for generating crontab: " + scheduleUnit);
         }
 
@@ -648,7 +672,8 @@ public class DolphinScheduleUtils {
      * Call back in inlong, sending a request with parameters required
      */
     private String buildScript(String host, int port, String username, String password, long offset, String groupId) {
-
+        LOGGER.info("build script for host: {}, port: {}, username: {}, password: {}, offset: {}, groupId: {}", host,
+                port, username, password, offset, groupId);
         return "#!/bin/bash\n\n" +
 
         // Get current timestamp

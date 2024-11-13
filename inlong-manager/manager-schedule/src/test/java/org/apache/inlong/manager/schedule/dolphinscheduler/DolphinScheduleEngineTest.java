@@ -33,6 +33,7 @@ import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedul
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INLONG_DS_TEST_USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DolphinScheduleEngineTest extends DolphinScheduleContainerTestEnv {
 

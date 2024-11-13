@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.schedule.dolphinscheduler;
 
 import org.apache.inlong.manager.schedule.BaseScheduleTest;
+import org.apache.inlong.manager.schedule.exception.DolphinScheduleException;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -91,39 +92,43 @@ public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
      *
      * @return the DS token
      */
-    private static String accessToken() throws Exception {
+    private static String accessToken() {
         Map<String, String> loginParams = new HashMap<>();
         loginParams.put(DS_USERNAME, DS_DEFAULT_USERNAME);
         loginParams.put(DS_PASSWORD, DS_DEFAULT_PASSWORD);
-        JsonObject loginResponse = executeHttpRequest(DS_URL + DS_LOGIN_URL, loginParams, new HashMap<>());
-        if (loginResponse.get("success").getAsBoolean()) {
-            String tokenGenUrl = DS_URL + DS_TOKEN_URL + DS_TOKEN_GEN_URL;
-            Map<String, String> tokenParams = new HashMap<>();
-            tokenParams.put(DS_USERID, String.valueOf(DS_DEFAULT_USERID));
+        try {
+            JsonObject loginResponse = executeHttpRequest(DS_URL + DS_LOGIN_URL, loginParams, new HashMap<>());
+            if (loginResponse.get("success").getAsBoolean()) {
+                String tokenGenUrl = DS_URL + DS_TOKEN_URL + DS_TOKEN_GEN_URL;
+                Map<String, String> tokenParams = new HashMap<>();
+                tokenParams.put(DS_USERID, String.valueOf(DS_DEFAULT_USERID));
 
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime tomorrow = now.plusDays(1);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DS_EXPIRE_TIME_FORMAT);
-            String expireTime = tomorrow.format(formatter);
-            tokenParams.put(DS_EXPIRE_TIME, expireTime);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime tomorrow = now.plusDays(1);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DS_EXPIRE_TIME_FORMAT);
+                String expireTime = tomorrow.format(formatter);
+                tokenParams.put(DS_EXPIRE_TIME, expireTime);
 
-            Map<String, String> cookies = new HashMap<>();
-            cookies.put(DS_COOKIE_SC_TYPE, loginResponse.get(DS_RESPONSE_DATA)
-                    .getAsJsonObject().get(DS_COOKIE_SC_TYPE).getAsString());
-            cookies.put(DS_COOKIE_SESSION_ID, loginResponse.get(DS_RESPONSE_DATA)
-                    .getAsJsonObject().get(DS_COOKIE_SESSION_ID).getAsString());
+                Map<String, String> cookies = new HashMap<>();
+                cookies.put(DS_COOKIE_SC_TYPE, loginResponse.get(DS_RESPONSE_DATA)
+                        .getAsJsonObject().get(DS_COOKIE_SC_TYPE).getAsString());
+                cookies.put(DS_COOKIE_SESSION_ID, loginResponse.get(DS_RESPONSE_DATA)
+                        .getAsJsonObject().get(DS_COOKIE_SESSION_ID).getAsString());
 
-            JsonObject tokenGenResponse = executeHttpRequest(tokenGenUrl, tokenParams, cookies);
+                JsonObject tokenGenResponse = executeHttpRequest(tokenGenUrl, tokenParams, cookies);
 
-            String accessTokenUrl = DS_URL + DS_TOKEN_URL;
-            tokenParams.put(DS_RESPONSE_TOKEN, tokenGenResponse.get(DS_RESPONSE_DATA).getAsString());
-            JsonObject result = executeHttpRequest(accessTokenUrl, tokenParams, cookies);
-            String token = result.get(DS_RESPONSE_DATA).getAsJsonObject().get(DS_RESPONSE_TOKEN).getAsString();
-            DS_LOG.info("login and generate token success, token: {}", token);
-            return token;
+                String accessTokenUrl = DS_URL + DS_TOKEN_URL;
+                tokenParams.put(DS_RESPONSE_TOKEN, tokenGenResponse.get(DS_RESPONSE_DATA).getAsString());
+                JsonObject result = executeHttpRequest(accessTokenUrl, tokenParams, cookies);
+                String token = result.get(DS_RESPONSE_DATA).getAsJsonObject().get(DS_RESPONSE_TOKEN).getAsString();
+                DS_LOG.info("login and generate token success, token: {}", token);
+                return token;
+            }
+            return null;
+        } catch (Exception e) {
+            DS_LOG.error("login and generate token fail: ", e);
+            throw new DolphinScheduleException(String.format("login and generate token fail: %s", e.getMessage()));
         }
-        DS_LOG.error("login and generate token fail");
-        return null;
     }
 
     public static void envShutDown() {
@@ -167,7 +172,8 @@ public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
                 String responseBody = response.body().string();
                 return JsonParser.parseString(responseBody).getAsJsonObject();
             } else {
-                throw new IOException("Unexpected http response error " + response);
+                DS_LOG.error("Unexpected http response error: {}", response);
+                throw new DolphinScheduleException("Unexpected http response error " + response);
             }
         }
     }
