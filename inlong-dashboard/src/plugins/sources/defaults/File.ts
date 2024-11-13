@@ -139,7 +139,13 @@ export default class PulsarSource
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
-    rules: [{ required: true }],
+    rules: [
+      { required: true },
+      {
+        pattern: /^\S*$/,
+        message: i18n.t('meta.Sources.File.FilePathPatternHelp'),
+      },
+    ],
     props: values => ({
       disabled: Boolean(values.id),
     }),

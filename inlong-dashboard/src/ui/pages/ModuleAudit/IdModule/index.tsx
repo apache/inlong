@@ -74,14 +74,14 @@ const Comp: React.FC<AuditProps> = ({ auditData }) => {
         base:
           sourceData[0].auditId === baseData.auditId
             ? cur.count
-            : sourceData[0].auditSet.find(item => (item.ip = cur.ip))
-            ? sourceData[0].auditSet.find(item => (item.ip = cur.ip)).count
+            : sourceData[0].auditSet.find(item => item.ip === cur.ip)
+            ? sourceData[0].auditSet.find(item => item.ip === cur.ip).count
             : 0,
         compared:
           sourceData[1].auditId === baseData.auditId
             ? cur.count
-            : sourceData[1].auditSet.find(item => (item.ip = cur.ip))
-            ? sourceData[1].auditSet.find(item => (item.ip = cur.ip)).count
+            : sourceData[1].auditSet.find(item => item.ip === cur.ip)
+            ? sourceData[1].auditSet.find(item => item.ip === cur.ip).count
             : 0,
       };
       return acc;

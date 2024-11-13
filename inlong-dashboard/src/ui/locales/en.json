@@ -34,6 +34,7 @@
   "meta.Sources.File.ClusterName": "Cluster name",
   "meta.Sources.File.FilePath": "File path",
   "meta.Sources.File.FilePathHelp": "Must be an absolute path and support regular expressions, such as: /data/.*log",
+  "meta.Sources.File.FilePathPatternHelp": "File path cannot contain spaces",
   "meta.Sources.File.FileIpHelp": "Please select the file collection node IP. If the IP is not fixed, please select All",
   "meta.Sources.File.IpRule": "Please enter the IP address correctly",
   "meta.Sources.File.VersionRule":"Please enter the correct version number",
