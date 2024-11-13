@@ -287,7 +287,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
         @Override
         public void onMessageAck(SendResult result) {
-            if (!SendResult.OK.equals(result)) {
+            if (SendResult.OK.equals(result)) {
                 logger.debug("Send metric is ok!");
             } else {
                 tryToSendMetricToManager(encodeObject, this);
