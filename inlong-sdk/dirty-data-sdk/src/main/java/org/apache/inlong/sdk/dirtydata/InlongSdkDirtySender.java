@@ -83,6 +83,7 @@ public class InlongSdkDirtySender {
             try {
                 DirtyMessageWrapper messageWrapper = dirtyDataQueue.poll();
                 if (messageWrapper == null) {
+                    Thread.sleep(100L);
                     continue;
                 }
                 messageWrapper.increaseRetry();
