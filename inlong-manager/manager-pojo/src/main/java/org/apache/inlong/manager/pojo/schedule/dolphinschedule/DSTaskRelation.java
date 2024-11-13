@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.schedule.dolphinschedule;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -25,31 +25,31 @@ import lombok.Data;
 public class DSTaskRelation {
 
     @ApiModelProperty("DolphinScheduler task relation name")
-    @SerializedName("name")
+    @JsonProperty("name")
     private String name;
 
     @ApiModelProperty("DolphinScheduler task relation pre-task code")
-    @SerializedName("preTaskCode")
+    @JsonProperty("preTaskCode")
     private int preTaskCode;
 
     @ApiModelProperty("DolphinScheduler task relation pre-task version")
-    @SerializedName("preTaskVersion")
+    @JsonProperty("preTaskVersion")
     private int preTaskVersion;
 
     @ApiModelProperty("DolphinScheduler task relation post-task code")
-    @SerializedName("postTaskCode")
+    @JsonProperty("postTaskCode")
     private long postTaskCode;
 
     @ApiModelProperty("DolphinScheduler task relation post-task version")
-    @SerializedName("postTaskVersion")
+    @JsonProperty("postTaskVersion")
     private int postTaskVersion;
 
     @ApiModelProperty("DolphinScheduler task relation condition type")
-    @SerializedName("conditionType")
+    @JsonProperty("conditionType")
     private String conditionType;
 
     @ApiModelProperty("DolphinScheduler task relation condition params")
-    @SerializedName("conditionParams")
+    @JsonProperty("conditionParams")
     private Object conditionParams;
 
     public DSTaskRelation() {

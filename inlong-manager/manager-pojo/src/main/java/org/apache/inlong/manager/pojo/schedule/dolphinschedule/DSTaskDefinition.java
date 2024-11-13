@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.schedule.dolphinschedule;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -25,79 +25,79 @@ import lombok.Data;
 public class DSTaskDefinition {
 
     @ApiModelProperty("DolphinScheduler task definition code")
-    @SerializedName("code")
+    @JsonProperty("code")
     private long code;
 
     @ApiModelProperty("DolphinScheduler task definition code")
-    @SerializedName("delayTime")
+    @JsonProperty("delayTime")
     private String delayTime;
 
     @ApiModelProperty("DolphinScheduler task definition description")
-    @SerializedName("description")
+    @JsonProperty("description")
     private String description;
 
     @ApiModelProperty("DolphinScheduler task definition environment code")
-    @SerializedName("environmentCode")
+    @JsonProperty("environmentCode")
     private int environmentCode;
 
     @ApiModelProperty("DolphinScheduler task fail retry interval")
-    @SerializedName("failRetryInterval")
+    @JsonProperty("failRetryInterval")
     private String failRetryInterval;
 
     @ApiModelProperty("DolphinScheduler task definition fail retry times")
-    @SerializedName("failRetryTimes")
+    @JsonProperty("failRetryTimes")
     private String failRetryTimes;
 
     @ApiModelProperty("DolphinScheduler task definition flag")
-    @SerializedName("flag")
+    @JsonProperty("flag")
     private String flag;
 
     @ApiModelProperty("DolphinScheduler task definition isCache")
-    @SerializedName("isCache")
+    @JsonProperty("isCache")
     private String isCache;
 
     @ApiModelProperty("DolphinScheduler task definition name")
-    @SerializedName("name")
+    @JsonProperty("name")
     private String name;
 
     @ApiModelProperty("DolphinScheduler task definition params")
-    @SerializedName("taskParams")
+    @JsonProperty("taskParams")
     private DSTaskParams taskParams;
 
     @ApiModelProperty("DolphinScheduler task definition priority")
-    @SerializedName("taskPriority")
+    @JsonProperty("taskPriority")
     private String taskPriority;
 
     @ApiModelProperty("DolphinScheduler task definition type")
-    @SerializedName("taskType")
+    @JsonProperty("taskType")
     private String taskType;
 
     @ApiModelProperty("DolphinScheduler task definition timeout")
-    @SerializedName("timeout")
+    @JsonProperty("timeout")
     private int timeout;
 
     @ApiModelProperty("DolphinScheduler task definition timeout flag")
-    @SerializedName("timeoutFlag")
+    @JsonProperty("timeoutFlag")
     private String timeoutFlag;
 
     @ApiModelProperty("DolphinScheduler task definition timeout notify strategy")
-    @SerializedName("timeoutNotifyStrategy")
+    @JsonProperty("timeoutNotifyStrategy")
     private String timeoutNotifyStrategy;
 
     @ApiModelProperty("DolphinScheduler task definition worker group")
-    @SerializedName("workerGroup")
+    @JsonProperty("workerGroup")
     private String workerGroup;
 
     @ApiModelProperty("DolphinScheduler task definition apu quota")
-    @SerializedName("cpuQuota")
+    @JsonProperty("cpuQuota")
     private int cpuQuota;
 
     @ApiModelProperty("DolphinScheduler task definition memory max")
-    @SerializedName("memoryMax")
+    @JsonProperty("memoryMax")
     private int memoryMax;
 
     @ApiModelProperty("DolphinScheduler task definition execute type")
-    @SerializedName("taskExecuteType")
+    @JsonProperty("taskExecuteType")
     private String taskExecuteType;
 
     public DSTaskDefinition() {

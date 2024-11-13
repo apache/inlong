@@ -26,9 +26,9 @@ import org.apache.inlong.manager.pojo.schedule.dolphinschedule.DScheduleInfo;
 import org.apache.inlong.manager.schedule.ScheduleUnit;
 import org.apache.inlong.manager.schedule.exception.DolphinScheduleException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -105,7 +105,7 @@ public class DolphinScheduleUtils {
     private static final String CONTENT_TYPE = "Content-Type: application/json; charset=utf-8";
     private static final String SHELL_REQUEST_API = "/inlong/manager/api/group/submitOfflineJob";
     private final OkHttpClient client;
-    private final Gson gson;
+    private final ObjectMapper objectMapper;
 
     /**
      * Constructs a new instance of the DolphinScheduleUtils class.
@@ -113,7 +113,7 @@ public class DolphinScheduleUtils {
      */
     public DolphinScheduleUtils() {
         this.client = new OkHttpClient();
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.objectMapper = new ObjectMapper();
     }
 
     /**
@@ -261,12 +261,12 @@ public class DolphinScheduleUtils {
      * @return The process definition code (ID) if creation is successful, or 0 if an error occurs.
      */
     public long createProcessDef(String url, String token, String name, String desc, long taskCode, String host,
-            int port, String username, String password, long offset, String groupId) {
+            int port, String username, String password, long offset, String groupId) throws JsonProcessingException {
         Map<String, String> header = buildHeader(token);
 
         DSTaskRelation taskRelation = new DSTaskRelation();
         taskRelation.setPostTaskCode(taskCode);
-        String taskRelationJson = gson.toJson(Collections.singletonList(taskRelation));
+        String taskRelationJson = objectMapper.writeValueAsString(Collections.singletonList(taskRelation));
 
         DSTaskParams taskParams = new DSTaskParams();
         taskParams.setRawScript(buildScript(host, port, username, password, offset, groupId));
@@ -276,7 +276,7 @@ public class DolphinScheduleUtils {
         taskDefinition.setName(DS_DEFAULT_TASK_NAME);
         taskDefinition.setDescription(DS_DEFAULT_TASK_DESC);
         taskDefinition.setTaskParams(taskParams);
-        String taskDefinitionJson = gson.toJson(Collections.singletonList(taskDefinition));
+        String taskDefinitionJson = objectMapper.writeValueAsString(Collections.singletonList(taskDefinition));
 
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put(DS_TASK_RELATION, taskRelationJson);
@@ -338,7 +338,8 @@ public class DolphinScheduleUtils {
      * @param scheduleInfo    The schedule info
      * @return The schedule id
      */
-    public int createScheduleForProcessDef(String url, long processDefCode, String token, ScheduleInfo scheduleInfo) {
+    public int createScheduleForProcessDef(String url, long processDefCode, String token, ScheduleInfo scheduleInfo)
+            throws JsonProcessingException {
         Map<String, String> header = buildHeader(token);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DS_DEFAULT_SCHEDULE_TIME_FORMAT);
@@ -362,7 +363,7 @@ public class DolphinScheduleUtils {
         dScheduleInfo.setEndTime(endTime);
         dScheduleInfo.setCrontab(crontab);
         dScheduleInfo.setTimezoneId(DS_DEFAULT_TIMEZONE_ID);
-        String scheduleDef = gson.toJson(dScheduleInfo);
+        String scheduleDef = objectMapper.writeValueAsString(dScheduleInfo);
 
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put(DS_PROCESS_CODE, String.valueOf(processDefCode));
