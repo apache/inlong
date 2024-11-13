@@ -20,6 +20,7 @@ package org.apache.inlong.sort.tubemq.table;
 import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtyServerType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
@@ -143,6 +144,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
                         builder.setData(message.getData())
                                 .setDirtyType(DirtyType.KEY_DESERIALIZE_ERROR)
+                                .setServerType(DirtyServerType.TUBE_MQ)
                                 .setDirtyDataTime(dataTime)
                                 .setExtParams(message.getAttribute())
                                 .setLabels(dirtyOptions.getLabels())

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.inlong.sort.base.dirty.sink.DirtyServerType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
 import org.apache.flink.table.types.logical.LogicalType;
@@ -63,6 +64,8 @@ public class DirtyData<T> {
      * Dirty type
      */
     private final DirtyType dirtyType;
+
+    private final DirtyServerType serverType;
     /**
      * Dirty describe message, it is the cause of dirty data
      */
@@ -85,10 +88,11 @@ public class DirtyData<T> {
     private final T data;
 
     public DirtyData(T data, String identifier, String labels,
-            String logTag, DirtyType dirtyType, String dirtyMessage,
+            String logTag, DirtyType dirtyType, DirtyServerType serverType, String dirtyMessage,
             @Nullable LogicalType rowType, long dataTime, String extParams) {
         this.data = data;
         this.dirtyType = dirtyType;
+        this.serverType = serverType;
         this.dirtyMessage = dirtyMessage;
         this.rowType = rowType;
         Map<String, String> paramMap = genParamMap();
@@ -127,6 +131,10 @@ public class DirtyData<T> {
         return dirtyType;
     }
 
+    public DirtyServerType getServerType() {
+        return serverType;
+    }
+
     public String getIdentifier() {
         return identifier;
     }
@@ -154,6 +162,7 @@ public class DirtyData<T> {
         private String labels;
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
+        private DirtyServerType serverType = DirtyServerType.UNDEFINED;
         private String dirtyMessage;
         private LogicalType rowType;
         private long dataTime;
@@ -172,6 +181,11 @@ public class DirtyData<T> {
 
         public Builder<T> setDirtyType(DirtyType dirtyType) {
             this.dirtyType = dirtyType;
+            return this;
+        }
+
+        public Builder<T> setServerType(DirtyServerType serverType) {
+            this.serverType = serverType;
             return this;
         }
 
@@ -206,7 +220,7 @@ public class DirtyData<T> {
         }
 
         public DirtyData<T> build() {
-            return new DirtyData<>(data, identifier, labels, logTag, dirtyType,
+            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, serverType,
                     dirtyMessage, rowType, dataTime, extParams);
         }
     }
