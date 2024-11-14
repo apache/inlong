@@ -90,6 +90,7 @@ public class InlongSdkDirtySender {
                 if (messageWrapper.getRetryTimes() > maxRetryTimes) {
                     log.error("failed to send dirty message after {} times, dirty data ={}", maxRetryTimes,
                             messageWrapper);
+                    continue;
                 }
 
                 sender.asyncSendMessage(inlongGroupId, inlongStreamId,
@@ -107,6 +108,7 @@ public class InlongSdkDirtySender {
 
     public void close() {
         closed = true;
+        dirtyDataQueue.clear();
         if (sender != null) {
             sender.close();
         }
@@ -115,7 +117,7 @@ public class InlongSdkDirtySender {
     @Getter
     class LogCallBack implements SendMessageCallback {
 
-        private DirtyMessageWrapper wrapper;
+        private final DirtyMessageWrapper wrapper;
 
         public LogCallBack(DirtyMessageWrapper wrapper) {
             this.wrapper = wrapper;
