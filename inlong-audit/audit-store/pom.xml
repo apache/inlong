@@ -366,7 +366,7 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <configuration>
                         <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
-                        <createDependencyReducedPom>true</createDependencyReducedPom>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
                         <filters>
                             <filter>
                                 <artifact>*:*</artifact>

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
@@ -38,14 +38,13 @@ type Props = CommonInterface;
 
 const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const [form] = useForm();
-
   const [query, setQuery] = useState({
     inlongStreamId: '',
     startDate: +new Date(),
     endDate: +new Date(),
     timeStaticsDim: timeStaticsDimList[0].value,
   });
-
+  const [inlongStreamID, setInlongStreamID] = useState('');
   const { data: sourceData = [], run } = useRequest(
     {
       url: '/audit/list',
@@ -104,20 +103,68 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const onDataStreamSuccess = data => {
     const defaultDataStream = data[0]?.value;
     if (defaultDataStream) {
+      setInlongStreamID(defaultDataStream);
       form.setFieldsValue({ inlongStreamId: defaultDataStream });
       setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
       run();
     }
   };
+  const numToName = useCallback(
+    num => {
+      let obj = {};
+      sourceData.forEach(item => {
+        obj = { ...obj, [item.auditId]: item.auditName };
+      });
+      obj = { ...obj, logTs: i18n.t('pages.GroupDetail.Audit.Time') };
+      return obj[num];
+    },
+    [sourceData],
+  );
+  const metricSum = useMemo(() => {
+    let obj = { logTs: i18n.t('pages.GroupDetail.Audit.Total') };
+    sourceData.map(item => {
+      const sum = item.auditSet?.reduce((total, cur) => {
+        return total + cur.count;
+      }, 0);
+      obj = { ...obj, [item.auditId]: sum };
+    });
+    return obj;
+  }, [sourceData]);
 
+  const csvData = useMemo(() => {
+    const result = [...toTableData(sourceData, sourceDataMap), metricSum].map(item => {
+      let obj = {};
+      Object.keys(item)
+        .reverse()
+        .forEach(key => {
+          obj = { ...obj, [numToName(key)]: item[key] };
+        });
+      return obj;
+    });
+    return result;
+  }, [sourceData, sourceDataMap, metricSum]);
+  const [fileName, setFileName] = useState('audit.csv');
+  useEffect(() => {
+    setFileName(`audit_${inlongGroupId}_${inlongStreamID}.csv`);
+  }, [inlongGroupId, inlongStreamID]);
   return (
     <>
       <div style={{ marginBottom: 40 }}>
         <FormGenerator
           form={form}
           layout="inline"
-          content={getFormContent(inlongGroupId, query, onSearch, onDataStreamSuccess)}
-          style={{ marginBottom: 30 }}
+          content={getFormContent(
+            inlongGroupId,
+            query,
+            onSearch,
+            onDataStreamSuccess,
+            sourceData,
+            csvData,
+            fileName,
+            setInlongStreamID,
+            inlongStreamID,
+          )}
+          style={{ marginBottom: 30, gap: 10 }}
           onFilter={allValues =>
             setQuery({
               ...allValues,

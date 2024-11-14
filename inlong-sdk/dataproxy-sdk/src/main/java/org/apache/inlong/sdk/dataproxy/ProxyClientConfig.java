@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 
@@ -38,7 +39,6 @@ public class ProxyClientConfig {
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String inlongGroupId;
-    private boolean isFile = false;
     private boolean requestByHttp = true;
     private boolean isNeedDataEncry = false;
     private boolean needAuthentication = false;
@@ -55,18 +55,22 @@ public class ProxyClientConfig {
     private String protocolType;
 
     private boolean enableSaveManagerVIps = false;
-
-    private boolean enableSlaMetric = false;
+    // metric configure
+    private MetricConfig metricConfig = new MetricConfig();
 
     private int managerConnectionTimeout = 10000;
-    private boolean readProxyIPFromLocal = false;
-    /**
-     * Default connection, handshake, and initial request timeout in milliseconds.
-     */
-    private long connectTimeoutMillis;
-    private long requestTimeoutMillis;
-
+    // http socket timeout in milliseconds
     private int managerSocketTimeout = 30 * 1000;
+
+    private boolean readProxyIPFromLocal = false;
+
+    // connect timeout in milliseconds
+    private long connectTimeoutMs = ConfigConstants.VAL_DEF_CONNECT_TIMEOUT_MS;
+    // request timeout in milliseconds
+    private long requestTimeoutMs = ConfigConstants.VAL_DEF_REQUEST_TIMEOUT_MS;
+    // connect close wait period in milliseconds
+    private long conCloseWaitPeriodMs =
+            ConfigConstants.VAL_DEF_REQUEST_TIMEOUT_MS + ConfigConstants.VAL_DEF_CONNECT_CLOSE_DELAY_MS;
 
     // configuration for http client
     // whether discard old metric when cache is full.
@@ -77,20 +81,8 @@ public class ProxyClientConfig {
     // interval for async worker in microseconds.
     private int asyncWorkerInterval = 500;
     private boolean cleanHttpCacheWhenClosing = false;
-
-    // config for metric collector
-    // whether use groupId as key for metric, default is true
-    private boolean useGroupIdAsKey = true;
-    // whether use StreamId as key for metric, default is true
-    private boolean useStreamIdAsKey = true;
-    // whether use localIp as key for metric, default is true
-    private boolean useLocalIpAsKey = true;
-    // metric collection interval, default is 1 mins in milliseconds.
-    private int metricIntervalInMs = 60 * 1000;
     // max cache time for proxy config.
     private long maxProxyCacheTimeInMs = 30 * 60 * 1000;
-    // metric groupId
-    private String metricGroupId = "inlong_sla_metric";
 
     private int ioThreadNum = Runtime.getRuntime().availableProcessors();
     private boolean enableBusyWait = false;
@@ -129,8 +121,6 @@ public class ProxyClientConfig {
         this.proxyUpdateIntervalMinutes = ConfigConstants.PROXY_UPDATE_INTERVAL_MINUTES;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
-        this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
@@ -160,8 +150,6 @@ public class ProxyClientConfig {
         this.proxyUpdateIntervalMinutes = ConfigConstants.PROXY_UPDATE_INTERVAL_MINUTES;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
-        this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
@@ -205,14 +193,6 @@ public class ProxyClientConfig {
 
     public boolean isRequestByHttp() {
         return requestByHttp;
-    }
-
-    public boolean isFile() {
-        return isFile;
-    }
-
-    public void setFile(boolean file) {
-        isFile = file;
     }
 
     public String getInlongGroupId() {
@@ -319,20 +299,36 @@ public class ProxyClientConfig {
         this.proxyUpdateMaxRetry = proxyUpdateMaxRetry;
     }
 
-    public long getConnectTimeoutMillis() {
-        return connectTimeoutMillis;
+    public long getConnectTimeoutMs() {
+        return connectTimeoutMs;
     }
 
-    public void setConnectTimeoutMillis(long connectTimeoutMillis) {
-        this.connectTimeoutMillis = connectTimeoutMillis;
+    public void setConnectTimeoutMs(long connectTimeoutMs) {
+        if (connectTimeoutMs >= ConfigConstants.VAL_MIN_CONNECT_TIMEOUT_MS) {
+            this.connectTimeoutMs = connectTimeoutMs;
+        }
     }
 
-    public long getRequestTimeoutMillis() {
-        return requestTimeoutMillis;
+    public long getRequestTimeoutMs() {
+        return requestTimeoutMs;
     }
 
-    public void setRequestTimeoutMillis(long requestTimeoutMillis) {
-        this.requestTimeoutMillis = requestTimeoutMillis;
+    public void setRequestTimeoutMs(long requestTimeoutMs) {
+        if (requestTimeoutMs >= ConfigConstants.VAL_MIN_REQUEST_TIMEOUT_MS) {
+            this.requestTimeoutMs = requestTimeoutMs;
+            this.conCloseWaitPeriodMs =
+                    this.requestTimeoutMs + ConfigConstants.VAL_DEF_CONNECT_CLOSE_DELAY_MS;
+        }
+    }
+
+    public long getConCloseWaitPeriodMs() {
+        return conCloseWaitPeriodMs;
+    }
+
+    public void setConCloseWaitPeriodMs(long conCloseWaitPeriodMs) {
+        if (conCloseWaitPeriodMs >= 0) {
+            this.conCloseWaitPeriodMs = conCloseWaitPeriodMs;
+        }
     }
 
     public String getRsaPubKeyUrl() {
@@ -446,46 +442,6 @@ public class ProxyClientConfig {
         this.cleanHttpCacheWhenClosing = cleanHttpCacheWhenClosing;
     }
 
-    public boolean isUseGroupIdAsKey() {
-        return useGroupIdAsKey;
-    }
-
-    public void setUseGroupIdAsKey(boolean useGroupIdAsKey) {
-        this.useGroupIdAsKey = useGroupIdAsKey;
-    }
-
-    public boolean isUseStreamIdAsKey() {
-        return useStreamIdAsKey;
-    }
-
-    public void setUseStreamIdAsKey(boolean useStreamIdAsKey) {
-        this.useStreamIdAsKey = useStreamIdAsKey;
-    }
-
-    public boolean isUseLocalIpAsKey() {
-        return useLocalIpAsKey;
-    }
-
-    public void setUseLocalIpAsKey(boolean useLocalIpAsKey) {
-        this.useLocalIpAsKey = useLocalIpAsKey;
-    }
-
-    public int getMetricIntervalInMs() {
-        return metricIntervalInMs;
-    }
-
-    public void setMetricIntervalInMs(int metricIntervalInMs) {
-        this.metricIntervalInMs = metricIntervalInMs;
-    }
-
-    public String getMetricGroupId() {
-        return metricGroupId;
-    }
-
-    public void setMetricGroupId(String metricGroupId) {
-        this.metricGroupId = metricGroupId;
-    }
-
     public long getMaxProxyCacheTimeInMs() {
         return maxProxyCacheTimeInMs;
     }
@@ -502,12 +458,19 @@ public class ProxyClientConfig {
         this.managerConnectionTimeout = managerConnectionTimeout;
     }
 
-    public boolean isEnableSlaMetric() {
-        return enableSlaMetric;
+    public MetricConfig getMetricConfig() {
+        return metricConfig;
     }
 
-    public void setEnableSlaMetric(boolean enableSlaMetric) {
-        this.enableSlaMetric = enableSlaMetric;
+    public boolean isEnableMetric() {
+        return metricConfig.isEnableMetric();
+    }
+
+    public void setMetricConfig(MetricConfig metricConfig) {
+        if (metricConfig == null) {
+            return;
+        }
+        this.metricConfig = metricConfig;
     }
 
     public int getIoThreadNum() {

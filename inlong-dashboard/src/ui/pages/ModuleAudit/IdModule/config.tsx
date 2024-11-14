@@ -22,7 +22,9 @@ import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import { Button } from 'antd';
 import React from 'react';
-
+import { SortOrder } from 'antd/es/table/interface';
+import { range } from 'lodash';
+import { CSVLink } from 'react-csv';
 export const timeStaticsDimList = [
   {
     label: i18n.t('pages.GroupDetail.Audit.Min'),
@@ -38,7 +40,20 @@ export const timeStaticsDimList = [
   },
 ];
 
+export const sumSubValue = sourceDataMap => {
+  if (sourceDataMap === null || sourceDataMap === undefined) {
+    return 0;
+  }
+  return Object.keys(sourceDataMap).reduce((acc, cur) => {
+    const element = sourceDataMap[cur];
+    acc += element.subValue;
+    return acc;
+  }, 0);
+};
 export const toTableData = (source, sourceDataMap) => {
+  if (sourceDataMap === null || sourceDataMap === undefined) {
+    return [];
+  }
   return Object.keys(sourceDataMap)
     .reverse()
     .map(logTs => ({
@@ -47,7 +62,16 @@ export const toTableData = (source, sourceDataMap) => {
     }));
 };
 
-export const getFormContent = (initialValues, onSearch, auditData) => [
+export const getFormContent = (
+  initialValues,
+  onSearch,
+  auditData,
+  sourceData,
+  csvData,
+  setInlongGroupId,
+  setInlongStreamID,
+  fileName,
+) => [
   {
     type: 'select',
     label: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
@@ -55,6 +79,9 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
     props: {
       dropdownMatchSelectWidth: false,
       showSearch: true,
+      onChange: (value, option) => {
+        setInlongGroupId(value);
+      },
       options: {
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
@@ -85,6 +112,9 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
     props: values => ({
       dropdownMatchSelectWidth: false,
       showSearch: true,
+      onChange: (value, option) => {
+        setInlongStreamID(value);
+      },
       options: {
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
@@ -116,7 +146,12 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm',
+      disabledTime: (date: dayjs.Dayjs, type, info: { from?: dayjs.Dayjs }) => {
+        return {
+          disabledSeconds: () => range(0, 60),
+        };
+      },
     },
   },
   {
@@ -127,7 +162,12 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm',
+      disabledTime: (date: dayjs.Dayjs, type, info: { from?: dayjs.Dayjs }) => {
+        return {
+          disabledSeconds: () => range(0, 60),
+        };
+      },
     },
   },
   {
@@ -181,18 +221,56 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
       </Button>
     ),
   },
+  {
+    type: (
+      <Button type="primary" disabled={!(sourceData.length > 0)}>
+        <CSVLink data={csvData} filename={fileName}>
+          {i18n.t('pages.GroupDetail.Audit.ExportCSV')}
+        </CSVLink>
+      </Button>
+    ),
+  },
 ];
 
-export const getTableColumns = source => {
+const strSorter = (a, b) => {
+  return a?.ip.localeCompare(b?.ip);
+};
+const sortOrder: SortOrder = 'descend';
+
+const baseSorter = (a, b) => {
+  return a.base - b.base;
+};
+const comparedSorter = (a, b) => {
+  return a.compared - b.compared;
+};
+const subValueSorter = (a, b) => {
+  return a.subValue - b.subValue;
+};
+
+export const getTableColumns = (source: any) => {
   const data = source.map(item => ({
     title: item.auditName,
-    dataIndex: item.auditId,
+    dataIndex: source[0].auditId === item.auditId ? 'base' : 'compared',
+    key: source[0].auditId === item.auditId ? 'base' : 'compared',
+    sorter: {
+      compare: source[0].auditId === item.auditId ? baseSorter : comparedSorter,
+      multiple: source[0].auditId === item.auditId ? 3 : 4,
+    },
     render: text => text || 0,
   }));
   return [
     {
       title: i18n.t('pages.ModuleAudit.config.Ip'),
       dataIndex: 'ip',
+      defaultSortOrder: sortOrder,
+      sorter: strSorter,
     },
-  ].concat(data);
+  ]
+    .concat(data)
+    .concat({
+      title: i18n.t('pages.ModuleAudit.config.SubValue'),
+      dataIndex: 'subValue',
+      defaultSortOrder: null,
+      sorter: subValueSorter,
+    });
 };

@@ -19,9 +19,10 @@ package org.apache.inlong.sdk.dataproxy.threads;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.metric.MessageRecord;
+import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
 import org.apache.inlong.sdk.dataproxy.metric.MetricTimeNumSummary;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -40,38 +42,30 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class MetricWorkerThread extends Thread implements Closeable {
 
+    private static final long DEF_METRIC_DELAY_TIME_MS = 20 * 1000L;
     private static final String DEFAULT_KEY_ITEM = "";
     private static final String DEFAULT_KEY_SPLITTER = "#";
     private final Logger logger = LoggerFactory.getLogger(MetricWorkerThread.class);
 
     private final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
-
     private final ConcurrentHashMap<String, MessageRecord> metricValueCache = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricPackTimeMap = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap = new ConcurrentHashMap<>();
-
-    private final ProxyClientConfig proxyClientConfig;
-
-    private final long delayTime;
+    private final MetricConfig metricConfig;
+    private final long delayTime = DEF_METRIC_DELAY_TIME_MS;
     private final Sender sender;
-    private final boolean enableSlaMetric;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private volatile boolean bShutdown = false;
 
     public MetricWorkerThread(ProxyClientConfig proxyClientConfig, Sender sender) {
-        this.proxyClientConfig = proxyClientConfig;
-        this.enableSlaMetric = proxyClientConfig.isEnableSlaMetric();
-
-        this.delayTime = 20 * 1000;
+        this.metricConfig = proxyClientConfig.getMetricConfig();
         this.sender = sender;
         this.setDaemon(true);
         this.setName("MetricWorkerThread");
     }
 
     public long getFormatKeyTime(long keyTime) {
-        return keyTime - keyTime % proxyClientConfig.getMetricIntervalInMs();
+        return keyTime - keyTime % metricConfig.getDateFormatIntvlMs();
     }
 
     /**
@@ -79,9 +73,9 @@ public class MetricWorkerThread extends Thread implements Closeable {
      */
     private String getKeyStringByConfig(String groupId, String streamId, String localIp, long keyTime) {
         StringBuilder builder = new StringBuilder();
-        String groupIdStr = proxyClientConfig.isUseGroupIdAsKey() ? groupId : DEFAULT_KEY_ITEM;
-        String streamIdStr = proxyClientConfig.isUseStreamIdAsKey() ? streamId : DEFAULT_KEY_ITEM;
-        String localIpStr = proxyClientConfig.isUseLocalIpAsKey() ? localIp : DEFAULT_KEY_ITEM;
+        String groupIdStr = metricConfig.isUseGroupIdAsKey() ? groupId : DEFAULT_KEY_ITEM;
+        String streamIdStr = metricConfig.isUseStreamIdAsKey() ? streamId : DEFAULT_KEY_ITEM;
+        String localIpStr = metricConfig.isUseLocalIpAsKey() ? localIp : DEFAULT_KEY_ITEM;
 
         builder.append(groupIdStr).append(DEFAULT_KEY_SPLITTER)
                 .append(streamIdStr).append(DEFAULT_KEY_SPLITTER)
@@ -103,7 +97,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
      */
     public void recordNumByKey(String msgId, String groupId, String streamId,
             String localIp, long packTime, long dt, int num) {
-        if (!enableSlaMetric) {
+        if (!metricConfig.isEnableMetric()) {
             return;
         }
         MessageRecord messageRecord = new MessageRecord(groupId, streamId, localIp, msgId,
@@ -127,7 +121,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
      * @param msgId msg id
      */
     public void recordSuccessByMessageId(String msgId) {
-        if (!enableSlaMetric) {
+        if (!metricConfig.isEnableMetric()) {
             return;
         }
         MessageRecord messageRecord = metricValueCache.remove(msgId);
@@ -176,44 +170,45 @@ public class MetricWorkerThread extends Thread implements Closeable {
     public void close() {
         bShutdown = true;
         flushMetric(true);
+        logger.info("MetricWorkerThread closed!");
     }
 
     @Override
     public void run() {
-        logger.info("MetricWorkerThread Thread=" + Thread.currentThread().getId() + " started!");
+        logger.info("MetricWorkerThread thread=" + Thread.currentThread().getId() + " started!");
         while (!bShutdown) {
             // check metric
             try {
                 checkCacheRecords();
                 flushMetric(false);
-                TimeUnit.MILLISECONDS.sleep(proxyClientConfig.getMetricIntervalInMs());
-            } catch (Exception ex) {
+                TimeUnit.MILLISECONDS.sleep(metricConfig.getMetricRptIntvlMs());
+            } catch (Throwable ex) {
                 // exception happens
             }
         }
+        logger.info("MetricWorkerThread thread existed!");
     }
 
     private void tryToSendMetricToManager(EncodeObject encodeObject, MetricSendCallBack callBack) {
         callBack.increaseRetry();
         try {
-
             if (callBack.getRetryCount() < 4) {
-                sender.asyncSendMessageIndex(encodeObject, callBack,
+                sender.asyncSendMessage(encodeObject, callBack,
                         String.valueOf(System.currentTimeMillis()), 20, TimeUnit.SECONDS);
             } else {
-                logger.error("error while sending {} {}", encodeObject.getBodyBytes(), encodeObject.getBodylist());
+                logger.error("Send metric failure: {}", encodeObject.getBodylist());
             }
-        } catch (Exception ex) {
-            logger.warn("exception caught {}", ex.getMessage());
+        } catch (Throwable ex) {
+            logger.warn("Send metric throw exception", ex);
             tryToSendMetricToManager(encodeObject, callBack);
         }
     }
 
     private void sendSingleLine(String line, String streamId, long dtTime) {
-        EncodeObject encodeObject = new EncodeObject(line.getBytes(), 7,
+        EncodeObject encodeObject = new EncodeObject(Collections.singletonList(line.getBytes()), 7,
                 false, false, false,
                 dtTime, idGenerator.getNextInt(),
-                proxyClientConfig.getMetricGroupId(), streamId, "", "", Utils.getLocalIp());
+                metricConfig.getMetricGroupId(), streamId, "", "", Utils.getLocalIp());
         MetricSendCallBack callBack = new MetricSendCallBack(encodeObject);
         tryToSendMetricToManager(encodeObject, callBack);
     }
@@ -222,7 +217,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         for (String keyName : cacheMap.keySet()) {
             MetricTimeNumSummary summary = cacheMap.get(keyName);
             if (isClosing || (summary != null && summary.getSummaryTime()
-                    + delayTime > proxyClientConfig.getMetricIntervalInMs())) {
+                    + delayTime > metricConfig.getMetricRptIntvlMs())) {
                 summary = cacheMap.remove(keyName);
                 if (summary != null) {
                     long metricDtTime = summary.getStartCalculateTime() / 1000;
@@ -231,9 +226,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
                             + DEFAULT_KEY_SPLITTER + summary.getFailedNum()
                             + DEFAULT_KEY_SPLITTER + summary.getTotalNum();
                     String timeLine = keyName + DEFAULT_KEY_SPLITTER + summary.getTimeString();
-
-                    logger.info("sending {}", countLine);
-                    logger.info("sending {}", timeLine);
+                    logger.info("Send metric countLine={}, timeLine={}", countLine, timeLine);
                     sendSingleLine(countLine, "count", metricDtTime);
                     sendSingleLine(timeLine, "time", metricDtTime);
                 }
@@ -255,8 +248,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     private void checkCacheRecords() {
         for (String msgId : metricValueCache.keySet()) {
             MessageRecord record = metricValueCache.get(msgId);
-
-            if (record != null && record.getMessageTime() + delayTime > proxyClientConfig.getMetricIntervalInMs()) {
+            if (record != null && record.getMessageTime() + delayTime > metricConfig.getMetricRptIntvlMs()) {
                 recordFailedByMessageId(msgId);
             }
         }
@@ -276,7 +268,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
     }
 
-    private class MetricSendCallBack extends FileCallback {
+    private class MetricSendCallBack implements SendMessageCallback {
 
         private final EncodeObject encodeObject;
         private int retryCount = 0;
@@ -294,17 +286,17 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
 
         @Override
-        public void onMessageAck(String result) {
-            if (!SendResult.OK.toString().equals(result)) {
-                tryToSendMetricToManager(encodeObject, this);
+        public void onMessageAck(SendResult result) {
+            if (SendResult.OK.equals(result)) {
+                logger.debug("Send metric is ok!");
             } else {
-                logger.info("metric is ok");
+                tryToSendMetricToManager(encodeObject, this);
             }
         }
 
         @Override
-        public void onMessageAck(SendResult result) {
-
+        public void onException(Throwable e) {
+            //
         }
     }
 }

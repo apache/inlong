@@ -17,36 +17,41 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
 import HighTable from '@/ui/components/HighTable';
 import { timestampFormat } from '@/core/utils';
+import { defaultSize } from '@/configs/pagination';
 
 export interface Props extends ModalProps {
   type?: string;
   ip?: string;
 }
 
-const Comp: React.FC<Props> = ({ type, ip, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ ...modalProps }) => {
+  const [options, setOptions] = useState({
+    inlongGroupId: '',
+    inlongStreamId: '',
+    pageNum: 1,
+    pageSize: defaultSize,
+  });
+
   const { data: heartList, run: getHeartList } = useRequest(
     {
       url: '/heartbeat/component/list',
       method: 'POST',
       data: {
-        component: type,
-        inlongGroupId: '',
-        inlongStreamId: '',
-        instance: ip,
+        ...options,
+        component: 'AGENT',
+        instance: modalProps.ip,
       },
     },
     {
-      manual: true,
-      onSuccess: data => {
-        console.log(data);
-      },
+      refreshDeps: [options],
+      onSuccess: data => {},
     },
   );
 
@@ -81,11 +86,20 @@ const Comp: React.FC<Props> = ({ type, ip, ...modalProps }) => {
     ];
   }, []);
   const pagination = {
-    pageSize: 5,
-    current: 1,
-    total: heartList?.list?.length,
+    pageSize: +options.pageSize,
+    current: +options.pageNum,
+    total: heartList?.total,
   };
-  useUpdateEffect(() => {
+
+  const onChange = ({ current: pageNum, pageSize }) => {
+    setOptions(prev => ({
+      ...prev,
+      pageNum,
+      pageSize,
+    }));
+  };
+
+  useEffect(() => {
     if (modalProps.open) {
       getHeartList();
     }
@@ -102,8 +116,9 @@ const Comp: React.FC<Props> = ({ type, ip, ...modalProps }) => {
         table={{
           columns: columns,
           rowKey: 'id',
-          dataSource: heartList?.list,
+          dataSource: heartList?.list || [],
           pagination,
+          onChange,
         }}
       />
     </Modal>

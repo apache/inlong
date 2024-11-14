@@ -34,11 +34,13 @@ filelist() {
 }
 
 # Get the current version for InLong
-find_gz_file=`ls -l ./target/*bin.tar.gz |awk '{print $9}'`
+prefix="apache-inlong-"
+suffix="-bin.tar.gz"
+find_gz_file=$(ls -l ./target/*bin.tar.gz |awk '{print $9}')
 gz_file=$(basename "$find_gz_file")
-name_length=`expr length $gz_file`
-version_length=$(expr $name_length \- 15 \- 10)
-project_version=`expr substr $gz_file 15 $version_length`
+version_with_suffix="${gz_file#$prefix}"
+project_version="${version_with_suffix%$suffix}"
+echo "The current version for InLong is: $project_version"
 projectpath="./target/apache-inlong-${project_version}-bin/apache-inlong-${project_version}"
 
 # Generate the file "dependencys.txt"

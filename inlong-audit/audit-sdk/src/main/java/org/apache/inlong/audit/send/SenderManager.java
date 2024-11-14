@@ -77,15 +77,16 @@ public class SenderManager {
 
     public boolean checkSocket() {
         if (socket.isClosed() || !socket.isConnected()) {
+            InetSocketAddress inetSocketAddress = null;
             try {
-                InetSocketAddress inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
+                inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
                 if (inetSocketAddress == null) {
                     LOGGER.error("Audit proxy address is null!");
                     return false;
                 }
                 reconnect(inetSocketAddress, auditConfig.getSocketTimeout());
             } catch (IOException exception) {
-                LOGGER.error("Connect to audit proxy {} has exception!", socket.getInetAddress(), exception);
+                LOGGER.error("Connect to audit proxy {} has exception!", inetSocketAddress, exception);
                 return false;
             }
         }

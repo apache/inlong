@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.inlong.sort.base.dirty.sink.DirtyServerType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
 import org.apache.flink.table.types.logical.LogicalType;
@@ -63,6 +64,8 @@ public class DirtyData<T> {
      * Dirty type
      */
     private final DirtyType dirtyType;
+
+    private final DirtyServerType serverType;
     /**
      * Dirty describe message, it is the cause of dirty data
      */
@@ -72,22 +75,32 @@ public class DirtyData<T> {
      */
     private @Nullable final LogicalType rowType;
     /**
+     * Dirty message data time
+     */
+    private final long dataTime;
+    /**
+     * Dirty message ext params
+     */
+    private @Nullable final String extParams;
+    /**
      * The real dirty data
      */
     private final T data;
 
     public DirtyData(T data, String identifier, String labels,
-            String logTag, DirtyType dirtyType, String dirtyMessage,
-            @Nullable LogicalType rowType) {
+            String logTag, DirtyType dirtyType, DirtyServerType serverType, String dirtyMessage,
+            @Nullable LogicalType rowType, long dataTime, String extParams) {
         this.data = data;
         this.dirtyType = dirtyType;
+        this.serverType = serverType;
         this.dirtyMessage = dirtyMessage;
         this.rowType = rowType;
         Map<String, String> paramMap = genParamMap();
         this.labels = PatternReplaceUtils.replace(labels, paramMap);
         this.logTag = PatternReplaceUtils.replace(logTag, paramMap);
         this.identifier = PatternReplaceUtils.replace(identifier, paramMap);
-
+        this.dataTime = dataTime == 0 ? System.currentTimeMillis() : dataTime;
+        this.extParams = extParams;
     }
 
     public static <T> Builder<T> builder() {
@@ -118,8 +131,24 @@ public class DirtyData<T> {
         return dirtyType;
     }
 
+    public DirtyServerType getServerType() {
+        return serverType;
+    }
+
     public String getIdentifier() {
         return identifier;
+    }
+
+    public long getDataTime() {
+        return dataTime;
+    }
+
+    public String getExtParams() {
+        return extParams;
+    }
+
+    public String getDirtyMessage() {
+        return dirtyMessage;
     }
 
     @Nullable
@@ -133,12 +162,30 @@ public class DirtyData<T> {
         private String labels;
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
+        private DirtyServerType serverType = DirtyServerType.UNDEFINED;
         private String dirtyMessage;
         private LogicalType rowType;
+        private long dataTime;
+        private String extParams;
         private T data;
+
+        public Builder<T> setDirtyDataTime(long dataTime) {
+            this.dataTime = dataTime;
+            return this;
+        }
+
+        public Builder<T> setExtParams(String extParams) {
+            this.extParams = extParams;
+            return this;
+        }
 
         public Builder<T> setDirtyType(DirtyType dirtyType) {
             this.dirtyType = dirtyType;
+            return this;
+        }
+
+        public Builder<T> setServerType(DirtyServerType serverType) {
+            this.serverType = serverType;
             return this;
         }
 
@@ -173,7 +220,8 @@ public class DirtyData<T> {
         }
 
         public DirtyData<T> build() {
-            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, dirtyMessage, rowType);
+            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, serverType,
+                    dirtyMessage, rowType, dataTime, extParams);
         }
     }
 }

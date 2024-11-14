@@ -159,7 +159,7 @@ public class TcpChannel {
      * acquireUninterruptibly
      */
     public void acquireUninterruptibly() {
-        packToken.acquireUninterruptibly();;
+        packToken.acquireUninterruptibly();
     }
 
     /**

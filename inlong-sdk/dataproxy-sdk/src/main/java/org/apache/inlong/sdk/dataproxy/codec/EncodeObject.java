@@ -35,7 +35,6 @@ public class EncodeObject {
     private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR).trimResults()
             .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
-    private byte[] bodyBytes;
     private String attributes;
     private String messageId;
     private int msgtype;
@@ -74,31 +73,10 @@ public class EncodeObject {
     }
 
     /* Used by de_serialization. */
-    public EncodeObject(byte[] bodyBytes, String attributes) {
-        this.bodyBytes = bodyBytes;
+    public EncodeObject(List<byte[]> bodyList, String attributes) {
+        this.bodylist = bodyList;
         this.attributes = attributes;
         handleAttr(attributes);
-    }
-
-    /* Used by serialization.But never used */
-    // old version:we need add message id by attr
-    public EncodeObject(byte[] bodyBytes, String attributes, String messageId) {
-        this.bodyBytes = bodyBytes;
-        this.messageId = messageId;
-        this.attributes = attributes + "&messageId=" + messageId;
-        addRTMS(MsgType.MSG_COMMON_SERVICE.getValue());
-    }
-
-    // used for bytes initializtion,msgtype=3/5
-    public EncodeObject(byte[] bodyBytes, String attributes, String messageId,
-            int msgtype, boolean isCompress, final String groupId) {
-        this.bodyBytes = bodyBytes;
-        this.messageId = messageId;
-        this.attributes = attributes + "&messageId=" + messageId;
-        this.msgtype = msgtype;
-        this.groupId = groupId;
-        this.isCompress = isCompress;
-        addRTMS(msgtype);
     }
 
     // used for bodylist initializtion,msgtype=3/5
@@ -110,23 +88,6 @@ public class EncodeObject {
         this.msgtype = msgtype;
         this.groupId = groupId;
         this.isCompress = isCompress;
-        addRTMS(msgtype);
-    }
-
-    // used for bytes initializtion,msgtype=7/8
-    public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress, boolean isReport,
-            boolean isGroupIdTransfer, long dt, long seqId, String groupId,
-            String streamId, String commonattr) {
-        this.bodyBytes = bodyBytes;
-        this.msgtype = msgtype;
-        this.isCompress = isCompress;
-        this.isReport = isReport;
-        this.dt = dt;
-        this.isGroupIdTransfer = isGroupIdTransfer;
-        this.commonattr = commonattr;
-        this.messageId = String.valueOf(seqId);
-        this.groupId = groupId;
-        this.streamId = streamId;
         addRTMS(msgtype);
     }
 
@@ -144,26 +105,6 @@ public class EncodeObject {
         this.messageId = String.valueOf(seqId);
         this.groupId = groupId;
         this.streamId = streamId;
-        addRTMS(msgtype);
-    }
-
-    // file agent, used for bytes initializtion,msgtype=7/8
-    public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress,
-            boolean isReport, boolean isGroupIdTransfer, long dt,
-            long seqId, String groupId, String streamId, String commonattr,
-            String messageKey, String proxyIp) {
-        this.bodyBytes = bodyBytes;
-        this.msgtype = msgtype;
-        this.isCompress = isCompress;
-        this.isReport = isReport;
-        this.dt = dt;
-        this.isGroupIdTransfer = isGroupIdTransfer;
-        this.commonattr = commonattr;
-        this.messageId = String.valueOf(seqId);
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.messageKey = messageKey;
-        this.proxyIp = proxyIp;
         addRTMS(msgtype);
     }
 
@@ -393,14 +334,6 @@ public class EncodeObject {
 
     public void setMsgtype(int msgtype) {
         this.msgtype = msgtype;
-    }
-
-    public byte[] getBodyBytes() {
-        return bodyBytes;
-    }
-
-    public void setBodyBytes(byte[] bodyBytes) {
-        this.bodyBytes = bodyBytes;
     }
 
     public String getAttributes() {

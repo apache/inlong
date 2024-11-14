@@ -20,8 +20,8 @@ package org.apache.inlong.sdk.dataproxy.common;
 public interface SendMessageCallback {
 
     /* Invoked when a message is confirmed by TDBus. */
-    public void onMessageAck(SendResult result);
+    void onMessageAck(SendResult result);
 
     /* Invoked when a message transportation interrupted by an exception. */
-    public void onException(Throwable e);
+    void onException(Throwable e);
 }

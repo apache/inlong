@@ -47,6 +47,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
           // Only keep the first element and give the rest to the 'installer'
           result.installer = result?.moduleIdList.slice(1);
           result.moduleIdList = result?.moduleIdList.slice(0, 1);
+          if (result.username) {
+            setInstallType(true);
+            result.isInstall = true;
+          }
         }
         form.setFieldsValue(result);
       },
@@ -64,6 +68,14 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     if (isUpdate) {
       submitData.id = id;
       submitData.version = savedData?.version;
+      if (type === 'AGENT') {
+        if (!submitData.isInstall) {
+          submitData.username = '';
+          submitData.password = '';
+          submitData.sshPort = '';
+          submitData.sshKey = '';
+        }
+      }
     }
     if (type === 'AGENT') {
       if (submitData.installer !== undefined) {
@@ -83,29 +95,19 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
-  const { data: agentInstaller, run: getAgentInstall } = useRequest(
-    () => ({
+  const [agentInstaller, setAgentInstaller] = useState([]);
+  const getAgentInstaller = async () => {
+    const result = await request({
       url: '/module/list',
       method: 'POST',
       data: {
         pageNum: 1,
         pageSize: 9999,
       },
-    }),
-    {
-      manual: true,
-      onSuccess: result => {
-        const temp = result?.list
-          ?.filter(item => item.type === 'INSTALLER')
-          .map(item => ({
-            ...item,
-            label: `${item.name} ${item.version}`,
-            value: item.id,
-          }));
-        form.setFieldValue('installer', temp[0].id);
-      },
-    },
-  );
+    });
+    setAgentInstaller(result.list?.sort((a, b) => b.modifyTime - a.modifyTime));
+    return result;
+  };
 
   const { data: sshKeys, run: getSSHKeys } = useRequest(
     () => ({
@@ -123,9 +125,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   const testSSHConnection = async () => {
     const values = await form.validateFields();
     const submitData = {
-      ...values,
-      type,
-      parentId: savedData?.parentId || clusterId,
+      ip: values.ip,
+      sshPort: values.sshPort,
+      username: values.username,
+      password: values.password,
     };
     await request({
       url: '/cluster/node/testSSHConnection',
@@ -140,18 +143,25 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       // open
       setInstallType(false);
       form.resetFields();
+      getAgentInstaller();
       if (id) {
         getData(id);
-      } else {
-        if (type === 'AGENT') {
-          getAgentInstall();
-        }
       }
     }
   }, [modalProps.open]);
 
+  useEffect(() => {
+    form.setFieldValue('identifyType', 'password');
+    if (modalProps.open && !id) {
+      form.setFieldValue(
+        'installer',
+        agentInstaller?.filter(item => item.type === 'INSTALLER')?.[0]?.id,
+      );
+    }
+  }, [agentInstaller]);
+
   const content = useMemo(() => {
-    return [
+    return Id => [
       {
         type: 'input',
         label: 'IP',
@@ -159,9 +169,13 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         rules: [
           {
             pattern: rulesPattern.ip,
+            required: type === 'AGENT',
             message: i18n.t('pages.Clusters.Node.IpRule'),
           },
         ],
+        props: {
+          disabled: !!Id,
+        },
       },
       {
         type: 'inputnumber',
@@ -205,34 +219,20 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'moduleIdList',
         hidden: type !== 'AGENT',
         props: {
-          options: {
-            requestAuto: true,
-            requestTrigger: ['onOpen'],
-            requestService: keyword => ({
-              url: '/module/list',
-              method: 'POST',
-              data: {
-                keyword,
-                pageNum: 1,
-                pageSize: 9999,
-              },
-            }),
-            requestParams: {
-              formatResult: result =>
-                result?.list
-                  ?.filter(item => item.type === 'AGENT')
-                  .map(item => ({
-                    ...item,
-                    label: `${item.name} ${item.version}`,
-                    value: item.id,
-                  })),
-            },
-          },
+          filterOption: (input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+          options: agentInstaller
+            ?.filter(item => item.type === 'AGENT')
+            .map(item => ({
+              ...item,
+              label: `${item.name} ${item.version}`,
+              value: item.id,
+            })),
         },
       },
       {
         type: 'textarea',
-        label: i18n.t('pages.Clusters.Description'),
+        label: i18n.t('pages.Clusters.Node.Description'),
         name: 'description',
         props: {
           maxLength: 256,
@@ -267,7 +267,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'identifyType',
         initialValue: 'password',
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
+        visible: values => isInstall,
         rules: [{ required: true }],
         props: {
           onChange: ({ target: { value } }) => {
@@ -293,7 +293,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'username',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
+        visible: isInstall,
       },
       {
         type: 'input',
@@ -301,12 +301,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'password',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => {
-          return (
-            (values?.isInstall && values?.identifyType === 'password') ||
-            (form.getFieldValue('isInstall') && form.getFieldValue('identifyType') === 'password')
-          );
-        },
+        visible: values =>
+          isInstall &&
+          (values?.identifyType === 'password' ||
+            form.getFieldValue('identifyType') === 'password'),
       },
       {
         type: 'textarea',
@@ -315,7 +313,9 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'sshKey',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall && values?.identifyType === 'sshKey',
+        visible: values =>
+          isInstall &&
+          (values?.identifyType === 'sshKey' || form.getFieldValue('identifyType') === 'sshKey'),
         props: {
           readOnly: true,
           autoSize: true,
@@ -327,7 +327,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'sshPort',
         rules: [{ required: true }],
         hidden: type !== 'AGENT',
-        visible: values => values?.isInstall && form.getFieldValue('isInstall'),
+        visible: values => isInstall,
       },
       {
         type: 'select',
@@ -336,33 +336,17 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         isPro: type === 'AGENT',
         hidden: type !== 'AGENT',
         props: {
-          options: {
-            requestAuto: true,
-            requestTrigger: ['onOpen'],
-            requestService: keyword => ({
-              url: '/module/list',
-              method: 'POST',
-              data: {
-                keyword,
-                pageNum: 1,
-                pageSize: 9999,
-              },
-            }),
-            requestParams: {
-              formatResult: result =>
-                result?.list
-                  ?.filter(item => item.type === 'INSTALLER')
-                  .map(item => ({
-                    ...item,
-                    label: `${item.name} ${item.version}`,
-                    value: item.id,
-                  })),
-            },
-          },
+          options: agentInstaller
+            ?.filter(item => item.type === 'INSTALLER')
+            .map(item => ({
+              ...item,
+              label: `${item.name} ${item.version}`,
+              value: item.id,
+            })),
         },
       },
     ];
-  }, []);
+  }, [isInstall, agentInstaller, modalProps.open]);
 
   return (
     <Modal
@@ -385,7 +369,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         ),
       ]}
     >
-      <FormGenerator content={content} form={form} useMaxWidth />
+      <FormGenerator content={content(id)} form={form} useMaxWidth />
     </Modal>
   );
 };

@@ -107,7 +107,6 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
           maxTagCount: 9,
           maxTagTextLength: 20,
           maxTagPlaceholder: omittedValues => {
-            console.log('omittedValues', omittedValues);
             return (
               <span>
                 {i18n.t('miscellaneous.total')}

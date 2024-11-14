@@ -770,9 +770,7 @@ public class ClientMgr {
                 logger.info("HBClient:" + item.getKey() + ";" + item.getValue());
             }
             boolean isLoadSwitch = false;
-
-            // int smallSize = listData.size() < listHB.size() ? listData.size() : listHB.size();
-            int smallSize = 1;
+            int smallSize = Math.min(Math.min(listData.size(), listHB.size()), 1);
             for (int i = 0; i < smallSize; i++) {
                 if ((listData.get(i).getValue() - listHB.get(i).getValue()) >= this.loadThreshold) {
                     isLoadSwitch = true;
@@ -849,7 +847,8 @@ public class ClientMgr {
         }
         logger.debug("active host to send heartbeat! {}", hostInfo.getReferenceName());
         String hbMsg = "heartbeat:" + hostInfo.getHostName();
-        EncodeObject encodeObject = new EncodeObject(hbMsg.getBytes(StandardCharsets.UTF_8),
+        EncodeObject encodeObject = new EncodeObject(
+                Collections.singletonList(hbMsg.getBytes(StandardCharsets.UTF_8)),
                 8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
         try {
             if (configure.isNeedAuthentication()) {

@@ -15,24 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.common;
+-- This is the SQL change file from version 1.4.0 to the current version 1.5.0.
+-- When upgrading to version 1.5.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
-public abstract class FileCallback implements SendMessageCallback {
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-    /* Invoked when a message is confirmed by TDBus. */
-    public void onMessageAck(String result) {
-    }
+USE `apache_inlong_manager`;
 
-    ;
-
-    public void onMessageAck(SendResult result) {
-    }
-
-    ;
-
-    /* Invoked when a message transportation interrupted by an exception. */
-    public void onException(Throwable e) {
-    }
-
-    ;
-}
+ALTER TABLE `schedule_config`
+    ADD COLUMN  `schedule_engine` varchar(64)  NOT NULL DEFAULT 'Quartz' COMMENT 'Schedule engine, support Quartz, Airflow and DolphinScheduler';

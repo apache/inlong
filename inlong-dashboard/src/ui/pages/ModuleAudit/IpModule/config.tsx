@@ -22,7 +22,9 @@ import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import { Button } from 'antd';
 import React from 'react';
-
+import { CSVLink } from 'react-csv';
+import { range } from 'lodash';
+import { SortOrder } from 'antd/es/table/interface';
 export const toChartData = (source, sourceDataMap) => {
   const xAxisData = Object.keys(sourceDataMap);
   return {
@@ -48,6 +50,9 @@ export const toChartData = (source, sourceDataMap) => {
 };
 
 export const toTableData = (source, sourceDataMap) => {
+  if (sourceDataMap === null || sourceDataMap === undefined) {
+    return [];
+  }
   return Object.keys(sourceDataMap)
     .reverse()
     .map(logTs => ({
@@ -56,10 +61,23 @@ export const toTableData = (source, sourceDataMap) => {
     }));
 };
 
-export const getFormContent = (initialValues, onSearch, auditData) => [
+export const getFormContent = (
+  initialValues,
+  onSearch,
+  auditData,
+  sourceData,
+  csvData,
+  setIp,
+  fileName,
+) => [
   {
     type: 'input',
     label: i18n.t('pages.ModuleAudit.config.Ip'),
+    props: {
+      onChange: (e: any) => {
+        setIp(e.target.value);
+      },
+    },
     name: 'ip',
   },
   {
@@ -70,18 +88,28 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm',
+      disabledTime: (date: dayjs.Dayjs, type, info: { from?: dayjs.Dayjs }) => {
+        return {
+          disabledSeconds: () => range(0, 60),
+        };
+      },
     },
   },
   {
     type: 'datepicker',
     label: i18n.t('pages.GroupDetail.Audit.EndDate'),
     name: 'endDate',
-    initialValues: dayjs(initialValues.endDate),
+    initialValues: dayjs().startOf('hour').valueOf(),
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm',
+      disabledTime: (date: dayjs.Dayjs, type, info: { from?: dayjs.Dayjs }) => {
+        return {
+          disabledSeconds: () => range(0, 60),
+        };
+      },
     },
   },
   {
@@ -135,22 +163,74 @@ export const getFormContent = (initialValues, onSearch, auditData) => [
       </Button>
     ),
   },
+  {
+    type: (
+      <Button type="primary" disabled={!(sourceData.length > 0)}>
+        <CSVLink data={csvData} filename={fileName}>
+          {i18n.t('pages.GroupDetail.Audit.ExportCSV')}
+        </CSVLink>
+      </Button>
+    ),
+  },
 ];
-
+const baseSorter = (a, b) => {
+  return a.base - b.base;
+};
+const comparedSorter = (a, b) => {
+  return a.compared - b.compared;
+};
+const subValueSorter = (a, b) => {
+  return a.subValue - b.subValue;
+};
+const groupIdStrSorter = (a, b) => {
+  return a?.inlongGroupId.localeCompare(b.inlongGroupId);
+};
+const streamIdStrSorter = (a, b) => {
+  return a?.inlongStreamId.localeCompare(b?.inlongStreamId);
+};
+const sortOrder: SortOrder = 'descend';
 export const getTableColumns = source => {
   const data = source.map(item => ({
     title: item.auditName,
-    dataIndex: item.auditId,
+    dataIndex: source[0].auditId === item.auditId ? 'base' : 'compared',
+    key: source[0].auditId === item.auditId ? 'base' : 'compared',
+    sorter: {
+      compare: source[0].auditId === item.auditId ? baseSorter : comparedSorter,
+      multiple: source[0].auditId === item.auditId ? 3 : 4,
+    },
     render: text => text || 0,
   }));
   return [
     {
       title: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
       dataIndex: 'inlongGroupId',
+      key: 'inlongGroupId',
+      sorter: {
+        compare: groupIdStrSorter,
+        multiple: 1,
+      },
     },
     {
       title: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
       dataIndex: 'inlongStreamId',
+      key: 'inlongStreamId',
+      defaultSortOrder: sortOrder,
+      sorter: {
+        compare: streamIdStrSorter,
+        multiple: 2,
+      },
     },
-  ].concat(data);
+  ]
+    .concat(data)
+    .concat([
+      {
+        title: i18n.t('pages.ModuleAudit.config.SubValue'),
+        dataIndex: 'subValue',
+        key: 'subValue',
+        sorter: {
+          compare: subValueSorter,
+          multiple: 5,
+        },
+      },
+    ]);
 };

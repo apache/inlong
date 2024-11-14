@@ -85,6 +85,7 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
       return (
         !defaultGroupKeysI18nMap[formName] ||
         [
+          'scheduleEngine',
           'scheduleType',
           'time',
           'crontabExpression',
@@ -149,6 +150,7 @@ function transType(editing: boolean, conf) {
         'ttl',
         'retentionTime',
         'retentionSize',
+        'scheduleEngine',
         'scheduleType',
         'scheduleUnit',
         'scheduleInterval',

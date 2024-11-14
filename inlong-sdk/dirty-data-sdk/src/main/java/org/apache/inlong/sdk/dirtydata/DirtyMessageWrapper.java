@@ -18,30 +18,40 @@
 package org.apache.inlong.sdk.dirtydata;
 
 import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.StringJoiner;
 
+@Slf4j
 @Builder
 public class DirtyMessageWrapper {
 
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String delimiter;
+    @Builder.Default
+    @Getter
+    private int retryTimes = 0;
 
     private String inlongGroupId;
     private String inlongStreamId;
-    private String dataTime;
+    private long dataTime;
     private String dataflowId;
     private String serverType;
     private String dirtyType;
+    private String dirtyMessage;
     private String ext;
     private String data;
     private byte[] dataBytes;
 
     public String format() {
-        String now = LocalDateTime.now().format(dateTimeFormatter);
+        String reportTime = LocalDateTime.now().format(dateTimeFormatter);
         StringJoiner joiner = new StringJoiner(delimiter);
         String formatData = null;
         if (data != null) {
@@ -50,14 +60,23 @@ public class DirtyMessageWrapper {
             formatData = Base64.getEncoder().encodeToString(dataBytes);
         }
 
-        return joiner.add(inlongGroupId)
-                .add(inlongStreamId)
-                .add(now)
-                .add(dataTime)
+        String dataTimeStr = LocalDateTime.ofInstant(Instant.ofEpochMilli(dataTime),
+                ZoneId.systemDefault()).format(dateTimeFormatter);
+        return joiner
                 .add(dataflowId)
+                .add(inlongGroupId)
+                .add(inlongStreamId)
+                .add(reportTime)
+                .add(dataTimeStr)
                 .add(serverType)
                 .add(dirtyType)
-                .add(ext)
-                .add(formatData).toString();
+                .add(StringEscapeUtils.escapeXSI(dirtyMessage))
+                .add(StringEscapeUtils.escapeXSI(ext))
+                .add(StringEscapeUtils.escapeXSI(formatData))
+                .toString();
+    }
+
+    public void increaseRetry() {
+        retryTimes++;
     }
 }

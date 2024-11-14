@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import java.util.concurrent.TimeUnit;
-
 public class ConfigConstants {
 
     public static final String PROXY_SDK_VERSION = "1.2.11";
@@ -49,12 +47,13 @@ public class ConfigConstants {
 
     public static final int MAX_LINE_CNT = 30;
 
-    /* Default connection,connect timeout in milliseconds. */
-    public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS =
-            TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
-
-    public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS =
-            TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
+    // connection timeout in milliseconds
+    public static final long VAL_DEF_CONNECT_TIMEOUT_MS = 20000L;
+    public static final long VAL_MIN_CONNECT_TIMEOUT_MS = 1L;
+    public static final long VAL_DEF_CONNECT_CLOSE_DELAY_MS = 500L;
+    // request timeout in milliseconds
+    public static final long VAL_DEF_REQUEST_TIMEOUT_MS = 10000L;
+    public static final long VAL_MIN_REQUEST_TIMEOUT_MS = 1L;
 
     public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;

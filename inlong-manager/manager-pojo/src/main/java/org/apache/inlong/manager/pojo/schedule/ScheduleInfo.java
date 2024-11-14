@@ -50,6 +50,10 @@ public class ScheduleInfo {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
+    // schedule engine type, support [Quartz, Airflow, DolphinScheduler]
+    @ApiModelProperty("Schedule engine")
+    private String scheduleEngine;
+
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
     // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
     @ApiModelProperty("TimeUnit for schedule interval")
@@ -91,6 +95,7 @@ public class ScheduleInfo {
         ScheduleInfo that = (ScheduleInfo) o;
         return Objects.equals(inlongGroupId, that.inlongGroupId)
                 && Objects.equals(scheduleType, that.scheduleType)
+                && Objects.equals(scheduleEngine, that.scheduleEngine)
                 && Objects.equals(scheduleUnit, that.scheduleUnit)
                 && Objects.equals(scheduleInterval, that.scheduleInterval)
                 && Objects.equals(startTime, that.startTime)
@@ -103,9 +108,8 @@ public class ScheduleInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, inlongGroupId, scheduleType, scheduleUnit, scheduleInterval, startTime, endTime,
-                delayTime,
-                selfDepend, taskParallelism, crontabExpression, version);
+        return Objects.hash(id, inlongGroupId, scheduleType, scheduleEngine, scheduleUnit, scheduleInterval, startTime,
+                endTime, delayTime, selfDepend, taskParallelism, crontabExpression, version);
     }
 
 }

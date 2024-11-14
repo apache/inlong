@@ -18,16 +18,17 @@
 package org.apache.inlong.sdk.dataproxy.example;
 
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MyMessageCallBack extends FileCallback {
+public class MyMessageCallBack implements SendMessageCallback {
 
     private static final Logger logger = LoggerFactory
             .getLogger(MyMessageCallBack.class);
+
     private DefaultMessageSender messageSender = null;
     private Event event = null;
 
@@ -41,10 +42,7 @@ public class MyMessageCallBack extends FileCallback {
         this.event = event;
     }
 
-    public void onMessageAck(String result) {
-        logger.info("onMessageAck return result = {}", result);
-    }
-
+    @Override
     public void onMessageAck(SendResult result) {
         if (result == SendResult.OK) {
             logger.info("onMessageAck return Ok");
@@ -53,6 +51,7 @@ public class MyMessageCallBack extends FileCallback {
         }
     }
 
+    @Override
     public void onException(Throwable e) {
         logger.error("Send message failure, error {}", e.getMessage());
         e.printStackTrace();

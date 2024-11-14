@@ -89,11 +89,11 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("Whether retry")
     private Boolean retry;
 
-    @ApiModelProperty("Start time")
-    private Long startTime;
+    @ApiModelProperty(value = "Data start time")
+    private String dataTimeFrom;
 
-    @ApiModelProperty("End time")
-    private Long endTime;
+    @ApiModelProperty(value = "Data end time")
+    private String dataTimeTo;
 
     @ApiModelProperty("filterStreams")
     private List<String> filterStreams;
