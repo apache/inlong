@@ -35,6 +35,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FIELD_DELI
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FORMAT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_ENABLE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_RETRIES;
 
 @Slf4j
 public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
@@ -77,6 +78,12 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
                     .noDefaultValue()
                     .withDescription("The inlong stream id of dirty sink");
 
+    private static final ConfigOption<Integer> DIRTY_SIDE_OUTPUT_MAX_CALLBACK_SIZE =
+            ConfigOptions.key("dirty.side-output.inlong-sdk.max-callback-size")
+                    .intType()
+                    .defaultValue(100000)
+                    .withDescription("The inlong stream id of dirty sink");
+
     @Override
     public <T> DirtySink<T> createDirtySink(DynamicTableFactory.Context context) {
         ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
@@ -95,8 +102,10 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
                 .csvFieldDelimiter(config.get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER))
                 .inlongManagerAuthKey(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY))
                 .inlongManagerAuthId(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID))
-                .ignoreSideOutputErrors(config.getOptional(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS).orElse(true))
-                .enableDirtyLog(true)
+                .ignoreSideOutputErrors(config.get(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS))
+                .retryTimes(config.get(DIRTY_SIDE_OUTPUT_RETRIES))
+                .maxCallbackSize(config.get(DIRTY_SIDE_OUTPUT_MAX_CALLBACK_SIZE))
+                .enableDirtyLog(config.get(DIRTY_SIDE_OUTPUT_LOG_ENABLE))
                 .build();
     }
 

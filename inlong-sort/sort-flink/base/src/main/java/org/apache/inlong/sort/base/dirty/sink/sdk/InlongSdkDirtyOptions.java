@@ -49,4 +49,6 @@ public class InlongSdkDirtyOptions implements Serializable {
     private String csvLineDelimiter = DEFAULT_CSV_LINE_DELIMITER;
     private String kvFieldDelimiter = DEFAULT_KV_FIELD_DELIMITER;
     private String kvEntryDelimiter = DEFAULT_KV_ENTRY_DELIMITER;
+    private int retryTimes;
+    private int maxCallbackSize;
 }

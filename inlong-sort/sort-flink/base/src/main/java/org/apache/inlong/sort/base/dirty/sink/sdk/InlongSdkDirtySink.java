@@ -57,7 +57,6 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
             Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
             String dataGroupId = Preconditions.checkNotNull(labelMap.get("groupId"));
             String dataStreamId = Preconditions.checkNotNull(labelMap.get("streamId"));
-            String serverType = Preconditions.checkNotNull(labelMap.get("serverType"));
             String dataflowId = Preconditions.checkNotNull(labelMap.get("dataflowId"));
 
             String dirtyMessage = formatData(dirtyData, labelMap);
@@ -68,7 +67,7 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                     .inlongStreamId(dataStreamId)
                     .dataflowId(dataflowId)
                     .dataTime(dirtyData.getDataTime())
-                    .serverType(serverType)
+                    .serverType(dirtyData.getServerType().format())
                     .dirtyType(dirtyData.getDirtyType().format())
                     .dirtyMessage(dirtyData.getDirtyMessage())
                     .ext(dirtyData.getExtParams())
@@ -99,6 +98,8 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                 .ignoreErrors(options.isIgnoreSideOutputErrors())
                 .inlongGroupId(options.getSendToGroupId())
                 .inlongStreamId(options.getSendToStreamId())
+                .maxRetryTimes(options.getRetryTimes())
+                .maxCallbackSize(options.getMaxCallbackSize())
                 .build();
         dirtySender.init();
     }
