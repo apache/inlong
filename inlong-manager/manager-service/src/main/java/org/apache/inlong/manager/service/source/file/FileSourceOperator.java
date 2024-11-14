@@ -114,10 +114,12 @@ public class FileSourceOperator extends AbstractSourceOperator {
         try {
             List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(sourceEntity.getId());
             FileSourceDTO dto = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
-            dto.setStartTime(sourceRequest.getStartTime());
-            dto.setEndTime(sourceRequest.getEndTime());
+            dto.setDataTimeFrom(sourceRequest.getDataTimeFrom());
+            dto.setDataTimeTo(sourceRequest.getDataTimeTo());
             dto.setRetry(true);
-            dto.setAuditVersion(request.getAuditVersion());
+            if (request.getIncreaseAuditVersion()) {
+                dto.setAuditVersion(request.getAuditVersion());
+            }
             dto.setFilterStreams(sourceRequest.getFilterStreams());
             StreamSourceEntity dataAddTaskEntity =
                     CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);

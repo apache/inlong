@@ -545,12 +545,21 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         List<String> agentIpList = request.getAgentIpList();
         List<StreamSourceEntity> entityList = new ArrayList<>();
         List<Integer> resultIdList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(agentIpList)) {
-            entityList = sourceMapper.selectByRelatedId(request.getGroupId(), null, null);
+        if (request.getSourceId() != null) {
+            StreamSourceEntity entity = sourceMapper.selectById(request.getSourceId());
+            Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
+            entityList.add(entity);
         } else {
-            for (String agentIp : agentIpList) {
-                List<StreamSourceEntity> sourceEntityList = sourceMapper.selectByAgentIp(agentIp);
-                entityList.addAll(sourceEntityList);
+            if (agentIpList == null) {
+                throw new BusinessException("Agent ip list can not null");
+            }
+            if (CollectionUtils.isEmpty(agentIpList)) {
+                entityList = sourceMapper.selectByRelatedId(request.getGroupId(), null, null);
+            } else {
+                for (String agentIp : agentIpList) {
+                    List<StreamSourceEntity> sourceEntityList = sourceMapper.selectByAgentIp(agentIp);
+                    entityList.addAll(sourceEntityList);
+                }
             }
         }
         for (StreamSourceEntity sourceEntity : entityList) {

@@ -24,6 +24,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class DataAddTaskRequest {
     @NotBlank(message = "inlongGroupId cannot be blank")
     private String groupId;
 
-    @ApiModelProperty(value = "Source ID", hidden = true)
+    @ApiModelProperty(value = "Source ID, When the source ID is not null, data add task entries based on the source ID")
     private Integer sourceId;
 
     @ApiModelProperty(value = "Agent ip List")
@@ -52,5 +53,15 @@ public class DataAddTaskRequest {
 
     @ApiModelProperty(value = "Audit version", hidden = true)
     private String auditVersion;
+
+    @ApiModelProperty(value = "Data start time")
+    private String dataTimeFrom;
+
+    @ApiModelProperty(value = "Data end time")
+    private String dataTimeTo;
+
+    @ApiModelProperty(value = "Increase Audit Version")
+    @NotNull(message = "IncreaseAuditVersion cannot be null")
+    private Boolean increaseAuditVersion;
 
 }

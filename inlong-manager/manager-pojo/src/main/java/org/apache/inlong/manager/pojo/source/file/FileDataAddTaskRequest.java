@@ -39,10 +39,4 @@ public class FileDataAddTaskRequest extends DataAddTaskRequest {
     @ApiModelProperty("filterStreams")
     private List<String> filterStreams;
 
-    @ApiModelProperty("Start time")
-    private Long startTime;
-
-    @ApiModelProperty("End time")
-    private Long endTime;
-
 }

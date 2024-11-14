@@ -147,7 +147,8 @@ public class CommandExecutorImpl implements CommandExecutor {
     @Override
     public CommandResult cpDir(AgentClusterNodeRequest clusterNodeRequest, String sourcePath, String targetPath)
             throws Exception {
-        return execRemote(clusterNodeRequest, "cp " + sourcePath + " " + targetPath);
+        return execRemote(clusterNodeRequest,
+                "if [ -e " + sourcePath + " ]; then cp " + sourcePath + " " + targetPath + "; fi");
     }
 
 }
