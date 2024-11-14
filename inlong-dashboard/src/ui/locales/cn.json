@@ -34,6 +34,7 @@
   "meta.Sources.File.ClusterName": "集群名称",
   "meta.Sources.File.FilePath": "⽂件路径",
   "meta.Sources.File.FilePathHelp": "必须是绝对路径，支持正则表达式，多个时以逗号分隔，如：/data/.*log",
+  "meta.Sources.File.FilePathPatternHelp": "文件路径不能包含空格",
   "meta.Sources.File.FileIpHelp": "请选择文件采集节点 IP，若 IP 不固定请选择 All",
   "meta.Sources.File.IpRule": "请输入正确的 IP 地址",
   "meta.Sources.File.VersionRule": "请输入正确的版本号",
