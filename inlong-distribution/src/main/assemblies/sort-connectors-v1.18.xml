@@ -44,6 +44,14 @@
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/target</directory>
+            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-kafka-v1.18-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
     </fileSets>
 </assembly>
