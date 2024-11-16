@@ -31,8 +31,8 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.18.1</flink.version>
-        <elasticsearch.version>6.8.17</elasticsearch.version>
         <flink.shaded.jackson.version>2.15.3-18.0</flink.shaded.jackson.version>
+        <kafka.clients.version>3.7.1</kafka.clients.version>
     </properties>
 
     <dependencies>
@@ -52,6 +52,10 @@
             <version>${testcontainers.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
@@ -61,16 +65,11 @@
             <artifactId>elasticsearch</artifactId>
             <version>${testcontainers.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${elasticsearch.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>${elasticsearch.version}</version>
+            <version>${elasticsearch7.version}</version>
         </dependency>
 
         <dependency>
@@ -142,6 +141,17 @@
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.clients.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.elastic.clients</groupId>
+            <artifactId>elasticsearch-java</artifactId>
+            <version>${elasticsearch7.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -158,6 +168,23 @@
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-kafka-v1.18</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-kafka.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-elasticsearch7-v1.18</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-elasticsearch7.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+
                     </artifactItems>
                 </configuration>
                 <executions>
@@ -203,6 +230,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <log4j.configurationFile>src/test/resources/log4j2-test.properties</log4j.configurationFile>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
