@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,10 +74,17 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Value("${inlong.schedule.dolphinscheduler.token:default_token_value}")
     private String token;
 
+    @Resource
+    private DolphinScheduleOperator dolphinScheduleOperator;
+
     private long projectCode;
-    private final String projectBaseUrl;
-    private final DolphinScheduleUtils dsUtils;
+    private String projectBaseUrl;
     private final Map<Long, String> scheduledProcessMap;
+
+    @PostConstruct
+    public void init() {
+        this.projectBaseUrl = dolphinUrl + DS_PROJECT_URL;
+    }
 
     public DolphinScheduleEngine(String host, int port, String username, String password, String dolphinUrl,
             String token) {
@@ -84,27 +94,11 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         this.password = password;
         this.dolphinUrl = dolphinUrl;
         this.token = token;
-        this.projectBaseUrl = dolphinUrl + DS_PROJECT_URL;
-        try {
-            LOGGER.info("Dolphin Scheduler engine http client initialized");
-            this.dsUtils = new DolphinScheduleUtils();
-            this.scheduledProcessMap = new ConcurrentHashMap<>();
-        } catch (Exception e) {
-            LOGGER.error("Failed to init dolphin scheduler: ", e);
-            throw new DolphinScheduleException(String.format("Failed to init dolphin scheduler: %s", e.getMessage()));
-        }
+        this.scheduledProcessMap = new ConcurrentHashMap<>();
     }
 
     public DolphinScheduleEngine() {
-        this.projectBaseUrl = dolphinUrl + DS_PROJECT_URL;
-        try {
-            LOGGER.info("Dolphin Scheduler engine http client initialized");
-            this.dsUtils = new DolphinScheduleUtils();
-            this.scheduledProcessMap = new ConcurrentHashMap<>();
-        } catch (Exception e) {
-            LOGGER.error("Failed to init dolphin scheduler: ", e);
-            throw new DolphinScheduleException(String.format("Failed to init dolphin scheduler: %s", e.getMessage()));
-        }
+        this.scheduledProcessMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -114,19 +108,20 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Override
     public void start() {
         LOGGER.info("Starting dolphin scheduler engine, Checking project exists...");
-        long code = dsUtils.checkAndGetUniqueId(projectBaseUrl, token, DS_DEFAULT_PROJECT_NAME);
+        long code = dolphinScheduleOperator.checkAndGetUniqueId(projectBaseUrl, token, DS_DEFAULT_PROJECT_NAME);
         if (code != 0) {
             LOGGER.info("Project exists, project code: {}", code);
             this.projectCode = code;
 
             LOGGER.info("Starting synchronize existing process definition");
             String queryProcessDefUrl = projectBaseUrl + "/" + projectCode + DS_PROCESS_URL + DS_PROCESS_QUERY_URL;
-            scheduledProcessMap.putAll(dsUtils.queryAllProcessDef(queryProcessDefUrl, token));
+            scheduledProcessMap.putAll(dolphinScheduleOperator.queryAllProcessDef(queryProcessDefUrl, token));
 
         } else {
             LOGGER.info("There is no inlong offline project exists, default project will be created");
             this.projectCode =
-                    dsUtils.creatNewProject(projectBaseUrl, token, DS_DEFAULT_PROJECT_NAME, DS_DEFAULT_PROJECT_DESC);
+                    dolphinScheduleOperator.creatProject(projectBaseUrl, token, DS_DEFAULT_PROJECT_NAME,
+                            DS_DEFAULT_PROJECT_DESC);
         }
     }
 
@@ -145,36 +140,38 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         LOGGER.info("Dolphin Scheduler handle register begin for {}, Checking process definition id uniqueness...",
                 scheduleInfo.getInlongGroupId());
         try {
-            long processDefCode = dsUtils.checkAndGetUniqueId(processDefUrl, token, processName);
+            long processDefCode = dolphinScheduleOperator.checkAndGetUniqueId(processDefUrl, token, processName);
 
             boolean online = false;
             if (processDefCode != 0 || scheduledProcessMap.containsKey(processDefCode)) {
 
                 // process definition already exists, delete and rebuild
                 LOGGER.info("Process definition exists, process definition id: {}, deleting...", processDefCode);
-                if (dsUtils.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE)) {
-                    dsUtils.deleteProcessDef(processDefUrl, token, processDefCode);
+                if (dolphinScheduleOperator.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE)) {
+                    dolphinScheduleOperator.deleteProcessDef(processDefUrl, token, processDefCode);
                     scheduledProcessMap.remove(processDefCode);
                 }
             }
             String taskCodeUrl = projectBaseUrl + "/" + projectCode + DS_TASK_CODE_URL;
 
-            long taskCode = dsUtils.genTaskCode(taskCodeUrl, token);
+            long taskCode = dolphinScheduleOperator.genTaskCode(taskCodeUrl, token);
             LOGGER.info("Generate task code for process definition success, task code: {}", taskCode);
 
-            long offset = dsUtils.calculateOffset(scheduleInfo);
+            long offset = DolphinScheduleUtils.calculateOffset(scheduleInfo);
             processDefCode =
-                    dsUtils.createProcessDef(processDefUrl, token, processName, processDesc, taskCode, host, port,
+                    dolphinScheduleOperator.createProcessDef(processDefUrl, token, processName, processDesc, taskCode,
+                            host, port,
                             username, password, offset, scheduleInfo.getInlongGroupId());
             LOGGER.info("Create process definition success, process definition code: {}", processDefCode);
 
-            if (dsUtils.releaseProcessDef(processDefUrl, processDefCode, token, DS_ONLINE_STATE)) {
+            if (dolphinScheduleOperator.releaseProcessDef(processDefUrl, processDefCode, token, DS_ONLINE_STATE)) {
                 LOGGER.info("Release process definition success, release status: {}", DS_ONLINE_STATE);
 
-                int scheduleId = dsUtils.createScheduleForProcessDef(scheduleUrl, processDefCode, token, scheduleInfo);
+                int scheduleId = dolphinScheduleOperator.createScheduleForProcessDef(scheduleUrl, processDefCode, token,
+                        scheduleInfo);
                 LOGGER.info("Create schedule for process definition success, schedule info: {}", scheduleInfo);
 
-                online = dsUtils.onlineScheduleForProcessDef(scheduleUrl, scheduleId, token);
+                online = dolphinScheduleOperator.onlineScheduleForProcessDef(scheduleUrl, scheduleId, token);
                 LOGGER.info("Online schedule for process definition, status: {}", online);
             }
 
@@ -200,13 +197,13 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         LOGGER.info("Dolphin Scheduler handle Unregister begin for {}, Checking process definition id uniqueness...",
                 groupId);
         try {
-            long processDefCode = dsUtils.checkAndGetUniqueId(processDefUrl, token, processName);
+            long processDefCode = dolphinScheduleOperator.checkAndGetUniqueId(processDefUrl, token, processName);
             if (processDefCode != 0 || scheduledProcessMap.containsKey(processDefCode)) {
 
                 LOGGER.info("Deleting process definition, process definition id: {}", processDefCode);
-                if (dsUtils.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE)) {
+                if (dolphinScheduleOperator.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE)) {
 
-                    dsUtils.deleteProcessDef(processDefUrl, token, processDefCode);
+                    dolphinScheduleOperator.deleteProcessDef(processDefUrl, token, processDefCode);
                     scheduledProcessMap.remove(processDefCode);
                     LOGGER.info("Process definition deleted");
                 }
@@ -249,17 +246,17 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         try {
 
             String queryProcessDefUrl = projectBaseUrl + "/" + projectCode + DS_PROCESS_URL + DS_PROCESS_QUERY_URL;
-            Map<Long, String> allProcessDef = dsUtils.queryAllProcessDef(queryProcessDefUrl, token);
+            Map<Long, String> allProcessDef = dolphinScheduleOperator.queryAllProcessDef(queryProcessDefUrl, token);
 
             for (Long processDefCode : allProcessDef.keySet()) {
 
                 LOGGER.info("delete process definition id: {}", processDefCode);
-                dsUtils.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE);
-                dsUtils.deleteProcessDef(processDefUrl, token, processDefCode);
+                dolphinScheduleOperator.releaseProcessDef(processDefUrl, processDefCode, token, DS_OFFLINE_STATE);
+                dolphinScheduleOperator.deleteProcessDef(processDefUrl, token, processDefCode);
                 scheduledProcessMap.remove(processDefCode);
             }
 
-            dsUtils.deleteProject(projectBaseUrl, token, projectCode);
+            dolphinScheduleOperator.deleteProject(projectBaseUrl, token, projectCode);
             LOGGER.info("Dolphin scheduler engine stopped");
 
         } catch (Exception e) {

@@ -31,6 +31,8 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -41,12 +43,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_TIMEZONE_ID;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_RESPONSE_DATA;
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_BASE_URL;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_COOKIE;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_COOKIE_SC_TYPE;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_COOKIE_SESSION_ID;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_DEFAULT_PASSWORD;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_DEFAULT_SERVICE_URL;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_DEFAULT_USERID;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_DEFAULT_USERNAME;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_EXPIRE_TIME;
@@ -60,31 +63,22 @@ import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedul
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_TOKEN_URL;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_USERID;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.DS_USERNAME;
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.HTTP_BASE_URL;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INTER_CONTAINER_DS_ALIAS;
 
 public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
 
-    protected static GenericContainer<?> dolphinSchedulerContainer;
+    private static final Logger DS_LOG = LoggerFactory.getLogger(DolphinScheduleEngineTest.class);
 
-    private static final Logger DS_LOG = LoggerFactory.getLogger(DolphinScheduleContainerTestEnv.class);
+    private static final Network NETWORK = Network.newNetwork();
 
-    // DS env generated final url and final token
-    protected static String DS_URL;
-    protected static String DS_TOKEN;
-
-    public static void envSetUp() throws Exception {
-        dolphinSchedulerContainer =
-                new GenericContainer<>(DS_IMAGE_NAME + ":" + DS_IMAGE_TAG)
-                        .withExposedPorts(12345, 25333)
-                        .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()));
-        dolphinSchedulerContainer.start();
-        DS_URL = HTTP_BASE_URL + dolphinSchedulerContainer.getHost() + ":"
-                + dolphinSchedulerContainer.getMappedPort(12345) + DS_BASE_URL;
-        DS_LOG.info("DolphinScheduler is running at: {}", DS_URL);
-
-        DS_TOKEN = accessToken();
-        DS_LOG.info("DolphinScheduler token: {}", DS_TOKEN);
-    }
+    protected static final GenericContainer<?> dolphinSchedulerContainer =
+            new GenericContainer<>(DS_IMAGE_NAME + ":" + DS_IMAGE_TAG)
+                    .withExposedPorts(12345, 25333)
+                    .withEnv("TZ", DS_DEFAULT_TIMEZONE_ID)
+                    .withNetwork(NETWORK)
+                    .withAccessToHost(true)
+                    .withNetworkAliases(INTER_CONTAINER_DS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(DS_LOG));
 
     /**
      * This method just for DS testing, login by default admin username and password
@@ -92,14 +86,15 @@ public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
      *
      * @return the DS token
      */
-    private static String accessToken() {
+    protected static String accessToken() {
         Map<String, String> loginParams = new HashMap<>();
         loginParams.put(DS_USERNAME, DS_DEFAULT_USERNAME);
         loginParams.put(DS_PASSWORD, DS_DEFAULT_PASSWORD);
         try {
-            JsonObject loginResponse = executeHttpRequest(DS_URL + DS_LOGIN_URL, loginParams, new HashMap<>());
+            JsonObject loginResponse =
+                    executeHttpRequest(DS_DEFAULT_SERVICE_URL + DS_LOGIN_URL, loginParams, new HashMap<>());
             if (loginResponse.get("success").getAsBoolean()) {
-                String tokenGenUrl = DS_URL + DS_TOKEN_URL + DS_TOKEN_GEN_URL;
+                String tokenGenUrl = DS_DEFAULT_SERVICE_URL + DS_TOKEN_URL + DS_TOKEN_GEN_URL;
                 Map<String, String> tokenParams = new HashMap<>();
                 tokenParams.put(DS_USERID, String.valueOf(DS_DEFAULT_USERID));
 
@@ -117,7 +112,7 @@ public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
 
                 JsonObject tokenGenResponse = executeHttpRequest(tokenGenUrl, tokenParams, cookies);
 
-                String accessTokenUrl = DS_URL + DS_TOKEN_URL;
+                String accessTokenUrl = DS_DEFAULT_SERVICE_URL + DS_TOKEN_URL;
                 tokenParams.put(DS_RESPONSE_TOKEN, tokenGenResponse.get(DS_RESPONSE_DATA).getAsString());
                 JsonObject result = executeHttpRequest(accessTokenUrl, tokenParams, cookies);
                 String token = result.get(DS_RESPONSE_DATA).getAsJsonObject().get(DS_RESPONSE_TOKEN).getAsString();
@@ -128,12 +123,6 @@ public abstract class DolphinScheduleContainerTestEnv extends BaseScheduleTest {
         } catch (Exception e) {
             DS_LOG.error("login and generate token fail: ", e);
             throw new DolphinScheduleException(String.format("login and generate token fail: %s", e.getMessage()));
-        }
-    }
-
-    public static void envShutDown() {
-        if (dolphinSchedulerContainer != null) {
-            dolphinSchedulerContainer.close();
         }
     }
 

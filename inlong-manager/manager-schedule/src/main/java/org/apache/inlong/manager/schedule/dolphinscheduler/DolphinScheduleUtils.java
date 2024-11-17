@@ -26,12 +26,11 @@ import org.apache.inlong.manager.pojo.schedule.dolphinschedule.DScheduleInfo;
 import org.apache.inlong.manager.schedule.ScheduleUnit;
 import org.apache.inlong.manager.schedule.exception.DolphinScheduleException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -39,6 +38,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.core.util.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +51,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_CODE;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_PAGE_NO;
@@ -80,17 +82,33 @@ import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedul
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TASK_GEN_NUM;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TASK_RELATION;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TOKEN;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.DELETION_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.GEN_TASK_CODE_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.HTTP_REQUEST_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.INVALID_HTTP_METHOD;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.JSON_PARSE_ERROR;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.NETWORK_ERROR;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_CREATION_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_QUERY_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_RELEASE_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROJECT_CREATION_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.SCHEDULE_CREATION_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.SCHEDULE_ONLINE_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.UNEXPECTED_ERROR;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.UNIQUE_CHECK_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.UNSUPPORTED_SCHEDULE_TYPE;
 
 /**
- * A utility class for interacting with DolphinScheduler API. This class includes methods
- * for creating, updating, and deleting projects, tasks, and process definitions in DolphinScheduler.
- * It also provides methods for generating schedules, calculating offsets, and executing HTTP requests.
- * This class leverages the OkHttp library for HTTP interactions and Gson for JSON parsing and serialization.
+ * DolphinScheduler utils
+ * A utility class for interacting with DolphinScheduler API.
  */
 public class DolphinScheduleUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DolphinScheduleEngine.class);
 
+    private static final String POST = "POST";
+    private static final String GET = "GET";
+    private static final String DELETE = "DELETE";
     private static final long MILLIS_IN_SECOND = 1000L;
     private static final long MILLIS_IN_MINUTE = 60 * MILLIS_IN_SECOND;
     private static final long MILLIS_IN_HOUR = 60 * MILLIS_IN_MINUTE;
@@ -98,22 +116,12 @@ public class DolphinScheduleUtils {
     private static final long MILLIS_IN_WEEK = 7 * MILLIS_IN_DAY;
     private static final long MILLIS_IN_MONTH = 30 * MILLIS_IN_DAY;
     private static final long MILLIS_IN_YEAR = 365 * MILLIS_IN_DAY;
-    private static final String HTTP_POST = "POST";
-    private static final String HTTP_GET = "GET";
-    private static final String HTTP_PUT = "PUT";
-    private static final String HTTP_DELETE = "DELETE";
     private static final String CONTENT_TYPE = "Content-Type: application/json; charset=utf-8";
     private static final String SHELL_REQUEST_API = "/inlong/manager/api/group/submitOfflineJob";
-    private final OkHttpClient client;
-    private final ObjectMapper objectMapper;
+    private static final OkHttpClient CLIENT = new OkHttpClient();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /**
-     * Constructs a new instance of the DolphinScheduleUtils class.
-     * Initializes the OkHttpClient and Gson instances.
-     */
-    public DolphinScheduleUtils() {
-        this.client = new OkHttpClient();
-        this.objectMapper = new ObjectMapper();
+    private DolphinScheduleUtils() {
     }
 
     /**
@@ -124,23 +132,16 @@ public class DolphinScheduleUtils {
      * @param searchVal The name of the project to search for.
      * @return The unique project ID if found, or 0 if not found or an error occurs.
      */
-    public long checkAndGetUniqueId(String url, String token, String searchVal) {
-
-        Map<String, String> header = buildHeader(token);
-        Map<String, String> queryParams = buildPageParam(searchVal);
-
+    public static long checkAndGetUniqueId(String url, String token, String searchVal) {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_GET, queryParams, header);
+            Map<String, String> header = buildHeader(token);
+            Map<String, String> queryParams = buildPageParam(searchVal);
 
-            if (response == null) {
-                return 0;
-            }
-            JsonObject data = response.getAsJsonObject(DS_RESPONSE_DATA);
+            JsonObject response = executeHttpRequest(url, GET, queryParams, header);
 
-            if (data == null) {
-                return 0;
-            }
+            JsonObject data = response.get(DS_RESPONSE_DATA).getAsJsonObject();
             JsonArray totalList = data.getAsJsonArray(DS_RESPONSE_TOTAL_LIST);
+
             // check uniqueness
             if (totalList != null && totalList.size() == 1) {
                 JsonObject project = totalList.get(0).getAsJsonObject();
@@ -150,11 +151,15 @@ public class DolphinScheduleUtils {
                 }
             }
             return 0;
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during checkAndGetUniqueId", e);
+            throw new DolphinScheduleException(JSON_PARSE_ERROR,
+                    String.format("Error parsing json during unique ID check for: %s at URL: %s", searchVal, url), e);
 
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in check id uniqueness: ", e);
-            throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in check id uniqueness: %s", e.getMessage()));
+        } catch (DolphinScheduleException e) {
+            LOGGER.error("DolphinScheduleException during unique ID check: {}", e.getDetailedMessage(), e);
+            throw new DolphinScheduleException(UNIQUE_CHECK_FAILED,
+                    String.format("Error checking unique ID for %s at URL: %s", searchVal, url), e);
         }
     }
 
@@ -167,52 +172,74 @@ public class DolphinScheduleUtils {
      * @param description The description of the new project.
      * @return The project code (ID) if creation is successful, or 0 if an error occurs.
      */
-    public long creatNewProject(String url, String token, String projectName, String description) {
-        Map<String, String> header = buildHeader(token);
-
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(DS_PROJECT_NAME, projectName);
-        queryParams.put(DS_PROJECT_DESC, description);
+    public static long creatProject(String url, String token, String projectName,
+            String description) {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_POST, queryParams, header);
+            Map<String, String> header = buildHeader(token);
 
-            if (response == null) {
-                return 0;
-            }
-            JsonObject data = response.getAsJsonObject(DS_RESPONSE_DATA);
-            if (data != null) {
-                return data.get(DS_CODE).getAsLong();
-            }
-            return 0;
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating new project: ", e);
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put(DS_PROJECT_NAME, projectName);
+            queryParams.put(DS_PROJECT_DESC, description);
+
+            JsonObject response = executeHttpRequest(url, POST, queryParams, header);
+
+            JsonObject data = response.get(DS_RESPONSE_DATA).getAsJsonObject();
+            LOGGER.info("create project success, project data: {}", data);
+
+            return data != null ? data.get(DS_CODE).getAsLong() : 0;
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during creating project", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in creating new project: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error creating project with name: %s and description: %s at URL: %s",
+                            projectName, description, url),
+                    e);
+
+        } catch (DolphinScheduleException e) {
+            LOGGER.error("Creating project failed: {}", e.getMessage());
+            throw new DolphinScheduleException(
+                    PROJECT_CREATION_FAILED,
+                    String.format("Error creating project with name: %s and description: %s at URL: %s",
+                            projectName, description, url),
+                    e);
         }
     }
 
-    public Map<Long, String> queryAllProcessDef(String url, String token) {
+    /**
+     * Query all process definition in project
+     *
+     * @param url The base URL of the DolphinScheduler API.
+     * @param token The authentication token to be used in the request header.
+     * @return Map of all the process definition
+     */
+    public static Map<Long, String> queryAllProcessDef(String url, String token) {
         Map<String, String> header = buildHeader(token);
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_GET, new HashMap<>(), header);
+            JsonObject response = executeHttpRequest(url, GET, new HashMap<>(), header);
 
-            if (response == null) {
-                return null;
-            }
-            JsonArray data = response.getAsJsonArray(DS_RESPONSE_DATA);
-            Map<Long, String> processDef = new HashMap<>();
+            Map<Long, String> processDef =
+                    StreamSupport.stream(response.get(DS_RESPONSE_DATA).getAsJsonArray().spliterator(), false)
+                            .map(JsonElement::getAsJsonObject)
+                            .collect(Collectors.toMap(
+                                    jsonObject -> jsonObject.get(DS_CODE).getAsLong(),
+                                    jsonObject -> jsonObject.get(DS_PROCESS_NAME).getAsString()));
 
-            for (JsonElement processDefInfo : data) {
-                processDef.put(processDefInfo.getAsJsonObject().get(DS_CODE).getAsLong(),
-                        processDefInfo.getAsJsonObject().get(DS_PROCESS_NAME).getAsString());
-            }
             LOGGER.info("Query all process definition success, processes info: {}", processDef);
             return processDef;
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in query process definition: ", e);
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during query all process definition", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in query process definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error querying all process definitions at URL: %s", url), e);
+
+        } catch (DolphinScheduleException e) {
+            LOGGER.info("Query all process definition failed: {}", e.getMessage());
+            throw new DolphinScheduleException(
+                    PROCESS_DEFINITION_QUERY_FAILED,
+                    String.format("Error querying all process definitions at URL: %s", url), e);
         }
+
     }
 
     /**
@@ -222,25 +249,31 @@ public class DolphinScheduleUtils {
      * @param token The authentication token to be used in the request header.
      * @return The task code (ID) if generation is successful, or 0 if an error occurs.
      */
-    public long genTaskCode(String url, String token) {
-        Map<String, String> header = buildHeader(token);
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(DS_TASK_GEN_NUM, DS_DEFAULT_TASK_GEN_NUM);
+    public static long genTaskCode(String url, String token) {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_GET, queryParams, header);
+            Map<String, String> header = buildHeader(token);
 
-            if (response == null) {
-                return 0;
-            }
-            JsonArray data = response.getAsJsonArray(DS_RESPONSE_DATA);
-            if (data != null && data.size() == 1) {
-                return data.get(0).getAsLong();
-            }
-            return 0;
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in generating task code: ", e);
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put(DS_TASK_GEN_NUM, DS_DEFAULT_TASK_GEN_NUM);
+
+            JsonObject response = executeHttpRequest(url, GET, queryParams, header);
+
+            JsonArray data = response.get(DS_RESPONSE_DATA).getAsJsonArray();
+
+            LOGGER.info("Generate task code success, task code data: {}", data);
+            return data != null && data.size() == 1 ? data.get(0).getAsLong() : 0;
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during generate task code", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in generating task code: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error generate task code at URL: %s", url), e);
+
+        } catch (DolphinScheduleException e) {
+            LOGGER.info("generate task code failed: {}", e.getMessage());
+            throw new DolphinScheduleException(
+                    GEN_TASK_CODE_FAILED,
+                    String.format("Error generate task code at URL: %s", url), e);
         }
     }
 
@@ -260,44 +293,50 @@ public class DolphinScheduleUtils {
      * @param groupId     The group ID of the process.
      * @return The process definition code (ID) if creation is successful, or 0 if an error occurs.
      */
-    public long createProcessDef(String url, String token, String name, String desc, long taskCode, String host,
-            int port, String username, String password, long offset, String groupId) throws JsonProcessingException {
-        Map<String, String> header = buildHeader(token);
-
-        DSTaskRelation taskRelation = new DSTaskRelation();
-        taskRelation.setPostTaskCode(taskCode);
-        String taskRelationJson = objectMapper.writeValueAsString(Collections.singletonList(taskRelation));
-
-        DSTaskParams taskParams = new DSTaskParams();
-        taskParams.setRawScript(buildScript(host, port, username, password, offset, groupId));
-
-        DSTaskDefinition taskDefinition = new DSTaskDefinition();
-        taskDefinition.setCode(taskCode);
-        taskDefinition.setName(DS_DEFAULT_TASK_NAME);
-        taskDefinition.setDescription(DS_DEFAULT_TASK_DESC);
-        taskDefinition.setTaskParams(taskParams);
-        String taskDefinitionJson = objectMapper.writeValueAsString(Collections.singletonList(taskDefinition));
-
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(DS_TASK_RELATION, taskRelationJson);
-        queryParams.put(DS_TASK_DEFINITION, taskDefinitionJson);
-        queryParams.put(DS_PROCESS_NAME, name);
-        queryParams.put(DS_PROCESS_DESC, desc);
-
+    public static long createProcessDef(String url, String token, String name, String desc,
+            long taskCode, String host,
+            int port, String username, String password, long offset, String groupId) throws Exception {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_POST, queryParams, header);
+            Map<String, String> header = buildHeader(token);
 
-            if (response != null) {
-                JsonObject data = response.getAsJsonObject(DS_RESPONSE_DATA);
-                if (data != null) {
-                    return data.get(DS_CODE).getAsLong();
-                }
-            }
-            return 0;
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating process definition: ", e);
+            DSTaskRelation taskRelation = new DSTaskRelation();
+            taskRelation.setPostTaskCode(taskCode);
+            String taskRelationJson = MAPPER.writeValueAsString(Collections.singletonList(taskRelation));
+
+            DSTaskParams taskParams = new DSTaskParams();
+            taskParams.setRawScript(buildScript(host, port, username, password, offset, groupId));
+
+            DSTaskDefinition taskDefinition = new DSTaskDefinition();
+            taskDefinition.setCode(taskCode);
+            taskDefinition.setName(DS_DEFAULT_TASK_NAME);
+            taskDefinition.setDescription(DS_DEFAULT_TASK_DESC);
+            taskDefinition.setTaskParams(taskParams);
+            String taskDefinitionJson = MAPPER.writeValueAsString(Collections.singletonList(taskDefinition));
+
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put(DS_TASK_RELATION, taskRelationJson);
+            queryParams.put(DS_TASK_DEFINITION, taskDefinitionJson);
+            queryParams.put(DS_PROCESS_NAME, name);
+            queryParams.put(DS_PROCESS_DESC, desc);
+
+            JsonObject data = executeHttpRequest(url, POST, queryParams, header);
+
+            LOGGER.info("create process definition success, process definition data: {}", data);
+            return data != null ? data.get(DS_RESPONSE_DATA).getAsJsonObject().get(DS_CODE).getAsLong() : 0;
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during creating process definition", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in creating process definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error creating process definition with name: %s and description: %s at URL: %s",
+                            name, desc, url),
+                    e);
+
+        } catch (DolphinScheduleException e) {
+            throw new DolphinScheduleException(
+                    PROCESS_DEFINITION_CREATION_FAILED,
+                    String.format("Error creating process definition with name: %s and description: %s at URL: %s",
+                            name, desc, url),
+                    e);
         }
     }
 
@@ -310,22 +349,34 @@ public class DolphinScheduleUtils {
      * @param status         The status to set for the process definition (e.g., "online" or "offline").
      * @return true if the process definition was successfully released, false otherwise.
      */
-    public boolean releaseProcessDef(String processDefUrl, long processDefCode, String token, String status) {
-        String url = processDefUrl + "/" + processDefCode + DS_RELEASE_URL;
-        Map<String, String> header = buildHeader(token);
-        Map<String, String> queryParam = new HashMap<>();
-        queryParam.put(DS_RELEASE_STATE, status);
-
+    public static boolean releaseProcessDef(String processDefUrl, long processDefCode,
+            String token, String status) {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_POST, queryParam, header);
-            if (response != null && !response.get(DS_RESPONSE_DATA).isJsonNull()) {
-                return response.get(DS_RESPONSE_DATA).getAsBoolean();
-            }
-            return false;
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in release process definition: ", e);
+            String url = processDefUrl + "/" + processDefCode + DS_RELEASE_URL;
+            Map<String, String> header = buildHeader(token);
+
+            Map<String, String> queryParam = new HashMap<>();
+            queryParam.put(DS_RELEASE_STATE, status);
+
+            JsonObject response = executeHttpRequest(url, POST, queryParam, header);
+            LOGGER.info("release process definition success, response data: {}", response);
+
+            return response.get(DS_RESPONSE_DATA).getAsBoolean();
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during releasing process definition", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in release process definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error releasing process definition with code: %d and status: %s at URL: %s",
+                            processDefCode, status, processDefUrl),
+                    e);
+
+        } catch (DolphinScheduleException e) {
+            throw new DolphinScheduleException(
+                    PROCESS_DEFINITION_RELEASE_FAILED,
+                    String.format("Error releasing process definition with code: %d and status: %s at URL: %s",
+                            processDefCode, status, processDefUrl),
+                    e);
         }
     }
 
@@ -338,52 +389,65 @@ public class DolphinScheduleUtils {
      * @param scheduleInfo    The schedule info
      * @return The schedule id
      */
-    public int createScheduleForProcessDef(String url, long processDefCode, String token, ScheduleInfo scheduleInfo)
-            throws JsonProcessingException {
-        Map<String, String> header = buildHeader(token);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DS_DEFAULT_SCHEDULE_TIME_FORMAT);
-        String startTime = scheduleInfo.getStartTime().toLocalDateTime()
-                .atZone(ZoneId.of(DS_DEFAULT_TIMEZONE_ID)).format(formatter);
-        String endTime = scheduleInfo.getEndTime().toLocalDateTime()
-                .atZone(ZoneId.of(DS_DEFAULT_TIMEZONE_ID)).format(formatter);
-
-        String crontab;
-        if (scheduleInfo.getScheduleType() == 0) {
-            crontab = generateCrontabExpression(scheduleInfo.getScheduleUnit(), scheduleInfo.getScheduleInterval());
-        } else if (scheduleInfo.getScheduleType() == 1) {
-            crontab = scheduleInfo.getCrontabExpression();
-        } else {
-            LOGGER.error("Unsupported schedule type: {}", scheduleInfo.getScheduleType());
-            throw new DolphinScheduleException("Unsupported schedule type: " + scheduleInfo.getScheduleType());
-        }
-
-        DScheduleInfo dScheduleInfo = new DScheduleInfo();
-        dScheduleInfo.setStartTime(startTime);
-        dScheduleInfo.setEndTime(endTime);
-        dScheduleInfo.setCrontab(crontab);
-        dScheduleInfo.setTimezoneId(DS_DEFAULT_TIMEZONE_ID);
-        String scheduleDef = objectMapper.writeValueAsString(dScheduleInfo);
-
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(DS_PROCESS_CODE, String.valueOf(processDefCode));
-        queryParams.put(DS_SCHEDULE_DEF, scheduleDef);
+    public static int createScheduleForProcessDef(String url, long processDefCode,
+            String token, ScheduleInfo scheduleInfo) throws Exception {
 
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_POST, queryParams, header);
-            if (response == null) {
-                return 0;
+            Map<String, String> header = buildHeader(token);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DS_DEFAULT_SCHEDULE_TIME_FORMAT);
+            String startTime = scheduleInfo.getStartTime().toLocalDateTime()
+                    .atZone(ZoneId.of(DS_DEFAULT_TIMEZONE_ID)).format(formatter);
+            String endTime = scheduleInfo.getEndTime().toLocalDateTime()
+                    .atZone(ZoneId.of(DS_DEFAULT_TIMEZONE_ID)).format(formatter);
+
+            String crontab;
+            switch (scheduleInfo.getScheduleType()) {
+                case 0:
+                    crontab = generateCrontabExpression(scheduleInfo.getScheduleUnit(),
+                            scheduleInfo.getScheduleInterval());
+                    break;
+
+                case 1:
+                    crontab = scheduleInfo.getCrontabExpression();
+                    break;
+
+                default:
+                    LOGGER.error("Unsupported schedule type: {}", scheduleInfo.getScheduleType());
+                    throw new DolphinScheduleException("Unsupported schedule type: " + scheduleInfo.getScheduleType());
             }
-            JsonObject data = response.get(DS_RESPONSE_DATA).getAsJsonObject();
-            if (data != null) {
-                return data.get(DS_ID).getAsInt();
-            }
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in creating schedule for process definition: ", e);
+
+            DScheduleInfo dScheduleInfo = new DScheduleInfo();
+            dScheduleInfo.setStartTime(startTime);
+            dScheduleInfo.setEndTime(endTime);
+            dScheduleInfo.setCrontab(crontab);
+            dScheduleInfo.setTimezoneId(DS_DEFAULT_TIMEZONE_ID);
+            String scheduleDef = MAPPER.writeValueAsString(dScheduleInfo);
+
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put(DS_PROCESS_CODE, String.valueOf(processDefCode));
+            queryParams.put(DS_SCHEDULE_DEF, scheduleDef);
+
+            JsonObject response = executeHttpRequest(url, POST, queryParams, header);
+            LOGGER.info("create schedule for process definition success, response data: {}", response);
+
+            return response.get(DS_RESPONSE_DATA).getAsJsonObject().get(DS_ID).getAsInt();
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during releasing process definition", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in creating schedule for process definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error creating schedule for process definition code: %d at URL: %s",
+                            processDefCode, url),
+                    e);
+
+        } catch (DolphinScheduleException e) {
+            throw new DolphinScheduleException(
+                    SCHEDULE_CREATION_FAILED,
+                    String.format("Error creating schedule for process definition code: %d at URL: %s",
+                            processDefCode, url),
+                    e);
         }
-        return 0;
     }
 
     /**
@@ -394,57 +458,59 @@ public class DolphinScheduleUtils {
      * @param token          The authentication token to be used in the request header.
      * @return whether online is succeeded
      */
-    public boolean onlineScheduleForProcessDef(String scheduleUrl, int scheduleId, String token) {
-        Map<String, String> header = buildHeader(token);
-        String url = scheduleUrl + "/" + scheduleId + DS_ONLINE_URL;
+    public static boolean onlineScheduleForProcessDef(String scheduleUrl, int scheduleId,
+            String token) {
         try {
-            JsonObject response = executeHttpRequest(url, HTTP_POST, new HashMap<>(), header);
+            Map<String, String> header = buildHeader(token);
+
+            String url = scheduleUrl + "/" + scheduleId + DS_ONLINE_URL;
+            JsonObject response = executeHttpRequest(url, POST, new HashMap<>(), header);
+            LOGGER.info("online schedule for process definition success, response data: {}", response);
+
             if (response != null && !response.get(DS_RESPONSE_DATA).isJsonNull()) {
                 return response.get(DS_RESPONSE_DATA).getAsBoolean();
             }
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in online process definition: ", e);
+            return false;
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during online schedule", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in online process definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl), e);
+
+        } catch (DolphinScheduleException e) {
+            throw new DolphinScheduleException(
+                    SCHEDULE_ONLINE_FAILED,
+                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl), e);
         }
-        return false;
     }
 
     /**
      * Delete the process definition in DolphinScheduler.
      *
-     * @param processDefUrl The URL to delete the process definition.
+     * @param url The URL to delete the project or process definition.
      * @param token          The authentication token to be used in the request header.
-     * @param processDefCode          The process definition id
+     * @param code          The project code or process definition code
      */
-    public void deleteProcessDef(String processDefUrl, String token, long processDefCode) {
-        Map<String, String> header = buildHeader(token);
-        String url = processDefUrl + "/" + processDefCode;
+    public static void delete(String url, String token, long code) {
         try {
-            executeHttpRequest(url, HTTP_DELETE, new HashMap<>(), header);
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in deleting process definition: ", e);
-            throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in deleting process definition: %s", e.getMessage()));
-        }
-    }
+            Map<String, String> header = buildHeader(token);
 
-    /**
-     * Delete the project by project code in DolphinScheduler.
-     *
-     * @param projectBaseUrl The URL to delete project
-     * @param token          The authentication token to be used in the request header.
-     * @param projectCode          The project code
-     */
-    public void deleteProject(String projectBaseUrl, String token, long projectCode) {
-        Map<String, String> header = buildHeader(token);
-        String url = projectBaseUrl + "/" + projectCode;
-        try {
-            executeHttpRequest(url, HTTP_DELETE, new HashMap<>(), header);
-        } catch (IOException e) {
-            LOGGER.error("Unexpected wrong in deleting project definition: ", e);
+            String requestUrl = url + "/" + code;
+
+            JsonObject response = executeHttpRequest(requestUrl, DELETE, new HashMap<>(), header);
+            LOGGER.info("delete process or project success, response data: {}", response);
+
+        } catch (JsonParseException e) {
+            LOGGER.error("JsonParseException during deleting process or project", e);
             throw new DolphinScheduleException(
-                    String.format("Unexpected wrong in deleting project definition: %s", e.getMessage()));
+                    JSON_PARSE_ERROR,
+                    String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);
+
+        } catch (DolphinScheduleException e) {
+            throw new DolphinScheduleException(
+                    DELETION_FAILED,
+                    String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);
         }
     }
 
@@ -454,9 +520,11 @@ public class DolphinScheduleUtils {
      * @param token The authentication token for the request.
      * @return A map representing the headers of the HTTP request.
      */
-    private Map<String, String> buildHeader(String token) {
+    private static Map<String, String> buildHeader(String token) {
         Map<String, String> headers = new HashMap<>();
-        headers.put(DS_TOKEN, token);
+        if (StringUtils.isNotEmpty(token)) {
+            headers.put(DS_TOKEN, token);
+        }
         return headers;
     }
 
@@ -467,7 +535,7 @@ public class DolphinScheduleUtils {
      * @param searchVal The value to search for.
      * @return A map containing the necessary query parameters.
      */
-    private Map<String, String> buildPageParam(String searchVal) {
+    private static Map<String, String> buildPageParam(String searchVal) {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put(DS_SEARCH_VAL, searchVal);
         queryParams.put(DS_PAGE_SIZE, DS_DEFAULT_PAGE_SIZE);
@@ -476,74 +544,12 @@ public class DolphinScheduleUtils {
     }
 
     /**
-     * Executes an HTTP request using OkHttp. Supports various HTTP methods (GET, POST, PUT, DELETE).
-     *
-     * @param url         The URL of the request.
-     * @param method      The HTTP method (GET, POST, PUT, DELETE).
-     * @param queryParams The query parameters for the request (optional).
-     * @param headers     The headers for the request.
-     * @return A JsonObject containing the response from the server.
-     * @throws IOException If an I/O error occurs during the request.
-     */
-    @VisibleForTesting
-    private JsonObject executeHttpRequest(String url, String method, Map<String, String> queryParams,
-            Map<String, String> headers) throws IOException {
-        // build param
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
-
-        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            urlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
-        }
-        HttpUrl httpUrl = urlBuilder.build();
-
-        // build request
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(httpUrl);
-
-        // add header
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        RequestBody body = RequestBody.create(MediaType.parse(CONTENT_TYPE), "");
-        // handle request method
-        switch (method.toUpperCase()) {
-            case HTTP_POST:
-                requestBuilder.post(body);
-                break;
-            case HTTP_GET:
-                requestBuilder.get();
-                break;
-            case HTTP_PUT:
-                requestBuilder.put(body);
-                break;
-            case HTTP_DELETE:
-                requestBuilder.delete(body);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported request method: " + method);
-        }
-
-        Request request = requestBuilder.build();
-
-        // get response
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful() && response.body() != null) {
-                String responseBody = response.body().string();
-                return JsonParser.parseString(responseBody).getAsJsonObject();
-            } else {
-                LOGGER.error("Unexpected http response code: {}", response);
-                throw new DolphinScheduleException("Unexpected http response code " + response);
-            }
-        }
-    }
-
-    /**
      * Calculate the offset according to schedule info
      *
      * @param scheduleInfo The schedule info
      * @return timestamp between two schedule task
      */
-    public long calculateOffset(ScheduleInfo scheduleInfo) {
+    public static long calculateOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo == null) {
             LOGGER.error("ScheduleInfo cannot be null");
             throw new DolphinScheduleException("ScheduleInfo cannot be null");
@@ -566,7 +572,8 @@ public class DolphinScheduleUtils {
                 break;
             default:
                 LOGGER.error("Invalid schedule type");
-                throw new DolphinScheduleException("Invalid schedule type");
+                throw new DolphinScheduleException(
+                        UNSUPPORTED_SCHEDULE_TYPE, "Invalid schedule type");
         }
 
         // Add delay time if specified
@@ -577,7 +584,7 @@ public class DolphinScheduleUtils {
         return offset;
     }
 
-    private long calculateNormalOffset(ScheduleInfo scheduleInfo) {
+    private static long calculateNormalOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo.getScheduleInterval() == null || scheduleInfo.getScheduleUnit() == null) {
             LOGGER.error("Schedule interval and unit cannot be null for normal scheduling");
             throw new IllegalArgumentException("Schedule interval and unit cannot be null for normal scheduling");
@@ -605,7 +612,7 @@ public class DolphinScheduleUtils {
         }
     }
 
-    private long calculateCronOffset(ScheduleInfo scheduleInfo) {
+    private static long calculateCronOffset(ScheduleInfo scheduleInfo) {
         if (scheduleInfo.getCrontabExpression() == null) {
             LOGGER.error("Crontab expression cannot be null for schedule type crontab");
             throw new DolphinScheduleException("Crontab expression cannot be null for schedule type crontab");
@@ -629,7 +636,7 @@ public class DolphinScheduleUtils {
         }
     }
 
-    private String generateCrontabExpression(String scheduleUnit, Integer scheduleInterval) {
+    private static String generateCrontabExpression(String scheduleUnit, Integer scheduleInterval) {
         if (scheduleUnit.isEmpty()) {
             LOGGER.error("Schedule unit and interval must not be null for generating crontab expression");
             throw new DolphinScheduleException(
@@ -668,11 +675,84 @@ public class DolphinScheduleUtils {
     }
 
     /**
+     * Executes an HTTP request using OkHttp. Supports various HTTP methods (GET, POST, PUT, DELETE).
+     *
+     * @param url         The URL of the request.
+     * @param method      The HTTP method (GET, POST, PUT, DELETE).
+     * @param queryParams The query parameters for the request (optional).
+     * @param headers     The headers for the request.
+     * @return A JsonObject containing the response from the server.
+     * @throws DolphinScheduleException If an error occurs during the request.
+     */
+    private static JsonObject executeHttpRequest(String url, String method, Map<String, String> queryParams,
+            Map<String, String> headers) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
+
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            urlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+        }
+        HttpUrl httpUrl = urlBuilder.build();
+
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(httpUrl);
+
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        }
+        RequestBody body = RequestBody.create(MediaType.parse(CONTENT_TYPE), "");
+
+        switch (method.toUpperCase()) {
+            case POST:
+                requestBuilder.post(body);
+                break;
+            case GET:
+                requestBuilder.get();
+                break;
+            case DELETE:
+                requestBuilder.delete(body);
+                break;
+            default:
+                throw new DolphinScheduleException(INVALID_HTTP_METHOD,
+                        String.format("Unsupported request method: %s", method));
+        }
+
+        Request request = requestBuilder.build();
+
+        // get response
+        try (Response response = CLIENT.newCall(request).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : null;
+            LOGGER.debug("HTTP request to {} completed with status code {}", httpUrl, response.code());
+
+            if (response.isSuccessful() && responseBody != null) {
+                return JsonParser.parseString(responseBody).getAsJsonObject();
+            } else {
+                LOGGER.error("HTTP request to {} failed. HTTP Status: {}, Response Body: {}", httpUrl, response.code(),
+                        responseBody != null ? responseBody : "No response body");
+
+                throw new DolphinScheduleException(
+                        HTTP_REQUEST_FAILED,
+                        String.format("HTTP request to %s failed. Status: %d, Response: %s",
+                                httpUrl, response.code(), responseBody != null ? responseBody : "No response body"));
+            }
+        } catch (IOException e) {
+            throw new DolphinScheduleException(
+                    NETWORK_ERROR,
+                    String.format("Network error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()), e);
+        } catch (Exception e) {
+            throw new DolphinScheduleException(
+                    UNEXPECTED_ERROR,
+                    String.format("Unexpected error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()),
+                    e);
+        }
+    }
+
+    /**
      * Shell node in DolphinScheduler need to write in a script
      * When process definition schedule run, the shell node run,
      * Call back in inlong, sending a request with parameters required
      */
-    private String buildScript(String host, int port, String username, String password, long offset, String groupId) {
+    private static String buildScript(String host, int port, String username, String password, long offset,
+            String groupId) {
         LOGGER.info("build script for host: {}, port: {}, username: {}, password: {}, offset: {}, groupId: {}", host,
                 port, username, password, offset, groupId);
         return "#!/bin/bash\n\n" +
@@ -691,7 +771,7 @@ public class DolphinScheduleUtils {
                 "echo \"get url: ${url}\"\n" +
 
                 // Set HTTP method
-                "httpMethod=\"" + HTTP_POST + "\"\n\n" +
+                "httpMethod=\"POST\"\n\n" +
 
                 // Set request body
                 "# Build request body\n" +

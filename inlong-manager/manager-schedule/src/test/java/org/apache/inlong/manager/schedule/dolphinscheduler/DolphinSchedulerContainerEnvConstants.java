@@ -19,19 +19,13 @@ package org.apache.inlong.manager.schedule.dolphinscheduler;
 
 public class DolphinSchedulerContainerEnvConstants {
 
-    // DS-inlong test related constants
-    protected static final String INLONG_DS_TEST_ADDRESS = "127.0.0.1";
-    protected static final int INLONG_DS_TEST_PORT = 8083;
-    protected static final String INLONG_DS_TEST_USERNAME = "admin";
-    protected static final String INLONG_DS_TEST_PASSWORD = "inlong";
-
     // DS env image related constants
     protected static final String DS_IMAGE_NAME = "apache/dolphinscheduler-standalone-server";
     protected static final String DS_IMAGE_TAG = "3.2.2";
+    protected static final String INTER_CONTAINER_DS_ALIAS = "dolphinscheduler";
 
     // DS env url related constants
-    protected static final String HTTP_BASE_URL = "http://";
-    protected static final String DS_BASE_URL = "/dolphinscheduler";
+    protected static final String DS_DEFAULT_SERVICE_URL = "http://127.0.0.1:12345/dolphinscheduler";
     protected static final String DS_LOGIN_URL = "/login";
     protected static final String DS_TOKEN_URL = "/access-tokens";
     protected static final String DS_TOKEN_GEN_URL = "/generate";

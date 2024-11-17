@@ -24,30 +24,44 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Timeout;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INLONG_DS_TEST_ADDRESS;
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INLONG_DS_TEST_PASSWORD;
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INLONG_DS_TEST_PORT;
-import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedulerContainerEnvConstants.INLONG_DS_TEST_USERNAME;
+import javax.annotation.Resource;
+
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+@SpringBootTest(classes = DolphinScheduleEngineTest.class)
+@ComponentScan(basePackages = "org.apache.inlong.manager")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DolphinScheduleEngineTest extends DolphinScheduleContainerTestEnv {
 
-    private static DolphinScheduleEngine dolphinScheduleEngine;
+    @Resource
+    private DolphinScheduleEngine dolphinScheduleEngine;
 
     @BeforeAll
-    public static void initDolphinSchedulerEngine() throws Exception {
-        envSetUp();
+    public void beforeAll() {
+        dolphinSchedulerContainer.setPortBindings(Arrays.asList("12345:12345", "25333:25333"));
+        dolphinSchedulerContainer.start();
         assertTrue(dolphinSchedulerContainer.isRunning(), "DolphinScheduler container should be running");
 
-        dolphinScheduleEngine = new DolphinScheduleEngine(INLONG_DS_TEST_ADDRESS, INLONG_DS_TEST_PORT,
-                INLONG_DS_TEST_USERNAME, INLONG_DS_TEST_PASSWORD, DS_URL, DS_TOKEN);
-
+        String token = accessToken();
+        dolphinScheduleEngine.setToken(token);
         dolphinScheduleEngine.start();
+    }
+
+    @AfterAll
+    public void afterAll() {
+        dolphinScheduleEngine.stop();
+        if (dolphinSchedulerContainer != null) {
+            dolphinSchedulerContainer.stop();
+        }
     }
 
     @Test
@@ -109,11 +123,5 @@ public class DolphinScheduleEngineTest extends DolphinScheduleContainerTestEnv {
         // register schedule info
         dolphinScheduleEngine.handleUpdate(scheduleInfo);
         assertEquals(1, dolphinScheduleEngine.getScheduledProcessMap().size());
-    }
-
-    @AfterAll
-    public static void testStopEngine() {
-        dolphinScheduleEngine.stop();
-        envShutDown();
     }
 }
