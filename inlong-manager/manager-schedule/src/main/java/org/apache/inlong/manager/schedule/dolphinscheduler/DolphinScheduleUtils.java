@@ -159,7 +159,7 @@ public class DolphinScheduleUtils {
         } catch (DolphinScheduleException e) {
             LOGGER.error("DolphinScheduleException during unique ID check: {}", e.getDetailedMessage(), e);
             throw new DolphinScheduleException(UNIQUE_CHECK_FAILED,
-                    String.format("Error checking unique ID for %s at URL: %s", searchVal, url), e);
+                    String.format("Error checking unique ID for %s at URL: %s", searchVal, url));
         }
     }
 
@@ -192,16 +192,14 @@ public class DolphinScheduleUtils {
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
                     String.format("Error creating project with name: %s and description: %s at URL: %s",
-                            projectName, description, url),
-                    e);
+                            projectName, description, url));
 
         } catch (DolphinScheduleException e) {
             LOGGER.error("Creating project failed: {}", e.getMessage());
             throw new DolphinScheduleException(
                     PROJECT_CREATION_FAILED,
                     String.format("Error creating project with name: %s and description: %s at URL: %s",
-                            projectName, description, url),
-                    e);
+                            projectName, description, url));
         }
     }
 
@@ -231,13 +229,13 @@ public class DolphinScheduleUtils {
             LOGGER.error("JsonParseException during query all process definition", e);
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
-                    String.format("Error querying all process definitions at URL: %s", url), e);
+                    String.format("Error querying all process definitions at URL: %s", url));
 
         } catch (DolphinScheduleException e) {
             LOGGER.info("Query all process definition failed: {}", e.getMessage());
             throw new DolphinScheduleException(
                     PROCESS_DEFINITION_QUERY_FAILED,
-                    String.format("Error querying all process definitions at URL: %s", url), e);
+                    String.format("Error querying all process definitions at URL: %s", url));
         }
 
     }
@@ -267,13 +265,13 @@ public class DolphinScheduleUtils {
             LOGGER.error("JsonParseException during generate task code", e);
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
-                    String.format("Error generate task code at URL: %s", url), e);
+                    String.format("Error generate task code at URL: %s", url));
 
         } catch (DolphinScheduleException e) {
             LOGGER.info("generate task code failed: {}", e.getMessage());
             throw new DolphinScheduleException(
                     GEN_TASK_CODE_FAILED,
-                    String.format("Error generate task code at URL: %s", url), e);
+                    String.format("Error generate task code at URL: %s", url));
         }
     }
 
@@ -328,15 +326,13 @@ public class DolphinScheduleUtils {
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
                     String.format("Error creating process definition with name: %s and description: %s at URL: %s",
-                            name, desc, url),
-                    e);
+                            name, desc, url));
 
         } catch (DolphinScheduleException e) {
             throw new DolphinScheduleException(
                     PROCESS_DEFINITION_CREATION_FAILED,
                     String.format("Error creating process definition with name: %s and description: %s at URL: %s",
-                            name, desc, url),
-                    e);
+                            name, desc, url));
         }
     }
 
@@ -368,15 +364,13 @@ public class DolphinScheduleUtils {
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
                     String.format("Error releasing process definition with code: %d and status: %s at URL: %s",
-                            processDefCode, status, processDefUrl),
-                    e);
+                            processDefCode, status, processDefUrl));
 
         } catch (DolphinScheduleException e) {
             throw new DolphinScheduleException(
                     PROCESS_DEFINITION_RELEASE_FAILED,
                     String.format("Error releasing process definition with code: %d and status: %s at URL: %s",
-                            processDefCode, status, processDefUrl),
-                    e);
+                            processDefCode, status, processDefUrl));
         }
     }
 
@@ -438,15 +432,13 @@ public class DolphinScheduleUtils {
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
                     String.format("Error creating schedule for process definition code: %d at URL: %s",
-                            processDefCode, url),
-                    e);
+                            processDefCode, url));
 
         } catch (DolphinScheduleException e) {
             throw new DolphinScheduleException(
                     SCHEDULE_CREATION_FAILED,
                     String.format("Error creating schedule for process definition code: %d at URL: %s",
-                            processDefCode, url),
-                    e);
+                            processDefCode, url));
         }
     }
 
@@ -476,12 +468,12 @@ public class DolphinScheduleUtils {
             LOGGER.error("JsonParseException during online schedule", e);
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
-                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl), e);
+                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl));
 
         } catch (DolphinScheduleException e) {
             throw new DolphinScheduleException(
                     SCHEDULE_ONLINE_FAILED,
-                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl), e);
+                    String.format("Error online schedule with ID: %d online at URL: %s", scheduleId, scheduleUrl));
         }
     }
 
@@ -737,12 +729,11 @@ public class DolphinScheduleUtils {
         } catch (IOException e) {
             throw new DolphinScheduleException(
                     NETWORK_ERROR,
-                    String.format("Network error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()), e);
+                    String.format("Network error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()));
         } catch (Exception e) {
             throw new DolphinScheduleException(
                     UNEXPECTED_ERROR,
-                    String.format("Unexpected error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()),
-                    e);
+                    String.format("Unexpected error during HTTP request to %s. Reason: %s", httpUrl, e.getMessage()));
         }
     }
 
