@@ -10,7 +10,7 @@ CREATE TABLE test_input1 (
     'password' = 'inlong',
     'database-name' = 'test',
     'table-name' = 'test_input1',
-    'scan.incremental.snapshot.enabled' = 'false',
+    'scan.incremental.snapshot.enabled' = 'true',
     'jdbc.properties.useSSL' = 'false',
     'jdbc.properties.allowPublicKeyRetrieval' = 'true'
     );

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.tests;
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE8;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.MySqlContainer;
+import org.apache.inlong.sort.tests.utils.OpenTelemetryContainer;
 import org.apache.inlong.sort.tests.utils.PlaceholderResolver;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
@@ -34,6 +35,7 @@ import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 import java.io.IOException;
 import java.net.URI;
@@ -111,6 +113,15 @@ public class Kafka2StarRocksTest extends FlinkContainerTestEnvJRE8 {
                     .withNetworkAliases("mysql")
                     .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
 
+    @ClassRule
+    public static final OpenTelemetryContainer OPEN_TELEMETRY_CONTAINER =
+            (OpenTelemetryContainer) new OpenTelemetryContainer()
+                    .withCopyFileToContainer(MountableFile.forClasspathResource("/env/otel-config.yaml"),
+                            "/otel-config.yaml")
+                    .withCommand("--config=/otel-config.yaml")
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("logcollector");
+
     @Before
     public void setup() {
         waitUntilJobRunning(Duration.ofSeconds(30));
@@ -151,6 +162,10 @@ public class Kafka2StarRocksTest extends FlinkContainerTestEnvJRE8 {
 
         if (STAR_ROCKS != null) {
             STAR_ROCKS.stop();
+        }
+
+        if (OPEN_TELEMETRY_CONTAINER != null) {
+            OPEN_TELEMETRY_CONTAINER.stop();
         }
     }
 
@@ -223,5 +238,10 @@ public class Kafka2StarRocksTest extends FlinkContainerTestEnvJRE8 {
                 "test_output1",
                 3,
                 60000L);
+        // check log appender
+        String logs = OPEN_TELEMETRY_CONTAINER.getLogs();
+        if (!logs.contains("OpenTelemetryLogger installed")) {
+            throw new Exception("Failure to append logs to OpenTelemetry");
+        }
     }
 }
