@@ -68,10 +68,10 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Value("${default.admin.password:inlong}")
     private String password;
 
-    @Value("${inlong.schedule.dolphinscheduler.url:http://127.0.0.1:12345/dolphinscheduler}")
+    @Value("${schedule.engine.dolphinscheduler.url:http://127.0.0.1:12345/dolphinscheduler}")
     private String dolphinUrl;
 
-    @Value("${inlong.schedule.dolphinscheduler.token:default_token_value}")
+    @Value("${schedule.engine.dolphinscheduler.token:default_token_value}")
     private String token;
 
     @Resource
