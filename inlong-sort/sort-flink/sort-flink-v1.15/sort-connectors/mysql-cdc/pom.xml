@@ -95,6 +95,8 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
+                                    <include>io.opentelemetry*</include>
+                                    <include>com.squareup.*</include>
                                     <include>org.apache.inlong:*</include>
                                     <include>io.debezium:debezium-api</include>
                                     <include>io.debezium:debezium-embedded</include>
