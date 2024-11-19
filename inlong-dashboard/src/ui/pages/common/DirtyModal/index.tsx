@@ -39,11 +39,6 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
   const [loading, setLoading] = useState(false);
   const getColumns = [
     {
-      title: i18n.t('meta.Sinks.DirtyData.TdbankImpDate'),
-      dataIndex: 'tdbankImpDate',
-      width: 90,
-    },
-    {
       title: i18n.t('meta.Sinks.DirtyData.DataFlowId'),
       dataIndex: 'dataFlowId',
       width: 90,
@@ -66,6 +61,11 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     {
       title: i18n.t('meta.Sinks.DirtyData.DataTime'),
       dataIndex: 'dataTime',
+      width: 90,
+    },
+    {
+      title: i18n.t('meta.Sinks.DirtyData.TdbankImpDate'),
+      dataIndex: 'tdbankImpDate',
       width: 90,
     },
     {
@@ -225,8 +225,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
 
   const getDetailFilterFormContent = defaultValues => [
     {
-      type: 'inputsearch',
-      name: 'keyword',
+      type: 'input',
+      label: 'keyword',
       initialValue: defaultValues.keyword,
       props: {
         placeholder: i18n.t('meta.Sinks.DirtyData.Search.KeyWord'),
@@ -368,10 +368,6 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       name: 'serverType',
       props: {
         options: [
-          {
-            label: 'Undefined',
-            value: 'Undefined',
-          },
           {
             label: 'TubeMQ',
             value: 'TubeMQ',
