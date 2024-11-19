@@ -64,11 +64,6 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       width: 90,
     },
     {
-      title: i18n.t('meta.Sinks.DirtyData.TdbankImpDate'),
-      dataIndex: 'tdbankImpDate',
-      width: 90,
-    },
-    {
       title: i18n.t('meta.Sinks.DirtyData.ServerType'),
       dataIndex: 'serverType',
       width: 90,
@@ -91,6 +86,11 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     {
       title: i18n.t('meta.Sinks.DirtyData.DirtyData'),
       dataIndex: 'dirtyData',
+      width: 90,
+    },
+    {
+      title: i18n.t('meta.Sinks.DirtyData.TdbankImpDate'),
+      dataIndex: 'tdbankImpDate',
       width: 90,
     },
   ];
