@@ -100,6 +100,9 @@ public abstract class SinkRequest {
     @Range(min = 0, max = 1, message = "default is 1, only supports [0: disable, 1: enable]")
     private Integer enableCreateResource = 1;
 
+    @ApiModelProperty("Enable data archiving")
+    private Boolean enableDataArchiving;
+
     @ApiModelProperty(value = "Whether to start the process after saving or updating. Default is false")
     private Boolean startProcess = false;
 
