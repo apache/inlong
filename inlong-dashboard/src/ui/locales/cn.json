@@ -1027,7 +1027,7 @@
   "meta.Sinks.DirtyData.GroupId": "数据组Id",
   "meta.Sinks.DirtyData.StreamId": "数据流Id",
   "meta.Sinks.DirtyData.ReportTime": "上报时间",
-  "meta.Sinks.DirtyData.DataTime": "处理时间",
+  "meta.Sinks.DirtyData.DataTime": "数据时间",
   "meta.Sinks.DirtyData.ServerType": "服务类型",
   "meta.Sinks.DirtyData.DirtyType": "脏数据类型",
   "meta.Sinks.DirtyData.DirtyMessage": "脏消息",
@@ -1050,5 +1050,6 @@
   "meta.Sinks.DirtyData.DirtyType.DeserializeError":"反序列化错误",
   "meta.Sinks.DirtyData.DirtyType.FieldMappingError":"字段映射错误",
   "meta.Sinks.DirtyData.DirtyType.LoadError":"加载错误",
-  "meta.Sinks.DirtyData.Search.KeyWord":"请输入关键字"
+  "meta.Sinks.DirtyData.Search.KeyWordHelp":"请输入关键字",
+  "meta.Sinks.DirtyData.Search.KeyWord":"关键字"
 }

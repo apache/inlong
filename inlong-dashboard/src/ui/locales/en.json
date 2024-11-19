@@ -1051,5 +1051,6 @@
   "meta.Sinks.DirtyData.DirtyType.DeserializeError":"DeserializeError",
   "meta.Sinks.DirtyData.DirtyType.FieldMappingError":"FieldMappingError",
   "meta.Sinks.DirtyData.DirtyType.LoadError":"LoadError",
-  "meta.Sinks.DirtyData.Search.KeyWord":"Please enter a keyword"
+  "meta.Sinks.DirtyData.Search.KeyWordHelp":"Please enter a keyword",
+  "meta.Sinks.DirtyData.Search.KeyWord":"KeyWord"
 }
