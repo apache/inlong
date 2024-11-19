@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.task.file;
 
 import org.apache.inlong.agent.utils.file.FileFinder;
 

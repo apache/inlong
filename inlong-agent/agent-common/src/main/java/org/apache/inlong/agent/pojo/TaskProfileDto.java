@@ -166,8 +166,8 @@ public class TaskProfileDto {
         fileTask.setMaxFileCount(taskConfig.getMaxFileCount());
         fileTask.setRetry(taskConfig.getRetry());
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
-        fileTask.setStartTime(taskConfig.getStartTime());
-        fileTask.setEndTime(taskConfig.getEndTime());
+        fileTask.setDataTimeFrom(taskConfig.getDataTimeFrom());
+        fileTask.setDataTimeTo(taskConfig.getDataTimeTo());
         if (taskConfig.getFilterStreams() != null) {
             fileTask.setFilterStreams(GSON.toJson(taskConfig.getFilterStreams()));
         }

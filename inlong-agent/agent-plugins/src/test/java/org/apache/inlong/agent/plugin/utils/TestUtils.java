@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
-import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
@@ -91,6 +91,8 @@ public class TestUtils {
                 Arrays.asList("/data/log_minute", "minute_YYYYMMDDhh*", "mm.log_[0-9]+"));
         testCutDirectoryByWildcard("/data/123+/YYYYMMDDhhmm.log",
                 Arrays.asList("/data", "123+", "YYYYMMDDhhmm.log"));
+        testCutDirectoryByWildcard("/data/2024112610*/test.log",
+                Arrays.asList("/data", "2024112610*", "test.log"));
 
         /*
          * 1 cut the file name 2 cut the path contains wildcard or date expression
@@ -103,6 +105,20 @@ public class TestUtils {
                 Arrays.asList("/data", "123*/MMDD", "test.log"));
         testCutDirectoryByWildcardAndDateExpression("/data/YYYYMMDD/123*/test.log",
                 Arrays.asList("/data", "YYYYMMDD/123*", "test.log"));
+
+        /*
+         * get the string before the first wildcard
+         */
+        testGetBeforeFirstWildcard("/data/YYYYMM/YYYaaMM/YYYYMMDDhhmm.log",
+                "/data/YYYYMM/YYYaaMM/YYYYMMDDhhmm");
+        testGetBeforeFirstWildcard("/data/123*/MMDD/test.log",
+                "/data/123");
+        testGetBeforeFirstWildcard("/data/YYYYMMDD/123*/test.log",
+                "/data/YYYYMMDD/123");
+        testGetBeforeFirstWildcard("test/65535_YYYYMMDD_hh00.log",
+                "test/65535_YYYYMMDD_hh00");
+        testGetBeforeFirstWildcard("/data/YYYYMMDD/*123/test.log",
+                "/data/YYYYMMDD/");
     }
 
     private void testReplaceDateExpression(String src, String dst) throws ParseException {
@@ -113,12 +129,17 @@ public class TestUtils {
     }
 
     private void testCutDirectoryByWildcard(String src, List<String> dst) {
-        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcard(src);
+        ArrayList<String> directories = PatternUtil.cutDirectoryByWildcard(src);
         Assert.assertEquals(directories, dst);
     }
 
+    private void testGetBeforeFirstWildcard(String src, String dst) {
+        String temp = PatternUtil.getBeforeFirstWildcard(src);
+        Assert.assertEquals(dst, temp);
+    }
+
     private void testCutDirectoryByWildcardAndDateExpression(String src, List<String> dst) {
-        ArrayList<String> directoryLayers = FilePathUtil.cutDirectoryByWildcardAndDateExpression(src);
+        ArrayList<String> directoryLayers = PatternUtil.cutDirectoryByWildcardAndDateExpression(src);
         Assert.assertEquals(directoryLayers, dst);
     }
 

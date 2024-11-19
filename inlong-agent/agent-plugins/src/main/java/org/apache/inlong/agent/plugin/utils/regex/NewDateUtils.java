@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.utils.regex;
 
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.utils.DateTransUtils;
@@ -107,45 +107,6 @@ public class NewDateUtils {
 
         return dateFormat
                 .format(new Date(getDateTime(calendar, cycleUnit, offset).getTimeInMillis()));
-    }
-
-    private static Calendar getCurDate(String cycleUnit, String offset) {
-        if (cycleUnit == null || cycleUnit.length() == 0) {
-            return null;
-        }
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
-        return getDateTime(calendar, cycleUnit, offset);
-    }
-
-    public static String getDateTime(String dataTime, String cycleUnit, String offset) {
-        String retTime = DateTransUtils.millSecConvertToTimeStr(
-                System.currentTimeMillis(), cycleUnit);
-        try {
-            long time = DateTransUtils.timeStrConvertToMillSec(dataTime, cycleUnit);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(time);
-            Calendar retCalendar = getDateTime(calendar, cycleUnit, offset);
-            if (retCalendar == null) {
-                return dataTime;
-            }
-
-            retTime = DateTransUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(),
-                    cycleUnit);
-        } catch (Exception e) {
-            logger.error("getDateTime error: ", e);
-        }
-        return retTime;
-    }
-
-    public static String getDateTime(long time, String cycleUnit, String offset) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        Calendar retCalendar = getDateTime(calendar, cycleUnit, offset);
-        return DateTransUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(), cycleUnit);
     }
 
     private static Calendar getDateTime(Calendar calendar, String cycleUnit, String offset) {

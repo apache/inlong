@@ -75,14 +75,14 @@ public class AgentBaseTestsHelper {
         }
     }
 
-    public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
+    public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, String startTime, String endTime,
             TaskStateEnum state, String timeZone) {
         DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, timeZone);
         TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
         return profile;
     }
 
-    private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
+    private DataConfig getDataConfig(int taskId, String pattern, boolean retry, String startTime, String endTime,
             TaskStateEnum state, String timeZone) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
@@ -98,8 +98,8 @@ public class AgentBaseTestsHelper {
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("h");
         fileTaskConfig.setRetry(retry);
-        fileTaskConfig.setStartTime(startTime);
-        fileTaskConfig.setEndTime(endTime);
+        fileTaskConfig.setDataTimeFrom(startTime);
+        fileTaskConfig.setDataTimeTo(endTime);
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }

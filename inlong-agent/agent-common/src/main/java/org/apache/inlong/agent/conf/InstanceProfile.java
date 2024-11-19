@@ -36,10 +36,10 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.TaskConstants.FILE_TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.INSTANCE_STATE;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_CLUSTERS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_TOPIC;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 
 /**
  * job profile which contains details describing properties of one job.
@@ -200,6 +200,6 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
     }
 
     public boolean isRetry() {
-        return getBoolean(TASK_RETRY, false);
+        return getBoolean(FILE_TASK_RETRY, false);
     }
 }

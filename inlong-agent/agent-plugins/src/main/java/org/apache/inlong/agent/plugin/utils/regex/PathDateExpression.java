@@ -15,41 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.utils.regex;
 
-public class MatchPoint {
+/* The date expression in the file path. */
+public class PathDateExpression {
 
-    String str;
-    int start;
-    int end;
+    /* The longest date time expression in the file path, used to represent the task cycle unit. */
+    private final String longestDatePattern;
+    /* Represent whether there exists regex pattern before and after the longest date pattern. */
+    private final NonRegexPatternPosition patternPosition;
 
-    MatchPoint(String str1, int start1, int end1) {
-        this.str = str1;
-        this.start = start1;
-        this.end = end1;
+    public PathDateExpression(String longestDatePattern, NonRegexPatternPosition patternPosition) {
+        this.longestDatePattern = longestDatePattern;
+        this.patternPosition = patternPosition;
     }
 
-    public String getStr() {
-        return str;
+    public String getLongestDatePattern() {
+        return longestDatePattern;
     }
 
-    public void setStr(String str1) {
-        str = str1;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start1) {
-        start = start1;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end1) {
-        end = end1;
+    public NonRegexPatternPosition getPatternPosition() {
+        return patternPosition;
     }
 }
