@@ -25,12 +25,18 @@ import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.DirtyDataDetailResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataRequest;
+import org.apache.inlong.manager.pojo.sink.DirtyDataResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataTrendDetailResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataTrendRequest;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.service.dirtyData.DirtyQueryLogService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
@@ -60,6 +66,8 @@ public class StreamSinkController {
 
     @Autowired
     private StreamSinkService sinkService;
+    @Autowired
+    private DirtyQueryLogService dirtyQueryLogService;
 
     @RequestMapping(value = "/sink/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SINK)
@@ -141,6 +149,36 @@ public class StreamSinkController {
     @ApiOperation(value = "parse stream sink fields from statement")
     public Response<List<SinkField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
         return Response.success(sinkService.parseFields(parseFieldRequest));
+    }
+
+    @RequestMapping(value = "/sink/listDirtyData", method = RequestMethod.POST)
+    @ApiOperation(value = "List stream sinks by paginating")
+    public Response<DirtyDataResponse> listDirtyData(@RequestBody DirtyDataRequest request) {
+        return Response.success(dirtyQueryLogService.listDirtyData(request));
+    }
+
+    @RequestMapping(value = "/sink/listDirtyDataTrend", method = RequestMethod.POST)
+    @ApiOperation(value = "List stream sinks by paginating")
+    public Response<DirtyDataResponse> listDirtyDataTrend(@RequestBody DirtyDataTrendRequest request) {
+        return Response.success(dirtyQueryLogService.listDirtyDataTrend(request));
+    }
+
+    @RequestMapping(value = "/sink/getDirtyData/{taskId}", method = RequestMethod.GET)
+    @ApiImplicitParam(name = "taskId", dataTypeClass = String.class, required = true)
+    public Response<List<DirtyDataDetailResponse>> getDirtyData(@PathVariable String taskId) {
+        return Response.success(dirtyQueryLogService.getDirtyData(taskId));
+    }
+
+    @RequestMapping(value = "/sink/getDirtyDataTrend/{taskId}", method = RequestMethod.GET)
+    @ApiImplicitParam(name = "taskId", dataTypeClass = String.class, required = true)
+    public Response<List<DirtyDataTrendDetailResponse>> getDirtyDataTrend(@PathVariable String taskId) {
+        return Response.success(dirtyQueryLogService.getDirtyDataTrend(taskId));
+    }
+
+    @RequestMapping(value = "/sink/SqlTaskStatus/{taskId}", method = RequestMethod.GET)
+    @ApiImplicitParam(name = "taskId", dataTypeClass = String.class, required = true)
+    public Response<String> SqlTaskStatus(@PathVariable String taskId) {
+        return Response.success(dirtyQueryLogService.getSqlTaskStatus(taskId));
     }
 
 }
