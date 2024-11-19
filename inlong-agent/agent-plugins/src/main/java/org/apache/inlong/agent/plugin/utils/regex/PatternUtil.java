@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.utils.regex;
 
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class FilePathUtil {
+public class PatternUtil {
 
     private static final String YEAR = "YYYY";
     private static final String MONTH = "MM";
@@ -158,9 +158,18 @@ public class FilePathUtil {
     }
 
     public static boolean isSameDir(String fileName1, String fileName2) {
-        ArrayList<String> ret1 = FilePathUtil.cutDirectoryByWildcard(fileName1);
-        ArrayList<String> ret2 = FilePathUtil.cutDirectoryByWildcard(fileName2);
+        ArrayList<String> ret1 = PatternUtil.cutDirectoryByWildcard(fileName1);
+        ArrayList<String> ret2 = PatternUtil.cutDirectoryByWildcard(fileName2);
         return ret1.get(0).equals(ret2.get(0));
     }
 
+    public static String getBeforeFirstWildcard(String input) {
+        String sign = "\\^$*+?{(|[.";
+        int firstWildcardIndex = StringUtils.indexOfAny(input, sign);
+        if (firstWildcardIndex != -1) {
+            return input.substring(0, firstWildcardIndex);
+        } else {
+            return "";
+        }
+    }
 }

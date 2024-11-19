@@ -29,8 +29,8 @@ public class FileTask {
     private Integer id;
     private String cycleUnit;
     private Boolean retry;
-    private Long startTime;
-    private Long endTime;
+    private String dataTimeFrom;
+    private String dataTimeTo;
     private String timeOffset;
     private String timeZone;
     private String addictiveString;
@@ -91,9 +91,9 @@ public class FileTask {
 
         private Boolean retry;
 
-        private Long startTime;
+        private String dataTimeFrom;
 
-        private Long endTime;
+        private String dataTimeTo;
 
         private String pattern;
 

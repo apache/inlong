@@ -83,7 +83,7 @@ public class AgentBaseTestsHelper {
     }
 
     public TaskProfile getTaskProfile(int taskId, String pattern, String dataContentStyle, boolean retry,
-            Long startTime, Long endTime,
+            String startTime, String endTime,
             TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
         DataConfig dataConfig = getDataConfig(taskId, pattern, dataContentStyle, retry, startTime, endTime,
                 state, cycleUnit, timeZone,
@@ -92,9 +92,9 @@ public class AgentBaseTestsHelper {
         return profile;
     }
 
-    private DataConfig getDataConfig(int taskId, String pattern, String dataContentStyle, boolean retry, Long startTime,
-            Long endTime,
-            TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
+    private DataConfig getDataConfig(int taskId, String pattern, String dataContentStyle, boolean retry,
+            String startTime, String endTime, TaskStateEnum state, String cycleUnit, String timeZone,
+            List<String> filterStreams) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
         dataConfig.setInlongStreamId("testStreamId");
@@ -110,8 +110,8 @@ public class AgentBaseTestsHelper {
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit(cycleUnit);
         fileTaskConfig.setRetry(retry);
-        fileTaskConfig.setStartTime(startTime);
-        fileTaskConfig.setEndTime(endTime);
+        fileTaskConfig.setDataTimeFrom(startTime);
+        fileTaskConfig.setDataTimeTo(endTime);
         // mix: login|87601|968|67826|23579 or login|a=b&c=d&x=y&asdf
         fileTaskConfig.setDataContentStyle(dataContentStyle);
         fileTaskConfig.setDataSeparator("|");

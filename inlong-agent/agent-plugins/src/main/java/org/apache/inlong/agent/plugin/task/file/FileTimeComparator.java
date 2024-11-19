@@ -15,23 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.task.file;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.File;
+import java.util.Comparator;
 
-/**
- * File job utils
- */
-public class FileDataUtils {
+public class FileTimeComparator implements Comparator<File> {
 
-    public static String getInodeInfo(String fileName) throws IOException {
-        BasicFileAttributes attributesAfter;
-        Path path = Paths.get(fileName);
-        attributesAfter = Files.readAttributes(path, BasicFileAttributes.class);
-        return attributesAfter.fileKey().toString();
+    @Override
+    public int compare(File f1, File f2) {
+        if (f1.lastModified() < f2.lastModified()) {
+            return -1;
+        } else if (f1.lastModified() == f2.lastModified()) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
+
 }

@@ -62,9 +62,9 @@ public class TaskConstants extends CommonConstants {
     public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
     public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
     public static final String SOURCE_FILTER_STREAMS = "task.fileTask.filterStreams";
-    public static final String TASK_RETRY = "task.fileTask.retry";
-    public static final String TASK_START_TIME = "task.fileTask.startTime";
-    public static final String TASK_END_TIME = "task.fileTask.endTime";
+    public static final String FILE_TASK_RETRY = "task.fileTask.retry";
+    public static final String FILE_TASK_TIME_FROM = "task.fileTask.dataTimeFrom";
+    public static final String FILE_TASK_TIME_TO = "task.fileTask.dataTimeTo";
     public static final String FILE_MAX_NUM = "task.fileTask.maxFileCount";
     public static final String PREDEFINE_FIELDS = "task.predefinedFields";
     public static final String TASK_AUDIT_VERSION = "task.auditVersion";

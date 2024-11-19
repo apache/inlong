@@ -27,7 +27,7 @@ import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
+import org.apache.inlong.agent.plugin.task.file.FileDataUtils;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -77,7 +77,7 @@ public class TestLogFileSource {
     private LogFileSource getSource(int taskId, long offset) {
         try {
             String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", false, 0L, 0L,
+            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", false, "", "",
                     TaskStateEnum.RUNNING, "D",
                     "GMT+8:00", null);
             String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
