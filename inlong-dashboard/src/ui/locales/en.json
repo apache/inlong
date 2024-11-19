@@ -1047,7 +1047,7 @@
   "meta.Sinks.DirtyTrend.Hour":"Hour",
   "meta.Sinks.DirtyData.Detail":"Detail",
   "meta.Sinks.DirtyData.Trend":"Trend",
-  "meta.Sinks.DirtyData":"Dirty Data Search",
+  "meta.Sinks.DirtyData":"Dirty Data Query",
   "meta.Sinks.DirtyData.DirtyType.DeserializeError":"DeserializeError",
   "meta.Sinks.DirtyData.DirtyType.FieldMappingError":"FieldMappingError",
   "meta.Sinks.DirtyData.DirtyType.LoadError":"LoadError",
