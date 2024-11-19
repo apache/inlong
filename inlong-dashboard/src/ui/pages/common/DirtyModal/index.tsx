@@ -226,8 +226,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
   const getDetailFilterFormContent = defaultValues => [
     {
       type: 'input',
-      label: 'keyword',
-      initialValue: defaultValues.keyword,
+      label: 'KeyWord',
       props: {
         placeholder: i18n.t('meta.Sinks.DirtyData.Search.KeyWord'),
       },
