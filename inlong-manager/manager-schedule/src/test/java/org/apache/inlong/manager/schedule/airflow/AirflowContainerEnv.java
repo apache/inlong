@@ -69,6 +69,12 @@ public class AirflowContainerEnv {
         log.info("Airflow runtime environment created successfully.");
     }
 
+    public static void shutDown() {
+        if (environment != null) {
+            environment.stop();
+        }
+    }
+
     private static void copyTestDAGs() {
         // After the DAG file is created, the scheduler will regularly scan the DAG file directory and
         // then load it into memory for scheduling. In order to quickly test the update and unregister, two

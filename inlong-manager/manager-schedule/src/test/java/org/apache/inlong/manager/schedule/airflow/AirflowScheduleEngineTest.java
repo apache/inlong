@@ -21,6 +21,7 @@ import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.BaseScheduleTest;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,11 @@ public class AirflowScheduleEngineTest {
             throw new RuntimeException(
                     String.format("Airflow runtime environment creation failed: %s", e.getMessage()));
         }
+    }
+
+    @AfterAll
+    public static void stopScheduleEngine() {
+        AirflowContainerEnv.shutDown();
     }
 
     @Test
