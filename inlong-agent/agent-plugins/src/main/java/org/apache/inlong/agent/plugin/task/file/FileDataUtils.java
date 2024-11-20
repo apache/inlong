@@ -15,28 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
+package org.apache.inlong.agent.plugin.task.file;
 
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+/**
+ * File job utils
+ */
+public class FileDataUtils {
 
-import java.util.List;
-
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
-
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
-
+    public static String getInodeInfo(String fileName) throws IOException {
+        BasicFileAttributes attributesAfter;
+        Path path = Paths.get(fileName);
+        attributesAfter = Files.readAttributes(path, BasicFileAttributes.class);
+        return attributesAfter.fileKey().toString();
+    }
 }

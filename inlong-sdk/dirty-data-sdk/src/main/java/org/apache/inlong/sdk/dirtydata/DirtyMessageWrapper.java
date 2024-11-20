@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.dirtydata;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -34,6 +35,9 @@ public class DirtyMessageWrapper {
 
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String delimiter;
+    @Builder.Default
+    @Getter
+    private int retryTimes = 0;
 
     private String inlongGroupId;
     private String inlongStreamId;
@@ -70,5 +74,9 @@ public class DirtyMessageWrapper {
                 .add(StringEscapeUtils.escapeXSI(ext))
                 .add(StringEscapeUtils.escapeXSI(formatData))
                 .toString();
+    }
+
+    public void increaseRetry() {
+        retryTimes++;
     }
 }

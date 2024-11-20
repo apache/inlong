@@ -24,9 +24,10 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.plugin.task.AbstractTask;
 import org.apache.inlong.agent.plugin.task.file.FileScanner.BasicFileInfo;
-import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
-import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
-import org.apache.inlong.agent.plugin.utils.file.PathDateExpression;
+import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
+import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
+import org.apache.inlong.agent.plugin.utils.regex.Scanner;
 import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
@@ -45,8 +46,10 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -62,13 +65,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Watch directory, if new valid files are created, create jobs correspondingly.
+ * Watch directory, if new valid files are created, create instance correspondingly.
  */
 public class LogFileTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogFileTask.class);
     public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
-    public static final String SCAN_CYCLE_RANCE = "-2";
     private static final int INSTANCE_QUEUE_CAPACITY = 10;
     private final Map<String, WatchEntity> watchers = new ConcurrentHashMap<>();
     private final Set<String> watchFailedDirs = new HashSet<>();
@@ -77,8 +79,8 @@ public class LogFileTask extends AbstractTask {
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
     private boolean retry;
-    private long startTime;
-    private long endTime;
+    private volatile long startTime;
+    private volatile long endTime;
     private boolean realTime = false;
     private Set<String> originPatterns;
     private long lastScanTime = 0;
@@ -95,17 +97,30 @@ public class LogFileTask extends AbstractTask {
     @Override
     protected void initTask() {
         instanceQueue = new LinkedBlockingQueue<>(INSTANCE_QUEUE_CAPACITY);
-        retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);
+        retry = taskProfile.getBoolean(TaskConstants.FILE_TASK_RETRY, false);
         originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
                 .collect(Collectors.toSet());
         if (taskProfile.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
             realTime = true;
         }
         if (retry) {
-            retryInit();
+            initRetryTask(taskProfile);
         } else {
             watchInit();
         }
+    }
+
+    private boolean initRetryTask(TaskProfile profile) {
+        String dataTimeFrom = profile.get(TaskConstants.FILE_TASK_TIME_FROM, "");
+        String dataTimeTo = profile.get(TaskConstants.FILE_TASK_TIME_TO, "");
+        try {
+            startTime = DateTransUtils.timeStrConvertToMillSec(dataTimeFrom, profile.getCycleUnit());
+            endTime = DateTransUtils.timeStrConvertToMillSec(dataTimeTo, profile.getCycleUnit());
+        } catch (ParseException e) {
+            LOGGER.error("retry task time error start {} end {}", dataTimeFrom, dataTimeTo, e);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -119,6 +134,7 @@ public class LogFileTask extends AbstractTask {
         while (list.size() < INSTANCE_QUEUE_CAPACITY && !instanceQueue.isEmpty()) {
             InstanceProfile profile = instanceQueue.poll();
             if (profile != null) {
+                LOGGER.info("test123 2 taskid {} {}", getTaskId(), profile.getInstanceId());
                 list.add(profile);
             }
         }
@@ -159,20 +175,12 @@ public class LogFileTask extends AbstractTask {
             LOGGER.error("task profile needs time offset");
             return false;
         }
-        if (profile.getBoolean(TaskConstants.TASK_RETRY, false)) {
-            long startTime = profile.getLong(TaskConstants.TASK_START_TIME, 0);
-            long endTime = profile.getLong(TaskConstants.TASK_END_TIME, 0);
-            if (startTime == 0 || endTime == 0) {
-                LOGGER.error("retry task time error start {} end {}", startTime, endTime);
+        if (profile.getBoolean(TaskConstants.FILE_TASK_RETRY, false)) {
+            if (!initRetryTask(profile)) {
                 return false;
             }
         }
         return true;
-    }
-
-    private void retryInit() {
-        startTime = taskProfile.getLong(TaskConstants.TASK_START_TIME, 0);
-        endTime = taskProfile.getLong(TaskConstants.TASK_END_TIME, 0);
     }
 
     private void watchInit() {
@@ -182,12 +190,12 @@ public class LogFileTask extends AbstractTask {
     }
 
     public void addPathPattern(String originPattern) {
-        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
+        ArrayList<String> directories = PatternUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         String basicStaticPath = directories.get(0);
         LOGGER.info("dataName {} watchPath {}", new Object[]{originPattern, basicStaticPath});
         /* Remember the failed watcher creations. */
         if (!new File(basicStaticPath).exists()) {
-            LOGGER.warn(AgentErrMsg.DIRECTORY_NOT_FOUND_ERROR + basicStaticPath);
+            LOGGER.warn("DIRECTORY_NOT_FOUND_ERROR" + basicStaticPath);
             watchFailedDirs.add(originPattern);
             return;
         }
@@ -204,9 +212,9 @@ public class LogFileTask extends AbstractTask {
             watchFailedDirs.remove(originPattern);
         } catch (IOException e) {
             if (e.toString().contains("Too many open files") || e.toString().contains("打开的文件过多")) {
-                LOGGER.error(AgentErrMsg.WATCH_DIR_ERROR + e.toString());
+                LOGGER.error("WATCH_DIR_ERROR", e);
             } else {
-                LOGGER.error(AgentErrMsg.WATCH_DIR_ERROR + e.toString(), e);
+                LOGGER.error("WATCH_DIR_ERROR", e);
             }
         } catch (Exception e) {
             LOGGER.error("addPathPattern:", e);
@@ -283,21 +291,12 @@ public class LogFileTask extends AbstractTask {
     }
 
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
-        long startScanTime = startTime;
-        long endScanTime = endTime;
-        if (!retry) {
-            long currentTime = System.currentTimeMillis();
-            // only scan two cycle, like two hours or two days
-            long offset = DateTransUtils.calcOffset(SCAN_CYCLE_RANCE + taskProfile.getCycleUnit());
-            startScanTime = currentTime + offset;
-            endScanTime = currentTime;
-        }
         if (realTime) {
             return FileScanner.scanTaskBetweenTimes(originPattern, CycleUnitType.HOUR, taskProfile.getTimeOffset(),
-                    startScanTime, endScanTime, retry);
+                    startTime, endTime, retry);
         } else {
             return FileScanner.scanTaskBetweenTimes(originPattern, taskProfile.getCycleUnit(),
-                    taskProfile.getTimeOffset(), startScanTime, endScanTime, retry);
+                    taskProfile.getTimeOffset(), startTime, endTime, retry);
         }
     }
 
@@ -328,14 +327,7 @@ public class LogFileTask extends AbstractTask {
     private void dealWithEventMapWithCycle() {
         long startScanTime = startTime;
         long endScanTime = endTime;
-        if (!retry) {
-            long currentTime = System.currentTimeMillis();
-            // only scan two cycle, like two hours or two days
-            long offset = DateTransUtils.calcOffset(SCAN_CYCLE_RANCE + taskProfile.getCycleUnit());
-            startScanTime = currentTime + offset;
-            endScanTime = currentTime;
-        }
-        List<String> dataTimeList = FileScanner.getDataTimeList(startScanTime, endScanTime, taskProfile.getCycleUnit(),
+        List<String> dataTimeList = Scanner.getDataTimeList(startScanTime, endScanTime, taskProfile.getCycleUnit(),
                 taskProfile.getTimeOffset(), retry);
         if (dataTimeList.isEmpty()) {
             LOGGER.error("getDataTimeList get empty list");
@@ -345,12 +337,16 @@ public class LogFileTask extends AbstractTask {
         // normal task first handle current data time
         if (!retry) {
             String current = dataTimeList.remove(dataTimeList.size() - 1);
-            dealEventMapByDataTime(current, true);
             dealtDataTime.add(current);
+            if (!dealEventMapByDataTime(current, true)) {
+                return;
+            }
         }
         dataTimeList.forEach(dataTime -> {
             dealtDataTime.add(dataTime);
-            dealEventMapByDataTime(dataTime, false);
+            if (!dealEventMapByDataTime(dataTime, false)) {
+                return;
+            }
         });
         for (String dataTime : eventMap.keySet()) {
             if (!dealtDataTime.contains(dataTime)) {
@@ -365,27 +361,27 @@ public class LogFileTask extends AbstractTask {
         }
     }
 
-    private void dealEventMapByDataTime(String dataTime, boolean isCurrentDataTime) {
+    private boolean dealEventMapByDataTime(String dataTime, boolean isCurrentDataTime) {
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.get(dataTime);
         if (sameDataTimeEvents == null || sameDataTimeEvents.isEmpty()) {
-            return;
+            return true;
         }
         if (realTime || shouldStartNow(dataTime)) {
-            /* These codes will sort the FileCreationEvents by create time. */
-            Set<InstanceProfile> sortedEvents = new TreeSet<>(sameDataTimeEvents.values());
-            /* Check the file end with event creation time in asc order. */
+            Set<InstanceProfile> sortedEvents = new TreeSet<>(Comparator.comparing(InstanceProfile::getInstanceId));
+            sortedEvents.addAll(sameDataTimeEvents.values());
             for (InstanceProfile sortEvent : sortedEvents) {
                 String fileName = sortEvent.getInstanceId();
                 InstanceProfile profile = sameDataTimeEvents.get(fileName);
                 if (!isCurrentDataTime && isFull()) {
-                    return;
+                    return false;
                 }
                 if (!instanceQueue.offer(profile)) {
-                    return;
+                    return false;
                 }
                 sameDataTimeEvents.remove(fileName);
             }
         }
+        return true;
     }
 
     /*
@@ -484,14 +480,14 @@ public class LogFileTask extends AbstractTask {
 
     private void handleFilePath(Path filePath, WatchEntity entity) {
         String newFileName = filePath.toFile().getAbsolutePath();
-        LOGGER.info("new file {} {}", newFileName, entity.getOriginPattern());
+        LOGGER.info("new file {} {}", newFileName, entity.getPattern());
         Matcher matcher = entity.getPattern().matcher(newFileName);
         if (matcher.matches() || matcher.lookingAt()) {
-            LOGGER.info("matched file {} {}", newFileName, entity.getOriginPattern());
+            LOGGER.info("matched file {} {}", newFileName, entity.getPattern());
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(),
                     entity.getDateExpression());
             if (!checkFileNameForTime(newFileName, entity)) {
-                LOGGER.error(AgentErrMsg.FILE_ERROR + "File Timeout {} {}", newFileName, dataTime);
+                LOGGER.error("File Timeout {} {}", newFileName, dataTime);
                 return;
             }
             addToEvenMap(newFileName, dataTime);
@@ -566,8 +562,7 @@ public class LogFileTask extends AbstractTask {
          * Register a new watch service on the path if the old watcher is invalid.
          */
         if (!key.isValid()) {
-            LOGGER.warn(AgentErrMsg.WATCHER_INVALID + "Invalid Watcher {}",
-                    contextPath.getFileName());
+            LOGGER.warn("Invalid Watcher {}", contextPath.getFileName());
             try {
                 WatchService oldService = entity.getWatchService();
                 oldService.close();

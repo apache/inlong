@@ -22,7 +22,10 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditComponent;
 
+import java.util.HashSet;
+
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
+import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_PROXY_ADDRESS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
@@ -67,8 +70,14 @@ public class AuditUtils {
     public static void initAudit(AbstractConfiguration conf) {
         IS_AUDIT = conf.getBoolean(AUDIT_ENABLE, DEFAULT_AUDIT_ENABLE);
         if (IS_AUDIT) {
-            AuditOperator.getInstance().setAuditProxy(AuditComponent.AGENT, conf.get(AGENT_MANAGER_ADDR),
-                    conf.get(AGENT_MANAGER_AUTH_SECRET_ID), conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
+            if (conf.hasKey(AUDIT_PROXY_ADDRESS)) {
+                HashSet<String> address = new HashSet<>();
+                address.add(conf.get(AUDIT_PROXY_ADDRESS));
+                AuditOperator.getInstance().setAuditProxy(address);
+            } else {
+                AuditOperator.getInstance().setAuditProxy(AuditComponent.AGENT, conf.get(AGENT_MANAGER_ADDR),
+                        conf.get(AGENT_MANAGER_AUTH_SECRET_ID), conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
+            }
             AuditOperator.getInstance().setLocalIP(conf.get(AgentConstants.AGENT_LOCAL_IP));
         }
     }

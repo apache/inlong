@@ -15,26 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.sort.base.dirty.sink;
 
-/* The date expression in the file path. */
-public class PathDateExpression {
+public enum DirtyServerType {
 
-    /* The longest date time expression in the file path, used to represent the task cycle unit. */
-    private final String longestDatePattern;
-    /* Represent whether there exists regex pattern before and after the longest date pattern. */
-    private final NonRegexPatternPosition patternPosition;
+    UNDEFINED("Undefined"),
+    TUBE_MQ("TubeMQ"),
+    ICEBERG("Iceberg")
 
-    public PathDateExpression(String longestDatePattern, NonRegexPatternPosition patternPosition) {
-        this.longestDatePattern = longestDatePattern;
-        this.patternPosition = patternPosition;
+    ;
+
+    private final String format;
+
+    DirtyServerType(String format) {
+        this.format = format;
     }
 
-    public String getLongestDatePattern() {
-        return longestDatePattern;
-    }
-
-    public NonRegexPatternPosition getPatternPosition() {
-        return patternPosition;
+    public String format() {
+        return format;
     }
 }

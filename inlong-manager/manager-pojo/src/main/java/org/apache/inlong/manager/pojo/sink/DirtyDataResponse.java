@@ -15,23 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.manager.pojo.sink;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
- * File job utils
+ * Dirty data info.
  */
-public class FileDataUtils {
+@Data
+@ApiModel("Dirty data info")
+public class DirtyDataResponse {
 
-    public static String getInodeInfo(String fileName) throws IOException {
-        BasicFileAttributes attributesAfter;
-        Path path = Paths.get(fileName);
-        attributesAfter = Files.readAttributes(path, BasicFileAttributes.class);
-        return attributesAfter.fileKey().toString();
-    }
+    @ApiModelProperty(value = "Task id")
+    private String taskId;
+
 }

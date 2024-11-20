@@ -15,28 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
-
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
+package org.apache.inlong.manager.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Query request for Dirty data
+ */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("Query request for Dirty data")
+public class DirtyDataRequest {
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
+    @ApiModelProperty(value = "Sink id list")
+    private List<Integer> sinkIdList;
 
+    @ApiModelProperty(value = "Key word")
+    private String keyword;
+
+    @ApiModelProperty(value = "Server type")
+    private String serverType;
+
+    @ApiModelProperty(value = "Dirty type")
+    private String dirtyType;
+
+    @ApiModelProperty(value = "Start time")
+    private String startTime;
+
+    @ApiModelProperty(value = "End time")
+    private String endTime;
+
+    @ApiModelProperty(value = "Data count")
+    private Integer dataCount = 10;
 }

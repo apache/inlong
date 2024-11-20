@@ -15,41 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.agent.plugin.task.file;
 
-public class MatchPoint {
+import java.io.File;
+import java.util.Comparator;
 
-    String str;
-    int start;
-    int end;
+public class FileTimeComparator implements Comparator<File> {
 
-    MatchPoint(String str1, int start1, int end1) {
-        this.str = str1;
-        this.start = start1;
-        this.end = end1;
+    @Override
+    public int compare(File f1, File f2) {
+        if (f1.lastModified() < f2.lastModified()) {
+            return -1;
+        } else if (f1.lastModified() == f2.lastModified()) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 
-    public String getStr() {
-        return str;
-    }
-
-    public void setStr(String str1) {
-        str = str1;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start1) {
-        start = start1;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end1) {
-        end = end1;
-    }
 }

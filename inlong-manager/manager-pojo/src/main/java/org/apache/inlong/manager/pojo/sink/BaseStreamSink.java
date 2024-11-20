@@ -17,11 +17,17 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * The base parameter class of StreamSink, support user extend their own business params.
@@ -32,6 +38,9 @@ import lombok.NoArgsConstructor;
 @ApiModel("Base info of stream sink")
 public class BaseStreamSink {
 
+    @ApiModelProperty("Enable data archiving")
+    private Boolean enableDataArchiving;
+
     @ApiModelProperty("Transform sql")
     private String transformSql;
 
@@ -40,4 +49,12 @@ public class BaseStreamSink {
 
     @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
     private String stopConsumeTime;
+
+    public static BaseStreamSink getFromJson(@NotNull String extParams) {
+        try {
+            return JsonUtils.parseObject(extParams, BaseStreamSink.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
+    }
 }

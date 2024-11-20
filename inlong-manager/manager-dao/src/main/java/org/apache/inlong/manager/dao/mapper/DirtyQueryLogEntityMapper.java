@@ -15,22 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils.file;
+package org.apache.inlong.manager.dao.mapper;
 
-import java.io.File;
-import java.util.Comparator;
+import org.apache.inlong.manager.dao.entity.DirtyQueryLogEntity;
 
-public class FileTimeComparator implements Comparator<File> {
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
-    @Override
-    public int compare(File f1, File f2) {
-        if (f1.lastModified() < f2.lastModified()) {
-            return -1;
-        } else if (f1.lastModified() == f2.lastModified()) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
+@Repository
+public interface DirtyQueryLogEntityMapper {
+
+    int updateByIdSelective(DirtyQueryLogEntity record);
+
+    int insert(DirtyQueryLogEntity record);
+
+    DirtyQueryLogEntity selectByPrimaryKey(Integer id);
+
+    DirtyQueryLogEntity selectByMd5(String md5);
+
+    void updateToTimeout(@Param("beforeMinutes") Integer beforeMinutes);
 
 }

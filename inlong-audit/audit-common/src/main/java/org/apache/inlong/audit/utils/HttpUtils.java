@@ -98,8 +98,9 @@ public class HttpUtils {
                     return responseStr;
                 }
             }
-        } catch (Exception e) {
-            LOGGER.error("Send get request has exception", e);
+        } catch (Throwable e) {
+            LOGGER.error("Http request url = {}, secretId = {}, secretKey = {}, component = {} has exception!", url,
+                    secretId, secretKey, component, e);
         }
         return null;
     }

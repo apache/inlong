@@ -15,28 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
+package org.apache.inlong.manager.service.dirtyData;
 
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.apache.inlong.manager.pojo.sink.DirtyDataDetailResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataRequest;
+import org.apache.inlong.manager.pojo.sink.DirtyDataResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataTrendDetailResponse;
+import org.apache.inlong.manager.pojo.sink.DirtyDataTrendRequest;
 
 import java.util.List;
 
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
+/**
+ * Dirty query log service
+ */
+public interface DirtyQueryLogService {
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
+    DirtyDataResponse listDirtyData(DirtyDataRequest request);
+
+    DirtyDataResponse listDirtyDataTrend(DirtyDataTrendRequest request);
+
+    List<DirtyDataDetailResponse> getDirtyData(String taskId);
+
+    List<DirtyDataTrendDetailResponse> getDirtyDataTrend(String taskId);
+
+    String getSqlTaskStatus(String taskId);
 
 }

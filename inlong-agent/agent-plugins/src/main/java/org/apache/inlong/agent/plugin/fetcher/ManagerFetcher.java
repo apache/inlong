@@ -42,10 +42,7 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
@@ -225,26 +222,16 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     private TaskResult getTestConfig(String testDir, int normalTaskId, int retryTaskId, int state) {
         List<DataConfig> configs = new ArrayList<>();
-        String startStr = "2023-07-10 00:00:00";
-        String endStr = "2023-07-22 00:00:00";
-        Long start = 0L;
-        Long end = 0L;
         String normalPattern = testDir + "YYYY/YYYYMMDDhhmm_2.log_[0-9]+";
         String retryPattern = testDir + "YYYY/YYYYMMDD_1.log_[0-9]+";
-        try {
-            Date parse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startStr);
-            start = parse.getTime();
-            parse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endStr);
-            end = parse.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        configs.add(getTestDataConfig(normalTaskId, normalPattern, false, start, end, CycleUnitType.MINUTE, state));
-        configs.add(getTestDataConfig(retryTaskId, retryPattern, true, start, end, CycleUnitType.DAY, state));
+        configs.add(getTestDataConfig(normalTaskId, normalPattern, false, "202307100000", "202307220000",
+                CycleUnitType.MINUTE, state));
+        configs.add(
+                getTestDataConfig(retryTaskId, retryPattern, true, "20230710", "20230722", CycleUnitType.DAY, state));
         return TaskResult.builder().dataConfigs(configs).build();
     }
 
-    private DataConfig getTestDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
+    private DataConfig getTestDataConfig(int taskId, String pattern, boolean retry, String startTime, String endTime,
             String cycleUnit, int state) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("devcloud_group_id");
@@ -260,8 +247,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit(cycleUnit);
         fileTaskConfig.setRetry(retry);
-        fileTaskConfig.setStartTime(startTime);
-        fileTaskConfig.setEndTime(endTime);
+        fileTaskConfig.setDataTimeFrom(startTime);
+        fileTaskConfig.setDataTimeTo(endTime);
         fileTaskConfig.setDataContentStyle("CSV");
         fileTaskConfig.setDataSeparator("|");
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));

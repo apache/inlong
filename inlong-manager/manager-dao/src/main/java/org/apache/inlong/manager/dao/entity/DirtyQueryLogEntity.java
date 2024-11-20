@@ -15,28 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
+public class DirtyQueryLogEntity implements Serializable {
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
+    private static final long serialVersionUID = 1L;
 
+    private Integer id;
+    private String md5;
+    private String requestParams;
+    private String taskId;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 }

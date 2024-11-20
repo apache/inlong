@@ -15,28 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
+package org.apache.inlong.agent.plugin.utils.regex;
 
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
+public class MatchPoint {
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+    String str;
+    int start;
+    int end;
 
-import java.util.List;
+    MatchPoint(String str1, int start1, int end1) {
+        this.str = str1;
+        this.start = start1;
+        this.end = end1;
+    }
 
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
+    public String getStr() {
+        return str;
+    }
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
+    public void setStr(String str1) {
+        str = str1;
+    }
 
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start1) {
+        start = start1;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end1) {
+        end = end1;
+    }
 }

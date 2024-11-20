@@ -17,11 +17,11 @@
 
 package org.apache.inlong.agent.plugin.task.file;
 
-import org.apache.inlong.agent.plugin.utils.file.DateUtils;
-import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
-import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
-import org.apache.inlong.agent.plugin.utils.file.NonRegexPatternPosition;
-import org.apache.inlong.agent.plugin.utils.file.PathDateExpression;
+import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.NonRegexPatternPosition;
+import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
+import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
@@ -69,11 +69,11 @@ public class WatchEntity {
             String cycleUnit) {
         this.watchService = watchService;
         this.originPattern = originPattern;
-        ArrayList<String> directoryLayers = FilePathUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
+        ArrayList<String> directoryLayers = PatternUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         this.basicStaticPath = directoryLayers.get(0);
         this.regexPattern = NewDateUtils.replaceDateExpressionWithRegex(originPattern);
         pattern = Pattern.compile(regexPattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
-        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcard(originPattern);
+        ArrayList<String> directories = PatternUtil.cutDirectoryByWildcard(originPattern);
         this.originPatternWithoutFileName = directories.get(0);
         this.patternWithoutFileName = Pattern
                 .compile(NewDateUtils.replaceDateExpressionWithRegex(originPatternWithoutFileName),
@@ -91,6 +91,7 @@ public class WatchEntity {
     @Override
     public String toString() {
         return "WatchEntity [parentPathName=" + basicStaticPath
+                + ", pattern=" + pattern
                 + ", readFilePattern=" + regexPattern
                 + ", dateExpression=" + dateExpression + ", originPatternWithoutFileName="
                 + originPatternWithoutFileName + ", containRegexPattern="

@@ -15,28 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.file;
-
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
+package org.apache.inlong.manager.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-import java.util.List;
-
+/**
+ * Dirty data detail info.
+ */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File data add task request")
-public class FileDataAddTaskRequest extends DataAddTaskRequest {
+@ApiModel("Dirty data trend detail info")
+public class DirtyDataTrendDetailResponse {
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
+    @ApiModelProperty(value = "Report time")
+    private String reportTime;
+
+    @ApiModelProperty(value = "Data count")
+    private String count;
 
 }
