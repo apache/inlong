@@ -125,7 +125,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         });
       }
       if (tabValue === 'trend') {
-        setOptions(defaultDetailOptions);
+        setTrendOption(trendOptions);
         form2.resetFields();
         form2.setFieldsValue({
           dataTimeUnit: 'D',
@@ -263,10 +263,6 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       name: 'serverType',
       props: {
         options: [
-          {
-            label: 'Undefined',
-            value: 'Undefined',
-          },
           {
             label: 'TubeMQ',
             value: 'TubeMQ',
