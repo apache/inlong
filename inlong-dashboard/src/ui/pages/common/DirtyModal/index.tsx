@@ -125,7 +125,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         });
       }
       if (tabValue === 'trend') {
-        setTrendOption(trendOptions);
+        setTrendOption(defaultTrendOptions);
         form2.resetFields();
         form2.setFieldsValue({
           dataTimeUnit: 'D',
