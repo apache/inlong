@@ -104,9 +104,9 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     endTime: dayjs().format('YYYYMMDD'),
   };
   const defaultTrendOptions = {
-    dataTimeUnit: '',
+    dataTimeUnit: 'D',
     dirtyType: '',
-    serverType: 'D',
+    serverType: '',
     startTime: dayjs().format('YYYYMMDD'),
     endTime: dayjs().format('YYYYMMDD'),
   };
