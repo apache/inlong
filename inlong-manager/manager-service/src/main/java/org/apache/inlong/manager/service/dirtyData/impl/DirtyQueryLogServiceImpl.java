@@ -63,9 +63,9 @@ public class DirtyQueryLogServiceImpl implements DirtyQueryLogService {
     private Boolean dirtyLogCleanEnabled;
     @Value("${dirty.log.clean.interval.minutes:5}")
     private Integer dirtyLogCleanInterval;
-    @Value("${dirty.dirty.retention.minutes:10}")
+    @Value("${dirty.log.retention.minutes:10}")
     private Integer retentionMinutes;
-    @Value("${dirty.dirty.db.table:inlong_iceberg::dirty_data_achive_iceberg}")
+    @Value("${dirty.log.db.table:inlong_iceberg::dirty_data_achive_iceberg}")
     private String dirtyDataDbTable;
 
     @PostConstruct
