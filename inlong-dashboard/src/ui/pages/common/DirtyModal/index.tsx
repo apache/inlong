@@ -89,7 +89,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       width: 90,
     },
     {
-      title: i18n.t('meta.Sinks.DirtyData.TdbankImpDate'),
+      title: i18n.t('meta.Sinks.DirtyData.DirtyDataPartitionDate'),
       dataIndex: 'tdbankImpDate',
       width: 90,
     },

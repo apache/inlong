@@ -1023,7 +1023,7 @@
   "pages.GroupDataTemplate.VisibleRange.Tenant":"Tenant",
   "miscellaneous.total": "... total ",
   "miscellaneous.tenants": " tenants",
-  "meta.Sinks.DirtyData.TdbankImpDate": "TdbankImp Date",
+  "meta.Sinks.DirtyData.DirtyDataPartitionDate": "Dirty Data Partition",
   "meta.Sinks.DirtyData.DataFlowId": "DataFlowId",
   "meta.Sinks.DirtyData.GroupId": "GroupId",
   "meta.Sinks.DirtyData.StreamId": "StreamId",
