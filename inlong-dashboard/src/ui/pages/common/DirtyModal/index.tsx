@@ -227,6 +227,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     {
       type: 'input',
       label: i18n.t('meta.Sinks.DirtyData.Search.KeyWord'),
+      name: 'keyword',
       props: {
         placeholder: i18n.t('meta.Sinks.DirtyData.Search.KeyWordHelp'),
       },

@@ -1035,7 +1035,7 @@
   "meta.Sinks.DirtyData.DirtyData": "脏数据",
   "meta.Sinks.DirtyData.DirtyDetailWarning": "脏数据任务正在运行，请稍后再试",
   "meta.Sinks.DirtyData.DirtyTrendWarning": "脏数据趋势任务正在运行，请稍后再试",
-  "meta.Sinks.DirtyData.DataCount": "脏数据个数",
+  "meta.Sinks.DirtyData.DataCount": "脏数据条数",
   "meta.Sinks.DirtyData.Search.DirtyType": "脏数据类型",
   "meta.Sinks.DirtyData.Search.ServerType": "服务类型",
   "meta.Sinks.DirtyData.StartTimeError": "开始时间不能大于当前时间",
