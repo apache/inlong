@@ -97,7 +97,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
 
   const defaultDetailOptions = {
     keyword: '',
-    dataCount: '10',
+    dataCount: 10,
     dirtyType: '',
     serverType: '',
     startTime: dayjs().format('YYYYMMDD'),
@@ -174,7 +174,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         ...options,
         startTime: options.startTime ? dayjs(options.startTime).format('YYYYMMDD') : '',
         endTime: options.endTime ? dayjs(options.endTime).format('YYYYMMDD') : '',
-        dataCount: form1.getFieldValue('dataCount') || '10',
+        dataCount: form1.getFieldValue('dataCount') || 10,
         keyword: form1.getFieldValue('keyword') || '',
         sinkIdList: [modalProps.id],
       },
