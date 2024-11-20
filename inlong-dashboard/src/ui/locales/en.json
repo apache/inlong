@@ -1033,7 +1033,7 @@
   "meta.Sinks.DirtyData.DirtyType": "Dirty Type",
   "meta.Sinks.DirtyData.DirtyMessage": "Dirty Message",
   "meta.Sinks.DirtyData.ExtInfo": "Ext Info",
-  "meta.Sinks.DirtyData.DirtyData": "DirtyData",
+  "meta.Sinks.DirtyData.DirtyData": "Dirty Data",
   "meta.Sinks.DirtyData.DirtyDetailWarning": "The dirty data task is running, please try again later",
   "meta.Sinks.DirtyData.DirtyTrendWarning": "The dirty data trending task is running, try again later",
   "meta.Sinks.DirtyData.DataCount": "Data Count",
