@@ -1022,7 +1022,7 @@
   "pages.GroupDataTemplate.VisibleRange.Tenant":"租户",
   "miscellaneous.total": "... 共",
   "miscellaneous.tenants": "个租户",
-  "meta.Sinks.DirtyData.TdbankImpDate": "脏数据分区",
+  "meta.Sinks.DirtyData.DirtyDataPartition": "脏数据分区",
   "meta.Sinks.DirtyData.DataFlowId": "数据目标Id",
   "meta.Sinks.DirtyData.GroupId": "数据组Id",
   "meta.Sinks.DirtyData.StreamId": "数据流Id",
