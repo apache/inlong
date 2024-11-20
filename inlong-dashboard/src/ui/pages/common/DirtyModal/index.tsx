@@ -241,6 +241,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       type: 'select',
       name: 'dirtyType',
       props: {
+        allowClear: true,
         options: [
           {
             label: i18n.t('meta.Sinks.DirtyData.DirtyType.DeserializeError'),
@@ -262,6 +263,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       type: 'select',
       name: 'serverType',
       props: {
+        allowClear: true,
         options: [
           {
             label: 'TubeMQ',
@@ -341,6 +343,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       type: 'select',
       name: 'dirtyType',
       props: {
+        allowClear: true,
         options: [
           {
             label: 'DeserializeError',
@@ -362,6 +365,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       type: 'select',
       name: 'serverType',
       props: {
+        allowClear: true,
         options: [
           {
             label: 'TubeMQ',
