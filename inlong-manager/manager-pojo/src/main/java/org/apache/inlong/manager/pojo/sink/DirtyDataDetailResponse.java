@@ -28,8 +28,8 @@ import lombok.Data;
 @ApiModel("Dirty data detail info")
 public class DirtyDataDetailResponse {
 
-    @ApiModelProperty(value = "Tdbank imp date")
-    private String tdbankImpDate;
+    @ApiModelProperty(value = "Dirty data partition")
+    private String dirtyDataPartition;
 
     @ApiModelProperty(value = "Data flow id")
     private String dataFlowId;
