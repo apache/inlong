@@ -100,8 +100,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     dataCount: '10',
     dirtyType: '',
     serverType: '',
-    startDate: dayjs().format('YYYYMMDD'),
-    endDate: dayjs().format('YYYYMMDD'),
+    startTime: dayjs().format('YYYYMMDD'),
+    endTime: dayjs().format('YYYYMMDD'),
   };
   const defaultTrendOptions = {
     dataTimeUnit: '',
@@ -172,8 +172,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       method: 'POST',
       data: {
         ...options,
-        startDate: options.startDate ? dayjs(options.startDate).format('YYYYMMDD') : '',
-        endDate: options.endDate ? dayjs(options.endDate).format('YYYYMMDD') : '',
+        startTime: options.startTime ? dayjs(options.startTime).format('YYYYMMDD') : '',
+        endTime: options.endTime ? dayjs(options.endTime).format('YYYYMMDD') : '',
         sinkIdList: [modalProps.id],
       },
     });
@@ -281,8 +281,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     {
       type: 'datepicker',
       label: i18n.t('pages.GroupDetail.Audit.StartDate'),
-      name: 'startDate',
-      initialValue: dayjs(options.startDate),
+      name: 'startTime',
+      initialValue: dayjs(options.startTime),
       props: {
         allowClear: true,
         format: 'YYYYMMDD',
@@ -304,8 +304,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     {
       type: 'datepicker',
       label: i18n.t('pages.GroupDetail.Audit.EndDate'),
-      name: 'endDate',
-      initialValue: dayjs(options.endDate),
+      name: 'endTime',
+      initialValue: dayjs(options.endTime),
       props: values => {
         return {
           allowClear: true,
@@ -469,8 +469,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     setOptions(prev => ({
       ...prev,
       ...allValues,
-      startDate: allValues.startDate ? +allValues.startDate.$d : '',
-      endDate: allValues.startDate ? +allValues.startDate.$d : '',
+      startTime: allValues.startTime ? +allValues.startTime.$d : '',
+      endTime: allValues.endTime ? +allValues.endTime.$d : '',
     }));
   };
   const onTrendFilter = allValues => {
