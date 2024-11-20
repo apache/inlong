@@ -174,6 +174,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         ...options,
         startTime: options.startTime ? dayjs(options.startTime).format('YYYYMMDD') : '',
         endTime: options.endTime ? dayjs(options.endTime).format('YYYYMMDD') : '',
+        dataCount: form1.getFieldValue('dataCount') || '10',
+        keyword: form1.getFieldValue('keyword') || '',
         sinkIdList: [modalProps.id],
       },
     });
@@ -474,6 +476,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       endTime: allValues.endTime ? +allValues.endTime.$d : '',
     }));
   };
+
   const onTrendFilter = allValues => {
     setTrendOption(prev => ({
       ...prev,
@@ -518,22 +521,25 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       key: 'detail',
       label: i18n.t('meta.Sinks.DirtyData.Detail'),
       children: (
-        <HighTable
-          filterForm={{
-            form: form1,
-            content: getDetailFilterFormContent(options),
-            style: { gap: 10 },
-            onFilter: onFilter,
-          }}
-          table={{
-            columns: getColumns,
-            rowKey: 'id',
-            size: 'small',
-            dataSource: data,
-            scroll: scroll,
-            loading,
-          }}
-        />
+        <>
+          <FormGenerator
+            form={form1}
+            layout="inline"
+            content={getDetailFilterFormContent(options)}
+            style={{ gap: 10 }}
+            onFilter={onFilter}
+          />
+          <HighTable
+            table={{
+              columns: getColumns,
+              rowKey: 'id',
+              size: 'small',
+              dataSource: data,
+              scroll: scroll,
+              loading,
+            }}
+          />
+        </>
       ),
     },
     {
