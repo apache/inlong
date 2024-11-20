@@ -236,7 +236,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     },
     {
       label: i18n.t('meta.Sinks.DirtyData.DataCount'),
-      type: 'input',
+      type: 'inputnumber',
       name: 'dataCount',
     },
     {
