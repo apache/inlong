@@ -132,6 +132,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Override
     @VisibleForTesting
     public boolean handleRegister(ScheduleInfo scheduleInfo) {
+        start();
         String processDefUrl = projectBaseUrl + "/" + projectCode + DS_PROCESS_URL;
         String scheduleUrl = projectBaseUrl + "/" + projectCode + DS_SCHEDULE_URL;
         String processName = scheduleInfo.getInlongGroupId() + DS_DEFAULT_PROCESS_NAME;
@@ -191,6 +192,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Override
     @VisibleForTesting
     public boolean handleUnregister(String groupId) {
+        start();
         String processName = groupId + DS_DEFAULT_PROCESS_NAME;
         String processDefUrl = projectBaseUrl + "/" + projectCode + DS_PROCESS_URL;
 
@@ -224,6 +226,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Override
     @VisibleForTesting
     public boolean handleUpdate(ScheduleInfo scheduleInfo) {
+        start();
         LOGGER.info("Update dolphin schedule info for {}", scheduleInfo.getInlongGroupId());
         try {
             return handleUnregister(scheduleInfo.getInlongGroupId()) && handleRegister(scheduleInfo);

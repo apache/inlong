@@ -53,7 +53,6 @@ public class DolphinScheduleEngineTest extends DolphinScheduleContainerTestEnv {
 
         String token = accessToken();
         dolphinScheduleEngine.setToken(token);
-        dolphinScheduleEngine.start();
     }
 
     @AfterAll
