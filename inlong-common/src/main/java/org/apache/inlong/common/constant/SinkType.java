@@ -19,6 +19,8 @@ package org.apache.inlong.common.constant;
 
 public class SinkType {
 
+    public static final String ICEBERG = "ICEBERG";
+    public static final String HIVE = "HIVE";
     public static final String KAFKA = "KAFKA";
     public static final String PULSAR = "PULSAR";
     public static final String CLS = "CLS";
