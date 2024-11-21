@@ -37,13 +37,28 @@ function help() {
   echo "       help:       get help from inlong agent"
 }
 
+
+function getPid() {
+    local process_name="inlong-agent"
+    local user=$(whoami)
+    local pid=$(ps -u $user -f | grep 'java' | grep "$process_name" | grep -v grep | awk '{print $2}')
+
+    if [ -z "$pid" ]; then
+        echo "No matching process found."
+        return 1
+    fi
+
+    echo "$pid"
+    return 0
+}
+
 function running() {
-  process=$("$JPS" | grep "AgentMain" | grep -v grep)
-  if [ "${process}" = "" ]; then
-    return 1;
-  else
-    return 0;
-  fi
+   pid=$(getPid)
+   if [ $? -eq 0 ]; then
+      return 0
+   else
+      return 1
+   fi
 }
 
 # start agent
@@ -53,9 +68,9 @@ function start_agent() {
     exit 1
   fi
   if [ "$ENABLE_OBSERVABILITY" = "true" ]; then
-    nohup ${JAVA} ${AGENT_ARGS} -javaagent:${OTEL_AGENT} org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
+    nohup ${JAVA} ${AGENT_ARGS} ${arg_uniq} -javaagent:${OTEL_AGENT} org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
   else
-    nohup ${JAVA} ${AGENT_ARGS} org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
+    nohup ${JAVA} ${AGENT_ARGS} ${arg_uniq} org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
   fi
 }
 
@@ -66,7 +81,7 @@ function stop_agent() {
     exit 1
   fi
   count=0
-  pid=$("$JPS" | grep "AgentMain" | grep -v grep | awk '{print $1}')
+  pid=$(getPid)
   while running;
   do
     (( count++ ))

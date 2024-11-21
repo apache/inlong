@@ -31,13 +31,27 @@ function help() {
   echo "       help:       get help from agent installer"
 }
 
+function getPid() {
+    local process_name="installer.Main"
+    local user=$(whoami)
+    local pid=$(ps -u $user -f | grep 'java' | grep "$process_name" | grep -v grep | awk '{print $2}')
+
+    if [ -z "$pid" ]; then
+        echo "No matching process found."
+        return 1
+    fi
+
+    echo "$pid"
+    return 0
+}
+
 function running() {
-  process=$("$JPS" -l| grep "installer.Main" | grep -v grep)
-  if [ "${process}" = "" ]; then
-    return 1;
-  else
-    return 0;
-  fi
+   pid=$(getPid)
+   if [ $? -eq 0 ]; then
+      return 0
+   else
+      return 1
+   fi
 }
 
 # start installer
@@ -56,7 +70,7 @@ function stop_installer() {
     exit 1
   fi
   count=0
-  pid=$("$JPS" -l| grep "installer.Main"| grep -v grep | awk '{print $1}')
+  pid=$(getPid)
   while running;
   do
     (( count++ ))
