@@ -57,8 +57,9 @@ import static org.apache.inlong.agent.constant.TaskConstants.INODE_INFO;
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
-    private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
+    private final int LOOP_WAIT_TIME_MS = 10;
     public final int SAVE_OFFSET_INTERVAL_MS = 1000;
+    public volatile long lastFlushOffset = AgentUtils.getCurrentTime();
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             1L, TimeUnit.SECONDS,
@@ -193,12 +194,21 @@ public class ProxySink extends AbstractSink {
         if (!inited) {
             return;
         }
+        Long start = AgentUtils.getCurrentTime();
         shutdown = true;
         while (running || offsetRunning) {
-            AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
+            AgentUtils.silenceSleepInMs(LOOP_WAIT_TIME_MS);
         }
+        LOGGER.info("destroy proxySink wait run elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+        start = AgentUtils.getCurrentTime();
         senderManager.Stop();
+        LOGGER.info("destroy proxySink wait sender elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+        start = AgentUtils.getCurrentTime();
         clearOffset();
+        LOGGER.info("destroy proxySink wait offset elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
         LOGGER.info("destroy sink {} end", sourceName);
     }
 
@@ -234,8 +244,11 @@ public class ProxySink extends AbstractSink {
             LOGGER.info("start flush offset {}:{}", inlongGroupId, sourceName);
             offsetRunning = true;
             while (!shutdown) {
-                doFlushOffset();
-                AgentUtils.silenceSleepInMs(SAVE_OFFSET_INTERVAL_MS);
+                if (AgentUtils.getCurrentTime() - lastFlushOffset > SAVE_OFFSET_INTERVAL_MS) {
+                    doFlushOffset();
+                    lastFlushOffset = AgentUtils.getCurrentTime();
+                }
+                AgentUtils.silenceSleepInMs(LOOP_WAIT_TIME_MS);
             }
             LOGGER.info("stop flush offset {}:{}", inlongGroupId, sourceName);
             offsetRunning = false;
@@ -269,6 +282,7 @@ public class ProxySink extends AbstractSink {
     }
 
     private void clearOffset() {
+        doFlushOffset();
         packageAckInfoLock.writeLock().lock();
         for (int i = 0; i < ackInfoList.size();) {
             MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, ackInfoList.remove(i).getLen());
