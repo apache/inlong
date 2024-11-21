@@ -80,8 +80,8 @@ public abstract class AbstractSource implements Source {
     protected final Integer BATCH_READ_LINE_COUNT = 10000;
     protected final Integer BATCH_READ_LINE_TOTAL_LEN = 1024 * 1024;
     protected final Integer CACHE_QUEUE_SIZE = 10 * BATCH_READ_LINE_COUNT;
-    protected final Integer READ_WAIT_TIMEOUT_MS = 10;
-    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60;
+    protected final Integer WAIT_TIMEOUT_MS = 10;
+    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60 * 100;
     private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
     protected BlockingQueue<SourceData> queue;
 
@@ -172,7 +172,7 @@ public abstract class AbstractSource implements Source {
                     emptyCount = 0;
                 }
                 MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                AgentUtils.silenceSleepInSeconds(1);
+                AgentUtils.silenceSleepInMs(WAIT_TIMEOUT_MS);
                 continue;
             }
             emptyCount = 0;
@@ -231,7 +231,7 @@ public abstract class AbstractSource implements Source {
                 if (!isRunnable()) {
                     return false;
                 }
-                AgentUtils.silenceSleepInSeconds(1);
+                AgentUtils.silenceSleepInMs(WAIT_TIMEOUT_MS);
             }
         }
         return true;
@@ -247,7 +247,7 @@ public abstract class AbstractSource implements Source {
         try {
             boolean offerSuc = false;
             while (isRunnable() && !offerSuc) {
-                offerSuc = queue.offer(sourceData, 1, TimeUnit.SECONDS);
+                offerSuc = queue.offer(sourceData, WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             }
             if (!offerSuc) {
                 MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.getData().length);
@@ -338,7 +338,7 @@ public abstract class AbstractSource implements Source {
     private SourceData readFromQueue() {
         SourceData sourceData = null;
         try {
-            sourceData = queue.poll(READ_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            sourceData = queue.poll(WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             LOGGER.warn("poll {} data get interrupted.", instanceId);
         }
@@ -405,7 +405,7 @@ public abstract class AbstractSource implements Source {
         while (queue != null && !queue.isEmpty()) {
             SourceData sourceData = null;
             try {
-                sourceData = queue.poll(READ_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                sourceData = queue.poll(WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 LOGGER.warn("poll {} data get interrupted.", instanceId, e);
             }

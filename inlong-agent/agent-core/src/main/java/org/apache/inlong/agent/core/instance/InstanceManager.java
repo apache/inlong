@@ -147,6 +147,9 @@ public class InstanceManager extends AbstractDaemon {
         if (action == null) {
             return false;
         }
+        if (isFull()) {
+            return false;
+        }
         return actionQueue.offer(action);
     }
 
@@ -163,7 +166,7 @@ public class InstanceManager extends AbstractDaemon {
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
                     printInstanceState();
-                    dealWithActionQueue(actionQueue);
+                    dealWithActionQueue();
                     keepPaceWithStore();
                     String inlongGroupId = taskFromStore.getInlongGroupId();
                     String inlongStreamId = taskFromStore.getInlongStreamId();
@@ -251,10 +254,10 @@ public class InstanceManager extends AbstractDaemon {
         });
     }
 
-    private void dealWithActionQueue(BlockingQueue<InstanceAction> queue) {
+    private void dealWithActionQueue() {
         while (isRunnable()) {
             try {
-                InstanceAction action = queue.poll();
+                InstanceAction action = actionQueue.poll();
                 if (action == null) {
                     break;
                 }
@@ -375,6 +378,15 @@ public class InstanceManager extends AbstractDaemon {
                 instance.getProfile().getSinkDataTime(), 1, 1, auditVersion);
     }
 
+    private void notifyDestroyInstance(String instanceId) {
+        Instance instance = instanceMap.get(instanceId);
+        if (instance == null) {
+            LOGGER.error("try to notify destroy instance but not found: taskId {} instanceId {}", taskId, instanceId);
+            return;
+        }
+        instance.notifyDestroy();
+    }
+
     private void addToStore(InstanceProfile profile, boolean addNew) {
         LOGGER.info("add instance to instance store state {} instanceId {}", profile.getState(),
                 profile.getInstanceId());
@@ -433,6 +445,9 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void stopAllInstances() {
+        instanceMap.values().forEach((instance) -> {
+            notifyDestroyInstance(instance.getInstanceId());
+        });
         instanceMap.values().forEach((instance) -> {
             deleteFromMemory(instance.getInstanceId());
         });

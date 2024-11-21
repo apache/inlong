@@ -40,6 +40,11 @@ public abstract class Instance extends AbstractStateWrapper {
     public abstract void destroy();
 
     /**
+     * notify destroy instance.
+     */
+    public abstract void notifyDestroy();
+
+    /**
      * get instance profile
      */
     public abstract InstanceProfile getProfile();

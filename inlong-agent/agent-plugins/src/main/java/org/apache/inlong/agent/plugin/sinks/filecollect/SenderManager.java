@@ -70,6 +70,7 @@ public class SenderManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
+    public static final int RESEND_QUEUE_WAIT_MS = 10;
     // cache for group and sender list, share the map cross agent lifecycle.
     private DefaultMessageSender sender;
     private LinkedBlockingQueue<AgentSenderCallback> resendQueue;
@@ -172,9 +173,12 @@ public class SenderManager {
     }
 
     private void closeMessageSender() {
+        Long start = AgentUtils.getCurrentTime();
         if (sender != null) {
             sender.close();
         }
+        LOGGER.info("close sender elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
     }
 
     private AgentMetricItem getMetricItem(Map<String, String> otherDimensions) {
@@ -286,7 +290,7 @@ public class SenderManager {
             resendRunning = true;
             while (!shutdown) {
                 try {
-                    AgentSenderCallback callback = resendQueue.poll(1, TimeUnit.SECONDS);
+                    AgentSenderCallback callback = resendQueue.poll(RESEND_QUEUE_WAIT_MS, TimeUnit.MILLISECONDS);
                     if (callback != null) {
                         SenderMessage message = callback.message;
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_RESEND, message.getGroupId(),
