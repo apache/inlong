@@ -90,7 +90,7 @@ public class TestLogFileSource {
             Whitebox.setInternalState(source, "CORE_THREAD_PRINT_INTERVAL_MS", 0);
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
             Whitebox.setInternalState(source, "EMPTY_CHECK_COUNT_AT_LEAST", 3);
-            Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
+            Whitebox.setInternalState(source, "WAIT_TIMEOUT_MS", 10);
             if (offset > 0) {
                 OffsetProfile offsetProfile = new OffsetProfile(instanceProfile.getTaskId(),
                         instanceProfile.getInstanceId(),
