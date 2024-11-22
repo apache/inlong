@@ -57,11 +57,13 @@ import java.util.stream.StreamSupport;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_CODE;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_PAGE_NO;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_PAGE_SIZE;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_RETRY_TIMES;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_SCHEDULE_TIME_FORMAT;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_TASK_DESC;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_TASK_GEN_NUM;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_TASK_NAME;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_TIMEZONE_ID;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_DEFAULT_WAIT_MILLS;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_ID;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_ONLINE_URL;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_PAGE_NO;
@@ -78,6 +80,7 @@ import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinSchedul
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_RESPONSE_TOTAL_LIST;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_SCHEDULE_DEF;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_SEARCH_VAL;
+import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_SUCCESS;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TASK_DEFINITION;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TASK_GEN_NUM;
 import static org.apache.inlong.manager.schedule.dolphinscheduler.DolphinScheduleConstants.DS_TASK_RELATION;
@@ -89,6 +92,7 @@ import static org.apache.inlong.manager.schedule.exception.DolphinScheduleExcept
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.JSON_PARSE_ERROR;
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.NETWORK_ERROR;
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_CREATION_FAILED;
+import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_IN_USED_ERROR;
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_QUERY_FAILED;
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROCESS_DEFINITION_RELEASE_FAILED;
 import static org.apache.inlong.manager.schedule.exception.DolphinScheduleException.PROJECT_CREATION_FAILED;
@@ -489,10 +493,27 @@ public class DolphinScheduleUtils {
             Map<String, String> header = buildHeader(token);
 
             String requestUrl = url + "/" + code;
+            for (int attempt = 1; attempt <= DS_DEFAULT_RETRY_TIMES; attempt++) {
+                JsonObject response = executeHttpRequest(requestUrl, DELETE, new HashMap<>(), header);
 
-            JsonObject response = executeHttpRequest(requestUrl, DELETE, new HashMap<>(), header);
-            LOGGER.info("delete process or project success, response data: {}", response);
+                if (response.get(DS_SUCCESS).getAsBoolean()) {
+                    LOGGER.info("Delete process or project success, response data: {}", response);
+                    return;
+                }
 
+                if (response.get(DS_CODE).getAsInt() == PROCESS_DEFINITION_IN_USED_ERROR) {
+                    LOGGER.warn("Attempt {} of {}, retrying after {} ms...", attempt, DS_DEFAULT_RETRY_TIMES,
+                            DS_DEFAULT_WAIT_MILLS);
+                    Thread.sleep(DS_DEFAULT_WAIT_MILLS);
+                }
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("Thread interrupted while retrying delete process or project: ", e);
+            throw new DolphinScheduleException(
+                    DELETION_FAILED,
+                    String.format("Thread interrupted while retrying delete for code: %d at URL: %s", code, url), e);
         } catch (JsonParseException e) {
             LOGGER.error("JsonParseException during deleting process or project", e);
             throw new DolphinScheduleException(
@@ -500,6 +521,7 @@ public class DolphinScheduleUtils {
                     String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);
 
         } catch (DolphinScheduleException e) {
+            LOGGER.error("Error deleting process or project: ", e);
             throw new DolphinScheduleException(
                     DELETION_FAILED,
                     String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);

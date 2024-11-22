@@ -22,6 +22,7 @@ public class DolphinScheduleConstants {
     // DS public constants
     public static final String DS_ID = "id";
     public static final String DS_CODE = "code";
+    public static final String DS_SUCCESS = "success";
     public static final String DS_TOKEN = "token";
     public static final String DS_PAGE_SIZE = "pageSize";
     public static final String DS_PAGE_NO = "pageNo";
@@ -29,6 +30,8 @@ public class DolphinScheduleConstants {
     public static final String DS_RESPONSE_DATA = "data";
     public static final String DS_RESPONSE_NAME = "name";
     public static final String DS_RESPONSE_TOTAL_LIST = "totalList";
+    public static final int DS_DEFAULT_RETRY_TIMES = 3;
+    public static final int DS_DEFAULT_WAIT_MILLS = 1000;
     public static final String DS_DEFAULT_PAGE_SIZE = "10";
     public static final String DS_DEFAULT_PAGE_NO = "1";
     public static final String DS_DEFAULT_TIMEZONE_ID = "Asia/Shanghai";
