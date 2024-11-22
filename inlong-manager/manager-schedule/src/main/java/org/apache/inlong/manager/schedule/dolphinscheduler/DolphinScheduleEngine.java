@@ -56,7 +56,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DolphinScheduleEngine.class);
 
-    @Value("${server.host:127.0.0.1}")
+    @Value("${schedule.engine.inlong.manager.host:127.0.0.1}")
     private String host;
 
     @Value("${server.port:8083}")
