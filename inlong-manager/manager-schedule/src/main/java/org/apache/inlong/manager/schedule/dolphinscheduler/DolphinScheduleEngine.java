@@ -226,7 +226,6 @@ public class DolphinScheduleEngine implements ScheduleEngine {
     @Override
     @VisibleForTesting
     public boolean handleUpdate(ScheduleInfo scheduleInfo) {
-        start();
         LOGGER.info("Update dolphin schedule info for {}", scheduleInfo.getInlongGroupId());
         try {
             return handleUnregister(scheduleInfo.getInlongGroupId()) && handleRegister(scheduleInfo);
