@@ -97,12 +97,14 @@ public class AuditUtils {
         }
         if (inlongGroupId == null || inlongStreamId == null) {
             LOGGER.error("invalid args inlongGroupId: {}, inlongStreamId: {}", inlongGroupId, inlongStreamId);
+            return;
         }
         try {
             AuditOperator.getInstance()
                     .add(auditID, DEFAULT_AUDIT_TAG, inlongGroupId, inlongStreamId, logTime, count, size, version);
         } catch (Throwable e) {
-            LOGGER.error("call audit add error", e);
+            LOGGER.error("call audit add inlongGroupId: {}, inlongStreamId: {}, auditID {}, error", inlongGroupId,
+                    inlongStreamId, auditID, e);
         }
     }
 
