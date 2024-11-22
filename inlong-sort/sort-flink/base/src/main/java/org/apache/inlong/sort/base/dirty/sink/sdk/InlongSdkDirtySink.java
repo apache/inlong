@@ -67,7 +67,7 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                     .inlongStreamId(dataStreamId)
                     .dataflowId(dataflowId)
                     .dataTime(dirtyData.getDataTime())
-                    .serverType(dirtyData.getServerType().format())
+                    .serverType(dirtyData.getServerType())
                     .dirtyType(dirtyData.getDirtyType().format())
                     .dirtyMessage(dirtyData.getDirtyMessage())
                     .ext(dirtyData.getExtParams())
