@@ -59,8 +59,6 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
 
     private OfflineJobOperator offlineJobOperator;
 
-    private ScheduleEngineClient scheduleEngineClient;
-
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public int saveOpt(ScheduleInfoRequest request, String operator) {
@@ -89,10 +87,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     }
 
     private ScheduleEngineClient getScheduleEngineClient(String scheduleEngine) {
-        if (scheduleEngineClient == null) {
-            scheduleEngineClient = scheduleClientFactory.getInstance(scheduleEngine);
-        }
-        return scheduleEngineClient;
+        return scheduleClientFactory.getInstance(scheduleEngine);
     }
 
     @Override
