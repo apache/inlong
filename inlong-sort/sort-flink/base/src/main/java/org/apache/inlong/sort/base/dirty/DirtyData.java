@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.base.dirty;
 
-import org.apache.inlong.sort.base.dirty.sink.DirtyServerType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
 import org.apache.flink.table.types.logical.LogicalType;
@@ -65,7 +64,7 @@ public class DirtyData<T> {
      */
     private final DirtyType dirtyType;
 
-    private final DirtyServerType serverType;
+    private final String serverType;
     /**
      * Dirty describe message, it is the cause of dirty data
      */
@@ -88,7 +87,7 @@ public class DirtyData<T> {
     private final T data;
 
     public DirtyData(T data, String identifier, String labels,
-            String logTag, DirtyType dirtyType, DirtyServerType serverType, String dirtyMessage,
+            String logTag, DirtyType dirtyType, String serverType, String dirtyMessage,
             @Nullable LogicalType rowType, long dataTime, String extParams) {
         this.data = data;
         this.dirtyType = dirtyType;
@@ -131,7 +130,7 @@ public class DirtyData<T> {
         return dirtyType;
     }
 
-    public DirtyServerType getServerType() {
+    public String getServerType() {
         return serverType;
     }
 
@@ -162,7 +161,7 @@ public class DirtyData<T> {
         private String labels;
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
-        private DirtyServerType serverType = DirtyServerType.UNDEFINED;
+        private String serverType;
         private String dirtyMessage;
         private LogicalType rowType;
         private long dataTime;
@@ -184,7 +183,7 @@ public class DirtyData<T> {
             return this;
         }
 
-        public Builder<T> setServerType(DirtyServerType serverType) {
+        public Builder<T> setServerType(String serverType) {
             this.serverType = serverType;
             return this;
         }
