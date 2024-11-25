@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.kafka.source.reader;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.connector.source.SourceReaderContext;
 import org.apache.flink.configuration.Configuration;

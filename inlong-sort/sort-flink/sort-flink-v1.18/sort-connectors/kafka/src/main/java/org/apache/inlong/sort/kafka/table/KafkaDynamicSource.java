@@ -20,7 +20,6 @@ package org.apache.inlong.sort.kafka.table;
 import org.apache.inlong.sort.kafka.source.KafkaSource;
 import org.apache.inlong.sort.kafka.source.KafkaSourceBuilder;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.kafka.source;
 
-import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.connector.source.Boundedness;
 import org.apache.flink.connector.kafka.source.KafkaSourceOptions;

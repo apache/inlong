@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.kafka.table;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

@@ -19,8 +19,6 @@ package org.apache.inlong.sort.kafka.source;
 
 import org.apache.inlong.sort.kafka.source.reader.KafkaSourceReader;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -185,7 +183,6 @@ public class KafkaSource<OUT>
                 kafkaSourceReaderMetrics);
     }
 
-
     @Override
     public SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> createEnumerator(
             SplitEnumeratorContext<KafkaPartitionSplit> enumContext) {
@@ -197,7 +194,6 @@ public class KafkaSource<OUT>
                 enumContext,
                 boundedness);
     }
-
 
     @Override
     public SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> restoreEnumerator(
@@ -214,12 +210,10 @@ public class KafkaSource<OUT>
                 checkpoint);
     }
 
-
     @Override
     public SimpleVersionedSerializer<KafkaPartitionSplit> getSplitSerializer() {
         return new KafkaPartitionSplitSerializer();
     }
-
 
     @Override
     public SimpleVersionedSerializer<KafkaSourceEnumState> getEnumeratorCheckpointSerializer() {
