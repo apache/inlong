@@ -38,7 +38,7 @@ import org.springframework.context.annotation.Configuration;
 @EqualsAndHashCode(callSuper = true)
 public class AirflowConfig extends ClientConfiguration {
 
-    @Value("${schedule.engine.airflow.inlong.manager.host:127.0.0.1}")
+    @Value("${schedule.engine.inlong.manager.host:127.0.0.1}")
     private String host;
 
     @Value("${server.port:8083}")
