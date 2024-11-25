@@ -221,7 +221,10 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer.subscribe(topic, streamIdSet);
         String jobId = getRuntimeContext().getJobId().toString();
-        messagePullConsumer.completeSubscribe(sessionKey.concat(jobId), numTasks, true, currentOffsets);
+        String attemptNumber = String.valueOf(getRuntimeContext().getAttemptNumber());
+        String startSessionKey = sessionKey.concat("_").concat(jobId).concat("_").concat(attemptNumber);
+        LOG.info("start to init tube mq consumer, session key={}", startSessionKey);
+        messagePullConsumer.completeSubscribe(startSessionKey, numTasks, true, currentOffsets);
 
         running = true;
     }
