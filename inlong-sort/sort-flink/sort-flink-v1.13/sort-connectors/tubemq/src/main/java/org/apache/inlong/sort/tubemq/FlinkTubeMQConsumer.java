@@ -69,6 +69,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     private static final Logger LOG = LoggerFactory.getLogger(FlinkTubeMQConsumer.class);
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";
 
+    private static final String UNDERSCORE = "_";
+
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
      */
@@ -222,7 +224,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messagePullConsumer.subscribe(topic, streamIdSet);
         String jobId = getRuntimeContext().getJobId().toString();
         String attemptNumber = String.valueOf(getRuntimeContext().getAttemptNumber());
-        String startSessionKey = sessionKey.concat("_").concat(jobId).concat("_").concat(attemptNumber);
+        String startSessionKey = sessionKey.concat(UNDERSCORE).concat(jobId).concat(UNDERSCORE).concat(attemptNumber);
         LOG.info("start to init tube mq consumer, session key={}", startSessionKey);
         messagePullConsumer.completeSubscribe(startSessionKey, numTasks, true, currentOffsets);
 
