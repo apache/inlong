@@ -42,6 +42,7 @@ public class DolphinScheduleException extends RuntimeException {
     public static final String GEN_TASK_CODE_FAILED = "GEN_TASK_CODE_FAILED";
 
     // Process-related error codes
+    public static final int PROCESS_DEFINITION_IN_USED_ERROR = 10163;
     public static final String PROCESS_DEFINITION_QUERY_FAILED = "PROCESS_DEFINITION_QUERY_FAILED";
     public static final String PROCESS_DEFINITION_CREATION_FAILED = "PROCESS_DEFINITION_CREATION_FAILED";
     public static final String PROCESS_DEFINITION_RELEASE_FAILED = "PROCESS_DEFINITION_RELEASE_FAILED";
