@@ -61,6 +61,8 @@ services:
       - FLINK_HOST=jobmanager
       - FLINK_PORT=8081
       - AUDIT_QUERY_URL=http://audit:10080
+    volumes:
+      - ../../inlong-manager/conf:/opt/inlong-manager/conf
 
   dashboard:
     image: inlong/dashboard:${VERSION_TAG}
