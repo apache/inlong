@@ -282,22 +282,21 @@ public class DolphinScheduleUtils {
     /**
      * Creates a process definition in DolphinScheduler.
      *
-     * @param url         The base URL of the DolphinScheduler API.
-     * @param token       The authentication token to be used in the request header.
-     * @param name        The name of the process definition.
-     * @param desc        The description of the process definition.
-     * @param taskCode    The task code to be associated with this process definition.
-     * @param host        The host where the process will run.
-     * @param port        The port where the process will run.
-     * @param username    The username for authentication.
-     * @param password    The password for authentication.
-     * @param offset      The offset for the scheduling.
-     * @param groupId     The group ID of the process.
+     * @param url               The base URL of the DolphinScheduler API.
+     * @param token             The authentication token to be used in the request header.
+     * @param name              The name of the process definition.
+     * @param desc              The description of the process definition.
+     * @param taskCode          The task code to be associated with this process definition.
+     * @param inlongManagerUrl  The host where the process will run.
+     * @param username          The username for authentication.
+     * @param password          The password for authentication.
+     * @param offset            The offset for the scheduling.
+     * @param groupId           The group ID of the process.
      * @return The process definition code (ID) if creation is successful, or 0 if an error occurs.
      */
     public static long createProcessDef(String url, String token, String name, String desc,
-            long taskCode, String host,
-            int port, String username, String password, long offset, String groupId) throws Exception {
+            long taskCode, String inlongManagerUrl, String username, String password, long offset, String groupId)
+            throws Exception {
         try {
             Map<String, String> header = buildHeader(token);
 
@@ -306,7 +305,7 @@ public class DolphinScheduleUtils {
             String taskRelationJson = MAPPER.writeValueAsString(Collections.singletonList(taskRelation));
 
             DSTaskParams taskParams = new DSTaskParams();
-            taskParams.setRawScript(buildScript(host, port, username, password, offset, groupId));
+            taskParams.setRawScript(buildScript(inlongManagerUrl, username, password, offset, groupId));
 
             DSTaskDefinition taskDefinition = new DSTaskDefinition();
             taskDefinition.setCode(taskCode);
@@ -774,10 +773,10 @@ public class DolphinScheduleUtils {
      * When process definition schedule run, the shell node run,
      * Call back in inlong, sending a request with parameters required
      */
-    private static String buildScript(String host, int port, String username, String password, long offset,
+    private static String buildScript(String inlongManagerUrl, String username, String password, long offset,
             String groupId) {
-        LOGGER.info("build script for host: {}, port: {}, username: {}, password: {}, offset: {}, groupId: {}", host,
-                port, username, password, offset, groupId);
+        LOGGER.info("build script for Inlong Manager Url: {}, username: {}, password: {}, offset: {}, groupId: {}",
+                inlongManagerUrl, username, password, offset, groupId);
         return "#!/bin/bash\n\n" +
 
         // Get current timestamp
@@ -789,7 +788,7 @@ public class DolphinScheduleUtils {
 
                 // Set URL
                 "# Set URL and HTTP method\n" +
-                "url=\"http://" + host + ":" + port + SHELL_REQUEST_API +
+                "url=\"" + inlongManagerUrl + SHELL_REQUEST_API +
                 "?username=" + username + "&password=" + password + "\"\n" +
                 "echo \"get url: ${url}\"\n" +
 
