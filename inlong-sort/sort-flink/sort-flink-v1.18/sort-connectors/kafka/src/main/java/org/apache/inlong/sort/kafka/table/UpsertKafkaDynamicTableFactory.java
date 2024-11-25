@@ -82,7 +82,7 @@ import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFK
 
 /**
  * Upsert-Kafka factory.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 public class UpsertKafkaDynamicTableFactory
         implements

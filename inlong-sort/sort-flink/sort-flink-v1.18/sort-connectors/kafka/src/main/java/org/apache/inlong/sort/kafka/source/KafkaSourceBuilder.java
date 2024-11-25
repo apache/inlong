@@ -86,10 +86,9 @@ import static org.apache.flink.util.Preconditions.checkState;
  *
  * <p>Check the Java docs of each individual methods to learn more about the settings to build a
  * KafkaSource.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 // TODO: Add a variable metricSchema to report audit information
-@PublicEvolving
 public class KafkaSourceBuilder<OUT> {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaSourceBuilder.class);

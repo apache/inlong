@@ -63,8 +63,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A version-agnostic Kafka {@link DynamicTableSink}.
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
-@Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
 
     private static final String UPSERT_KAFKA_TRANSFORMATION = "upsert-kafka";

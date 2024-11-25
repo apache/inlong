@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /** Sink buffer flush configuration.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 public class SinkBufferFlushMode implements Serializable {
 

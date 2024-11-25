@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** SerializationSchema used by {@link KafkaDynamicSink} to configure a {@link KafkaSink}.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationSchema<RowData> {
 

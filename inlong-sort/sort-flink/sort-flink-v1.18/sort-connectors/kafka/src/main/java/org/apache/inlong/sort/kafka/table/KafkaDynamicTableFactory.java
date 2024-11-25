@@ -99,9 +99,8 @@ import static org.apache.inlong.sort.protocol.constant.KafkaConstant.KAFKA;
 /**
  * Factory for creating configured instances of {@link KafkaDynamicSource} and {@link
  * KafkaDynamicSink}.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * org.apache.flink:flink-connector-kafka:3.2.0
  */
-@Internal
 public class KafkaDynamicTableFactory
         implements
             DynamicTableSourceFactory,

@@ -83,10 +83,9 @@ import java.util.function.Supplier;
  * <p>See {@link KafkaSourceBuilder} for more details on how to configure this source.
  *
  * @param <OUT> the output type of the source.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 // TODO: Add a variable metricSchema to report audit information
-@PublicEvolving
 public class KafkaSource<OUT>
         implements
             Source<OUT, KafkaPartitionSplit, KafkaSourceEnumState>,
@@ -137,7 +136,6 @@ public class KafkaSource<OUT>
         return this.boundedness;
     }
 
-    @Internal
     @Override
     public SourceReader<OUT, KafkaPartitionSplit> createReader(SourceReaderContext readerContext)
             throws Exception {
@@ -187,7 +185,7 @@ public class KafkaSource<OUT>
                 kafkaSourceReaderMetrics);
     }
 
-    @Internal
+
     @Override
     public SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> createEnumerator(
             SplitEnumeratorContext<KafkaPartitionSplit> enumContext) {
@@ -200,7 +198,7 @@ public class KafkaSource<OUT>
                 boundedness);
     }
 
-    @Internal
+
     @Override
     public SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> restoreEnumerator(
             SplitEnumeratorContext<KafkaPartitionSplit> enumContext,
@@ -216,13 +214,13 @@ public class KafkaSource<OUT>
                 checkpoint);
     }
 
-    @Internal
+
     @Override
     public SimpleVersionedSerializer<KafkaPartitionSplit> getSplitSerializer() {
         return new KafkaPartitionSplitSerializer();
     }
 
-    @Internal
+
     @Override
     public SimpleVersionedSerializer<KafkaSourceEnumState> getEnumeratorCheckpointSerializer() {
         return new KafkaSourceEnumStateSerializer();

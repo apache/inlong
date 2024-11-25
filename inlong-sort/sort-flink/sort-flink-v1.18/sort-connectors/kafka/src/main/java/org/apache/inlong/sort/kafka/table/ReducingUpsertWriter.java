@@ -41,7 +41,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.kafka.table.DynamicKafkaRecordSerializationSchema.createProjectedRow;
 
 /**
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 class ReducingUpsertWriter<WriterState, Comm>
         implements

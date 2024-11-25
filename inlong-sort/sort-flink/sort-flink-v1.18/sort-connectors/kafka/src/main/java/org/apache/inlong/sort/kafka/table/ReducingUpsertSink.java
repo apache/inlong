@@ -36,7 +36,7 @@ import java.util.Collection;
  * <p>The sink provides eventual consistency guarantees under {@link
  * org.apache.flink.connector.base.DeliveryGuarantee#AT_LEAST_ONCE} because the updates are
  * idempotent therefore duplicates have no effect.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
 class ReducingUpsertSink<WriterState, Comm>
         implements

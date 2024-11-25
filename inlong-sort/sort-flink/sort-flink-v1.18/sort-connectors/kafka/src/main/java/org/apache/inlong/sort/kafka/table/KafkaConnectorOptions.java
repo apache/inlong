@@ -34,9 +34,8 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT_SUFFIX;
 
 /**
  * Options for the Kafka connector.
- * copied from org.apache.flink:flink-connector-kafka:1.18.0
+ * copied from org.apache.flink:flink-connector-kafka:3.2.0
  */
-@PublicEvolving
 public class KafkaConnectorOptions {
 
     // --------------------------------------------------------------------------------------------
