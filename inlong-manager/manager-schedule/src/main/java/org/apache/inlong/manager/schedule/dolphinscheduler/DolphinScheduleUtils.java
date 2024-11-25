@@ -495,29 +495,28 @@ public class DolphinScheduleUtils {
             String requestUrl = url + "/" + code;
             for (int retryTime = 1; retryTime <= DS_DEFAULT_RETRY_TIMES; retryTime++) {
                 JsonObject response = executeHttpRequest(requestUrl, DELETE, new HashMap<>(), header);
-
-                if (response.get(DS_SUCCESS).getAsBoolean()) {
-                    LOGGER.info("Delete process or project success, response data: {}", response);
-                    return;
-                }
-
                 if (response.get(DS_CODE).getAsInt() == PROCESS_DEFINITION_IN_USED_ERROR) {
 
-                    if (retryTime == DS_DEFAULT_RETRY_TIMES) {
-                        LOGGER.error(
-                                "Maximum retry attempts reached for deleting process or project. URL: {}, Code: {}",
-                                url, code);
-                        throw new DolphinScheduleException(
-                                DELETION_FAILED,
-                                String.format("Failed to delete after %d retries. Code: %d at URL: %s",
-                                        DS_DEFAULT_RETRY_TIMES, code, url));
-                    }
-
-                    LOGGER.warn("Attempt {} of {}, retrying after {} ms...", retryTime, DS_DEFAULT_RETRY_TIMES,
-                            DS_DEFAULT_WAIT_MILLS);
+                    LOGGER.warn(
+                            "Retrying for current retry time ={}, maximum retry count={}, code={}, url={}, after {} ms...",
+                            retryTime, DS_DEFAULT_RETRY_TIMES, code, url, DS_DEFAULT_WAIT_MILLS);
                     Thread.sleep(DS_DEFAULT_WAIT_MILLS);
+
+                } else if (response.get(DS_SUCCESS).getAsBoolean()) {
+                    LOGGER.info("Delete process or project success, response data: {}", response);
+                    return;
+                } else {
+                    LOGGER.warn("Delete process or project failed, response data: {}", response);
                 }
+
             }
+            LOGGER.error(
+                    "Maximum retry attempts reached for deleting process or project. URL: {}, Code: {}",
+                    url, code);
+            throw new DolphinScheduleException(
+                    DELETION_FAILED,
+                    String.format("Failed to delete after %d retries. Code: %d at URL: %s",
+                            DS_DEFAULT_RETRY_TIMES, code, url));
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -532,7 +531,7 @@ public class DolphinScheduleUtils {
                     String.format("Error deleting process or project with code: %d at URL: %s", code, url));
 
         } catch (DolphinScheduleException e) {
-            LOGGER.error("Error deleting process or project: ", e);
+            LOGGER.error("Error deleting process or project for code={}, url={} ", code, url, e);
             throw new DolphinScheduleException(
                     DELETION_FAILED,
                     String.format("Error deleting process or project with code: %d at URL: %s", code, url));
