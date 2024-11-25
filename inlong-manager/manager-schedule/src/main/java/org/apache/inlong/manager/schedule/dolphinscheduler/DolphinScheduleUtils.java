@@ -493,7 +493,7 @@ public class DolphinScheduleUtils {
             Map<String, String> header = buildHeader(token);
 
             String requestUrl = url + "/" + code;
-            for (int attempt = 1; attempt <= DS_DEFAULT_RETRY_TIMES; attempt++) {
+            for (int retryTime = 1; retryTime <= DS_DEFAULT_RETRY_TIMES; retryTime++) {
                 JsonObject response = executeHttpRequest(requestUrl, DELETE, new HashMap<>(), header);
 
                 if (response.get(DS_SUCCESS).getAsBoolean()) {
@@ -502,7 +502,18 @@ public class DolphinScheduleUtils {
                 }
 
                 if (response.get(DS_CODE).getAsInt() == PROCESS_DEFINITION_IN_USED_ERROR) {
-                    LOGGER.warn("Attempt {} of {}, retrying after {} ms...", attempt, DS_DEFAULT_RETRY_TIMES,
+
+                    if (retryTime == DS_DEFAULT_RETRY_TIMES) {
+                        LOGGER.error(
+                                "Maximum retry attempts reached for deleting process or project. URL: {}, Code: {}",
+                                url, code);
+                        throw new DolphinScheduleException(
+                                DELETION_FAILED,
+                                String.format("Failed to delete after %d retries. Code: %d at URL: %s",
+                                        DS_DEFAULT_RETRY_TIMES, code, url));
+                    }
+
+                    LOGGER.warn("Attempt {} of {}, retrying after {} ms...", retryTime, DS_DEFAULT_RETRY_TIMES,
                             DS_DEFAULT_WAIT_MILLS);
                     Thread.sleep(DS_DEFAULT_WAIT_MILLS);
                 }
@@ -513,18 +524,18 @@ public class DolphinScheduleUtils {
             LOGGER.error("Thread interrupted while retrying delete process or project: ", e);
             throw new DolphinScheduleException(
                     DELETION_FAILED,
-                    String.format("Thread interrupted while retrying delete for code: %d at URL: %s", code, url), e);
+                    String.format("Thread interrupted while retrying delete for code: %d at URL: %s", code, url));
         } catch (JsonParseException e) {
             LOGGER.error("JsonParseException during deleting process or project", e);
             throw new DolphinScheduleException(
                     JSON_PARSE_ERROR,
-                    String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);
+                    String.format("Error deleting process or project with code: %d at URL: %s", code, url));
 
         } catch (DolphinScheduleException e) {
             LOGGER.error("Error deleting process or project: ", e);
             throw new DolphinScheduleException(
                     DELETION_FAILED,
-                    String.format("Error deleting process or project with code: %d at URL: %s", code, url), e);
+                    String.format("Error deleting process or project with code: %d at URL: %s", code, url));
         }
     }
 
