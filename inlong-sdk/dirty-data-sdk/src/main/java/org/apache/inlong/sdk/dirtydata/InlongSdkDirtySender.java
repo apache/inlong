@@ -73,7 +73,7 @@ public class InlongSdkDirtySender {
         log.info("init InlongSdkDirtySink successfully, target group={}, stream={}", inlongGroupId, inlongStreamId);
     }
 
-    public void sendDirtyMessageSync(DirtyMessageWrapper messageWrapper) throws InterruptedException {
+    public void sendDirtyMessage(DirtyMessageWrapper messageWrapper) throws InterruptedException {
         dirtyDataQueue.put(messageWrapper);
     }
 
