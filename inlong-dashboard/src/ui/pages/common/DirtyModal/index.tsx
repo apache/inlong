@@ -100,8 +100,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
     dataCount: 10,
     dirtyType: '',
     serverType: '',
-    startTime: dayjs().format('YYYYMMDD'),
-    endTime: dayjs().format('YYYYMMDD'),
+    startTime: dayjs().format('YYYYMMDDHH'),
+    endTime: dayjs().format('YYYYMMDDHH'),
   };
   const defaultTrendOptions = {
     dataTimeUnit: 'D',
@@ -172,8 +172,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       method: 'POST',
       data: {
         ...options,
-        startTime: options.startTime ? dayjs(options.startTime).format('YYYYMMDD') : '',
-        endTime: options.endTime ? dayjs(options.endTime).format('YYYYMMDD') : '',
+        startTime: options.startTime ? dayjs(options.startTime).format('YYYYMMDDHH') : '',
+        endTime: options.endTime ? dayjs(options.endTime).format('YYYYMMDDHH') : '',
         dataCount: form1.getFieldValue('dataCount') || 10,
         keyword: form1.getFieldValue('keyword') || '',
         sinkIdList: [modalProps.id],
@@ -286,7 +286,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       initialValue: dayjs(options.startTime),
       props: {
         allowClear: true,
-        format: 'YYYYMMDD',
+        showTime: true,
+        format: 'YYYY-MM-DD HH',
       },
       rules: [
         { required: true },
@@ -310,7 +311,8 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       props: values => {
         return {
           allowClear: true,
-          format: 'YYYYMMDD',
+          showTime: true,
+          format: 'YYYY-MM-DD HH',
         };
       },
       rules: [
@@ -408,7 +410,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         return {
           allowClear: true,
           showTime: values.dataTimeUnit === 'H',
-          format: values.dataTimeUnit === 'D' ? 'YYYYMMDD' : 'YYYYMMDDHH',
+          format: values.dataTimeUnit === 'D' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH',
         };
       },
       initialValue: dayjs(trendOptions.startTime),
@@ -435,7 +437,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         return {
           allowClear: true,
           showTime: values.dataTimeUnit === 'H',
-          format: values.dataTimeUnit === 'D' ? 'YYYYMMDD' : 'YYYYMMDDHH',
+          format: values.dataTimeUnit === 'D' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH',
         };
       },
       rules: [
