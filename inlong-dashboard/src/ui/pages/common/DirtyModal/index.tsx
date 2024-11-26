@@ -287,7 +287,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
       props: {
         allowClear: true,
         showTime: true,
-        format: 'YYYYMMDDHH',
+        format: 'YYYY-MM-DD HH',
       },
       rules: [
         { required: true },
@@ -312,7 +312,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         return {
           allowClear: true,
           showTime: true,
-          format: 'YYYYMMDDHH',
+          format: 'YYYY-MM-DD HH',
         };
       },
       rules: [
@@ -410,7 +410,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         return {
           allowClear: true,
           showTime: values.dataTimeUnit === 'H',
-          format: values.dataTimeUnit === 'D' ? 'YYYYMMDD' : 'YYYYMMDDHH',
+          format: values.dataTimeUnit === 'D' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH',
         };
       },
       initialValue: dayjs(trendOptions.startTime),
@@ -437,7 +437,7 @@ const Comp: React.FC<Props> = ({ ...modalProps }) => {
         return {
           allowClear: true,
           showTime: values.dataTimeUnit === 'H',
-          format: values.dataTimeUnit === 'D' ? 'YYYYMMDD' : 'YYYYMMDDHH',
+          format: values.dataTimeUnit === 'D' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH',
         };
       },
       rules: [
