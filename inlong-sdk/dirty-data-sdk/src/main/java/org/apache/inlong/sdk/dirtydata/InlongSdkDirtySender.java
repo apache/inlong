@@ -31,7 +31,6 @@ import java.net.InetAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Builder
@@ -75,7 +74,11 @@ public class InlongSdkDirtySender {
     }
 
     public void sendDirtyMessage(DirtyMessageWrapper messageWrapper) throws InterruptedException {
-        dirtyDataQueue.offer(messageWrapper, 10, TimeUnit.SECONDS);
+        dirtyDataQueue.put(messageWrapper);
+    }
+
+    public boolean sendDirtyMessageAsync(DirtyMessageWrapper messageWrapper) {
+        return dirtyDataQueue.offer(messageWrapper);
     }
 
     private void doSendDirtyMessage() {

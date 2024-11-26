@@ -74,7 +74,7 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                     .data(dirtyMessage)
                     .build();
 
-            dirtySender.sendDirtyMessage(wrapper);
+            dirtySender.sendDirtyMessageAsync(wrapper);
         } catch (Throwable t) {
             log.error("failed to send dirty message to inlong sdk", t);
             if (!options.isIgnoreSideOutputErrors()) {
