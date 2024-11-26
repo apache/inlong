@@ -56,11 +56,8 @@ public class DolphinScheduleEngine implements ScheduleEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DolphinScheduleEngine.class);
 
-    @Value("${schedule.engine.inlong.manager.host:127.0.0.1}")
-    private String host;
-
-    @Value("${server.port:8083}")
-    private int port;
+    @Value("${schedule.engine.inlong.manager.url:http://127.0.0.1:8083}")
+    private String inlongManagerUrl;
 
     @Value("${default.admin.user:admin}")
     private String username;
@@ -86,10 +83,10 @@ public class DolphinScheduleEngine implements ScheduleEngine {
         this.projectBaseUrl = dolphinUrl + DS_PROJECT_URL;
     }
 
-    public DolphinScheduleEngine(String host, int port, String username, String password, String dolphinUrl,
+    public DolphinScheduleEngine(String inlongManagerUrl, String username, String password,
+            String dolphinUrl,
             String token) {
-        this.host = host;
-        this.port = port;
+        this.inlongManagerUrl = inlongManagerUrl;
         this.username = username;
         this.password = password;
         this.dolphinUrl = dolphinUrl;
@@ -161,8 +158,7 @@ public class DolphinScheduleEngine implements ScheduleEngine {
             long offset = DolphinScheduleUtils.calculateOffset(scheduleInfo);
             processDefCode =
                     dolphinScheduleOperator.createProcessDef(processDefUrl, token, processName, processDesc, taskCode,
-                            host, port,
-                            username, password, offset, scheduleInfo.getInlongGroupId());
+                            inlongManagerUrl, username, password, offset, scheduleInfo.getInlongGroupId());
             LOGGER.info("Create process definition success, process definition code: {}", processDefCode);
 
             if (dolphinScheduleOperator.releaseProcessDef(processDefUrl, processDefCode, token, DS_ONLINE_STATE)) {

@@ -92,11 +92,11 @@ public class DolphinScheduleOperator {
     /**
      * Creates a process definition in DolphinScheduler.
      */
-    public long createProcessDef(String url, String token, String name, String desc, long taskCode, String host,
-            int port, String username, String password, long offset, String groupId) {
+    public long createProcessDef(String url, String token, String name, String desc, long taskCode,
+            String inlongManagerUrl, String username, String password, long offset, String groupId) {
         try {
-            return DolphinScheduleUtils.createProcessDef(url, token, name, desc, taskCode, host,
-                    port, username, password, offset, groupId);
+            return DolphinScheduleUtils.createProcessDef(url, token, name, desc, taskCode, inlongManagerUrl, username,
+                    password, offset, groupId);
         } catch (Exception e) {
             LOGGER.error("Unexpected wrong in creating process definition: ", e);
             throw new DolphinScheduleException(UNEXPECTED_ERROR,

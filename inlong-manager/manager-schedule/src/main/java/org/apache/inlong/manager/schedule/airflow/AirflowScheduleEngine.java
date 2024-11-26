@@ -97,8 +97,8 @@ public class AirflowScheduleEngine implements ScheduleEngine {
                 new AirflowConnectionGetter(airflowConfig.getConnectionId()));
         if (!response.isSuccess()) {
             AirflowConnection newConn = new AirflowConnection(airflowConfig.getConnectionId(), "HTTP", "",
-                    airflowConfig.getHost(), airflowConfig.getInlongUsername(), SUBMIT_OFFLINE_JOB_URI,
-                    airflowConfig.getPort(), airflowConfig.getInlongPassword(), "");
+                    airflowConfig.getInlongManagerHost(), airflowConfig.getInlongUsername(), SUBMIT_OFFLINE_JOB_URI,
+                    airflowConfig.getInlongManagerPort(), airflowConfig.getInlongPassword(), "");
             response = serverClient.sendRequest(new AirflowConnectionCreator(newConn));
             LOGGER.info("AirflowConnection registration response: {}", response.toString());
             if (!response.isSuccess()) {
