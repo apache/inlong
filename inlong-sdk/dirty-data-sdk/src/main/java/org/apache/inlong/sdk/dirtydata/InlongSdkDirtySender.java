@@ -74,8 +74,14 @@ public class InlongSdkDirtySender {
         log.info("init InlongSdkDirtySink successfully, target group={}, stream={}", inlongGroupId, inlongStreamId);
     }
 
-    public void sendDirtyMessage(DirtyMessageWrapper messageWrapper) throws InterruptedException {
-        dirtyDataQueue.offer(messageWrapper, 10, TimeUnit.SECONDS);
+    public void sendDirtyMessageSync(DirtyMessageWrapper messageWrapper) throws InterruptedException {
+        dirtyDataQueue.put(messageWrapper);
+    }
+
+    public void sendDirtyMessageAsync(DirtyMessageWrapper messageWrapper) throws InterruptedException {
+        if(!dirtyDataQueue.offer(messageWrapper)) {
+            log.warn("the dirty data queue is full, you can increase the size of queue by configure maxCallbackSize");
+        }
     }
 
     private void doSendDirtyMessage() {
