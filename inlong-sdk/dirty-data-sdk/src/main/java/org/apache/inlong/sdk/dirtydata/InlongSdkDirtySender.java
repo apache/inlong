@@ -77,10 +77,12 @@ public class InlongSdkDirtySender {
         dirtyDataQueue.put(messageWrapper);
     }
 
-    public void sendDirtyMessageAsync(DirtyMessageWrapper messageWrapper) throws InterruptedException {
-        if(!dirtyDataQueue.offer(messageWrapper)) {
-            log.warn("the dirty data queue is full, you can increase the size of queue by configure maxCallbackSize");
+    public boolean sendDirtyMessageAsync(DirtyMessageWrapper messageWrapper) {
+        boolean result = dirtyDataQueue.offer(messageWrapper);
+        if (!result) {
+            log.warn("send dirty message async queue is full, you can increase maxCallbackSize");
         }
+        return result;
     }
 
     private void doSendDirtyMessage() {
