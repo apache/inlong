@@ -78,11 +78,7 @@ public class InlongSdkDirtySender {
     }
 
     public boolean sendDirtyMessageAsync(DirtyMessageWrapper messageWrapper) {
-        boolean result = dirtyDataQueue.offer(messageWrapper);
-        if (!result) {
-            log.warn("send dirty message async queue is full, you can increase maxCallbackSize");
-        }
-        return result;
+        return dirtyDataQueue.offer(messageWrapper);
     }
 
     private void doSendDirtyMessage() {
