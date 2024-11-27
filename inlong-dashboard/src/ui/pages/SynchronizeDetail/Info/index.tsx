@@ -229,10 +229,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
         initialValues={data}
         onValuesChange={(c, values) => {
           setMqType(values.mqType);
-          if (c.scheduleEngine === 'DolphinScheduler') {
-            form.setFieldsValue({ scheduleType: 1 });
-            values.scheduleType = 1;
-          }
         }}
         useMaxWidth={1400}
         col={14}
