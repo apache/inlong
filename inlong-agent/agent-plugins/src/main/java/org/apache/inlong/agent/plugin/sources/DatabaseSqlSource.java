@@ -19,8 +19,8 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.extend.DefaultExtendedHandler;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-import org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sources.file.extend;
+package org.apache.inlong.agent.plugin.sources.extend;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
 
 import java.util.Map;
 
-public class DefaultExtendedHandler extends ExtendedHandler {
+// For some private, customized extension processing
+public abstract class ExtendedHandler {
 
-    public DefaultExtendedHandler(InstanceProfile profile) {
-        super(profile);
+    protected InstanceProfile profile;
+
+    public ExtendedHandler(InstanceProfile profile) {
+        this.profile = profile;
     }
 
     // Modify the header by the body
-    public void dealWithHeader(Map<String, String> header, byte[] body) {
-    }
+    abstract public void dealWithHeader(Map<String, String> header, byte[] body);
 
-    public boolean filterMessage(Message msg) {
-        return true;
-    }
+    abstract public boolean filterMessage(Message msg);
 
     public static class Constants {
 

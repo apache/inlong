@@ -23,8 +23,8 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.extend.DefaultExtendedHandler;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-import org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler;
 
 import io.debezium.connector.oracle.OracleConnector;
 import io.debezium.connector.oracle.OracleConnectorConfig;
