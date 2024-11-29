@@ -551,8 +551,17 @@ public class ModuleManager extends AbstractDaemon {
             authHeader.forEach((k, v) -> {
                 conn.setRequestProperty(k, v);
             });
-            String path =
-                    module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
+            String saveFolder = getRealPath(module.getPackageConfig().getStoragePath());
+            File folder = new File(saveFolder);
+            if (!folder.exists()) {
+                boolean folderCreated = folder.mkdirs();
+                if (folderCreated) {
+                    LOGGER.info("saveFolder {} created", saveFolder);
+                } else {
+                    LOGGER.error("failed to create saveFolder {}", saveFolder);
+                }
+            }
+            String path = saveFolder + "/" + module.getPackageConfig().getFileName();
             try (InputStream inputStream = conn.getInputStream();
                     FileOutputStream outputStream = new FileOutputStream(path)) {
                 LOGGER.info("module {}({}) save path {}", module.getId(), module.getName(), path);
@@ -578,7 +587,8 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private boolean isPackageDownloaded(ModuleConfig module) {
-        String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
+        String path =
+                getRealPath(module.getPackageConfig().getStoragePath()) + "/" + module.getPackageConfig().getFileName();
         String fileMd5 = calcFileMd5(path);
         if (Objects.equals(fileMd5, module.getPackageConfig().getMd5())) {
             return true;
@@ -587,6 +597,11 @@ public class ModuleManager extends AbstractDaemon {
                     fileMd5, module.getPackageConfig().getMd5());
             return false;
         }
+    }
+
+    private String getRealPath(String originPath) {
+        String homeDir = System.getProperty("user.home");
+        return originPath.replace("~", homeDir).replace("${HOME}", homeDir).replace("${home}", homeDir);
     }
 
     @Override
