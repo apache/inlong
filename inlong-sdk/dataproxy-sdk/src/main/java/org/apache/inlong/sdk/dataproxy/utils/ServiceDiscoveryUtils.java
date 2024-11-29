@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -187,13 +187,13 @@ public class ServiceDiscoveryUtils {
                 long timestamp = System.currentTimeMillis();
                 int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
                 httpPost.setHeader(BasicAuth.BASIC_AUTH_HEADER,
-                        Utils.getAuthorizenInfo(proxyClientConfig.getUserName(),
+                        IpUtils.getAuthorizenInfo(proxyClientConfig.getUserName(),
                                 proxyClientConfig.getSecretKey(), timestamp, nonce));
             }
             httpPost.setEntity(new UrlEncodedFormEntity(params));
             HttpResponse response = httpClient.execute(httpPost);
             String returnStr = EntityUtils.toString(response.getEntity());
-            if (Utils.isNotBlank(returnStr) && response.getStatusLine().getStatusCode() == 200) {
+            if (StringUtils.isNotBlank(returnStr) && response.getStatusLine().getStatusCode() == 200) {
                 log.info("Get configure from manager is " + returnStr);
                 JsonParser jsonParser = new JsonParser();
                 JsonObject jb = jsonParser.parse(returnStr).getAsJsonObject();

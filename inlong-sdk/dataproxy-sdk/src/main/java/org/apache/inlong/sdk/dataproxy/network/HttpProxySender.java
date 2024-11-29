@@ -75,8 +75,7 @@ public class HttpProxySender extends Thread {
     private void initTDMClientAndRequest(ProxyClientConfig configure) throws Exception {
 
         try {
-            proxyConfigManager = new ProxyConfigManager(configure,
-                    Utils.getLocalIp(), null);
+            proxyConfigManager = new ProxyConfigManager(configure, null);
             proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
             ProxyConfigEntry proxyConfigEntry = retryGettingProxyConfig();
             hostList.addAll(proxyConfigEntry.getHostMap().values());

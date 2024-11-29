@@ -25,7 +25,7 @@ import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.HashRing;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -93,7 +93,6 @@ public class ProxyConfigManager extends Thread {
     public static final String APPLICATION_JSON = "application/json";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyConfigManager.class);
     private final ProxyClientConfig clientConfig;
-    private final String localIP;
     private final ClientMgr clientManager;
     private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
     private final JsonParser jsonParser = new JsonParser();
@@ -108,9 +107,8 @@ public class ProxyConfigManager extends Thread {
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
 
-    public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
+    public ProxyConfigManager(final ProxyClientConfig configure, final ClientMgr clientManager) {
         this.clientConfig = configure;
-        this.localIP = localIP;
         this.clientManager = clientManager;
         this.hashRing.setVirtualNode(configure.getVirtualNode());
     }
@@ -358,7 +356,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     public EncryptConfigEntry getEncryptConfigEntry(final String userName) {
-        if (Utils.isBlank(userName)) {
+        if (StringUtils.isBlank(userName)) {
             return null;
         }
         EncryptConfigEntry encryptEntry = this.userEncryConfigEntry;
@@ -397,7 +395,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private void updateEncryptConfigEntry() {
-        if (Utils.isBlank(this.clientConfig.getUserName())) {
+        if (StringUtils.isBlank(this.clientConfig.getUserName())) {
             return;
         }
         int retryCount = 0;
@@ -422,7 +420,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private EncryptConfigEntry getStoredPubKeyEntry(String userName) {
-        if (Utils.isBlank(userName)) {
+        if (StringUtils.isBlank(userName)) {
             LOGGER.warn(" userName(" + userName + ") is not available");
             return null;
         }
@@ -509,7 +507,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private EncryptConfigEntry requestPubKey(String pubKeyUrl, String userName, boolean needGet) {
-        if (Utils.isBlank(userName)) {
+        if (StringUtils.isBlank(userName)) {
             LOGGER.error("Queried userName is null!");
             return null;
         }
@@ -517,7 +515,7 @@ public class ProxyConfigManager extends Thread {
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", userName));
         String returnStr = requestConfiguration(pubKeyUrl, params);
-        if (Utils.isBlank(returnStr)) {
+        if (StringUtils.isBlank(returnStr)) {
             LOGGER.info("No public key information returned from manager");
             return null;
         }
@@ -543,15 +541,15 @@ public class ProxyConfigManager extends Thread {
         JsonObject resultData = pubKeyConf.get("resultData").getAsJsonObject();
         if (resultData != null) {
             String publicKey = resultData.get("publicKey").getAsString();
-            if (Utils.isBlank(publicKey)) {
+            if (StringUtils.isBlank(publicKey)) {
                 return null;
             }
             String username = resultData.get("username").getAsString();
-            if (Utils.isBlank(username)) {
+            if (StringUtils.isBlank(username)) {
                 return null;
             }
             String versionStr = resultData.get("version").getAsString();
-            if (Utils.isBlank(versionStr)) {
+            if (StringUtils.isBlank(versionStr)) {
                 return null;
             }
             return new EncryptConfigEntry(username, versionStr, publicKey);
@@ -591,7 +589,7 @@ public class ProxyConfigManager extends Thread {
 
     public ProxyConfigEntry requestProxyList(String url) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("ip", this.localIP));
+        params.add(new BasicNameValuePair("ip", IpUtils.getLocalIp()));
         params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
         LOGGER.info("Begin to get configure from manager {}, param is {}", url, params);
 
@@ -700,7 +698,7 @@ public class ProxyConfigManager extends Thread {
 
     /* Request new configurations from Manager. */
     private String requestConfiguration(String url, List<BasicNameValuePair> params) {
-        if (Utils.isBlank(url)) {
+        if (StringUtils.isBlank(url)) {
             LOGGER.error("request url is null");
             return null;
         }
@@ -746,7 +744,7 @@ public class ProxyConfigManager extends Thread {
                 httpPost.setEntity(urlEncodedFormEntity);
                 HttpResponse response = httpClient.execute(httpPost);
                 returnStr = EntityUtils.toString(response.getEntity());
-                if (Utils.isNotBlank(returnStr)
+                if (StringUtils.isNotBlank(returnStr)
                         && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     LOGGER.info("Get configure from manager is " + returnStr);
                     return returnStr;

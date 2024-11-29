@@ -18,8 +18,8 @@
 package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -98,13 +98,13 @@ public class ProxyClientConfig {
     public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp,
             int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
-        if (Utils.isBlank(localHost)) {
+        if (StringUtils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
-        if (Utils.isBlank(managerIp)) {
+        if (StringUtils.isBlank(managerIp)) {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
-        if (Utils.isBlank(inlongGroupId)) {
+        if (StringUtils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
         this.inlongGroupId = inlongGroupId;
@@ -114,7 +114,7 @@ public class ProxyClientConfig {
         this.managerAddress = getManagerAddress(managerIp, managerPort, requestByHttp);
         this.managerUrl =
                 getManagerUrl(managerAddress, inlongGroupId);
-        Utils.validLocalIp(localHost);
+        IpUtils.validLocalIp(localHost);
         this.aliveConnections = ConfigConstants.ALIVE_CONNECTIONS;
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
         this.asyncCallbackSize = ConfigConstants.ASYNC_CALLBACK_SIZE;
@@ -131,11 +131,11 @@ public class ProxyClientConfig {
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
-        if (Utils.isBlank(managerAddress) || (!managerAddress.startsWith(ConfigConstants.HTTP)
+        if (StringUtils.isBlank(managerAddress) || (!managerAddress.startsWith(ConfigConstants.HTTP)
                 && !managerAddress.startsWith(ConfigConstants.HTTPS))) {
             throw new ProxysdkException("managerAddress is blank or missing http/https protocol ");
         }
-        if (Utils.isBlank(inlongGroupId)) {
+        if (StringUtils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
         if (managerAddress.startsWith(ConfigConstants.HTTPS)) {
@@ -348,10 +348,10 @@ public class ProxyClientConfig {
         this.needAuthentication = needAuthentication;
         this.isNeedDataEncry = needDataEncry;
         if (this.needAuthentication || this.isNeedDataEncry) {
-            if (Utils.isBlank(userName)) {
+            if (StringUtils.isBlank(userName)) {
                 throw new IllegalArgumentException("userName is Blank!");
             }
-            if (Utils.isBlank(secretKey)) {
+            if (StringUtils.isBlank(secretKey)) {
                 throw new IllegalArgumentException("secretKey is Blank!");
             }
         }
@@ -360,10 +360,10 @@ public class ProxyClientConfig {
     }
 
     public void setHttpsInfo(String tlsServerCertFilePathAndName, String tlsServerKey) {
-        if (Utils.isBlank(tlsServerCertFilePathAndName)) {
+        if (StringUtils.isBlank(tlsServerCertFilePathAndName)) {
             throw new IllegalArgumentException("tlsServerCertFilePathAndName is Blank!");
         }
-        if (Utils.isBlank(tlsServerKey)) {
+        if (StringUtils.isBlank(tlsServerKey)) {
             throw new IllegalArgumentException("tlsServerKey is Blank!");
         }
         this.tlsServerKey = tlsServerKey;

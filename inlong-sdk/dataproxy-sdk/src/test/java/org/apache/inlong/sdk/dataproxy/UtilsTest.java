@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class UtilsTest {
 
     @Test
     public void getLocalIp() {
-        String ip = Utils.getLocalIp();
+        String ip = IpUtils.getLocalIp();
         Assert.assertNotNull(ip);
     }
 

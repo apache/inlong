@@ -28,7 +28,6 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
 import org.apache.inlong.sdk.dataproxy.threads.ManagerFetcherThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
@@ -54,7 +53,7 @@ public class DefaultMessageSender implements MessageSender {
             new ConcurrentHashMap<>();
     private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
     private static ManagerFetcherThread managerFetcherThread;
-    private static final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+    private static final SequentialID idGenerator = new SequentialID();
     private final Sender sender;
     private final IndexCollectThread indexCol;
     /* Store index <groupId_streamId,cnt> */
@@ -65,7 +64,7 @@ public class DefaultMessageSender implements MessageSender {
     private boolean isGroupIdTransfer = false;
     private boolean isReport = false;
     private boolean isSupportLF = false;
-    private int maxPacketLength;
+    private int maxPacketLength = -1;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
     private final int senderMaxAttempt;
 
@@ -110,8 +109,7 @@ public class DefaultMessageSender implements MessageSender {
         }
         LOGGER.info("Initial tcp sender, configure is {}", configure);
         // initial sender object
-        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
-                Utils.getLocalIp(), null);
+        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure, null);
         proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
         ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
         DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());

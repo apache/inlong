@@ -24,9 +24,9 @@ import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.metric.MessageRecord;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
 import org.apache.inlong.sdk.dataproxy.metric.MetricTimeNumSummary;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     private static final String DEFAULT_KEY_SPLITTER = "#";
     private final Logger logger = LoggerFactory.getLogger(MetricWorkerThread.class);
 
-    private final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+    private final SequentialID idGenerator = new SequentialID();
     private final ConcurrentHashMap<String, MessageRecord> metricValueCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricPackTimeMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap = new ConcurrentHashMap<>();
@@ -208,7 +208,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         EncodeObject encodeObject = new EncodeObject(Collections.singletonList(line.getBytes()), 7,
                 false, false, false,
                 dtTime, idGenerator.getNextInt(),
-                metricConfig.getMetricGroupId(), streamId, "", "", Utils.getLocalIp());
+                metricConfig.getMetricGroupId(), streamId, "", "", IpUtils.getLocalIp());
         MetricSendCallBack callBack = new MetricSendCallBack(encodeObject);
         tryToSendMetricToManager(encodeObject, callBack);
     }

@@ -22,7 +22,6 @@ import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.network.HttpMessage;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 
 import com.google.gson.JsonElement;
@@ -179,7 +178,7 @@ public class InternalHttpSender {
 
             String returnStr = EntityUtils.toString(response.getEntity());
             int returnCode = response.getStatusLine().getStatusCode();
-            if (Utils.isBlank(returnStr) || HttpStatus.SC_OK != returnCode) {
+            if (StringUtils.isBlank(returnStr) || HttpStatus.SC_OK != returnCode) {
                 throw new Exception("get config from manager failed, result: " + returnStr + ", code: " + returnCode);
             }
 
