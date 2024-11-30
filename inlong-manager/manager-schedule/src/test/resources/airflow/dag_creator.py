@@ -62,7 +62,7 @@ groupId = "{groupId}"
 connectionId = "{connectionId}"
 boundaryType = "{boundaryType}"
 
-target_timezone = pytz.timezone(timezone)
+target_timezone = pytz.timezone(timezone)  # Specify the time zone as China Standard Time
 
 start_date = datetime.fromtimestamp(start_offset_datetime_str / 1000, tz=target_timezone)
 end_date = datetime.fromtimestamp(end_offset_datetime_str / 1000, tz=target_timezone)
@@ -81,10 +81,8 @@ def taskFunction(**context):
         "Accept": "application/json",
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
         "Accept-Encoding": "gzip, deflate",
-        "Referer": "http://192.168.101.2:8083/",
         "Content-Type": "application/json;charset=UTF-8",
         "tenant": "public",
-        "Origin": "http://192.168.101.2",
         "Connection": "close",
         "Priority": "u=0"
     }}
@@ -98,7 +96,7 @@ def taskFunction(**context):
     print("Request Body: ", data)
     response = requests.post(url, params=params, headers=headers, json=data)
     if response.status_code == 200:
-        print(response.json())
+        print(response.json())  # Assuming to return JSON data
     else:
         print(response.text)
     print("#########################")
