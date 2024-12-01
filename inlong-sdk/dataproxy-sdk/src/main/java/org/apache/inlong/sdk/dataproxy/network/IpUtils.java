@@ -30,9 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class Utils {
+public class IpUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final Logger logger = LoggerFactory.getLogger(IpUtils.class);
     private static String userIp;
 
     static {
@@ -66,23 +66,6 @@ public class Utils {
             logger.warn("ip is not equal {} {}", currLocalHost, ip);
         }
         userIp = ip;
-        return true;
-    }
-
-    public static boolean isNotBlank(String str) {
-        return !isBlank(str);
-    }
-
-    public static boolean isBlank(String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
-            return true;
-        }
-        for (int i = 0; i < strLen; i++) {
-            if ((!Character.isWhitespace(str.charAt(i)))) {
-                return false;
-            }
-        }
         return true;
     }
 

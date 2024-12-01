@@ -36,8 +36,7 @@ public class ProxyConfigManagerTest {
             .toString();
     private final ProxyClientConfig clientConfig = PowerMockito.mock(ProxyClientConfig.class);
     private final ClientMgr clientMgr = PowerMockito.mock(ClientMgr.class);
-    private final ProxyConfigManager proxyConfigManager = new ProxyConfigManager(clientConfig, "127.0.0.1",
-            clientMgr);
+    private final ProxyConfigManager proxyConfigManager = new ProxyConfigManager(clientConfig, clientMgr);
 
     public ProxyConfigManagerTest() throws URISyntaxException {
     }

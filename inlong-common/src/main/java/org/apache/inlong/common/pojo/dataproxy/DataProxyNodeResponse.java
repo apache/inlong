@@ -30,7 +30,6 @@ public class DataProxyNodeResponse {
     /**
      * DataProxy cluster id
      */
-    @Deprecated
     private Integer clusterId;
 
     private String reportSourceType;

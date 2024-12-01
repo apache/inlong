@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.utils;
+package org.apache.inlong.sdk.dataproxy.pb.network;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

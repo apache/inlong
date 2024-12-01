@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
 
 import io.netty.bootstrap.Bootstrap;
@@ -34,6 +33,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -55,7 +55,7 @@ public class UdpClientExample {
 
     private static final Logger logger = LoggerFactory.getLogger(UdpClientExample.class);
 
-    private static SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+    private static SequentialID idGenerator = new SequentialID();
 
     private static SecureRandom random = new SecureRandom();
 
@@ -180,7 +180,7 @@ public class UdpClientExample {
                 if (object.isEncrypt()) {
                     EncryptConfigEntry encryptEntry = object.getEncryptEntry();
                     if (encryptEntry != null) {
-                        if (Utils.isNotBlank(endAttr)) {
+                        if (StringUtils.isNotBlank(endAttr)) {
                             endAttr = endAttr + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
@@ -191,14 +191,14 @@ public class UdpClientExample {
                     }
                 }
                 if (!object.isGroupIdTransfer()) {
-                    if (Utils.isNotBlank(endAttr)) {
+                    if (StringUtils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
                     endAttr = (endAttr + "groupId=" + object.getGroupId() + "&streamId="
                             + object.getStreamId());
                 }
-                if (Utils.isNotBlank(object.getMsgUUID())) {
-                    if (Utils.isNotBlank(endAttr)) {
+                if (StringUtils.isNotBlank(object.getMsgUUID())) {
+                    if (StringUtils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
                     endAttr = endAttr + "msgUUID=" + object.getMsgUUID();

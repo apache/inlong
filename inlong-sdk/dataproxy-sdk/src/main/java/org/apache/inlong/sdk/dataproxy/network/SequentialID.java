@@ -24,11 +24,10 @@ public class SequentialID {
 
     private static final SecureRandom sRandom = new SecureRandom(
             Long.toString(System.nanoTime()).getBytes());
-    private final String ip;
+    private final String ip = IpUtils.getLocalIp();
     private final AtomicInteger id = new AtomicInteger(sRandom.nextInt());
 
-    public SequentialID(String theIp) {
-        ip = theIp;
+    public SequentialID() {
     }
 
     public String getNextId() {

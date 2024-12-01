@@ -224,7 +224,7 @@ public class Sender {
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID) {
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
-                    encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getDt(),
+                    encodeObject.getStreamId(), IpUtils.getLocalIp(), encodeObject.getDt(),
                     encodeObject.getPackageTime(), encodeObject.getRealCnt());
         }
         NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
@@ -328,7 +328,7 @@ public class Sender {
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
-                    encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
+                    encodeObject.getStreamId(), IpUtils.getLocalIp(), encodeObject.getPackageTime(),
                     encodeObject.getDt(), encodeObject.getRealCnt());
         }
         // send message package time

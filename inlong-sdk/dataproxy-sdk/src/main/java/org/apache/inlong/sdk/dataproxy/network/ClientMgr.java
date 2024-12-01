@@ -115,7 +115,7 @@ public class ClientMgr {
         bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
         bootstrap.handler(new ClientPipelineFactory(this, sender));
         /* ready to Start the thread which refreshes the proxy list. */
-        ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
+        ipManager = new ProxyConfigManager(configure, this);
         ipManager.setName("proxyConfigManager");
         if (configure.getInlongGroupId() != null) {
             ipManager.setInlongGroupId(configure.getInlongGroupId());
