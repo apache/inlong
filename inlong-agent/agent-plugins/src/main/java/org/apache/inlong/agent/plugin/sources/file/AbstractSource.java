@@ -29,7 +29,7 @@ import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Source;
-import org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler;
+import org.apache.inlong.agent.plugin.sources.extend.ExtendedHandler;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
