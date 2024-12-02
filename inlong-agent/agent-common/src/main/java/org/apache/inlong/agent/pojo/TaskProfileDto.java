@@ -38,6 +38,8 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
@@ -48,6 +50,8 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 
 @Data
 public class TaskProfileDto {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskProfileDto.class);
 
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
@@ -590,6 +594,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             default:
+                logger.error("invalid task type {}", taskType);
         }
         return TaskProfile.parseJsonStr(GSON.toJson(profileDto));
     }

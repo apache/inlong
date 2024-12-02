@@ -45,8 +45,6 @@ public enum TaskTypeEnum {
     MQTT(12),
     HUDI(13),
     COS(14),
-
-    HA_BINLOG(101),
     // only used for unit test
     MOCK(201);
 
