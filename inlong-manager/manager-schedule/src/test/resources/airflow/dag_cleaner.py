@@ -41,8 +41,7 @@ def clean_expired_dags(**context):
     conf = context.get('dag_run').conf
     groupId = conf.get('inlong_group_id')
 
-    logging.info(f"Execution parameters for this cleaning task: {conf}")
-    logging.info(f"The execution time of this cleaning task is: {current_time} for groupId = {groupId}")
+    logging.info(f"Execution parameters = {conf} for groupId = {groupId} and execution time = {current_time}")
 
     if groupId is None or len(groupId) == 0:
         for dag_file in os.listdir(DAG_PATH):
