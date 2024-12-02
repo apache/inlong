@@ -37,11 +37,12 @@ def clean_expired_dags(**context):
     target_timezone = pytz.timezone("Asia/Shanghai")
     utc_time = original_time.astimezone(target_timezone)
     current_time = utc_time.strftime("%Y-%m-%d %H:%M:%S.%f")
-    logging.info(f"The execution time of this cleaning task is: {current_time}")
 
     conf = context.get('dag_run').conf
-    logging.info(f"Execution parameters for this cleaning task: {conf}")
     groupId = conf.get('inlong_group_id')
+
+    logging.info(f"Execution parameters for this cleaning task: {conf}")
+    logging.info(f"The execution time of this cleaning task is: {current_time} for groupId = {groupId}")
 
     if groupId is None or len(groupId) == 0:
         for dag_file in os.listdir(DAG_PATH):
@@ -55,19 +56,19 @@ def clean_expired_dags(**context):
                     row = line.split("=")
                     if len(row) > 1:
                         end_date_str = datetime.fromtimestamp(int(row[1].strip().strip("\"")) / 1000, tz=target_timezone)
-                    logging.info(f"The end time of '{dag_file}' is: {end_date_str}")
+                    logging.info(f"The end time of {dag_file} is {end_date_str} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
                     try:
                         if end_date_str and str(current_time) > str(end_date_str):
                             os.remove(dag_file_path)
-                            logging.info(f"Deleted expired DAG: {dag_file}")
+                            logging.info(f"Deleted expired DAG: {dag_file} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
                     except ValueError:
-                        logging.error(f"Failed to delete {dag_file}: {end_date_str}")
+                        logging.error(f"Failed to delete {dag_file} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
     else:
         dag_file = groupId + '.py'
         if not str(groupId).startswith(DAG_PREFIX):
             dag_file = DAG_PREFIX + dag_file
         os.remove(os.path.join(DAG_PATH, dag_file))
-        logging.info(f"Deleted expired DAG: {dag_file}")
+        logging.info(f"Deleted expired DAG: {dag_file} for groupId = {groupId}")
 
 
 
