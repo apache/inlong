@@ -36,7 +36,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.TaskConstants.FILE_TASK_RETRY;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 
 /**
@@ -65,10 +65,6 @@ public class TaskProfile extends AbstractConfiguration {
         return get(TaskConstants.TASK_CYCLE_UNIT);
     }
 
-    public String getTimeOffset() {
-        return get(TaskConstants.TASK_FILE_TIME_OFFSET, "");
-    }
-
     public String getTimeZone() {
         return get(TaskConstants.TASK_TIME_ZONE);
     }
@@ -82,7 +78,7 @@ public class TaskProfile extends AbstractConfiguration {
     }
 
     public boolean isRetry() {
-        return getBoolean(FILE_TASK_RETRY, false);
+        return getBoolean(TASK_RETRY, false);
     }
 
     public String getTaskClass() {

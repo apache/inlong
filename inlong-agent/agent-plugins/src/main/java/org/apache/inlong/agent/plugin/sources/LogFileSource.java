@@ -48,7 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.TaskConstants.SOURCE_DATA_CONTENT_STYLE;
+import static org.apache.inlong.agent.constant.TaskConstants.FILE_CONTENT_STYLE;
 
 /**
  * Read text files
@@ -355,7 +355,7 @@ public class LogFileSource extends AbstractSource {
                 FileStatic data = new FileStatic();
                 data.setTaskId(taskId);
                 data.setRetry(String.valueOf(profile.isRetry()));
-                data.setContentType(profile.get(SOURCE_DATA_CONTENT_STYLE));
+                data.setContentType(profile.get(FILE_CONTENT_STYLE));
                 data.setGroupId(profile.getInlongGroupId());
                 data.setStreamId(profile.getInlongStreamId());
                 data.setDataTime(format.format(profile.getSinkDataTime()));
@@ -364,10 +364,9 @@ public class LogFileSource extends AbstractSource {
                 data.setReadBytes(String.valueOf(bytePosition));
                 data.setReadLines(String.valueOf(linePosition));
                 OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
-                if (offsetProfile == null) {
-                    return;
+                if (offsetProfile != null) {
+                    data.setSendLines(offsetProfile.getOffset());
                 }
-                data.setSendLines(offsetProfile.getOffset());
                 FileStaticManager.putStaticMsg(data);
                 randomAccessFile.close();
             } catch (IOException e) {

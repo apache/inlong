@@ -87,6 +87,7 @@ public class LogFileTask extends AbstractTask {
     public final long SCAN_INTERVAL = 1 * 60 * 1000;
     private volatile boolean runAtLeastOneTime = false;
     private volatile long coreThreadUpdateTime = 0;
+    private String timeOffset = "";
     private BlockingQueue<InstanceProfile> instanceQueue;
 
     @Override
@@ -96,8 +97,9 @@ public class LogFileTask extends AbstractTask {
 
     @Override
     protected void initTask() {
+        timeOffset = taskProfile.get(TaskConstants.TASK_FILE_TIME_OFFSET, "");
         instanceQueue = new LinkedBlockingQueue<>(INSTANCE_QUEUE_CAPACITY);
-        retry = taskProfile.getBoolean(TaskConstants.FILE_TASK_RETRY, false);
+        retry = taskProfile.isRetry();
         originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
                 .collect(Collectors.toSet());
         if (taskProfile.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
@@ -134,7 +136,6 @@ public class LogFileTask extends AbstractTask {
         while (list.size() < INSTANCE_QUEUE_CAPACITY && !instanceQueue.isEmpty()) {
             InstanceProfile profile = instanceQueue.poll();
             if (profile != null) {
-                LOGGER.info("test123 2 taskid {} {}", getTaskId(), profile.getInstanceId());
                 list.add(profile);
             }
         }
@@ -175,7 +176,7 @@ public class LogFileTask extends AbstractTask {
             LOGGER.error("task profile needs time offset");
             return false;
         }
-        if (profile.getBoolean(TaskConstants.FILE_TASK_RETRY, false)) {
+        if (profile.isRetry()) {
             if (!initRetryTask(profile)) {
                 return false;
             }
@@ -292,11 +293,11 @@ public class LogFileTask extends AbstractTask {
 
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
         if (realTime) {
-            return FileScanner.scanTaskBetweenTimes(originPattern, CycleUnitType.HOUR, taskProfile.getTimeOffset(),
+            return FileScanner.scanTaskBetweenTimes(originPattern, CycleUnitType.HOUR, timeOffset,
                     startTime, endTime, retry);
         } else {
             return FileScanner.scanTaskBetweenTimes(originPattern, taskProfile.getCycleUnit(),
-                    taskProfile.getTimeOffset(), startTime, endTime, retry);
+                    timeOffset, startTime, endTime, retry);
         }
     }
 
@@ -328,7 +329,7 @@ public class LogFileTask extends AbstractTask {
         long startScanTime = startTime;
         long endScanTime = endTime;
         List<String> dataTimeList = Scanner.getDataTimeList(startScanTime, endScanTime, taskProfile.getCycleUnit(),
-                taskProfile.getTimeOffset(), retry);
+                timeOffset, retry);
         if (dataTimeList.isEmpty()) {
             LOGGER.error("getDataTimeList get empty list");
             return;
@@ -390,7 +391,7 @@ public class LogFileTask extends AbstractTask {
      */
     private boolean shouldStartNow(String dataTime) {
         String shouldStartTime =
-                NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
+                NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), timeOffset);
         String currentTime = getCurrentTime();
         return currentTime.compareTo(shouldStartTime) >= 0;
     }
@@ -531,8 +532,7 @@ public class LogFileTask extends AbstractTask {
         if (dateExpression.getLongestDatePattern().length() != 0) {
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(), dateExpression);
             LOGGER.info("file {}, fileTime {}", newFileName, dataTime);
-            if (!NewDateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(),
-                    taskProfile.getTimeOffset())) {
+            if (!NewDateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(), timeOffset)) {
                 return false;
             }
         }

@@ -44,11 +44,11 @@ public enum TaskTypeEnum {
     REDIS(11),
     MQTT(12),
     HUDI(13),
+    COS(14),
 
+    HA_BINLOG(101),
     // only used for unit test
-    MOCK(201)
-
-    ;
+    MOCK(201);
 
     private static final Map<Integer, TaskTypeEnum> TASK_TYPE_ENUM_MAP = Maps.newHashMap();
 

@@ -21,6 +21,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.pojo.BinlogTask.BinlogTaskConfig;
+import org.apache.inlong.agent.pojo.COSTask.COSTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.Line;
 import org.apache.inlong.agent.pojo.KafkaTask.KafkaTaskConfig;
@@ -62,7 +63,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
     public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
-
+    public static final String DEFAULT_COS_TASK = "org.apache.inlong.agent.plugin.task.cos.COSTask";
     /**
      * file source
      */
@@ -101,6 +102,10 @@ public class TaskProfileDto {
      * sqlserver source
      */
     public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
+    /**
+     * cos source
+     */
+    public static final String COS_SOURCE = "org.apache.inlong.agent.plugin.sources.COSSource";
 
     private static final Gson GSON = new Gson();
 
@@ -195,6 +200,35 @@ public class TaskProfileDto {
             fileTask.setMonitorStatus(taskConfig.getMonitorStatus());
         }
         return fileTask;
+    }
+
+    private static COSTask getCOSTask(DataConfig dataConfig) {
+        COSTask cosTask = new COSTask();
+        cosTask.setId(dataConfig.getTaskId());
+        COSTaskConfig taskConfig = GSON.fromJson(dataConfig.getExtParams(),
+                COSTaskConfig.class);
+        cosTask.setPattern(taskConfig.getPattern());
+        cosTask.setCollectType(taskConfig.getCollectType());
+        cosTask.setContentStyle(taskConfig.getContentStyle());
+        cosTask.setDataSeparator(taskConfig.getDataSeparator());
+        cosTask.setMaxFileCount(taskConfig.getMaxFileCount());
+        cosTask.setRetry(taskConfig.getRetry());
+        cosTask.setCycleUnit(taskConfig.getCycleUnit());
+        cosTask.setDataTimeFrom(taskConfig.getDataTimeFrom());
+        cosTask.setDataTimeTo(taskConfig.getDataTimeTo());
+        cosTask.setBucketName(taskConfig.getBucketName());
+        cosTask.setSecretId(taskConfig.getCredentialsId());
+        cosTask.setSecretKey(taskConfig.getCredentialsKey());
+        cosTask.setRegion(taskConfig.getRegion());
+        if (taskConfig.getFilterStreams() != null) {
+            cosTask.setFilterStreams(GSON.toJson(taskConfig.getFilterStreams()));
+        }
+        if (taskConfig.getTimeOffset() != null) {
+            cosTask.setTimeOffset(taskConfig.getTimeOffset());
+        } else {
+            cosTask.setTimeOffset(deafult_time_offset + cosTask.getCycleUnit());
+        }
+        return cosTask;
     }
 
     private static KafkaTask getKafkaTask(DataConfig dataConfigs) {
@@ -468,6 +502,7 @@ public class TaskProfileDto {
                 throw new IllegalArgumentException("invalid mq type " + mqType + " please check");
             }
         }
+        task.setRetry(false);
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
@@ -483,6 +518,7 @@ public class TaskProfileDto {
                 task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
                 task.setSource(DEFAULT_SOURCE);
+                task.setRetry(fileTask.getRetry());
                 profileDto.setTask(task);
                 break;
             case KAFKA:
@@ -544,6 +580,15 @@ public class TaskProfileDto {
             case MOCK:
                 profileDto.setTask(task);
                 break;
+            case COS:
+                task.setTaskClass(DEFAULT_COS_TASK);
+                COSTask cosTask = getCOSTask(dataConfig);
+                task.setCycleUnit(cosTask.getCycleUnit());
+                task.setCosTask(cosTask);
+                task.setSource(COS_SOURCE);
+                task.setRetry(cosTask.getRetry());
+                profileDto.setTask(task);
+                break;
             default:
         }
         return TaskProfile.parseJsonStr(GSON.toJson(profileDto));
@@ -574,6 +619,7 @@ public class TaskProfileDto {
         private String cycleUnit;
         private String timeZone;
         private String auditVersion;
+        private boolean retry;
 
         private FileTask fileTask;
         private BinlogTask binlogTask;
@@ -585,6 +631,7 @@ public class TaskProfileDto {
         private RedisTask redisTask;
         private MqttTask mqttTask;
         private SqlServerTask sqlserverTask;
+        private COSTask cosTask;
     }
 
     @Data
