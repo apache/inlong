@@ -75,7 +75,6 @@ def taskFunction(**context):
         "username": conn.login,
         "password": conn.password
     }}
-    print("params", params)
     headers = {{
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
         "Accept": "application/json",
@@ -93,10 +92,14 @@ def taskFunction(**context):
         "lowerBoundary": str(int(time_interval[0])),
         "upperBoundary": str(int(int(time_interval[1])))
     }}
+    print("Connection ID: ", connectionId)
+    print("url: ", url)
+    print("params: ", params)
     print("Request Body: ", data)
     response = requests.post(url, params=params, headers=headers, json=data)
+    print("Response Code: ", response.status_code)
     if response.status_code == 200:
-        print(response.json())  # Assuming to return JSON data
+        print(response.json())
     else:
         print(response.text)
     print("#########################")
