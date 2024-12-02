@@ -601,6 +601,10 @@ public class ModuleManager extends AbstractDaemon {
 
     private String getRealPath(String originPath) {
         String homeDir = System.getProperty("user.home");
+        if (homeDir == null) {
+            LOGGER.warn("user.home should not be null");
+            return originPath;
+        }
         return originPath.replace("~", homeDir).replace("${HOME}", homeDir).replace("${home}", homeDir);
     }
 
