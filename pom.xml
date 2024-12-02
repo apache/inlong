@@ -190,6 +190,7 @@
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
         <kafka.clients.version>3.0.0</kafka.clients.version>
+        <cos.sdk.version>5.6.54</cos.sdk.version>
         <paho.client.version>1.2.5</paho.client.version>
 
         <kubernetes.client.version>6.0.0</kubernetes.client.version>
