@@ -82,7 +82,7 @@ public class COSSource extends AbstractSource {
     protected final Integer WAIT_TIMEOUT_MS = 10;
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 1024 * 1024;
     private final Long META_UPDATE_INTERVAL_MS = 10000L;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 设置格式
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String fileName;
     private byte[] bufferToReadFile;

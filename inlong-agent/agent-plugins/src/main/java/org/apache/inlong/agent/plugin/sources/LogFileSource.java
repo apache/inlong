@@ -71,7 +71,7 @@ public class LogFileSource extends AbstractSource {
     public static final String OFFSET_SEP = ":";
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 64 * 1024;
     private final Long INODE_UPDATE_INTERVAL_MS = 1000L;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 设置格式
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String fileName;
     private File file;
