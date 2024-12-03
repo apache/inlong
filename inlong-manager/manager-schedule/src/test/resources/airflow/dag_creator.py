@@ -62,7 +62,7 @@ groupId = "{groupId}"
 connectionId = "{connectionId}"
 boundaryType = "{boundaryType}"
 
-target_timezone = pytz.timezone(timezone)
+target_timezone = pytz.timezone(timezone)  # Specify the time zone as China Standard Time
 
 start_date = datetime.fromtimestamp(start_offset_datetime_str / 1000, tz=target_timezone)
 end_date = datetime.fromtimestamp(end_offset_datetime_str / 1000, tz=target_timezone)
@@ -75,16 +75,13 @@ def taskFunction(**context):
         "username": conn.login,
         "password": conn.password
     }}
-    print("params", params)
     headers = {{
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
         "Accept": "application/json",
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
         "Accept-Encoding": "gzip, deflate",
-        "Referer": "http://192.168.101.2:8083/",
         "Content-Type": "application/json;charset=UTF-8",
         "tenant": "public",
-        "Origin": "http://192.168.101.2",
         "Connection": "close",
         "Priority": "u=0"
     }}
@@ -95,8 +92,12 @@ def taskFunction(**context):
         "lowerBoundary": str(int(time_interval[0])),
         "upperBoundary": str(int(int(time_interval[1])))
     }}
+    print("Connection ID: ", connectionId)
+    print("url: ", url)
+    print("params: ", params)
     print("Request Body: ", data)
     response = requests.post(url, params=params, headers=headers, json=data)
+    print("Response Code: ", response.status_code)
     if response.status_code == 200:
         print(response.json())
     else:

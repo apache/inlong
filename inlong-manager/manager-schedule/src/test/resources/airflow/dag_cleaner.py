@@ -29,33 +29,46 @@ from airflow.hooks.base_hook import BaseHook
 from airflow import configuration
 
 DAG_PATH = configuration.get('core', 'dags_folder') + "/"
-
+DAG_PREFIX = 'inlong_offline_task_'
 
 def clean_expired_dags(**context):
+
     original_time = context.get('execution_date')
     target_timezone = pytz.timezone("Asia/Shanghai")
     utc_time = original_time.astimezone(target_timezone)
-    current_time = utc_time.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
-    logging.info(f"Current time: {current_time}")
-    for dag_file in os.listdir(DAG_PATH):
-        if dag_file.endswith(".py") and dag_file.startswith("inlong_offline_task_"):
-            with open(DAG_PATH + dag_file, "r") as file:
-                line = file.readline()
-                while line and "end_offset_datetime_str" not in line:
+    current_time = utc_time.strftime("%Y-%m-%d %H:%M:%S.%f")
+
+    conf = context.get('dag_run').conf
+    groupId = conf.get('inlong_group_id')
+
+    logging.info(f"Execution parameters = {conf} for groupId = {groupId} and execution time = {current_time}")
+
+    if groupId is None or len(groupId) == 0:
+        for dag_file in os.listdir(DAG_PATH):
+            if dag_file.endswith(".py") and dag_file.startswith(DAG_PREFIX):
+                dag_file_path = os.path.join(DAG_PATH, dag_file)
+                with open(dag_file_path, "r") as file:
                     line = file.readline()
-                end_date_str = None
-                if len(line.split("=")) > 1:
-                    end_date_str = line.split("=")[1].strip().strip("\"")
-                logging.info(f"DAG end time: {end_date_str}")
-                if end_date_str:
+                    while line and "end_offset_datetime_str" not in line:
+                        line = file.readline()
+                    end_date_str = None
+                    row = line.split("=")
+                    if len(row) > 1:
+                        end_date_str = datetime.fromtimestamp(int(row[1].strip().strip("\"")) / 1000, tz=target_timezone)
+                    logging.info(f"The end time of {dag_file} is {end_date_str} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
                     try:
-                        if str(current_time) > str(end_date_str):
-                            dag_file_path = os.path.join(DAG_PATH, dag_file)
+                        if end_date_str and str(current_time) > str(end_date_str):
                             os.remove(dag_file_path)
-                            # Optionally, delete the end_date variable
-                            logging.info(f"Deleted expired DAG: {dag_file}")
+                            logging.info(f"Deleted expired DAG: {dag_file} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
                     except ValueError:
-                        logging.error(f"Invalid date format for DAG {dag_file}: {end_date_str}")
+                        logging.error(f"Failed to delete {dag_file} for groupId = {dag_file.lstrip(DAG_PREFIX)}")
+    else:
+        dag_file = groupId + '.py'
+        if not str(groupId).startswith(DAG_PREFIX):
+            dag_file = DAG_PREFIX + dag_file
+        os.remove(os.path.join(DAG_PATH, dag_file))
+        logging.info(f"Deleted expired DAG: {dag_file} for groupId = {groupId}")
+
 
 
 default_args = {
