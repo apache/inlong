@@ -61,7 +61,6 @@ public class COSTask extends AbstractTask {
     private final Map<String/* dataTime */, Map<String/* fileName */, InstanceProfile>> eventMap =
             new ConcurrentHashMap<>();
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
-    public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
     private boolean retry;
     private long startTime;
     private long endTime;
@@ -69,7 +68,6 @@ public class COSTask extends AbstractTask {
     private long lastScanTime = 0;
     public final long SCAN_INTERVAL = 1 * 60 * 1000;
     private volatile boolean runAtLeastOneTime = false;
-    private volatile long coreThreadUpdateTime = 0;
     private BlockingQueue<InstanceProfile> instanceQueue;
     private COSClient cosClient;
     private String bucketName;
@@ -198,6 +196,7 @@ public class COSTask extends AbstractTask {
     }
 
     private void scanExistingFile() {
+        LOGGER.info("test123 qqqq");
         List<BasicFileInfo> fileInfos = FileScanner.scanTaskBetweenTimes(cosClient, bucketName, originPattern,
                 taskProfile.getCycleUnit(), timeOffset, startTime, endTime, retry);
         LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
@@ -228,7 +227,7 @@ public class COSTask extends AbstractTask {
         List<String> dataTimeList = Scanner.getDataTimeList(startScanTime, endScanTime, taskProfile.getCycleUnit(),
                 timeOffset, retry);
         if (dataTimeList.isEmpty()) {
-            LOGGER.error("getDataTimeList get empty list");
+            LOGGER.error("get dataTimeList return empty list");
             return;
         }
         Set<String> dealtDataTime = new HashSet<>();
@@ -311,14 +310,15 @@ public class COSTask extends AbstractTask {
 
     private void addToEvenMap(String fileName, String dataTime) {
         if (isInEventMap(fileName, dataTime)) {
-            LOGGER.info("addToEvenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
+            LOGGER.info("add to evenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
                     taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
+        LOGGER.info("test123 {}", cosClient);
         ObjectMetadata meta = cosClient.getObjectMetadata(bucketName, fileName);
         Long fileUpdateTime = meta.getLastModified().getTime();
         if (!shouldAddAgain(fileName, fileUpdateTime)) {
-            LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
+            LOGGER.info("add to evenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
                     taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
