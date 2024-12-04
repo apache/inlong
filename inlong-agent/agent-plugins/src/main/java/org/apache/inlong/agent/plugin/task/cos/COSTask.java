@@ -214,10 +214,7 @@ public class COSTask extends AbstractTask {
         if (fileToProfile == null) {
             return false;
         }
-        if (fileToProfile.get(fileName) == null) {
-            return false;
-        }
-        return true;
+        return fileToProfile.get(fileName) != null;
     }
 
     private void dealWithEventMap() {
