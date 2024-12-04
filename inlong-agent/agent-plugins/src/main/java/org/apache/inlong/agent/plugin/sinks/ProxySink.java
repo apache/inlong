@@ -196,18 +196,18 @@ public class ProxySink extends AbstractSink {
         }
         Long start = AgentUtils.getCurrentTime();
         shutdown = true;
+        senderManager.Stop();
+        LOGGER.info("destroy proxySink, wait for sender close {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+        start = AgentUtils.getCurrentTime();
         while (running || offsetRunning) {
             AgentUtils.silenceSleepInMs(LOOP_WAIT_TIME_MS);
         }
-        LOGGER.info("destroy proxySink wait run elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
-                profile.getInstanceId());
-        start = AgentUtils.getCurrentTime();
-        senderManager.Stop();
-        LOGGER.info("destroy proxySink wait sender elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+        LOGGER.info("destroy proxySink, wait for run close {} ms instance {}", AgentUtils.getCurrentTime() - start,
                 profile.getInstanceId());
         start = AgentUtils.getCurrentTime();
         clearOffset();
-        LOGGER.info("destroy proxySink wait offset elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+        LOGGER.info("destroy proxySink, wait for offset clear {} ms instance {}", AgentUtils.getCurrentTime() - start,
                 profile.getInstanceId());
         LOGGER.info("destroy sink {} end", sourceName);
     }

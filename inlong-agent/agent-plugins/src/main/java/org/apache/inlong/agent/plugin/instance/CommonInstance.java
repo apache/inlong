@@ -122,7 +122,7 @@ public abstract class CommonInstance extends Instance {
 
     @Override
     public void run() {
-        Thread.currentThread().setName("file-instance-core-" + getTaskId() + "-" + getInstanceId());
+        Thread.currentThread().setName("instance-core-" + getTaskId() + "-" + getInstanceId());
         running = true;
         try {
             doRun();

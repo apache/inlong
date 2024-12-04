@@ -28,6 +28,7 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
 import org.apache.inlong.common.pojo.agent.AgentConfigRequest;
 import org.apache.inlong.common.pojo.agent.AgentResponseCode;
@@ -237,7 +238,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         dataConfig.setInlongGroupId("devcloud_group_id");
         dataConfig.setInlongStreamId("devcloud_stream_id");
         dataConfig.setDataReportType(0);
-        dataConfig.setTaskType(3);
+        dataConfig.setTaskType(TaskTypeEnum.FILE.getType());
         dataConfig.setTaskId(taskId);
         dataConfig.setState(state);
         dataConfig.setTimeZone("GMT+8:00");
