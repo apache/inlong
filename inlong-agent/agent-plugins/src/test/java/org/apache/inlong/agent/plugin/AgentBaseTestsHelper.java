@@ -21,8 +21,10 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.FetcherConstants;
+import org.apache.inlong.agent.pojo.COSTask.COSTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.common.enums.TaskStateEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
@@ -82,24 +84,24 @@ public class AgentBaseTestsHelper {
         }
     }
 
-    public TaskProfile getTaskProfile(int taskId, String pattern, String dataContentStyle, boolean retry,
+    public TaskProfile getFileTaskProfile(int taskId, String pattern, String dataContentStyle, boolean retry,
             String startTime, String endTime,
             TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
-        DataConfig dataConfig = getDataConfig(taskId, pattern, dataContentStyle, retry, startTime, endTime,
+        DataConfig dataConfig = getFileDataConfig(taskId, pattern, dataContentStyle, retry, startTime, endTime,
                 state, cycleUnit, timeZone,
                 filterStreams);
         TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
         return profile;
     }
 
-    private DataConfig getDataConfig(int taskId, String pattern, String dataContentStyle, boolean retry,
+    private DataConfig getFileDataConfig(int taskId, String pattern, String dataContentStyle, boolean retry,
             String startTime, String endTime, TaskStateEnum state, String cycleUnit, String timeZone,
             List<String> filterStreams) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
         dataConfig.setInlongStreamId("testStreamId");
         dataConfig.setDataReportType(1);
-        dataConfig.setTaskType(3);
+        dataConfig.setTaskType(TaskTypeEnum.FILE.getType());
         dataConfig.setTaskId(taskId);
         dataConfig.setTimeZone(timeZone);
         dataConfig.setState(state.ordinal());
@@ -119,4 +121,47 @@ public class AgentBaseTestsHelper {
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }
+
+    public TaskProfile getCOSTaskProfile(int taskId, String pattern, String contentStyle, boolean retry,
+            String startTime, String endTime,
+            TaskStateEnum state, String cycleUnit, String timeZone, List<String> filterStreams) {
+        DataConfig dataConfig = getCOSDataConfig(taskId, pattern, contentStyle, retry, startTime, endTime,
+                state, cycleUnit, timeZone,
+                filterStreams);
+        TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
+        return profile;
+    }
+
+    private DataConfig getCOSDataConfig(int taskId, String pattern, String contentStyle, boolean retry,
+            String startTime, String endTime, TaskStateEnum state, String cycleUnit, String timeZone,
+            List<String> filterStreams) {
+        DataConfig dataConfig = new DataConfig();
+        dataConfig.setInlongGroupId("testGroupId");
+        dataConfig.setInlongStreamId("testStreamId");
+        dataConfig.setDataReportType(1);
+        dataConfig.setTaskType(TaskTypeEnum.COS.getType());
+        dataConfig.setTaskId(taskId);
+        dataConfig.setTimeZone(timeZone);
+        dataConfig.setState(state.ordinal());
+        COSTaskConfig cosTaskConfig = new COSTaskConfig();
+        cosTaskConfig.setBucketName("testBucket");
+        cosTaskConfig.setCredentialsId("testSecretId");
+        cosTaskConfig.setCredentialsKey("testSecretKey");
+        cosTaskConfig.setRegion("testRegion");
+        cosTaskConfig.setPattern(pattern);
+        cosTaskConfig.setTimeOffset("0d");
+        // GMT-8:00 same with Asia/Shanghai
+        cosTaskConfig.setMaxFileCount(100);
+        cosTaskConfig.setCycleUnit(cycleUnit);
+        cosTaskConfig.setRetry(retry);
+        cosTaskConfig.setDataTimeFrom(startTime);
+        cosTaskConfig.setDataTimeTo(endTime);
+        // mix: login|87601|968|67826|23579 or login|a=b&c=d&x=y&asdf
+        cosTaskConfig.setContentStyle(contentStyle);
+        cosTaskConfig.setDataSeparator("|");
+        cosTaskConfig.setFilterStreams(filterStreams);
+        dataConfig.setExtParams(GSON.toJson(cosTaskConfig));
+        return dataConfig;
+    }
+
 }

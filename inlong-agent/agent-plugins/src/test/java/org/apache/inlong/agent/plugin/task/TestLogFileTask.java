@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.task;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
-import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.task.file.LogFileTask;
@@ -101,14 +100,13 @@ public class TestLogFileTask {
         for (int i = 0; i < resources.size(); i++) {
             resourceName.add(LOADER.getResource(resources.get(i)).getPath());
         }
-        TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", true, "", "", TaskStateEnum.RUNNING,
-                cycle, "GMT+8:00", null);
+        TaskProfile taskProfile =
+                helper.getFileTaskProfile(taskId, pattern, "csv", true, startTime, endTime, TaskStateEnum.RUNNING,
+                        cycle, "GMT+8:00", null);
         LogFileTask dayTask = null;
         final List<String> fileName = new ArrayList();
         final List<String> dataTime = new ArrayList();
         try {
-            taskProfile.set(TaskConstants.FILE_TASK_TIME_FROM, startTime);
-            taskProfile.set(TaskConstants.FILE_TASK_TIME_TO, endTime);
             dayTask = PowerMockito.spy(new LogFileTask());
             PowerMockito.doAnswer(invocation -> {
                 fileName.add(invocation.getArgument(0));

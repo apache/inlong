@@ -84,7 +84,7 @@ public class TestLogFileSource {
             fileName = LOADER.getResource("test/20230928_1.txt").getPath();
             pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
             retry = false;
-            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, dataContentStyle, retry, "", "",
+            TaskProfile taskProfile = helper.getFileTaskProfile(taskId, pattern, dataContentStyle, retry, "", "",
                     TaskStateEnum.RUNNING, "D",
                     "GMT+8:00", Arrays.asList("ok"));
             InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",

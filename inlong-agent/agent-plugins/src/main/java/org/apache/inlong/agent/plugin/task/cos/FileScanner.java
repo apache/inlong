@@ -97,16 +97,20 @@ public class FileScanner {
             }
             List<String> commonPrefixes = objectListing.getCommonPrefixes();
             int depth;
-            Pattern patternByDepth = null;
+            Pattern patternByDepth;
             if (!commonPrefixes.isEmpty()) {
                 depth = countCharacterOccurrences(commonPrefixes.get(0), PATH_SEP);
-                String temp = findNthOccurrenceSubstring(pattern.pattern(), PATH_SEP, depth);
-                patternByDepth = Pattern.compile(temp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
-            }
-            for (String commonPrefix : commonPrefixes) {
-                Matcher matcher = patternByDepth.matcher(commonPrefix);
-                if (matcher.matches()) {
-                    infos.addAll(scanTaskInOneCycle(cosClient, bucketName, pattern, commonPrefix, dataTime, cycleUnit));
+                String nthOccurrenceSubstring = findNthOccurrenceSubstring(pattern.pattern(), PATH_SEP, depth);
+                if (nthOccurrenceSubstring != null) {
+                    patternByDepth = Pattern.compile(nthOccurrenceSubstring,
+                            Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
+                    for (String commonPrefix : commonPrefixes) {
+                        Matcher matcher = patternByDepth.matcher(commonPrefix);
+                        if (matcher.matches()) {
+                            infos.addAll(scanTaskInOneCycle(cosClient, bucketName, pattern, commonPrefix, dataTime,
+                                    cycleUnit));
+                        }
+                    }
                 }
             }
             List<COSObjectSummary> cosObjectSummaries = objectListing.getObjectSummaries();
