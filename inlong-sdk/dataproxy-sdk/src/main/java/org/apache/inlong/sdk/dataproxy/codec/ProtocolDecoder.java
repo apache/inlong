@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
+import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -29,18 +31,19 @@ import java.util.List;
 
 public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProtocolDecoder.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolDecoder.class);
+    private static final LogCounter decExptCounter = new LogCounter(10, 200000, 60 * 1000L);
     @Override
     protected void decode(ChannelHandlerContext ctx,
             ByteBuf buffer, List<Object> out) throws Exception {
         buffer.markReaderIndex();
         // totallen
         int totalLen = buffer.readInt();
-        LOGGER.debug("decode totalLen : {}", totalLen);
         if (totalLen != buffer.readableBytes()) {
-            LOGGER.error("totalLen is not equal readableBytes.total:" + totalLen
-                    + ";readableBytes:" + buffer.readableBytes());
+            if (decExptCounter.shouldPrint()) {
+                logger.error("Length not equal, totalLen={},readableBytes={},from={}",
+                        totalLen, buffer.readableBytes(), ctx.channel());
+            }
             buffer.resetReaderIndex();
             throw new Exception("totalLen is not equal readableBytes.total");
         }
@@ -48,14 +51,17 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
         int msgType = buffer.readByte() & 0x1f;
 
         if (msgType == 4) {
-            LOGGER.info("debug decode");
-        }
-        if (msgType == 3 | msgType == 5) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("debug decode");
+            }
+        } else if (msgType == 3 | msgType == 5) {
             // bodylen
             int bodyLength = buffer.readInt();
             if (bodyLength >= totalLen) {
-                LOGGER.error("bodyLen is greater than totalLen.totalLen:" + totalLen
-                        + ";bodyLen:" + bodyLength);
+                if (decExptCounter.shouldPrint()) {
+                    logger.error("bodyLen greater than totalLen, totalLen={},bodyLen={},from={}",
+                            totalLen, bodyLength, ctx.channel());
+                }
                 buffer.resetReaderIndex();
                 throw new Exception("bodyLen is greater than totalLen.totalLen");
             }
@@ -64,20 +70,19 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 bodyBytes = new byte[bodyLength];
                 buffer.readBytes(bodyBytes);
             }
-
             // attrlen
+            String attrInfo = "";
             int attrLength = buffer.readInt();
-            byte[] attrBytes = null;
             if (attrLength > 0) {
-                attrBytes = new byte[attrLength];
+                byte[] attrBytes = new byte[attrLength];
                 buffer.readBytes(attrBytes);
+                attrInfo = new String(attrBytes, StandardCharsets.UTF_8);
             }
             EncodeObject object;
             if (bodyBytes == null) {
-                object = new EncodeObject(new String(attrBytes, StandardCharsets.UTF_8));
+                object = new EncodeObject(attrInfo);
             } else {
-                object = new EncodeObject(Collections.singletonList(bodyBytes),
-                        new String(attrBytes, StandardCharsets.UTF_8));
+                object = new EncodeObject(Collections.singletonList(bodyBytes), attrInfo);
             }
             object.setMsgtype(5);
             out.add(object);
@@ -85,12 +90,13 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
             int seqId = buffer.readInt();
             int attrLen = buffer.readShort();
-            byte[] attrBytes = null;
+            String attrInfo = "";
             if (attrLen > 0) {
-                attrBytes = new byte[attrLen];
+                byte[] attrBytes = new byte[attrLen];
                 buffer.readBytes(attrBytes);
+                attrInfo = new String(attrBytes, StandardCharsets.UTF_8);
             }
-            EncodeObject object = new EncodeObject(new String(attrBytes, StandardCharsets.UTF_8));
+            EncodeObject object = new EncodeObject(attrInfo);
             object.setMessageId(String.valueOf(seqId));
 
             buffer.readShort();
@@ -103,15 +109,14 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             buffer.skipBytes(4 + 1 + 4); // skip datatime, body_ver and body_len
             final short load = buffer.readShort(); // read from body
             int attrLen = buffer.readShort();
-            byte[] attrBytes = null;
+            String attrInfo = "";
             if (attrLen > 0) {
-                attrBytes = new byte[attrLen];
+                byte[] attrBytes = new byte[attrLen];
                 buffer.readBytes(attrBytes);
+                attrInfo = new String(attrBytes, StandardCharsets.UTF_8);
             }
             buffer.skipBytes(2); // skip magic
-
-            String attrs = (attrBytes == null ? "" : new String(attrBytes, StandardCharsets.UTF_8));
-            EncodeObject object = new EncodeObject(attrs);
+            EncodeObject object = new EncodeObject(attrInfo);
             object.setMsgtype(8);
             object.setLoad(load);
             out.add(object);

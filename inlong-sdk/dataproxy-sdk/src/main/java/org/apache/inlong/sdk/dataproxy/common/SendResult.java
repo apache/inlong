@@ -18,8 +18,8 @@
 package org.apache.inlong.sdk.dataproxy.common;
 
 public enum SendResult {
-    INVALID_ATTRIBUTES, // including DataProxyErrCode(100,101,102,112)
     OK,
+    INVALID_ATTRIBUTES, // including DataProxyErrCode(100,101,102,112)
     TIMEOUT,
     CONNECTION_BREAK,
     THREAD_INTERRUPT,

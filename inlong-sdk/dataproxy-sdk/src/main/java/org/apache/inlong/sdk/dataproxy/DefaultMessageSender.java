@@ -29,7 +29,6 @@ import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
-import org.apache.inlong.sdk.dataproxy.threads.ManagerFetcherThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.slf4j.Logger;
@@ -52,7 +51,6 @@ public class DefaultMessageSender implements MessageSender {
     private static final ConcurrentHashMap<Integer, DefaultMessageSender> CACHE_SENDER =
             new ConcurrentHashMap<>();
     private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
-    private static ManagerFetcherThread managerFetcherThread;
     private static final SequentialID idGenerator = new SequentialID();
     private final Sender sender;
     private final IndexCollectThread indexCol;
