@@ -185,8 +185,8 @@ func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID i
 	}
 }
 
-// OfferEventAndNotify offers a consumer event and notifies the consumer method and notify the consumer to consume.
-func (r *RmtDataCache) OfferEventAndNotify(event *metadata.ConsumerEvent) {
+// OfferEvent offers a consumer event and notifies the consumer method and notify the consumer to consume.
+func (r *RmtDataCache) OfferEvent(event *metadata.ConsumerEvent) {
 	r.EventCh <- event
 }
 

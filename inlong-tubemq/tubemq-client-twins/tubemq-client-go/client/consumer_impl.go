@@ -68,7 +68,8 @@ type consumer struct {
 	masterHBRetry    int
 	heartbeatManager *heartbeatManager
 	unreportedTimes  int
-	done             chan struct{}
+	cancel           context.CancelFunc
+	routineClosed    chan struct{}
 	closeOnce        sync.Once
 }
 
@@ -105,72 +106,92 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		client:          client,
 		visitToken:      util.InvalidValue,
 		unreportedTimes: 0,
-		done:            make(chan struct{}),
+		routineClosed:   make(chan struct{}),
 	}
+
+	ctx := context.Background()
+	ctx, c.cancel = context.WithCancel(ctx)
+
 	c.subInfo.SetClientID(clientID)
 	hbm := newHBManager(c)
 	c.heartbeatManager = hbm
-	err = c.register2Master(true)
-	if err != nil {
-		return nil, err
-	}
-	c.heartbeatManager.registerMaster(c.master.Address)
-	go c.processRebalanceEvent()
+
+	go c.routine(ctx)
+	go c.processRebalanceEvent(ctx)
+
 	log.Infof("[CONSUMER] start consumer success, client=%s", clientID)
 	return c, nil
 }
 
-func (c *consumer) register2Master(needChange bool) error {
-	if needChange {
-		c.selector.Refresh(c.config.Consumer.Masters)
+func (c *consumer) routine(ctx context.Context) {
+	defer close(c.routineClosed)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+		// 选主
 		node, err := c.selector.Select(c.config.Consumer.Masters)
 		if err != nil {
-			return err
-		}
-		c.master = node
-	}
-	retryCount := 0
-	for {
-		rsp, err := c.sendRegRequest2Master()
-		if err != nil || !rsp.GetSuccess() {
-			if err != nil {
-				log.Errorf("[CONSUMER]register2Master error %s", err.Error())
-			} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden ||
-				rsp.GetErrCode() == errs.RetConsumeContentForbidden {
-				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s",
-					c.master.Address, c.clientID, rsp.GetErrMsg())
-				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
-			}
-
-			if !c.master.HasNext {
-				if err != nil {
-					return err
-				}
-				if rsp != nil {
-					log.Errorf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s",
-						c.master.Address, c.clientID, rsp.GetErrMsg())
-				}
-				break
-			}
-			retryCount++
-			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, retry count=%d",
-				c.master.Address, c.clientID, retryCount)
-			if c.master, err = c.selector.Select(c.config.Consumer.Masters); err != nil {
-				return err
-			}
+			log.Errorf("[CONSUMER] select error %v", err)
+			time.Sleep(time.Second)
 			continue
 		}
-		log.Infof("register2Master response %s", rsp.String())
-
-		c.masterHBRetry = 0
-		c.processRegisterResponseM2C(rsp)
-		break
+		c.master = node
+		log.Infof("[CONSUMER] master %+v", c.master)
+		// 注册
+		if err := c.register2Master(ctx); err != nil {
+			log.Errorf("[CONSUMER] register2Master error %v", err)
+			time.Sleep(time.Second)
+			continue
+		}
+		c.lastMasterHb = time.Now().UnixMilli()
+		// 心跳
+		time.Sleep(c.config.Heartbeat.Interval / 2)
+		if err := c.heartbeat2Master(ctx); err != nil {
+			log.Errorf("[CONSUMER] heartbeat2Master error %v", err)
+		} else {
+			c.lastMasterHb = time.Now().UnixMilli()
+		}
+		heartbeatRetry := 0
+		for {
+			time.Sleep(c.config.Heartbeat.Interval)
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+			if heartbeatRetry >= c.config.Heartbeat.MaxRetryTimes {
+				break
+			}
+			if err := c.heartbeat2Master(ctx); err != nil {
+				log.Errorf("[CONSUMER] heartbeat2Master error %v", err)
+				heartbeatRetry++
+				continue
+			} else {
+				heartbeatRetry = 0
+				c.lastMasterHb = time.Now().UnixMilli()
+			}
+		}
 	}
+}
+
+func (c *consumer) register2Master(ctx context.Context) error {
+	rsp, err := c.sendRegRequest2Master(ctx)
+	if err != nil {
+		return err
+	}
+	if !rsp.GetSuccess() {
+		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	}
+	c.processRegisterResponseM2C(rsp)
 	return nil
 }
 
-func (c *consumer) sendRegRequest2Master() (*protocol.RegisterResponseM2C, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
+func (c *consumer) sendRegRequest2Master(ctx context.Context) (*protocol.RegisterResponseM2C, error) {
+	ctx, cancel := context.WithTimeout(ctx, c.config.Net.ReadTimeout)
 	defer cancel()
 
 	m := &metadata.Metadata{}
@@ -207,7 +228,6 @@ func (c *consumer) processRegisterResponseM2C(rsp *protocol.RegisterResponseM2C)
 	if rsp.GetAuthorizedInfo() != nil {
 		c.processAuthorizedToken(rsp.GetAuthorizedInfo())
 	}
-	c.lastMasterHb = time.Now().UnixNano() / int64(time.Millisecond)
 }
 
 func (c *consumer) processAuthorizedToken(info *protocol.MasterAuthorizedInfo) {
@@ -215,12 +235,84 @@ func (c *consumer) processAuthorizedToken(info *protocol.MasterAuthorizedInfo) {
 	c.authorizedInfo = info.GetAuthAuthorizedToken()
 }
 
+func (c *consumer) heartbeat2Master(ctx context.Context) error {
+	rsp, err := c.sendHeartbeat2Master(ctx)
+	if err != nil {
+		return err
+	}
+	if !rsp.GetSuccess() {
+		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
+	}
+	c.processHBResponseM2C(rsp)
+	return nil
+}
+
+func (c *consumer) sendHeartbeat2Master(ctx context.Context) (*protocol.HeartResponseM2C, error) {
+	if time.Now().UnixNano()/int64(time.Millisecond)-c.lastMasterHb > 30000 {
+		c.rmtDataCache.HandleExpiredPartitions(c.config.Consumer.MaxConfirmWait)
+	}
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(c.master.Address)
+	m.SetNode(node)
+	sub := &metadata.SubscribeInfo{}
+	sub.SetGroup(c.config.Consumer.Group)
+	m.SetSubscribeInfo(sub)
+	auth := &protocol.AuthenticateInfo{}
+	if c.needGenMasterCertificateInfo(true) {
+		util.GenMasterAuthenticateToken(auth, c.config.Net.Auth.UserName, c.config.Net.Auth.Password)
+	}
+	c.unreportedTimes++
+	if c.unreportedTimes > c.config.Consumer.MaxSubInfoReportInterval {
+		m.SetReportTimes(true)
+		c.unreportedTimes = 0
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, c.config.Net.ReadTimeout)
+	defer cancel()
+	rsp, err := c.client.HeartRequestC2M(ctx, m, c.subInfo, c.rmtDataCache)
+	return rsp, err
+}
+
+func (c *consumer) processHBResponseM2C(rsp *protocol.HeartResponseM2C) {
+	c.masterHBRetry = 0
+	if !rsp.GetNotAllocated() {
+		c.subInfo.CASIsNotAllocated(1, 0)
+	}
+	if rsp.GetDefFlowCheckId() != 0 || rsp.GetGroupFlowCheckId() != 0 {
+		if rsp.GetDefFlowCheckId() != 0 {
+			c.rmtDataCache.UpdateDefFlowCtrlInfo(rsp.GetDefFlowCheckId(), rsp.GetDefFlowControlInfo())
+		}
+		qryPriorityID := c.rmtDataCache.GetQryPriorityID()
+		if rsp.GetQryPriorityId() != 0 {
+			qryPriorityID = rsp.GetQryPriorityId()
+		}
+		c.rmtDataCache.UpdateGroupFlowCtrlInfo(qryPriorityID, rsp.GetGroupFlowCheckId(), rsp.GetGroupFlowControlInfo())
+	}
+	if rsp.GetAuthorizedInfo() != nil {
+		c.processAuthorizedToken(rsp.GetAuthorizedInfo())
+	}
+	if rsp.GetRequireAuth() {
+		atomic.StoreInt32(&c.nextAuth2Master, 1)
+	}
+	if rsp.GetEvent() != nil {
+		event := rsp.GetEvent()
+		subscribeInfo := make([]*metadata.SubscribeInfo, 0, len(event.GetSubscribeInfo()))
+		for _, sub := range event.GetSubscribeInfo() {
+			s, err := metadata.NewSubscribeInfo(sub)
+			if err != nil {
+				continue
+			}
+			subscribeInfo = append(subscribeInfo, s)
+		}
+		e := metadata.NewEvent(event.GetRebalanceId(), event.GetOpType(), subscribeInfo)
+		c.rmtDataCache.OfferEvent(e)
+	}
+}
+
 // GetMessage implementation of TubeMQ consumer.
 func (c *consumer) GetMessage() (*ConsumerResult, error) {
-	err := c.checkPartitionErr()
-	if err != nil {
-		return nil, err
-	}
 	partition, bookedTime, err := c.rmtDataCache.SelectPartition()
 	if err != nil {
 		return nil, err
@@ -372,35 +464,36 @@ func (c *consumer) GetClientID() string {
 func (c *consumer) Close() {
 	c.closeOnce.Do(func() {
 		log.Infof("[CONSUMER]Begin to close consumer, client=%s", c.clientID)
-		close(c.done)
+		c.cancel()
 		c.heartbeatManager.close()
 		c.close2Master()
 		c.closeAllBrokers()
 		c.client.Close()
+		<-c.routineClosed
 		log.Infof("[CONSUMER]Consumer has been closed successfully, client=%s", c.clientID)
 	})
 }
 
-func (c *consumer) processRebalanceEvent() {
+func (c *consumer) processRebalanceEvent(ctx context.Context) {
 	log.Info("[CONSUMER]Rebalance event Handler starts!")
 	for {
 		select {
+		case <-ctx.Done():
+			log.Info("[CONSUMER] Rebalance event Handler stopped!")
+			return
 		case event, ok := <-c.rmtDataCache.EventCh:
 			if ok {
+				log.Infof("%+v", event)
 				c.rmtDataCache.ClearEvent()
 				switch event.GetEventType() {
 				case metadata.Disconnect, metadata.OnlyDisconnect:
 					c.disconnect2Broker(event)
 					c.rmtDataCache.OfferEventResult(event)
 				case metadata.Connect, metadata.OnlyConnect:
-					c.connect2Broker(event)
+					c.connect2Broker(ctx, event)
 					c.rmtDataCache.OfferEventResult(event)
 				}
 			}
-		case <-c.done:
-			log.Infof("[CONSUMER]Rebalance done, client=%s", c.clientID)
-			log.Info("[CONSUMER] Rebalance event Handler stopped!")
-			return
 		}
 	}
 }
@@ -424,16 +517,26 @@ func (c *consumer) unregister2Broker(unRegPartitions map[*metadata.Node][]*metad
 	if len(unRegPartitions) == 0 {
 		return
 	}
-
+	var wg sync.WaitGroup
 	for _, partitions := range unRegPartitions {
 		for _, partition := range partitions {
 			log.Tracef("unregister2Brokers, partition key=%s", partition.GetPartitionKey())
-			c.sendUnregisterReq2Broker(partition)
+			partition := partition
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := c.sendUnregisterReq2Broker(partition); err != nil {
+					log.Errorf("[CONSUMER] unregister partition %+v failed, error %v", partition, err)
+				} else {
+					log.Infof("[connect2Broker] unregister partition %+v success", partition)
+				}
+			}()
 		}
 	}
+	wg.Wait()
 }
 
-func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
+func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
 	defer cancel()
 
@@ -454,20 +557,29 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 	rsp, err := c.client.UnregisterRequestC2B(ctx, m, c.subInfo)
 	if err != nil {
 		log.Errorf("[CONSUMER] fail to unregister partition %s, error %s", partition, err.Error())
-		return
+		return err
 	}
 	if !rsp.GetSuccess() {
 		log.Errorf("[CONSUMER] fail to unregister partition %s, err code: %d, error msg %s",
 			partition, rsp.GetErrCode(), rsp.GetErrMsg())
+		return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 	}
+	return nil
 }
 
-func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
+func (c *consumer) connect2Broker(ctx context.Context, event *metadata.ConsumerEvent) {
 	log.Tracef("[connect2Broker] connect event begin, client=%s", c.clientID)
 	if len(event.GetSubscribeInfo()) > 0 {
 		unsubPartitions := c.rmtDataCache.FilterPartitions(event.GetSubscribeInfo())
+		n := len(unsubPartitions)
 		if len(unsubPartitions) > 0 {
-			for _, partition := range unsubPartitions {
+			for i, partition := range unsubPartitions {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
 				node := &metadata.Node{}
 				node.SetHost(util.GetLocalHost())
 				node.SetAddress(partition.GetBroker().GetAddress())
@@ -482,6 +594,7 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 					return
 				}
 
+				log.Infof("[connect2Broker] %v/%v register partition %+v success", i, n, partition)
 				c.rmtDataCache.AddNewPartition(partition)
 				c.heartbeatManager.registerBroker(partition.GetBroker())
 			}
