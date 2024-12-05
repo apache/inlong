@@ -21,6 +21,7 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.KafkaSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -66,6 +67,8 @@ public class KafkaIdConfig extends IdConfig {
         String separator = DEFAULT_SEPARATOR;
         if (dataTypeConfig instanceof CsvConfig) {
             separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
+        } else if (dataTypeConfig instanceof KvConfig) {
+            separator = String.valueOf(((KvConfig) dataTypeConfig).getEntrySplitter());
         }
 
         return KafkaIdConfig.builder()
