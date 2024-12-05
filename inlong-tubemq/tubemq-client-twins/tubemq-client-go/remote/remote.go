@@ -187,19 +187,18 @@ func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID i
 
 // OfferEventAndNotify offers a consumer event and notifies the consumer method and notify the consumer to consume.
 func (r *RmtDataCache) OfferEventAndNotify(event *metadata.ConsumerEvent) {
-	r.eventReadMu.Lock()
-	defer r.eventReadMu.Unlock()
-	r.rebalanceResults = append(r.rebalanceResults, event)
-	e := r.rebalanceResults[0]
-	r.rebalanceResults = r.rebalanceResults[1:]
-	r.EventCh <- e
+	r.EventCh <- event
 }
 
 // ClearEvent clears all the events.
 func (r *RmtDataCache) ClearEvent() {
-	r.eventWriteMu.Lock()
-	defer r.eventWriteMu.Unlock()
-	r.rebalanceResults = r.rebalanceResults[:0]
+	for {
+		select {
+		case <-r.EventCh:
+		default:
+			return
+		}
+	}
 }
 
 // OfferEventResult offers a consumer event.

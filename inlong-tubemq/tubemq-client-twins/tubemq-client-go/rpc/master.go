@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/remote"
@@ -199,6 +200,7 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 		}
 	}
 	if event != nil {
+		log.Infof("report Event: %v", event)
 		ep := &protocol.EventProto{
 			RebalanceId: proto.Int64(event.GetRebalanceID()),
 			OpType:      proto.Int32(event.GetEventType()),
