@@ -58,8 +58,9 @@ public class TestTaskManager {
             manager = new TaskManager();
             TaskStore taskStore = manager.getTaskStore();
             for (int i = 1; i <= 10; i++) {
-                TaskProfile taskProfile = helper.getTaskProfile(i, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
-                        "D", "GMT+8:00", null);
+                TaskProfile taskProfile =
+                        helper.getFileTaskProfile(i, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
+                                "D", "GMT+8:00", null);
                 taskProfile.setTaskClass(MockTask.class.getCanonicalName());
                 taskStore.storeTask(taskProfile);
             }
@@ -74,7 +75,7 @@ public class TestTaskManager {
             Assert.assertTrue("manager start error", false);
         }
 
-        TaskProfile taskProfile1 = helper.getTaskProfile(100, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
+        TaskProfile taskProfile1 = helper.getFileTaskProfile(100, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
                 "D", "GMT+8:00", null);
         String taskId1 = taskProfile1.getTaskId();
         taskProfile1.setTaskClass(MockTask.class.getCanonicalName());
@@ -99,7 +100,7 @@ public class TestTaskManager {
         Assert.assertTrue(manager.getTaskProfile(taskId1).getState() == TaskStateEnum.RUNNING);
 
         // test delete
-        TaskProfile taskProfile2 = helper.getTaskProfile(200, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
+        TaskProfile taskProfile2 = helper.getFileTaskProfile(200, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
                 "D", "GMT+8:00", null);
         taskProfile2.setTaskClass(MockTask.class.getCanonicalName());
         List<TaskProfile> taskProfiles2 = new ArrayList<>();

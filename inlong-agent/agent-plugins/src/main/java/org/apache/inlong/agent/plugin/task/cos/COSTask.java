@@ -196,7 +196,6 @@ public class COSTask extends AbstractTask {
     }
 
     private void scanExistingFile() {
-        LOGGER.info("test123 qqqq");
         List<BasicFileInfo> fileInfos = FileScanner.scanTaskBetweenTimes(cosClient, bucketName, originPattern,
                 taskProfile.getCycleUnit(), timeOffset, startTime, endTime, retry);
         LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
@@ -314,7 +313,6 @@ public class COSTask extends AbstractTask {
                     taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
-        LOGGER.info("test123 {}", cosClient);
         ObjectMetadata meta = cosClient.getObjectMetadata(bucketName, fileName);
         Long fileUpdateTime = meta.getLastModified().getTime();
         if (!shouldAddAgain(fileName, fileUpdateTime)) {
