@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TimeScanObject {
 
-    private AtomicInteger count = new AtomicInteger(0);
-    private AtomicLong time = new AtomicLong(0);
+    private final AtomicInteger count = new AtomicInteger(0);
+    private final AtomicLong time = new AtomicLong(0);
 
     public TimeScanObject() {
         this.count.set(0);

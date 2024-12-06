@@ -34,7 +34,6 @@ public class ProxyClientConfig {
     private String managerIP = "";
     private String managerAddress;
 
-    private String managerIpLocalPath = System.getProperty("user.dir") + "/.inlong/.managerIps";
     private String managerUrl = "";
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
@@ -54,7 +53,6 @@ public class ProxyClientConfig {
     private String authSecretKey;
     private String protocolType;
 
-    private boolean enableSaveManagerVIps = false;
     // metric configure
     private MetricConfig metricConfig = new MetricConfig();
 
@@ -209,28 +207,6 @@ public class ProxyClientConfig {
 
     public String getManagerIP() {
         return managerIP;
-    }
-
-    public String getManagerIpLocalPath() {
-        return managerIpLocalPath;
-    }
-
-    public void setManagerIpLocalPath(String managerIpLocalPath) throws ProxysdkException {
-        if (StringUtils.isEmpty(managerIpLocalPath)) {
-            throw new ProxysdkException("managerIpLocalPath is empty.");
-        }
-        if (managerIpLocalPath.charAt(managerIpLocalPath.length() - 1) == '/') {
-            managerIpLocalPath = managerIpLocalPath.substring(0, managerIpLocalPath.length() - 1);
-        }
-        this.managerIpLocalPath = managerIpLocalPath + "/.managerIps";
-    }
-
-    public boolean isEnableSaveManagerVIps() {
-        return enableSaveManagerVIps;
-    }
-
-    public void setEnableSaveManagerVIps(boolean enable) {
-        this.enableSaveManagerVIps = enable;
     }
 
     public String getConfStoreBasePath() {
