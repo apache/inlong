@@ -19,6 +19,8 @@ package selector
 
 import (
 	"errors"
+	"fmt"
+	"net"
 	"strings"
 	"sync"
 )
@@ -57,11 +59,21 @@ func (s *ipSelector) Select(serviceName string) (*Node, error) {
 		}
 		s.services[serviceName] = services
 	}
+	address := services.addresses[services.nextIndex]
+	services.nextIndex = (services.nextIndex + 1) % len(services.addresses)
+	host, port, err := net.SplitHostPort(address)
+	if err != nil {
+		return nil, err
+	}
+	ips, err := net.LookupHost(host)
+	if err != nil {
+		return nil, err
+	}
+	address = fmt.Sprintf("%v:%v", ips[0], port)
 	node := &Node{
 		ServiceName: serviceName,
-		Address:     services.addresses[services.nextIndex],
+		Address:     address,
 	}
-	services.nextIndex = (services.nextIndex + 1) % len(services.addresses)
 	if services.nextIndex > 0 {
 		node.HasNext = true
 	}

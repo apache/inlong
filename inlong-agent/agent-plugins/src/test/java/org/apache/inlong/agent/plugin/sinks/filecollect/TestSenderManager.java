@@ -70,8 +70,9 @@ public class TestSenderManager {
         String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
         helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
-                "GMT+8:00", null);
+        TaskProfile taskProfile =
+                helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
+                        "GMT+8:00", null);
         profile = taskProfile.createInstanceProfile("", fileName,
                 taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
     }

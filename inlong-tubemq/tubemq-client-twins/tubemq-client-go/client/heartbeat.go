@@ -21,7 +21,6 @@ import (
 	"context"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
@@ -61,9 +60,6 @@ func (h *heartbeatManager) registerMaster(address string) {
 	if h.producer != nil {
 		heartbeatInterval = h.producer.config.Heartbeat.Interval / 2
 		heartbeatFunc = h.producerHB2Master
-	} else if h.consumer != nil {
-		heartbeatInterval = h.consumer.config.Heartbeat.Interval / 2
-		heartbeatFunc = h.consumerHB2Master
 	}
 
 	if !ok {
@@ -133,58 +129,6 @@ func (h *heartbeatManager) producerHB2Master() {
 	h.resetMasterHeartbeat()
 }
 
-func (h *heartbeatManager) consumerHB2Master() {
-	if time.Now().UnixNano()/int64(time.Millisecond)-h.consumer.lastMasterHb > 30000 {
-		h.consumer.rmtDataCache.HandleExpiredPartitions(h.consumer.config.Consumer.MaxConfirmWait)
-	}
-	m := &metadata.Metadata{}
-	node := &metadata.Node{}
-	node.SetHost(util.GetLocalHost())
-	node.SetAddress(h.consumer.master.Address)
-	m.SetNode(node)
-	sub := &metadata.SubscribeInfo{}
-	sub.SetGroup(h.consumer.config.Consumer.Group)
-	m.SetSubscribeInfo(sub)
-	auth := &protocol.AuthenticateInfo{}
-	if h.consumer.needGenMasterCertificateInfo(true) {
-		util.GenMasterAuthenticateToken(auth, h.consumer.config.Net.Auth.UserName, h.consumer.config.Net.Auth.Password)
-	}
-	h.consumer.unreportedTimes++
-	if h.consumer.unreportedTimes > h.consumer.config.Consumer.MaxSubInfoReportInterval {
-		m.SetReportTimes(true)
-		h.consumer.unreportedTimes = 0
-	}
-
-	rsp, err := h.sendHeartbeatC2M(m)
-	if err == nil {
-		h.consumer.masterHBRetry = 0
-		h.processHBResponseM2C(rsp)
-		h.resetMasterHeartbeat()
-		return
-	}
-	h.consumer.masterHBRetry++
-	h.resetMasterHeartbeat()
-	hbNoNode := rsp != nil && rsp.GetErrCode() == errs.RetErrHBNoNode
-	standByException := false
-	if e, ok := err.(*errs.Error); ok {
-		standByException = strings.Index(e.Msg, "StandbyException") != -1
-	}
-	if (h.consumer.masterHBRetry >= h.consumer.config.Heartbeat.MaxRetryTimes) || standByException || hbNoNode {
-		h.deleteHeartbeat(h.consumer.master.Address)
-		go func() {
-			err := h.consumer.register2Master(!hbNoNode)
-			if err != nil {
-				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s",
-					h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
-				return
-			}
-			h.registerMaster(h.consumer.master.Address)
-			log.Infof("[CONSUMER] heartBeat2Master success to (%s), client=%s",
-				h.consumer.master.Address, h.consumer.clientID)
-		}()
-	}
-}
-
 func (h *heartbeatManager) resetMasterHeartbeat() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -222,42 +166,6 @@ func (h *heartbeatManager) processHBResponseM2P(rsp *protocol.HeartResponseM2P) 
 
 	// update topic meta
 	h.producer.updateTopicConfigure(topicInfos)
-}
-
-func (h *heartbeatManager) processHBResponseM2C(rsp *protocol.HeartResponseM2C) {
-	h.consumer.masterHBRetry = 0
-	if !rsp.GetNotAllocated() {
-		h.consumer.subInfo.CASIsNotAllocated(1, 0)
-	}
-	if rsp.GetDefFlowCheckId() != 0 || rsp.GetGroupFlowCheckId() != 0 {
-		if rsp.GetDefFlowCheckId() != 0 {
-			h.consumer.rmtDataCache.UpdateDefFlowCtrlInfo(rsp.GetDefFlowCheckId(), rsp.GetDefFlowControlInfo())
-		}
-		qryPriorityID := h.consumer.rmtDataCache.GetQryPriorityID()
-		if rsp.GetQryPriorityId() != 0 {
-			qryPriorityID = rsp.GetQryPriorityId()
-		}
-		h.consumer.rmtDataCache.UpdateGroupFlowCtrlInfo(qryPriorityID, rsp.GetGroupFlowCheckId(), rsp.GetGroupFlowControlInfo())
-	}
-	if rsp.GetAuthorizedInfo() != nil {
-		h.consumer.processAuthorizedToken(rsp.GetAuthorizedInfo())
-	}
-	if rsp.GetRequireAuth() {
-		atomic.StoreInt32(&h.consumer.nextAuth2Master, 1)
-	}
-	if rsp.GetEvent() != nil {
-		event := rsp.GetEvent()
-		subscribeInfo := make([]*metadata.SubscribeInfo, 0, len(event.GetSubscribeInfo()))
-		for _, sub := range event.GetSubscribeInfo() {
-			s, err := metadata.NewSubscribeInfo(sub)
-			if err != nil {
-				continue
-			}
-			subscribeInfo = append(subscribeInfo, s)
-		}
-		e := metadata.NewEvent(event.GetRebalanceId(), event.GetOpType(), subscribeInfo)
-		h.consumer.rmtDataCache.OfferEventAndNotify(e)
-	}
 }
 
 func (h *heartbeatManager) nextHeartbeatInterval() time.Duration {
@@ -350,10 +258,6 @@ func (h *heartbeatManager) close() {
 	defer h.mu.Unlock()
 
 	for _, heartbeat := range h.heartbeats {
-		if !heartbeat.timer.Stop() {
-			<-heartbeat.timer.C
-		}
-		heartbeat.timer = nil
+		heartbeat.timer.Stop()
 	}
-	h.heartbeats = nil
 }
