@@ -20,6 +20,7 @@ package sub
 
 import (
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -64,16 +65,10 @@ func NewSubInfo(config *config.Config) *SubInfo {
 	s.topicFilter = make(map[string]bool)
 	for topic, filters := range config.Consumer.TopicFilters {
 		cond := topic + "#"
-		count := 0
 		if len(filters) > 0 {
 			s.topicFilter[topic] = true
 		}
-		for _, filter := range filters {
-			if count > 0 {
-				cond += ","
-			}
-			cond += filter
-		}
+		cond += strings.Join(filters, ",")
 		s.topicConds = append(s.topicConds, cond)
 	}
 	if config.Consumer.BoundConsume {
