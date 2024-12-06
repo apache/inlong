@@ -132,7 +132,7 @@ func (c *consumer) routine(ctx context.Context) {
 			return
 		default:
 		}
-		// 选主
+		// select master
 		node, err := c.selector.Select(c.config.Consumer.Masters)
 		if err != nil {
 			log.Errorf("[CONSUMER] select error %v", err)
@@ -141,14 +141,14 @@ func (c *consumer) routine(ctx context.Context) {
 		}
 		c.master = node
 		log.Infof("[CONSUMER] master %+v", c.master)
-		// 注册
+		// register to master
 		if err := c.register2Master(ctx); err != nil {
 			log.Errorf("[CONSUMER] register2Master error %v", err)
 			time.Sleep(time.Second)
 			continue
 		}
 		c.lastMasterHb = time.Now().UnixMilli()
-		// 心跳
+		// heartbeat to master
 		time.Sleep(c.config.Heartbeat.Interval / 2)
 		if err := c.heartbeat2Master(ctx); err != nil {
 			log.Errorf("[CONSUMER] heartbeat2Master error %v", err)
