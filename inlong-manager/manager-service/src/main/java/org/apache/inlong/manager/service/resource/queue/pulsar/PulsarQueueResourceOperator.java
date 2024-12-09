@@ -324,7 +324,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
 
         int finalMsgCount = Math.min(request.getMessageCount(), briefMQMessages.size());
         if (finalMsgCount > 0) {
-            return briefMQMessages.subList(0, finalMsgCount);
+            return new ArrayList<>(briefMQMessages.subList(0, finalMsgCount));
         } else {
             return new ArrayList<>();
         }
