@@ -489,7 +489,7 @@ public class ProxyClientConfig {
         String hostPortInfo;
         if (managerAddress.startsWith(ConfigConstants.HTTPS)) {
             this.visitManagerByHttp = false;
-            hostPortInfo = managerAddress.substring(ConfigConstants.HTTP.length() + 1);
+            hostPortInfo = managerAddress.substring(ConfigConstants.HTTPS.length() + 1);
         } else {
             hostPortInfo = managerAddress.substring(ConfigConstants.HTTP.length() + 1);
         }
