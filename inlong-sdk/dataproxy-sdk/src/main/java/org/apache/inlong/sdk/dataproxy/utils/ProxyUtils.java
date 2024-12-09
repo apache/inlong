@@ -150,11 +150,11 @@ public class ProxyUtils {
      * @param clientConfig
      */
     public static void validClientConfig(ProxyClientConfig clientConfig) {
-        if (clientConfig.isNeedAuthentication()) {
-            if (StringUtils.isBlank(clientConfig.getUserName())) {
-                throw new IllegalArgumentException("Authentication require userName not Blank!");
+        if (clientConfig.isEnableAuthentication()) {
+            if (StringUtils.isBlank(clientConfig.getAuthSecretId())) {
+                throw new IllegalArgumentException("Authentication require secretId not Blank!");
             }
-            if (StringUtils.isBlank(clientConfig.getSecretKey())) {
+            if (StringUtils.isBlank(clientConfig.getAuthSecretKey())) {
                 throw new IllegalArgumentException("Authentication require secretKey not Blank!");
             }
         }

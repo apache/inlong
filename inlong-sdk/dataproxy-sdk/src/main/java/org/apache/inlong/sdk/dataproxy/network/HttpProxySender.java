@@ -26,6 +26,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,15 +76,14 @@ public class HttpProxySender extends Thread {
     private void initTDMClientAndRequest(ProxyClientConfig configure) throws Exception {
 
         try {
-            proxyConfigManager = new ProxyConfigManager(configure, null);
-            proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
+            proxyConfigManager = new ProxyConfigManager(configure);
             ProxyConfigEntry proxyConfigEntry = retryGettingProxyConfig();
             hostList.addAll(proxyConfigEntry.getHostMap().values());
 
             this.setDaemon(true);
             this.start();
         } catch (Throwable e) {
-            if (configure.isReadProxyIPFromLocal()) {
+            if (configure.isOnlyUseLocalProxyConfig()) {
                 throw new Exception("Get local proxy configure failure! e = {}", e);
             } else {
                 throw new Exception("Visit TDManager error! e = {}", e);
@@ -98,7 +98,9 @@ public class HttpProxySender extends Thread {
      * @return proxy config entry.
      */
     private ProxyConfigEntry retryGettingProxyConfig() throws Exception {
-        return proxyConfigManager.getGroupIdConfigure();
+        Tuple2<ProxyConfigEntry, String> result =
+                proxyConfigManager.getGroupIdConfigure(true);
+        return result.getF0();
     }
 
     /**
@@ -112,9 +114,13 @@ public class HttpProxySender extends Thread {
                 int randSleepTime = proxyClientConfig.getProxyHttpUpdateIntervalMinutes() * 60 + rand;
                 TimeUnit.MILLISECONDS.sleep(randSleepTime * 1000);
                 if (proxyConfigManager != null) {
-                    ProxyConfigEntry proxyConfigEntry = proxyConfigManager.getGroupIdConfigure();
-                    hostList.addAll(proxyConfigEntry.getHostMap().values());
-                    hostList.retainAll(proxyConfigEntry.getHostMap().values());
+                    Tuple2<ProxyConfigEntry, String> result =
+                            proxyConfigManager.getGroupIdConfigure(false);
+                    if (result.getF0() == null) {
+                        throw new Exception(result.getF1());
+                    }
+                    hostList.addAll(result.getF0().getHostMap().values());
+                    hostList.retainAll(result.getF0().getHostMap().values());
                 } else {
                     logger.error("manager is null, please check it!");
                 }
