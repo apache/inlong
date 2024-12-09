@@ -30,6 +30,7 @@ import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,17 +108,20 @@ public class DefaultMessageSender implements MessageSender {
         }
         LOGGER.info("Initial tcp sender, configure is {}", configure);
         // initial sender object
-        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure, null);
-        proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
-        ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
-        DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());
+        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure);
+        Tuple2<ProxyConfigEntry, String> result =
+                proxyConfigManager.getGroupIdConfigure(true);
+        if (result.getF0() == null) {
+            throw new Exception(result.getF1());
+        }
+        DefaultMessageSender sender = CACHE_SENDER.get(result.getF0().getClusterId());
         if (sender != null) {
             return sender;
         } else {
             DefaultMessageSender tmpMessageSender =
                     new DefaultMessageSender(configure, selfDefineFactory);
-            tmpMessageSender.setMaxPacketLength(entry.getMaxPacketLength());
-            CACHE_SENDER.put(entry.getClusterId(), tmpMessageSender);
+            tmpMessageSender.setMaxPacketLength(result.getF0().getMaxPacketLength());
+            CACHE_SENDER.put(result.getF0().getClusterId(), tmpMessageSender);
             return tmpMessageSender;
         }
     }

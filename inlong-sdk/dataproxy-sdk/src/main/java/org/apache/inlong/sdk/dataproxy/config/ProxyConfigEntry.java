@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Map;
 
 public class ProxyConfigEntry implements java.io.Serializable {
 
     private int clusterId;
     private String groupId;
-    private int size;
     private Map<String, HostInfo> hostMap;
     private int load;
     private int switchStat;
@@ -59,16 +60,14 @@ public class ProxyConfigEntry implements java.io.Serializable {
     }
 
     public void setHostMap(Map<String, HostInfo> hostMap) {
-        this.size = hostMap.size();
         this.hostMap = hostMap;
+    }
+    public boolean isNodesEmpty() {
+        return this.hostMap.isEmpty();
     }
 
     public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
+        return hostMap.size();
     }
 
     public String getGroupId() {
@@ -87,18 +86,24 @@ public class ProxyConfigEntry implements java.io.Serializable {
         isInterVisit = interVisit;
     }
 
-    @Override
-    public String toString() {
-        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
-                + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat + ", maxPacketLength="
-                + maxPacketLength + "]";
-    }
-
     public int getClusterId() {
         return clusterId;
     }
 
     public void setClusterId(int clusterId) {
         this.clusterId = clusterId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("clusterId", clusterId)
+                .append("groupId", groupId)
+                .append("hostMap", hostMap)
+                .append("load", load)
+                .append("switchStat", switchStat)
+                .append("isInterVisit", isInterVisit)
+                .append("maxPacketLength", maxPacketLength)
+                .toString();
     }
 }

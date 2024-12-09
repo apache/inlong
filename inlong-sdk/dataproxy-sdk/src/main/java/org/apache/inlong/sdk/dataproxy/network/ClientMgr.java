@@ -27,6 +27,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -84,7 +85,7 @@ public class ClientMgr {
     private int aliveConnections;
     private int realSize;
     private SendHBThread sendHBThread;
-    private ProxyConfigManager ipManager;
+    private ProxyConfigManager configManager;
     private int groupIdNum = 0;
     private String groupId = "";
     private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
@@ -115,10 +116,9 @@ public class ClientMgr {
         bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
         bootstrap.handler(new ClientPipelineFactory(this, sender));
         /* ready to Start the thread which refreshes the proxy list. */
-        ipManager = new ProxyConfigManager(configure, this);
-        ipManager.setName("proxyConfigManager");
+        configManager = new ProxyConfigManager(sender.getInstanceId(), configure, this);
+        configManager.setName("proxyConfigManager");
         if (configure.getInlongGroupId() != null) {
-            ipManager.setInlongGroupId(configure.getInlongGroupId());
             groupId = configure.getInlongGroupId();
         }
 
@@ -131,13 +131,13 @@ public class ClientMgr {
         this.loadBalance = configure.getLoadBalance();
 
         try {
-            ipManager.doProxyEntryQueryWork();
+            configManager.doProxyEntryQueryWork();
         } catch (IOException e) {
             e.printStackTrace();
             logger.info(e.getMessage());
         }
-        ipManager.setDaemon(true);
-        ipManager.start();
+        configManager.setDaemon(true);
+        configManager.start();
 
         this.sendHBThread = new SendHBThread();
         this.sendHBThread.setName("SendHBThread");
@@ -181,7 +181,13 @@ public class ClientMgr {
     }
 
     public EncryptConfigEntry getEncryptConfigEntry() {
-        return this.ipManager.getEncryptConfigEntry(configure.getUserName());
+        Tuple2<EncryptConfigEntry, String> result;
+        try {
+            result = configManager.getEncryptConfigure(false);
+            return result.getF0();
+        } catch (Throwable ex) {
+            return null;
+        }
     }
 
     public List<HostInfo> getProxyInfoList() {
@@ -273,7 +279,12 @@ public class ClientMgr {
     }
 
     public ProxyConfigEntry getGroupIdConfigureInfo() throws Exception {
-        return ipManager.getGroupIdConfigure();
+        Tuple2<ProxyConfigEntry, String> result =
+                configManager.getGroupIdConfigure(true);
+        if (result.getF0() == null) {
+            throw new Exception(result.getF1());
+        }
+        return result.getF0();
     }
 
     /**
@@ -531,7 +542,7 @@ public class ClientMgr {
     public void shutDown() {
         bootstrap.config().group().shutdownGracefully();
 
-        ipManager.shutDown();
+        configManager.shutDown();
 
         // connectionCheckThread.shutDown();
         sendHBThread.shutDown();
@@ -851,9 +862,9 @@ public class ClientMgr {
                 Collections.singletonList(hbMsg.getBytes(StandardCharsets.UTF_8)),
                 8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
         try {
-            if (configure.isNeedAuthentication()) {
-                encodeObject.setAuth(configure.isNeedAuthentication(),
-                        configure.getUserName(), configure.getSecretKey());
+            if (configure.isEnableAuthentication()) {
+                encodeObject.setAuth(configure.isEnableAuthentication(),
+                        configure.getAuthSecretId(), configure.getAuthSecretKey());
             }
             client.write(encodeObject);
         } catch (Throwable e) {

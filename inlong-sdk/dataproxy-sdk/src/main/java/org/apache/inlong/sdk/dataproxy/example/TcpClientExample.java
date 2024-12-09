@@ -70,9 +70,9 @@ public class TcpClientExample {
             dataProxyConfig = new ProxyClientConfig(localIP, requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort), inlongGroupId, "admin", "inlong");
             if (StringUtils.isNotEmpty(configBasePath)) {
-                dataProxyConfig.setConfStoreBasePath(configBasePath);
+                dataProxyConfig.setConfigStoreBasePath(configBasePath);
             }
-            dataProxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
+            dataProxyConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
             dataProxyConfig.setProtocolType(ProtocolType.TCP);
             dataProxyConfig.setRequestTimeoutMs(20000L);
             messageSender = DefaultMessageSender.generateSenderByClusterId(dataProxyConfig);

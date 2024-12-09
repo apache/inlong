@@ -43,12 +43,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Sender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Sender.class);
-
+    private static final AtomicLong senderIdGen = new AtomicLong(0L);
     /* Store the callback used by asynchronously message sending. */
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks =
             new ConcurrentHashMap<>();
@@ -61,6 +62,7 @@ public class Sender {
     private final AtomicInteger currentBufferSize = new AtomicInteger(0);
     private final TimeoutScanThread scanThread;
     private final ClientMgr clientMgr;
+    private final String instanceId;
     private final ProxyClientConfig configure;
     private MetricWorkerThread metricWorker = null;
     private int clusterId = -1;
@@ -74,6 +76,7 @@ public class Sender {
      */
     public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         this.configure = configure;
+        this.instanceId = "sender-" + senderIdGen.incrementAndGet();
         this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
         this.threadPool = Executors.newCachedThreadPool();
         this.clientMgr = new ClientMgr(configure, this, selfDefineFactory);
@@ -82,14 +85,14 @@ public class Sender {
             proxyConfigEntry = this.clientMgr.getGroupIdConfigureInfo();
             setClusterId(proxyConfigEntry.getClusterId());
         } catch (Throwable e) {
-            if (configure.isReadProxyIPFromLocal()) {
+            if (configure.isOnlyUseLocalProxyConfig()) {
                 throw new Exception("Get local proxy configure failure!", e.getCause());
             } else {
                 throw new Exception("Visit manager error!", e.getCause());
             }
         }
         if (!proxyConfigEntry.isInterVisit()) {
-            if (!configure.isNeedAuthentication()) {
+            if (!configure.isEnableAuthentication()) {
                 throw new Exception("In OutNetwork isNeedAuthentication must be true!");
             }
             if (!configure.isNeedDataEncry()) {
@@ -200,7 +203,8 @@ public class Sender {
             }
         }
         if (this.configure.isNeedDataEncry()) {
-            encodeObject.setEncryptEntry(true, configure.getUserName(), clientMgr.getEncryptConfigEntry());
+            encodeObject.setEncryptEntry(true,
+                    configure.getAuthSecretId(), clientMgr.getEncryptConfigEntry());
         } else {
             encodeObject.setEncryptEntry(false, null, null);
         }
@@ -371,7 +375,8 @@ public class Sender {
             }
         }
         if (this.configure.isNeedDataEncry()) {
-            encodeObject.setEncryptEntry(true, configure.getUserName(), clientMgr.getEncryptConfigEntry());
+            encodeObject.setEncryptEntry(true,
+                    configure.getAuthSecretId(), clientMgr.getEncryptConfigEntry());
         } else {
             encodeObject.setEncryptEntry(false, null, null);
         }
@@ -496,6 +501,10 @@ public class Sender {
 
     public void setClusterId(int clusterId) {
         this.clusterId = clusterId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 
     /**

@@ -62,7 +62,7 @@ public class InlongSdkDirtySender {
         ProxyClientConfig proxyClientConfig =
                 new ProxyClientConfig(InetAddress.getLocalHost().getHostAddress(), true,
                         inlongManagerAddr, inlongManagerPort, inlongGroupId, authId, authKey);
-        proxyClientConfig.setReadProxyIPFromLocal(false);
+        proxyClientConfig.setOnlyUseLocalProxyConfig(false);
         proxyClientConfig.setAsyncCallbackSize(maxCallbackSize);
         this.sender = DefaultMessageSender.generateSenderByClusterId(proxyClientConfig);
         this.sender.setMsgtype(7);
