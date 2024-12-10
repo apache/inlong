@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.mysql;
 
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 
 import com.ververica.cdc.connectors.mysql.source.config.MySqlSourceOptions;
@@ -69,7 +70,7 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
         final String username = config.get(USERNAME);
         final String password = config.get(PASSWORD);
         final String databaseName = config.get(DATABASE_NAME);
-        final Boolean enableLogReport = context.getConfiguration().get(ENABLE_LOG_REPORT);
+        final Boolean enableLogReport = context.getConfiguration().get(Constants.ENABLE_LOG_REPORT);
         validateRegex(DATABASE_NAME.key(), databaseName);
         final String tableName = config.get(TABLE_NAME);
         validateRegex(TABLE_NAME.key(), tableName);
@@ -339,13 +340,6 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                             + "\"-U\" represents UPDATE_BEFORE.\n"
                             + "\"+U\" represents UPDATE_AFTER.\n"
                             + "\"-D\" represents DELETE.");
-
-    public static final ConfigOption<Boolean> ENABLE_LOG_REPORT =
-            ConfigOptions.key("enable.log.report")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether enable openTelemetry log report or not.");
-
     // ----------------------------------------------------------------------------
     // experimental options, won't add them to documentation
     // ----------------------------------------------------------------------------
