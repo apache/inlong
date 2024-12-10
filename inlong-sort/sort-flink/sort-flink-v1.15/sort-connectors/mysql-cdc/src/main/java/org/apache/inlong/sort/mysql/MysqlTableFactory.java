@@ -70,7 +70,6 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
         final String password = config.get(PASSWORD);
         final String databaseName = config.get(DATABASE_NAME);
         final Boolean enableLogReport = context.getConfiguration().get(ENABLE_LOG_REPORT);
-        System.out.println("enableLogReport: " + enableLogReport);
         validateRegex(DATABASE_NAME.key(), databaseName);
         final String tableName = config.get(TABLE_NAME);
         validateRegex(TABLE_NAME.key(), tableName);

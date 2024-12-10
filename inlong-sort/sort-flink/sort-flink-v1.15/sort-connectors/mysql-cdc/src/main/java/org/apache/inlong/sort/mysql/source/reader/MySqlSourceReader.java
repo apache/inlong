@@ -115,7 +115,6 @@ public class MySqlSourceReader<T>
         this.suspendedBinlogSplit = null;
         this.metricSchema = metricSchema;
         this.enableLogReport = enableLogReport;
-        LOG.info("mysqlsourceReader:" + enableLogReport);
         if (enableLogReport) {
             this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
                     .setLogLevel(Level.ERROR)

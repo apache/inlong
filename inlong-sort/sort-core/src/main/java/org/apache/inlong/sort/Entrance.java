@@ -77,8 +77,6 @@ public class Entrance {
                 config.getString(Constants.UPSERT_MATERIALIZE));
         tableEnv.getConfig().getConfiguration().setString(Constants.TABLE_EXEC_SINK_NOT_NULL_ENFORCER,
                 config.getString(Constants.NOT_NULL_ENFORCER));
-        System.out.println("config: " + config);
-        System.out.println(Constants.ENABLE_LOG_REPORT.key());
         tableEnv.getConfig().getConfiguration().setBoolean(Constants.ENABLE_LOG_REPORT.key(),
                 config.getBoolean(Constants.ENABLE_LOG_REPORT));
         String sqlFile = config.getString(Constants.SQL_SCRIPT_FILE);
