@@ -90,7 +90,8 @@ public class MySqlSourceReader<T>
     private final MySqlSourceReaderContext mySqlSourceReaderContext;
     private MySqlBinlogSplit suspendedBinlogSplit;
     private final DebeziumDeserializationSchema<T> metricSchema;
-    private final OpenTelemetryLogger openTelemetryLogger;
+    private OpenTelemetryLogger openTelemetryLogger;
+    private final boolean enableLogReport;
 
     public MySqlSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementQueue,
@@ -98,7 +99,8 @@ public class MySqlSourceReader<T>
             RecordEmitter<SourceRecords, T, MySqlSplitState> recordEmitter,
             Configuration config,
             MySqlSourceReaderContext context,
-            MySqlSourceConfig sourceConfig, DebeziumDeserializationSchema<T> metricSchema) {
+            MySqlSourceConfig sourceConfig, DebeziumDeserializationSchema<T> metricSchema,
+            boolean enableLogReport) {
         super(
                 elementQueue,
                 new SingleThreadFetcherManager<>(elementQueue, splitReaderSupplier::get),
@@ -112,15 +114,21 @@ public class MySqlSourceReader<T>
         this.mySqlSourceReaderContext = context;
         this.suspendedBinlogSplit = null;
         this.metricSchema = metricSchema;
-        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
-                .setLogLevel(Level.ERROR)
-                .setServiceName(this.getClass().getSimpleName())
-                .setLocalHostIp(this.context.getLocalHostName()).build();
+        this.enableLogReport = enableLogReport;
+        LOG.info("mysqlsourceReader:" + enableLogReport);
+        if (enableLogReport) {
+            this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                    .setLogLevel(Level.ERROR)
+                    .setServiceName(this.getClass().getSimpleName())
+                    .setLocalHostIp(this.context.getLocalHostName()).build();
+        }
     }
 
     @Override
     public void start() {
-        openTelemetryLogger.install();
+        if (enableLogReport) {
+            openTelemetryLogger.install();
+        }
         if (getNumberOfCurrentlyAssignedSplits() == 0) {
             context.sendSplitRequest();
         }
@@ -129,7 +137,9 @@ public class MySqlSourceReader<T>
     @Override
     public void close() throws Exception {
         super.close();
-        openTelemetryLogger.uninstall();
+        if (enableLogReport) {
+            openTelemetryLogger.uninstall();
+        }
     }
 
     @Override

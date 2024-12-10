@@ -51,6 +51,7 @@ public class MySqlSourceBuilder<T> {
 
     private final MySqlSourceConfigFactory configFactory = new MySqlSourceConfigFactory();
     private DebeziumDeserializationSchema<T> deserializer;
+    private boolean enableLogReport;
 
     public MySqlSourceBuilder<T> hostname(String hostname) {
         this.configFactory.hostname(hostname);
@@ -235,12 +236,17 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
+    public MySqlSourceBuilder<T> enableLogReport(boolean enableLogReport) {
+        this.enableLogReport = enableLogReport;
+        return this;
+    }
+
     /**
      * Build the MySqlSource
      *
      * @return a MySqlParallelSource with the settings made for this builder.
      */
     public MySqlSource<T> build() {
-        return new MySqlSource<>(configFactory, checkNotNull(deserializer));
+        return new MySqlSource<>(configFactory, checkNotNull(deserializer), enableLogReport);
     }
 }
