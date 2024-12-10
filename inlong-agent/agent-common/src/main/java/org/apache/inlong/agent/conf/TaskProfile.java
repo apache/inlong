@@ -23,6 +23,7 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
 import org.apache.inlong.common.enums.TaskStateEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
@@ -32,17 +33,31 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.util.TimeZone;
 
+import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_TYPE;
 
 /**
  * job profile which contains details describing properties of one job.
  */
 public class TaskProfile extends AbstractConfiguration {
+
+    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.logcollection.local.FileTask";
+    public static final String DEFAULT_COS_TASK = "org.apache.inlong.agent.plugin.task.logcollection.cos.COSTask";
+    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
+    public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
+    public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
+    public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
+    public static final String DEFAULT_REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
+    public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
+    public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
+    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
+    public static final String DEFAULT_MOCK_TASK = "org.apache.inlong.agent.plugin.task.MockTask";
 
     private static final Gson GSON = new Gson();
     private static final Logger logger = LoggerFactory.getLogger(TaskProfile.class);
@@ -55,6 +70,37 @@ public class TaskProfile extends AbstractConfiguration {
             return null;
         }
         return TaskProfileDto.convertToTaskProfile(dataConfig);
+    }
+
+    public String getTaskClass() {
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(getInt(TASK_TYPE, TaskTypeEnum.FILE.getType()));
+        switch (requireNonNull(taskType)) {
+            case FILE:
+                return DEFAULT_FILE_TASK;
+            case KAFKA:
+                return DEFAULT_KAFKA_TASK;
+            case PULSAR:
+                return DEFAULT_PULSAR_TASK;
+            case POSTGRES:
+                return DEFAULT_POSTGRESQL_TASK;
+            case ORACLE:
+                return DEFAULT_ORACLE_TASK;
+            case SQLSERVER:
+                return DEFAULT_SQLSERVER_TASK;
+            case MONGODB:
+                return DEFAULT_MONGODB_TASK;
+            case REDIS:
+                return DEFAULT_REDIS_TASK;
+            case MQTT:
+                return DEFAULT_MQTT_TASK;
+            case COS:
+                return DEFAULT_COS_TASK;
+            case MOCK:
+                return DEFAULT_MOCK_TASK;
+            default:
+                logger.error("invalid task type {}", taskType);
+                return null;
+        }
     }
 
     public String getTaskId() {
@@ -79,14 +125,6 @@ public class TaskProfile extends AbstractConfiguration {
 
     public boolean isRetry() {
         return getBoolean(TASK_RETRY, false);
-    }
-
-    public String getTaskClass() {
-        return get(TaskConstants.TASK_CLASS);
-    }
-
-    public void setTaskClass(String className) {
-        set(TaskConstants.TASK_CLASS, className);
     }
 
     public String getInlongGroupId() {
@@ -124,11 +162,9 @@ public class TaskProfile extends AbstractConfiguration {
         return GSON.toJson(getConfigStorage());
     }
 
-    public InstanceProfile createInstanceProfile(String instanceClass, String fileName, String cycleUnit,
-            String dataTime,
+    public InstanceProfile createInstanceProfile(String fileName, String cycleUnit, String dataTime,
             long fileUpdateTime) {
         InstanceProfile instanceProfile = InstanceProfile.parseJsonStr(toJsonStr());
-        instanceProfile.setInstanceClass(instanceClass);
         instanceProfile.setInstanceId(fileName);
         instanceProfile.setSourceDataTime(dataTime);
         Long sinkDataTime = 0L;

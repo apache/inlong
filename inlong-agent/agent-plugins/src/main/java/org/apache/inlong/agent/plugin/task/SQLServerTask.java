@@ -34,7 +34,6 @@ import java.util.List;
 public class SQLServerTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLServerTask.class);
-    public static final String DEFAULT_SQLSERVER_INSTANCE = "org.apache.inlong.agent.plugin.instance.SQLServerInstance";
     private boolean isAdded = false;
 
     private String dbName;
@@ -102,8 +101,8 @@ public class SQLServerTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_SQLSERVER_INSTANCE, instanceId,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(instanceId, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         list.add(instanceProfile);
         this.isAdded = true;
         return list;

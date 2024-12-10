@@ -138,8 +138,8 @@ public class TestSQLServerSource {
 
         TaskProfile taskProfile = helper.getFileTaskProfile(1, "", "csv", false, "", "", TaskStateEnum.RUNNING, "D",
                 "GMT+8:00", null);
-        instanceProfile = taskProfile.createInstanceProfile("",
-                "", taskProfile.getCycleUnit(), "20240725", AgentUtils.getCurrentTime());
+        instanceProfile = taskProfile.createInstanceProfile("", taskProfile.getCycleUnit(), "20240725",
+                AgentUtils.getCurrentTime());
         instanceProfile.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
         instanceProfile.set(CommonConstants.PROXY_INLONG_STREAM_ID, streamId);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_USER, username);
