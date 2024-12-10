@@ -68,7 +68,8 @@ public class KafkaSourceReader<T>
     private final KafkaSourceReaderMetrics kafkaSourceReaderMetrics;
     private final boolean commitOffsetsOnCheckpoint;
     private final KafkaDeserializationSchema<RowData> metricSchema;
-    private final OpenTelemetryLogger openTelemetryLogger;
+    private OpenTelemetryLogger openTelemetryLogger;
+    private final boolean enableLogReport;
 
     public KafkaSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>> elementsQueue,
@@ -77,7 +78,8 @@ public class KafkaSourceReader<T>
             Configuration config,
             SourceReaderContext context,
             KafkaSourceReaderMetrics kafkaSourceReaderMetrics,
-            KafkaDeserializationSchema<RowData> metricSchema) {
+            KafkaDeserializationSchema<RowData> metricSchema,
+            boolean enableLogReport) {
         super(elementsQueue, kafkaSourceFetcherManager, recordEmitter, config, context);
         this.offsetsToCommit = Collections.synchronizedSortedMap(new TreeMap<>());
         this.offsetsOfFinishedSplits = new ConcurrentHashMap<>();
@@ -85,27 +87,34 @@ public class KafkaSourceReader<T>
         this.commitOffsetsOnCheckpoint =
                 config.get(KafkaSourceOptions.COMMIT_OFFSETS_ON_CHECKPOINT);
         this.metricSchema = metricSchema;
+        this.enableLogReport = enableLogReport;
         if (!commitOffsetsOnCheckpoint) {
             LOG.warn(
                     "Offset commit on checkpoint is disabled. "
                             + "Consuming offset will not be reported back to Kafka cluster.");
         }
-        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
-                .setLogLevel(Level.ERROR)
-                .setServiceName(this.getClass().getSimpleName())
-                .setLocalHostIp(this.context.getLocalHostName()).build();
+        if (this.enableLogReport) {
+            this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                    .setLogLevel(Level.ERROR)
+                    .setServiceName(this.getClass().getSimpleName())
+                    .setLocalHostIp(this.context.getLocalHostName()).build();
+        }
     }
 
     @Override
     public void start() {
-        this.openTelemetryLogger.install();
+        if (this.enableLogReport) {
+            this.openTelemetryLogger.install();
+        }
         super.start();
     }
 
     @Override
     public void close() throws Exception {
         super.close();
-        openTelemetryLogger.uninstall();
+        if (this.enableLogReport) {
+            openTelemetryLogger.uninstall();
+        }
     }
 
     @Override
