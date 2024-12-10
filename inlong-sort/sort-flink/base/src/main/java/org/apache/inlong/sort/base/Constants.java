@@ -469,4 +469,10 @@ public final class Constants {
                     .withDescription(
                             "pulsar client auth params");
 
+    public static final ConfigOption<Boolean> ENABLE_LOG_REPORT =
+            ConfigOptions.key("enable.log.report")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether enable openTelemetry log report or not.");
+
 }

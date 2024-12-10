@@ -103,6 +103,7 @@ public class MySqlSource<T>
 
     private final MySqlSourceConfigFactory configFactory;
     private final DebeziumDeserializationSchema<T> deserializationSchema;
+    private final boolean enableLogReport;
 
     /**
      * Get a MySqlParallelSourceBuilder to build a {@link MySqlSource}.
@@ -116,9 +117,11 @@ public class MySqlSource<T>
 
     MySqlSource(
             MySqlSourceConfigFactory configFactory,
-            DebeziumDeserializationSchema<T> deserializationSchema) {
+            DebeziumDeserializationSchema<T> deserializationSchema,
+            boolean enableLogReport) {
         this.configFactory = configFactory;
         this.deserializationSchema = deserializationSchema;
+        this.enableLogReport = enableLogReport;
     }
 
     public MySqlSourceConfigFactory getConfigFactory() {
@@ -168,7 +171,8 @@ public class MySqlSource<T>
                 readerContext.getConfiguration(),
                 mySqlSourceReaderContext,
                 sourceConfig,
-                deserializationSchema);
+                deserializationSchema,
+                enableLogReport);
     }
 
     @Override
