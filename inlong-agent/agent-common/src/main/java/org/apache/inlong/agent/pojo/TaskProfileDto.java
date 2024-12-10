@@ -52,22 +52,11 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 public class TaskProfileDto {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskProfileDto.class);
-
-    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
-    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
-    public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
-    public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
-    public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
-    public static final String DEFAULT_REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
-    public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
-    public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
-    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
     public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
-    public static final String DEFAULT_COS_TASK = "org.apache.inlong.agent.plugin.task.cos.COSTask";
     /**
      * file source
      */
@@ -470,6 +459,7 @@ public class TaskProfileDto {
 
         // common attribute
         task.setId(String.valueOf(dataConfig.getTaskId()));
+        task.setTaskType(dataConfig.getTaskType());
         task.setGroupId(dataConfig.getInlongGroupId());
         task.setStreamId(dataConfig.getInlongStreamId());
         task.setChannel(DEFAULT_CHANNEL);
@@ -517,7 +507,6 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case FILE:
-                task.setTaskClass(DEFAULT_FILE_TASK);
                 FileTask fileTask = getFileTask(dataConfig);
                 task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
@@ -526,56 +515,48 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case KAFKA:
-                task.setTaskClass(DEFAULT_KAFKA_TASK);
                 KafkaTask kafkaTask = getKafkaTask(dataConfig);
                 task.setKafkaTask(kafkaTask);
                 task.setSource(KAFKA_SOURCE);
                 profileDto.setTask(task);
                 break;
             case PULSAR:
-                task.setTaskClass(DEFAULT_PULSAR_TASK);
                 PulsarTask pulsarTask = getPulsarTask(dataConfig);
                 task.setPulsarTask(pulsarTask);
                 task.setSource(PULSAR_SOURCE);
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
-                task.setTaskClass(DEFAULT_POSTGRESQL_TASK);
                 PostgreSQLTask postgreSQLTask = getPostgresTask(dataConfig);
                 task.setPostgreSQLTask(postgreSQLTask);
                 task.setSource(POSTGRESQL_SOURCE);
                 profileDto.setTask(task);
                 break;
             case ORACLE:
-                task.setTaskClass(DEFAULT_ORACLE_TASK);
                 OracleTask oracleTask = getOracleTask(dataConfig);
                 task.setOracleTask(oracleTask);
                 task.setSource(ORACLE_SOURCE);
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
-                task.setTaskClass(DEFAULT_SQLSERVER_TASK);
                 SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
                 task.setSqlserverTask(sqlserverTask);
                 task.setSource(SQLSERVER_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MONGODB:
-                task.setTaskClass(DEFAULT_MONGODB_TASK);
                 MongoTask mongoTask = getMongoTask(dataConfig);
                 task.setMongoTask(mongoTask);
                 task.setSource(MONGO_SOURCE);
                 profileDto.setTask(task);
                 break;
             case REDIS:
-                task.setTaskClass(DEFAULT_REDIS_TASK);
                 RedisTask redisTask = getRedisTask(dataConfig);
                 task.setRedisTask(redisTask);
                 task.setSource(REDIS_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MQTT:
-                task.setTaskClass(DEFAULT_MQTT_TASK);
                 MqttTask mqttTask = getMqttTask(dataConfig);
                 task.setMqttTask(mqttTask);
                 task.setSource(MQTT_SOURCE);
@@ -585,7 +566,6 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case COS:
-                task.setTaskClass(DEFAULT_COS_TASK);
                 COSTask cosTask = getCOSTask(dataConfig);
                 task.setCycleUnit(cosTask.getCycleUnit());
                 task.setCosTask(cosTask);
@@ -619,6 +599,7 @@ public class TaskProfileDto {
         private String mqClusters;
         private String topicInfo;
         private String taskClass;
+        private Integer taskType;
         private String predefinedFields;
         private Integer state;
         private String cycleUnit;

@@ -50,8 +50,8 @@ public class PulsarSinkTest {
         TaskProfile taskProfile =
                 helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
                         "GMT+8:00", null);
-        profile = taskProfile.createInstanceProfile("", fileName,
-                taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
+        profile = taskProfile.createInstanceProfile(fileName, taskProfile.getCycleUnit(), "20230927",
+                AgentUtils.getCurrentTime());
         pulsarSink = new MockSink();
         pulsarSink.init(profile);
     }

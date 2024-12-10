@@ -17,11 +17,11 @@
 
 package org.apache.inlong.agent.plugin.task;
 
-import org.apache.inlong.agent.plugin.task.file.LogFileTask;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileTask;
 
 /**
  * Directory trigger with format date.
  */
-public class FormatDateLogFileTask extends LogFileTask {
+public class FormatDateLogFileTask extends FileTask {
 
 }

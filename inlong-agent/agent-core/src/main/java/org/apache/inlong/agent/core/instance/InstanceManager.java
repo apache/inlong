@@ -453,7 +453,7 @@ public class InstanceManager extends AbstractDaemon {
                         instanceProfile.getSinkDataTime(), 1, 1, auditVersion);
             }
         } catch (Throwable t) {
-            LOGGER.error("add instance error {}", t.getMessage());
+            LOGGER.error("add instance error {}", t);
         }
     }
 

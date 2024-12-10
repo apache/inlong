@@ -42,8 +42,6 @@ public class MqttTask extends AbstractTask {
 
     private AtomicBoolean isAdded = new AtomicBoolean(false);
 
-    public static final String DEFAULT_MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
-
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
@@ -93,8 +91,8 @@ public class MqttTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_MQTT_INSTANCE, topic,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(topic, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile(mqtt): {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
         isAdded.set(true);

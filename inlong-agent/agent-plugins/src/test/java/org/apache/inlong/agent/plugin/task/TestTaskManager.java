@@ -22,6 +22,7 @@ import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.common.enums.TaskStateEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_TYPE;
 import static org.awaitility.Awaitility.await;
 
 public class TestTaskManager {
@@ -61,7 +63,7 @@ public class TestTaskManager {
                 TaskProfile taskProfile =
                         helper.getFileTaskProfile(i, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
                                 "D", "GMT+8:00", null);
-                taskProfile.setTaskClass(MockTask.class.getCanonicalName());
+                taskProfile.setInt(TASK_TYPE, TaskTypeEnum.MOCK.getType());
                 taskStore.storeTask(taskProfile);
             }
             manager.start();
@@ -78,7 +80,7 @@ public class TestTaskManager {
         TaskProfile taskProfile1 = helper.getFileTaskProfile(100, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
                 "D", "GMT+8:00", null);
         String taskId1 = taskProfile1.getTaskId();
-        taskProfile1.setTaskClass(MockTask.class.getCanonicalName());
+        taskProfile1.setInt(TASK_TYPE, TaskTypeEnum.MOCK.getType());
         List<TaskProfile> taskProfiles1 = new ArrayList<>();
         taskProfiles1.add(taskProfile1);
         // test add
@@ -102,7 +104,7 @@ public class TestTaskManager {
         // test delete
         TaskProfile taskProfile2 = helper.getFileTaskProfile(200, pattern, "csv", false, "", "", TaskStateEnum.RUNNING,
                 "D", "GMT+8:00", null);
-        taskProfile2.setTaskClass(MockTask.class.getCanonicalName());
+        taskProfile2.setInt(TASK_TYPE, TaskTypeEnum.MOCK.getType());
         List<TaskProfile> taskProfiles2 = new ArrayList<>();
         taskProfiles2.add(taskProfile2);
         manager.submitTaskProfiles(taskProfiles2);

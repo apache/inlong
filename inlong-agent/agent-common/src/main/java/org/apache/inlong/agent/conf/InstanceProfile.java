@@ -20,6 +20,7 @@ package org.apache.inlong.agent.conf;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.utils.file.FileUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 
@@ -40,11 +41,23 @@ import static org.apache.inlong.agent.constant.TaskConstants.INSTANCE_STATE;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_CLUSTERS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_TOPIC;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_TYPE;
 
 /**
  * job profile which contains details describing properties of one job.
  */
 public class InstanceProfile extends AbstractConfiguration implements Comparable<InstanceProfile> {
+
+    public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
+    public static final String DEFAULT_COS_INSTANCE = "org.apache.inlong.agent.plugin.instance.COSInstance";
+    public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
+    public static final String DEFAULT_MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
+    public static final String DEFAULT_MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
+    public static final String DEFAULT_ORACLE_INSTANCE = "org.apache.inlong.agent.plugin.instance.OracleInstance";
+    public static final String DEFAULT_POSTGRES_INSTANCE = "org.apache.inlong.agent.plugin.instance.PostgreSQLInstance";
+    public static final String DEFAULT_PULSAR_INSTANCE = "org.apache.inlong.agent.plugin.instance.PulsarInstance";
+    public static final String DEFAULT_REDIS_INSTANCE = "org.apache.inlong.agent.plugin.instance.RedisInstance";
+    public static final String DEFAULT_SQLSERVER_INSTANCE = "org.apache.inlong.agent.plugin.instance.SQLServerInstance";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceProfile.class);
     private static final Gson GSON = new Gson();
@@ -64,12 +77,40 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         return GSON.toJson(getConfigStorage());
     }
 
-    public void setInstanceClass(String className) {
-        set(TaskConstants.INSTANCE_CLASS, className);
+    public String getInstanceClass() {
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(getInt(TASK_TYPE, TaskTypeEnum.FILE.getType()));
+        return getInstanceClassByTaskType(taskType);
     }
 
-    public String getInstanceClass() {
-        return get(TaskConstants.INSTANCE_CLASS);
+    public static String getInstanceClassByTaskType(TaskTypeEnum taskType) {
+        if (taskType == null) {
+            return null;
+        }
+        switch (taskType) {
+            case FILE:
+                return DEFAULT_FILE_INSTANCE;
+            case KAFKA:
+                return DEFAULT_KAFKA_INSTANCE;
+            case PULSAR:
+                return DEFAULT_PULSAR_INSTANCE;
+            case POSTGRES:
+                return DEFAULT_POSTGRES_INSTANCE;
+            case ORACLE:
+                return DEFAULT_ORACLE_INSTANCE;
+            case SQLSERVER:
+                return DEFAULT_SQLSERVER_INSTANCE;
+            case MONGODB:
+                return DEFAULT_MONGODB_INSTANCE;
+            case REDIS:
+                return DEFAULT_REDIS_INSTANCE;
+            case MQTT:
+                return DEFAULT_MQTT_INSTANCE;
+            case COS:
+                return DEFAULT_COS_INSTANCE;
+            default:
+                LOGGER.error("invalid task type {}", taskType);
+                return null;
+        }
     }
 
     public String getTaskId() {

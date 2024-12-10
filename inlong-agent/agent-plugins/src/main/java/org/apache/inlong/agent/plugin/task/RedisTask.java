@@ -34,7 +34,6 @@ import java.util.List;
 public class RedisTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisTask.class);
-    public static final String DEFAULT_REDIS_INSTANCE = "org.apache.inlong.agent.plugin.instance.RedisInstance";
     private boolean isAdded = false;
     private String taskId;
 
@@ -68,8 +67,8 @@ public class RedisTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_REDIS_INSTANCE, taskId,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(taskId, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
         this.isAdded = true;

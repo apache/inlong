@@ -34,7 +34,6 @@ import java.util.List;
 public class MongoDBTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBTask.class);
-    public static final String DEFAULT_MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
     private boolean isAdded = false;
     private String collection;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
@@ -66,8 +65,8 @@ public class MongoDBTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_MONGODB_INSTANCE, collection,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(collection, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
         this.isAdded = true;

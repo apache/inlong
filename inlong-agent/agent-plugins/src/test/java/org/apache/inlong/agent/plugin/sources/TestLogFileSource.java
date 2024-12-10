@@ -27,7 +27,7 @@ import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.task.file.FileDataUtils;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -87,8 +87,8 @@ public class TestLogFileSource {
             TaskProfile taskProfile = helper.getFileTaskProfile(taskId, pattern, dataContentStyle, retry, "", "",
                     TaskStateEnum.RUNNING, "D",
                     "GMT+8:00", Arrays.asList("ok"));
-            InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
-                    fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
+            InstanceProfile instanceProfile = taskProfile.createInstanceProfile(fileName, taskProfile.getCycleUnit(),
+                    "20230928", AgentUtils.getCurrentTime());
             instanceProfile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(instanceProfile.getInstanceId()));
             LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
