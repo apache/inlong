@@ -43,26 +43,34 @@ public class IcebergSourceReader<T>
             SingleThreadMultiplexSourceReaderBase<RecordAndPosition<T>, T, IcebergSourceSplit, IcebergSourceSplit> {
 
     private final InlongIcebergSourceReaderMetrics<T> metrics;
-    private final OpenTelemetryLogger openTelemetryLogger;
+    private OpenTelemetryLogger openTelemetryLogger;
+    private final boolean enableLogReport;
+
     public IcebergSourceReader(
             InlongIcebergSourceReaderMetrics<T> metrics,
             ReaderFunction<T> readerFunction,
-            SourceReaderContext context) {
+            SourceReaderContext context,
+            boolean enableLogReport) {
         super(
                 () -> new IcebergSourceSplitReader<>(metrics, readerFunction, context),
                 new IcebergSourceRecordEmitter<>(),
                 context.getConfiguration(),
                 context);
         this.metrics = metrics;
-        this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
-                .setLogLevel(Level.ERROR)
-                .setServiceName(this.getClass().getSimpleName())
-                .setLocalHostIp(this.context.getLocalHostName()).build();
+        this.enableLogReport = enableLogReport;
+        if (this.enableLogReport) {
+            this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                    .setLogLevel(Level.ERROR)
+                    .setServiceName(this.getClass().getSimpleName())
+                    .setLocalHostIp(this.context.getLocalHostName()).build();
+        }
     }
 
     @Override
     public void start() {
-        this.openTelemetryLogger.install();
+        if (this.enableLogReport) {
+            this.openTelemetryLogger.install();
+        }
         // We request a split only if we did not get splits during the checkpoint restore.
         // Otherwise, reader restarts will keep requesting more and more splits.
         if (getNumberOfCurrentlyAssignedSplits() == 0) {
@@ -73,7 +81,9 @@ public class IcebergSourceReader<T>
     @Override
     public void close() throws Exception {
         super.close();
-        openTelemetryLogger.uninstall();
+        if (this.enableLogReport) {
+            openTelemetryLogger.uninstall();
+        }
     }
 
     @Override
