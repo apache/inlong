@@ -37,7 +37,6 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_TOPIC;
 public class PulsarTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarTask.class);
-    public static final String DEFAULT_PULSAR_INSTANCE = "org.apache.inlong.agent.plugin.instance.PulsarInstance";
     private boolean isAdded = false;
     private String tenant;
     private String namespace;
@@ -75,8 +74,8 @@ public class PulsarTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_PULSAR_INSTANCE, instanceId,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(instanceId, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
         list.add(instanceProfile);
         this.isAdded = true;

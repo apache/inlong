@@ -24,7 +24,7 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.file.OffsetAckInfo;
 import org.apache.inlong.agent.message.file.SenderMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.task.file.FileDataUtils;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
@@ -73,8 +73,8 @@ public class TestSenderManager {
         TaskProfile taskProfile =
                 helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
                         "GMT+8:00", null);
-        profile = taskProfile.createInstanceProfile("", fileName,
-                taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
+        profile = taskProfile.createInstanceProfile(fileName, taskProfile.getCycleUnit(), "20230927",
+                AgentUtils.getCurrentTime());
     }
 
     @AfterClass

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.file;
+package org.apache.inlong.agent.plugin.task.logcollection.local;
 
 import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.plugin.utils.regex.Scanner;

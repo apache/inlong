@@ -22,11 +22,8 @@ package org.apache.inlong.agent.constant;
  */
 public class TaskConstants extends CommonConstants {
 
-    // job id
-    // public static final String JOB_ID = "job.id";
     public static final String TASK_ID = "task.id";
     public static final String INSTANCE_ID = "instance.id";
-    public static final String JOB_INSTANCE_ID = "job.instance.id";
     public static final String INSTANCE_CREATE_TIME = "instance.createTime";
     public static final String INSTANCE_MODIFY_TIME = "instance.modifyTime";
     public static final String TASK_GROUP_ID = "task.groupId";
@@ -36,9 +33,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SOURCE = "task.source";
 
     public static final String TASK_CHANNEL = "task.channel";
-
-    public static final String TASK_CLASS = "task.taskClass";
-    public static final String INSTANCE_CLASS = "task.instance.class";
+    public static final String TASK_TYPE = "task.taskType";
     public static final String TASK_FILE_TRIGGER = "task.fileTask.trigger";
 
     // sink config
