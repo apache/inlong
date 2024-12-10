@@ -375,6 +375,9 @@ public class Constants {
     public static final ConfigOption<String> SQL_SCRIPT_FILE = key("sql.script.file").noDefaultValue()
             .withDescription("The file which is sql script and contains multi statement");
 
+    public static final ConfigOption<Boolean> ENABLE_LOG_REPORT = key("enable.log.report").defaultValue(false)
+            .withDescription("Whether to enable openTelemetry log report or not");
+
     // ------------------------------------------------------------------------
     // File format and compression related
     // ------------------------------------------------------------------------
