@@ -121,10 +121,10 @@ public class TestRedisSource {
         final String command = "zscore";
         final String subOperation = "set,del";
 
-        TaskProfile taskProfile = helper.getTaskProfile(1, "", "csv", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+        TaskProfile taskProfile = helper.getFileTaskProfile(1, "", "csv", false, "", "", TaskStateEnum.RUNNING, "D",
                 "GMT+8:00", null);
-        profile = taskProfile.createInstanceProfile("",
-                "", taskProfile.getCycleUnit(), "20240725", AgentUtils.getCurrentTime());
+        profile = taskProfile.createInstanceProfile("", taskProfile.getCycleUnit(), "20240725",
+                AgentUtils.getCurrentTime());
         profile.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
         profile.set(CommonConstants.PROXY_INLONG_STREAM_ID, streamId);
         profile.set(TaskConstants.TASK_REDIS_AUTHUSER, username);

@@ -21,21 +21,18 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
-import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
-import org.apache.inlong.sdk.dataproxy.network.HashRing;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
+import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -45,7 +42,6 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -68,7 +64,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -78,8 +74,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -90,164 +87,199 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ProxyConfigManager extends Thread {
 
-    public static final String APPLICATION_JSON = "application/json";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyConfigManager.class);
-    private final ProxyClientConfig clientConfig;
-    private final String localIP;
-    private final ClientMgr clientManager;
-    private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
-    private final JsonParser jsonParser = new JsonParser();
+    private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
+    private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
+    private static final LogCounter parseCounter = new LogCounter(10, 100000, 60 * 1000L);
+    private static final ReentrantReadWriteLock fileRw = new ReentrantReadWriteLock();
+
+    private final String callerId;
+    private ProxyClientConfig clientConfig;
     private final Gson gson = new Gson();
-    private final HashRing hashRing = HashRing.getInstance();
-    private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
-    /* the status of the cluster.if this value is changed,we need rechoose three proxy */
+    private final ClientMgr clientManager;
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final AtomicBoolean shutDown = new AtomicBoolean(false);
+    // proxy configure info
+    private String localProxyConfigStoreFile;
+    private String proxyConfigVisitUrl;
+    private String proxyConfigCacheFile;
+    private List<HostInfo> proxyInfoList = new ArrayList<>();
     private int oldStat = 0;
-    private String inlongGroupId;
     private String localMd5;
-    private boolean bShutDown = false;
-    private long doworkTime = 0;
-    private EncryptConfigEntry userEncryConfigEntry;
+    private long lstUpdateTime = 0;
+    // encrypt configure info
+    private String encryptConfigVisitUrl;
+    private String encryptConfigCacheFile;
+    private EncryptConfigEntry userEncryptConfigEntry;
 
-    public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
-        this.clientConfig = configure;
-        this.localIP = localIP;
+    public ProxyConfigManager(ProxyClientConfig configure) {
+        this("MetaQuery", configure, null);
+    }
+
+    public ProxyConfigManager(String callerId, ProxyClientConfig configure, ClientMgr clientManager) {
+        this.callerId = callerId;
         this.clientManager = clientManager;
-        this.hashRing.setVirtualNode(configure.getVirtualNode());
-    }
-
-    public String getInlongGroupId() {
-        return inlongGroupId;
-    }
-
-    public void setInlongGroupId(String inlongGroupId) {
-        this.inlongGroupId = inlongGroupId;
-    }
-
-    public void shutDown() {
-        LOGGER.info("Begin to shut down ProxyConfigManager!");
-        bShutDown = true;
-    }
-
-    @Override
-    public void run() {
-        while (!bShutDown) {
-            try {
-                doProxyEntryQueryWork();
-                updateEncryptConfigEntry();
-                LOGGER.info("ProxyConf update!");
-            } catch (Throwable e) {
-                LOGGER.error("Refresh proxy ip list runs into exception {}, {}", e.toString(), e.getStackTrace());
-                e.printStackTrace();
-            }
-
-            /* Sleep some time.240-360s */
-            try {
-                Random random = new Random();
-                int proxyUpdateIntervalSec = this.clientConfig.getProxyUpdateIntervalMinutes() * 60;
-
-                int sleepTimeSec = proxyUpdateIntervalSec;
-                if (proxyUpdateIntervalSec > 5) {
-                    sleepTimeSec = proxyUpdateIntervalSec + random.nextInt() % (proxyUpdateIntervalSec / 5);
-                }
-                LOGGER.info("sleep time {}", sleepTimeSec);
-                Thread.sleep(sleepTimeSec * 1000);
-            } catch (Throwable e2) {
-                //
-            }
+        this.storeAndBuildMetaConfigure(configure);
+        if (this.clientManager != null) {
+            this.setName("ConfigManager-" + this.callerId);
+            logger.info("ConfigManager({}) started, groupId={}",
+                    this.callerId, clientConfig.getInlongGroupId());
         }
-        LOGGER.info("ProxyConfigManager worker existed!");
     }
 
     /**
-     * try to read cache of proxy entry
+     * Update proxy client configure for query case
      *
-     * @return
+     * @param configure  proxy client configure
+     * @throws Exception exception
      */
-    private ProxyConfigEntry tryToReadCacheProxyEntry(String configCachePath) {
-        rw.readLock().lock();
-        try {
-            File file = new File(configCachePath);
-            long diffTime = System.currentTimeMillis() - file.lastModified();
-
-            if (diffTime < clientConfig.getMaxProxyCacheTimeInMs()) {
-                JsonReader reader = new JsonReader(new FileReader(configCachePath));
-                ProxyConfigEntry proxyConfigEntry = gson.fromJson(reader, ProxyConfigEntry.class);
-                LOGGER.info("{} has a backup! {}", inlongGroupId, proxyConfigEntry);
-                return proxyConfigEntry;
-            }
-        } catch (Exception ex) {
-            LOGGER.warn("try to read local cache, caught {}", ex.getMessage());
-        } finally {
-            rw.readLock().unlock();
+    public void updProxyClientConfig(ProxyClientConfig configure) throws Exception {
+        if (configure == null) {
+            throw new Exception("ProxyClientConfig is null");
         }
-        return null;
+        if (this.clientManager != null) {
+            throw new Exception("Not allowed for non meta-query case!");
+        }
+        if (shutDown.get()) {
+            return;
+        }
+        this.storeAndBuildMetaConfigure(configure);
     }
 
-    private void tryToWriteCacheProxyEntry(ProxyConfigEntry entry, String configCachePath) {
-        rw.writeLock().lock();
-        try {
-            File file = new File(configCachePath);
-            if (!file.getParentFile().exists()) {
-                // try to create parent
-                file.getParentFile().mkdirs();
-            }
-            LOGGER.info("try to write {}} to local cache {}", entry, configCachePath);
-            FileWriter fileWriter = new FileWriter(configCachePath);
-            gson.toJson(entry, fileWriter);
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (Exception ex) {
-            LOGGER.warn("try to write local cache, caught {}", ex.getMessage());
-        } finally {
-            rw.writeLock().unlock();
+    public void shutDown() {
+        if (clientManager == null) {
+            return;
         }
-    }
-
-    private ProxyConfigEntry requestProxyEntryQuietly() {
-        try {
-            return requestProxyList(this.clientConfig.getManagerUrl());
-        } catch (Exception e) {
-            LOGGER.warn("try to request proxy list by http, caught {}", e.getMessage());
+        if (shutDown.compareAndSet(false, true)) {
+            this.interrupt();
+            logger.info("ConfigManager({}) begin to shutdown, groupId={}!",
+                    this.callerId, clientConfig.getInlongGroupId());
         }
-        return null;
     }
 
     /**
      * get groupId config
      *
      * @return proxyConfigEntry
-     * @throws Exception
+     * @throws Exception ex
      */
-    public ProxyConfigEntry getGroupIdConfigure() throws Exception {
-        ProxyConfigEntry proxyEntry;
-        String configAddr = clientConfig.getConfStoreBasePath() + inlongGroupId;
-        if (this.clientConfig.isReadProxyIPFromLocal()) {
-            configAddr = configAddr + ".local";
-            proxyEntry = getLocalProxyListFromFile(configAddr);
+    public Tuple2<ProxyConfigEntry, String> getGroupIdConfigure(boolean needRetry) throws Exception {
+        if (shutDown.get()) {
+            return new Tuple2<>(null, "SDK has shutdown!");
+        }
+        if (clientConfig.isOnlyUseLocalProxyConfig()) {
+            return getLocalProxyListFromFile(this.localProxyConfigStoreFile);
         } else {
-            configAddr = configAddr + ".proxyip";
+            boolean readFromRmt = false;
+            Tuple2<ProxyConfigEntry, String> result;
+            result = tryToReadCacheProxyEntry();
+            if (result.getF0() == null) {
+                int retryCount = 0;
+                do {
+                    result = requestProxyEntryQuietly();
+                    if (result.getF0() != null || !needRetry || shutDown.get()) {
+                        if (result.getF0() != null) {
+                            readFromRmt = true;
+                        }
+                        break;
+                    }
+                    // sleep then retry
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
+            }
+            if (shutDown.get()) {
+                return new Tuple2<>(null, "SDK has shutdown!");
+            }
+            if (result.getF0() == null) {
+                return new Tuple2<>(null, "Visit manager error:" + result.getF1());
+            } else if (readFromRmt) {
+                tryToWriteCacheProxyEntry(result.getF0());
+            }
+            return result;
+        }
+    }
 
-            proxyEntry = tryToReadCacheProxyEntry(configAddr);
-            if (proxyEntry == null) {
-                proxyEntry = requestProxyEntryQuietly();
-                int requestCount = 0;
+    /**
+     * get encrypt config
+     *
+     * @return proxyConfigEntry
+     * @throws Exception ex
+     */
+    public Tuple2<EncryptConfigEntry, String> getEncryptConfigure(boolean needRetry) throws Exception {
+        if (!clientConfig.isNeedDataEncry()) {
+            return new Tuple2<>(null, "Not need data encrypt!");
+        }
+        if (shutDown.get()) {
+            return new Tuple2<>(null, "SDK has shutdown!");
+        }
+        EncryptConfigEntry encryptEntry = this.userEncryptConfigEntry;
+        if (encryptEntry != null) {
+            return new Tuple2<>(encryptEntry, "Ok");
+        }
+        boolean readFromRmt = false;
+        Tuple2<EncryptConfigEntry, String> result = readCachedPubKeyEntry();
+        if (result.getF0() == null) {
+            int retryCount = 0;
+            do {
+                result = requestPubKeyFromManager();
+                if (result.getF0() != null || !needRetry || shutDown.get()) {
+                    if (result.getF0() != null) {
+                        readFromRmt = true;
+                    }
+                    break;
+                }
+                // sleep then retry
+                TimeUnit.MILLISECONDS.sleep(500);
+            } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
+        }
+        if (shutDown.get()) {
+            return new Tuple2<>(null, "SDK has shutdown!");
+        }
+        if (result.getF0() == null) {
+            return new Tuple2<>(null, "Visit manager error:" + result.getF1());
+        } else if (readFromRmt) {
+            updateEncryptConfigEntry(result.getF0());
+            writeCachePubKeyEntryFile(result.getF0());
+        }
+        return result;
+    }
 
-                while (requestCount < 3 && proxyEntry == null) {
-                    proxyEntry = requestProxyEntryQuietly();
-                    requestCount += 1;
-                    if (proxyEntry == null) {
-                        // sleep then retry
-                        TimeUnit.MILLISECONDS.sleep(500);
+    @Override
+    public void run() {
+        logger.info("ConfigManager({}) thread start, groupId={}",
+                this.callerId, clientConfig.getInlongGroupId());
+        while (!shutDown.get()) {
+            // update proxy nodes meta configures
+            try {
+                doProxyEntryQueryWork();
+            } catch (Throwable ex) {
+                if (exptCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) refresh proxy configure exception, groupId={}",
+                            this.callerId, clientConfig.getInlongGroupId(), ex);
+                }
+            }
+            // update encrypt configure
+            if (clientConfig.isNeedDataEncry()) {
+                try {
+                    doEncryptConfigEntryQueryWork();
+                } catch (Throwable ex) {
+                    if (exptCounter.shouldPrint()) {
+                        logger.warn("ConfigManager({}) refresh encrypt info exception, groupId={}",
+                                this.callerId, clientConfig.getInlongGroupId(), ex);
                     }
                 }
             }
-            if (proxyEntry == null) {
-                throw new Exception("Visit manager error, please check log!");
-            } else {
-                tryToWriteCacheProxyEntry(proxyEntry, configAddr);
+            if (shutDown.get()) {
+                break;
+            }
+            // sleep some time
+            try {
+                Thread.sleep(clientConfig.getManagerConfigSyncInrMs() + random.nextInt(100) * 100);
+            } catch (Throwable e2) {
+                //
             }
         }
-        return proxyEntry;
+        logger.info("ConfigManager({}) worker existed, groupId={}",
+                this.callerId, this.clientConfig.getInlongGroupId());
     }
 
     /**
@@ -256,55 +288,140 @@ public class ProxyConfigManager extends Thread {
      * @throws Exception
      */
     public void doProxyEntryQueryWork() throws Exception {
+        if (shutDown.get()) {
+            return;
+        }
         /* Request the configuration from manager. */
         if (localMd5 == null) {
             localMd5 = calcHostInfoMd5(proxyInfoList);
         }
-        ProxyConfigEntry proxyEntry = null;
-        String configAddr = clientConfig.getConfStoreBasePath() + inlongGroupId;
-        if (clientConfig.isReadProxyIPFromLocal()) {
-            configAddr = configAddr + ".local";
-            proxyEntry = getLocalProxyListFromFile(configAddr);
+        Tuple2<ProxyConfigEntry, String> result;
+        if (clientConfig.isOnlyUseLocalProxyConfig()) {
+            result = getLocalProxyListFromFile(this.localProxyConfigStoreFile);
         } else {
-            /* Do a compare and see if it needs to re-choose the channel. */
-            configAddr = configAddr + ".managerip";
-            int retryCount = 1;
-            while (proxyEntry == null && retryCount < this.clientConfig.getProxyUpdateMaxRetry()) {
-                proxyEntry = requestProxyEntryQuietly();
-                retryCount++;
-                if (proxyEntry == null) {
-                    // sleep then retry.
-                    TimeUnit.SECONDS.sleep(1);
+            int retryCnt = 0;
+            do {
+                result = requestProxyEntryQuietly();
+                if (result.getF0() != null || shutDown.get()) {
+                    break;
                 }
+                // sleep then retry.
+                TimeUnit.SECONDS.sleep(2);
+            } while (++retryCnt < this.clientConfig.getConfigSyncMaxRetryIfFail() && !shutDown.get());
+            if (shutDown.get()) {
+                return;
             }
-            if (proxyEntry != null) {
-                tryToWriteCacheProxyEntry(proxyEntry, configAddr);
+            if (result.getF0() != null) {
+                tryToWriteCacheProxyEntry(result.getF0());
             }
-            /* We should exit if no local IP list and can't request it from manager. */
-            if (localMd5 == null && proxyEntry == null) {
-                LOGGER.error("Can't connect manager at the start of proxy API {}",
-                        this.clientConfig.getManagerUrl());
-                proxyEntry = tryToReadCacheProxyEntry(configAddr);
-            }
-            if (localMd5 != null && proxyEntry == null && proxyInfoList != null) {
-                StringBuffer s = new StringBuffer();
-                for (HostInfo tmp : proxyInfoList) {
-                    s.append(tmp.getHostName()).append(";").append(tmp.getPortNumber())
-                            .append(",");
+            /* We should exit if no local IP list and can't request it from TDManager. */
+            if (localMd5 == null && result.getF0() == null) {
+                if (exptCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) connect manager({}) failure, get cached configure, groupId={}",
+                            this.callerId, this.proxyConfigVisitUrl, this.clientConfig.getInlongGroupId());
                 }
-                LOGGER.warn("Backup proxyEntry [{}]", s);
+                result = tryToReadCacheProxyEntry();
+            }
+            if (localMd5 != null && result.getF0() == null && proxyInfoList != null) {
+                if (exptCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) connect manager({}) failure, using the last configure, groupId={}",
+                            this.callerId, this.proxyConfigVisitUrl, this.clientConfig.getInlongGroupId());
+                }
             }
         }
-        if (localMd5 == null && proxyEntry == null && proxyInfoList == null) {
-            if (clientConfig.isReadProxyIPFromLocal()) {
-                throw new Exception("Local proxy address configure "
-                        + "read failure, please check first!");
+        if (localMd5 == null && result.getF0() == null && proxyInfoList == null) {
+            if (clientConfig.isOnlyUseLocalProxyConfig()) {
+                throw new Exception("Read local proxy configure failure, please check first!");
             } else {
                 throw new Exception("Connect Manager failure, please check first!");
             }
         }
-        compareProxyList(proxyEntry);
+        compareAndUpdateProxyList(result.getF0());
+    }
 
+    private void doEncryptConfigEntryQueryWork() throws Exception {
+        if (shutDown.get()) {
+            return;
+        }
+        int retryCount = 0;
+        Tuple2<EncryptConfigEntry, String> result;
+        do {
+            result = requestPubKeyFromManager();
+            if (result.getF0() != null || shutDown.get()) {
+                break;
+            }
+            // sleep then retry
+            TimeUnit.MILLISECONDS.sleep(500);
+        } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
+        if (shutDown.get()) {
+            return;
+        }
+        if (result.getF0() == null) {
+            if (this.userEncryptConfigEntry != null) {
+                logger.warn("ConfigManager({}) connect manager({}) failure, using the last pubKey, secretId={}",
+                        this.callerId, this.encryptConfigVisitUrl, this.clientConfig.getAuthSecretId());
+                return;
+            }
+            throw new Exception("Visit manager error:" + result.getF1());
+        }
+        updateEncryptConfigEntry(result.getF0());
+        writeCachePubKeyEntryFile(result.getF0());
+    }
+
+    public Tuple2<ProxyConfigEntry, String> getLocalProxyListFromFile(String filePath) {
+        String strRet;
+        try {
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+            strRet = new String(fileBytes);
+        } catch (Throwable ex) {
+            return new Tuple2<>(null, "Read local configure failure from "
+                    + filePath + ", reason is " + ex.getMessage());
+        }
+        if (StringUtils.isBlank(strRet)) {
+            return new Tuple2<>(null, "Blank configure local file from " + filePath);
+        }
+        return getProxyConfigEntry(strRet);
+    }
+
+    private Tuple2<ProxyConfigEntry, String> requestProxyEntryQuietly() {
+        List<BasicNameValuePair> params = buildProxyNodeQueryParams();
+        // request meta info from manager
+        logger.debug("ConfigManager({}) request configure to manager({}), param={}",
+                this.callerId, this.proxyConfigVisitUrl, params);
+        Tuple2<Boolean, String> queryResult = requestConfiguration(this.proxyConfigVisitUrl, params);
+        if (!queryResult.getF0()) {
+            return new Tuple2<>(null, queryResult.getF1());
+        }
+        // parse result
+        logger.debug("ConfigManager({}) received configure, from manager({}), groupId={}, result={}",
+                callerId, proxyConfigVisitUrl, clientConfig.getInlongGroupId(), queryResult.getF1());
+        try {
+            return getProxyConfigEntry(queryResult.getF1());
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) parse failure, from manager({}), groupId={}, result={}",
+                        callerId, proxyConfigVisitUrl, clientConfig.getInlongGroupId(), queryResult.getF1(), ex);
+            }
+            return new Tuple2<>(null, ex.getMessage());
+        }
+    }
+
+    private String calcHostInfoMd5(List<HostInfo> hostInfoList) {
+        if (hostInfoList == null || hostInfoList.isEmpty()) {
+            return null;
+        }
+        Collections.sort(hostInfoList);
+        StringBuilder hostInfoMd5 = new StringBuilder();
+        for (HostInfo hostInfo : hostInfoList) {
+            if (hostInfo == null) {
+                continue;
+            }
+            hostInfoMd5.append(hostInfo.getHostName());
+            hostInfoMd5.append(":");
+            hostInfoMd5.append(hostInfo.getPortNumber());
+            hostInfoMd5.append(";");
+        }
+        return DigestUtils.md5Hex(hostInfoMd5.toString());
     }
 
     /**
@@ -312,139 +429,204 @@ public class ProxyConfigManager extends Thread {
      *
      * @param proxyEntry
      */
-    private void compareProxyList(ProxyConfigEntry proxyEntry) {
-        if (proxyEntry != null) {
-            LOGGER.info("{}", proxyEntry.toString());
-            if (proxyEntry.getSize() != 0) {
-                /* Initialize the current proxy information list first. */
-                clientManager.setLoadThreshold(proxyEntry.getLoad());
-
-                List<HostInfo> newProxyInfoList = new ArrayList<HostInfo>();
-                for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
-                    newProxyInfoList.add(entry.getValue());
-                }
-
-                String newMd5 = calcHostInfoMd5(newProxyInfoList);
-                String oldMd5 = calcHostInfoMd5(proxyInfoList);
-                if (newMd5 != null && !newMd5.equals(oldMd5)) {
-                    /* Choose random alive connections to send messages. */
-                    LOGGER.info("old md5 {} new md5 {}", oldMd5, newMd5);
-                    proxyInfoList.clear();
-                    proxyInfoList = newProxyInfoList;
-                    clientManager.setProxyInfoList(proxyInfoList);
-                    doworkTime = System.currentTimeMillis();
-                } else if (proxyEntry.getSwitchStat() != oldStat) {
-                    /* judge cluster's switch state */
-                    oldStat = proxyEntry.getSwitchStat();
-                    if ((System.currentTimeMillis() - doworkTime) > 3 * 60 * 1000) {
-                        LOGGER.info("switch the cluster!");
-                        proxyInfoList.clear();
-                        proxyInfoList = newProxyInfoList;
-                        clientManager.setProxyInfoList(proxyInfoList);
-                    } else {
-                        LOGGER.info("only change oldStat ");
-                    }
-                } else {
-                    newProxyInfoList.clear();
-                    LOGGER.info("proxy IP list doesn't change, load {}", proxyEntry.getLoad());
-                }
-                if (clientConfig.getLoadBalance() == LoadBalance.CONSISTENCY_HASH) {
-                    updateHashRing(proxyInfoList);
-                }
-            } else {
-                LOGGER.error("proxyEntry's size is zero");
-            }
-        }
-    }
-
-    public EncryptConfigEntry getEncryptConfigEntry(final String userName) {
-        if (Utils.isBlank(userName)) {
-            return null;
-        }
-        EncryptConfigEntry encryptEntry = this.userEncryConfigEntry;
-        if (encryptEntry == null) {
-            int retryCount = 0;
-            encryptEntry = requestPubKey(this.clientConfig.getRsaPubKeyUrl(), userName, false);
-            while (encryptEntry == null && retryCount < this.clientConfig.getProxyUpdateMaxRetry()) {
-                encryptEntry = requestPubKey(this.clientConfig.getRsaPubKeyUrl(), userName, false);
-                retryCount++;
-            }
-            if (encryptEntry == null) {
-                encryptEntry = getStoredPubKeyEntry(userName);
-                if (encryptEntry != null) {
-                    encryptEntry.getRsaEncryptedKey();
-                    synchronized (this) {
-                        if (this.userEncryConfigEntry == null) {
-                            this.userEncryConfigEntry = encryptEntry;
-                        } else {
-                            encryptEntry = this.userEncryConfigEntry;
-                        }
-                    }
-                }
-            } else {
-                synchronized (this) {
-                    if (this.userEncryConfigEntry == null || this.userEncryConfigEntry != encryptEntry) {
-                        storePubKeyEntry(encryptEntry);
-                        encryptEntry.getRsaEncryptedKey();
-                        this.userEncryConfigEntry = encryptEntry;
-                    } else {
-                        encryptEntry = this.userEncryConfigEntry;
-                    }
-                }
-            }
-        }
-        return encryptEntry;
-    }
-
-    private void updateEncryptConfigEntry() {
-        if (Utils.isBlank(this.clientConfig.getUserName())) {
+    private void compareAndUpdateProxyList(ProxyConfigEntry proxyEntry) {
+        if ((proxyEntry == null || proxyEntry.isNodesEmpty())
+                && (proxyInfoList.isEmpty()
+                        || (System.currentTimeMillis() - lstUpdateTime) < clientConfig.getForceReChooseInrMs())) {
             return;
         }
-        int retryCount = 0;
-        EncryptConfigEntry encryptConfigEntry = requestPubKey(this.clientConfig.getRsaPubKeyUrl(),
-                this.clientConfig.getUserName(), false);
-        while (encryptConfigEntry == null && retryCount < this.clientConfig.getProxyUpdateMaxRetry()) {
-            encryptConfigEntry = requestPubKey(this.clientConfig.getRsaPubKeyUrl(),
-                    this.clientConfig.getUserName(), false);
-            retryCount++;
-        }
-        if (encryptConfigEntry == null) {
-            return;
-        }
-        synchronized (this) {
-            if (this.userEncryConfigEntry == null || this.userEncryConfigEntry != encryptConfigEntry) {
-                storePubKeyEntry(encryptConfigEntry);
-                encryptConfigEntry.getRsaEncryptedKey();
-                this.userEncryConfigEntry = encryptConfigEntry;
+        int newSwitchStat;
+        List<HostInfo> newBusInfoList;
+        if (proxyEntry == null || proxyEntry.isNodesEmpty()) {
+            newSwitchStat = oldStat;
+            newBusInfoList = new ArrayList<>(proxyInfoList.size());
+            newBusInfoList.addAll(proxyInfoList);
+        } else {
+            newSwitchStat = proxyEntry.getSwitchStat();
+            newBusInfoList = new ArrayList<>(proxyEntry.getSize());
+            for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
+                newBusInfoList.add(entry.getValue());
             }
         }
-        return;
+        String newMd5 = calcHostInfoMd5(newBusInfoList);
+        String oldMd5 = calcHostInfoMd5(proxyInfoList);
+        boolean nodeChanged = newMd5 != null && !newMd5.equals(oldMd5);
+        if (nodeChanged || newSwitchStat != oldStat
+                || (System.currentTimeMillis() - lstUpdateTime) >= clientConfig.getForceReChooseInrMs()) {
+            proxyInfoList = newBusInfoList;
+            clientManager.updateProxyInfoList(nodeChanged, proxyInfoList);
+            lstUpdateTime = System.currentTimeMillis();
+            oldStat = newSwitchStat;
+        }
     }
 
-    private EncryptConfigEntry getStoredPubKeyEntry(String userName) {
-        if (Utils.isBlank(userName)) {
-            LOGGER.warn(" userName(" + userName + ") is not available");
-            return null;
-        }
-        EncryptConfigEntry entry;
-        FileInputStream fis = null;
-        ObjectInputStream is = null;
-        rw.readLock().lock();
+    private void tryToWriteCacheProxyEntry(ProxyConfigEntry entry) {
+        logger.debug("ConfigManager({}) write {} to cache file ({})",
+                this.callerId, entry, this.proxyConfigCacheFile);
+        fileRw.writeLock().lock();
         try {
-            File file = new File(clientConfig.getConfStoreBasePath() + userName + ".pubKey");
-            if (file.exists()) {
-                fis = new FileInputStream(file);
-                is = new ObjectInputStream(fis);
-                entry = (EncryptConfigEntry) is.readObject();
-                // is.close();
-                fis.close();
-                return entry;
-            } else {
-                return null;
+            File file = new File(this.proxyConfigCacheFile);
+            if (!file.getParentFile().exists()) {
+                // try to create parent
+                file.getParentFile().mkdirs();
             }
-        } catch (Throwable e1) {
-            LOGGER.error("Read " + userName + " stored PubKeyEntry error ", e1);
-            return null;
+            FileWriter fileWriter = new FileWriter(this.proxyConfigCacheFile);
+            gson.toJson(entry, fileWriter);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) write cache file({}) exception, groupId={}, data={}",
+                        this.callerId, this.clientConfig.getInlongGroupId(),
+                        this.proxyConfigCacheFile, entry.toString(), ex);
+            }
+        } finally {
+            fileRw.writeLock().unlock();
+        }
+    }
+
+    /**
+     * try to read cache of proxy entry
+     *
+     * @return read result
+     */
+    private Tuple2<ProxyConfigEntry, String> tryToReadCacheProxyEntry() {
+        fileRw.readLock().lock();
+        try {
+            File file = new File(this.proxyConfigCacheFile);
+            if (file.exists()) {
+                long diffTime = System.currentTimeMillis() - file.lastModified();
+                if (clientConfig.getConfigCacheExpiredMs() > 0
+                        && diffTime < clientConfig.getConfigCacheExpiredMs()) {
+                    JsonReader reader = new JsonReader(new FileReader(this.proxyConfigCacheFile));
+                    ProxyConfigEntry proxyConfigEntry = gson.fromJson(reader, ProxyConfigEntry.class);
+                    return new Tuple2<>(proxyConfigEntry, "Ok");
+                }
+                return new Tuple2<>(null, "cache configure expired!");
+            } else {
+                return new Tuple2<>(null, "no cache configure!");
+            }
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) read cache file({}) exception, groupId={}",
+                        this.callerId, this.proxyConfigCacheFile, this.clientConfig.getInlongGroupId(), ex);
+            }
+            return new Tuple2<>(null, "read cache configure failure:" + ex.getMessage());
+        } finally {
+            fileRw.readLock().unlock();
+        }
+    }
+
+    private Tuple2<EncryptConfigEntry, String> requestPubKeyFromManager() {
+        List<BasicNameValuePair> params = buildPubKeyQueryParams();
+        // request meta info from manager
+        logger.debug("ConfigManager({}) request pubkey to manager({}), param={}",
+                this.callerId, this.encryptConfigVisitUrl, params);
+        Tuple2<Boolean, String> queryResult = requestConfiguration(this.encryptConfigVisitUrl, params);
+        if (!queryResult.getF0()) {
+            return new Tuple2<>(null, queryResult.getF1());
+        }
+        logger.debug("ConfigManager({}) received pubkey from manager({}), result={}",
+                this.callerId, this.encryptConfigVisitUrl, queryResult.getF1());
+        JsonObject pubKeyConf;
+        try {
+            pubKeyConf = JsonParser.parseString(queryResult.getF1()).getAsJsonObject();
+        } catch (Throwable ex) {
+            if (parseCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) parse failure, secretId={}, config={}!",
+                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+            }
+            return new Tuple2<>(null, "parse pubkey failure:" + ex.getMessage());
+        }
+        if (pubKeyConf == null) {
+            return new Tuple2<>(null, "No public key information");
+        }
+        if (!pubKeyConf.has("resultCode")) {
+            if (parseCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) config failure: resultCode field not exist, secretId={}, config={}!",
+                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+            }
+            return new Tuple2<>(null, "resultCode field not exist");
+        }
+        int resultCode = pubKeyConf.get("resultCode").getAsInt();
+        if (resultCode != 0) {
+            if (parseCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) config failure: resultCode != 0, secretId={}, config={}!",
+                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+            }
+            return new Tuple2<>(null, "resultCode != 0!");
+        }
+        if (!pubKeyConf.has("resultData")) {
+            if (parseCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) config failure: resultData field not exist, secretId={}, config={}!",
+                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+            }
+            return new Tuple2<>(null, "resultData field not exist");
+        }
+        JsonObject resultData = pubKeyConf.get("resultData").getAsJsonObject();
+        if (resultData != null) {
+            String publicKey = resultData.get("publicKey").getAsString();
+            if (StringUtils.isBlank(publicKey)) {
+                if (parseCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) config failure: publicKey is blank, secretId={}, config={}!",
+                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                }
+                return new Tuple2<>(null, "publicKey is blank!");
+            }
+            String username = resultData.get("username").getAsString();
+            if (StringUtils.isBlank(username)) {
+                if (parseCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) config failure: username is blank, secretId={}, config={}!",
+                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                }
+                return new Tuple2<>(null, "username is blank!");
+            }
+            String versionStr = resultData.get("version").getAsString();
+            if (StringUtils.isBlank(versionStr)) {
+                if (parseCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) config failure: version is blank, secretId={}, config={}!",
+                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                }
+                return new Tuple2<>(null, "version is blank!");
+            }
+            return new Tuple2<>(new EncryptConfigEntry(username, versionStr, publicKey), "Ok");
+        }
+        return new Tuple2<>(null, "resultData value is null!");
+    }
+
+    private void updateEncryptConfigEntry(EncryptConfigEntry newEncryptEntry) {
+        newEncryptEntry.getRsaEncryptedKey();
+        this.userEncryptConfigEntry = newEncryptEntry;
+    }
+
+    private Tuple2<EncryptConfigEntry, String> readCachedPubKeyEntry() {
+        ObjectInputStream is;
+        FileInputStream fis = null;
+        EncryptConfigEntry entry;
+        fileRw.readLock().lock();
+        try {
+            File file = new File(this.encryptConfigCacheFile);
+            if (file.exists()) {
+                long diffTime = System.currentTimeMillis() - file.lastModified();
+                if (clientConfig.getConfigCacheExpiredMs() > 0
+                        && diffTime < clientConfig.getConfigCacheExpiredMs()) {
+                    fis = new FileInputStream(file);
+                    is = new ObjectInputStream(fis);
+                    entry = (EncryptConfigEntry) is.readObject();
+                    // is.close();
+                    fis.close();
+                    return new Tuple2<>(entry, "Ok");
+                }
+                return new Tuple2<>(null, "cache PubKeyEntry expired!");
+            } else {
+                return new Tuple2<>(null, "no PubKeyEntry file!");
+            }
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) read({}) file exception, secretId={}",
+                        callerId, encryptConfigCacheFile, clientConfig.getAuthSecretId(), ex);
+            }
+            return new Tuple2<>(null, "read PubKeyEntry file failure:" + ex.getMessage());
         } finally {
             if (fis != null) {
                 try {
@@ -453,16 +635,16 @@ public class ProxyConfigManager extends Thread {
                     //
                 }
             }
-            rw.readLock().unlock();
+            fileRw.readLock().unlock();
         }
     }
 
-    private void storePubKeyEntry(EncryptConfigEntry entry) {
+    private void writeCachePubKeyEntryFile(EncryptConfigEntry entry) {
+        ObjectOutputStream p;
         FileOutputStream fos = null;
-        ObjectOutputStream p = null;
-        rw.writeLock().lock();
+        fileRw.writeLock().lock();
         try {
-            File file = new File(clientConfig.getConfStoreBasePath() + entry.getUserName() + ".pubKey");
+            File file = new File(this.encryptConfigCacheFile);
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdir();
             }
@@ -474,9 +656,11 @@ public class ProxyConfigManager extends Thread {
             p.writeObject(entry);
             p.flush();
             // p.close();
-        } catch (Throwable e) {
-            LOGGER.error("store EncryptConfigEntry " + entry.toString() + " exception ", e);
-            e.printStackTrace();
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) write file({}) exception, secretId={}, content={}",
+                        callerId, encryptConfigCacheFile, clientConfig.getAuthSecretId(), entry.toString(), ex);
+            }
         } finally {
             if (fos != null) {
                 try {
@@ -485,153 +669,192 @@ public class ProxyConfigManager extends Thread {
                     //
                 }
             }
-            rw.writeLock().unlock();
+            fileRw.writeLock().unlock();
         }
     }
 
-    private String calcHostInfoMd5(List<HostInfo> hostInfoList) {
-        if (hostInfoList == null || hostInfoList.isEmpty()) {
-            return null;
-        }
-        Collections.sort(hostInfoList);
-        StringBuffer hostInfoMd5 = new StringBuffer();
-        for (HostInfo hostInfo : hostInfoList) {
-            if (hostInfo == null) {
-                continue;
+    /* Request new configurations from Manager. */
+    private Tuple2<Boolean, String> requestConfiguration(String url, List<BasicNameValuePair> params) {
+        HttpParams myParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(myParams, clientConfig.getManagerConnTimeoutMs());
+        HttpConnectionParams.setSoTimeout(myParams, clientConfig.getManagerSocketTimeoutMs());
+        CloseableHttpClient httpClient;
+        // build http(s) client
+        try {
+            if (this.clientConfig.isVisitManagerByHttp()) {
+                httpClient = new DefaultHttpClient(myParams);
+            } else {
+                httpClient = getCloseableHttpClient(params);
             }
-            hostInfoMd5.append(hostInfo.getHostName());
-            hostInfoMd5.append(";");
-            hostInfoMd5.append(hostInfo.getPortNumber());
-            hostInfoMd5.append(";");
+        } catch (Throwable eHttp) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) create Http(s) client failure, url={}, params={}",
+                        this.callerId, url, params, eHttp);
+            }
+            return new Tuple2<>(false, eHttp.getMessage());
         }
-
-        return DigestUtils.md5Hex(hostInfoMd5.toString());
+        // post request and get response
+        HttpPost httpPost = null;
+        try {
+            httpPost = new HttpPost(url);
+            this.addAuthorizationInfo(httpPost);
+            UrlEncodedFormEntity urlEncodedFormEntity =
+                    new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
+            httpPost.setEntity(urlEncodedFormEntity);
+            HttpResponse response = httpClient.execute(httpPost);
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                return new Tuple2<>(false, response.getStatusLine().getStatusCode()
+                        + ":" + response.getStatusLine().getStatusCode());
+            }
+            String returnStr = EntityUtils.toString(response.getEntity());
+            if (StringUtils.isBlank(returnStr)) {
+                return new Tuple2<>(false, "query result is blank!");
+            }
+            return new Tuple2<>(true, returnStr);
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) connect manager({}) exception, params={}",
+                        this.callerId, url, params, ex);
+            }
+            return new Tuple2<>(false, ex.getMessage());
+        } finally {
+            if (httpPost != null) {
+                httpPost.releaseConnection();
+            }
+            if (httpClient != null) {
+                httpClient.getConnectionManager().shutdown();
+            }
+        }
     }
 
-    private EncryptConfigEntry requestPubKey(String pubKeyUrl, String userName, boolean needGet) {
-        if (Utils.isBlank(userName)) {
-            LOGGER.error("Queried userName is null!");
-            return null;
+    private CloseableHttpClient getCloseableHttpClient(List<BasicNameValuePair> params)
+            throws NoSuchAlgorithmException, KeyManagementException {
+        CloseableHttpClient httpClient;
+        ArrayList<Header> headers = new ArrayList<>();
+        for (BasicNameValuePair paramItem : params) {
+            headers.add(new BasicHeader(paramItem.getName(), paramItem.getValue()));
         }
-        List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(clientConfig.getManagerConnTimeoutMs())
+                .setSocketTimeout(clientConfig.getManagerSocketTimeoutMs()).build();
+        SSLContext sslContext = SSLContexts.custom().build();
+        SSLConnectionSocketFactory sslSf = new SSLConnectionSocketFactory(sslContext,
+                new String[]{clientConfig.getTlsVersion()}, null,
+                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+        httpClient = HttpClients.custom().setDefaultHeaders(headers).setDefaultRequestConfig(requestConfig)
+                .setSSLSocketFactory(sslSf).build();
+        return httpClient;
+    }
+
+    private void storeAndBuildMetaConfigure(ProxyClientConfig config) {
+        this.clientConfig = config;
+        StringBuilder strBuff = new StringBuilder(512);
+        this.proxyConfigVisitUrl = strBuff
+                .append(clientConfig.isVisitManagerByHttp() ? ConfigConstants.HTTP : ConfigConstants.HTTPS)
+                .append(clientConfig.getManagerIP()).append(":").append(clientConfig.getManagerPort())
+                .append(ConfigConstants.MANAGER_DATAPROXY_API).append(clientConfig.getInlongGroupId())
+                .toString();
+        strBuff.delete(0, strBuff.length());
+        this.localProxyConfigStoreFile = strBuff
+                .append(clientConfig.getConfigStoreBasePath())
+                .append(ConfigConstants.META_STORE_SUB_DIR)
+                .append(clientConfig.getInlongGroupId())
+                .append(ConfigConstants.LOCAL_DP_CONFIG_FILE_SUFFIX)
+                .toString();
+        strBuff.delete(0, strBuff.length());
+        this.proxyConfigCacheFile = strBuff
+                .append(clientConfig.getConfigStoreBasePath())
+                .append(ConfigConstants.META_STORE_SUB_DIR)
+                .append(clientConfig.getInlongGroupId())
+                .append(ConfigConstants.REMOTE_DP_CACHE_FILE_SUFFIX)
+                .toString();
+        strBuff.delete(0, strBuff.length());
+        this.encryptConfigVisitUrl = clientConfig.getRsaPubKeyUrl();
+        this.encryptConfigCacheFile = strBuff
+                .append(clientConfig.getConfigStoreBasePath())
+                .append(ConfigConstants.META_STORE_SUB_DIR)
+                .append(clientConfig.getAuthSecretId())
+                .append(ConfigConstants.REMOTE_ENCRYPT_CACHE_FILE_SUFFIX)
+                .toString();
+        strBuff.delete(0, strBuff.length());
+    }
+
+    private void addAuthorizationInfo(HttpPost httpPost) {
+        httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
+                BasicAuth.genBasicAuthCredential(clientConfig.getAuthSecretId(),
+                        clientConfig.getAuthSecretKey()));
+    }
+
+    private List<BasicNameValuePair> buildProxyNodeQueryParams() {
+        ArrayList<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("ip", IpUtils.getLocalIp()));
+        params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
+        return params;
+    }
+
+    private List<BasicNameValuePair> buildPubKeyQueryParams() {
+        List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("operation", "query"));
-        params.add(new BasicNameValuePair("username", userName));
-        String returnStr = requestConfiguration(pubKeyUrl, params);
-        if (Utils.isBlank(returnStr)) {
-            LOGGER.info("No public key information returned from manager");
-            return null;
-        }
-        JsonObject pubKeyConf = jsonParser.parse(returnStr).getAsJsonObject();
-        if (pubKeyConf == null) {
-            LOGGER.info("No public key information returned from manager");
-            return null;
-        }
-        if (!pubKeyConf.has("resultCode")) {
-            LOGGER.info("Parse pubKeyConf failure: No resultCode key information returned from manager");
-            return null;
-        }
-        int resultCode = pubKeyConf.get("resultCode").getAsInt();
-        if (resultCode != 0) {
-            LOGGER.info("query pubKeyConf failure, error code is " + resultCode + ", errInfo is "
-                    + pubKeyConf.get("message").getAsString());
-            return null;
-        }
-        if (!pubKeyConf.has("resultData")) {
-            LOGGER.info("Parse pubKeyConf failure: No resultData key information returned from manager");
-            return null;
-        }
-        JsonObject resultData = pubKeyConf.get("resultData").getAsJsonObject();
-        if (resultData != null) {
-            String publicKey = resultData.get("publicKey").getAsString();
-            if (Utils.isBlank(publicKey)) {
-                return null;
-            }
-            String username = resultData.get("username").getAsString();
-            if (Utils.isBlank(username)) {
-                return null;
-            }
-            String versionStr = resultData.get("version").getAsString();
-            if (Utils.isBlank(versionStr)) {
-                return null;
-            }
-            return new EncryptConfigEntry(username, versionStr, publicKey);
-        }
-        return null;
+        params.add(new BasicNameValuePair("username", clientConfig.getAuthSecretId()));
+        return params;
     }
 
-    public ProxyConfigEntry getLocalProxyListFromFile(String filePath) throws Exception {
+    private Tuple2<ProxyConfigEntry, String> getProxyConfigEntry(String strRet) {
         DataProxyNodeResponse proxyCluster;
         try {
-            byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
-            proxyCluster = gson.fromJson(new String(fileBytes), DataProxyNodeResponse.class);
-        } catch (Throwable e) {
-            throw new Exception("Read local proxyList File failure by " + filePath + ", reason is " + e.getCause());
-        }
-        if (ObjectUtils.isEmpty(proxyCluster)) {
-            LOGGER.warn("no proxyCluster configure from local file");
-            return null;
-        }
-
-        return getProxyConfigEntry(proxyCluster);
-    }
-
-    private Map<String, Integer> getStreamIdMap(JsonObject localProxyAddrJson) {
-        Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
-        if (localProxyAddrJson.has("tsn")) {
-            JsonArray jsonStreamId = localProxyAddrJson.getAsJsonArray("tsn");
-            for (int i = 0; i < jsonStreamId.size(); i++) {
-                JsonObject jsonItem = jsonStreamId.get(i).getAsJsonObject();
-                if (jsonItem != null && jsonItem.has("streamId") && jsonItem.has("sn")) {
-                    streamIdMap.put(jsonItem.get("streamId").getAsString(), jsonItem.get("sn").getAsInt());
-                }
+            proxyCluster = gson.fromJson(strRet, DataProxyNodeResponse.class);
+        } catch (Throwable ex) {
+            if (parseCounter.shouldPrint()) {
+                logger.warn("ConfigManager({}) parse exception, groupId={}, config={}",
+                        this.callerId, clientConfig.getInlongGroupId(), strRet, ex);
             }
+            return new Tuple2<>(null, "parse failure:" + ex.getMessage());
         }
-        return streamIdMap;
-    }
-
-    public ProxyConfigEntry requestProxyList(String url) {
-        ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("ip", this.localIP));
-        params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
-        LOGGER.info("Begin to get configure from manager {}, param is {}", url, params);
-
-        String resultStr = requestConfiguration(url, params);
-        ProxyClusterConfig clusterConfig = gson.fromJson(resultStr, ProxyClusterConfig.class);
-        if (clusterConfig == null || !clusterConfig.isSuccess() || clusterConfig.getData() == null) {
-            return null;
-        }
-
-        DataProxyNodeResponse proxyCluster = clusterConfig.getData();
-        return getProxyConfigEntry(proxyCluster);
-    }
-
-    private ProxyConfigEntry getProxyConfigEntry(DataProxyNodeResponse proxyCluster) {
+        // parse nodeList
         List<DataProxyNodeInfo> nodeList = proxyCluster.getNodeList();
         if (CollectionUtils.isEmpty(nodeList)) {
-            LOGGER.error("dataproxy nodeList is empty in DataProxyNodeResponse!");
-            return null;
+            return new Tuple2<>(null, "nodeList is empty!");
         }
-        Map<String, HostInfo> hostMap = formatHostInfoMap(nodeList);
-        if (MapUtils.isEmpty(hostMap)) {
-            return null;
+        HostInfo tmpHostInfo;
+        Map<String, HostInfo> hostMap = new HashMap<>();
+        for (DataProxyNodeInfo proxy : nodeList) {
+            if (ObjectUtils.isEmpty(proxy.getId())
+                    || StringUtils.isEmpty(proxy.getIp())
+                    || ObjectUtils.isEmpty(proxy.getPort())
+                    || proxy.getPort() < 0) {
+                if (exptCounter.shouldPrint()) {
+                    logger.warn("Invalid proxy node: groupId={}, id={}, ip={}, port={}",
+                            clientConfig.getInlongGroupId(), proxy.getId(), proxy.getIp(), proxy.getPort());
+                }
+                continue;
+            }
+            tmpHostInfo = new HostInfo(proxy.getIp(), proxy.getPort());
+            hostMap.put(tmpHostInfo.getReferenceName(), tmpHostInfo);
         }
-
+        if (hostMap.isEmpty()) {
+            return new Tuple2<>(null, "no valid nodeList records!");
+        }
+        // parse clusterId
         int clusterId = -1;
         if (ObjectUtils.isNotEmpty(proxyCluster.getClusterId())) {
             clusterId = proxyCluster.getClusterId();
         }
+        // parse load
         int load = ConfigConstants.LOAD_THRESHOLD;
         if (ObjectUtils.isNotEmpty(proxyCluster.getLoad())) {
             load = proxyCluster.getLoad() > 200 ? 200 : (Math.max(proxyCluster.getLoad(), 0));
         }
+        // parse isIntranet
         boolean isIntranet = true;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
-            isIntranet = proxyCluster.getIsIntranet() == 1 ? true : false;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getIsIntranet())) {
+            isIntranet = proxyCluster.getIsIntranet() == 1;
         }
+        // parse isSwitch
         int isSwitch = 0;
         if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
             isSwitch = proxyCluster.getIsSwitch();
         }
+        // build ProxyConfigEntry
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
         proxyEntry.setClusterId(clusterId);
         proxyEntry.setGroupId(clientConfig.getInlongGroupId());
@@ -639,202 +862,8 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
-        proxyEntry.setSize(nodeList.size());
         proxyEntry.setMaxPacketLength(
                 proxyCluster.getMaxPacketLength() != null ? proxyCluster.getMaxPacketLength() : -1);
-        return proxyEntry;
-    }
-
-    private Map<String, HostInfo> formatHostInfoMap(List<DataProxyNodeInfo> nodeList) {
-        Map<String, HostInfo> hostMap = new HashMap<>();
-        for (DataProxyNodeInfo proxy : nodeList) {
-            if (ObjectUtils.isEmpty(proxy.getId()) || StringUtils.isEmpty(proxy.getIp()) || ObjectUtils
-                    .isEmpty(proxy.getPort()) || proxy.getPort() < 0) {
-                LOGGER.error("invalid proxy node, id:{}, ip:{}, port:{}", proxy.getId(), proxy.getIp(),
-                        proxy.getPort());
-                continue;
-            }
-            String refId = proxy.getIp() + ":" + proxy.getPort();
-            hostMap.put(refId, new HostInfo(refId, proxy.getIp(), proxy.getPort()));
-
-        }
-        if (hostMap.isEmpty()) {
-            LOGGER.error("Parse proxyList failure: address is empty for response from manager!");
-            return null;
-        }
-        return hostMap;
-    }
-
-    private String updateUrl(String url, int tryIdx, String localManagerIpList) {
-        if (tryIdx == 0) {
-            return url;
-        }
-
-        int headerIdx = url.indexOf("://");
-        if (headerIdx == -1) {
-            return null;
-        }
-        String header = "";
-        header = url.substring(0, headerIdx + 3);
-        String tmpUrl = url.substring(headerIdx + 3);
-        int tailerIdx = tmpUrl.indexOf("/");
-        if (tailerIdx == -1) {
-            return null;
-        }
-        String tailer = "";
-        tailer = tmpUrl.substring(tailerIdx);
-        String[] managerIps = localManagerIpList.split(",");
-        String currentManagerIp = "";
-        int idx = 1;
-        for (String managerIp : managerIps) {
-            if (idx++ == tryIdx) {
-                currentManagerIp = managerIp;
-                break;
-            }
-        }
-        if (!currentManagerIp.equals("")) {
-            return header + currentManagerIp + ":" + clientConfig.getManagerPort() + tailer;
-        }
-        return null;
-    }
-
-    /* Request new configurations from Manager. */
-    private String requestConfiguration(String url, List<BasicNameValuePair> params) {
-        if (Utils.isBlank(url)) {
-            LOGGER.error("request url is null");
-            return null;
-        }
-        // get local managerIpList
-        String localManagerIps = "";
-        int tryIdx = 0;
-        while (true) {
-            HttpPost httpPost = null;
-            String returnStr = null;
-            HttpParams myParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(myParams, 10000);
-            HttpConnectionParams.setSoTimeout(myParams, clientConfig.getManagerSocketTimeout());
-            CloseableHttpClient httpClient = null;
-            if (this.clientConfig.isRequestByHttp()) {
-                httpClient = new DefaultHttpClient(myParams);
-            } else {
-                try {
-                    httpClient = getCloseableHttpClient(params);
-                } catch (Throwable eHttps) {
-                    LOGGER.error("Create Https cliet failure, error 1 is ", eHttps);
-                    eHttps.printStackTrace();
-                    return null;
-                }
-            }
-
-            if (!clientConfig.isEnableSaveManagerVIps() && tryIdx > 0) {
-                return null;
-            }
-            // change url's manager host port when occur error
-            url = updateUrl(url, tryIdx, localManagerIps);
-            if (url == null) {
-                return null;
-            }
-            tryIdx++;
-
-            LOGGER.info("Request url : " + url + ", localManagerIps : " + localManagerIps);
-            try {
-                httpPost = new HttpPost(url);
-                httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
-                        BasicAuth.genBasicAuthCredential(clientConfig.getAuthSecretId(),
-                                clientConfig.getAuthSecretKey()));
-                UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, "UTF-8");
-                httpPost.setEntity(urlEncodedFormEntity);
-                HttpResponse response = httpClient.execute(httpPost);
-                returnStr = EntityUtils.toString(response.getEntity());
-                if (Utils.isNotBlank(returnStr)
-                        && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    LOGGER.info("Get configure from manager is " + returnStr);
-                    return returnStr;
-                }
-
-                if (!clientConfig.isRequestByHttp()) {
-                    return null;
-                }
-            } catch (Throwable e) {
-                LOGGER.error("Connect Manager error, message: {}, url is {}", e.getMessage(), url);
-
-                if (!clientConfig.isRequestByHttp()) {
-                    return null;
-                }
-                // get localManagerIps
-                localManagerIps = getLocalManagerIps();
-                if (localManagerIps == null) {
-                    return null;
-                }
-            } finally {
-                if (httpPost != null) {
-                    httpPost.releaseConnection();
-                }
-                if (httpClient != null) {
-                    httpClient.getConnectionManager().shutdown();
-                }
-            }
-        }
-    }
-
-    private StringEntity getEntity(List<BasicNameValuePair> params) throws UnsupportedEncodingException {
-        JsonObject jsonObject = new JsonObject();
-        for (BasicNameValuePair pair : params) {
-            jsonObject.addProperty(pair.getName(), pair.getValue());
-        }
-        StringEntity se = new StringEntity(jsonObject.toString());
-        se.setContentType(APPLICATION_JSON);
-        return se;
-    }
-
-    private CloseableHttpClient getCloseableHttpClient(List<BasicNameValuePair> params)
-            throws NoSuchAlgorithmException, KeyManagementException {
-        CloseableHttpClient httpClient;
-        ArrayList<Header> headers = new ArrayList<Header>();
-        for (BasicNameValuePair paramItem : params) {
-            headers.add(new BasicHeader(paramItem.getName(), paramItem.getValue()));
-        }
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000)
-                .setSocketTimeout(clientConfig.getManagerSocketTimeout()).build();
-        SSLContext sslContext = SSLContexts.custom().build();
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                new String[]{clientConfig.getTlsVersion()}, null,
-                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-        httpClient = HttpClients.custom().setDefaultHeaders(headers).setDefaultRequestConfig(requestConfig)
-                .setSSLSocketFactory(sslsf).build();
-        return httpClient;
-    }
-
-    private String getLocalManagerIps() {
-        String localManagerIps;
-        try {
-            File localManagerIpsFile = new File(clientConfig.getManagerIpLocalPath());
-            if (localManagerIpsFile.exists()) {
-                byte[] serialized;
-                serialized = FileUtils.readFileToByteArray(localManagerIpsFile);
-                if (serialized == null) {
-                    LOGGER.error("Local managerIp file is empty, file path : "
-                            + clientConfig.getManagerIpLocalPath());
-                    return null;
-                }
-                localManagerIps = new String(serialized, "UTF-8");
-            } else {
-                if (!localManagerIpsFile.getParentFile().exists()) {
-                    localManagerIpsFile.getParentFile().mkdirs();
-                }
-                localManagerIps = "";
-                LOGGER.error("Get local managerIpList not exist, file path : "
-                        + clientConfig.getManagerIpLocalPath());
-            }
-        } catch (Throwable t) {
-            localManagerIps = "";
-            LOGGER.error("Get local managerIpList occur exception,", t);
-        }
-        return localManagerIps;
-    }
-
-    public void updateHashRing(List<HostInfo> newHosts) {
-        this.hashRing.updateNode(newHosts);
-        LOGGER.debug("update hash ring {}", hashRing.getVirtualNode2RealNode());
+        return new Tuple2<>(proxyEntry, "ok");
     }
 }

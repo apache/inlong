@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class EncryptConfigEntry implements java.io.Serializable {
@@ -122,7 +123,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null || !(other instanceof EncryptConfigEntry)) {
+        if (!(other instanceof EncryptConfigEntry)) {
             return false;
         }
         if (other == this) {
@@ -131,7 +132,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
         EncryptConfigEntry info = (EncryptConfigEntry) other;
         return (this.userName.equals(info.getUserName()))
                 && (this.version.equals(info.getVersion()))
-                && (this.pubKey == info.getPubKey());
+                && (Objects.equals(this.pubKey, info.getPubKey()));
     }
 
     public String toString() {

@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.dataproxy;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,15 +37,18 @@ public class ProxyConfigManagerTest {
             .toString();
     private final ProxyClientConfig clientConfig = PowerMockito.mock(ProxyClientConfig.class);
     private final ClientMgr clientMgr = PowerMockito.mock(ClientMgr.class);
-    private final ProxyConfigManager proxyConfigManager = new ProxyConfigManager(clientConfig, "127.0.0.1",
-            clientMgr);
+    private final ProxyConfigManager proxyConfigManager;
 
     public ProxyConfigManagerTest() throws URISyntaxException {
+        clientConfig.setConfigStoreBasePath(localFile);
+        proxyConfigManager =
+                new ProxyConfigManager("test", clientConfig, clientMgr);
     }
 
     @Test
     public void testProxyConfigParse() throws Exception {
-        ProxyConfigEntry proxyEntry = proxyConfigManager.getLocalProxyListFromFile(localFile);
+        Tuple2<ProxyConfigEntry, String> result = proxyConfigManager.getLocalProxyListFromFile(localFile);
+        ProxyConfigEntry proxyEntry = result.getF0();
         Assert.assertEquals(proxyEntry.isInterVisit(), false);
         Assert.assertEquals(proxyEntry.getLoad(), 12);
         Assert.assertEquals(proxyEntry.getClusterId(), 1);

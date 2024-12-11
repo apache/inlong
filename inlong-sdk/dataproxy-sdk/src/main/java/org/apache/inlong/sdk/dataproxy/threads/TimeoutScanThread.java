@@ -19,17 +19,18 @@ package org.apache.inlong.sdk.dataproxy.threads;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
-import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
+import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
+import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Daemon threads to check timeout for asynchronous callback.
@@ -37,30 +38,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TimeoutScanThread extends Thread {
 
     private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
-    private final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
-    private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks;
-    private final AtomicInteger currentBufferSize;
-    private final ProxyClientConfig config;
-    private final ClientMgr clientMgr;
-    private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
+    private static final LogCounter exptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private volatile boolean bShutDown = false;
     private long printCount = 0;
+    private final ProxyClientConfig config;
+    private final Sender sender;
+    private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat = new ConcurrentHashMap<>();
 
-    public TimeoutScanThread(ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks,
-            AtomicInteger currentBufferSize, ProxyClientConfig config, ClientMgr clientMgr) {
-        bShutDown = false;
-        printCount = 0;
-        this.callbacks = callbacks;
-        this.currentBufferSize = currentBufferSize;
+    public TimeoutScanThread(Sender sender, ProxyClientConfig config) {
+        this.bShutDown = false;
         this.config = config;
-        this.clientMgr = clientMgr;
+        this.sender = sender;
         this.setDaemon(true);
-        this.setName("TimeoutScanThread");
+        this.setName("TimeoutScanThread-" + this.sender.getInstanceId());
+        logger.info("TimeoutScanThread({}) started", this.sender.getInstanceId());
     }
 
     public void shutDown() {
-        logger.info("begin to shut down TimeoutScanThread!");
-        bShutDown = true;
+        this.bShutDown = true;
+        this.interrupt();
+        logger.info("TimeoutScanThread({}) shutdown!", this.sender.getInstanceId());
     }
 
     /**
@@ -69,17 +67,18 @@ public class TimeoutScanThread extends Thread {
      * @param channel
      */
     public void addTimeoutChannel(Channel channel) {
-        if (channel != null) {
-            TimeScanObject timeScanObject = timeoutChannelStat.get(channel);
-            if (timeScanObject == null) {
-                TimeScanObject tmpTimeObj = new TimeScanObject();
-                timeScanObject = timeoutChannelStat.putIfAbsent(channel, tmpTimeObj);
-                if (timeScanObject == null) {
-                    timeScanObject = tmpTimeObj;
-                }
-            }
-            timeScanObject.incrementAndGet();
+        if (channel == null) {
+            return;
         }
+        TimeScanObject timeScanObject = timeoutChannelStat.get(channel);
+        if (timeScanObject == null) {
+            TimeScanObject tmpTimeObj = new TimeScanObject();
+            timeScanObject = timeoutChannelStat.putIfAbsent(channel, tmpTimeObj);
+            if (timeScanObject == null) {
+                timeScanObject = tmpTimeObj;
+            }
+        }
+        timeScanObject.incrementAndGet();
     }
 
     /**
@@ -88,11 +87,12 @@ public class TimeoutScanThread extends Thread {
      * @param channel
      */
     public void resetTimeoutChannel(Channel channel) {
-        if (channel != null) {
-            TimeScanObject timeScanObject = timeoutChannelStat.get(channel);
-            if (timeScanObject != null) {
-                timeScanObject.updateCountToZero();
-            }
+        if (channel == null) {
+            return;
+        }
+        TimeScanObject timeScanObject = timeoutChannelStat.get(channel);
+        if (timeScanObject != null) {
+            timeScanObject.updateCountToZero();
         }
     }
 
@@ -112,12 +112,10 @@ public class TimeoutScanThread extends Thread {
             if (System.currentTimeMillis() - timeScanObject.getTime() > MAX_CHANNEL_TIMEOUT) {
                 timeoutChannelStat.remove(tmpChannel);
             } else {
-
                 if (timeScanObject.getCurTimeoutCount() > config.getMaxTimeoutCnt()) {
                     timeoutChannelStat.remove(tmpChannel);
                     if (tmpChannel.isOpen() && tmpChannel.isActive()) {
-                        clientMgr.setConnectionBusy(tmpChannel);
-                        logger.error("this client {} is busy!", tmpChannel);
+                        sender.getClientMgr().setConnectionBusy(tmpChannel);
                     }
                 }
             }
@@ -143,7 +141,8 @@ public class TimeoutScanThread extends Thread {
                 QueueObject queueObject1 = messageIdCallbacks.remove(messageId);
                 if (queueObject1 != null) {
                     queueObject1.getCallback().onMessageAck(SendResult.TIMEOUT);
-                    currentBufferSize.decrementAndGet();
+                    sender.getCurrentBufferSize().decrementAndGet();
+                    queueObject.done();
                 }
                 addTimeoutChannel(channel);
             }
@@ -152,31 +151,28 @@ public class TimeoutScanThread extends Thread {
 
     @Override
     public void run() {
-        logger.info("TimeoutScanThread Thread=" + Thread.currentThread().getId() + " started !");
+        logger.info("TimeoutScanThread({}) thread started!", sender.getInstanceId());
         while (!bShutDown) {
             try {
-                for (Channel channel : callbacks.keySet()) {
-                    ConcurrentHashMap<String, QueueObject> msgQueueMap =
-                            channel != null ? callbacks.get(channel) : null;
-                    if (msgQueueMap == null) {
+                for (Map.Entry<Channel, ConcurrentHashMap<String, QueueObject>> entry : sender.getCallbacks()
+                        .entrySet()) {
+                    if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                         continue;
                     }
-                    checkMessageIdBasedCallbacks(channel, msgQueueMap);
+                    checkMessageIdBasedCallbacks(entry.getKey(), entry.getValue());
                 }
                 checkTimeoutChannel();
                 TimeUnit.SECONDS.sleep(1);
-            } catch (Throwable e) {
-                if (!bShutDown) {
-                    logger.error("TimeoutScanThread exception {}", e.getMessage());
-                } else {
-                    logger.warn("TimeoutScanThread exception {}", e.getMessage());
+            } catch (Throwable ex) {
+                if (exptCnt.shouldPrint()) {
+                    logger.warn("TimeoutScanThread({}) throw exception", sender.getInstanceId(), ex);
                 }
             }
-            if (printCount++ % 20 == 0) {
-                logger.info("TimeoutScanThread thread=" + Thread.currentThread().getId()
-                        + "'s currentBufferSize = " + currentBufferSize.get());
+            if (printCount++ % 60 == 0) {
+                logger.info("TimeoutScanThread({}) scan, currentBufferSize={}",
+                        sender.getInstanceId(), sender.getCurrentBufferSize().get());
             }
         }
-        logger.info("TimeoutScanThread Thread=" + Thread.currentThread().getId() + " existed !");
+        logger.info("TimeoutScanThread({}) thread existed !", sender.getInstanceId());
     }
 }

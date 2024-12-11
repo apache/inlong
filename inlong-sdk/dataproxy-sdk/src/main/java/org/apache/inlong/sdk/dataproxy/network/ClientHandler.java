@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.dataproxy.network;
 
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -26,8 +27,9 @@ import org.slf4j.LoggerFactory;
 
 public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(ClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+    private static final LogCounter exceptCnt = new LogCounter(10, 100000, 60 * 1000L);
+    private static final LogCounter thrownCnt = new LogCounter(10, 100000, 60 * 1000L);
 
     private final Sender sender;
     private final ClientMgr clientMgr;
@@ -38,50 +40,64 @@ public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, EncodeObject e) {
+    public void channelRead0(ChannelHandlerContext ctx, EncodeObject encodeObject) {
         try {
-            EncodeObject encodeObject = e;
-            logger.debug("Channel = {} , msgType = {}", ctx.channel(), encodeObject.getMsgtype());
             if (encodeObject.getMsgtype() != 8) {
                 sender.notifyFeedback(ctx.channel(), encodeObject);
-            } else {
-                clientMgr.notifyHBAck(ctx.channel(), encodeObject.getLoad());
             }
-        } catch (Exception ex) {
-            logger.error("error :", ex);
+        } catch (Throwable ex) {
+            if (thrownCnt.shouldPrint()) {
+                logger.warn("ClientHandler({}) channelRead0 throw exception", sender.getInstanceId(), ex);
+            }
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
-        logger.error("this channel {} has error! , reason is {} ", ctx.channel(), e.getCause());
+        if (exceptCnt.shouldPrint()) {
+            logger.warn("ClientHandler({})'s channel {} has error!",
+                    sender.getInstanceId(), ctx.channel(), e);
+        }
         try {
             clientMgr.setConnectionFrozen(ctx.channel());
-        } catch (Exception e1) {
-            logger.error("exceptionCaught error :", e1);
+        } catch (Throwable ex) {
+            if (thrownCnt.shouldPrint()) {
+                logger.warn("ClientHandler({}) exceptionCaught throw exception",
+                        sender.getInstanceId(), ex);
+            }
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelInactive();
-        // clientMgr.resetClient(e.getChannel());
-        logger.info("ClientHandler channelDisconnected {}", ctx.channel());
+        if (logger.isDebugEnabled()) {
+            logger.debug("ClientHandler({}) channelDisconnected {}",
+                    sender.getInstanceId(), ctx.channel());
+        }
         try {
             sender.notifyConnectionDisconnected(ctx.channel());
-        } catch (Exception e1) {
-            logger.error("exceptionCaught error {}", e1.getMessage());
+        } catch (Throwable ex) {
+            if (thrownCnt.shouldPrint()) {
+                logger.warn("ClientHandler({}) channelInactive throw exception",
+                        sender.getInstanceId(), ex);
+            }
         }
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        // clientMgr.resetClient(e.getChannel());
-        logger.info("ClientHandler channelDisconnected {}", ctx.channel());
+        if (logger.isDebugEnabled()) {
+            logger.debug("ClientHandler({}) channelUnregistered {}",
+                    sender.getInstanceId(), ctx.channel());
+        }
         try {
             sender.notifyConnectionDisconnected(ctx.channel());
-        } catch (Exception e1) {
-            logger.error("exceptionCaught error {}", e1.getMessage());
+        } catch (Throwable ex) {
+            if (thrownCnt.shouldPrint()) {
+                logger.warn("ClientHandler({}) channelUnregistered throw exception",
+                        sender.getInstanceId(), ex);
+            }
         }
     }
 }

@@ -23,7 +23,9 @@ import lombok.Getter;
 public enum ScheduleEngineType {
 
     NONE("None"),
-    QUARTZ("Quartz");
+    QUARTZ("Quartz"),
+    AIRFLOW("Airflow"),
+    DOLPHINSCHEDULER("DolphinScheduler");
 
     private final String type;
 

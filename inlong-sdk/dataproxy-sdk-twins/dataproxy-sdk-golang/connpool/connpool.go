@@ -266,7 +266,7 @@ func (p *connPool) put(conn gnet.Conn, err error, isNewConn bool) {
 
 	addr := remoteAddr.String()
 	if _, ok := p.endpointMap.Load(addr); !ok {
-		p.log.Info("endpoint deleted, close its connection, addr:", addr)
+		p.log.Warn("endpoint deleted, close its connection, addr:", addr)
 		CloseConn(conn, defaultConnCloseDelay)
 		return
 	}
@@ -348,7 +348,7 @@ func (p *connPool) UpdateEndpoints(all, add, del []string) {
 
 	if len(delEndpoints) > 0 {
 		// delete connections for deleted endpoints
-		p.log.Info("delete old connections...")
+		p.log.Debug("delete old connections...")
 
 		// use a temp slice to store the conn in connChan
 		tempConns := make([]gnet.Conn, 0, cap(p.connChan))
@@ -365,7 +365,7 @@ func (p *connPool) UpdateEndpoints(all, add, del []string) {
 
 				addr := remoteAddr.String()
 				if _, ok := delEndpoints[addr]; ok {
-					p.log.Info("endpoint deleted, close its connection, addr:", addr)
+					p.log.Warn("endpoint deleted, close its connection, addr:", addr)
 					CloseConn(conn, defaultConnCloseDelay)
 					// for the deleted endpoint, we decrease its conn count before it is really closed, so that we can avoid creating more conns than we expect when rebalance
 					p.decEndpointConnCount(addr)
@@ -464,7 +464,7 @@ loop:
 }
 
 func (p *connPool) markUnavailable(ep string) {
-	p.log.Info("endpoint cannot be connected, marking as unavailable, addr: ", ep)
+	p.log.Debug("endpoint cannot be connected, marking as unavailable, addr: ", ep)
 	p.unavailable.Store(ep, time.Now())
 	p.retryCounts.Store(ep, 0)
 }
@@ -500,27 +500,27 @@ func (p *connPool) recoverAndRebalance() {
 }
 
 func (p *connPool) dump() {
-	p.log.Info("all endpoints:")
+	p.log.Debug("all endpoints:")
 	eps := p.endpoints.Load()
 	endpoints, ok := eps.([]string)
 	if ok {
 		for _, ep := range endpoints {
-			p.log.Info(ep)
+			p.log.Debug(ep)
 		}
 	}
 
 	dump := false
 	p.unavailable.Range(func(key, value any) bool {
 		if !dump {
-			p.log.Info("unavailable endpoints:")
+			p.log.Debug("unavailable endpoints:")
 		}
-		p.log.Info(key)
+		p.log.Debug(key)
 		return true
 	})
 
-	p.log.Info("opened connections:")
+	p.log.Debug("opened connections:")
 	p.endpointConnCounts.Range(func(key, value any) bool {
-		p.log.Info("endpoint: ", key, ", conns: ", value.(int))
+		p.log.Debug("endpoint: ", key, ", conns: ", value.(int))
 		return true
 	})
 }
@@ -537,7 +537,7 @@ func (p *connPool) recover() bool {
 			// try to create new conn
 			conn, err := p.dialer.Dial(key.(string))
 			if err == nil {
-				p.log.Info("endpoint recovered, addr: ", key)
+				p.log.Debug("endpoint recovered, addr: ", key)
 				p.put(conn, nil, true)
 				p.unavailable.Delete(key)
 				p.retryCounts.Delete(key)
@@ -552,7 +552,7 @@ func (p *connPool) recover() bool {
 		return true
 	})
 	if recovered {
-		p.log.Info("recover triggered")
+		p.log.Debug("recover triggered")
 	}
 	return recovered
 }
@@ -586,40 +586,40 @@ func (p *connPool) getAvailableEndpointCount() int {
 func (p *connPool) getExpectedConnPerEndpoint() int {
 	// current conn count, 'cause our conn is delayed closed, curConnCount may include the ones are being closing, and basically bigger than p.requiredConnNum
 	curConnCount := p.getConnCount()
-	p.log.Info("curConnCount: ", curConnCount)
+	p.log.Debug("curConnCount: ", curConnCount)
 	if curConnCount <= 0 {
 		return 1
 	}
 
 	// initial conn count
 	initConnCount := float64(p.requiredConnNum)
-	p.log.Info("initConnCount: ", initConnCount)
+	p.log.Debug("initConnCount: ", initConnCount)
 
 	// average conn count, as curConnCount may be not accurate, we use avgConnCount as a reference
 	avgConnCount := (curConnCount + p.requiredConnNum) >> 1
-	p.log.Info("avgConnCount: ", avgConnCount)
+	p.log.Debug("avgConnCount: ", avgConnCount)
 	if avgConnCount <= 0 {
 		return 1
 	}
 
 	// available endpoint count
 	availableEndpointCount := p.getAvailableEndpointCount()
-	p.log.Info("availableEndpointCount: ", availableEndpointCount)
+	p.log.Debug("availableEndpointCount: ", availableEndpointCount)
 	if availableEndpointCount <= 0 {
 		return 1
 	}
 
 	// curConnCount/availableEndpointCount, estimate a new conn count per endpoint
 	estimatedVal := math.Floor(float64(curConnCount) / float64(availableEndpointCount))
-	p.log.Info("conns per endpoint by current conn count: ", estimatedVal)
+	p.log.Debug("conns per endpoint by current conn count: ", estimatedVal)
 
 	// avgConnCount/availableEndpointCount, as a reference value
 	averageVal := math.Floor(float64(avgConnCount) / float64(availableEndpointCount))
-	p.log.Info("conns per endpoint by average conn count: ", averageVal)
+	p.log.Debug("conns per endpoint by average conn count: ", averageVal)
 
 	// initial conn count per endpoint
 	initialVal := float64(p.connsPerEndpoint)
-	p.log.Info("conns per endpoint of initialization: ", initialVal)
+	p.log.Debug("conns per endpoint of initialization: ", initialVal)
 
 	result := averageVal // nolint:ineffassign
 	if estimatedVal < initialVal {
@@ -636,7 +636,7 @@ func (p *connPool) getExpectedConnPerEndpoint() int {
 
 	// at least 1 conn
 	result = math.Max(1, result)
-	p.log.Info("expectedConnPerEndpoint: ", result)
+	p.log.Debug("expectedConnPerEndpoint: ", result)
 	return int(result)
 }
 
@@ -660,7 +660,7 @@ func (p *connPool) rebalance() {
 			for i := currentCount; i < expectedConnPerEndpoint; i++ {
 				conn, err := p.dialNewConn(addr)
 				if err == nil {
-					p.log.Info("adding connection for addr: ", addr)
+					p.log.Debug("adding connection for addr: ", addr)
 					p.put(conn, nil, true)
 					rebalanced = true
 				} else {
@@ -684,7 +684,7 @@ func (p *connPool) rebalance() {
 		for i := 0; i < expectedConnPerEndpoint; i++ {
 			conn, err := p.dialNewConn(addr)
 			if err == nil {
-				p.log.Info("adding connection for addr: ", addr)
+				p.log.Debug("adding connection for addr: ", addr)
 				p.put(conn, nil, true)
 				rebalanced = true
 			} else {
@@ -696,7 +696,7 @@ func (p *connPool) rebalance() {
 	})
 
 	if rebalanced {
-		p.log.Info("rebalance triggered")
+		p.log.Debug("rebalance triggered")
 	}
 }
 

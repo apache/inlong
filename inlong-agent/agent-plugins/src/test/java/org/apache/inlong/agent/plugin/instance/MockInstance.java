@@ -56,6 +56,11 @@ public class MockInstance extends Instance {
     }
 
     @Override
+    public void notifyDestroy() {
+
+    }
+
+    @Override
     public InstanceProfile getProfile() {
         return profile;
     }

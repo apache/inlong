@@ -960,7 +960,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public DataProxyNodeResponse getDataProxyNodes(String groupId, String protocolType) {
         LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", groupId, protocolType);
 
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         if (groupEntity == null) {
             String errMsg = String.format("group not found by groupId=%s", groupId);
             LOGGER.error(errMsg);
@@ -1082,7 +1082,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     private List<InlongClusterNodeEntity> getClusterNodes(String groupId, String clusterType, String protocolType) {
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         if (groupEntity == null) {
             LOGGER.warn("inlong group not exists for groupId={}", groupId);
             return Lists.newArrayList();

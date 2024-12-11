@@ -53,8 +53,8 @@ public class EncodeObject {
     private boolean isAuth = false;
     private boolean isEncrypt = false;
     private boolean isCompress = true;
-    private int groupIdNum;
-    private int streamIdNum;
+    private int groupIdNum = 0;
+    private int streamIdNum = 0;
     private String groupId;
     private String streamId;
     private short load;
@@ -210,8 +210,20 @@ public class EncodeObject {
         return isGroupIdTransfer;
     }
 
-    public void setGroupIdTransfer(boolean isGroupIdTransfer) {
-        this.isGroupIdTransfer = isGroupIdTransfer;
+    public int getGroupIdNum() {
+        return groupIdNum;
+    }
+
+    public int getStreamIdNum() {
+        return streamIdNum;
+    }
+
+    public void setGroupIdAndStreamIdNum(int groupIdNum, int streamIdNum) {
+        this.groupIdNum = groupIdNum;
+        this.streamIdNum = streamIdNum;
+        if (groupIdNum != 0 && streamIdNum != 0) {
+            this.isGroupIdTransfer = true;
+        }
     }
 
     public short getLoad() {
@@ -278,22 +290,6 @@ public class EncodeObject {
             this.userName = userName;
         }
         this.encryptEntry = encryptEntry;
-    }
-
-    public int getGroupIdNum() {
-        return groupIdNum;
-    }
-
-    public void setGroupIdNum(int groupIdNum) {
-        this.groupIdNum = groupIdNum;
-    }
-
-    public int getStreamIdNum() {
-        return streamIdNum;
-    }
-
-    public void setStreamIdNum(int streamIdNum) {
-        this.streamIdNum = streamIdNum;
     }
 
     public long getDt() {

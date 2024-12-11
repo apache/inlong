@@ -95,20 +95,34 @@ public abstract class CommonInstance extends Instance {
 
     @Override
     public void destroy() {
+        Long start = AgentUtils.getCurrentTime();
+        notifyDestroy();
+        while (running) {
+            AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
+        }
+        LOGGER.info("destroy instance wait run elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+        start = AgentUtils.getCurrentTime();
+        this.source.destroy();
+        LOGGER.info("destroy instance wait source elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+        start = AgentUtils.getCurrentTime();
+        this.sink.destroy();
+        LOGGER.info("destroy instance wait sink elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
+                profile.getInstanceId());
+    }
+
+    @Override
+    public void notifyDestroy() {
         if (!inited) {
             return;
         }
         doChangeState(State.SUCCEEDED);
-        while (running) {
-            AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
-        }
-        this.source.destroy();
-        this.sink.destroy();
     }
 
     @Override
     public void run() {
-        Thread.currentThread().setName("file-instance-core-" + getTaskId() + "-" + getInstanceId());
+        Thread.currentThread().setName("instance-core-" + getTaskId() + "-" + getInstanceId());
         running = true;
         try {
             doRun();

@@ -34,7 +34,8 @@ import java.util.StringJoiner;
 public class DirtyMessageWrapper {
 
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private String delimiter;
+    @Builder.Default
+    private String delimiter = "|";
     @Builder.Default
     @Getter
     private int retryTimes = 0;

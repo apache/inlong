@@ -38,6 +38,12 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +53,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(InstanceProfile.class)
+@PowerMockIgnore({"javax.management.*"})
 public class TestInstanceManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestInstanceManager.class);
@@ -56,11 +65,21 @@ public class TestInstanceManager {
 
     @BeforeClass
     public static void setup() {
+        PowerMockito.mockStatic(InstanceProfile.class);
+        Mockito.when(InstanceProfile.getInstanceClassByTaskType(Mockito.any()))
+                .thenAnswer(mock -> MockInstance.class.getCanonicalName());
+        Mockito.when(InstanceProfile.parseJsonStr(Mockito.anyString())).thenAnswer(mock -> {
+            String jsonStr = mock.getArgument(0);
+            InstanceProfile conf = new InstanceProfile();
+            conf.loadJsonStrResource(jsonStr);
+            return conf;
+        });
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDDhh_[0-9]+.txt";
         Store basicInstanceStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_INSTANCE);
-        taskProfile = helper.getTaskProfile(1, pattern, "csv", false, 0L, 0L, TaskStateEnum.RUNNING, CycleUnitType.HOUR,
-                "GMT+6:00", null);
+        taskProfile =
+                helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, CycleUnitType.HOUR,
+                        "GMT+6:00", null);
         Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK);
         TaskStore taskStore = new TaskStore(taskBasicStore);
         taskStore.storeTask(taskProfile);
@@ -78,9 +97,8 @@ public class TestInstanceManager {
     public void testInstanceManager() {
         InstanceStore instanceStore = manager.getInstanceStore();
         for (int i = 1; i <= 10; i++) {
-            InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                    String.valueOf(i), taskProfile.getCycleUnit(), "2023092710",
-                    AgentUtils.getCurrentTime());
+            InstanceProfile profile = taskProfile.createInstanceProfile(String.valueOf(i), taskProfile.getCycleUnit(),
+                    "2023092710", AgentUtils.getCurrentTime());
             instanceStore.storeInstance(profile);
         }
         manager.start();
@@ -90,9 +108,8 @@ public class TestInstanceManager {
             Assert.assertTrue(manager.getInstanceProfile(instanceId).getState() == InstanceStateEnum.DEFAULT);
         }
         long timeBefore = AgentUtils.getCurrentTime();
-        InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
-                AgentUtils.getCurrentTime());
+        InstanceProfile profile = taskProfile.createInstanceProfile(helper.getTestRootDir() + "/2023092710_1.txt",
+                taskProfile.getCycleUnit(), "2023092710", AgentUtils.getCurrentTime());
         String sinkDataTime = String.valueOf(profile.getSinkDataTime());
         try {
             String add2TimeZone = String.valueOf(
@@ -121,9 +138,8 @@ public class TestInstanceManager {
         Assert.assertTrue(manager.shouldAddAgain(profile.getInstanceId(), AgentUtils.getCurrentTime()));
 
         // test continue
-        profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
-                AgentUtils.getCurrentTime());
+        profile = taskProfile.createInstanceProfile(helper.getTestRootDir() + "/2023092710_1.txt",
+                taskProfile.getCycleUnit(), "2023092710", AgentUtils.getCurrentTime());
         action = new InstanceAction();
         action.setActionType(ActionType.ADD);
         action.setProfile(profile);

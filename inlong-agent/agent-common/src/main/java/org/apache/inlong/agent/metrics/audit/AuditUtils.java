@@ -22,6 +22,9 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditComponent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
@@ -38,6 +41,8 @@ import static org.apache.inlong.common.constant.Constants.DEFAULT_AUDIT_VERSION;
  */
 public class AuditUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditUtils.class);
+    public static final int AGENT_ISOLATE_KEY = 1;
     public static int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
     public static int AUDIT_ID_AGENT_READ_FAILED = 524291;
@@ -90,8 +95,17 @@ public class AuditUtils {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance()
-                .add(auditID, DEFAULT_AUDIT_TAG, inlongGroupId, inlongStreamId, logTime, count, size, version);
+        if (inlongGroupId == null || inlongStreamId == null) {
+            LOGGER.error("invalid args inlongGroupId: {}, inlongStreamId: {}", inlongGroupId, inlongStreamId);
+            return;
+        }
+        try {
+            AuditOperator.getInstance()
+                    .add(auditID, DEFAULT_AUDIT_TAG, inlongGroupId, inlongStreamId, logTime, count, size, version);
+        } catch (Throwable e) {
+            LOGGER.error("call audit add inlongGroupId: {}, inlongStreamId: {}, auditID {}, error", inlongGroupId,
+                    inlongStreamId, auditID, e);
+        }
     }
 
     public static void add(int auditID, String inlongGroupId, String inlongStreamId,
@@ -106,6 +120,6 @@ public class AuditUtils {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance().flush();
+        AuditOperator.getInstance().flush(AGENT_ISOLATE_KEY);
     }
 }

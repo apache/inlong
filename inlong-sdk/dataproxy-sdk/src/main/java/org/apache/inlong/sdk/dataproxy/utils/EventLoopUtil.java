@@ -53,12 +53,11 @@ public class EventLoopUtil {
         } else if (!enableBusyWait) {
             return new EpollEventLoopGroup(nThreads, threadFactory);
         } else {
-            EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(nThreads, threadFactory, () -> {
+            return new EpollEventLoopGroup(nThreads, threadFactory, () -> {
                 return (selectSupplier, hasTasks) -> {
                     return -3;
                 };
             });
-            return eventLoopGroup;
         }
     }
 

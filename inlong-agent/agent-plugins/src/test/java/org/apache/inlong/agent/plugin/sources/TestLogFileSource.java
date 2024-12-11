@@ -27,7 +27,7 @@ import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
@@ -74,15 +75,20 @@ public class TestLogFileSource {
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
     }
 
-    private LogFileSource getSource(int taskId, long offset) {
+    private LogFileSource getSource(int taskId, long lineOffset, long byteOffset, String dataContentStyle,
+            boolean isOffSetNew) {
         try {
-            String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, "csv", false, 0L, 0L,
+            String pattern;
+            String fileName;
+            boolean retry;
+            fileName = LOADER.getResource("test/20230928_1.txt").getPath();
+            pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
+            retry = false;
+            TaskProfile taskProfile = helper.getFileTaskProfile(taskId, pattern, dataContentStyle, retry, "", "",
                     TaskStateEnum.RUNNING, "D",
-                    "GMT+8:00", null);
-            String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
-            InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
-                    fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
+                    "GMT+8:00", Arrays.asList("ok"));
+            InstanceProfile instanceProfile = taskProfile.createInstanceProfile(fileName, taskProfile.getCycleUnit(),
+                    "20230928", AgentUtils.getCurrentTime());
             instanceProfile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(instanceProfile.getInstanceId()));
             LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
@@ -90,18 +96,22 @@ public class TestLogFileSource {
             Whitebox.setInternalState(source, "CORE_THREAD_PRINT_INTERVAL_MS", 0);
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
             Whitebox.setInternalState(source, "EMPTY_CHECK_COUNT_AT_LEAST", 3);
-            Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
-            if (offset > 0) {
+            Whitebox.setInternalState(source, "WAIT_TIMEOUT_MS", 10);
+            if (lineOffset > 0) {
+                String finalOffset = Long.toString(lineOffset);
+                if (isOffSetNew) {
+                    finalOffset += LogFileSource.OFFSET_SEP + byteOffset;
+                }
                 OffsetProfile offsetProfile = new OffsetProfile(instanceProfile.getTaskId(),
                         instanceProfile.getInstanceId(),
-                        Long.toString(offset), instanceProfile.get(INODE_INFO));
+                        finalOffset, instanceProfile.get(INODE_INFO));
                 OffsetManager.getInstance().setOffset(offsetProfile);
             }
             source.init(instanceProfile);
             source.start();
             return source;
         } catch (Exception e) {
-            LOGGER.error("source init error {}", e);
+            LOGGER.error("source init error", e);
             Assert.assertTrue("source init error", false);
         }
         return null;
@@ -124,7 +134,7 @@ public class TestLogFileSource {
         for (int i = 0; i < check.length; i++) {
             srcLen += check[i].getBytes(StandardCharsets.UTF_8).length;
         }
-        LogFileSource source = getSource(1, 0);
+        LogFileSource source = getSource(1, 0, 0, "csv", false);
         Message msg = source.read();
         int readLen = 0;
         int cnt = 0;
@@ -149,7 +159,7 @@ public class TestLogFileSource {
     }
 
     private void testCleanQueue() {
-        LogFileSource source = getSource(2, 0);
+        LogFileSource source = getSource(2, 0, 0, "csv", false);
         for (int i = 0; i < 2; i++) {
             source.read();
         }
@@ -160,16 +170,16 @@ public class TestLogFileSource {
     }
 
     private void testReadWithOffset() {
-        LogFileSource source = getSource(3, 1);
+        LogFileSource source = getSource(3, 1, 25, "csv", false);
         for (int i = 0; i < 2; i++) {
             Message msg = source.read();
-            Assert.assertTrue(msg != null);
+            Assert.assertEquals(new String(msg.getBody()), check[i + 1]);
         }
         Message msg = source.read();
         Assert.assertTrue(msg == null);
         source.destroy();
 
-        source = getSource(4, 3);
+        source = getSource(4, 3, 69, "csv", false);
         msg = source.read();
         Assert.assertTrue(msg == null);
         source.destroy();

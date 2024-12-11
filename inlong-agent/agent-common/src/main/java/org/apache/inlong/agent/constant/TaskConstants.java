@@ -22,11 +22,8 @@ package org.apache.inlong.agent.constant;
  */
 public class TaskConstants extends CommonConstants {
 
-    // job id
-    // public static final String JOB_ID = "job.id";
     public static final String TASK_ID = "task.id";
     public static final String INSTANCE_ID = "instance.id";
-    public static final String JOB_INSTANCE_ID = "job.instance.id";
     public static final String INSTANCE_CREATE_TIME = "instance.createTime";
     public static final String INSTANCE_MODIFY_TIME = "instance.modifyTime";
     public static final String TASK_GROUP_ID = "task.groupId";
@@ -36,9 +33,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_SOURCE = "task.source";
 
     public static final String TASK_CHANNEL = "task.channel";
-
-    public static final String TASK_CLASS = "task.taskClass";
-    public static final String INSTANCE_CLASS = "task.instance.class";
+    public static final String TASK_TYPE = "task.taskType";
     public static final String TASK_FILE_TRIGGER = "task.fileTask.trigger";
 
     // sink config
@@ -59,12 +54,12 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_CYCLE_UNIT = "task.cycleUnit";
     public static final String FILE_TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
     public static final String TASK_FILE_CONTENT_COLLECT_TYPE = "task.fileTask.contentCollectType";
-    public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
-    public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
-    public static final String SOURCE_FILTER_STREAMS = "task.fileTask.filterStreams";
-    public static final String TASK_RETRY = "task.fileTask.retry";
-    public static final String TASK_START_TIME = "task.fileTask.startTime";
-    public static final String TASK_END_TIME = "task.fileTask.endTime";
+    public static final String FILE_CONTENT_STYLE = "task.fileTask.dataContentStyle";
+    public static final String FILE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
+    public static final String FILE_FILTER_STREAMS = "task.fileTask.filterStreams";
+    public static final String TASK_RETRY = "task.retry";
+    public static final String FILE_TASK_TIME_FROM = "task.fileTask.dataTimeFrom";
+    public static final String FILE_TASK_TIME_TO = "task.fileTask.dataTimeTo";
     public static final String FILE_MAX_NUM = "task.fileTask.maxFileCount";
     public static final String PREDEFINE_FIELDS = "task.predefinedFields";
     public static final String TASK_AUDIT_VERSION = "task.auditVersion";
@@ -74,6 +69,22 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_KAFKA_BOOTSTRAP_SERVERS = "task.kafkaTask.bootstrap.servers";
     public static final String TASK_KAFKA_OFFSET = "task.kafkaTask.partition.offset";
     public static final String TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET = "task.kafkaTask.autoOffsetReset";
+
+    // COS task
+    public static final String COS_TASK_CYCLE_UNIT = "task.cosTask.cycleUnit";
+    public static final String COS_CONTENT_STYLE = "task.cosTask.contentStyle";
+    public static final String COS_MAX_NUM = "task.cosTask.maxFileCount";
+    public static final String COS_TASK_PATTERN = "task.cosTask.pattern";
+    public static final String TASK_COS_TIME_OFFSET = "task.cosTask.timeOffset";
+    public static final String COS_TASK_RETRY = "task.cosTask.retry";
+    public static final String COS_TASK_TIME_FROM = "task.cosTask.dataTimeFrom";
+    public static final String COS_TASK_TIME_TO = "task.cosTask.dataTimeTo";
+    public static final String COS_TASK_BUCKET_NAME = "task.cosTask.bucketName";
+    public static final String COS_TASK_SECRET_ID = "task.cosTask.secretId";
+    public static final String COS_TASK_SECRET_KEY = "task.cosTask.secretKey";
+    public static final String COS_TASK_REGION = "task.cosTask.region";
+    public static final String COS_DATA_SEPARATOR = "task.cosTask.dataSeparator";
+    public static final String COS_FILTER_STREAMS = "task.cosTask.filterStreams";
 
     /**
      * delimiter to split offset for different task

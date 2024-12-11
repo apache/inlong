@@ -19,106 +19,112 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.config.HostInfo;
+import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
-import com.sun.management.OperatingSystemMXBean;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class NettyClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
+    private static final LogCounter conExptCnt = new LogCounter(10, 100000, 60 * 1000L);
 
+    private final static int CLIENT_STATUS_INIT = -1;
+    private final static int CLIENT_STATUS_READY = 0;
+    private final static int CLIENT_STATUS_FROZEN = 1;
+    private final static int CLIENT_STATUS_DEAD = 2;
+    private final static int CLIENT_STATUS_BUSY = 3;
+
+    private final String callerId;
+    private final ProxyClientConfig configure;
+    private final Bootstrap bootstrap;
+    private final HostInfo hostInfo;
     private Channel channel = null;
-    private final ReentrantLock stateLock = new ReentrantLock();
+    private final AtomicInteger conStatus = new AtomicInteger(CLIENT_STATUS_INIT);
+    private final AtomicLong msgInFlight = new AtomicLong(0);
+    private final AtomicLong lstSendTime = new AtomicLong(0);
+    private final Semaphore reconSemaphore = new Semaphore(1, true);
+    private final AtomicLong lstReConTime = new AtomicLong(0);
 
-    private ConnState connState;
-    private ProxyClientConfig configure;
-    private Bootstrap bootstrap;
-    private String serverIP;
-    private int serverPort;
-
-    public String getServerIP() {
-        return serverIP;
-    }
-
-    public void setServerIP(String serverIP) {
-        this.serverIP = serverIP;
-    }
-
-    public NettyClient(Bootstrap bootstrap, String serverIP,
-            int serverPort, ProxyClientConfig configure) {
+    public NettyClient(String callerId,
+            Bootstrap bootstrap, HostInfo hostInfo, ProxyClientConfig configure) {
+        this.callerId = callerId;
         this.bootstrap = bootstrap;
-        this.serverIP = serverIP;
-        this.serverPort = serverPort;
+        this.hostInfo = hostInfo;
         this.configure = configure;
-        setState(ConnState.INIT);
+        setState(CLIENT_STATUS_INIT);
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
-    public boolean connect() {
-        // Connect to server.
-
-        setState(ConnState.INIT);
+    public boolean connect(boolean needPrint) {
+        // Initial status
+        this.setState(CLIENT_STATUS_INIT);
+        long curTime = System.currentTimeMillis();
         final CountDownLatch awaitLatch = new CountDownLatch(1);
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(
-                serverIP, serverPort));
+        // Build connect to server
+        ChannelFuture future = bootstrap.connect(
+                new InetSocketAddress(hostInfo.getHostName(), hostInfo.getPortNumber()));
         future.addListener(new ChannelFutureListener() {
 
             public void operationComplete(ChannelFuture arg0) throws Exception {
-                logger.info("connect ack! {}", serverIP);
                 awaitLatch.countDown();
             }
         });
-
         try {
             // Wait until the connection is built.
-            awaitLatch.await(configure.getConnectTimeoutMs(),
-                    TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            logger.error("create connect exception! {}", e.getMessage());
-            e.printStackTrace();
+            awaitLatch.await(configure.getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
+        } catch (Throwable ex) {
+            if (conExptCnt.shouldPrint()) {
+                logger.warn("NettyClient({}) connect to {} exception",
+                        callerId, hostInfo.getReferenceName(), ex);
+            }
             return false;
         }
-
         // Return if no connection is built.
         if (!future.isSuccess()) {
+            if (needPrint) {
+                logger.info("NettyClient({}) connect to {} failure, wast {}ms",
+                        callerId, hostInfo.getReferenceName(), (System.currentTimeMillis() - curTime));
+            }
             return false;
         }
-        channel = future.channel();
-        setState(ConnState.READY);
-        logger.info("ip {} stat {}", serverIP, connState);
+        this.channel = future.channel();
+        this.lstSendTime.set(System.currentTimeMillis());
+        this.setState(CLIENT_STATUS_READY);
+        if (needPrint) {
+            logger.info("NettyClient({}) connect to {} success, wast {}ms",
+                    callerId, channel.toString(), (System.currentTimeMillis() - curTime));
+        }
         return true;
     }
 
-    public boolean close() {
-        logger.debug("begin to close this channel{}", channel);
-        final CountDownLatch awaitLatch = new CountDownLatch(1);
+    public boolean close(boolean needPrint) {
         boolean ret = true;
+        String channelStr = "";
+        setState(CLIENT_STATUS_DEAD);
+        long curTime = System.currentTimeMillis();
+        final CountDownLatch awaitLatch = new CountDownLatch(1);
         try {
-            if (channel != null) {
+            if (channel == null) {
+                channelStr = hostInfo.getReferenceName();
+            } else {
+                channelStr = channel.toString();
                 ChannelFuture future = channel.close();
                 future.addListener(new ChannelFutureListener() {
 
-                    public void operationComplete(ChannelFuture arg0)
-                            throws Exception {
-                        logger.info("close client ack {}", serverIP);
+                    public void operationComplete(ChannelFuture arg0) throws Exception {
                         awaitLatch.countDown();
                     }
                 });
@@ -129,60 +135,127 @@ public class NettyClient {
                     ret = false;
                 }
             }
-        } catch (Exception e) {
-            logger.error("close connect {" + serverIP + ":" + serverPort + "} exception! {}", e.getMessage());
-            e.printStackTrace();
+        } catch (Throwable ex) {
+            if (conExptCnt.shouldPrint()) {
+                logger.warn("NettyClient({}) close {} exception", callerId, channelStr, ex);
+            }
             ret = false;
         } finally {
-            setState(ConnState.DEAD);
+            this.channel = null;
+            this.msgInFlight.set(0);
         }
-        logger.info("end to close {" + serverIP + ":" + serverPort + "} 's channel, bSuccess = " + ret);
+        if (needPrint) {
+            if (ret) {
+                logger.info("NettyClient({}) close {} success, wast {}ms",
+                        this.callerId, channelStr, (System.currentTimeMillis() - curTime));
+            } else {
+                logger.info("NettyClient({}) close {} failure, wast {}ms",
+                        this.callerId, channelStr, (System.currentTimeMillis() - curTime));
+            }
+        }
         return ret;
     }
 
-    public void reconnect() {
-        this.close();
-        this.connect();
-    }
-
-    public boolean isActive() {
-        stateLock.lock();
-        try {
-            return (connState == ConnState.READY && channel != null && channel.isOpen() && channel.isActive());
-        } catch (Exception e) {
-            logger.error("channel maybe null!{}", e.getMessage());
-            return false;
-        } finally {
-            stateLock.unlock();
-        }
-        // channel.isOpen();
-    }
-
-    private void setState(ConnState newState) {
-        stateLock.lock();
-        try {
-            connState = newState;
-        } catch (Exception e) {
-            logger.error("setState maybe error!{}", e.getMessage());
-        } finally {
-            stateLock.unlock();
-        }
-    }
-
-    private enum ConnState {
-        INIT, READY, FROZEN, DEAD, BUSY
-    }
-
     public ChannelFuture write(EncodeObject encodeObject) {
-        // TODO Auto-generated method stub
         ChannelFuture future = null;
         try {
             future = channel.writeAndFlush(encodeObject);
-        } catch (Exception e) {
-            logger.error("channel write error {}", e.getMessage());
-            e.printStackTrace();
+            this.lstSendTime.set(System.currentTimeMillis());
+        } catch (Throwable ex) {
+            if (conExptCnt.shouldPrint()) {
+                logger.warn("NettyClient({}) write {} exception", callerId, channel.toString(), ex);
+            }
         }
         return future;
+    }
+
+    public boolean reconnect(boolean needPrint) {
+        if (this.isActive()
+                || this.msgInFlight.get() > 0
+                || (System.currentTimeMillis() - this.lstReConTime.get()) < this.configure.getReConnectWaitMs()) {
+            return false;
+        }
+        if (reconSemaphore.tryAcquire()) {
+            try {
+                if (this.isActive()) {
+                    return true;
+                }
+                this.lstReConTime.set(System.currentTimeMillis());
+                this.close(false);
+                if (this.connect(false)) {
+                    if (needPrint) {
+                        logger.info("NettyClient({}) re-connect to {} success",
+                                callerId, this.channel.toString());
+                    }
+                    return true;
+                } else {
+                    if (needPrint) {
+                        logger.info("NettyClient({}) re-connect to {} failure",
+                                callerId, hostInfo.getReferenceName());
+                    }
+                    return false;
+                }
+            } finally {
+                reconSemaphore.release();
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public String getNodeAddress() {
+        return hostInfo.getReferenceName();
+    }
+
+    public String getServerIP() {
+        return hostInfo.getHostName();
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setFrozen(ChannelId channelId) {
+        if (this.channel != null && this.channel.id() == channelId) {
+            setState(CLIENT_STATUS_FROZEN);
+        }
+    }
+
+    public void setBusy(ChannelId channelId) {
+        if (this.channel != null && this.channel.id() == channelId) {
+            setState(CLIENT_STATUS_BUSY);
+        }
+    }
+
+    public boolean isActive() {
+        return ((this.conStatus.get() == CLIENT_STATUS_READY)
+                && channel != null && channel.isOpen() && channel.isActive());
+    }
+
+    public boolean isIdleClient(long curTime) {
+        return (curTime - this.lstSendTime.get() >= 30000L);
+    }
+
+    public boolean tryIncMsgInFlight() {
+        if (configure.getMaxMsgInFlightPerConn() > 0) {
+            if (msgInFlight.getAndIncrement() > configure.getMaxMsgInFlightPerConn()) {
+                msgInFlight.decrementAndGet();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void decMsgInFlight() {
+        if (configure.getMaxMsgInFlightPerConn() > 0) {
+            if (msgInFlight.decrementAndGet() < 0L) {
+                logger.warn("NettyClient({}) dec inflight({}) value  < 0", callerId, hostInfo.getReferenceName());
+            }
+        }
+    }
+
+    public long getMsgInFlight() {
+        return msgInFlight.get();
     }
 
     @Override
@@ -198,29 +271,21 @@ public class NettyClient {
         }
         NettyClient other = (NettyClient) obj;
         if (channel == null) {
-            if (other.channel != null) {
-                return false;
-            }
-        } else if (!channel.equals(other.channel)) {
-            return false;
+            return other.channel == null;
+        } else {
+            return channel.equals(other.channel);
         }
-        return true;
     }
 
-    public void setFrozen() {
-        // TODO Auto-generated method stub
-        setState(ConnState.FROZEN);
-
+    private void setState(int newState) {
+        int curState = conStatus.get();
+        if (curState == newState) {
+            return;
+        }
+        if (newState == CLIENT_STATUS_DEAD
+                || (curState == CLIENT_STATUS_INIT && newState == CLIENT_STATUS_READY)
+                || (curState == CLIENT_STATUS_READY && newState > 0)) {
+            this.conStatus.compareAndSet(curState, newState);
+        }
     }
-
-    public void setBusy() {
-        setState(ConnState.BUSY);
-    }
-
-    public double getWeight() {
-        OperatingSystemMXBean operatingSystemMXBean =
-                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        return operatingSystemMXBean.getSystemLoadAverage();
-    }
-
 }

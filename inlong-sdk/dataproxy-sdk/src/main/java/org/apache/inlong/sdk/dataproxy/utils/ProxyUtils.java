@@ -20,8 +20,8 @@ package org.apache.inlong.sdk.dataproxy.utils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,8 @@ public class ProxyUtils {
         }
         // Reserve space for attribute
         if (body.length > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
-            logger.debug("body length is too long, max length is {}", maxLen);
+            logger.debug("body length({}) > max length({}) - fixed attribute length({})",
+                    body.length, maxLen, ConfigConstants.RESERVED_ATTRIBUTE_LENGTH);
             return false;
         }
         return true;
@@ -126,11 +127,12 @@ public class ProxyUtils {
         int size = 0;
         for (byte[] body : bodyList) {
             size += body.length;
-            // Reserve space for attribute
-            if (size > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
-                logger.debug("body length is too long, max length is {}", maxLen);
-                return false;
-            }
+        }
+        // Reserve space for attribute
+        if (size > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
+            logger.debug("bodyList length({}) > max length({}) - fixed attribute length({})",
+                    size, maxLen, ConfigConstants.RESERVED_ATTRIBUTE_LENGTH);
+            return false;
         }
         return true;
     }
@@ -148,11 +150,11 @@ public class ProxyUtils {
      * @param clientConfig
      */
     public static void validClientConfig(ProxyClientConfig clientConfig) {
-        if (clientConfig.isNeedAuthentication()) {
-            if (Utils.isBlank(clientConfig.getUserName())) {
-                throw new IllegalArgumentException("Authentication require userName not Blank!");
+        if (clientConfig.isEnableAuthentication()) {
+            if (StringUtils.isBlank(clientConfig.getAuthSecretId())) {
+                throw new IllegalArgumentException("Authentication require secretId not Blank!");
             }
-            if (Utils.isBlank(clientConfig.getSecretKey())) {
+            if (StringUtils.isBlank(clientConfig.getAuthSecretKey())) {
                 throw new IllegalArgumentException("Authentication require secretKey not Blank!");
             }
         }

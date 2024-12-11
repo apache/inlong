@@ -25,6 +25,7 @@ import {
   TableOutlined,
   EditOutlined,
   DeleteOutlined,
+  AreaChartOutlined,
 } from '@ant-design/icons';
 import HighTable from '@/ui/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
@@ -36,6 +37,7 @@ import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { sinks } from '@/plugins/sinks';
 import { CommonInterface } from '../common';
+import DirtyModal from '@/ui/pages/common/DirtyModal';
 
 interface Props extends CommonInterface {
   inlongStreamId: string;
@@ -58,7 +60,12 @@ const Comp = ({ inlongGroupId, inlongStreamId, sinkMultipleEnable, readonly }: P
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     open: false,
   });
-
+  const [dirtyModal, setDirtyModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
+  const onOpenDirtyModal = useCallback(({ id }) => {
+    setDirtyModal({ open: true, id });
+  }, []);
   const {
     data,
     loading,
@@ -179,6 +186,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, sinkMultipleEnable, readonly }: P
               <Button type="link" onClick={() => onDelete(record)}>
                 {i18n.t('basic.Delete')}
               </Button>
+              <Button type="link" onClick={() => onOpenDirtyModal(record)}>
+                {i18n.t('meta.Sinks.DirtyData')}
+              </Button>
             </>
           ),
       } as any,
@@ -249,6 +259,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, sinkMultipleEnable, readonly }: P
                   <Button key="del" type="link" onClick={() => onDelete(item)}>
                     <DeleteOutlined />
                   </Button>,
+                  <Button type="link" onClick={() => onOpenDirtyModal(item)}>
+                    <AreaChartOutlined />
+                  </Button>,
                 ]}
               >
                 <span>
@@ -288,6 +301,15 @@ const Comp = ({ inlongGroupId, inlongStreamId, sinkMultipleEnable, readonly }: P
           setCreateModal({ open: false });
         }}
         onCancel={() => setCreateModal({ open: false })}
+      />
+      <DirtyModal
+        {...dirtyModal}
+        open={dirtyModal.open as boolean}
+        onOk={async () => {
+          await getList();
+          setDirtyModal({ open: false });
+        }}
+        onCancel={() => setDirtyModal({ open: false })}
       />
     </>
   );

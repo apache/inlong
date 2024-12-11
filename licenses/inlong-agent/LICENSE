@@ -541,6 +541,7 @@ MIT licenses
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+  com.qcloud:cos_api:jar:5.6.54 - cos-java-sdk (https://github.com/tencentyun/cos-java-sdk-v5), (MIT License)
   net.sourceforge.argparse4j:argparse4j:0.7.0 - argparse4j (https://github.com/argparse4j/argparse4j/tree/argparse4j-0.7.0), (MIT)
   org.bouncycastle:bcpkix-jdk15on:1.69 - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/java.html), (MIT License)
   org.bouncycastle:bcprov-ext-jdk15on:1.69 - Bouncy Castle Provider (https://www.bouncycastle.org/java.html), (MIT License)

@@ -54,9 +54,8 @@ public class HttpClientExample {
             proxyConfig = new ProxyClientConfig(localIP, requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
                     inlongGroupId, "admin", "inlong");// user and password of manager
-            proxyConfig.setInlongGroupId(inlongGroupId);
-            proxyConfig.setConfStoreBasePath(configBasePath);
-            proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
+            proxyConfig.setConfigStoreBasePath(configBasePath);
+            proxyConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
             proxyConfig.setDiscardOldMessage(true);
             proxyConfig.setProtocolType(ProtocolType.HTTP);
             sender = new HttpProxySender(proxyConfig);

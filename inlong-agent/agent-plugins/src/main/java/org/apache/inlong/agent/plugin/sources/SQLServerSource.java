@@ -24,8 +24,8 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.SqlServerConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.except.FileException;
+import org.apache.inlong.agent.plugin.sources.extend.DefaultExtendedHandler;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
-import org.apache.inlong.agent.plugin.sources.file.extend.DefaultExtendedHandler;
 
 import io.debezium.connector.sqlserver.SqlServerConnector;
 import io.debezium.connector.sqlserver.SqlServerConnectorConfig;

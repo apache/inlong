@@ -93,6 +93,11 @@
             <version>${kafka.clients.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>cos_api</artifactId>
+            <version>${cos.sdk.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
             <version>${debezium.version}</version>

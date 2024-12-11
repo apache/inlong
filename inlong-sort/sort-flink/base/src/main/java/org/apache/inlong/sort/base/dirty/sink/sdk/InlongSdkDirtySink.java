@@ -67,14 +67,14 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
                     .inlongStreamId(dataStreamId)
                     .dataflowId(dataflowId)
                     .dataTime(dirtyData.getDataTime())
-                    .serverType(dirtyData.getServerType().format())
+                    .serverType(dirtyData.getServerType())
                     .dirtyType(dirtyData.getDirtyType().format())
                     .dirtyMessage(dirtyData.getDirtyMessage())
                     .ext(dirtyData.getExtParams())
                     .data(dirtyMessage)
                     .build();
 
-            dirtySender.sendDirtyMessage(wrapper);
+            dirtySender.sendDirtyMessageAsync(wrapper);
         } catch (Throwable t) {
             log.error("failed to send dirty message to inlong sdk", t);
             if (!options.isIgnoreSideOutputErrors()) {

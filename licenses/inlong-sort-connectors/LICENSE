@@ -999,6 +999,23 @@ License : https://github.com/apache/flink/blob/master/LICENSE
 Source  : org.apache.flink:flink-connector-elasticsearch-base-1.5.4.jar (Please note that the software have been modified.)
 License : https://github.com/apache/flink/blob/master/LICENSE
 
+1.3.29 inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/reader/KafkaSourceReader.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/KafkaSource.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/source/KafkaSourceBuilder.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/DynamicKafkaDeserializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/DynamicKafkaRecordSerializationSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaConnectorOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaConnectorOptionsUtil.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicSink.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicSource.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/KafkaDynamicTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/ReducingUpsertSink.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/ReducingUpsertWriter.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/SinkBufferFlushMode.java
+       inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/kafka/src/main/java/org/apache/inlong/sort/kafka/table/UpsertKafkaDynamicTableFactory.java
+Source  : org.apache.flink:flink-connector-kafka:3.2.0 (Please note that the software have been modified.)
+License : https://github.com/apache/flink-connector-kafka/blob/main/LICENSE
+
 =======================================================================
 Apache InLong Subcomponents:
 

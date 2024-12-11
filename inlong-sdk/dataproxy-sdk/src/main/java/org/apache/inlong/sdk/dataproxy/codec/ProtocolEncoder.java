@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.dataproxy.codec;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
@@ -28,6 +28,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -78,18 +79,18 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
         try {
             String endAttr = object.getCommonattr();
             if (object.isAuth()) {
-                if (Utils.isNotBlank(endAttr)) {
+                if (StringUtils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
                 long timestamp = System.currentTimeMillis();
                 int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
-                endAttr = endAttr + "_userName=" + object.getUserName() + "&_clientIP=" + Utils.getLocalIp()
-                        + "&_signature=" + Utils.generateSignature(object.getUserName(),
+                endAttr = endAttr + "_userName=" + object.getUserName() + "&_clientIP=" + IpUtils.getLocalIp()
+                        + "&_signature=" + IpUtils.generateSignature(object.getUserName(),
                                 timestamp, nonce, object.getSecretKey())
                         + "&_timeStamp=" + timestamp + "&_nonce=" + nonce;
             }
-            if (Utils.isNotBlank(object.getMsgUUID())) {
-                if (Utils.isNotBlank(endAttr)) {
+            if (StringUtils.isNotBlank(object.getMsgUUID())) {
+                if (StringUtils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
                 endAttr = endAttr + "msgUUID=" + object.getMsgUUID();
@@ -98,16 +99,17 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             if (object.isAuth()) {
                 msgType |= FLAG_ALLOW_AUTH;
             }
-            int totalLength = 1 + 4 + 1 + 4 + 2 + endAttr.getBytes("utf8").length + 2;
+            byte[] attrData = endAttr.getBytes(StandardCharsets.UTF_8);
+            int totalLength = 1 + 4 + 1 + 4 + 2 + attrData.length + 2;
             buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
             buf.writeInt(totalLength);
             buf.writeByte(msgType);
             buf.writeInt((int) object.getDt());
             buf.writeByte(1);
             buf.writeInt(0);
-            buf.writeShort(endAttr.getBytes("utf8").length);
-            if (endAttr.getBytes("utf8").length > 0) {
-                buf.writeBytes(endAttr.getBytes("utf8"));
+            buf.writeShort(attrData.length);
+            if (attrData.length > 0) {
+                buf.writeBytes(attrData);
             }
             buf.writeShort(0xee01);
         } catch (Throwable ex) {
@@ -129,7 +131,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             if (object.isEncrypt()) {
                 EncryptConfigEntry encryptEntry = object.getEncryptEntry();
                 if (encryptEntry != null) {
-                    if (Utils.isNotBlank(endAttr)) {
+                    if (StringUtils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
                     EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
@@ -140,13 +142,13 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
             }
             if (!object.isGroupIdTransfer()) {
-                if (Utils.isNotBlank(endAttr)) {
+                if (StringUtils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
                 endAttr = (endAttr + "groupId=" + object.getGroupId() + "&streamId=" + object.getStreamId());
             }
-            if (Utils.isNotBlank(object.getMsgUUID())) {
-                if (Utils.isNotBlank(endAttr)) {
+            if (StringUtils.isNotBlank(object.getMsgUUID())) {
+                if (StringUtils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
                 endAttr = endAttr + "msgUUID=" + object.getMsgUUID();
@@ -159,7 +161,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             if (object.isCompress()) {
                 msgType |= FLAG_ALLOW_COMPRESS;
             }
-            totalLength = totalLength + body.length + endAttr.getBytes("utf8").length;
+            byte[] attrData = endAttr.getBytes(StandardCharsets.UTF_8);
+            totalLength = totalLength + body.length + attrData.length;
             buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
             buf.writeInt(totalLength);
             buf.writeByte(msgType);
@@ -180,8 +183,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             buf.writeInt(body.length);
             buf.writeBytes(body);
 
-            buf.writeShort(endAttr.getBytes("utf8").length);
-            buf.writeBytes(endAttr.getBytes("utf8"));
+            buf.writeShort(attrData.length);
+            buf.writeBytes(attrData);
             buf.writeShort(0xee01);
         }
         return buf;
@@ -206,7 +209,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     ByteArrayOutputStream data = new ByteArrayOutputStream();
                     for (byte[] entry : object.getBodylist()) {
                         if (totalCnt++ > 0) {
-                            data.write("\n".getBytes("utf8"));
+                            data.write(AttributeConstants.LINE_FEED_SEP.getBytes(StandardCharsets.UTF_8));
                         }
                         data.write(entry);
                     }
@@ -258,7 +261,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 if (object.isEncrypt()) {
                     EncryptConfigEntry encryptEntry = object.getEncryptEntry();
                     if (encryptEntry != null) {
-                        if (Utils.isNotBlank(msgAttrs)) {
+                        if (StringUtils.isNotBlank(msgAttrs)) {
                             msgAttrs = msgAttrs + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
@@ -268,8 +271,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
-                if (Utils.isNotBlank(object.getMsgUUID())) {
-                    if (Utils.isNotBlank(msgAttrs)) {
+                if (StringUtils.isNotBlank(object.getMsgUUID())) {
+                    if (StringUtils.isNotBlank(msgAttrs)) {
                         msgAttrs = msgAttrs + "&";
                     }
                     msgAttrs = msgAttrs + "msgUUID=" + object.getMsgUUID();
@@ -279,14 +282,15 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 if (object.isEncrypt()) {
                     msgType |= FLAG_ALLOW_ENCRYPT;
                 }
-                totalLength = totalLength + body.length + msgAttrs.getBytes("utf8").length;
+                byte[] attrData = msgAttrs.getBytes(StandardCharsets.UTF_8);
+                totalLength = totalLength + body.length + attrData.length;
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeInt(body.length);
                 buf.writeBytes(body);
-                buf.writeInt(msgAttrs.getBytes("utf8").length);
-                buf.writeBytes(msgAttrs.getBytes("utf8"));
+                buf.writeInt(attrData.length);
+                buf.writeBytes(attrData);
             }
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
@@ -322,7 +326,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 if (object.isEncrypt()) {
                     EncryptConfigEntry encryptEntry = object.getEncryptEntry();
                     if (encryptEntry != null) {
-                        if (Utils.isNotBlank(msgAttrs)) {
+                        if (StringUtils.isNotBlank(msgAttrs)) {
                             msgAttrs = msgAttrs + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
@@ -332,8 +336,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
-                if (Utils.isNotBlank(object.getMsgUUID())) {
-                    if (Utils.isNotBlank(msgAttrs)) {
+                if (StringUtils.isNotBlank(object.getMsgUUID())) {
+                    if (StringUtils.isNotBlank(msgAttrs)) {
                         msgAttrs = msgAttrs + "&";
                     }
                     msgAttrs = msgAttrs + "msgUUID=" + object.getMsgUUID();
@@ -343,14 +347,15 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 if (object.isEncrypt()) {
                     msgType |= FLAG_ALLOW_ENCRYPT;
                 }
-                totalLength = totalLength + body.length + msgAttrs.getBytes("utf8").length;
+                byte[] attrData = msgAttrs.getBytes(StandardCharsets.UTF_8);
+                totalLength = totalLength + body.length + attrData.length;
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeInt(body.length);
                 buf.writeBytes(body);
-                buf.writeInt(msgAttrs.getBytes("utf8").length);
-                buf.writeBytes(msgAttrs.getBytes("utf8"));
+                buf.writeInt(attrData.length);
+                buf.writeBytes(attrData);
             }
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {

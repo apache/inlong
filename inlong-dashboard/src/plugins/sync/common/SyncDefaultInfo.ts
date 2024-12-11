@@ -151,7 +151,6 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [{ required: true }],
     props: values => {
       return {
-        disabled: values.scheduleEngine === 'DolphinScheduler',
         options: [
           {
             label: i18n.t('meta.Synchronize.Conventional'),

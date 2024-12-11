@@ -28,10 +28,9 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
-import org.apache.inlong.sdk.dataproxy.threads.ManagerFetcherThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,7 @@ public class DefaultMessageSender implements MessageSender {
     private static final ConcurrentHashMap<Integer, DefaultMessageSender> CACHE_SENDER =
             new ConcurrentHashMap<>();
     private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
-    private static ManagerFetcherThread managerFetcherThread;
-    private static final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+    private static final SequentialID idGenerator = new SequentialID();
     private final Sender sender;
     private final IndexCollectThread indexCol;
     /* Store index <groupId_streamId,cnt> */
@@ -65,7 +63,7 @@ public class DefaultMessageSender implements MessageSender {
     private boolean isGroupIdTransfer = false;
     private boolean isReport = false;
     private boolean isSupportLF = false;
-    private int maxPacketLength;
+    private int maxPacketLength = -1;
     private int cpsSize = ConfigConstants.COMPRESS_SIZE;
     private final int senderMaxAttempt;
 
@@ -76,6 +74,7 @@ public class DefaultMessageSender implements MessageSender {
     public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
+        sender.start();
         groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         senderMaxAttempt = configure.getSenderMaxAttempt();
@@ -110,18 +109,20 @@ public class DefaultMessageSender implements MessageSender {
         }
         LOGGER.info("Initial tcp sender, configure is {}", configure);
         // initial sender object
-        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
-                Utils.getLocalIp(), null);
-        proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
-        ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
-        DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());
+        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure);
+        Tuple2<ProxyConfigEntry, String> result =
+                proxyConfigManager.getGroupIdConfigure(true);
+        if (result.getF0() == null) {
+            throw new Exception(result.getF1());
+        }
+        DefaultMessageSender sender = CACHE_SENDER.get(result.getF0().getClusterId());
         if (sender != null) {
             return sender;
         } else {
             DefaultMessageSender tmpMessageSender =
                     new DefaultMessageSender(configure, selfDefineFactory);
-            tmpMessageSender.setMaxPacketLength(entry.getMaxPacketLength());
-            CACHE_SENDER.put(entry.getClusterId(), tmpMessageSender);
+            tmpMessageSender.setMaxPacketLength(result.getF0().getMaxPacketLength());
+            CACHE_SENDER.put(result.getF0().getClusterId(), tmpMessageSender);
             return tmpMessageSender;
         }
     }

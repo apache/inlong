@@ -71,11 +71,13 @@ public class MySQLSensitiveUrlUtils {
             }
             resultUrl = resultUrl.replaceAll(InlongConstants.REGEX_WHITESPACE, InlongConstants.EMPTY);
 
-            for (String key : SENSITIVE_REPLACE_PARAM_MAP.keySet()) {
-                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key + InlongConstants.EQUAL + "true",
+            String sensitiveKey = containSensitiveKey(resultUrl);
+            while (StringUtils.isNotBlank(sensitiveKey)) {
+                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, sensitiveKey + InlongConstants.EQUAL + "true",
                         InlongConstants.EMPTY);
-                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key + InlongConstants.EQUAL + "yes",
+                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, sensitiveKey + InlongConstants.EQUAL + "yes",
                         InlongConstants.EMPTY);
+                sensitiveKey = containSensitiveKey(resultUrl);
             }
             if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
                 StringBuilder builder = new StringBuilder();
@@ -113,5 +115,15 @@ public class MySQLSensitiveUrlUtils {
             throw new BaseException(String.format("Failed to filter MySQL sensitive URL: %s, error: %s",
                     url, e.getMessage()));
         }
+    }
+
+    public static String containSensitiveKey(String url) {
+        for (String key : SENSITIVE_REPLACE_PARAM_MAP.keySet()) {
+            if (url.contains(key + InlongConstants.EQUAL + "true")
+                    || url.contains(key + InlongConstants.EQUAL + "yes")) {
+                return key;
+            }
+        }
+        return null;
     }
 }

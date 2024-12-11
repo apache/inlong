@@ -20,32 +20,30 @@ package org.apache.inlong.sdk.dataproxy.network;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QueueObject {
 
+    private final NettyClient client;
+    private final AtomicBoolean done = new AtomicBoolean(false);
     private final long sendTimeInMillis;
     private final SendMessageCallback callback;
     private final long timeoutInMillis;
     private final int size;
 
-    public QueueObject(long sendTimeInMillis,
-            SendMessageCallback callback,
-            long timeout,
-            TimeUnit timeUnit) {
-        this.sendTimeInMillis = sendTimeInMillis;
-        this.callback = callback;
-        this.timeoutInMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
-        this.size = 1;
-    }
-
-    public QueueObject(long sendTimeInMillis,
-            SendMessageCallback callback, int size,
-            long timeout,
-            TimeUnit timeUnit) {
+    public QueueObject(NettyClient client, long sendTimeInMillis,
+            SendMessageCallback callback, int size, long timeout, TimeUnit timeUnit) {
+        this.client = client;
         this.sendTimeInMillis = sendTimeInMillis;
         this.callback = callback;
         this.timeoutInMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
         this.size = size;
+    }
+
+    public void done() {
+        if (client != null && done.compareAndSet(false, true)) {
+            client.decMsgInFlight();
+        }
     }
 
     public long getSendTimeInMillis() {

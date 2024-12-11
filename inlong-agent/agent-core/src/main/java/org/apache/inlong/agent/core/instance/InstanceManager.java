@@ -65,6 +65,7 @@ public class InstanceManager extends AbstractDaemon {
     private final ConcurrentHashMap<String, Instance> instanceMap;
     // instance profile queue.
     private final BlockingQueue<InstanceAction> actionQueue;
+    private final BlockingQueue<InstanceAction> addActionQueue;
     // task thread pool;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -125,6 +126,7 @@ public class InstanceManager extends AbstractDaemon {
         instanceMap = new ConcurrentHashMap<>();
         this.instanceLimit = instanceLimit;
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+        addActionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
     public String getTaskId() {
@@ -147,6 +149,9 @@ public class InstanceManager extends AbstractDaemon {
         if (action == null) {
             return false;
         }
+        if (isFull()) {
+            return false;
+        }
         return actionQueue.offer(action);
     }
 
@@ -163,7 +168,8 @@ public class InstanceManager extends AbstractDaemon {
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
                     printInstanceState();
-                    dealWithActionQueue(actionQueue);
+                    dealWithActionQueue();
+                    dealWithAddActionQueue();
                     keepPaceWithStore();
                     String inlongGroupId = taskFromStore.getInlongGroupId();
                     String inlongStreamId = taskFromStore.getInlongStreamId();
@@ -251,16 +257,18 @@ public class InstanceManager extends AbstractDaemon {
         });
     }
 
-    private void dealWithActionQueue(BlockingQueue<InstanceAction> queue) {
+    private void dealWithActionQueue() {
         while (isRunnable()) {
             try {
-                InstanceAction action = queue.poll();
+                InstanceAction action = actionQueue.poll();
                 if (action == null) {
                     break;
                 }
                 switch (action.getActionType()) {
                     case ADD:
-                        addInstance(action.getProfile());
+                        if (!addActionQueue.offer(action)) {
+                            LOGGER.error("it should never happen: addQueue is full");
+                        }
                         break;
                     case FINISH:
                         finishInstance(action.getProfile());
@@ -276,6 +284,20 @@ public class InstanceManager extends AbstractDaemon {
                 LOGGER.error("dealWithActionQueue", ex);
                 ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
             }
+        }
+    }
+
+    private void dealWithAddActionQueue() {
+        while (isRunnable()) {
+            if (instanceMap.size() > instanceLimit) {
+                LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+                return;
+            }
+            InstanceAction action = addActionQueue.poll();
+            if (action == null) {
+                break;
+            }
+            addInstance(action.getProfile());
         }
     }
 
@@ -317,12 +339,6 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addInstance(InstanceProfile profile) {
-        if (instanceMap.size() > instanceLimit) {
-            LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
-            actionQueue.offer(new InstanceAction(ActionType.ADD, profile));
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
-            return;
-        }
         LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
         if (!shouldAddAgain(profile.getInstanceId(), profile.getFileUpdateTime())) {
             LOGGER.info("addInstance shouldAddAgain returns false skip taskId {} instanceId {}", taskId,
@@ -373,6 +389,15 @@ public class InstanceManager extends AbstractDaemon {
         LOGGER.info("delete instance from memory: taskId {} instanceId {}", taskId, instance.getInstanceId());
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_MEM, inlongGroupId, inlongStreamId,
                 instance.getProfile().getSinkDataTime(), 1, 1, auditVersion);
+    }
+
+    private void notifyDestroyInstance(String instanceId) {
+        Instance instance = instanceMap.get(instanceId);
+        if (instance == null) {
+            LOGGER.error("try to notify destroy instance but not found: taskId {} instanceId {}", taskId, instanceId);
+            return;
+        }
+        instance.notifyDestroy();
     }
 
     private void addToStore(InstanceProfile profile, boolean addNew) {
@@ -428,11 +453,14 @@ public class InstanceManager extends AbstractDaemon {
                         instanceProfile.getSinkDataTime(), 1, 1, auditVersion);
             }
         } catch (Throwable t) {
-            LOGGER.error("add instance error {}", t.getMessage());
+            LOGGER.error("add instance error.", t);
         }
     }
 
     private void stopAllInstances() {
+        instanceMap.values().forEach((instance) -> {
+            notifyDestroyInstance(instance.getInstanceId());
+        });
         instanceMap.values().forEach((instance) -> {
             deleteFromMemory(instance.getInstanceId());
         });
@@ -459,7 +487,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     public boolean isFull() {
-        return (instanceMap.size() + actionQueue.size()) >= instanceLimit * reserveCoefficient;
+        return (actionQueue.size() + addActionQueue.size()) >= ACTION_QUEUE_CAPACITY * reserveCoefficient;
     }
 
     public long getFinishedInstanceCount() {

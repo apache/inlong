@@ -25,10 +25,10 @@ public class HostInfo implements Comparable<HostInfo>, java.io.Serializable {
     private final String hostName;
     private final int portNumber;
 
-    public HostInfo(String referenceName, String hostName, int portNumber) {
-        this.referenceName = referenceName;
+    public HostInfo(String hostName, int portNumber) {
         this.hostName = hostName;
         this.portNumber = portNumber;
+        this.referenceName = hostName + ":" + portNumber;
     }
 
     public String getReferenceName() {

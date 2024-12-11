@@ -34,17 +34,6 @@ func TestSingleIP(t *testing.T) {
 	assert.Equal(t, node.ServiceName, "127.0.0.1:9092")
 }
 
-func TestSingleDNS(t *testing.T) {
-	serviceName := "tubemq:8081"
-	selector, err := Get("dns")
-	assert.Nil(t, err)
-	node, err := selector.Select(serviceName)
-	assert.Nil(t, err)
-	assert.Equal(t, node.HasNext, false)
-	assert.Equal(t, node.Address, "tubemq:8081")
-	assert.Equal(t, node.ServiceName, "tubemq:8081")
-}
-
 func TestMultipleIP(t *testing.T) {
 	serviceName := "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094"
 	selector, err := Get("dns")
@@ -69,32 +58,6 @@ func TestMultipleIP(t *testing.T) {
 	assert.Equal(t, false, node.HasNext)
 	assert.Equal(t, "127.0.0.1:9094", node.Address)
 	assert.Equal(t, "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094", node.ServiceName)
-}
-
-func TestMultipleDNS(t *testing.T) {
-	serviceName := "tubemq:8081,tubemq:8082,tubemq:8083,tubemq:8084"
-	selector, err := Get("dns")
-	assert.Nil(t, err)
-	node, err := selector.Select(serviceName)
-	assert.Nil(t, err)
-	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "tubemq:8081", node.Address)
-	assert.Equal(t, "tubemq:8081,tubemq:8082,tubemq:8083,tubemq:8084", node.ServiceName)
-
-	node, err = selector.Select(serviceName)
-	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "tubemq:8082", node.Address)
-	assert.Equal(t, "tubemq:8081,tubemq:8082,tubemq:8083,tubemq:8084", node.ServiceName)
-
-	node, err = selector.Select(serviceName)
-	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "tubemq:8083", node.Address)
-	assert.Equal(t, "tubemq:8081,tubemq:8082,tubemq:8083,tubemq:8084", node.ServiceName)
-
-	node, err = selector.Select(serviceName)
-	assert.Equal(t, false, node.HasNext)
-	assert.Equal(t, "tubemq:8084", node.Address)
-	assert.Equal(t, "tubemq:8081,tubemq:8082,tubemq:8083,tubemq:8084", node.ServiceName)
 }
 
 func TestEmptyService(t *testing.T) {

@@ -136,10 +136,10 @@ public class TestSQLServerSource {
         final String tableName = "test_source";
         final String serverName = "server-01";
 
-        TaskProfile taskProfile = helper.getTaskProfile(1, "", "csv", false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+        TaskProfile taskProfile = helper.getFileTaskProfile(1, "", "csv", false, "", "", TaskStateEnum.RUNNING, "D",
                 "GMT+8:00", null);
-        instanceProfile = taskProfile.createInstanceProfile("",
-                "", taskProfile.getCycleUnit(), "20240725", AgentUtils.getCurrentTime());
+        instanceProfile = taskProfile.createInstanceProfile("", taskProfile.getCycleUnit(), "20240725",
+                AgentUtils.getCurrentTime());
         instanceProfile.set(CommonConstants.PROXY_INLONG_GROUP_ID, groupId);
         instanceProfile.set(CommonConstants.PROXY_INLONG_STREAM_ID, streamId);
         instanceProfile.set(TaskConstants.TASK_SQLSERVER_USER, username);
