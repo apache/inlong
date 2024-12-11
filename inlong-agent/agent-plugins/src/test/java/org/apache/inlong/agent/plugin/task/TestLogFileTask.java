@@ -22,7 +22,7 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.task.file.LogFileTask;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileTask;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
 import org.junit.AfterClass;
@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LogFileTask.class)
+@PrepareForTest(FileTask.class)
 @PowerMockIgnore({"javax.management.*"})
 public class TestLogFileTask {
 
@@ -103,11 +103,11 @@ public class TestLogFileTask {
         TaskProfile taskProfile =
                 helper.getFileTaskProfile(taskId, pattern, "csv", true, startTime, endTime, TaskStateEnum.RUNNING,
                         cycle, "GMT+8:00", null);
-        LogFileTask dayTask = null;
+        FileTask dayTask = null;
         final List<String> fileName = new ArrayList();
         final List<String> dataTime = new ArrayList();
         try {
-            dayTask = PowerMockito.spy(new LogFileTask());
+            dayTask = PowerMockito.spy(new FileTask());
             PowerMockito.doAnswer(invocation -> {
                 fileName.add(invocation.getArgument(0));
                 dataTime.add(invocation.getArgument(1));

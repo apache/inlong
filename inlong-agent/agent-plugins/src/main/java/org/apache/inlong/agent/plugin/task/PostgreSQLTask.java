@@ -41,7 +41,6 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_USER;
 public class PostgreSQLTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLTask.class);
-    public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
     private boolean isAdded = false;
     public static final int DEFAULT_INSTANCE_LIMIT = 1;
@@ -98,8 +97,8 @@ public class PostgreSQLTask extends AbstractTask {
             return list;
         }
         String dataTime = LocalDateTime.now().format(dateTimeFormatter);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_KAFKA_INSTANCE, instanceId,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(instanceId, CycleUnitType.HOUR, dataTime,
+                AgentUtils.getCurrentTime());
         list.add(instanceProfile);
         this.isAdded = true;
         return list;

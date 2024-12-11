@@ -22,7 +22,7 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.task.cos.COSTask;
+import org.apache.inlong.agent.plugin.task.logcollection.cos.COSTask;
 import org.apache.inlong.agent.plugin.utils.cos.COSUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -204,20 +204,20 @@ public class TestCOSTask {
         TaskProfile taskProfile = helper.getCOSTaskProfile(taskId, pattern, "csv", true, startTime, endTime,
                 TaskStateEnum.RUNNING,
                 cycle, "GMT+8:00", null);
-        COSTask task = null;
+        COSTask fileTask = null;
         final List<String> fileName = new ArrayList();
         final List<String> dataTime = new ArrayList();
         try {
-            task = PowerMockito.spy(new COSTask());
+            fileTask = PowerMockito.spy(new COSTask());
             PowerMockito.doAnswer(invocation -> {
                 fileName.add(invocation.getArgument(0));
                 dataTime.add(invocation.getArgument(1));
                 return null;
-            }).when(task, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
-            Assert.assertTrue(task.isProfileValid(taskProfile));
+            }).when(fileTask, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
+            Assert.assertTrue(fileTask.isProfileValid(taskProfile));
             manager.getTaskStore().storeTask(taskProfile);
-            task.init(manager, taskProfile, manager.getInstanceBasicStore());
-            EXECUTOR_SERVICE.submit(task);
+            fileTask.init(manager, taskProfile, manager.getInstanceBasicStore());
+            EXECUTOR_SERVICE.submit(fileTask);
         } catch (Exception e) {
             LOGGER.error("source init error", e);
             Assert.assertTrue("source init error", false);
@@ -228,6 +228,6 @@ public class TestCOSTask {
             Assert.assertEquals(0, fileName.get(i).compareTo(srcKeys.get(i)));
             Assert.assertEquals(0, dataTime.get(i).compareTo(srcDataTimes.get(i)));
         }
-        task.destroy();
+        fileTask.destroy();
     }
 }

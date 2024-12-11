@@ -15,13 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task;
+package org.apache.inlong.agent.plugin.task.logcollection.local;
 
-import org.apache.inlong.agent.plugin.task.file.LogFileTask;
+import java.io.File;
+import java.util.Comparator;
 
-/**
- * Directory trigger with format date.
- */
-public class FormatDateLogFileTask extends LogFileTask {
+public class FileTimeComparator implements Comparator<File> {
+
+    @Override
+    public int compare(File f1, File f2) {
+        if (f1.lastModified() < f2.lastModified()) {
+            return -1;
+        } else if (f1.lastModified() == f2.lastModified()) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
 
 }
