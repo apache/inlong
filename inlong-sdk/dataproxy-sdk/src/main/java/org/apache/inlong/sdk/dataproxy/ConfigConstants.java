@@ -39,7 +39,7 @@ public class ConfigConstants {
     public static final int VAL_MAX_CONFIG_SYNC_INTERVAL_MIN = 30;
     public static final long VAL_UNIT_MIN_TO_MS = 60 * 1000L;
     // config info sync max retry if failure
-    public static final int VAL_DEF_RETRY_IF_CONFIG_SYNC_FAIL = 3;
+    public static final int VAL_DEF_RETRY_IF_CONFIG_SYNC_FAIL = 2;
     public static final int VAL_MAX_RETRY_IF_CONFIG_SYNC_FAIL = 5;
     // cache config expired time in ms
     public static final long VAL_DEF_CACHE_CONFIG_EXPIRED_MS = 20 * 60 * 1000L;
@@ -48,7 +48,7 @@ public class ConfigConstants {
     public static final long VAL_MIN_FORCE_CHOOSE_INR_MS = 30 * 1000L;
 
     // connection timeout in milliseconds
-    public static final int VAL_DEF_CONNECT_TIMEOUT_MS = 10000;
+    public static final int VAL_DEF_CONNECT_TIMEOUT_MS = 8000;
     public static final int VAL_MIN_CONNECT_TIMEOUT_MS = 2000;
     public static final int VAL_MAX_CONNECT_TIMEOUT_MS = 60000;
     public static final int VAL_DEF_CONNECT_CLOSE_DELAY_MS = 500;
@@ -56,9 +56,22 @@ public class ConfigConstants {
     public static final int VAL_DEF_SOCKET_TIMEOUT_MS = 20000;
     public static final int VAL_MIN_SOCKET_TIMEOUT_MS = 2000;
     public static final int VAL_MAX_SOCKET_TIMEOUT_MS = 60000;
+    // active connects
+    public static final int VAL_DEF_ALIVE_CONNECTIONS = 6;
+    public static final int VAL_MIN_ALIVE_CONNECTIONS = 1;
+    // request timeout in milliseconds
+    public static final long VAL_DEF_REQUEST_TIMEOUT_MS = 10000L;
+    public static final long VAL_MIN_REQUEST_TIMEOUT_MS = 500L;
+    // reconnect wait ms
+    public static final long VAL_DEF_RECONNECT_WAIT_MS = 1000L;
+    public static final long VAL_MAX_RECONNECT_WAIT_MS = 180000L;
+    // socket buffer size
+    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
+    // max inflight msg count per connection
+    public static final long MAX_INFLIGHT_MSG_COUNT_PER_CONNECTION = 10000L;
 
-    public static final int ALIVE_CONNECTIONS = 3;
-    public static final int MAX_TIMEOUT_CNT = 3;
+    public static final int MAX_TIMEOUT_CNT = 10;
     public static final int LOAD_THRESHOLD = 0;
     public static final int CYCLE = 30;
 
@@ -81,23 +94,12 @@ public class ConfigConstants {
 
     public static final int MAX_LINE_CNT = 30;
 
-    // request timeout in milliseconds
-    public static final long VAL_DEF_REQUEST_TIMEOUT_MS = 10000L;
-    public static final long VAL_MIN_REQUEST_TIMEOUT_MS = 500L;
-
-    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
-    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
-
     public static final String RECEIVE_BUFFER_SIZE = "receiveBufferSize";
     public static final String SEND_BUFFER_SIZE = "sendBufferSize";
 
     public static final int FLAG_ALLOW_AUTH = 1 << 7;
     public static final int FLAG_ALLOW_ENCRYPT = 1 << 6;
     public static final int FLAG_ALLOW_COMPRESS = 1 << 5;
-
-    public static LoadBalance DEFAULT_LOAD_BALANCE = LoadBalance.ROBIN;
-    public static int DEFAULT_VIRTUAL_NODE = 1000;
-    public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
 
     public static int DEFAULT_SENDER_MAX_ATTEMPT = 1;
 

@@ -442,8 +442,6 @@ public class ProxyConfigManager extends Thread {
             newBusInfoList = new ArrayList<>(proxyInfoList.size());
             newBusInfoList.addAll(proxyInfoList);
         } else {
-            /* Initialize the current nodes information list first. */
-            clientManager.setLoadThreshold(proxyEntry.getLoad());
             newSwitchStat = proxyEntry.getSwitchStat();
             newBusInfoList = new ArrayList<>(proxyEntry.getSize());
             for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
@@ -456,7 +454,7 @@ public class ProxyConfigManager extends Thread {
         if (nodeChanged || newSwitchStat != oldStat
                 || (System.currentTimeMillis() - lstUpdateTime) >= clientConfig.getForceReChooseInrMs()) {
             proxyInfoList = newBusInfoList;
-            clientManager.setProxyInfoList(proxyInfoList);
+            clientManager.updateProxyInfoList(nodeChanged, proxyInfoList);
             lstUpdateTime = System.currentTimeMillis();
             oldStat = newSwitchStat;
         }
