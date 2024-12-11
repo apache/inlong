@@ -74,6 +74,7 @@ public class DefaultMessageSender implements MessageSender {
     public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
+        sender.start();
         groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         senderMaxAttempt = configure.getSenderMaxAttempt();

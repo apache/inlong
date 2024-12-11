@@ -57,6 +57,9 @@ public class SyncMessageCallable implements Callable<SendResult> {
 
     public SendResult call() throws Exception {
         try {
+            if (!client.getChannel().isWritable()) {
+                return SendResult.WRITE_OVER_WATERMARK;
+            }
             ChannelFuture channelFuture = client.write(encodeObject);
             awaitLatch.await(timeout, timeUnit);
         } catch (Throwable ex) {

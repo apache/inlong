@@ -44,12 +44,12 @@ public class ProxyClientConfig {
     private boolean enableAuthentication = false;
     private String authSecretId = "";
     private String authSecretKey = "";
+    private String inlongGroupId;
+    private int aliveConnections = ConfigConstants.VAL_DEF_ALIVE_CONNECTIONS;
 
-    private int aliveConnections;
     private int syncThreadPoolSize;
     private int asyncCallbackSize;
 
-    private String inlongGroupId;
     private boolean isNeedDataEncry = false;
     private String rsaPubKeyUrl = "";
     private String tlsServerCertFilePathAndName;
@@ -68,6 +68,14 @@ public class ProxyClientConfig {
     // connect close wait period in milliseconds
     private long conCloseWaitPeriodMs =
             ConfigConstants.VAL_DEF_REQUEST_TIMEOUT_MS + ConfigConstants.VAL_DEF_CONNECT_CLOSE_DELAY_MS;
+    // client reconnect wait period in ms
+    private long reConnectWaitMs = ConfigConstants.VAL_DEF_RECONNECT_WAIT_MS;
+    // socket receive buffer
+    private int recvBufferSize = ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE;
+    // socket send buffer
+    private int sendBufferSize = ConfigConstants.DEFAULT_SEND_BUFFER_SIZE;
+    // max message count per connection
+    private long maxMsgInFlightPerConn = ConfigConstants.MAX_INFLIGHT_MSG_COUNT_PER_CONNECTION;
 
     // configuration for http client
     // whether discard old metric when cache is full.
@@ -82,17 +90,11 @@ public class ProxyClientConfig {
     private int ioThreadNum = Runtime.getRuntime().availableProcessors();
     private boolean enableBusyWait = false;
 
-    private int virtualNode;
-
-    private LoadBalance loadBalance;
-
-    private int maxRetry;
     private int senderMaxAttempt = ConfigConstants.DEFAULT_SENDER_MAX_ATTEMPT;
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean visitManagerByHttp, String managerIp,
-            int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
-            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+            int managerPort, String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
         if (StringUtils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -110,48 +112,26 @@ public class ProxyClientConfig {
         this.managerPort = managerPort;
         this.managerIP = managerIp;
         IpUtils.validLocalIp(localHost);
-        this.aliveConnections = ConfigConstants.ALIVE_CONNECTIONS;
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
         this.asyncCallbackSize = ConfigConstants.ASYNC_CALLBACK_SIZE;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
-        this.loadBalance = loadBalance;
-        this.virtualNode = virtualNode;
-        this.maxRetry = maxRetry;
     }
 
     /* pay attention to the last url parameter ip */
-    public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey,
-            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+    public ProxyClientConfig(String managerAddress,
+            String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
         checkAndParseAddress(managerAddress);
         if (StringUtils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
         this.inlongGroupId = inlongGroupId.trim();
-        this.aliveConnections = ConfigConstants.ALIVE_CONNECTIONS;
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
         this.asyncCallbackSize = ConfigConstants.ASYNC_CALLBACK_SIZE;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
-        this.loadBalance = loadBalance;
-        this.virtualNode = virtualNode;
-        this.maxRetry = maxRetry;
-    }
-
-    public ProxyClientConfig(String localHost, boolean visitManagerByHttp, String managerIp, int managerPort,
-            String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, visitManagerByHttp, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
-                ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
-                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
-    }
-
-    public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey)
-            throws ProxysdkException {
-        this(managerAddress, inlongGroupId, authSecretId, authSecretKey,
-                ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
-                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
 
     public String getManagerIP() {
@@ -269,14 +249,6 @@ public class ProxyClientConfig {
                 Math.max(ConfigConstants.VAL_MIN_FORCE_CHOOSE_INR_MS, forceReChooseInrMs);
     }
 
-    public String getTlsServerCertFilePathAndName() {
-        return tlsServerCertFilePathAndName;
-    }
-
-    public String getTlsServerKey() {
-        return tlsServerKey;
-    }
-
     public String getInlongGroupId() {
         return inlongGroupId;
     }
@@ -286,7 +258,16 @@ public class ProxyClientConfig {
     }
 
     public void setAliveConnections(int aliveConnections) {
-        this.aliveConnections = aliveConnections;
+        this.aliveConnections =
+                Math.max(ConfigConstants.VAL_MIN_ALIVE_CONNECTIONS, aliveConnections);
+    }
+
+    public String getTlsServerCertFilePathAndName() {
+        return tlsServerCertFilePathAndName;
+    }
+
+    public String getTlsServerKey() {
+        return tlsServerKey;
     }
 
     public int getSyncThreadPoolSize() {
@@ -349,6 +330,44 @@ public class ProxyClientConfig {
         if (conCloseWaitPeriodMs >= 0) {
             this.conCloseWaitPeriodMs = conCloseWaitPeriodMs;
         }
+    }
+
+    public long getReConnectWaitMs() {
+        return reConnectWaitMs;
+    }
+
+    public void setReConnectWaitMs(long reConnectWaitMs) {
+        if (reConnectWaitMs > ConfigConstants.VAL_MAX_RECONNECT_WAIT_MS) {
+            this.reConnectWaitMs = ConfigConstants.VAL_MAX_RECONNECT_WAIT_MS;
+        }
+    }
+
+    public int getRecvBufferSize() {
+        return recvBufferSize;
+    }
+
+    public void setRecvBufferSize(int recvBufferSize) {
+        if (recvBufferSize > 0 && recvBufferSize < Integer.MAX_VALUE) {
+            this.recvBufferSize = recvBufferSize;
+        }
+    }
+
+    public int getSendBufferSize() {
+        return sendBufferSize;
+    }
+
+    public void setSendBufferSize(int sendBufferSize) {
+        if (sendBufferSize > 0 && sendBufferSize < Integer.MAX_VALUE) {
+            this.sendBufferSize = sendBufferSize;
+        }
+    }
+
+    public long getMaxMsgInFlightPerConn() {
+        return maxMsgInFlightPerConn;
+    }
+
+    public void setMaxMsgInFlightPerConn(long maxMsgInFlightPerConn) {
+        this.maxMsgInFlightPerConn = maxMsgInFlightPerConn;
     }
 
     public String getRsaPubKeyUrl() {
@@ -449,29 +468,6 @@ public class ProxyClientConfig {
         this.enableBusyWait = enableBusyWait;
     }
 
-    public int getVirtualNode() {
-        return virtualNode;
-    }
-
-    public void setVirtualNode(int virtualNode) {
-        this.virtualNode = virtualNode;
-    }
-
-    public LoadBalance getLoadBalance() {
-        return loadBalance;
-    }
-
-    public void setLoadBalance(LoadBalance loadBalance) {
-        this.loadBalance = loadBalance;
-    }
-
-    public int getMaxRetry() {
-        return maxRetry;
-    }
-
-    public void setMaxRetry(int maxRetry) {
-        this.maxRetry = maxRetry;
-    }
     public int getSenderMaxAttempt() {
         return senderMaxAttempt;
     }
