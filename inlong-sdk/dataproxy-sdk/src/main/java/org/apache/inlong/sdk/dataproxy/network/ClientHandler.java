@@ -40,10 +40,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, EncodeObject e) {
+    public void channelRead0(ChannelHandlerContext ctx, EncodeObject encodeObject) {
         try {
-            if (e.getMsgtype() != 8) {
-                sender.notifyFeedback(ctx.channel(), e);
+            if (encodeObject.getMsgtype() != 8) {
+                sender.notifyFeedback(ctx.channel(), encodeObject);
             }
         } catch (Throwable ex) {
             if (thrownCnt.shouldPrint()) {

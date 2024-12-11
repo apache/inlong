@@ -80,7 +80,6 @@ public class NettyClient {
 
             public void operationComplete(ChannelFuture arg0) throws Exception {
                 awaitLatch.countDown();
-                // logger.debug("Connect to {} ack!", hostInfo.getReferenceName());
             }
         });
         try {
@@ -127,7 +126,6 @@ public class NettyClient {
 
                     public void operationComplete(ChannelFuture arg0) throws Exception {
                         awaitLatch.countDown();
-                        // logger.debug("Close client {} acked", hostInfo.getReferenceName());
                     }
                 });
                 // Wait until the connection is close.
