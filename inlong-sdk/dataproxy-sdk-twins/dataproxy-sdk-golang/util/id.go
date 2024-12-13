@@ -20,7 +20,7 @@ import (
 	"log"
 
 	"github.com/bwmarrin/snowflake"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"github.com/zentures/cityhash"
 )
 
@@ -43,12 +43,12 @@ func init() {
 
 // UInt64UUID generates an uint64 UUID
 func UInt64UUID() (uint64, error) {
-	guid, err := uuid.NewV4()
+	guid, err := uuid.NewRandom()
 	if err != nil {
 		return 0, err
 	}
 
-	bytes := guid.Bytes()
+	bytes := guid[:]
 	length := len(bytes)
 	return cityhash.CityHash64WithSeeds(bytes, uint32(length), 13329145742295551469, 7926974186468552394), nil
 }

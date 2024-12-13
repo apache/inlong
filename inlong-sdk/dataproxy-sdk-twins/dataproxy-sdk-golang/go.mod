@@ -23,7 +23,7 @@ toolchain go1.21.4
 require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/go-resty/resty/v2 v2.13.1
-	github.com/gofrs/uuid v4.4.0+incompatible
+	github.com/google/uuid v1.6.0
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/panjf2000/gnet/v2 v2.5.7
 	github.com/prometheus/client_golang v1.19.1
