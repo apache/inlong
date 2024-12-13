@@ -37,17 +37,14 @@ public class SyncMessageCallable implements Callable<SendResult> {
     private final NettyClient client;
     private final CountDownLatch awaitLatch = new CountDownLatch(1);
     private final EncodeObject encodeObject;
-    private final long timeout;
-    private final TimeUnit timeUnit;
+    private final long timeoutMs;
 
     private SendResult message;
 
-    public SyncMessageCallable(NettyClient client, EncodeObject encodeObject,
-            long timeout, TimeUnit timeUnit) {
+    public SyncMessageCallable(NettyClient client, EncodeObject encodeObject, long timeoutMs) {
         this.client = client;
         this.encodeObject = encodeObject;
-        this.timeout = timeout;
-        this.timeUnit = timeUnit;
+        this.timeoutMs = timeoutMs;
     }
 
     public void update(SendResult message) {
@@ -61,7 +58,7 @@ public class SyncMessageCallable implements Callable<SendResult> {
                 return SendResult.WRITE_OVER_WATERMARK;
             }
             ChannelFuture channelFuture = client.write(encodeObject);
-            awaitLatch.await(timeout, timeUnit);
+            awaitLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (Throwable ex) {
             if (exptCnt.shouldPrint()) {
                 logger.warn("SyncMessageCallable write data throw exception", ex);

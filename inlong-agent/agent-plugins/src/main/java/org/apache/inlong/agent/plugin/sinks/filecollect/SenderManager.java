@@ -203,6 +203,7 @@ public class SenderManager {
                 authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
+        proxyClientConfig.setRequestTimeoutMs(maxSenderTimeout * 1000L);
 
         proxyClientConfig.setIoThreadNum(ioThreadNum);
         proxyClientConfig.setEnableBusyWait(enableBusyWait);
@@ -242,7 +243,7 @@ public class SenderManager {
                         message.getTotalSize(), auditVersion);
                 asyncSendByMessageSender(cb, message.getDataList(), message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), SEQUENTIAL_ID.getNextUuid(),
-                        maxSenderTimeout, TimeUnit.SECONDS, message.getExtraMap(), proxySend);
+                        message.getExtraMap(), proxySend);
                 getMetricItem(message.getGroupId(), message.getStreamId()).pluginSendCount.addAndGet(
                         message.getMsgCnt());
                 suc = true;
@@ -270,11 +271,9 @@ public class SenderManager {
 
     private void asyncSendByMessageSender(SendMessageCallback cb,
             List<byte[]> bodyList, String groupId, String streamId, long dataTime, String msgUUID,
-            long timeout, TimeUnit timeUnit,
             Map<String, String> extraAttrMap, boolean isProxySend) throws ProxysdkException {
         sender.asyncSendMessage(cb, bodyList, groupId,
-                streamId, dataTime, msgUUID,
-                timeout, timeUnit, extraAttrMap, isProxySend);
+                streamId, dataTime, msgUUID, extraAttrMap, isProxySend);
     }
 
     /**

@@ -32,7 +32,8 @@ public class ConfigConstants {
     public static final String REMOTE_ENCRYPT_CACHE_FILE_SUFFIX = ".pubKey";
     // authorization key
     public static final String BASIC_AUTH_HEADER = "authorization";
-
+    // default region name
+    public static final String VAL_DEF_REGION_NAME = "";
     // config info sync interval in minutes
     public static final int VAL_DEF_CONFIG_SYNC_INTERVAL_MIN = 3;
     public static final int VAL_MIN_CONFIG_SYNC_INTERVAL_MIN = 1;
@@ -43,6 +44,10 @@ public class ConfigConstants {
     public static final int VAL_MAX_RETRY_IF_CONFIG_SYNC_FAIL = 5;
     // cache config expired time in ms
     public static final long VAL_DEF_CACHE_CONFIG_EXPIRED_MS = 20 * 60 * 1000L;
+    // cache config fail status expired time in ms
+    public static final long VAL_DEF_CONFIG_FAIL_STATUS_EXPIRED_MS = 1000L;
+    public static final long VAL_MAX_CONFIG_FAIL_STATUS_EXPIRED_MS = 3 * 60 * 1000L;
+
     // node force choose interval in ms
     public static final long VAL_DEF_FORCE_CHOOSE_INR_MS = 10 * 60 * 1000L;
     public static final long VAL_MIN_FORCE_CHOOSE_INR_MS = 30 * 1000L;

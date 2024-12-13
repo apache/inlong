@@ -26,6 +26,8 @@ import java.util.Map;
 
 public interface MessageSender {
 
+    void close();
+
     /**
      * This method provides a synchronized  function which you want to send data  without packing
      *
@@ -137,5 +139,4 @@ public interface MessageSender {
     void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
             SendMessageCallback callback) throws ProxysdkException;
 
-    void close();
 }

@@ -62,6 +62,7 @@ public class ProxyConfigEntry implements java.io.Serializable {
     public void setHostMap(Map<String, HostInfo> hostMap) {
         this.hostMap = hostMap;
     }
+
     public boolean isNodesEmpty() {
         return this.hostMap.isEmpty();
     }

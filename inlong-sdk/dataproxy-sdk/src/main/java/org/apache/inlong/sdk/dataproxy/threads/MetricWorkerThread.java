@@ -193,8 +193,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         callBack.increaseRetry();
         try {
             if (callBack.getRetryCount() < 4) {
-                sender.asyncSendMessage(encodeObject, callBack,
-                        String.valueOf(System.currentTimeMillis()), 20, TimeUnit.SECONDS);
+                sender.asyncSendMessage(encodeObject, callBack, String.valueOf(System.currentTimeMillis()));
             } else {
                 logger.error("Send metric failure: {}", encodeObject.getBodylist());
             }
