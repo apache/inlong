@@ -96,7 +96,6 @@ public class TestSenderManager {
                 return null;
             }).when(senderManager, "asyncSendByMessageSender", Mockito.any(),
                     Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.any(),
-                    Mockito.anyLong(), Mockito.any(),
                     Mockito.any(), Mockito.anyBoolean());
             senderManager.Start();
             Long offset = 0L;
