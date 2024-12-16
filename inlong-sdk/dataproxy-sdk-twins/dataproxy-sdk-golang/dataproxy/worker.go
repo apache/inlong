@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 
 	"github.com/panjf2000/gnet/v2"
 	"go.uber.org/atomic"
@@ -329,7 +329,7 @@ func (w *worker) sendAsync(ctx context.Context, msg Message, callback Callback) 
 }
 
 func (w *worker) buildBatchID() string {
-	u, err := uuid.NewV4()
+	u, err := uuid.NewRandom()
 	if err != nil {
 		return w.indexStr + ":" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	}
