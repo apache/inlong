@@ -39,19 +39,24 @@ public class ProxyClientConfig {
     private String configStoreBasePath = System.getProperty("user.dir");
     // max expired time for config cache.
     private long configCacheExpiredMs = ConfigConstants.VAL_DEF_CACHE_CONFIG_EXPIRED_MS;
+    // max expired time for config query failure status
+    private long configFailStatusExpiredMs = ConfigConstants.VAL_DEF_CONFIG_FAIL_STATUS_EXPIRED_MS;
     // nodes force choose interval ms
     private long forceReChooseInrMs = ConfigConstants.VAL_DEF_FORCE_CHOOSE_INR_MS;
     private boolean enableAuthentication = false;
     private String authSecretId = "";
     private String authSecretKey = "";
     private String inlongGroupId;
+    private String regionName = ConfigConstants.VAL_DEF_REGION_NAME;
     private int aliveConnections = ConfigConstants.VAL_DEF_ALIVE_CONNECTIONS;
+    // data encrypt info
+    private boolean enableDataEncrypt = false;
+    private String rsaPubKeyUrl = "";
+    private String userName = "";
 
     private int syncThreadPoolSize;
     private int asyncCallbackSize;
 
-    private boolean isNeedDataEncry = false;
-    private String rsaPubKeyUrl = "";
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
     private String tlsVersion = "TLSv1.2";
@@ -240,6 +245,15 @@ public class ProxyClientConfig {
         this.configCacheExpiredMs = configCacheExpiredMs;
     }
 
+    public long getConfigFailStatusExpiredMs() {
+        return configFailStatusExpiredMs;
+    }
+
+    public void setConfigFailStatusExpiredMs(long configFailStatusExpiredMs) {
+        this.configFailStatusExpiredMs =
+                Math.min(configFailStatusExpiredMs, ConfigConstants.VAL_MAX_CONFIG_FAIL_STATUS_EXPIRED_MS);
+    }
+
     public long getForceReChooseInrMs() {
         return forceReChooseInrMs;
     }
@@ -253,6 +267,16 @@ public class ProxyClientConfig {
         return inlongGroupId;
     }
 
+    public String getRegionName() {
+        return regionName;
+    }
+
+    public void setRegionName(String regionName) {
+        if (StringUtils.isNotBlank(regionName)) {
+            this.regionName = regionName.trim();
+        }
+    }
+
     public int getAliveConnections() {
         return this.aliveConnections;
     }
@@ -260,6 +284,33 @@ public class ProxyClientConfig {
     public void setAliveConnections(int aliveConnections) {
         this.aliveConnections =
                 Math.max(ConfigConstants.VAL_MIN_ALIVE_CONNECTIONS, aliveConnections);
+    }
+
+    public boolean isEnableDataEncrypt() {
+        return enableDataEncrypt;
+    }
+
+    public String getRsaPubKeyUrl() {
+        return rsaPubKeyUrl;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void enableDataEncrypt(boolean needDataEncrypt, String userName, String rsaPubKeyUrl) {
+        this.enableDataEncrypt = needDataEncrypt;
+        if (!this.enableDataEncrypt) {
+            return;
+        }
+        if (StringUtils.isBlank(userName)) {
+            throw new IllegalArgumentException("userName is Blank!");
+        }
+        if (StringUtils.isBlank(rsaPubKeyUrl)) {
+            throw new IllegalArgumentException("rsaPubKeyUrl is Blank!");
+        }
+        this.userName = userName.trim();
+        this.rsaPubKeyUrl = rsaPubKeyUrl.trim();
     }
 
     public String getTlsServerCertFilePathAndName() {
@@ -368,14 +419,6 @@ public class ProxyClientConfig {
 
     public void setMaxMsgInFlightPerConn(long maxMsgInFlightPerConn) {
         this.maxMsgInFlightPerConn = maxMsgInFlightPerConn;
-    }
-
-    public String getRsaPubKeyUrl() {
-        return rsaPubKeyUrl;
-    }
-
-    public boolean isNeedDataEncry() {
-        return isNeedDataEncry;
     }
 
     public void setHttpsInfo(String tlsServerCertFilePathAndName, String tlsServerKey) {

@@ -74,9 +74,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -90,17 +91,22 @@ public class ProxyConfigManager extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter parseCounter = new LogCounter(10, 100000, 60 * 1000L);
+    private static final Map<String, Tuple2<AtomicLong, String>> fetchFailProxyMap =
+            new ConcurrentHashMap<>();
+    private static final Map<String, Tuple2<AtomicLong, String>> fetchFailEncryptMap =
+            new ConcurrentHashMap<>();
     private static final ReentrantReadWriteLock fileRw = new ReentrantReadWriteLock();
 
     private final String callerId;
-    private ProxyClientConfig clientConfig;
     private final Gson gson = new Gson();
     private final ClientMgr clientManager;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final AtomicBoolean shutDown = new AtomicBoolean(false);
     // proxy configure info
+    private ProxyClientConfig clientConfig = null;
     private String localProxyConfigStoreFile;
     private String proxyConfigVisitUrl;
+    private String proxyQueryFailKey;
     private String proxyConfigCacheFile;
     private List<HostInfo> proxyInfoList = new ArrayList<>();
     private int oldStat = 0;
@@ -108,6 +114,7 @@ public class ProxyConfigManager extends Thread {
     private long lstUpdateTime = 0;
     // encrypt configure info
     private String encryptConfigVisitUrl;
+    private String encryptQueryFailKey;
     private String encryptConfigCacheFile;
     private EncryptConfigEntry userEncryptConfigEntry;
 
@@ -118,7 +125,9 @@ public class ProxyConfigManager extends Thread {
     public ProxyConfigManager(String callerId, ProxyClientConfig configure, ClientMgr clientManager) {
         this.callerId = callerId;
         this.clientManager = clientManager;
-        this.storeAndBuildMetaConfigure(configure);
+        if (configure != null) {
+            this.storeAndBuildMetaConfigure(configure);
+        }
         if (this.clientManager != null) {
             this.setName("ConfigManager-" + this.callerId);
             logger.info("ConfigManager({}) started, groupId={}",
@@ -130,19 +139,20 @@ public class ProxyConfigManager extends Thread {
      * Update proxy client configure for query case
      *
      * @param configure  proxy client configure
-     * @throws Exception exception
+     * @return process result
      */
-    public void updProxyClientConfig(ProxyClientConfig configure) throws Exception {
+    public Tuple2<Boolean, String> updProxyClientConfig(ProxyClientConfig configure) {
+        if (this.shutDown.get()) {
+            return new Tuple2<>(false, "SDK has shutdown!");
+        }
         if (configure == null) {
-            throw new Exception("ProxyClientConfig is null");
+            return new Tuple2<>(false, "ProxyClientConfig is null");
         }
         if (this.clientManager != null) {
-            throw new Exception("Not allowed for non meta-query case!");
-        }
-        if (shutDown.get()) {
-            return;
+            return new Tuple2<>(false, "Not allowed for non meta-query case!");
         }
         this.storeAndBuildMetaConfigure(configure);
+        return new Tuple2<>(true, "OK");
     }
 
     public void shutDown() {
@@ -166,6 +176,9 @@ public class ProxyConfigManager extends Thread {
         if (shutDown.get()) {
             return new Tuple2<>(null, "SDK has shutdown!");
         }
+        if (clientConfig == null) {
+            return new Tuple2<>(null, "Configure not initialized!");
+        }
         if (clientConfig.isOnlyUseLocalProxyConfig()) {
             return getLocalProxyListFromFile(this.localProxyConfigStoreFile);
         } else {
@@ -183,7 +196,7 @@ public class ProxyConfigManager extends Thread {
                         break;
                     }
                     // sleep then retry
-                    TimeUnit.MILLISECONDS.sleep(500);
+                    Thread.sleep(500L);
                 } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
             }
             if (shutDown.get()) {
@@ -205,11 +218,14 @@ public class ProxyConfigManager extends Thread {
      * @throws Exception ex
      */
     public Tuple2<EncryptConfigEntry, String> getEncryptConfigure(boolean needRetry) throws Exception {
-        if (!clientConfig.isNeedDataEncry()) {
+        if (!clientConfig.isEnableDataEncrypt()) {
             return new Tuple2<>(null, "Not need data encrypt!");
         }
         if (shutDown.get()) {
             return new Tuple2<>(null, "SDK has shutdown!");
+        }
+        if (clientConfig == null) {
+            return new Tuple2<>(null, "Configure not initialized!");
         }
         EncryptConfigEntry encryptEntry = this.userEncryptConfigEntry;
         if (encryptEntry != null) {
@@ -228,7 +244,7 @@ public class ProxyConfigManager extends Thread {
                     break;
                 }
                 // sleep then retry
-                TimeUnit.MILLISECONDS.sleep(500);
+                Thread.sleep(500L);
             } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
         }
         if (shutDown.get()) {
@@ -258,7 +274,7 @@ public class ProxyConfigManager extends Thread {
                 }
             }
             // update encrypt configure
-            if (clientConfig.isNeedDataEncry()) {
+            if (clientConfig.isEnableDataEncrypt()) {
                 try {
                     doEncryptConfigEntryQueryWork();
                 } catch (Throwable ex) {
@@ -288,7 +304,7 @@ public class ProxyConfigManager extends Thread {
      * @throws Exception
      */
     public void doProxyEntryQueryWork() throws Exception {
-        if (shutDown.get()) {
+        if (shutDown.get() || this.clientManager == null) {
             return;
         }
         /* Request the configuration from manager. */
@@ -306,7 +322,7 @@ public class ProxyConfigManager extends Thread {
                     break;
                 }
                 // sleep then retry.
-                TimeUnit.SECONDS.sleep(2);
+                Thread.sleep(2000L);
             } while (++retryCnt < this.clientConfig.getConfigSyncMaxRetryIfFail() && !shutDown.get());
             if (shutDown.get()) {
                 return;
@@ -340,7 +356,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private void doEncryptConfigEntryQueryWork() throws Exception {
-        if (shutDown.get()) {
+        if (shutDown.get() || this.clientManager == null) {
             return;
         }
         int retryCount = 0;
@@ -351,7 +367,7 @@ public class ProxyConfigManager extends Thread {
                 break;
             }
             // sleep then retry
-            TimeUnit.MILLISECONDS.sleep(500);
+            Thread.sleep(500L);
         } while (++retryCount < clientConfig.getConfigSyncMaxRetryIfFail());
         if (shutDown.get()) {
             return;
@@ -380,15 +396,21 @@ public class ProxyConfigManager extends Thread {
         if (StringUtils.isBlank(strRet)) {
             return new Tuple2<>(null, "Blank configure local file from " + filePath);
         }
-        return getProxyConfigEntry(strRet);
+        return getProxyConfigEntry(false, strRet);
     }
 
     private Tuple2<ProxyConfigEntry, String> requestProxyEntryQuietly() {
-        List<BasicNameValuePair> params = buildProxyNodeQueryParams();
+        // check cache failure
+        String qryResult = getManagerQryResultInFailStatus(true);
+        if (qryResult != null) {
+            return new Tuple2<>(null, "Query fail(" + qryResult + ") just now, please retry later!");
+        }
         // request meta info from manager
+        List<BasicNameValuePair> params = buildProxyNodeQueryParams();
         logger.debug("ConfigManager({}) request configure to manager({}), param={}",
                 this.callerId, this.proxyConfigVisitUrl, params);
-        Tuple2<Boolean, String> queryResult = requestConfiguration(this.proxyConfigVisitUrl, params);
+        Tuple2<Boolean, String> queryResult =
+                requestConfiguration(true, this.proxyConfigVisitUrl, params);
         if (!queryResult.getF0()) {
             return new Tuple2<>(null, queryResult.getF1());
         }
@@ -396,12 +418,20 @@ public class ProxyConfigManager extends Thread {
         logger.debug("ConfigManager({}) received configure, from manager({}), groupId={}, result={}",
                 callerId, proxyConfigVisitUrl, clientConfig.getInlongGroupId(), queryResult.getF1());
         try {
-            return getProxyConfigEntry(queryResult.getF1());
+            Tuple2<ProxyConfigEntry, String> parseResult =
+                    getProxyConfigEntry(true, queryResult.getF1());
+            if (parseResult.getF0() == null) {
+                bookManagerQryFailStatus(true, parseResult.getF1());
+            } else {
+                rmvManagerQryFailStatus(true);
+            }
+            return parseResult;
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
                 logger.warn("ConfigManager({}) parse failure, from manager({}), groupId={}, result={}",
                         callerId, proxyConfigVisitUrl, clientConfig.getInlongGroupId(), queryResult.getF1(), ex);
             }
+            bookManagerQryFailStatus(true, ex.getMessage());
             return new Tuple2<>(null, ex.getMessage());
         }
     }
@@ -518,16 +548,23 @@ public class ProxyConfigManager extends Thread {
     }
 
     private Tuple2<EncryptConfigEntry, String> requestPubKeyFromManager() {
-        List<BasicNameValuePair> params = buildPubKeyQueryParams();
+        // check cache failure
+        String qryResult = getManagerQryResultInFailStatus(false);
+        if (qryResult != null) {
+            return new Tuple2<>(null, "Query fail(" + qryResult + ") just now, please retry later!");
+        }
         // request meta info from manager
+        List<BasicNameValuePair> params = buildPubKeyQueryParams();
         logger.debug("ConfigManager({}) request pubkey to manager({}), param={}",
                 this.callerId, this.encryptConfigVisitUrl, params);
-        Tuple2<Boolean, String> queryResult = requestConfiguration(this.encryptConfigVisitUrl, params);
+        Tuple2<Boolean, String> queryResult =
+                requestConfiguration(false, this.encryptConfigVisitUrl, params);
         if (!queryResult.getF0()) {
             return new Tuple2<>(null, queryResult.getF1());
         }
         logger.debug("ConfigManager({}) received pubkey from manager({}), result={}",
                 this.callerId, this.encryptConfigVisitUrl, queryResult.getF1());
+        String errorMsg;
         JsonObject pubKeyConf;
         try {
             pubKeyConf = JsonParser.parseString(queryResult.getF1()).getAsJsonObject();
@@ -536,62 +573,72 @@ public class ProxyConfigManager extends Thread {
                 logger.warn("ConfigManager({}) parse failure, secretId={}, config={}!",
                         this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
             }
-            return new Tuple2<>(null, "parse pubkey failure:" + ex.getMessage());
+            errorMsg = "parse pubkey failure:" + ex.getMessage();
+            bookManagerQryFailStatus(false, errorMsg);
+            return new Tuple2<>(null, errorMsg);
         }
         if (pubKeyConf == null) {
-            return new Tuple2<>(null, "No public key information");
+            errorMsg = "No public key information";
+            bookManagerQryFailStatus(false, errorMsg);
+            return new Tuple2<>(null, errorMsg);
         }
-        if (!pubKeyConf.has("resultCode")) {
-            if (parseCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) config failure: resultCode field not exist, secretId={}, config={}!",
-                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
-            }
-            return new Tuple2<>(null, "resultCode field not exist");
-        }
-        int resultCode = pubKeyConf.get("resultCode").getAsInt();
-        if (resultCode != 0) {
-            if (parseCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) config failure: resultCode != 0, secretId={}, config={}!",
-                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
-            }
-            return new Tuple2<>(null, "resultCode != 0!");
-        }
-        if (!pubKeyConf.has("resultData")) {
-            if (parseCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) config failure: resultData field not exist, secretId={}, config={}!",
-                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
-            }
-            return new Tuple2<>(null, "resultData field not exist");
-        }
-        JsonObject resultData = pubKeyConf.get("resultData").getAsJsonObject();
-        if (resultData != null) {
-            String publicKey = resultData.get("publicKey").getAsString();
-            if (StringUtils.isBlank(publicKey)) {
+        try {
+            if (!pubKeyConf.has("resultCode")) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: publicKey is blank, secretId={}, config={}!",
+                    logger.warn("ConfigManager({}) config failure: resultCode field not exist, secretId={}, config={}!",
                             this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
                 }
-                return new Tuple2<>(null, "publicKey is blank!");
+                throw new Exception("resultCode field not exist");
             }
-            String username = resultData.get("username").getAsString();
-            if (StringUtils.isBlank(username)) {
+            int resultCode = pubKeyConf.get("resultCode").getAsInt();
+            if (resultCode != 0) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: username is blank, secretId={}, config={}!",
+                    logger.warn("ConfigManager({}) config failure: resultCode != 0, secretId={}, config={}!",
                             this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
                 }
-                return new Tuple2<>(null, "username is blank!");
+                throw new Exception("resultCode != 0!");
             }
-            String versionStr = resultData.get("version").getAsString();
-            if (StringUtils.isBlank(versionStr)) {
+            if (!pubKeyConf.has("resultData")) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: version is blank, secretId={}, config={}!",
+                    logger.warn("ConfigManager({}) config failure: resultData field not exist, secretId={}, config={}!",
                             this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
                 }
-                return new Tuple2<>(null, "version is blank!");
+                throw new Exception("resultData field not exist");
             }
-            return new Tuple2<>(new EncryptConfigEntry(username, versionStr, publicKey), "Ok");
+            JsonObject resultData = pubKeyConf.get("resultData").getAsJsonObject();
+            if (resultData != null) {
+                String publicKey = resultData.get("publicKey").getAsString();
+                if (StringUtils.isBlank(publicKey)) {
+                    if (parseCounter.shouldPrint()) {
+                        logger.warn("ConfigManager({}) config failure: publicKey is blank, secretId={}, config={}!",
+                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    }
+                    throw new Exception("publicKey is blank!");
+                }
+                String username = resultData.get("username").getAsString();
+                if (StringUtils.isBlank(username)) {
+                    if (parseCounter.shouldPrint()) {
+                        logger.warn("ConfigManager({}) config failure: username is blank, secretId={}, config={}!",
+                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    }
+                    throw new Exception("username is blank!");
+                }
+                String versionStr = resultData.get("version").getAsString();
+                if (StringUtils.isBlank(versionStr)) {
+                    if (parseCounter.shouldPrint()) {
+                        logger.warn("ConfigManager({}) config failure: version is blank, secretId={}, config={}!",
+                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    }
+                    throw new Exception("version is blank!");
+                }
+                rmvManagerQryFailStatus(false);
+                return new Tuple2<>(new EncryptConfigEntry(username, versionStr, publicKey), "Ok");
+            }
+            throw new Exception("resultData value is null!");
+        } catch (Throwable ex) {
+            bookManagerQryFailStatus(false, ex.getMessage());
+            return new Tuple2<>(null, ex.getMessage());
         }
-        return new Tuple2<>(null, "resultData value is null!");
     }
 
     private void updateEncryptConfigEntry(EncryptConfigEntry newEncryptEntry) {
@@ -674,7 +721,8 @@ public class ProxyConfigManager extends Thread {
     }
 
     /* Request new configurations from Manager. */
-    private Tuple2<Boolean, String> requestConfiguration(String url, List<BasicNameValuePair> params) {
+    private Tuple2<Boolean, String> requestConfiguration(
+            boolean queryProxyInfo, String url, List<BasicNameValuePair> params) {
         HttpParams myParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(myParams, clientConfig.getManagerConnTimeoutMs());
         HttpConnectionParams.setSoTimeout(myParams, clientConfig.getManagerSocketTimeoutMs());
@@ -702,13 +750,20 @@ public class ProxyConfigManager extends Thread {
                     new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
             httpPost.setEntity(urlEncodedFormEntity);
             HttpResponse response = httpClient.execute(httpPost);
+            String errMsg;
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                return new Tuple2<>(false, response.getStatusLine().getStatusCode()
-                        + ":" + response.getStatusLine().getStatusCode());
+                errMsg = response.getStatusLine().getStatusCode()
+                        + ":" + response.getStatusLine().getReasonPhrase();
+                if (response.getStatusLine().getStatusCode() >= 500) {
+                    bookManagerQryFailStatus(queryProxyInfo, errMsg);
+                }
+                return new Tuple2<>(false, errMsg);
             }
             String returnStr = EntityUtils.toString(response.getEntity());
             if (StringUtils.isBlank(returnStr)) {
-                return new Tuple2<>(false, "query result is blank!");
+                errMsg = "server return blank entity!";
+                bookManagerQryFailStatus(queryProxyInfo, errMsg);
+                return new Tuple2<>(false, errMsg);
             }
             return new Tuple2<>(true, returnStr);
         } catch (Throwable ex) {
@@ -755,6 +810,11 @@ public class ProxyConfigManager extends Thread {
                 .append(ConfigConstants.MANAGER_DATAPROXY_API).append(clientConfig.getInlongGroupId())
                 .toString();
         strBuff.delete(0, strBuff.length());
+        this.proxyQueryFailKey = strBuff
+                .append("proxy:").append(clientConfig.getInlongGroupId())
+                .append("#").append(clientConfig.getRegionName())
+                .append("#").append(clientConfig.getProtocolType()).toString();
+        strBuff.delete(0, strBuff.length());
         this.localProxyConfigStoreFile = strBuff
                 .append(clientConfig.getConfigStoreBasePath())
                 .append(ConfigConstants.META_STORE_SUB_DIR)
@@ -770,6 +830,9 @@ public class ProxyConfigManager extends Thread {
                 .toString();
         strBuff.delete(0, strBuff.length());
         this.encryptConfigVisitUrl = clientConfig.getRsaPubKeyUrl();
+        this.encryptQueryFailKey = strBuff
+                .append("encrypt:").append(clientConfig.getUserName()).toString();
+        strBuff.delete(0, strBuff.length());
         this.encryptConfigCacheFile = strBuff
                 .append(clientConfig.getConfigStoreBasePath())
                 .append(ConfigConstants.META_STORE_SUB_DIR)
@@ -795,23 +858,85 @@ public class ProxyConfigManager extends Thread {
     private List<BasicNameValuePair> buildPubKeyQueryParams() {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("operation", "query"));
-        params.add(new BasicNameValuePair("username", clientConfig.getAuthSecretId()));
+        params.add(new BasicNameValuePair("username", clientConfig.getUserName()));
         return params;
     }
 
-    private Tuple2<ProxyConfigEntry, String> getProxyConfigEntry(String strRet) {
-        DataProxyNodeResponse proxyCluster;
-        try {
-            proxyCluster = gson.fromJson(strRet, DataProxyNodeResponse.class);
-        } catch (Throwable ex) {
-            if (parseCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) parse exception, groupId={}, config={}",
-                        this.callerId, clientConfig.getInlongGroupId(), strRet, ex);
+    private void bookManagerQryFailStatus(boolean proxyQry, String errMsg) {
+        if (proxyQry) {
+            fetchFailProxyMap.put(proxyQueryFailKey,
+                    new Tuple2<>(new AtomicLong(System.currentTimeMillis()), errMsg));
+        } else {
+            fetchFailEncryptMap.put(encryptQueryFailKey,
+                    new Tuple2<>(new AtomicLong(System.currentTimeMillis()), errMsg));
+        }
+    }
+
+    private void rmvManagerQryFailStatus(boolean proxyQry) {
+        if (proxyQry) {
+            fetchFailProxyMap.remove(proxyQueryFailKey);
+        } else {
+            fetchFailEncryptMap.remove(encryptQueryFailKey);
+        }
+    }
+
+    private String getManagerQryResultInFailStatus(boolean proxyQry) {
+        if (clientConfig.getConfigFailStatusExpiredMs() <= 0) {
+            return null;
+        }
+        Tuple2<AtomicLong, String> queryResult;
+        if (proxyQry) {
+            queryResult = fetchFailProxyMap.get(proxyQueryFailKey);
+        } else {
+            queryResult = fetchFailEncryptMap.get(encryptQueryFailKey);
+        }
+        if (queryResult != null
+                && (System.currentTimeMillis() - queryResult.getF0().get() < clientConfig
+                        .getConfigFailStatusExpiredMs())) {
+            return queryResult.getF1();
+        }
+        return null;
+    }
+
+    private Tuple2<ProxyConfigEntry, String> getProxyConfigEntry(boolean fromManager, String strRet) {
+        DataProxyNodeResponse proxyNodeConfig;
+        if (fromManager) {
+            ProxyClusterConfig clusterConfig;
+            try {
+                clusterConfig = gson.fromJson(strRet, ProxyClusterConfig.class);
+            } catch (Throwable ex) {
+                if (parseCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) parse exception, groupId={}, config={}",
+                            this.callerId, clientConfig.getInlongGroupId(), strRet, ex);
+                }
+                return new Tuple2<>(null, "parse failure:" + ex.getMessage());
             }
-            return new Tuple2<>(null, "parse failure:" + ex.getMessage());
+            if (clusterConfig == null) {
+                return new Tuple2<>(null, "content parse result is null!");
+            }
+            if (!clusterConfig.isSuccess()) {
+                return new Tuple2<>(null, clusterConfig.getErrMsg());
+            }
+            if (clusterConfig.getData() == null) {
+                return new Tuple2<>(null, "return data content is null!");
+            }
+            proxyNodeConfig = clusterConfig.getData();
+        } else {
+            try {
+                proxyNodeConfig = gson.fromJson(strRet, DataProxyNodeResponse.class);
+            } catch (Throwable ex) {
+                if (parseCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) parse local file exception, groupId={}, config={}",
+                            this.callerId, clientConfig.getInlongGroupId(), strRet, ex);
+                }
+                return new Tuple2<>(null, "parse file failure:" + ex.getMessage());
+            }
+            if (proxyNodeConfig == null) {
+                return new Tuple2<>(null, "file content parse result is null!");
+            }
         }
         // parse nodeList
-        List<DataProxyNodeInfo> nodeList = proxyCluster.getNodeList();
+        List<DataProxyNodeInfo> nodeList = proxyNodeConfig.getNodeList();
         if (CollectionUtils.isEmpty(nodeList)) {
             return new Tuple2<>(null, "nodeList is empty!");
         }
@@ -836,23 +961,23 @@ public class ProxyConfigManager extends Thread {
         }
         // parse clusterId
         int clusterId = -1;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getClusterId())) {
-            clusterId = proxyCluster.getClusterId();
+        if (ObjectUtils.isNotEmpty(proxyNodeConfig.getClusterId())) {
+            clusterId = proxyNodeConfig.getClusterId();
         }
         // parse load
         int load = ConfigConstants.LOAD_THRESHOLD;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getLoad())) {
-            load = proxyCluster.getLoad() > 200 ? 200 : (Math.max(proxyCluster.getLoad(), 0));
+        if (ObjectUtils.isNotEmpty(proxyNodeConfig.getLoad())) {
+            load = proxyNodeConfig.getLoad() > 200 ? 200 : (Math.max(proxyNodeConfig.getLoad(), 0));
         }
         // parse isIntranet
         boolean isIntranet = true;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getIsIntranet())) {
-            isIntranet = proxyCluster.getIsIntranet() == 1;
+        if (ObjectUtils.isNotEmpty(proxyNodeConfig.getIsIntranet())) {
+            isIntranet = proxyNodeConfig.getIsIntranet() == 1;
         }
         // parse isSwitch
         int isSwitch = 0;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
-            isSwitch = proxyCluster.getIsSwitch();
+        if (ObjectUtils.isNotEmpty(proxyNodeConfig.getIsSwitch())) {
+            isSwitch = proxyNodeConfig.getIsSwitch();
         }
         // build ProxyConfigEntry
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
@@ -863,7 +988,7 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
         proxyEntry.setMaxPacketLength(
-                proxyCluster.getMaxPacketLength() != null ? proxyCluster.getMaxPacketLength() : -1);
+                proxyNodeConfig.getMaxPacketLength() != null ? proxyNodeConfig.getMaxPacketLength() : -1);
         return new Tuple2<>(proxyEntry, "ok");
     }
 }

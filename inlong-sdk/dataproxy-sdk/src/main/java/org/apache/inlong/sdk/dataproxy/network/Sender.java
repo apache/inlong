@@ -97,7 +97,7 @@ public class Sender {
             if (!configure.isEnableAuthentication()) {
                 throw new Exception("In OutNetwork isNeedAuthentication must be true!");
             }
-            if (!configure.isNeedDataEncry()) {
+            if (!configure.isEnableDataEncrypt()) {
                 throw new Exception("In OutNetwork isNeedDataEncry must be true!");
             }
         }
@@ -201,15 +201,13 @@ public class Sender {
                             clientMgr.getStreamIdNum(encodeObject.getStreamId()));
                 }
             }
-            if (this.configure.isNeedDataEncry()) {
+            if (this.configure.isEnableDataEncrypt()) {
                 encodeObject.setEncryptEntry(true,
                         configure.getAuthSecretId(), clientMgr.getEncryptConfigureInfo());
-            } else {
-                encodeObject.setEncryptEntry(false, null, null);
             }
             encodeObject.setMsgUUID(msgUUID);
-            SyncMessageCallable callable = new SyncMessageCallable(clientResult.getF1(),
-                    encodeObject, configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
+            SyncMessageCallable callable = new SyncMessageCallable(
+                    clientResult.getF1(), encodeObject, configure.getRequestTimeoutMs());
             syncCallables.put(encodeObject.getMessageId(), callable);
             Future<SendResult> future = threadPool.submit(callable);
             message = future.get(configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
@@ -309,8 +307,8 @@ public class Sender {
     /**
      * Following methods used by asynchronously message sending.
      */
-    public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
+    public void asyncSendMessage(EncodeObject encodeObject,
+            SendMessageCallback callback, String msgUUID) throws ProxysdkException {
         if (!started.get()) {
             if (callback != null) {
                 callback.onMessageAck(SendResult.SENDER_CLOSED);
@@ -381,8 +379,8 @@ public class Sender {
         }
         int size = 1;
         if (currentBufferSize.incrementAndGet() >= asyncCallbackMaxSize) {
-            currentBufferSize.decrementAndGet();
             clientResult.getF1().decMsgInFlight();
+            currentBufferSize.decrementAndGet();
             if (callback != null) {
                 callback.onMessageAck(SendResult.ASYNC_CALLBACK_BUFFER_FULL);
                 return;
@@ -393,7 +391,8 @@ public class Sender {
         ConcurrentHashMap<String, QueueObject> msgQueueMap =
                 callbacks.computeIfAbsent(clientResult.getF1().getChannel(), (k) -> new ConcurrentHashMap<>());
         QueueObject queueObject = msgQueueMap.putIfAbsent(encodeObject.getMessageId(),
-                new QueueObject(clientResult.getF1(), System.currentTimeMillis(), callback, size, timeout, timeUnit));
+                new QueueObject(clientResult.getF1(), System.currentTimeMillis(), callback,
+                        size, configure.getRequestTimeoutMs()));
         if (queueObject != null) {
             if (reqChkLoggCount.shouldPrint()) {
                 logger.warn("Sender({}) found message id {} has existed.",
@@ -407,11 +406,9 @@ public class Sender {
                         clientMgr.getStreamIdNum(encodeObject.getStreamId()));
             }
         }
-        if (this.configure.isNeedDataEncry()) {
+        if (this.configure.isEnableDataEncrypt()) {
             encodeObject.setEncryptEntry(true,
                     configure.getAuthSecretId(), clientMgr.getEncryptConfigureInfo());
-        } else {
-            encodeObject.setEncryptEntry(false, null, null);
         }
         encodeObject.setMsgUUID(msgUUID);
         clientResult.getF1().write(encodeObject);
@@ -501,7 +498,7 @@ public class Sender {
         }
     }
 
-    /* Deal with unexpected exception. only used for asyc send */
+    /* Deal with unexpected exception. only used for async send */
     public void waitForAckForChannel(Channel channel) {
         if (channel == null) {
             return;
@@ -513,13 +510,13 @@ public class Sender {
         }
         try {
             while (!queueObjMap.isEmpty()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex1) {
-                    //
-                }
                 if (System.currentTimeMillis() - startTime >= configure.getConCloseWaitPeriodMs()) {
                     break;
+                }
+                try {
+                    Thread.sleep(100L);
+                } catch (InterruptedException ex1) {
+                    //
                 }
             }
         } catch (Throwable ex) {
@@ -559,13 +556,17 @@ public class Sender {
         return clientMgr;
     }
 
+    public ProxyClientConfig getConfigure() {
+        return configure;
+    }
+
     private void checkCallbackList() {
         // max wait for 1 min
         try {
             long startTime = System.currentTimeMillis();
             while (currentBufferSize.get() > 0
                     && System.currentTimeMillis() - startTime < configure.getConCloseWaitPeriodMs()) {
-                TimeUnit.MILLISECONDS.sleep(300);
+                Thread.sleep(300L);
             }
             if (currentBufferSize.get() > 0) {
                 logger.warn("Sender({}) callback size({}) not empty, force quit!",

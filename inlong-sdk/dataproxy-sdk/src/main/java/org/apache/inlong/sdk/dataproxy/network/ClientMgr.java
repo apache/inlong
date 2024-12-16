@@ -345,7 +345,7 @@ public class ClientMgr {
                 if (!realHosts.isEmpty()) {
                     break;
                 }
-                Thread.sleep(1000);
+                Thread.sleep(1000L);
             } while (--maxCycleCnt > 0);
             // update active nodes
             if (realHosts.isEmpty()) {

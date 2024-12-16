@@ -40,15 +40,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class DefaultMessageSender implements MessageSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMessageSender.class);
-    private static final long DEFAULT_SEND_TIMEOUT = 100;
-    private static final TimeUnit DEFAULT_SEND_TIMEUNIT = TimeUnit.MILLISECONDS;
     private static final ConcurrentHashMap<Integer, DefaultMessageSender> CACHE_SENDER =
             new ConcurrentHashMap<>();
     private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
@@ -135,6 +132,20 @@ public class DefaultMessageSender implements MessageSender {
             sender.close();
         }
         CACHE_SENDER.clear();
+    }
+
+    @Override
+    public void close() {
+        LOGGER.info("ready to close resources, may need five minutes !");
+        if (sender.getClusterId() != -1) {
+            CACHE_SENDER.remove(sender.getClusterId());
+        }
+        sender.close();
+        shutdownInternalThreads();
+    }
+
+    public ProxyClientConfig getProxyClientConfig() {
+        return sender.getConfigure();
     }
 
     public boolean isSupportLF() {
@@ -433,25 +444,25 @@ public class DefaultMessageSender implements MessageSender {
     @Override
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
             String msgUUID, Map<String, String> extraAttrMap) throws ProxysdkException {
-
+        asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, extraAttrMap, false);
     }
 
     @Override
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
             String msgUUID) throws ProxysdkException {
-
+        asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, false);
     }
 
     @Override
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
             long dt, String msgUUID) throws ProxysdkException {
-
+        asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, false);
     }
 
     @Override
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
             long dt, String msgUUID, Map<String, String> extraAttrMap) throws ProxysdkException {
-
+        asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, extraAttrMap, false);
     }
 
     /**
@@ -508,11 +519,6 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, timeout, timeUnit, false);
-    }
-
     /**
      * async send single message
      *
@@ -522,13 +528,11 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @throws ProxysdkException
      */
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, boolean isProxySend) throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId,
+            String streamId, long dt, String msgUUID, boolean isProxySend) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
@@ -549,7 +553,7 @@ public class DefaultMessageSender implements MessageSender {
                             isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
                             groupId, streamId, proxySend);
             encodeObject.setSupportLF(isSupportLF);
-            sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
+            sender.asyncSendMessage(encodeObject, callback, msgUUID);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompressEnd) {
                 if (isProxySend) {
@@ -558,23 +562,15 @@ public class DefaultMessageSender implements MessageSender {
                 sender.asyncSendMessage(new EncodeObject(Collections.singletonList(body), "groupId="
                         + groupId + "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy" + proxySend,
                         idGenerator.getNextId(), this.getMsgtype(), true, groupId),
-                        callback, msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             } else {
                 sender.asyncSendMessage(
                         new EncodeObject(Collections.singletonList(body), "groupId=" + groupId + "&streamId="
                                 + streamId + "&dt=" + dt + proxySend, idGenerator.getNextId(),
                                 this.getMsgtype(), false, groupId),
-                        callback,
-                        msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             }
         }
-
-    }
-
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap)
-            throws ProxysdkException {
-        asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, timeout, timeUnit, extraAttrMap, false);
     }
 
     /**
@@ -586,15 +582,12 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report timestamp
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param extraAttrMap extra attributes
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @throws ProxysdkException
      */
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
-            String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap, boolean isProxySend)
-            throws ProxysdkException {
+            String msgUUID, Map<String, String> extraAttrMap, boolean isProxySend) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
@@ -615,26 +608,21 @@ public class DefaultMessageSender implements MessageSender {
                             isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
                             groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
-            sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
+            sender.asyncSendMessage(encodeObject, callback, msgUUID);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId).append("&dt=").append(dt);
             if (isCompressEnd) {
                 attrs.append("&cp=snappy");
                 sender.asyncSendMessage(new EncodeObject(Collections.singletonList(body), attrs.toString(),
                         idGenerator.getNextId(), this.getMsgtype(), true, groupId),
-                        callback, msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             } else {
                 sender.asyncSendMessage(
                         new EncodeObject(Collections.singletonList(body), attrs.toString(), idGenerator.getNextId(),
                                 this.getMsgtype(), false, groupId),
-                        callback, msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             }
         }
-    }
-
-    public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList, String groupId, String streamId,
-            long dt, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, false);
     }
 
     /**
@@ -646,14 +634,11 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report time
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @throws ProxysdkException
      */
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList,
-            String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, boolean isProxySend) throws ProxysdkException {
+            String groupId, String streamId, long dt, String msgUUID, boolean isProxySend) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
@@ -671,7 +656,7 @@ public class DefaultMessageSender implements MessageSender {
                     isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
                     groupId, streamId, proxySend);
             encodeObject.setSupportLF(isSupportLF);
-            sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
+            sender.asyncSendMessage(encodeObject, callback, msgUUID);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isProxySend) {
                 proxySend = "&" + proxySend;
@@ -682,22 +667,16 @@ public class DefaultMessageSender implements MessageSender {
                                 + "&dt=" + dt + "&cp=snappy" + "&cnt=" + bodyList.size() + proxySend,
                                 idGenerator.getNextId(),
                                 this.getMsgtype(), true, groupId),
-                        callback, msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             } else {
                 sender.asyncSendMessage(
                         new EncodeObject(bodyList,
                                 "groupId=" + groupId + "&streamId=" + streamId + "&dt=" + dt + "&cnt=" + bodyList.size()
                                         + proxySend,
                                 idGenerator.getNextId(), this.getMsgtype(), false, groupId),
-                        callback, msgUUID, timeout, timeUnit);
+                        callback, msgUUID);
             }
         }
-    }
-
-    public void asyncSendMessage(SendMessageCallback callback,
-            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) throws ProxysdkException {
-        asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, timeout, timeUnit, extraAttrMap, false);
     }
 
     /**
@@ -709,15 +688,12 @@ public class DefaultMessageSender implements MessageSender {
      * @param streamId streamId
      * @param dt data report time
      * @param msgUUID msg uuid
-     * @param timeout
-     * @param timeUnit
      * @param extraAttrMap extra attributes
      * @param isProxySend true: dataproxy doesn't return response message until data is sent to MQ
      * @throws ProxysdkException
      */
     public void asyncSendMessage(SendMessageCallback callback,
             List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit,
             Map<String, String> extraAttrMap, boolean isProxySend) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(
@@ -739,17 +715,17 @@ public class DefaultMessageSender implements MessageSender {
                     isCompress, isReport, isGroupIdTransfer, dt / 1000, idGenerator.getNextInt(),
                     groupId, streamId, attrs.toString());
             encodeObject.setSupportLF(isSupportLF);
-            sender.asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit);
+            sender.asyncSendMessage(encodeObject, callback, msgUUID);
         } else if (msgtype == 3 || msgtype == 5) {
             attrs.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
                     .append("&dt=").append(dt).append("&cnt=").append(bodyList.size());
             if (isCompress) {
                 attrs.append("&cp=snappy");
                 sender.asyncSendMessage(new EncodeObject(bodyList, attrs.toString(), idGenerator.getNextId(),
-                        this.getMsgtype(), true, groupId), callback, msgUUID, timeout, timeUnit);
+                        this.getMsgtype(), true, groupId), callback, msgUUID);
             } else {
                 sender.asyncSendMessage(new EncodeObject(bodyList, attrs.toString(), idGenerator.getNextId(),
-                        this.getMsgtype(), false, groupId), callback, msgUUID, timeout, timeUnit);
+                        this.getMsgtype(), false, groupId), callback, msgUUID);
             }
         }
 
@@ -767,8 +743,8 @@ public class DefaultMessageSender implements MessageSender {
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
             throws ProxysdkException {
-        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
+        this.asyncSendMessage(callback, body, inlongGroupId,
+                inlongStreamId, System.currentTimeMillis(), idGenerator.getNextId());
     }
 
     /**
@@ -783,8 +759,8 @@ public class DefaultMessageSender implements MessageSender {
      */
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback,
             boolean isProxySend) throws ProxysdkException {
-        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT, isProxySend);
+        this.asyncSendMessage(callback, body, inlongGroupId,
+                inlongStreamId, System.currentTimeMillis(), idGenerator.getNextId(), isProxySend);
     }
 
     /**
@@ -799,8 +775,8 @@ public class DefaultMessageSender implements MessageSender {
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
             SendMessageCallback callback) throws ProxysdkException {
-        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
+        this.asyncSendMessage(callback, bodyList, inlongGroupId,
+                inlongStreamId, System.currentTimeMillis(), idGenerator.getNextId());
     }
 
     /**
@@ -815,8 +791,8 @@ public class DefaultMessageSender implements MessageSender {
      */
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
             SendMessageCallback callback, boolean isProxySend) throws ProxysdkException {
-        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT, isProxySend);
+        this.asyncSendMessage(callback, bodyList, inlongGroupId,
+                inlongStreamId, System.currentTimeMillis(), idGenerator.getNextId(), isProxySend);
     }
 
     private void addIndexCnt(String groupId, String streamId, long cnt) {
@@ -836,14 +812,5 @@ public class DefaultMessageSender implements MessageSender {
     private void shutdownInternalThreads() {
         indexCol.shutDown();
         MANAGER_FETCHER_THREAD_STARTED.set(false);
-    }
-
-    public void close() {
-        LOGGER.info("ready to close resources, may need five minutes !");
-        if (sender.getClusterId() != -1) {
-            CACHE_SENDER.remove(sender.getClusterId());
-        }
-        sender.close();
-        shutdownInternalThreads();
     }
 }

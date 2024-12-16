@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Daemon threads to check timeout for asynchronous callback.
@@ -162,7 +161,6 @@ public class TimeoutScanThread extends Thread {
                     checkMessageIdBasedCallbacks(entry.getKey(), entry.getValue());
                 }
                 checkTimeoutChannel();
-                TimeUnit.SECONDS.sleep(1);
             } catch (Throwable ex) {
                 if (exptCnt.shouldPrint()) {
                     logger.warn("TimeoutScanThread({}) throw exception", sender.getInstanceId(), ex);
@@ -171,6 +169,14 @@ public class TimeoutScanThread extends Thread {
             if (printCount++ % 60 == 0) {
                 logger.info("TimeoutScanThread({}) scan, currentBufferSize={}",
                         sender.getInstanceId(), sender.getCurrentBufferSize().get());
+            }
+            if (bShutDown) {
+                break;
+            }
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                //
             }
         }
         logger.info("TimeoutScanThread({}) thread existed !", sender.getInstanceId());
