@@ -139,8 +139,9 @@ func (b *batchReq) done(err error) {
 	}
 
 	if b.pool != nil {
-		b.pool.Put(b)
+		pool := b.pool
 		b.pool = nil
+		pool.Put(b)
 	}
 }
 
@@ -368,8 +369,9 @@ func (s *sendDataReq) done(err error, errCode string) {
 	}
 
 	if s.pool != nil {
-		s.pool.Put(s)
+		pool := s.pool
 		s.pool = nil
+		pool.Put(s)
 	}
 }
 
