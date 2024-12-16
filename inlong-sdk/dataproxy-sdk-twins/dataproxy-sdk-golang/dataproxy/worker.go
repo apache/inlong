@@ -130,7 +130,7 @@ type worker struct {
 	metrics            *metrics                 // metrics
 	bufferPool         bufferpool.BufferPool    // buffer pool
 	bytePool           bufferpool.BytePool      // byte pool
-	stop               bool                     // stop the worker
+	stop               chan struct{}            // stop the worker
 }
 
 func newWorker(cli *client, index int, opts *Options) (*worker, error) {
@@ -162,6 +162,7 @@ func newWorker(cli *client, index int, opts *Options) (*worker, error) {
 		bufferPool:         opts.BufferPool,
 		bytePool:           opts.BytePool,
 		log:                opts.Logger,
+		stop:               make(chan struct{}),
 	}
 
 	// set to init state
@@ -197,8 +198,10 @@ func (w *worker) start() {
 			}
 		}()
 
-		for !w.stop {
+		for {
 			select {
+			case <-w.stop:
+				return
 			case req, ok := <-w.cmdChan:
 				if !ok {
 					continue
@@ -640,7 +643,7 @@ func (w *worker) close() {
 
 	// wait for the close request done
 	<-req.doneCh
-	w.stop = true
+	close(w.stop)
 }
 
 func (w *worker) handleClose(req *closeReq) {
