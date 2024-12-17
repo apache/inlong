@@ -297,7 +297,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         request.setVersion(InlongConstants.INITIAL_VERSION);
         request.setName("test_group_name");
         request.setMqType(ClusterType.PULSAR);
-        request.setInCharges(TEST_CREATOR);
+        request.setInCharges(GLOBAL_OPERATOR);
         List<InlongGroupExtInfo> extList = new ArrayList<>();
         InlongGroupExtInfo ext1 = InlongGroupExtInfo
                 .builder()
