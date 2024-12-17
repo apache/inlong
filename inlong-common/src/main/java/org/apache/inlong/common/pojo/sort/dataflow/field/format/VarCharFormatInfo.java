@@ -52,7 +52,7 @@ public class VarCharFormatInfo implements BasicFormatInfo<String> {
 
     @Override
     public String deserialize(String text) {
-        return text.trim();
+        return text;
     }
 
     @Override

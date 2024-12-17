@@ -38,7 +38,7 @@ public class StringFormatInfo implements BasicFormatInfo<String> {
 
     @Override
     public String deserialize(String text) {
-        return text.trim();
+        return text;
     }
 
     @Override
