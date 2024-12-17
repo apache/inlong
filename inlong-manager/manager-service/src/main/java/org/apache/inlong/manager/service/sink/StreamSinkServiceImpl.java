@@ -153,7 +153,12 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Check if it can be added
         String groupId = request.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
-
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to create sink info");
         // Make sure that there is no same sink name under the current groupId and streamId
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();

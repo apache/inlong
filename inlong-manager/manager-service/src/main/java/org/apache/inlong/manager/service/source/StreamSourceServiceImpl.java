@@ -105,6 +105,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Check if it can be added
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to create source info");
         InlongStreamEntity streamEntity = groupCheckService.checkStreamStatus(groupId, streamId, operator);
         String sourceName = request.getSourceName();
         List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
