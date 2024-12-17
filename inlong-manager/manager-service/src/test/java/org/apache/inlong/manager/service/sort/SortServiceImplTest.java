@@ -315,7 +315,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         extList.add(ext1);
         extList.add(ext2);
         request.setExtList(extList);
-        groupService.save(request, "test operator");
+        groupService.save(request, GLOBAL_OPERATOR);
     }
 
     private void prepareStreamId(String groupId, String streamId, String topic) {
@@ -333,7 +333,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         ext.setKeyName(ClusterSwitch.BACKUP_MQ_RESOURCE);
         ext.setKeyValue("backup_" + topic);
         request.setExtList(extInfos);
-        streamService.save(request, "test_operator");
+        streamService.save(request, GLOBAL_OPERATOR);
     }
 
     private void prepareCluster(String clusterName, String clusterTag) {
@@ -382,7 +382,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         properties.put("delimiter", "|");
         properties.put("dataType", "text");
         request.setProperties(properties);
-        streamSinkService.save(request, TEST_CREATOR);
+        streamSinkService.save(request, GLOBAL_OPERATOR);
     }
 
 }
