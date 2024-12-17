@@ -45,6 +45,7 @@ public abstract class FlinkContainerTestEnvJRE8 extends FlinkContainerTestEnv {
                         .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
                         .withExposedPorts(DEBUG_PORT)
                         .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
+                        .withEnv("OTEL_EXPORTER_ENDPOINT", "logcollector:4317")
                         .dependsOn(jobManager)
                         .withLogConsumer(new Slf4jLogConsumer(TM_LOG));
 

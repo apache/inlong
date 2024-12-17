@@ -127,6 +127,7 @@ public final class PulsarSourceBuilder<OUT> {
     private StopCursor stopCursor;
     private Boundedness boundedness;
     private PulsarDeserializationSchema<OUT> deserializationSchema;
+    private boolean enableLogReport;
 
     // private builder constructor.
     PulsarSourceBuilder() {
@@ -412,6 +413,11 @@ public final class PulsarSourceBuilder<OUT> {
         return this;
     }
 
+    public PulsarSourceBuilder<OUT> enableLogReport(boolean enableLogReport) {
+        this.enableLogReport = enableLogReport;
+        return this;
+    }
+
     /**
      * Build the {@link PulsarSource}.
      *
@@ -498,7 +504,8 @@ public final class PulsarSourceBuilder<OUT> {
                 startCursor,
                 stopCursor,
                 boundedness,
-                deserializationSchema);
+                deserializationSchema,
+                enableLogReport);
     }
 
     // ------------- private helpers --------------

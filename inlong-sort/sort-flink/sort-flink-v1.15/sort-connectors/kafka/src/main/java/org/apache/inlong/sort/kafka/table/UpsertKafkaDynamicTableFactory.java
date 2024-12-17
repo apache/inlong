@@ -133,7 +133,7 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
         String auditKeys = tableOptions.get(AUDIT_KEYS);
-
+        Boolean enableLogReport = context.getConfiguration().get(ENABLE_LOG_REPORT);
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withAuditAddress(auditHostAndPorts)
@@ -155,7 +155,8 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
                 0,
                 true,
                 context.getObjectIdentifier().asSummaryString(),
-                metricOption);
+                metricOption,
+                enableLogReport);
     }
 
     @Override
