@@ -166,7 +166,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         // Check if it can be added
         checkGroupStatusIsTemp(groupId);
-
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to create stream info");
         // The streamId under the same groupId cannot be repeated
         Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
         if (count >= 1) {
