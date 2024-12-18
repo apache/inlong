@@ -24,6 +24,7 @@ import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.ParquetSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.RowDataSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.XmlSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.YamlSourceInfo;
 
@@ -63,6 +64,10 @@ public class SourceDecoderFactory {
 
     public static YamlSourceDecoder createYamlDecoder(YamlSourceInfo sourceInfo) {
         return new YamlSourceDecoder(sourceInfo);
+    }
+
+    public static RowDataSourceDecoder createRowDecoder(RowDataSourceInfo sourceInfo) {
+        return new RowDataSourceDecoder(sourceInfo);
     }
 
 }

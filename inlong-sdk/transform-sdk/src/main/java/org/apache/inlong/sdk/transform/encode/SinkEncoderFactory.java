@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.ParquetSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.PbSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.RowDataSinkInfo;
 
 public class SinkEncoderFactory {
 
@@ -43,6 +44,10 @@ public class SinkEncoderFactory {
 
     public static PbSinkEncoder createPbEncoder(PbSinkInfo pbSinkInfo) {
         return new PbSinkEncoder(pbSinkInfo);
+    }
+
+    public static RowDataSinkEncoder createRowEncoder(RowDataSinkInfo rowDataSinkInfo) {
+        return new RowDataSinkEncoder(rowDataSinkInfo);
     }
 
 }

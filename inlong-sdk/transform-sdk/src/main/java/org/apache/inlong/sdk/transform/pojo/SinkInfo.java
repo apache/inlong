@@ -46,6 +46,7 @@ public abstract class SinkInfo {
     public static final String ES_MAP = "es_map";
     public static final String PARQUET = "parquet";
     public static final String PB = "pb";
+    public static final String ROWDATA = "rowdata";
 
     @JsonIgnore
     private String type;
