@@ -64,7 +64,8 @@ public class StorePrometheusMetric extends Collector implements AbstractMetric {
                 createSample(MetricDimension.RECEIVE_FAILED, metricItem.getReceiveFailed().doubleValue()),
                 createSample(MetricDimension.SEND_COUNT_SUCCESS, metricItem.getSendCountSuccess().doubleValue()),
                 createSample(MetricDimension.SEND_COUNT_FAILED, metricItem.getSendCountFailed().doubleValue()),
-                createSample(MetricDimension.SEND_DURATION, metricItem.getSendDuration().doubleValue()));
+                createSample(MetricDimension.SEND_DURATION, metricItem.getSendDuration().doubleValue()),
+                createSample(MetricDimension.INVALID_DATA, metricItem.getInvalidData().doubleValue()));
 
         MetricFamilySamples metricFamilySamples =
                 new MetricFamilySamples(AUDIT_STORE_SERVER_NAME, Type.GAUGE, HELP_DESCRIPTION, samples);

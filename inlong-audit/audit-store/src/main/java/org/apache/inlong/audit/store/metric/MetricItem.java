@@ -30,11 +30,13 @@ public class MetricItem {
     private AtomicLong sendCountSuccess = new AtomicLong(0);
     private AtomicLong sendCountFailed = new AtomicLong(0);
     private AtomicLong sendDuration = new AtomicLong(0);
+    private AtomicLong invalidData = new AtomicLong(0);
     public void resetAllMetrics() {
         receiveCountSuccess.set(0);
         receiveFailed.set(0);
         sendCountSuccess.set(0);
         sendCountFailed.set(0);
         sendDuration.set(0);
+        invalidData.set(0);
     }
 }

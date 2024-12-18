@@ -41,4 +41,6 @@ public class JdbcConfig {
     private int processIntervalMs;
     @Value("${audit.store.data.queue.size:1000000}")
     private int dataQueueSize;
+    @Value("${audit.store.valid.datatime.range.ms:604800000}")
+    private long validDataTimeRangeMs;
 }

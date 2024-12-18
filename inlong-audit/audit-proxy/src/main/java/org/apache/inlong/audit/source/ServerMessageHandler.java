@@ -161,12 +161,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         LOGGER.debug("Receive message count: {}", auditRequest.getMsgBodyCount());
         for (AuditMessageBody auditMessageBody : bodyList) {
             long msgDays = messageDays(auditMessageBody.getLogTs());
-            if (msgDays >= this.msgValidThresholdDays) {
-                LOGGER.debug("Discard the data as it is from {} days ago, only the data with a log timestamp"
-                        + " less than {} days is valid", msgDays, this.msgValidThresholdDays);
-
+            if (Math.abs(msgDays) >= this.msgValidThresholdDays) {
+                LOGGER.debug("Discard the invalid audit data: {}", auditMessageBody);
                 MetricsManager.getInstance().addReceiveCountExpired(1);
-
                 continue;
             }
             AuditData auditData = new AuditData();

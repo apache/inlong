@@ -21,6 +21,7 @@ import org.apache.inlong.audit.store.config.MessageQueueConfig;
 import org.apache.inlong.audit.store.config.StoreConfig;
 import org.apache.inlong.audit.store.metric.MetricsManager;
 import org.apache.inlong.audit.store.service.InsertData;
+import org.apache.inlong.audit.store.utils.PulsarUtils;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -128,29 +129,14 @@ public class PulsarConsume extends BaseConsume {
                         .messageListener(new MessageListener<byte[]>() {
 
                             public void received(Consumer<byte[]> consumer, Message<byte[]> msg) {
+                                String body = null;
                                 try {
-                                    String body = new String(msg.getData(), StandardCharsets.UTF_8);
+                                    body = new String(msg.getData(), StandardCharsets.UTF_8);
                                     handleMessage(body, consumer, msg.getMessageId());
-                                } catch (Exception e) {
+                                } catch (Exception exception) {
                                     MetricsManager.getInstance().addReceiveFailed(1);
-
-                                    LOG.error("Consumer has exception topic {}, subName {}, ex {}",
-                                            topic,
-                                            mqConfig.getPulsarConsumerSubName(),
-                                            e);
-                                    if (mqConfig.isPulsarConsumerEnableRetry()) {
-                                        try {
-                                            consumer.reconsumeLater(msg, 10, TimeUnit.SECONDS);
-                                        } catch (PulsarClientException pulsarClientException) {
-                                            LOG.error("Consumer reconsumeLater has exception "
-                                                    + "topic {}, subName {}, ex {}",
-                                                    topic,
-                                                    mqConfig.getPulsarConsumerSubName(),
-                                                    pulsarClientException);
-                                        }
-                                    } else {
-                                        consumer.negativeAcknowledge(msg);
-                                    }
+                                    PulsarUtils.acknowledge(consumer, msg.getMessageId());
+                                    LOG.error("Invalid audit data: {}", body, exception);
                                 }
                             }
                         })
