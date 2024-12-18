@@ -25,11 +25,16 @@ import org.slf4j.LoggerFactory;
 public class PulsarUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PulsarUtils.class);
+
     public static void acknowledge(Consumer<byte[]> consumer, MessageId messageId) {
+        if (consumer == null) {
+            return;
+        }
         try {
             consumer.acknowledge(messageId);
         } catch (Exception exception) {
-            LOG.error("Acknowledge has exception ", exception);
+            LOG.error("Acknowledge topic:{}, consumer name:{}, message id: {} has exception ",
+                    consumer.getTopic(), consumer.getConsumerName(), messageId, exception);
         }
     }
 }
