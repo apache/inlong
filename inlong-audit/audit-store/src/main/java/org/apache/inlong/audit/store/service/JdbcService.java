@@ -21,6 +21,8 @@ import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.store.config.JdbcConfig;
 import org.apache.inlong.audit.store.entities.JdbcDataPo;
 import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.utils.PulsarUtils;
+import org.apache.inlong.audit.utils.DataUtils;
 
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
@@ -185,6 +187,12 @@ public class JdbcService implements InsertData, AutoCloseable {
 
     @Override
     public void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId) {
+        if (!isAuditDataValid(msgBody)) {
+            MetricsManager.getInstance().addInvalidData();
+            PulsarUtils.acknowledge(consumer, messageId);
+            LOG.error("Invalid audit data: {} ", msgBody);
+            return;
+        }
         JdbcDataPo data = new JdbcDataPo();
         data.setConsumer(consumer);
         data.setMessageId(messageId);
@@ -229,5 +237,30 @@ public class JdbcService implements InsertData, AutoCloseable {
                 LOG.error("Acknowledge has exception!", exception);
             }
         }
+    }
+
+    private boolean isAuditDataValid(AuditData auditData) {
+        // Check if any of the timestamp fields are within the valid range
+        if (!isDataTimeValid(auditData)) {
+            return false;
+        }
+        // Check if any of the audit items are valid
+        return isAuditItemValid(auditData);
+    }
+
+    private boolean isDataTimeValid(AuditData auditData) {
+        long validDataTimeRangeMs = jdbcConfig.getValidDataTimeRangeMs();
+        return DataUtils.isDataTimeValid(auditData.getLogTs(), validDataTimeRangeMs) &&
+                DataUtils.isDataTimeValid(auditData.getSdkTs(), validDataTimeRangeMs);
+    }
+
+    private boolean isAuditItemValid(AuditData auditData) {
+        return DataUtils.isAuditItemValid(auditData.getInlongGroupId()) &&
+                DataUtils.isAuditItemValid(auditData.getInlongStreamId()) &&
+                DataUtils.isAuditItemValid(auditData.getAuditId()) &&
+                DataUtils.isAuditItemValid(auditData.getAuditTag()) &&
+                DataUtils.isAuditItemValid(auditData.getIp()) &&
+                DataUtils.isAuditItemValid(auditData.getDockerId()) &&
+                DataUtils.isAuditItemValid(auditData.getThreadId());
     }
 }

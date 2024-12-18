@@ -23,7 +23,8 @@ public enum MetricDimension {
     RECEIVE_FAILED("receiveFailed"),
     SEND_COUNT_SUCCESS("sendCountSuccess"),
     SEND_COUNT_FAILED("sendCountFailed"),
-    SEND_DURATION("sendDuration");
+    SEND_DURATION("sendDuration"),
+    INVALID_DATA("invalidData");
 
     private final String key;
 

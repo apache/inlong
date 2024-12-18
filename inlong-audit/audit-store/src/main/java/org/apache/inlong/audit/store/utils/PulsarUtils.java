@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.protocol;
+package org.apache.inlong.audit.store.utils;
 
-import lombok.Data;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Data
-public class AuditData {
+public class PulsarUtils {
 
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private long sdkTs;
-    private long packetId;
-    private long logTs;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String auditId;
-    private String auditTag;
-    private long count;
-    private long size;
-    private long delay;
-    private long auditVersion;
+    private static final Logger LOG = LoggerFactory.getLogger(PulsarUtils.class);
+
+    public static void acknowledge(Consumer<byte[]> consumer, MessageId messageId) {
+        if (consumer == null) {
+            return;
+        }
+        try {
+            consumer.acknowledge(messageId);
+        } catch (Exception exception) {
+            LOG.error("Acknowledge topic:{}, consumer name:{}, message id: {} has exception ",
+                    consumer.getTopic(), consumer.getConsumerName(), messageId, exception);
+        }
+    }
 }

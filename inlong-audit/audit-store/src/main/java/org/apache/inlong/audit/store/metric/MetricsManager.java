@@ -87,6 +87,9 @@ public class MetricsManager {
         metricItem.getSendCountFailed().addAndGet(count);
         metricItem.getSendDuration().addAndGet(duration);
     }
+    public void addInvalidData() {
+        metricItem.getInvalidData().addAndGet(1);
+    }
 
     public void shutdown() {
         timer.shutdown();
