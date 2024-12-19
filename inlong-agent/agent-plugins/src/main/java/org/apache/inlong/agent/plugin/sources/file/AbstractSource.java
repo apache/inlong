@@ -110,6 +110,7 @@ public abstract class AbstractSource implements Source {
             new SynchronousQueue<>(),
             new AgentThreadFactory("source-pool"));
     protected OffsetProfile offsetProfile;
+    protected boolean sourceError = false;
 
     @Override
     public void init(InstanceProfile profile) {
@@ -200,10 +201,16 @@ public abstract class AbstractSource implements Source {
      * @return true if prepared ok
      */
     private boolean prepareToRead() {
-        if (!doPrepareToRead()) {
+        try {
+            if (!doPrepareToRead()) {
+                return false;
+            }
+            return waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+        } catch (Throwable e) {
+            LOGGER.error("prepare to read {} error:", instanceId, e);
+            sourceError = true;
             return false;
         }
-        return waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
     }
 
     /**
@@ -416,6 +423,9 @@ public abstract class AbstractSource implements Source {
 
     @Override
     public boolean sourceFinish() {
+        if (sourceError) {
+            return true;
+        }
         if (isRealTime) {
             return false;
         }
