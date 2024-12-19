@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
-import org.apache.inlong.sort.formats.base.RowDataToFieldConverters;
+import org.apache.inlong.sdk.transform.utils.RowToFieldDataUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.table.data.RowData;
@@ -29,12 +29,12 @@ public class RowDataSourceData implements SourceData {
 
     private final RowData rowData;
     private final Map<String, Integer> fieldPositionMap;
-    private final RowDataToFieldConverters.RowFieldConverter[] converters;
+    private final RowToFieldDataUtils.RowFieldConverter[] converters;
 
     public RowDataSourceData(
             RowData rowData,
             Map<String, Integer> fieldPositionMap,
-            RowDataToFieldConverters.RowFieldConverter[] converters) {
+            RowToFieldDataUtils.RowFieldConverter[] converters) {
         this.rowData = rowData;
         this.fieldPositionMap = fieldPositionMap;
         this.converters = converters;

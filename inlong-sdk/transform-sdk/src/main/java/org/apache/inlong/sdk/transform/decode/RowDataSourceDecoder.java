@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.transform.decode;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.RowDataSourceInfo;
 import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sort.formats.base.RowDataToFieldConverters;
+import org.apache.inlong.sdk.transform.utils.RowToFieldDataUtils;
 import org.apache.inlong.sort.formats.base.TableFormatForRowDataUtils;
 
 import org.apache.flink.table.data.RowData;
@@ -32,16 +32,16 @@ import java.util.Map;
 public class RowDataSourceDecoder extends SourceDecoder<RowData> {
 
     private final Map<String, Integer> fieldPositionMap;
-    private final RowDataToFieldConverters.RowFieldConverter[] rowFieldConverters;
+    private final RowToFieldDataUtils.RowFieldConverter[] rowFieldConverters;
 
     public RowDataSourceDecoder(RowDataSourceInfo sourceInfo) {
         super(sourceInfo.getFields());
         List<FieldInfo> fields = sourceInfo.getFields();
         this.fieldPositionMap = parseFieldPositionMap(fields);
 
-        rowFieldConverters = new RowDataToFieldConverters.RowFieldConverter[fields.size()];
+        rowFieldConverters = new RowToFieldDataUtils.RowFieldConverter[fields.size()];
         for (int i = 0; i < rowFieldConverters.length; i++) {
-            rowFieldConverters[i] = RowDataToFieldConverters.createNullableRowFieldConverter(
+            rowFieldConverters[i] = RowToFieldDataUtils.createNullableRowFieldConverter(
                     TableFormatForRowDataUtils.deriveLogicalType(fields.get(i).getFormatInfo()));
         }
     }

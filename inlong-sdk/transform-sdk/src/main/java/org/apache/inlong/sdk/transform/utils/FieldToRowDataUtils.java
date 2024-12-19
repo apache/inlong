@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.base;
+package org.apache.inlong.sdk.transform.utils;
 
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
@@ -36,10 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Converters to convert field object to RowData field.
- */
-public class FieldToRowDataConverters implements Serializable {
+public class FieldToRowDataUtils {
 
     private static final long serialVersionUID = 1L;
 

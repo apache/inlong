@@ -17,41 +17,26 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.RowDataSinkInfo;
 import org.apache.inlong.sdk.transform.process.Context;
-import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
+import org.apache.inlong.sdk.transform.utils.FieldToRowDataUtils;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class RowDataSinkEncoder extends SinkEncoder<RowData> {
 
-    private final FieldToRowDataConverters.FieldToRowDataConverter[] fieldToRowDataConverters;
-    private final Map<String, Integer> fieldPositionMap;
+    private final FieldToRowDataUtils.FieldToRowDataConverter[] fieldToRowDataConverters;
 
     public RowDataSinkEncoder(RowDataSinkInfo sinkInfo) {
         super(sinkInfo.getFields());
-        this.fieldPositionMap = parseFieldPositionMap(fields);
 
-        fieldToRowDataConverters = new FieldToRowDataConverters.FieldToRowDataConverter[fields.size()];
+        fieldToRowDataConverters = new FieldToRowDataUtils.FieldToRowDataConverter[fields.size()];
         for (int i = 0; i < fields.size(); i++) {
-            fieldToRowDataConverters[i] = FieldToRowDataConverters.createConverter(
+            fieldToRowDataConverters[i] = FieldToRowDataUtils.createConverter(
                     TableFormatUtils.deriveLogicalType(fields.get(i).getFormatInfo()));
         }
-    }
-
-    private Map<String, Integer> parseFieldPositionMap(List<FieldInfo> fields) {
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < fields.size(); i++) {
-            map.put(fields.get(i).getName(), i);
-        }
-        return map;
     }
 
     @Override
