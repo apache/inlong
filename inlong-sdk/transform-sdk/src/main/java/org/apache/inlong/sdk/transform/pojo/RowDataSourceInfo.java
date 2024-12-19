@@ -17,36 +17,21 @@
 
 package org.apache.inlong.sdk.transform.pojo;
 
-import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
-import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-import lombok.Data;
+import java.util.List;
 
-/**
- * FieldInfo
- */
-@Data
-public class FieldInfo {
+@JsonIgnoreProperties(ignoreUnknown = true)
+@SuperBuilder
+@Getter
+public class RowDataSourceInfo extends SourceInfo {
 
-    private String name;
-    private FormatInfo formatInfo;
-    private TypeConverter converter = TypeConverter.DefaultTypeConverter();
+    private List<FieldInfo> fields;
 
-    public FieldInfo() {
-
-    }
-
-    public FieldInfo(String name) {
-        this(name, TypeConverter.DefaultTypeConverter());
-    }
-
-    public FieldInfo(String name, TypeConverter converter) {
-        this.name = name;
-        this.converter = converter;
-    }
-
-    public FieldInfo(String name, TypeConverter converter, FormatInfo formatInfo) {
-        this(name, converter);
-        this.formatInfo = formatInfo;
+    public RowDataSourceInfo(String charset, List<FieldInfo> fields) {
+        super(charset);
+        this.fields = fields;
     }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.transform.process.processor;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sdk.transform.decode.ParquetInputByteArray;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 
@@ -48,6 +49,7 @@ public abstract class AbstractProcessorTestBase {
         for (String fieldName : fieldNames) {
             FieldInfo field = new FieldInfo();
             field.setName(fieldName);
+            field.setFormatInfo(new StringFormatInfo());
             fields.add(field);
         }
         return fields;
