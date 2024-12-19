@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sdk.transform.process.processor;
 
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.StringData;
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
@@ -27,6 +24,10 @@ import org.apache.inlong.sdk.transform.pojo.RowDataSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.RowDataSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
 import org.junit.Assert;
 import org.junit.Test;
 

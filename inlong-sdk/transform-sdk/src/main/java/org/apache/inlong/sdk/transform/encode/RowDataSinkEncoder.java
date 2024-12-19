@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.RowDataSinkInfo;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class RowDataSinkEncoder extends SinkEncoder<RowData> {
 
     private Map<String, Integer> parseFieldPositionMap(List<FieldInfo> fields) {
         Map<String, Integer> map = new HashMap<>();
-        for (int i =0; i < fields.size(); i++) {
+        for (int i = 0; i < fields.size(); i++) {
             map.put(fields.get(i).getName(), i);
         }
         return map;

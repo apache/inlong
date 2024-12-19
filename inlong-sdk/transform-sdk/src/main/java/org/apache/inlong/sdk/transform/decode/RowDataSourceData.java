@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.inlong.sdk.transform.decode;
+
+import org.apache.inlong.sort.formats.base.RowDataToFieldConverters;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.formats.base.RowDataToFieldConverters;
 
 import java.util.Map;
 
 @Slf4j
 public class RowDataSourceData implements SourceData {
+
     private final RowData rowData;
     private final Map<String, Integer> fieldPositionMap;
     private final RowDataToFieldConverters.RowFieldConverter[] converters;
