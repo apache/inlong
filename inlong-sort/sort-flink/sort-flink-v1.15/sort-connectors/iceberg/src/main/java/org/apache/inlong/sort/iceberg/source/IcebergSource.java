@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.source;
 
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.iceberg.IcebergReadableMetadata.MetadataConverter;
 import org.apache.inlong.sort.iceberg.source.reader.IcebergSourceReader;
@@ -94,6 +95,7 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
     private final SplitAssignerFactory assignerFactory;
 
     private final MetricOption metricOption;
+    private final boolean enableLogReport;
 
     // Can't use SerializableTable as enumerator needs a regular table
     // that can discover table changes
@@ -105,13 +107,15 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
             ReaderFunction<T> readerFunction,
             SplitAssignerFactory assignerFactory,
             Table table,
-            MetricOption metricOption) {
+            MetricOption metricOption,
+            boolean enableLogReport) {
         this.tableLoader = tableLoader;
         this.scanContext = scanContext;
         this.readerFunction = readerFunction;
         this.assignerFactory = assignerFactory;
         this.table = table;
         this.metricOption = metricOption;
+        this.enableLogReport = enableLogReport;
     }
 
     String name() {
@@ -167,7 +171,7 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
         InlongIcebergSourceReaderMetrics<T> metrics =
                 new InlongIcebergSourceReaderMetrics<>(readerContext.metricGroup(), lazyTable().name());
         metrics.registerMetrics(metricOption);
-        return new IcebergSourceReader<>(metrics, readerFunction, readerContext);
+        return new IcebergSourceReader<>(metrics, readerFunction, readerContext, enableLogReport);
     }
 
     @Override
@@ -522,9 +526,10 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
             }
             resolveMetricOption();
             checkRequired();
+            boolean enableLogReport = flinkConfig.get(Constants.ENABLE_LOG_REPORT);
             // Since builder already load the table, pass it to the source to avoid double loading
             return new IcebergSource<T>(
-                    tableLoader, context, readerFunction, splitAssignerFactory, table, metricOption);
+                    tableLoader, context, readerFunction, splitAssignerFactory, table, metricOption, enableLogReport);
         }
 
         private void checkRequired() {

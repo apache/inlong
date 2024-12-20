@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.kafka.source.reader;
 
+import org.apache.inlong.sort.base.util.OpenTelemetryLogger;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
 
 import org.apache.flink.annotation.Internal;
@@ -37,6 +38,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.logging.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,8 @@ public class KafkaSourceReader<T>
     private final KafkaSourceReaderMetrics kafkaSourceReaderMetrics;
     private final boolean commitOffsetsOnCheckpoint;
     private final KafkaDeserializationSchema<RowData> metricSchema;
+    private OpenTelemetryLogger openTelemetryLogger;
+    private final boolean enableLogReport;
 
     public KafkaSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>> elementsQueue,
@@ -74,7 +78,8 @@ public class KafkaSourceReader<T>
             Configuration config,
             SourceReaderContext context,
             KafkaSourceReaderMetrics kafkaSourceReaderMetrics,
-            KafkaDeserializationSchema<RowData> metricSchema) {
+            KafkaDeserializationSchema<RowData> metricSchema,
+            boolean enableLogReport) {
         super(elementsQueue, kafkaSourceFetcherManager, recordEmitter, config, context);
         this.offsetsToCommit = Collections.synchronizedSortedMap(new TreeMap<>());
         this.offsetsOfFinishedSplits = new ConcurrentHashMap<>();
@@ -82,10 +87,33 @@ public class KafkaSourceReader<T>
         this.commitOffsetsOnCheckpoint =
                 config.get(KafkaSourceOptions.COMMIT_OFFSETS_ON_CHECKPOINT);
         this.metricSchema = metricSchema;
+        this.enableLogReport = enableLogReport;
         if (!commitOffsetsOnCheckpoint) {
             LOG.warn(
                     "Offset commit on checkpoint is disabled. "
                             + "Consuming offset will not be reported back to Kafka cluster.");
+        }
+        if (this.enableLogReport) {
+            this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                    .setLogLevel(Level.ERROR)
+                    .setServiceName(this.getClass().getSimpleName())
+                    .setLocalHostIp(this.context.getLocalHostName()).build();
+        }
+    }
+
+    @Override
+    public void start() {
+        if (this.enableLogReport) {
+            this.openTelemetryLogger.install();
+        }
+        super.start();
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        if (this.enableLogReport) {
+            openTelemetryLogger.uninstall();
         }
     }
 

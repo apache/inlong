@@ -242,6 +242,8 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
+                                    <include>io.opentelemetry*</include>
+                                    <include>com.squareup.*</include>
                                     <include>org.apache.inlong:*</include>
                                     <include>io.streamnative.connectors:pulsar-flink-connector-origin*</include>
                                     <include>io.streamnative.connectors:flink-protobuf</include>

@@ -81,14 +81,16 @@ public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT
             PulsarClient pulsarClient,
             PulsarAdmin pulsarAdmin,
             @Nullable TransactionCoordinatorClient coordinatorClient,
-            PulsarDeserializationSchema<OUT> deserializationSchema) {
+            PulsarDeserializationSchema<OUT> deserializationSchema,
+            boolean enableLogReport) {
         super(
                 elementsQueue,
                 new PulsarUnorderedFetcherManager<>(elementsQueue, splitReaderSupplier::get),
                 context,
                 sourceConfiguration,
                 pulsarClient,
-                pulsarAdmin);
+                pulsarAdmin,
+                enableLogReport);
         this.coordinatorClient = coordinatorClient;
         this.transactionsToCommit = Collections.synchronizedSortedMap(new TreeMap<>());
         this.transactionsOfFinishedSplits = Collections.synchronizedList(new ArrayList<>());

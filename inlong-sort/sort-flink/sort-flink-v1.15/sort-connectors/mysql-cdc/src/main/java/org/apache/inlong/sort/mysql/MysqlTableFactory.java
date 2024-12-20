@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.mysql;
 
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 
 import com.ververica.cdc.connectors.mysql.source.config.MySqlSourceOptions;
@@ -69,6 +70,7 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
         final String username = config.get(USERNAME);
         final String password = config.get(PASSWORD);
         final String databaseName = config.get(DATABASE_NAME);
+        final Boolean enableLogReport = context.getConfiguration().get(Constants.ENABLE_LOG_REPORT);
         validateRegex(DATABASE_NAME.key(), databaseName);
         final String tableName = config.get(TABLE_NAME);
         validateRegex(TABLE_NAME.key(), tableName);
@@ -129,6 +131,7 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                 distributionFactorLower,
                 startupOptions,
                 scanNewlyAddedTableEnabled,
+                enableLogReport,
                 getJdbcProperties(context.getCatalogTable().getOptions()),
                 heartbeatInterval,
                 chunkKeyColumn,
@@ -337,7 +340,6 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                             + "\"-U\" represents UPDATE_BEFORE.\n"
                             + "\"+U\" represents UPDATE_AFTER.\n"
                             + "\"-D\" represents DELETE.");
-
     // ----------------------------------------------------------------------------
     // experimental options, won't add them to documentation
     // ----------------------------------------------------------------------------

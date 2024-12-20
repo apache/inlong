@@ -48,9 +48,7 @@ import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULS
 import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULSAR_SERVICE_URL;
 import static org.apache.flink.connector.pulsar.source.PulsarSourceOptions.PULSAR_SUBSCRIPTION_NAME;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.*;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.createKeyFormatProjection;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.createValueFormatProjection;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.getKeyDecodingFormat;
@@ -125,7 +123,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
         final StartCursor startCursor = getStartCursor(tableOptions);
         final StopCursor stopCursor = getStopCursor(tableOptions);
         final SubscriptionType subscriptionType = getSubscriptionType(tableOptions);
-
+        final boolean enableLogReport = context.getConfiguration().get(ENABLE_LOG_REPORT);
         // Forward source configs
         final Properties properties = getPulsarProperties(tableOptions);
         properties.setProperty(PULSAR_ADMIN_URL.key(), tableOptions.get(ADMIN_URL));
@@ -163,7 +161,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
         final DecodingFormat<DeserializationSchema<RowData>> decodingFormatForMetadataPushdown =
                 valueDecodingFormat;
         final ChangelogMode changelogMode = decodingFormatForMetadataPushdown.getChangelogMode();
-
         return new PulsarTableSource(
                 deserializationSchemaFactory,
                 decodingFormatForMetadataPushdown,
@@ -172,7 +169,8 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 properties,
                 startCursor,
                 stopCursor,
-                subscriptionType);
+                subscriptionType,
+                enableLogReport);
     }
 
     @Override

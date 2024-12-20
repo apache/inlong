@@ -101,6 +101,7 @@ public class KafkaSource<OUT>
     private final KafkaDeserializationSchema<RowData> metricSchema;
     // The configurations.
     private final Properties props;
+    private final boolean enableLogReport;
 
     KafkaSource(
             KafkaSubscriber subscriber,
@@ -109,7 +110,8 @@ public class KafkaSource<OUT>
             Boundedness boundedness,
             KafkaRecordDeserializationSchema<OUT> deserializationSchema,
             KafkaDeserializationSchema<RowData> metricSchema,
-            Properties props) {
+            Properties props,
+            boolean enableLogReport) {
         this.subscriber = subscriber;
         this.startingOffsetsInitializer = startingOffsetsInitializer;
         this.stoppingOffsetsInitializer = stoppingOffsetsInitializer;
@@ -117,6 +119,7 @@ public class KafkaSource<OUT>
         this.deserializationSchema = deserializationSchema;
         this.metricSchema = metricSchema;
         this.props = props;
+        this.enableLogReport = enableLogReport;
     }
 
     /**
@@ -175,7 +178,8 @@ public class KafkaSource<OUT>
                 toConfiguration(props),
                 readerContext,
                 kafkaSourceReaderMetrics,
-                metricSchema);
+                metricSchema,
+                enableLogReport);
     }
 
     @Internal
