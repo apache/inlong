@@ -263,4 +263,14 @@
             and tenant = #{sourceTenant, jdbcType=VARCHAR}
         </where>
     </insert>
+    <select id="selectByUniqueKeyWithoutTenant" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+            name = #{name, jdbcType=VARCHAR}
+            and type = #{type, jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
 </mapper>

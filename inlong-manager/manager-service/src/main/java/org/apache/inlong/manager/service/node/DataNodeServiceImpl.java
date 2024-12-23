@@ -296,4 +296,18 @@ public class DataNodeServiceImpl implements DataNodeService {
         return result;
     }
 
+    @Override
+    public DataNodeInfo getByKeyWithoutTenant(String name, String type) {
+        DataNodeEntity entity = dataNodeMapper.selectByUniqueKeyWithoutTenant(name, type);
+        if (entity == null) {
+            LOGGER.error("data node not found by name={}, type={}", name, type);
+            throw new BusinessException("data node not found");
+        }
+        String dataNodeType = entity.getType();
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
+        DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+        LOGGER.debug("success to get data node info by name={}, type={}", name, type);
+        return dataNodeInfo;
+    }
+
 }

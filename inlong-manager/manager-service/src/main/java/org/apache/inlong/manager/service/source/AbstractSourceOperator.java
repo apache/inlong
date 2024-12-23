@@ -59,6 +59,7 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.cos.COSSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -552,6 +553,16 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     dataConfig.setAuditVersion(fileSourceDTO.getAuditVersion());
                     fileSourceDTO.setDataContentStyle(streamEntity.getDataType());
                     extParams = JsonUtils.toJsonString(fileSourceDTO);
+                }
+            }
+            if (SourceType.COS.equalsIgnoreCase(entity.getSourceType())) {
+                String dataSeparator = String.valueOf((char) Integer.parseInt(streamEntity.getDataSeparator()));
+                COSSourceDTO cosSourceDTO = JsonUtils.parseObject(extParams, COSSourceDTO.class);
+                if (Objects.nonNull(cosSourceDTO)) {
+                    cosSourceDTO.setDataSeparator(dataSeparator);
+                    dataConfig.setAuditVersion(cosSourceDTO.getAuditVersion());
+                    cosSourceDTO.setContentStyle(streamEntity.getDataType());
+                    extParams = JsonUtils.toJsonString(cosSourceDTO);
                 }
             }
             InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
