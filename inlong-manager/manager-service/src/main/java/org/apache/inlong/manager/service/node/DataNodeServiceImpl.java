@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.node;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
@@ -31,10 +34,6 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -294,6 +293,20 @@ public class DataNodeServiceImpl implements DataNodeService {
         Boolean result = dataNodeOperator.testConnection(request);
         LOGGER.info("connection [{}] for: {}", result ? "success" : "failed", request);
         return result;
+    }
+
+    @Override
+    public DataNodeInfo getByKeyWithoutTenant(String name, String type) {
+        DataNodeEntity entity = dataNodeMapper.selectByUniqueKeyWithoutTenant(name, type);
+        if (entity == null) {
+            LOGGER.error("data node not found by name={}, type={}", name, type);
+            throw new BusinessException("data node not found");
+        }
+        String dataNodeType = entity.getType();
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
+        DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+        LOGGER.debug("success to get data node info by name={}, type={}", name, type);
+        return dataNodeInfo;
     }
 
 }

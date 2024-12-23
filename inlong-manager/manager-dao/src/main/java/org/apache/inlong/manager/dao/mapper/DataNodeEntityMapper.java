@@ -58,4 +58,7 @@ public interface DataNodeEntityMapper {
     @MultiTenantQuery(with = false)
     List<DataNodeEntity> selectByIdSelective(DataNodeEntity record);
 
+    @MultiTenantQuery(with = false)
+    DataNodeEntity selectByUniqueKeyWithoutTenant(@Param("name") String name, @Param("type") String type);
+
 }

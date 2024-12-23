@@ -156,4 +156,6 @@ public interface DataNodeService {
      */
     Boolean testConnection(DataNodeRequest request);
 
+    DataNodeInfo getByKeyWithoutTenant(String name, String type);
+
 }
