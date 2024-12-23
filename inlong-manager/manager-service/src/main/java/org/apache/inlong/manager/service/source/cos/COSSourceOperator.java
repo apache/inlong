@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.source.cos;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -38,6 +36,9 @@ import org.apache.inlong.manager.pojo.source.cos.COSSourceDTO;
 import org.apache.inlong.manager.pojo.source.cos.COSSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,10 +103,10 @@ public class COSSourceOperator extends AbstractSourceOperator {
 
         List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(entity.getId());
         source.setDataAddTaskList(dataAddTaskList.stream().map(subEntity -> DataAddTaskDTO.builder()
-                        .id(subEntity.getId())
-                        .taskMapId(entity.getId())
-                        .agentIp(subEntity.getAgentIp())
-                        .status(subEntity.getStatus()).build())
+                .id(subEntity.getId())
+                .taskMapId(entity.getId())
+                .agentIp(subEntity.getAgentIp())
+                .status(subEntity.getStatus()).build())
                 .collect(Collectors.toList()));
         return source;
     }
