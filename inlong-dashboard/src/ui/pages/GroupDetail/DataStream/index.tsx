@@ -32,6 +32,7 @@ import StreamItemModal from './StreamItemModal';
 import SourceSinkCard from './SourceSinkCard';
 import { getFilterFormContent } from './config';
 import PreviewModal from './PreviewModal';
+import { timestampFormat } from '@/core/utils';
 
 type Props = CommonInterface;
 
@@ -190,38 +191,64 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     return Entity ? new Entity().renderList() : [];
   }, [Entity]);
 
-  const columns = entityColumns?.concat([
-    {
-      title: t('basic.Operating'),
-      dataIndex: 'action',
-      render: (text, record) =>
-        readonly ? (
-          '-'
-        ) : (
-          <div onClick={e => e.stopPropagation()}>
-            <Button type="link" onClick={() => onEdit(record)}>
-              {t('basic.Edit')}
-            </Button>
-            <Button type="link" onClick={() => onDelete(record)}>
-              {t('basic.Delete')}
-            </Button>
-            {record?.status && (record?.status === 120 || record?.status === 130) && (
-              <Button type="link" onClick={() => openModal(record)}>
-                {t('pages.GroupDashboard.config.ExecuteLog')}
+  const columns = entityColumns
+    ?.map(item => {
+      if (item.dataIndex === 'creator') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.createTime && timestampFormat(record.createTime)}</div>
+            </>
+          ),
+        };
+      }
+      if (item.dataIndex === 'modifier') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+            </>
+          ),
+        };
+      }
+      return item;
+    })
+    .concat([
+      {
+        title: t('basic.Operating'),
+        dataIndex: 'action',
+        render: (text, record) =>
+          readonly ? (
+            '-'
+          ) : (
+            <div onClick={e => e.stopPropagation()}>
+              <Button type="link" onClick={() => onEdit(record)}>
+                {t('basic.Edit')}
               </Button>
-            )}
-            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
-              <Button type="link" onClick={() => onWorkflow(record)}>
-                {t('meta.Stream.ExecuteWorkflow')}
+              <Button type="link" onClick={() => onDelete(record)}>
+                {t('basic.Delete')}
               </Button>
-            )}
-            <Button type="link" onClick={() => onPreview(record)}>
-              {t('pages.GroupDetail.Stream.Preview')}
-            </Button>
-          </div>
-        ),
-    },
-  ]);
+              {record?.status && (record?.status === 120 || record?.status === 130) && (
+                <Button type="link" onClick={() => openModal(record)}>
+                  {t('pages.GroupDashboard.config.ExecuteLog')}
+                </Button>
+              )}
+              {record?.status && (groupStatus === 120 || groupStatus === 130) && (
+                <Button type="link" onClick={() => onWorkflow(record)}>
+                  {t('meta.Stream.ExecuteWorkflow')}
+                </Button>
+              )}
+              <Button type="link" onClick={() => onPreview(record)}>
+                {t('pages.GroupDetail.Stream.Preview')}
+              </Button>
+            </div>
+          ),
+      },
+    ]);
 
   return (
     <>
