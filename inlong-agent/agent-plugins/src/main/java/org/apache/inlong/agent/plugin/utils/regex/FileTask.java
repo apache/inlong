@@ -308,8 +308,8 @@ public class FileTask extends LogAbstractTask {
                 continue;
             }
             if (Files.isDirectory(child)) {
-                LOGGER.info("The find creation event is triggered by a directory: " + child
-                        .getFileName());
+                LOGGER.info("The find creation event is triggered by a directory: {}", child.getFileName());
+
                 entity.registerRecursively(child);
                 continue;
             }
