@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
 import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -125,7 +125,7 @@ public class TestUtils {
         Calendar calendar = Calendar.getInstance();
         Long dataTime = DateTransUtils.timeStrConvertToMillSec("202406251007", "m");
         calendar.setTimeInMillis(dataTime);
-        Assert.assertEquals(NewDateUtils.replaceDateExpression(calendar, src), dst);
+        Assert.assertEquals(DateUtils.replaceDateExpression(calendar, src), dst);
     }
 
     private void testCutDirectoryByWildcard(String src, List<String> dst) {

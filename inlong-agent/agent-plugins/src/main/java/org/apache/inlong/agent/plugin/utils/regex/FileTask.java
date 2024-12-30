@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.logcollection.local;
+package org.apache.inlong.agent.plugin.utils.regex;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.task.logcollection.LogAbstractTask;
+import org.apache.inlong.agent.plugin.task.logcollection.local.FileScanner;
 import org.apache.inlong.agent.plugin.task.logcollection.local.FileScanner.BasicFileInfo;
-import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
-import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
-import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
+import org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.file.FileUtils;
@@ -59,7 +58,8 @@ import java.util.stream.Stream;
 public class FileTask extends LogAbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTask.class);
-    private final Map<String, WatchEntity> watchers = new ConcurrentHashMap<>();
+    private final Map<String, org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity> watchers =
+            new ConcurrentHashMap<>();
     private final Set<String> watchFailedDirs = new HashSet<>();
     public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
     private boolean realTime = false;
@@ -168,7 +168,9 @@ public class FileTask extends LogAbstractTask {
              * linux regular expression, we have to replace * to ., and replace . with \\. .
              */
             WatchService watchService = FileSystems.getDefault().newWatchService();
-            WatchEntity entity = new WatchEntity(watchService, originPattern, taskProfile.getCycleUnit());
+            org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity =
+                    new org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity(watchService, originPattern,
+                            taskProfile.getCycleUnit());
             entity.registerRecursively();
             watchers.put(originPattern, entity);
             watchFailedDirs.remove(originPattern);
@@ -188,7 +190,8 @@ public class FileTask extends LogAbstractTask {
         releaseWatchers(watchers);
     }
 
-    private void releaseWatchers(Map<String, WatchEntity> watchers) {
+    private void releaseWatchers(
+            Map<String, org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity> watchers) {
         while (running) {
             if (AgentUtils.getCurrentTime() - coreThreadUpdateTime > CORE_THREAD_MAX_GAP_TIME_MS) {
                 LOGGER.error("core thread not update, maybe it has broken");
@@ -251,7 +254,8 @@ public class FileTask extends LogAbstractTask {
          * Visit the watchers to see if it gets any new file creation, if it exists and fits the file name pattern, add
          * it to the task list.
          */
-        for (Map.Entry<String, WatchEntity> entry : watchers.entrySet()) {
+        for (Map.Entry<String, org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity> entry : watchers
+                .entrySet()) {
             dealWithWatchEntity(entry.getKey());
         }
     }
@@ -273,7 +277,7 @@ public class FileTask extends LogAbstractTask {
     }
 
     public synchronized void dealWithWatchEntity(String originPattern) {
-        WatchEntity entity = watchers.get(originPattern);
+        org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity = watchers.get(originPattern);
         if (entity == null) {
             LOGGER.error("Can't find the watch entity for originPattern: " + originPattern);
             return;
@@ -294,7 +298,8 @@ public class FileTask extends LogAbstractTask {
         }
     }
 
-    private void dealWithWatchKey(WatchEntity entity, WatchKey key) throws IOException {
+    private void dealWithWatchKey(org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity,
+            WatchKey key) throws IOException {
         Path contextPath = entity.getPath(key);
         LOGGER.info("Find creation events in path: " + contextPath.toAbsolutePath());
         for (WatchEvent<?> watchEvent : key.pollEvents()) {
@@ -333,7 +338,8 @@ public class FileTask extends LogAbstractTask {
         return contextPath.resolve(eventPath);
     }
 
-    private void handleFilePath(Path filePath, WatchEntity entity) {
+    private void handleFilePath(Path filePath,
+            org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity) {
         String newFileName = filePath.toFile().getAbsolutePath();
         LOGGER.info("new file {} {}", newFileName, entity.getPattern());
         Matcher matcher = entity.getPattern().matcher(newFileName);
@@ -349,7 +355,8 @@ public class FileTask extends LogAbstractTask {
         }
     }
 
-    private boolean checkFileNameForTime(String newFileName, WatchEntity entity) {
+    private boolean checkFileNameForTime(String newFileName,
+            org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity) {
         /* Get the data time for this file. */
         PathDateExpression dateExpression = entity.getDateExpression();
         if (dateExpression.getLongestDatePattern().length() != 0) {

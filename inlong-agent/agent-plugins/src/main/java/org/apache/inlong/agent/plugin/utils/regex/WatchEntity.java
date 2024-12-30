@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.logcollection.local;
+package org.apache.inlong.agent.plugin.utils.regex;
 
-import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
-import org.apache.inlong.agent.plugin.utils.regex.NonRegexPatternPosition;
-import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
-import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;

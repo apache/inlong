@@ -31,6 +31,7 @@ import org.apache.inlong.agent.pojo.OracleTask.OracleTaskConfig;
 import org.apache.inlong.agent.pojo.PostgreSQLTask.PostgreSQLTaskConfig;
 import org.apache.inlong.agent.pojo.PulsarTask.PulsarTaskConfig;
 import org.apache.inlong.agent.pojo.RedisTask.RedisTaskConfig;
+import org.apache.inlong.agent.pojo.SQLTask.SQLTaskConfig;
 import org.apache.inlong.agent.pojo.SqlServerTask.SqlserverTaskConfig;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
@@ -57,53 +58,8 @@ public class TaskProfileDto {
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
     public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
-    /**
-     * file source
-     */
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.LogFileSource";
-    /**
-     * binlog source
-     */
-    public static final String BINLOG_SOURCE = "org.apache.inlong.agent.plugin.sources.BinlogSource";
-    /**
-     * kafka source
-     */
-    public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
-    // pulsar source
-    public static final String PULSAR_SOURCE = "org.apache.inlong.agent.plugin.sources.PulsarSource";
-    /**
-     * PostgreSQL source
-     */
-    public static final String POSTGRESQL_SOURCE = "org.apache.inlong.agent.plugin.sources.PostgreSQLSource";
-    /**
-     * mongo source
-     */
-    public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
-    /**
-     * oracle source
-     */
-    public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
-    /**
-     * redis source
-     */
-    public static final String REDIS_SOURCE = "org.apache.inlong.agent.plugin.sources.RedisSource";
-    /**
-     * mqtt source
-     */
-    public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
-    /**
-     * sqlserver source
-     */
-    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
-    /**
-     * cos source
-     */
-    public static final String COS_SOURCE = "org.apache.inlong.agent.plugin.sources.COSSource";
-
     private static final Gson GSON = new Gson();
-
     public static final String deafult_time_offset = "0";
-
     private static final String DEFAULT_AUDIT_VERSION = "0";
 
     private Task task;
@@ -154,7 +110,7 @@ public class TaskProfileDto {
                 FileTaskConfig.class);
 
         FileTask.Dir dir = new FileTask.Dir();
-        dir.setPatterns(taskConfig.getPattern());
+        dir.setPatterns(taskConfig.getPattern().trim());
         dir.setBlackList(taskConfig.getBlackList());
         fileTask.setDir(dir);
         fileTask.setCollectType(taskConfig.getCollectType());
@@ -200,7 +156,7 @@ public class TaskProfileDto {
         cosTask.setId(dataConfig.getTaskId());
         COSTaskConfig taskConfig = GSON.fromJson(dataConfig.getExtParams(),
                 COSTaskConfig.class);
-        cosTask.setPattern(taskConfig.getPattern());
+        cosTask.setPattern(taskConfig.getPattern().trim());
         cosTask.setCollectType(taskConfig.getCollectType());
         cosTask.setContentStyle(taskConfig.getContentStyle());
         cosTask.setDataSeparator(taskConfig.getDataSeparator());
@@ -222,6 +178,30 @@ public class TaskProfileDto {
             cosTask.setTimeOffset(deafult_time_offset + cosTask.getCycleUnit());
         }
         return cosTask;
+    }
+
+    private static SQLTask getSQLTask(DataConfig dataConfig) {
+        SQLTask sqlTask = new SQLTask();
+        sqlTask.setId(dataConfig.getTaskId());
+        SQLTaskConfig taskConfig = GSON.fromJson(dataConfig.getExtParams(),
+                SQLTaskConfig.class);
+        sqlTask.setSql(taskConfig.getSql());
+        sqlTask.setMaxInstanceCount(taskConfig.getMaxInstanceCount());
+        sqlTask.setRetry(taskConfig.getRetry());
+        sqlTask.setCycleUnit(taskConfig.getCycleUnit());
+        sqlTask.setDataTimeFrom(taskConfig.getDataTimeFrom());
+        sqlTask.setDataTimeTo(taskConfig.getDataTimeTo());
+        sqlTask.setUsername(taskConfig.getUsername());
+        sqlTask.setJdbcPassword(taskConfig.getJdbcPassword());
+        sqlTask.setDataSeparator(taskConfig.getDataSeparator());
+        sqlTask.setFetchSize(taskConfig.getFetchSize());
+        sqlTask.setJdbcUrl(taskConfig.getJdbcUrl());
+        if (taskConfig.getTimeOffset() != null) {
+            sqlTask.setTimeOffset(taskConfig.getTimeOffset());
+        } else {
+            sqlTask.setTimeOffset(deafult_time_offset + sqlTask.getCycleUnit());
+        }
+        return sqlTask;
     }
 
     private static KafkaTask getKafkaTask(DataConfig dataConfigs) {
@@ -500,66 +480,62 @@ public class TaskProfileDto {
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
+                SQLTask sqlTask = getSQLTask(dataConfig);
+                task.setCycleUnit(sqlTask.getCycleUnit());
+                task.setSqlTask(sqlTask);
+                task.setRetry(sqlTask.getRetry());
+                profileDto.setTask(task);
+                break;
             case BINLOG:
                 BinlogTask binlogTask = getBinlogTask(dataConfig);
                 task.setBinlogTask(binlogTask);
-                task.setSource(BINLOG_SOURCE);
                 profileDto.setTask(task);
                 break;
             case FILE:
                 FileTask fileTask = getFileTask(dataConfig);
                 task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
-                task.setSource(DEFAULT_SOURCE);
                 task.setRetry(fileTask.getRetry());
                 profileDto.setTask(task);
                 break;
             case KAFKA:
                 KafkaTask kafkaTask = getKafkaTask(dataConfig);
                 task.setKafkaTask(kafkaTask);
-                task.setSource(KAFKA_SOURCE);
                 profileDto.setTask(task);
                 break;
             case PULSAR:
                 PulsarTask pulsarTask = getPulsarTask(dataConfig);
                 task.setPulsarTask(pulsarTask);
-                task.setSource(PULSAR_SOURCE);
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
                 PostgreSQLTask postgreSQLTask = getPostgresTask(dataConfig);
                 task.setPostgreSQLTask(postgreSQLTask);
-                task.setSource(POSTGRESQL_SOURCE);
                 profileDto.setTask(task);
                 break;
             case ORACLE:
                 OracleTask oracleTask = getOracleTask(dataConfig);
                 task.setOracleTask(oracleTask);
-                task.setSource(ORACLE_SOURCE);
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
                 SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
                 task.setSqlserverTask(sqlserverTask);
-                task.setSource(SQLSERVER_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MONGODB:
                 MongoTask mongoTask = getMongoTask(dataConfig);
                 task.setMongoTask(mongoTask);
-                task.setSource(MONGO_SOURCE);
                 profileDto.setTask(task);
                 break;
             case REDIS:
                 RedisTask redisTask = getRedisTask(dataConfig);
                 task.setRedisTask(redisTask);
-                task.setSource(REDIS_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MQTT:
                 MqttTask mqttTask = getMqttTask(dataConfig);
                 task.setMqttTask(mqttTask);
-                task.setSource(MQTT_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MOCK:
@@ -569,7 +545,6 @@ public class TaskProfileDto {
                 COSTask cosTask = getCOSTask(dataConfig);
                 task.setCycleUnit(cosTask.getCycleUnit());
                 task.setCosTask(cosTask);
-                task.setSource(COS_SOURCE);
                 task.setRetry(cosTask.getRetry());
                 profileDto.setTask(task);
                 break;
@@ -618,6 +593,7 @@ public class TaskProfileDto {
         private MqttTask mqttTask;
         private SqlServerTask sqlserverTask;
         private COSTask cosTask;
+        private SQLTask sqlTask;
     }
 
     @Data

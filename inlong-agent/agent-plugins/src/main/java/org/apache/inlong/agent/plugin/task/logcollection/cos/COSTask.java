@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.task.logcollection.cos;
 
-import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.task.logcollection.LogAbstractTask;
@@ -33,12 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Watch directory, if new valid files are created, create instance correspondingly.
- */
 public class COSTask extends LogAbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(COSTask.class);
@@ -59,7 +53,7 @@ public class COSTask extends LogAbstractTask {
     @Override
     protected void initTask() {
         super.initTask();
-        timeOffset = taskProfile.get(TaskConstants.TASK_COS_TIME_OFFSET, "");
+        timeOffset = taskProfile.get(TaskConstants.COS_TIME_OFFSET, "");
         retry = taskProfile.getBoolean(TaskConstants.COS_TASK_RETRY, false);
         originPattern = taskProfile.get(TaskConstants.COS_TASK_PATTERN);
         bucketName = taskProfile.get(TaskConstants.COS_TASK_BUCKET_NAME);
@@ -114,7 +108,7 @@ public class COSTask extends LogAbstractTask {
             LOGGER.error("task profile needs file keys");
             return false;
         }
-        if (!profile.hasKey(TaskConstants.TASK_COS_TIME_OFFSET)) {
+        if (!profile.hasKey(TaskConstants.COS_TIME_OFFSET)) {
             LOGGER.error("task profile needs time offset");
             return false;
         }
@@ -146,51 +140,19 @@ public class COSTask extends LogAbstractTask {
                 taskProfile.getCycleUnit(), timeOffset, startTime, endTime, retry);
         LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
         fileInfos.forEach((fileInfo) -> {
-            addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
+            String fileName = fileInfo.fileName;
+            String dataTime = fileInfo.dataTime;
+            ObjectMetadata meta = cosClient.getObjectMetadata(bucketName, fileName);
+            addToEvenMap(fileName, dataTime, meta.getLastModified().getTime(), taskProfile.getCycleUnit());
             if (retry) {
                 instanceCount++;
             }
         });
     }
 
-    private boolean isInEventMap(String fileName, String dataTime) {
-        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
-        if (fileToProfile == null) {
-            return false;
-        }
-        return fileToProfile.get(fileName) != null;
-    }
-
     @Override
     protected void dealWithEventMap() {
         removeTimeoutEvent(eventMap, retry);
         dealWithEventMapWithCycle();
-    }
-
-    private void addToEvenMap(String fileName, String dataTime) {
-        if (isInEventMap(fileName, dataTime)) {
-            LOGGER.info("add to evenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
-                    taskProfile.getTaskId(), dataTime, fileName);
-            return;
-        }
-        ObjectMetadata meta = cosClient.getObjectMetadata(bucketName, fileName);
-        Long fileUpdateTime = meta.getLastModified().getTime();
-        if (!shouldAddAgain(fileName, fileUpdateTime)) {
-            LOGGER.info("add to evenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
-                    taskProfile.getTaskId(), dataTime, fileName);
-            return;
-        }
-        Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
-                mapKey -> new ConcurrentHashMap<>());
-        boolean containsInMemory = sameDataTimeEvents.containsKey(fileName);
-        if (containsInMemory) {
-            LOGGER.error("should not happen! may be {} has been deleted and add again", fileName);
-            return;
-        }
-        String cycleUnit = taskProfile.getCycleUnit();
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(fileName, cycleUnit, dataTime,
-                fileUpdateTime);
-        sameDataTimeEvents.put(fileName, instanceProfile);
-        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
     }
 }

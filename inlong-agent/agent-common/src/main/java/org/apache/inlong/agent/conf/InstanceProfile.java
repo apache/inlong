@@ -48,16 +48,30 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_TYPE;
  */
 public class InstanceProfile extends AbstractConfiguration implements Comparable<InstanceProfile> {
 
-    public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
-    public static final String DEFAULT_COS_INSTANCE = "org.apache.inlong.agent.plugin.instance.COSInstance";
-    public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
-    public static final String DEFAULT_MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
-    public static final String DEFAULT_MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
-    public static final String DEFAULT_ORACLE_INSTANCE = "org.apache.inlong.agent.plugin.instance.OracleInstance";
-    public static final String DEFAULT_POSTGRES_INSTANCE = "org.apache.inlong.agent.plugin.instance.PostgreSQLInstance";
-    public static final String DEFAULT_PULSAR_INSTANCE = "org.apache.inlong.agent.plugin.instance.PulsarInstance";
-    public static final String DEFAULT_REDIS_INSTANCE = "org.apache.inlong.agent.plugin.instance.RedisInstance";
-    public static final String DEFAULT_SQLSERVER_INSTANCE = "org.apache.inlong.agent.plugin.instance.SQLServerInstance";
+    public static final String FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
+    public static final String COS_INSTANCE = "org.apache.inlong.agent.plugin.instance.COSInstance";
+    public static final String KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
+    public static final String MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
+    public static final String MQTT_INSTANCE = "org.apache.inlong.agent.plugin.instance.MqttInstance";
+    public static final String ORACLE_INSTANCE = "org.apache.inlong.agent.plugin.instance.OracleInstance";
+    public static final String POSTGRES_INSTANCE = "org.apache.inlong.agent.plugin.instance.PostgreSQLInstance";
+    public static final String PULSAR_INSTANCE = "org.apache.inlong.agent.plugin.instance.PulsarInstance";
+    public static final String REDIS_INSTANCE = "org.apache.inlong.agent.plugin.instance.RedisInstance";
+    public static final String SQLSERVER_INSTANCE = "org.apache.inlong.agent.plugin.instance.SQLServerInstance";
+    public static final String SQL_INSTANCE = "org.apache.inlong.agent.plugin.instance.SQLInstance";
+
+    public static final String FILE_SOURCE = "org.apache.inlong.agent.plugin.sources.LogFileSource";
+    public static final String BINLOG_SOURCE = "org.apache.inlong.agent.plugin.sources.BinlogSource";
+    public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
+    public static final String PULSAR_SOURCE = "org.apache.inlong.agent.plugin.sources.PulsarSource";
+    public static final String POSTGRESQL_SOURCE = "org.apache.inlong.agent.plugin.sources.PostgreSQLSource";
+    public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
+    public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
+    public static final String REDIS_SOURCE = "org.apache.inlong.agent.plugin.sources.RedisSource";
+    public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
+    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
+    public static final String COS_SOURCE = "org.apache.inlong.agent.plugin.sources.COSSource";
+    public static final String SQL_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLSource";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceProfile.class);
     private static final Gson GSON = new Gson();
@@ -88,25 +102,27 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         }
         switch (taskType) {
             case FILE:
-                return DEFAULT_FILE_INSTANCE;
+                return FILE_INSTANCE;
             case KAFKA:
-                return DEFAULT_KAFKA_INSTANCE;
+                return KAFKA_INSTANCE;
             case PULSAR:
-                return DEFAULT_PULSAR_INSTANCE;
+                return PULSAR_INSTANCE;
             case POSTGRES:
-                return DEFAULT_POSTGRES_INSTANCE;
+                return POSTGRES_INSTANCE;
             case ORACLE:
-                return DEFAULT_ORACLE_INSTANCE;
+                return ORACLE_INSTANCE;
             case SQLSERVER:
-                return DEFAULT_SQLSERVER_INSTANCE;
+                return SQLSERVER_INSTANCE;
             case MONGODB:
-                return DEFAULT_MONGODB_INSTANCE;
+                return MONGODB_INSTANCE;
             case REDIS:
-                return DEFAULT_REDIS_INSTANCE;
+                return REDIS_INSTANCE;
             case MQTT:
-                return DEFAULT_MQTT_INSTANCE;
+                return MQTT_INSTANCE;
             case COS:
-                return DEFAULT_COS_INSTANCE;
+                return COS_INSTANCE;
+            case SQL:
+                return SQL_INSTANCE;
             default:
                 LOGGER.error("invalid task type {}", taskType);
                 return null;
@@ -126,7 +142,43 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
     }
 
     public String getSourceClass() {
-        return get(TaskConstants.TASK_SOURCE);
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(getInt(TASK_TYPE, TaskTypeEnum.FILE.getType()));
+        return getSourceClassByTaskType(taskType);
+    }
+
+    public static String getSourceClassByTaskType(TaskTypeEnum taskType) {
+        if (taskType == null) {
+            return null;
+        }
+        switch (taskType) {
+            case BINLOG:
+                return BINLOG_SOURCE;
+            case FILE:
+                return FILE_SOURCE;
+            case KAFKA:
+                return KAFKA_SOURCE;
+            case PULSAR:
+                return PULSAR_SOURCE;
+            case POSTGRES:
+                return POSTGRESQL_SOURCE;
+            case ORACLE:
+                return ORACLE_SOURCE;
+            case SQLSERVER:
+                return SQLSERVER_SOURCE;
+            case MONGODB:
+                return MONGO_SOURCE;
+            case REDIS:
+                return REDIS_SOURCE;
+            case MQTT:
+                return MQTT_SOURCE;
+            case COS:
+                return COS_SOURCE;
+            case SQL:
+                return SQL_SOURCE;
+            default:
+                LOGGER.error("invalid task type {}", taskType);
+                return null;
+        }
     }
 
     public String getSinkClass() {

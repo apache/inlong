@@ -30,6 +30,7 @@ import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.COSObjectSummary;
 import com.qcloud.cos.model.ListObjectsRequest;
 import com.qcloud.cos.model.ObjectListing;
+import com.qcloud.cos.model.ObjectMetadata;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -74,6 +76,11 @@ public class TestCOSTask {
         helper = new AgentBaseTestsHelper(TestCOSTask.class.getName()).setupAgentHome();
         manager = new TaskManager();
         cosClient = Mockito.mock(COSClient.class);
+        when(cosClient.getObjectMetadata(Mockito.anyString(), Mockito.anyString())).thenAnswer(mock -> {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setLastModified(new Date());
+            return metadata;
+        });
         PowerMockito.mockStatic(COSUtils.class);
         Mockito.when(COSUtils.createCli(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(cosClient);
@@ -88,7 +95,8 @@ public class TestCOSTask {
         ObjectListing objectListing1_1 = Mockito.mock(ObjectListing.class);
         when(objectListing1_1.getCommonPrefixes()).thenReturn(
                 Arrays.asList("some/20230928_0/", "some/20230928_1/", "some/20230928_aaa/"));
-        when(objectListing1_1.getObjectSummaries()).thenReturn(getSummaries(Arrays.asList("some/20230928_test_0.txt")));
+        when(objectListing1_1.getObjectSummaries()).thenReturn(
+                getSummaries(Arrays.asList("some/20230928_test_0.txt")));
 
         ObjectListing objectListing1_2 = Mockito.mock(ObjectListing.class);
         when(objectListing1_2.getCommonPrefixes()).thenReturn(
@@ -185,13 +193,27 @@ public class TestCOSTask {
     public void testScan() {
         mockDay(cosClient);
         doTest(1, "some/YYYYMMDD_[0-9]+/test_[0-9]+.txt", CycleUnitType.DAY,
-                Arrays.asList("some/20230928_0/test_0.txt", "some/20230928_0/test_1.txt", "some/20230929_1/test_0.txt",
+                Arrays.asList("some/20230928_0/test_0.txt", "some/20230928_0/test_1.txt",
+                        "some/20230929_1/test_0.txt",
+                        "some/20230929_1/test_1.txt"),
+                Arrays.asList("20230928", "20230928", "20230929", "20230929"),
+                "20230928",
+                "20230930");
+        doTest(2, "some/yyyyMMdd_[0-9]+/test_[0-9]+.txt", CycleUnitType.DAY,
+                Arrays.asList("some/20230928_0/test_0.txt", "some/20230928_0/test_1.txt",
+                        "some/20230929_1/test_0.txt",
                         "some/20230929_1/test_1.txt"),
                 Arrays.asList("20230928", "20230928", "20230929", "20230929"),
                 "20230928",
                 "20230930");
         mockHour(cosClient);
-        doTest(2, "some/YYYYMMDDhh_[0-9]+/test_[0-9]+.txt", CycleUnitType.HOUR,
+        doTest(3, "some/YYYYMMDDHH_[0-9]+/test_[0-9]+.txt", CycleUnitType.HOUR,
+                Arrays.asList("some/2023092800_0/test_0.txt", "some/2023092800_0/test_1.txt",
+                        "some/2023092901_1/test_0.txt",
+                        "some/2023092901_1/test_1.txt"),
+                Arrays.asList("2023092800", "2023092800", "2023092901", "2023092901"), "2023092800",
+                "2023093023");
+        doTest(4, "some/yyyyMMddhh_[0-9]+/test_[0-9]+.txt", CycleUnitType.HOUR,
                 Arrays.asList("some/2023092800_0/test_0.txt", "some/2023092800_0/test_1.txt",
                         "some/2023092901_1/test_0.txt",
                         "some/2023092901_1/test_1.txt"),
@@ -213,7 +235,8 @@ public class TestCOSTask {
                 fileName.add(invocation.getArgument(0));
                 dataTime.add(invocation.getArgument(1));
                 return null;
-            }).when(fileTask, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
+            }).when(fileTask, "addToEvenMap", Mockito.anyString(), Mockito.anyString(), Mockito.anyLong(),
+                    Mockito.anyString());
             Assert.assertTrue(fileTask.isProfileValid(taskProfile));
             manager.getTaskStore().storeTask(taskProfile);
             fileTask.init(manager, taskProfile, manager.getInstanceBasicStore());

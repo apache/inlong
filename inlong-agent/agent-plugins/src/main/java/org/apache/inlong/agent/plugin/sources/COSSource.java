@@ -119,7 +119,7 @@ public class COSSource extends AbstractSource {
             if (offsetProfile != null) {
                 offset = offsetProfile.toJsonStr();
             }
-            LOGGER.info("LogFileSource init: {} offset: {}", profile.toJsonStr(), offset);
+            LOGGER.info("COS source init: {} offset: {}", profile.toJsonStr(), offset);
             AgentConfiguration conf = AgentConfiguration.getAgentConf();
             int permit = conf.getInt(AGENT_GLOBAL_COS_SOURCE_PERMIT, DEFAULT_AGENT_GLOBAL_COS_SOURCE_PERMIT);
             MemoryManager.getInstance().addSemaphore(AGENT_GLOBAL_COS_SOURCE_PERMIT, permit);

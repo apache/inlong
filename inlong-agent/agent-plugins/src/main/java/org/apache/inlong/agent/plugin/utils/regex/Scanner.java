@@ -59,13 +59,13 @@ public class Scanner {
         String strStartTime = DateTransUtils.millSecConvertToTimeStr(range.startTime, cycleUnit);
         String strEndTime = DateTransUtils.millSecConvertToTimeStr(range.endTime, cycleUnit);
         LOGGER.info("{} scan time is between {} and {}", originPattern, strStartTime, strEndTime);
-        List<Long> dateRegion = NewDateUtils.getDateRegion(range.startTime, range.endTime, cycleUnit);
+        List<Long> dateRegion = DateUtils.getDateRegion(range.startTime, range.endTime, cycleUnit);
         List<FinalPatternInfo> finalPatternList = new ArrayList<>();
         for (Long time : dateRegion) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(time);
             FinalPatternInfo finalPatternInfo = new FinalPatternInfo(
-                    NewDateUtils.replaceDateExpression(calendar, originPattern), time);
+                    DateUtils.replaceDateExpression(calendar, originPattern), time);
             finalPatternList.add(finalPatternInfo);
         }
         return finalPatternList;
@@ -75,7 +75,7 @@ public class Scanner {
             boolean isRetry) {
         TimeRange range = getTimeRange(startTime, endTime, cycleUnit, timeOffset, isRetry);
         List<String> dataTimeList = new ArrayList<>();
-        List<Long> dateRegion = NewDateUtils.getDateRegion(range.startTime, range.endTime, cycleUnit);
+        List<Long> dateRegion = DateUtils.getDateRegion(range.startTime, range.endTime, cycleUnit);
         for (Long time : dateRegion) {
             String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
             dataTimeList.add(dataTime);
