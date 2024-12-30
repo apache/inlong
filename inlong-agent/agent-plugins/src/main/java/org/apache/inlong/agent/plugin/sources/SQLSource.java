@@ -69,7 +69,7 @@ public class SQLSource extends AbstractSource {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    protected class FileOffset {
+    protected static class FileOffset {
 
         private Long lineOffset;
         private Long byteOffset;
