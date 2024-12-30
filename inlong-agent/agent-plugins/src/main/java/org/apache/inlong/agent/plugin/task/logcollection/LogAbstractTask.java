@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.task.logcollection;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.plugin.task.AbstractTask;
-import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
 import org.apache.inlong.agent.plugin.utils.regex.Scanner;
 import org.apache.inlong.agent.state.State;
 
@@ -156,16 +156,48 @@ public abstract class LogAbstractTask extends AbstractTask {
      * offset
      */
     private boolean shouldStartNow(String dataTime) {
-        String shouldStartTime = NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), timeOffset);
+        String shouldStartTime = DateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), timeOffset);
         String currentTime = getCurrentTime();
         return currentTime.compareTo(shouldStartTime) >= 0;
     }
 
     private String getCurrentTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(NewDateUtils.DEFAULT_FORMAT);
-        TimeZone timeZone = TimeZone.getTimeZone(NewDateUtils.DEFAULT_TIME_ZONE);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DateUtils.DEFAULT_FORMAT);
+        TimeZone timeZone = TimeZone.getTimeZone(DateUtils.DEFAULT_TIME_ZONE);
         dateFormat.setTimeZone(timeZone);
         return dateFormat.format(new Date(System.currentTimeMillis()));
+    }
+
+    protected void addToEvenMap(String fileName, String dataTime, Long fileUpdateTime, String cycleUnit) {
+        if (isInEventMap(fileName, dataTime)) {
+            LOGGER.info("add to evenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
+            return;
+        }
+        if (!shouldAddAgain(fileName, fileUpdateTime)) {
+            LOGGER.info("add to evenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
+            return;
+        }
+        Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
+                mapKey -> new ConcurrentHashMap<>());
+        boolean containsInMemory = sameDataTimeEvents.containsKey(fileName);
+        if (containsInMemory) {
+            LOGGER.error("should not happen! may be {} has been deleted and add again", fileName);
+            return;
+        }
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(fileName, cycleUnit, dataTime,
+                fileUpdateTime);
+        sameDataTimeEvents.put(fileName, instanceProfile);
+        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
+    }
+
+    private boolean isInEventMap(String fileName, String dataTime) {
+        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
+        if (fileToProfile == null) {
+            return false;
+        }
+        return fileToProfile.get(fileName) != null;
     }
 
     protected void removeTimeoutEvent(Map<String, Map<String, InstanceProfile>> eventMap, boolean isRetry) {
@@ -175,7 +207,7 @@ public abstract class LogAbstractTask extends AbstractTask {
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             /* If the data time of the event is within 2 days before (after) the current time, it is valid */
             String dataTime = entry.getKey();
-            if (!NewDateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
+            if (!DateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
                 /* Remove it from memory map. */
                 eventMap.remove(dataTime);
                 LOGGER.warn("remove too old event from event map. dataTime {}", dataTime);

@@ -47,17 +47,18 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_TYPE;
  */
 public class TaskProfile extends AbstractConfiguration {
 
-    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.logcollection.local.FileTask";
-    public static final String DEFAULT_COS_TASK = "org.apache.inlong.agent.plugin.task.logcollection.cos.COSTask";
-    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
-    public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
-    public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
-    public static final String DEFAULT_ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
-    public static final String DEFAULT_REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
-    public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
-    public static final String DEFAULT_MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
-    public static final String DEFAULT_SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
-    public static final String DEFAULT_MOCK_TASK = "org.apache.inlong.agent.plugin.task.MockTask";
+    public static final String SQL_TASK = "org.apache.inlong.agent.plugin.task.logcollection.SQLTask";
+    public static final String FILE_TASK = "org.apache.inlong.agent.plugin.task.logcollection.local.FileTask";
+    public static final String COS_TASK = "org.apache.inlong.agent.plugin.task.logcollection.cos.COSTask";
+    public static final String KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
+    public static final String PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
+    public static final String MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
+    public static final String ORACLE_TASK = "org.apache.inlong.agent.plugin.task.OracleTask";
+    public static final String REDIS_TASK = "org.apache.inlong.agent.plugin.task.RedisTask";
+    public static final String POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
+    public static final String MQTT_TASK = "org.apache.inlong.agent.plugin.task.MqttTask";
+    public static final String SQLSERVER_TASK = "org.apache.inlong.agent.plugin.task.SQLServerTask";
+    public static final String MOCK_TASK = "org.apache.inlong.agent.plugin.task.MockTask";
 
     private static final Gson GSON = new Gson();
     private static final Logger logger = LoggerFactory.getLogger(TaskProfile.class);
@@ -75,28 +76,30 @@ public class TaskProfile extends AbstractConfiguration {
     public String getTaskClass() {
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(getInt(TASK_TYPE, TaskTypeEnum.FILE.getType()));
         switch (requireNonNull(taskType)) {
+            case SQL:
+                return SQL_TASK;
             case FILE:
-                return DEFAULT_FILE_TASK;
+                return FILE_TASK;
             case KAFKA:
-                return DEFAULT_KAFKA_TASK;
+                return KAFKA_TASK;
             case PULSAR:
-                return DEFAULT_PULSAR_TASK;
+                return PULSAR_TASK;
             case POSTGRES:
-                return DEFAULT_POSTGRESQL_TASK;
+                return POSTGRESQL_TASK;
             case ORACLE:
-                return DEFAULT_ORACLE_TASK;
+                return ORACLE_TASK;
             case SQLSERVER:
-                return DEFAULT_SQLSERVER_TASK;
+                return SQLSERVER_TASK;
             case MONGODB:
-                return DEFAULT_MONGODB_TASK;
+                return MONGODB_TASK;
             case REDIS:
-                return DEFAULT_REDIS_TASK;
+                return REDIS_TASK;
             case MQTT:
-                return DEFAULT_MQTT_TASK;
+                return MQTT_TASK;
             case COS:
-                return DEFAULT_COS_TASK;
+                return COS_TASK;
             case MOCK:
-                return DEFAULT_MOCK_TASK;
+                return MOCK_TASK;
             default:
                 logger.error("invalid task type {}", taskType);
                 return null;
@@ -153,7 +156,7 @@ public class TaskProfile extends AbstractConfiguration {
      */
     @Override
     public boolean allRequiredKeyExist() {
-        return hasKey(TaskConstants.TASK_ID) && hasKey(TaskConstants.TASK_SOURCE)
+        return hasKey(TaskConstants.TASK_ID)
                 && hasKey(TaskConstants.TASK_SINK) && hasKey(TaskConstants.TASK_CHANNEL)
                 && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID);
     }

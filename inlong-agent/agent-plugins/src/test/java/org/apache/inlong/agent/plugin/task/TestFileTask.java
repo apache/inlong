@@ -51,10 +51,10 @@ import static org.awaitility.Awaitility.await;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(FileTask.class)
 @PowerMockIgnore({"javax.management.*"})
-public class TestLogFileTask {
+public class TestFileTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestLogFileTask.class);
-    private static final ClassLoader LOADER = TestLogFileTask.class.getClassLoader();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestFileTask.class);
+    private static final ClassLoader LOADER = TestFileTask.class.getClassLoader();
     private static AgentBaseTestsHelper helper;
     private static TaskManager manager;
     private static String resourceParentPath;
@@ -66,7 +66,7 @@ public class TestLogFileTask {
 
     @BeforeClass
     public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(TestLogFileTask.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(TestFileTask.class.getName()).setupAgentHome();
         resourceParentPath = new File(LOADER.getResource("testScan/temp.txt").getPath()).getParent();
         manager = new TaskManager();
     }
@@ -82,14 +82,31 @@ public class TestLogFileTask {
                 resourceParentPath + "/YYYYMMDD_[0-9]+/test_[0-9]+.txt", CycleUnitType.DAY, Arrays.asList("20230928"),
                 "20230928", "20230930");
         doTest(2, Arrays.asList("testScan/2023092810_1/test_1.txt"),
-                resourceParentPath + "/YYYYMMDDhh_[0-9]+/test_[0-9]+.txt",
+                resourceParentPath + "/YYYYMMDDHH_[0-9]+/test_[0-9]+.txt",
                 CycleUnitType.HOUR, Arrays.asList("2023092810"), "2023092800", "2023093023");
         doTest(3, Arrays.asList("testScan/202309281030_1/test_1.txt", "testScan/202309301059_1/test_1.txt"),
-                resourceParentPath + "/YYYYMMDDhhmm_[0-9]+/test_[0-9]+.txt",
+                resourceParentPath + "/YYYYMMDDHHmm_[0-9]+/test_[0-9]+.txt",
                 CycleUnitType.MINUTE, Arrays.asList("202309281030", "202309301059"), "202309280000",
                 "202309302300");
         doTest(4, Arrays.asList("testScan/20241030/23/59.txt"),
-                resourceParentPath + "/YYYYMMDD/hh/mm.txt",
+                resourceParentPath + "/YYYYMMDD/HH/mm.txt",
+                CycleUnitType.MINUTE, Arrays.asList("202410302359"), "202410300000", "202410310000");
+    }
+
+    @Test
+    public void testScanLowercase() throws Exception {
+        doTest(1, Arrays.asList("testScan/20230928_1/test_1.txt"),
+                resourceParentPath + "/yyyyMMdd_[0-9]+/test_[0-9]+.txt", CycleUnitType.DAY, Arrays.asList("20230928"),
+                "20230928", "20230930");
+        doTest(2, Arrays.asList("testScan/2023092810_1/test_1.txt"),
+                resourceParentPath + "/yyyyMMddhh_[0-9]+/test_[0-9]+.txt",
+                CycleUnitType.HOUR, Arrays.asList("2023092810"), "2023092800", "2023093023");
+        doTest(3, Arrays.asList("testScan/202309281030_1/test_1.txt", "testScan/202309301059_1/test_1.txt"),
+                resourceParentPath + "/yyyyMMddhhmm_[0-9]+/test_[0-9]+.txt",
+                CycleUnitType.MINUTE, Arrays.asList("202309281030", "202309301059"), "202309280000",
+                "202309302300");
+        doTest(4, Arrays.asList("testScan/20241030/23/59.txt"),
+                resourceParentPath + "/yyyyMMdd/hh/mm.txt",
                 CycleUnitType.MINUTE, Arrays.asList("202410302359"), "202410300000", "202410310000");
     }
 
@@ -112,7 +129,8 @@ public class TestLogFileTask {
                 fileName.add(invocation.getArgument(0));
                 dataTime.add(invocation.getArgument(1));
                 return null;
-            }).when(dayTask, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
+            }).when(dayTask, "addToEvenMap", Mockito.anyString(), Mockito.anyString(), Mockito.anyLong(),
+                    Mockito.anyString());
             Assert.assertTrue(dayTask.isProfileValid(taskProfile));
             manager.getTaskStore().storeTask(taskProfile);
             dayTask.init(manager, taskProfile, manager.getInstanceBasicStore());

@@ -17,13 +17,12 @@
 
 package org.apache.inlong.agent.plugin.task.logcollection.local;
 
-import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.task.logcollection.LogAbstractTask;
 import org.apache.inlong.agent.plugin.task.logcollection.local.FileScanner.BasicFileInfo;
-import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
+import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
 import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
 import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -222,23 +221,14 @@ public class FileTask extends LogAbstractTask {
             List<BasicFileInfo> fileInfos = scanExistingFileByPattern(originPattern);
             LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
             fileInfos.forEach((fileInfo) -> {
-                addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
+                String fileName = fileInfo.fileName;
+                Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
+                addToEvenMap(fileName, fileInfo.dataTime, fileUpdateTime, taskProfile.getCycleUnit());
                 if (retry) {
                     instanceCount++;
                 }
             });
         });
-    }
-
-    private boolean isInEventMap(String fileName, String dataTime) {
-        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
-        if (fileToProfile == null) {
-            return false;
-        }
-        if (fileToProfile.get(fileName) == null) {
-            return false;
-        }
-        return true;
     }
 
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
@@ -306,15 +296,14 @@ public class FileTask extends LogAbstractTask {
 
     private void dealWithWatchKey(WatchEntity entity, WatchKey key) throws IOException {
         Path contextPath = entity.getPath(key);
-        LOGGER.info("Find creation events in path: " + contextPath.toAbsolutePath());
+        LOGGER.info("Find creation events in path: {}", contextPath.toAbsolutePath());
         for (WatchEvent<?> watchEvent : key.pollEvents()) {
             Path child = resolvePathFromEvent(watchEvent, contextPath);
             if (child == null) {
                 continue;
             }
             if (Files.isDirectory(child)) {
-                LOGGER.info("The find creation event is triggered by a directory: " + child
-                        .getFileName());
+                LOGGER.info("The find creation event is triggered by a directory: {}", child.getFileName());
                 entity.registerRecursively(child);
                 continue;
             }
@@ -349,61 +338,30 @@ public class FileTask extends LogAbstractTask {
         Matcher matcher = entity.getPattern().matcher(newFileName);
         if (matcher.matches() || matcher.lookingAt()) {
             LOGGER.info("matched file {} {}", newFileName, entity.getPattern());
-            String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(),
-                    entity.getDateExpression());
+            String dataTime = getDataTimeFromFileName(newFileName, entity.getDateExpression());
             if (!checkFileNameForTime(newFileName, entity)) {
                 LOGGER.error("File Timeout {} {}", newFileName, dataTime);
                 return;
             }
-            addToEvenMap(newFileName, dataTime);
+            Long fileUpdateTime = FileUtils.getFileLastModifyTime(newFileName);
+            addToEvenMap(newFileName, dataTime, fileUpdateTime, taskProfile.getCycleUnit());
         }
-    }
-
-    private void addToEvenMap(String fileName, String dataTime) {
-        if (isInEventMap(fileName, dataTime)) {
-            LOGGER.info("addToEvenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
-                    taskProfile.getTaskId(), dataTime, fileName);
-            return;
-        }
-        Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
-        if (!shouldAddAgain(fileName, fileUpdateTime)) {
-            LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
-                    taskProfile.getTaskId(), dataTime, fileName);
-            return;
-        }
-        Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
-                mapKey -> new ConcurrentHashMap<>());
-        boolean containsInMemory = sameDataTimeEvents.containsKey(fileName);
-        if (containsInMemory) {
-            LOGGER.error("should not happen! may be {} has been deleted and add again", fileName);
-            return;
-        }
-        String cycleUnit = "";
-        if (realTime) {
-            cycleUnit = CycleUnitType.HOUR;
-        } else {
-            cycleUnit = taskProfile.getCycleUnit();
-        }
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(fileName, cycleUnit, dataTime,
-                fileUpdateTime);
-        sameDataTimeEvents.put(fileName, instanceProfile);
-        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
     }
 
     private boolean checkFileNameForTime(String newFileName, WatchEntity entity) {
         /* Get the data time for this file. */
         PathDateExpression dateExpression = entity.getDateExpression();
         if (dateExpression.getLongestDatePattern().length() != 0) {
-            String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(), dateExpression);
+            String dataTime = getDataTimeFromFileName(newFileName, dateExpression);
             LOGGER.info("file {}, fileTime {}", newFileName, dataTime);
-            if (!NewDateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(), timeOffset)) {
+            if (!DateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(), timeOffset)) {
                 return false;
             }
         }
         return true;
     }
 
-    private String getDataTimeFromFileName(String fileName, String originPattern, PathDateExpression dateExpression) {
+    private String getDataTimeFromFileName(String fileName, PathDateExpression dateExpression) {
         /*
          * TODO: what if this file doesn't have any date pattern regex.
          *
@@ -411,7 +369,7 @@ public class FileTask extends LogAbstractTask {
          * reading and start reading this new file.
          */
         // Extract data time from file name
-        String fileTime = NewDateUtils.getDateTime(fileName, originPattern, dateExpression);
+        String fileTime = DateUtils.getDateTime(fileName, dateExpression);
 
         /**
          * Replace any non-numeric characters in the file time

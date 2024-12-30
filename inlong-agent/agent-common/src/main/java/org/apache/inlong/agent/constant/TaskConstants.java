@@ -29,9 +29,6 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_GROUP_ID = "task.groupId";
     public static final String TASK_STREAM_ID = "task.streamId";
     public static final String RESTORE_FROM_DB = "task.restoreFromDB";
-
-    public static final String TASK_SOURCE = "task.source";
-
     public static final String TASK_CHANNEL = "task.channel";
     public static final String TASK_TYPE = "task.taskType";
     public static final String TASK_FILE_TRIGGER = "task.fileTask.trigger";
@@ -75,7 +72,7 @@ public class TaskConstants extends CommonConstants {
     public static final String COS_CONTENT_STYLE = "task.cosTask.contentStyle";
     public static final String COS_MAX_NUM = "task.cosTask.maxFileCount";
     public static final String COS_TASK_PATTERN = "task.cosTask.pattern";
-    public static final String TASK_COS_TIME_OFFSET = "task.cosTask.timeOffset";
+    public static final String COS_TIME_OFFSET = "task.cosTask.timeOffset";
     public static final String COS_TASK_RETRY = "task.cosTask.retry";
     public static final String COS_TASK_TIME_FROM = "task.cosTask.dataTimeFrom";
     public static final String COS_TASK_TIME_TO = "task.cosTask.dataTimeTo";
@@ -85,6 +82,20 @@ public class TaskConstants extends CommonConstants {
     public static final String COS_TASK_REGION = "task.cosTask.region";
     public static final String COS_DATA_SEPARATOR = "task.cosTask.dataSeparator";
     public static final String COS_FILTER_STREAMS = "task.cosTask.filterStreams";
+
+    // SQL task
+    public static final String SQL_TASK_CYCLE_UNIT = "task.sqlTask.cycleUnit";
+    public static final String SQL_MAX_NUM = "task.sqlTask.maxInstanceCount";
+    public static final String SQL_TASK_SQL = "task.sqlTask.sql";
+    public static final String SQL_TIME_OFFSET = "task.sqlTask.timeOffset";
+    public static final String SQL_TASK_RETRY = "task.sqlTask.retry";
+    public static final String SQL_TASK_TIME_FROM = "task.sqlTask.dataTimeFrom";
+    public static final String SQL_TASK_TIME_TO = "task.sqlTask.dataTimeTo";
+    public static final String SQL_TASK_JDBC_URL = "task.sqlTask.jdbcUrl";
+    public static final String SQL_TASK_USERNAME = "task.sqlTask.username";
+    public static final String SQL_TASK_PASSWORD = "task.sqlTask.jdbcPassword";
+    public static final String SQL_TASK_DATA_SEPARATOR = "task.sqlTask.dataSeparator";
+    public static final String SQL_TASK_FETCH_SIZE = "task.sqlTask.fetchSize";
 
     /**
      * delimiter to split offset for different task

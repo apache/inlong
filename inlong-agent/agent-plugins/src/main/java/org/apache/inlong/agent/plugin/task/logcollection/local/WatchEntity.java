@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.plugin.task.logcollection.local;
 
 import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
-import org.apache.inlong.agent.plugin.utils.regex.NewDateUtils;
 import org.apache.inlong.agent.plugin.utils.regex.NonRegexPatternPosition;
 import org.apache.inlong.agent.plugin.utils.regex.PathDateExpression;
 import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
@@ -71,12 +70,12 @@ public class WatchEntity {
         this.originPattern = originPattern;
         ArrayList<String> directoryLayers = PatternUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         this.basicStaticPath = directoryLayers.get(0);
-        this.regexPattern = NewDateUtils.replaceDateExpressionWithRegex(originPattern);
+        this.regexPattern = DateUtils.replaceDateExpressionWithRegex(originPattern);
         pattern = Pattern.compile(regexPattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
         ArrayList<String> directories = PatternUtil.cutDirectoryByWildcard(originPattern);
         this.originPatternWithoutFileName = directories.get(0);
         this.patternWithoutFileName = Pattern
-                .compile(NewDateUtils.replaceDateExpressionWithRegex(originPatternWithoutFileName),
+                .compile(DateUtils.replaceDateExpressionWithRegex(originPatternWithoutFileName),
                         Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
         /*
          * Get the longest data regex from the data name, it's used if we want to get out the data time from the file
@@ -219,7 +218,7 @@ public class WatchEntity {
         } else {
             dirPattern = originPatternWithoutFileName.substring(0, index);
         }
-        Pattern pattern = Pattern.compile(NewDateUtils.replaceDateExpressionWithRegex(dirPattern),
+        Pattern pattern = Pattern.compile(DateUtils.replaceDateExpressionWithRegex(dirPattern),
                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
         return pattern;
     }

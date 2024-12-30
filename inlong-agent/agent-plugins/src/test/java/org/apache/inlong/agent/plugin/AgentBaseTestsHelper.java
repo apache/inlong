@@ -23,6 +23,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.FetcherConstants;
 import org.apache.inlong.agent.pojo.COSTask.COSTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
+import org.apache.inlong.agent.pojo.SQLTask.SQLTaskConfig;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -164,4 +165,36 @@ public class AgentBaseTestsHelper {
         return dataConfig;
     }
 
+    public TaskProfile getSQLTaskProfile(int taskId, String sql, String contentStyle, boolean retry,
+            String startTime, String endTime, TaskStateEnum state, String cycleUnit, String timeZone) {
+        DataConfig dataConfig = getSQLDataConfig(taskId, sql, contentStyle, retry, startTime, endTime,
+                state, cycleUnit, timeZone);
+        TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
+        return profile;
+    }
+
+    private DataConfig getSQLDataConfig(int taskId, String sql, String contentStyle, boolean retry,
+            String startTime, String endTime, TaskStateEnum state, String cycleUnit, String timeZone) {
+        DataConfig dataConfig = new DataConfig();
+        dataConfig.setInlongGroupId("testGroupId");
+        dataConfig.setInlongStreamId("testStreamId");
+        dataConfig.setDataReportType(1);
+        dataConfig.setTaskType(TaskTypeEnum.SQL.getType());
+        dataConfig.setTaskId(taskId);
+        dataConfig.setTimeZone(timeZone);
+        dataConfig.setState(state.ordinal());
+        SQLTaskConfig sqlTaskConfig = new SQLTaskConfig();
+        sqlTaskConfig.setUsername("testUserName");
+        sqlTaskConfig.setJdbcPassword("testPassword");
+        sqlTaskConfig.setSql(sql);
+        sqlTaskConfig.setTimeOffset("0d");
+        // GMT-8:00 same with Asia/Shanghai
+        sqlTaskConfig.setMaxInstanceCount(100);
+        sqlTaskConfig.setCycleUnit(cycleUnit);
+        sqlTaskConfig.setRetry(retry);
+        sqlTaskConfig.setDataTimeFrom(startTime);
+        sqlTaskConfig.setDataTimeTo(endTime);
+        dataConfig.setExtParams(GSON.toJson(sqlTaskConfig));
+        return dataConfig;
+    }
 }
