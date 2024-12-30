@@ -301,7 +301,7 @@ public class FileTask extends LogAbstractTask {
     private void dealWithWatchKey(org.apache.inlong.agent.plugin.task.logcollection.local.WatchEntity entity,
             WatchKey key) throws IOException {
         Path contextPath = entity.getPath(key);
-        LOGGER.info("Find creation events in path: " + contextPath.toAbsolutePath());
+        LOGGER.info("Find creation events in path:  {}", contextPath.toAbsolutePath());
         for (WatchEvent<?> watchEvent : key.pollEvents()) {
             Path child = resolvePathFromEvent(watchEvent, contextPath);
             if (child == null) {
