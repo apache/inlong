@@ -79,7 +79,7 @@ public class SQLSource extends AbstractSource {
     public static final String OFFSET_SEP = ":";
     protected final Integer WAIT_TIMEOUT_MS = 10;
 
-    private String fileName;
+    private String finalSQL;
     private String jdbcUrl;
     private String username;
     private String password;
@@ -109,7 +109,7 @@ public class SQLSource extends AbstractSource {
             AgentConfiguration conf = AgentConfiguration.getAgentConf();
             int permit = conf.getInt(AGENT_GLOBAL_SQL_SOURCE_PERMIT, DEFAULT_AGENT_GLOBAL_SQL_SOURCE_PERMIT);
             MemoryManager.getInstance().addSemaphore(AGENT_GLOBAL_SQL_SOURCE_PERMIT, permit);
-            fileName = profile.getInstanceId();
+            finalSQL = profile.getInstanceId();
             jdbcUrl = profile.get(TaskConstants.SQL_TASK_JDBC_URL).trim().replace("\r", "")
                     .replace("\n", "");
             if (jdbcUrl.startsWith("jdbc:mysql:")) {
@@ -123,7 +123,7 @@ public class SQLSource extends AbstractSource {
             EXECUTOR_SERVICE.execute(run());
         } catch (Exception ex) {
             stopRunning();
-            throw new FileException("error init stream for " + fileName, ex);
+            throw new FileException("error init stream for " + finalSQL, ex);
         }
     }
 
@@ -179,7 +179,7 @@ public class SQLSource extends AbstractSource {
 
     @Override
     protected String getThreadName() {
-        return "sql-source-" + taskId + "-" + fileName;
+        return "sql-source-" + taskId + "-" + finalSQL;
     }
 
     private Runnable run() {
