@@ -140,11 +140,8 @@ public class SQLSource extends AbstractSource {
                     throw new SQLException(
                             "Failed to connect database after retry " + retryTimes + " times.", e);
                 }
-                LOGGER.warn(
-                        "Reconnect database after "
-                                + RECONNECT_INTERVAL_SECOND
-                                + " seconds due to the following error: "
-                                + e.getMessage());
+                LOGGER.warn("Connect Reconnect database after {} seconds due to the following error: {}",
+                        RECONNECT_INTERVAL_SECOND, e.getMessage());
                 AgentUtils.silenceSleepInSeconds(RECONNECT_INTERVAL_SECOND);
             }
         }
