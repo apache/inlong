@@ -29,11 +29,14 @@ public class SQLTask {
     private String dataTimeFrom;
     private String dataTimeTo;
     private String timeOffset;
+    // The number of instances that can run simultaneously for this task to
+    // prevent other problems caused by running too many instances simultaneously
     private Integer maxInstanceCount;
     private String jdbcUrl;
     private String username;
     private String jdbcPassword;
     private String dataSeparator;
+    // The number of rows collected from the data source in each batch
     private Integer fetchSize;
 
     @Data
