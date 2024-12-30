@@ -179,7 +179,7 @@ public class SQLSource extends AbstractSource {
 
     @Override
     protected String getThreadName() {
-        return "sql-source-" + taskId + "-" + jdbcUrl;
+        return "sql-source-" + taskId + "-" + fileName;
     }
 
     private Runnable run() {
