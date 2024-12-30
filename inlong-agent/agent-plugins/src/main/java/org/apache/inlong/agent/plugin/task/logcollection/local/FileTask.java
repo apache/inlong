@@ -296,15 +296,14 @@ public class FileTask extends LogAbstractTask {
 
     private void dealWithWatchKey(WatchEntity entity, WatchKey key) throws IOException {
         Path contextPath = entity.getPath(key);
-        LOGGER.info("Find creation events in path: " + contextPath.toAbsolutePath());
+        LOGGER.info("Find creation events in path: {}", contextPath.toAbsolutePath());
         for (WatchEvent<?> watchEvent : key.pollEvents()) {
             Path child = resolvePathFromEvent(watchEvent, contextPath);
             if (child == null) {
                 continue;
             }
             if (Files.isDirectory(child)) {
-                LOGGER.info("The find creation event is triggered by a directory: " + child
-                        .getFileName());
+                LOGGER.info("The find creation event is triggered by a directory: {}", child.getFileName());
                 entity.registerRecursively(child);
                 continue;
             }

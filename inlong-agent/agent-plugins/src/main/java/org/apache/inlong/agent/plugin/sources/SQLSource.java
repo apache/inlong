@@ -43,7 +43,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -79,7 +78,6 @@ public class SQLSource extends AbstractSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLSource.class);
     public static final String OFFSET_SEP = ":";
     protected final Integer WAIT_TIMEOUT_MS = 10;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String fileName;
     private String jdbcUrl;
@@ -140,7 +138,7 @@ public class SQLSource extends AbstractSource {
                     throw new SQLException(
                             "Failed to connect database after retry " + retryTimes + " times.", e);
                 }
-                LOGGER.warn("Connect Reconnect database after {} seconds due to the following error: {}",
+                LOGGER.warn("Reconnect database after {} seconds due to the following error: {}",
                         RECONNECT_INTERVAL_SECOND, e.getMessage());
                 AgentUtils.silenceSleepInSeconds(RECONNECT_INTERVAL_SECOND);
             }
@@ -176,7 +174,7 @@ public class SQLSource extends AbstractSource {
 
     @Override
     protected void printCurrentState() {
-        LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}");
+        LOGGER.info("sql source running, sql: {}", instanceId);
     }
 
     @Override
