@@ -23,7 +23,7 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import java.io.IOException;
 
 /**
- * sql instance contains source and sink.
+ * SQL instance contains source and sink.
  * main job is to read from source and write to sink
  */
 public class SQLInstance extends CommonInstance {
