@@ -57,9 +57,15 @@ public class FibonacciFunction implements ValueParser {
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
-        Object numberObj = numberParser.parse(sourceData, rowIndex, context);
-        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        return fibonacci(numberValue.intValue());
+        if (numberParser != null) {
+            Object valueObj = numberParser.parse(sourceData, rowIndex, context);
+            if (valueObj == null) {
+                return null;
+            }
+            BigDecimal numberValue = OperatorTools.parseBigDecimal(valueObj);
+            return fibonacci(numberValue.intValue());
+        }
+        return null;
     }
 
     private long fibonacci(int n) {
