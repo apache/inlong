@@ -35,7 +35,7 @@ import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/plugins';
 import DetailModal from './DetailModal';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
-import { pickObjectArray } from '@/core/utils';
+import { pickObjectArray, timestampFormat } from '@/core/utils';
 import { CommonInterface } from '../common';
 import { sources } from '@/plugins/sources';
 
@@ -205,37 +205,63 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   );
 
   const columns = useMemo(() => {
-    return entityColumns?.concat([
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        fixed: 'right',
-        width: 200,
-        render: (text, record) =>
-          readonly ? (
-            '-'
-          ) : (
-            <>
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
-              </Button>
-              <Button type="link" onClick={() => onDelete(record)}>
-                {i18n.t('basic.Delete')}
-              </Button>
-              {record?.status === 101 && (
-                <Button type="link" onClick={() => onStop(record)}>
-                  {i18n.t('basic.Stop')}
+    return entityColumns
+      ?.map(item => {
+        if (item.dataIndex === 'creator') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                <div>{record.createTime && timestampFormat(record.createTime)}</div>
+              </>
+            ),
+          };
+        }
+        if (item.dataIndex === 'modifier') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                {text ? <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div> : ''}
+              </>
+            ),
+          };
+        }
+        return item;
+      })
+      .concat([
+        {
+          title: i18n.t('basic.Operating'),
+          dataIndex: 'action',
+          fixed: 'right',
+          width: 200,
+          render: (text, record) =>
+            readonly ? (
+              '-'
+            ) : (
+              <>
+                <Button type="link" onClick={() => onEdit(record)}>
+                  {i18n.t('basic.Edit')}
                 </Button>
-              )}
-              {(record?.status === 101 || record?.status === 104) && (
-                <Button type="link" onClick={() => onRestart(record)}>
-                  {i18n.t('basic.Restart')}
+                <Button type="link" onClick={() => onDelete(record)}>
+                  {i18n.t('basic.Delete')}
                 </Button>
-              )}
-            </>
-          ),
-      },
-    ]);
+                {record?.status === 101 && (
+                  <Button type="link" onClick={() => onStop(record)}>
+                    {i18n.t('basic.Stop')}
+                  </Button>
+                )}
+                {(record?.status === 101 || record?.status === 104) && (
+                  <Button type="link" onClick={() => onRestart(record)}>
+                    {i18n.t('basic.Restart')}
+                  </Button>
+                )}
+              </>
+            ),
+        },
+      ]);
   }, [entityColumns, onDelete, onEdit, readonly]);
   const scroll = { x: 850 };
   return (

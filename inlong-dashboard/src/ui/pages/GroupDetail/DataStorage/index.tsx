@@ -34,7 +34,7 @@ import i18n from '@/i18n';
 import DetailModal from './DetailModal';
 import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
-import { pickObjectArray } from '@/core/utils';
+import { pickObjectArray, timestampFormat } from '@/core/utils';
 import { CommonInterface } from '../common';
 import { sinks } from '@/plugins/sinks';
 import DirtyModal from '@/ui/pages/common/DirtyModal';
@@ -165,28 +165,54 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   );
 
   const columns = useMemo(() => {
-    return entityColumns?.concat([
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        render: (text, record) =>
-          readonly ? (
-            '-'
-          ) : (
-            <>
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
-              </Button>
-              <Button type="link" onClick={() => onDelete(record)}>
-                {i18n.t('basic.Delete')}
-              </Button>
-              <Button type="link" onClick={() => onOpenDirtyModal(record)}>
-                {i18n.t('meta.Sinks.DirtyData')}
-              </Button>
-            </>
-          ),
-      } as any,
-    ]);
+    return entityColumns
+      ?.map(item => {
+        if (item.dataIndex === 'creator') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                <div>{record.createTime && timestampFormat(record.createTime)}</div>
+              </>
+            ),
+          };
+        }
+        if (item.dataIndex === 'modifier') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                {text ? <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div> : ''}
+              </>
+            ),
+          };
+        }
+        return item;
+      })
+      .concat([
+        {
+          title: i18n.t('basic.Operating'),
+          dataIndex: 'action',
+          render: (text, record) =>
+            readonly ? (
+              '-'
+            ) : (
+              <>
+                <Button type="link" onClick={() => onEdit(record)}>
+                  {i18n.t('basic.Edit')}
+                </Button>
+                <Button type="link" onClick={() => onDelete(record)}>
+                  {i18n.t('basic.Delete')}
+                </Button>
+                <Button type="link" onClick={() => onOpenDirtyModal(record)}>
+                  {i18n.t('meta.Sinks.DirtyData')}
+                </Button>
+              </>
+            ),
+        } as any,
+      ]);
   }, [entityColumns, onDelete, onEdit, readonly]);
 
   return (

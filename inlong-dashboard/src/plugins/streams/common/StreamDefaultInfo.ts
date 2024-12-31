@@ -81,12 +81,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @I18n('basic.Modifier')
   readonly modifier: string;
 
-  @ColumnDecorator({
-    render: text => timestampFormat(text),
-  })
-  @I18n('basic.CreateTime')
-  readonly createTime: string;
-
   @FieldDecorator({
     type: 'select',
     props: {

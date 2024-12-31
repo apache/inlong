@@ -101,4 +101,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'HTTP',
     LoadEntity: () => import('./Http'),
   },
+  {
+    label: 'COS',
+    value: 'COS',
+    LoadEntity: () => import('./COS'),
+  },
 ];

@@ -95,4 +95,9 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'ICEBERG',
     LoadEntity: () => import('./Iceberg'),
   },
+  {
+    label: 'COS',
+    value: 'COS',
+    LoadEntity: () => import('./COS'),
+  },
 ];
