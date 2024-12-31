@@ -64,7 +64,8 @@ public final class PulsarSourceReaderFactory {
     public static <OUT> SourceReader<OUT, PulsarPartitionSplit> create(
             SourceReaderContext readerContext,
             PulsarDeserializationSchema<OUT> deserializationSchema,
-            SourceConfiguration sourceConfiguration) {
+            SourceConfiguration sourceConfiguration,
+            boolean enableLogReport) {
 
         PulsarClient pulsarClient = createClient(sourceConfiguration);
         PulsarAdmin pulsarAdmin = createAdmin(sourceConfiguration);
@@ -93,7 +94,8 @@ public final class PulsarSourceReaderFactory {
                     sourceConfiguration,
                     pulsarClient,
                     pulsarAdmin,
-                    deserializationSchema);
+                    deserializationSchema,
+                    enableLogReport);
         } else if (subscriptionType == SubscriptionType.Shared
                 || subscriptionType == SubscriptionType.Key_Shared) {
             TransactionCoordinatorClient coordinatorClient =
@@ -119,7 +121,8 @@ public final class PulsarSourceReaderFactory {
                     pulsarClient,
                     pulsarAdmin,
                     coordinatorClient,
-                    deserializationSchema);
+                    deserializationSchema,
+                    enableLogReport);
         } else {
             throw new UnsupportedOperationException(
                     "This subscription type is not " + subscriptionType + " supported currently.");

@@ -200,6 +200,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
         String auditKeys = tableOptions.get(AUDIT_KEYS);
+        Boolean enableLogReport = context.getConfiguration().get(ENABLE_LOG_REPORT);
 
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
@@ -220,7 +221,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 startupOptions.specificOffsets,
                 startupOptions.startupTimestampMillis,
                 context.getObjectIdentifier().asSummaryString(),
-                metricOption);
+                metricOption,
+                enableLogReport);
     }
 
     @Override
@@ -387,7 +389,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             Map<KafkaTopicPartition, Long> specificStartupOffsets,
             long startupTimestampMillis,
             String tableIdentifier,
-            MetricOption metricOption) {
+            MetricOption metricOption,
+            boolean enableLogReport) {
         return new KafkaDynamicSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -403,7 +406,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 startupTimestampMillis,
                 false,
                 tableIdentifier,
-                metricOption);
+                metricOption,
+                enableLogReport);
     }
 
     protected KafkaDynamicSink createKafkaTableSink(
