@@ -82,15 +82,28 @@ public class Sender {
         this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
         this.threadPool = Executors.newCachedThreadPool();
         this.clientMgr = new ClientMgr(configure, this, selfDefineFactory);
+        this.scanThread = new TimeoutScanThread(this, configure);
+        if (configure.isEnableMetric()) {
+            metricWorker = new MetricWorkerThread(configure, this);
+        }
+        logger.info("Sender({}) instance initialized!", this.instanceId);
+    }
+
+    public void start() throws Exception {
+        if (!started.compareAndSet(false, true)) {
+            return;
+        }
+        this.clientMgr.start();
+        this.scanThread.start();
         ProxyConfigEntry proxyConfigEntry;
         try {
             proxyConfigEntry = this.clientMgr.getGroupIdConfigure();
             setClusterId(proxyConfigEntry.getClusterId());
-        } catch (Throwable e) {
+        } catch (Throwable ex) {
             if (configure.isOnlyUseLocalProxyConfig()) {
-                throw new Exception("Get local proxy configure failure!", e.getCause());
+                throw new Exception("Get local proxy configure failure!", ex);
             } else {
-                throw new Exception("Visit manager error!", e.getCause());
+                throw new Exception("Visit manager error!", ex);
             }
         }
         if (!proxyConfigEntry.isInterVisit()) {
@@ -101,19 +114,6 @@ public class Sender {
                 throw new Exception("In OutNetwork isNeedDataEncry must be true!");
             }
         }
-        scanThread = new TimeoutScanThread(this, configure);
-        if (configure.isEnableMetric()) {
-            metricWorker = new MetricWorkerThread(configure, this);
-        }
-        logger.info("Sender({}) instance initialized!", this.instanceId);
-    }
-
-    public void start() {
-        if (!started.compareAndSet(false, true)) {
-            return;
-        }
-        this.clientMgr.start();
-        this.scanThread.start();
         if (this.configure.isEnableMetric()) {
             this.metricWorker.start();
         }
