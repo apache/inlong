@@ -528,9 +528,9 @@ public class ProxyClientConfig {
         String hostPortInfo;
         if (managerAddress.startsWith(ConfigConstants.HTTPS)) {
             this.visitManagerByHttp = false;
-            hostPortInfo = managerAddress.substring(ConfigConstants.HTTPS.length() + 1);
+            hostPortInfo = managerAddress.substring(ConfigConstants.HTTPS.length());
         } else {
-            hostPortInfo = managerAddress.substring(ConfigConstants.HTTP.length() + 1);
+            hostPortInfo = managerAddress.substring(ConfigConstants.HTTP.length());
         }
         if (StringUtils.isBlank(hostPortInfo)) {
             throw new ProxysdkException("managerAddress must include host:port info!");
