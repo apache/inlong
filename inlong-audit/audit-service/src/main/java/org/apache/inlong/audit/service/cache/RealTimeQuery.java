@@ -22,6 +22,7 @@ import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
 import org.apache.inlong.audit.service.entities.StatData;
 import org.apache.inlong.audit.service.node.ConfigService;
+import org.apache.inlong.audit.service.utils.AuditUtils;
 import org.apache.inlong.audit.service.utils.CacheUtils;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -46,9 +47,13 @@ import java.util.concurrent.Executors;
 
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
+import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_RECONCILIATION_DISTINCT_SQL;
+import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_RECONCILIATION_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_SOURCE_QUERY_IDS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_SOURCE_QUERY_IPS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_SOURCE_QUERY_MINUTE_SQL;
+import static org.apache.inlong.audit.service.config.SqlConstants.KEY_RECONCILIATION_DISTINCT_SQL;
+import static org.apache.inlong.audit.service.config.SqlConstants.KEY_RECONCILIATION_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_IDS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_IPS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_MINUTE_SQL;
@@ -356,5 +361,70 @@ public class RealTimeQuery {
             LOGGER.error("Query ips has exception! ", exception);
         }
         return result;
+    }
+
+    public List<StatData> queryAuditData(String startTime, String endTime,
+            String inlongGroupId, String inlongStreamId, String auditId,
+            String auditTag, boolean distinct) {
+        long currentTime = System.currentTimeMillis();
+        List<StatData> statDataList = new CopyOnWriteArrayList<>();
+        if (dataSourceList.isEmpty()) {
+            return null;
+        }
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (DataSource dataSource : dataSourceList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                StatData statDataListTemp =
+                        doQueryAuditData(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId,
+                                auditTag, distinct);
+                if (statDataListTemp != null) {
+                    statDataList.add(statDataListTemp);
+                }
+            }, executor);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        LOGGER.info("Query audit data by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,
+                inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
+        return statDataList;
+
+    }
+
+    public StatData doQueryAuditData(DataSource dataSource, String startTime, String endTime,
+            String inlongGroupId, String inlongStreamId, String auditId,
+            String auditTag, boolean distinct) {
+        List<StatData> result = new LinkedList<>();
+        String querySQL = distinct
+                ? Configuration.getInstance().get(KEY_RECONCILIATION_DISTINCT_SQL, DEFAULT_RECONCILIATION_DISTINCT_SQL)
+                : Configuration.getInstance().get(KEY_RECONCILIATION_SQL, DEFAULT_RECONCILIATION_SQL);
+
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement pstat = connection.prepareStatement(querySQL)) {
+
+            pstat.setString(1, startTime);
+            pstat.setString(2, endTime);
+            pstat.setString(3, auditId);
+            pstat.setString(4, inlongGroupId);
+            pstat.setString(5, inlongStreamId);
+            pstat.setString(6, auditTag);
+            try (ResultSet resultSet = pstat.executeQuery()) {
+                while (resultSet.next()) {
+                    StatData data = new StatData();
+                    data.setAuditVersion(resultSet.getLong(1));
+                    data.setCount(resultSet.getLong(2));
+                    data.setLogTs(startTime);
+                    data.setInlongGroupId(inlongGroupId);
+                    data.setInlongStreamId(inlongStreamId);
+                    data.setAuditId(auditId);
+                    data.setAuditTag(auditTag);
+                    result.add(data);
+                }
+            } catch (SQLException sqlException) {
+                LOGGER.error("Query ips has SQL exception!, datasource={} ", dataSource, sqlException);
+            }
+        } catch (Exception exception) {
+            LOGGER.error("Query audit data has exception! ", exception);
+        }
+        return AuditUtils.getMaxAuditVersionAuditData(result);
     }
 }

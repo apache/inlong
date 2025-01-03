@@ -35,6 +35,8 @@ public class OpenApiConstants {
     public static final String DEFAULT_API_GET_IDS_PATH = "/audit/query/getIds";
     public static final String KEY_API_GET_AUDIT_PROXY_PATH = "api.get.audit.proxy";
     public static final String DEFAULT_API_GET_AUDIT_PROXY_PATH = "/audit/query/getAuditProxy";
+    public static final String KEY_API_RECONCILIATION_PATH = "api.reconciliation.path";
+    public static final String DEFAULT_API_RECONCILIATION_PATH = "/audit/query/reconciliation";
     public static final String KEY_API_THREAD_POOL_SIZE = "api.thread.pool.size";
     public static final int DEFAULT_API_THREAD_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
@@ -60,7 +62,7 @@ public class OpenApiConstants {
     public static final String PARAMS_AUDIT_CYCLE = "auditCycle";
     public static final String KEY_HTTP_BODY_SUCCESS = "success";
     public static final String KEY_HTTP_BODY_ERR_MSG = "errMsg";
-    public static final String KEY_HTTP_BODY_ERR_DATA = "data";
+    public static final String KEY_HTTP_BODY_DATA = "data";
     public static final String KEY_HTTP_HEADER_CONTENT_TYPE = "Content-Type";
     public static final String VALUE_HTTP_HEADER_CONTENT_TYPE = "application/json;charset=utf-8";
     public static final String KEY_HTTP_SERVER_BIND_PORT = "api.http.server.bind.port";

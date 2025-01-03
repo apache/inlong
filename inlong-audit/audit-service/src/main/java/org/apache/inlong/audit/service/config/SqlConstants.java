@@ -178,4 +178,77 @@ public class SqlConstants {
             "ALTER TABLE audit_data_day ADD PARTITION (PARTITION %s VALUES LESS THAN (TO_DAYS('%s')))";
     public static final String TABLE_AUDIT_DATA_DAY = "audit_data_day";
     public static final String TABLE_AUDIT_DATA_TEMP = "audit_data_temp";
+
+    public static final String KEY_RECONCILIATION_SQL = "audit.reconciliation.sql";
+    public static final String DEFAULT_RECONCILIATION_SQL = "select\n" +
+            "audit_version,\n" +
+            "sum(count) count\n" +
+            "from\n" +
+            "    audit_data\n" +
+            "where\n" +
+            "    log_ts >= ? \n" +
+            "    and log_ts < ? \n" +
+            "    and audit_id = ? \n" +
+            "    and inlong_group_id = ? \n" +
+            "    and inlong_stream_id = ? \n" +
+            "    and (\n" +
+            "        audit_tag = ? \n" +
+            "        or audit_tag = '' \n" +
+            "    )\n" +
+            "group by\n" +
+            "audit_version";
+    public static final String KEY_RECONCILIATION_DISTINCT_SQL = "audit.reconciliation.distinct.sql";
+    public static final String DEFAULT_RECONCILIATION_DISTINCT_SQL = "SELECT\n" +
+            "    audit_version,\n" +
+            "    sum(count) AS count\n" +
+            "FROM\n" +
+            "    (\n" +
+            "        SELECT\n" +
+            "            audit_version,\n" +
+            "            docker_id,\n" +
+            "            thread_id,\n" +
+            "            sdk_ts,\n" +
+            "            packet_id,\n" +
+            "            log_ts,\n" +
+            "            ip,\n" +
+            "            inlong_group_id,\n" +
+            "            inlong_stream_id,\n" +
+            "            audit_id,\n" +
+            "            CASE\n" +
+            "                WHEN audit_tag = '' THEN '-1'\n" +
+            "                ELSE audit_tag\n" +
+            "            END AS audit_tag,\n" +
+            "            count,\n" +
+            "            size,\n" +
+            "            delay\n" +
+            "        FROM\n" +
+            "            audit_data\n" +
+            "        where\n" +
+            "            log_ts >= ? \n" +
+            "            and log_ts < ? \n" +
+            "            and audit_id = ? \n" +
+            "            and inlong_group_id = ? \n" +
+            "            and inlong_stream_id = ? \n" +
+            "            and (\n" +
+            "                audit_tag = ? \n" +
+            "                or audit_tag = ''\n" +
+            "            )\n" +
+            "        GROUP BY\n" +
+            "            audit_version,\n" +
+            "            docker_id,\n" +
+            "            thread_id,\n" +
+            "            sdk_ts,\n" +
+            "            packet_id,\n" +
+            "            log_ts,\n" +
+            "            ip,\n" +
+            "            inlong_group_id,\n" +
+            "            inlong_stream_id,\n" +
+            "            audit_id,\n" +
+            "            audit_tag,\n" +
+            "            count,\n" +
+            "            size,\n" +
+            "            delay\n" +
+            "    ) t_distinct\n" +
+            "GROUP BY\n" +
+            "    audit_version";
 }

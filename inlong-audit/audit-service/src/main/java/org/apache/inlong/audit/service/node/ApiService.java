@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.service.node;
 
 import org.apache.inlong.audit.entity.AuditProxy;
+import org.apache.inlong.audit.service.auditor.Audit;
 import org.apache.inlong.audit.service.cache.AuditProxyCache;
 import org.apache.inlong.audit.service.cache.DayCache;
 import org.apache.inlong.audit.service.cache.HalfHourCache;
@@ -39,6 +40,9 @@ import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -58,6 +62,7 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_IP
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_HOUR_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_RECONCILIATION_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
 import static org.apache.inlong.audit.consts.OpenApiConstants.HTTP_RESPOND_CODE;
@@ -69,8 +74,9 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_IPS_PA
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_HOUR_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_MINUTES_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_RECONCILIATION_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
-import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_DATA;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_ERR_MSG;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_BODY_SUCCESS;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
@@ -91,6 +97,7 @@ import static org.apache.inlong.audit.service.entities.ApiType.GET_IDS;
 import static org.apache.inlong.audit.service.entities.ApiType.GET_IPS;
 import static org.apache.inlong.audit.service.entities.ApiType.HOUR;
 import static org.apache.inlong.audit.service.entities.ApiType.MINUTES;
+import static org.apache.inlong.audit.service.entities.ApiType.RECONCILIATION;
 
 public class ApiService {
 
@@ -129,6 +136,14 @@ public class ApiService {
             server.createContext(
                     Configuration.getInstance().get(KEY_API_GET_AUDIT_PROXY_PATH, DEFAULT_API_GET_AUDIT_PROXY_PATH),
                     new AuditHandler(GET_AUDIT_PROXY));
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_GET_AUDIT_PROXY_PATH, DEFAULT_API_GET_AUDIT_PROXY_PATH),
+                    new AuditHandler(GET_AUDIT_PROXY));
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_RECONCILIATION_PATH,
+                            DEFAULT_API_RECONCILIATION_PATH),
+                    new AuditHandler(RECONCILIATION));
+
             server.start();
             LOGGER.info("Init http server success. Bind port is: {}", bindPort);
         } catch (Exception e) {
@@ -152,8 +167,6 @@ public class ApiService {
 
         @Override
         public void handle(HttpExchange exchange) {
-            LOGGER.info("handle {}", exchange.getRequestURI().toString());
-
             long currentTimeMillis = System.currentTimeMillis();
 
             if (null != limiter) {
@@ -164,20 +177,8 @@ public class ApiService {
                 @Override
                 public void run() {
                     try (OutputStream os = exchange.getResponseBody()) {
-                        JsonObject responseJson = new JsonObject();
-                        Map<String, String> params = parseRequestURI(exchange.getRequestURI().getQuery());
-                        if (checkNecessaryParams(params)) {
-                            handleLegalParams(responseJson, params);
-                        } else {
-                            handleInvalidParams(responseJson, exchange);
-                        }
-
-                        byte[] bytes = responseJson.toString().getBytes(StandardCharsets.UTF_8);
-
-                        exchange.getResponseHeaders().set(KEY_HTTP_HEADER_CONTENT_TYPE,
-                                VALUE_HTTP_HEADER_CONTENT_TYPE);
-                        exchange.sendResponseHeaders(HTTP_RESPOND_CODE, bytes.length);
-                        os.write(bytes);
+                        JsonObject responseJson = handleRequest(exchange);
+                        sendResponse(exchange, os, responseJson);
                     } catch (Exception e) {
                         LOGGER.error("Audit handler has exception!", e);
                     } finally {
@@ -187,6 +188,57 @@ public class ApiService {
             });
 
             MetricsManager.getInstance().addApiMetric(apiType, System.currentTimeMillis() - currentTimeMillis);
+        }
+
+        private JsonObject handleRequest(HttpExchange exchange) throws IOException {
+            String requestMethod = exchange.getRequestMethod();
+            switch (requestMethod.toUpperCase()) {
+                case "GET":
+                    return handleGetRequest(exchange);
+                case "POST":
+                    return handlePostRequest(exchange);
+                default:
+                    return buildErrorResponse("Unsupported request method: " + requestMethod);
+            }
+        }
+
+        private JsonObject handleGetRequest(HttpExchange exchange) {
+            JsonObject responseJson = new JsonObject();
+            Map<String, String> params = parseRequestURI(exchange.getRequestURI().getQuery());
+            if (checkNecessaryParams(params)) {
+                handleLegalParams(responseJson, params);
+            } else {
+                handleInvalidParams(responseJson, exchange);
+            }
+            return responseJson;
+        }
+
+        private JsonObject handlePostRequest(HttpExchange exchange) throws IOException {
+            StringBuilder requestInfo = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    requestInfo.append(line);
+                }
+            }
+            return Audit.getInstance().getData(requestInfo.toString());
+        }
+
+        private void sendResponse(HttpExchange exchange, OutputStream os, JsonObject responseJson) throws IOException {
+            byte[] bytes = responseJson.toString().getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set(KEY_HTTP_HEADER_CONTENT_TYPE, VALUE_HTTP_HEADER_CONTENT_TYPE);
+            exchange.sendResponseHeaders(HTTP_RESPOND_CODE, bytes.length);
+            os.write(bytes);
+        }
+
+        private JsonObject buildErrorResponse(String errorMessage) {
+            Gson gson = new Gson();
+            JsonObject response = new JsonObject();
+            response.addProperty(KEY_HTTP_BODY_SUCCESS, false);
+            response.addProperty(KEY_HTTP_BODY_ERR_MSG, errorMessage);
+            response.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(new LinkedList<>()));
+            return response;
         }
 
         private Map<String, String> parseRequestURI(String query) {
@@ -239,7 +291,7 @@ public class ApiService {
             responseJson.addProperty(KEY_HTTP_BODY_SUCCESS, false);
             responseJson.addProperty(KEY_HTTP_BODY_ERR_MSG, "Invalid params! " + exchange.getRequestURI());
             Gson gson = new Gson();
-            responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
+            responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(new LinkedList<>()));
         }
 
         private void handleLegalParams(JsonObject responseJson, Map<String, String> params) {
@@ -250,7 +302,7 @@ public class ApiService {
             try {
                 switch (apiType) {
                     case MINUTES:
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(handleMinutesApi(params)));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(handleMinutesApi(params)));
                         break;
                     case HOUR:
                         statData = HourCache.getInstance().getData(params.get(PARAMS_START_TIME),
@@ -259,7 +311,7 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID),
                                 params.get(PARAMS_AUDIT_TAG));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(statData));
                         break;
                     case DAY:
                         statData = DayCache.getInstance().getData(
@@ -268,7 +320,7 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_GROUP_ID),
                                 params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(statData));
                         break;
                     case GET_IDS:
                         statData = RealTimeQuery.getInstance().queryIdsByIp(
@@ -276,7 +328,7 @@ public class ApiService {
                                 params.get(PARAMS_END_TIME),
                                 params.get(PARAMS_IP),
                                 params.get(PARAMS_AUDIT_ID));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(statData));
                         break;
                     case GET_IPS:
                         statData = RealTimeQuery.getInstance().queryIpsById(
@@ -285,20 +337,20 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_GROUP_ID),
                                 params.get(PARAMS_INLONG_STREAM_ID),
                                 params.get(PARAMS_AUDIT_ID));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(statData));
                         break;
                     case GET_AUDIT_PROXY:
                         List<AuditProxy> auditProxy =
                                 AuditProxyCache.getInstance().getData(params.get(PARAMS_AUDIT_COMPONENT));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(auditProxy));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(auditProxy));
                         break;
                     default:
                         LOGGER.error("Unsupported interface type! type is {}", apiType);
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(new LinkedList<>()));
                 }
             } catch (Exception exception) {
                 LOGGER.error("Handle legal params has exception ", exception);
-                responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
+                responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(new LinkedList<>()));
             }
         }
 

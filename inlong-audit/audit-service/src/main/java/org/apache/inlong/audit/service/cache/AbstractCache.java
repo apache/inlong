@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -86,6 +87,12 @@ public class AbstractCache {
         return cache;
     }
 
+    public List<StatData> getData(String startTime, String endTime, String inlongGroupId,
+            String inlongStreamId, String auditId, String auditTag) {
+        return getData(startTime, endTime, inlongGroupId, inlongStreamId, auditId, auditTag, true);
+
+    }
+
     /**
      * @param startTime
      * @param endTime
@@ -96,31 +103,23 @@ public class AbstractCache {
      * @return
      */
     public List<StatData> getData(String startTime, String endTime, String inlongGroupId,
-            String inlongStreamId, String auditId, String auditTag) {
-        List<StatData> result = new LinkedList<>();
+            String inlongStreamId, String auditId, String auditTag, boolean needRetry) {
+        List<StatData> result = new ArrayList<>();
         List<CacheKeyEntity> keyList = buildCacheKeyList(startTime, endTime, inlongGroupId,
                 inlongStreamId, auditId, auditTag);
+
         for (CacheKeyEntity cacheKey : keyList) {
-            StatData statData = cache.getIfPresent(cacheKey.getCacheKey());
-            if (null == statData) {
-                // Compatible with scenarios where the auditTag openapi parameter can be empty.
-                statData = cache.getIfPresent(cacheKey.getCacheKey() + DEFAULT_AUDIT_TAG);
-            }
-            if (null != statData) {
-                result.add(statData);
-            } else {
-                long currentTimeMillis = System.currentTimeMillis();
-
+            StatData statData = fetchStatDataFromCache(cacheKey);
+            if (statData == null && needRetry) {
+                long statTimeMillis = System.currentTimeMillis();
                 statData = fetchDataFromAuditStorage(cacheKey.getStartTime(), cacheKey.getEndTime(), inlongGroupId,
-                        inlongStreamId,
-                        auditId, auditTag);
-                result.add(statData);
-
+                        inlongStreamId, auditId, auditTag);
                 MetricsManager.getInstance().addApiMetricNoCache(auditCycle,
-                        System.currentTimeMillis() - currentTimeMillis);
-
+                        System.currentTimeMillis() - statTimeMillis);
             }
-
+            if (statData != null) {
+                result.add(statData);
+            }
         }
         return result;
     }
@@ -193,6 +192,14 @@ public class AbstractCache {
         statData.setCount(totalCount);
         statData.setSize(totalSize);
         statData.setDelay(totalDelay);
+        return statData;
+    }
+    private StatData fetchStatDataFromCache(CacheKeyEntity cacheKey) {
+        StatData statData = cache.getIfPresent(cacheKey.getCacheKey());
+        if (statData == null) {
+            // Compatible with scenarios where the auditTag openapi parameter can be empty.
+            statData = cache.getIfPresent(cacheKey.getCacheKey() + DEFAULT_AUDIT_TAG);
+        }
         return statData;
     }
 }
