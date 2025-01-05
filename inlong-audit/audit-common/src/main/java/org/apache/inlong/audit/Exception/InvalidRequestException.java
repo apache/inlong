@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.entities;
+package org.apache.inlong.audit.Exception;
 
-/**
- * OpenAPI type
- */
-public enum ApiType {
-    MINUTES, HOUR, DAY, GET_IPS, GET_IDS, GET_AUDIT_PROXY, RECONCILIATION;
+public class InvalidRequestException extends Exception {
+
+    public InvalidRequestException(String message) {
+        super(message);
+    }
 }

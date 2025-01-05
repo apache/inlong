@@ -15,11 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service.entities;
+package org.apache.inlong.audit.service.auditor;
 
-/**
- * OpenAPI type
- */
-public enum ApiType {
-    MINUTES, HOUR, DAY, GET_IPS, GET_IDS, GET_AUDIT_PROXY, RECONCILIATION;
+import lombok.Data;
+
+@Data
+public class RequestInfo {
+
+    String startTime;
+    String endTime;
+    String inlongGroupId;
+    String inlongStreamId;
+    String srcAuditId;
+    String srcAuditTag;
+    String destAuditId;
+    String destAuditTag;
+    double diffRatio;
 }
