@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.base.dirty.sink.sdk;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
 import org.apache.inlong.sort.base.dirty.utils.AESUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
