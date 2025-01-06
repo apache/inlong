@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.resource.sink.oceanbase;
 import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseTableInfo;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -75,6 +76,8 @@ public class OceanBaseJdbcUtils {
             throw new Exception("OceanusBase URL is invalid, it should start with jdbc:oceanbase");
         }
         try {
+            UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
+            url = MySQLSensitiveUrlUtils.filterSensitive(url);
             Class.forName(OCEANBASE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
