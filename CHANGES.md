@@ -54,6 +54,7 @@
 ### Dashboard
 |ISSUE|Summary|
 |:--|:--|
+|[INLONG-11643](https://github.com/apache/inlong/issues/11643)|[Feature][Dashboard] The MySQL node password is not required |
 |[INLONG-11186](https://github.com/apache/inlong/issues/11186)|[Improve][Dashboard] Export audit indicator data to csv |
 |[INLONG-11186](https://github.com/apache/inlong/issues/11186)|[Improve][Dashboard] Export audit indicator data to csv |
 |[INLONG-11187](https://github.com/apache/inlong/issues/11187)|[Improve][Dashboard] Agent batch upgrade |
