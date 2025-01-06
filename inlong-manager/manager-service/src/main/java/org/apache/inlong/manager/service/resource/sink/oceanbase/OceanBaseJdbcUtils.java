@@ -75,6 +75,7 @@ public class OceanBaseJdbcUtils {
             throw new Exception("OceanusBase URL is invalid, it should start with jdbc:oceanbase");
         }
         try {
+            UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
             Class.forName(OCEANBASE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
