@@ -20,10 +20,10 @@ package org.apache.inlong.manager.service.resource.sink.oceanbase;
 import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseTableInfo;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
