@@ -97,7 +97,7 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
             return new InlongSdkDirtySink<>(options,
                     context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
         } catch (Throwable t) {
-            log.info("failed to create dirty sink", t);
+            log.warn("failed to create dirty sink", t);
             return null;
         }
     }
@@ -127,9 +127,9 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
             byte[] bytes = AESUtils.parseHexStr2Byte(before);
             bytes = AESUtils.decrypt(bytes, key.trim().getBytes(StandardCharsets.UTF_8));
             decrypted = new String(Base64.decodeBase64(bytes), StandardCharsets.UTF_8);
-        } catch (Throwable e) {
-            log.warn("failed to decrypt {} into cmk", before, e);
-            throw new RuntimeException(e);
+        } catch (Throwable t) {
+            log.warn("failed to decrypt {} into cmk", before, t);
+            throw new RuntimeException(t);
         }
         return decrypted;
     }
