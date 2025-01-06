@@ -19,8 +19,10 @@ package org.apache.inlong.sort.base.dirty.sink.sdk;
 
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
+import org.apache.inlong.sort.base.dirty.utils.AESUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -28,12 +30,14 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.factories.DynamicTableFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FIELD_DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FORMAT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LABELS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_ENABLE;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_RETRIES;
 
@@ -86,11 +90,16 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
 
     @Override
     public <T> DirtySink<T> createDirtySink(DynamicTableFactory.Context context) {
-        ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
-        FactoryUtil.validateFactoryOptions(this, config);
-        InlongSdkDirtyOptions options = getOptions(config);
-        return new InlongSdkDirtySink<>(options,
-                context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
+        try {
+            ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
+            FactoryUtil.validateFactoryOptions(this, config);
+            InlongSdkDirtyOptions options = getOptions(config);
+            return new InlongSdkDirtySink<>(options,
+                    context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
+        } catch (Throwable t) {
+            log.warn("failed to create dirty sink", t);
+            return null;
+        }
     }
 
     private InlongSdkDirtyOptions getOptions(ReadableConfig config) {
@@ -100,13 +109,29 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
                 .sendToGroupId(config.get(DIRTY_SIDE_OUTPUT_INLONG_GROUP))
                 .sendToStreamId(config.get(DIRTY_SIDE_OUTPUT_INLONG_STREAM))
                 .csvFieldDelimiter(config.get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER))
-                .inlongManagerAuthKey(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY))
+                .inlongManagerAuthKey(
+                        decrypt(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_KEY),
+                                config.get(DIRTY_SIDE_OUTPUT_LABELS)))
                 .inlongManagerAuthId(config.get(DIRTY_SIDE_OUTPUT_INLONG_AUTH_ID))
                 .ignoreSideOutputErrors(config.get(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS))
                 .retryTimes(config.get(DIRTY_SIDE_OUTPUT_RETRIES))
                 .maxCallbackSize(config.get(DIRTY_SIDE_OUTPUT_MAX_CALLBACK_SIZE))
                 .enableDirtyLog(config.get(DIRTY_SIDE_OUTPUT_LOG_ENABLE))
                 .build();
+    }
+
+    private String decrypt(String encrypted, String key) {
+        String decrypted = null;
+
+        try {
+            byte[] bytes = AESUtils.parseHexStr2Byte(encrypted);
+            bytes = AESUtils.decrypt(bytes, key.trim().getBytes(StandardCharsets.UTF_8));
+            decrypted = new String(Base64.decodeBase64(bytes), StandardCharsets.UTF_8);
+        } catch (Throwable t) {
+            log.warn("failed to decrypt {} with key {}", encrypted, key, t);
+            throw new RuntimeException(t);
+        }
+        return decrypted;
     }
 
     @Override

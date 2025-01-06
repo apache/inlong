@@ -88,7 +88,6 @@ public class InlongSdkDirtySink<T> implements DirtySink<T> {
         converter = FormatUtils.parseRowDataToJsonConverter(physicalRowDataType.getLogicalType());
         fieldGetters = FormatUtils.parseFieldGetters(physicalRowDataType.getLogicalType());
 
-        log.info("inlong sdk dirty options={}", options);
         // init sender
         dirtySender = InlongSdkDirtySender.builder()
                 .inlongManagerAddr(options.getInlongManagerAddr())
