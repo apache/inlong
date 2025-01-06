@@ -35,7 +35,6 @@ export default class MySQLNode extends NodeInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: 'password',
-    rules: [{ required: true }],
   })
   @I18n('meta.Nodes.MySQL.Password')
   token: string;
