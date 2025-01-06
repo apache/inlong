@@ -120,15 +120,15 @@ public class InlongSdkDirtySinkFactory implements DirtySinkFactory {
                 .build();
     }
 
-    private String decrypt(String before, String key) {
+    private String decrypt(String encrypted, String key) {
         String decrypted = null;
 
         try {
-            byte[] bytes = AESUtils.parseHexStr2Byte(before);
+            byte[] bytes = AESUtils.parseHexStr2Byte(encrypted);
             bytes = AESUtils.decrypt(bytes, key.trim().getBytes(StandardCharsets.UTF_8));
             decrypted = new String(Base64.decodeBase64(bytes), StandardCharsets.UTF_8);
         } catch (Throwable t) {
-            log.warn("failed to decrypt {} into cmk", before, t);
+            log.warn("failed to decrypt {} with key {}", encrypted, key, t);
             throw new RuntimeException(t);
         }
         return decrypted;
