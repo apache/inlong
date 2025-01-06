@@ -23,6 +23,7 @@ import org.apache.inlong.manager.pojo.sink.oceanbase.OceanBaseTableInfo;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +77,7 @@ public class OceanBaseJdbcUtils {
         }
         try {
             UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, OCEANBASE_JDBC_PREFIX);
+            url = MySQLSensitiveUrlUtils.filterSensitive(url);
             Class.forName(OCEANBASE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
