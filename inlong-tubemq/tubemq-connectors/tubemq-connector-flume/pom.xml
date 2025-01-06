@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>tubemq-connectors</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>tubemq-connector-flume</artifactId>
     <name>Apache InLong - TubeMQ Connectors-flume</name>
