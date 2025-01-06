@@ -163,16 +163,6 @@
 |[INLONG-11489](https://github.com/apache/inlong/issues/11489)|[Improve][Audit] Use Throwable instead of Exception to capture Java package conflicts |
 |[INLONG-11605](https://github.com/apache/inlong/issues/11605)|[Improve][Audit] Added audit data legitimacy verification |
 
-### Distribution
-|ISSUE|Summary|
-|:--|:--|
-|[INLONG-11444](https://github.com/apache/inlong/issues/11444)|[Bug][Distribution] Merging modules jars is not working |
-
-### Docker
-|ISSUE|Summary|
-|:--|:--|
-|[INLONG-11541](https://github.com/apache/inlong/issues/11541)|[Feature][Docker] Support Manager config volume |
-
 ### TubeMQ
 |ISSUE|Summary|
 |:--|:--|
@@ -181,9 +171,11 @@
 |[INLONG-11583](https://github.com/apache/inlong/issues/11583)|[Bug][TubeMQ] Go SDK load balance logic not perfect, causing consumption to stop suddenly |
 |[INLONG-11587](https://github.com/apache/inlong/issues/11587)|[Bug][TubeMQ] Go SDK change filter order cause inconsistency error when registering to master. |
 
-### CI
+### Others
 |ISSUE|Summary|
 |:--|:--|
+|[INLONG-11541](https://github.com/apache/inlong/issues/11541)|[Feature][Docker] Support Manager config volume |
 |[INLONG-11246](https://github.com/apache/inlong/issues/11246)|[Feature][CI] Remove dangling docker images |
 |[INLONG-11439](https://github.com/apache/inlong/issues/11439)|[Improve][CI] Support parallel build |
 |[INLONG-11471](https://github.com/apache/inlong/issues/11471)|[Improve][CI] Workflow may fail when building the project accidentally|
+|[INLONG-11444](https://github.com/apache/inlong/issues/11444)|[Bug][Distribution] Merging modules jars is not working |
