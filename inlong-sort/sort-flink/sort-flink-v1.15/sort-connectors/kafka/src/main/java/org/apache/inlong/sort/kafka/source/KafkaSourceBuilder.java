@@ -105,6 +105,7 @@ public class KafkaSourceBuilder<OUT> {
     private KafkaDeserializationSchema<RowData> metricSchema;
     // The configurations.
     protected Properties props;
+    private boolean enableLogReport;
 
     KafkaSourceBuilder() {
         this.subscriber = null;
@@ -407,6 +408,11 @@ public class KafkaSourceBuilder<OUT> {
         return this;
     }
 
+    public KafkaSourceBuilder<OUT> enableLogReport(boolean enableLogReport) {
+        this.enableLogReport = enableLogReport;
+        return this;
+    }
+
     /**
      * Build the {@link KafkaSource}.
      *
@@ -422,7 +428,8 @@ public class KafkaSourceBuilder<OUT> {
                 boundedness,
                 deserializationSchema,
                 metricSchema,
-                props);
+                props,
+                enableLogReport);
     }
 
     // ------------- private helpers --------------

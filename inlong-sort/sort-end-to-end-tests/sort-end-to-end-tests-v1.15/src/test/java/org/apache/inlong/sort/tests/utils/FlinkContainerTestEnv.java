@@ -130,6 +130,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
         commands.add("--sql.script.file");
         commands.add(containerSqlFile);
+        commands.add("--enable.log.report true");
 
         ExecResult execResult =
                 jobManager.execInContainer("bash", "-c", String.join(" ", commands));

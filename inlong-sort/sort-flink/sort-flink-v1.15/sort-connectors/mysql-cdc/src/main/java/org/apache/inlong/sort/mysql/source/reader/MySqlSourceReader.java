@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.mysql.source.reader;
 
+import org.apache.inlong.sort.base.util.OpenTelemetryLogger;
 import org.apache.inlong.sort.mysql.RowDataDebeziumDeserializeSchema;
 
 import com.ververica.cdc.connectors.mysql.debezium.DebeziumUtils;
@@ -55,6 +56,7 @@ import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSource
 import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
 import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.logging.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +90,8 @@ public class MySqlSourceReader<T>
     private final MySqlSourceReaderContext mySqlSourceReaderContext;
     private MySqlBinlogSplit suspendedBinlogSplit;
     private final DebeziumDeserializationSchema<T> metricSchema;
+    private OpenTelemetryLogger openTelemetryLogger;
+    private final boolean enableLogReport;
 
     public MySqlSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementQueue,
@@ -95,7 +99,8 @@ public class MySqlSourceReader<T>
             RecordEmitter<SourceRecords, T, MySqlSplitState> recordEmitter,
             Configuration config,
             MySqlSourceReaderContext context,
-            MySqlSourceConfig sourceConfig, DebeziumDeserializationSchema<T> metricSchema) {
+            MySqlSourceConfig sourceConfig, DebeziumDeserializationSchema<T> metricSchema,
+            boolean enableLogReport) {
         super(
                 elementQueue,
                 new SingleThreadFetcherManager<>(elementQueue, splitReaderSupplier::get),
@@ -109,12 +114,30 @@ public class MySqlSourceReader<T>
         this.mySqlSourceReaderContext = context;
         this.suspendedBinlogSplit = null;
         this.metricSchema = metricSchema;
+        this.enableLogReport = enableLogReport;
+        if (enableLogReport) {
+            this.openTelemetryLogger = new OpenTelemetryLogger.Builder()
+                    .setLogLevel(Level.ERROR)
+                    .setServiceName(this.getClass().getSimpleName())
+                    .setLocalHostIp(this.context.getLocalHostName()).build();
+        }
     }
 
     @Override
     public void start() {
+        if (enableLogReport) {
+            openTelemetryLogger.install();
+        }
         if (getNumberOfCurrentlyAssignedSplits() == 0) {
             context.sendSplitRequest();
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        if (enableLogReport) {
+            openTelemetryLogger.uninstall();
         }
     }
 

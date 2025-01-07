@@ -83,14 +83,16 @@ public class PulsarOrderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT> 
             SourceConfiguration sourceConfiguration,
             PulsarClient pulsarClient,
             PulsarAdmin pulsarAdmin,
-            PulsarDeserializationSchema<OUT> deserializationSchema) {
+            PulsarDeserializationSchema<OUT> deserializationSchema,
+            boolean enableLogReport) {
         super(
                 elementsQueue,
                 new PulsarOrderedFetcherManager<>(elementsQueue, splitReaderSupplier::get),
                 context,
                 sourceConfiguration,
                 pulsarClient,
-                pulsarAdmin);
+                pulsarAdmin,
+                enableLogReport);
 
         this.cursorsToCommit = Collections.synchronizedSortedMap(new TreeMap<>());
         this.cursorsOfFinishedSplits = new ConcurrentHashMap<>();

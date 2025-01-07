@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.source;
 
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.iceberg.IcebergReadableMetadata;
 import org.apache.inlong.sort.iceberg.IcebergReadableMetadata.MetadataConverter;
 
@@ -83,6 +84,7 @@ public class IcebergTableSource
     private final Map<String, String> properties;
     private final boolean isLimitPushDown;
     private final ReadableConfig readableConfig;
+    private final boolean enableLogReport;
 
     private IcebergTableSource(IcebergTableSource toCopy) {
         this.loader = toCopy.loader;
@@ -95,6 +97,7 @@ public class IcebergTableSource
         this.readableConfig = toCopy.readableConfig;
         this.producedDataType = toCopy.producedDataType;
         this.metadataKeys = toCopy.metadataKeys;
+        this.enableLogReport = toCopy.enableLogReport;
     }
 
     public IcebergTableSource(
@@ -124,6 +127,7 @@ public class IcebergTableSource
         this.readableConfig = readableConfig;
         this.producedDataType = schema.toPhysicalRowDataType();
         this.metadataKeys = new ArrayList<>();
+        this.enableLogReport = readableConfig.get(Constants.ENABLE_LOG_REPORT);
     }
 
     @Override
