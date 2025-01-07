@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
@@ -30,6 +29,7 @@ import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
