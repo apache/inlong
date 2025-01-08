@@ -33,7 +33,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -322,6 +322,9 @@ public class ClientMgr {
             do {
                 int selectCnt = 0;
                 for (HostInfo hostInfo : candidateNodes) {
+                    if (realHosts.contains(hostInfo.getReferenceName())) {
+                        continue;
+                    }
                     try {
                         client = new NettyClient(this.sender.getInstanceId(),
                                 this.bootstrap, hostInfo, this.configure);
