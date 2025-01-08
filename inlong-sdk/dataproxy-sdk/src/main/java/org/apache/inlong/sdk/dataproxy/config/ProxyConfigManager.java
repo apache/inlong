@@ -374,8 +374,8 @@ public class ProxyConfigManager extends Thread {
         }
         if (result.getF0() == null) {
             if (this.userEncryptConfigEntry != null) {
-                logger.warn("ConfigManager({}) connect manager({}) failure, using the last pubKey, secretId={}",
-                        this.callerId, this.encryptConfigVisitUrl, this.clientConfig.getAuthSecretId());
+                logger.warn("ConfigManager({}) connect manager({}) failure, using the last pubKey, userName={}",
+                        this.callerId, this.encryptConfigVisitUrl, this.clientConfig.getUserName());
                 return;
             }
             throw new Exception("Visit manager error:" + result.getF1());
@@ -570,8 +570,8 @@ public class ProxyConfigManager extends Thread {
             pubKeyConf = JsonParser.parseString(queryResult.getF1()).getAsJsonObject();
         } catch (Throwable ex) {
             if (parseCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) parse failure, secretId={}, config={}!",
-                        this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                logger.warn("ConfigManager({}) parse failure, userName={}, config={}!",
+                        this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
             }
             errorMsg = "parse pubkey failure:" + ex.getMessage();
             bookManagerQryFailStatus(false, errorMsg);
@@ -585,23 +585,23 @@ public class ProxyConfigManager extends Thread {
         try {
             if (!pubKeyConf.has("resultCode")) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: resultCode field not exist, secretId={}, config={}!",
-                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    logger.warn("ConfigManager({}) config failure: resultCode field not exist, userName={}, config={}!",
+                            this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                 }
                 throw new Exception("resultCode field not exist");
             }
             int resultCode = pubKeyConf.get("resultCode").getAsInt();
             if (resultCode != 0) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: resultCode != 0, secretId={}, config={}!",
-                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    logger.warn("ConfigManager({}) config failure: resultCode != 0, userName={}, config={}!",
+                            this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                 }
                 throw new Exception("resultCode != 0!");
             }
             if (!pubKeyConf.has("resultData")) {
                 if (parseCounter.shouldPrint()) {
-                    logger.warn("ConfigManager({}) config failure: resultData field not exist, secretId={}, config={}!",
-                            this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                    logger.warn("ConfigManager({}) config failure: resultData field not exist, userName={}, config={}!",
+                            this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                 }
                 throw new Exception("resultData field not exist");
             }
@@ -610,24 +610,24 @@ public class ProxyConfigManager extends Thread {
                 String publicKey = resultData.get("publicKey").getAsString();
                 if (StringUtils.isBlank(publicKey)) {
                     if (parseCounter.shouldPrint()) {
-                        logger.warn("ConfigManager({}) config failure: publicKey is blank, secretId={}, config={}!",
-                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                        logger.warn("ConfigManager({}) config failure: publicKey is blank, userName={}, config={}!",
+                                this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                     }
                     throw new Exception("publicKey is blank!");
                 }
                 String username = resultData.get("username").getAsString();
                 if (StringUtils.isBlank(username)) {
                     if (parseCounter.shouldPrint()) {
-                        logger.warn("ConfigManager({}) config failure: username is blank, secretId={}, config={}!",
-                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                        logger.warn("ConfigManager({}) config failure: username is blank, userName={}, config={}!",
+                                this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                     }
                     throw new Exception("username is blank!");
                 }
                 String versionStr = resultData.get("version").getAsString();
                 if (StringUtils.isBlank(versionStr)) {
                     if (parseCounter.shouldPrint()) {
-                        logger.warn("ConfigManager({}) config failure: version is blank, secretId={}, config={}!",
-                                this.callerId, this.clientConfig.getAuthSecretId(), queryResult.getF1());
+                        logger.warn("ConfigManager({}) config failure: version is blank, userName={}, config={}!",
+                                this.callerId, this.clientConfig.getUserName(), queryResult.getF1());
                     }
                     throw new Exception("version is blank!");
                 }
@@ -670,8 +670,8 @@ public class ProxyConfigManager extends Thread {
             }
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) read({}) file exception, secretId={}",
-                        callerId, encryptConfigCacheFile, clientConfig.getAuthSecretId(), ex);
+                logger.warn("ConfigManager({}) read({}) file exception, userName={}",
+                        callerId, encryptConfigCacheFile, clientConfig.getUserName(), ex);
             }
             return new Tuple2<>(null, "read PubKeyEntry file failure:" + ex.getMessage());
         } finally {
@@ -705,8 +705,8 @@ public class ProxyConfigManager extends Thread {
             // p.close();
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
-                logger.warn("ConfigManager({}) write file({}) exception, secretId={}, content={}",
-                        callerId, encryptConfigCacheFile, clientConfig.getAuthSecretId(), entry.toString(), ex);
+                logger.warn("ConfigManager({}) write file({}) exception, userName={}, content={}",
+                        callerId, encryptConfigCacheFile, clientConfig.getUserName(), entry.toString(), ex);
             }
         } finally {
             if (fos != null) {
@@ -836,7 +836,7 @@ public class ProxyConfigManager extends Thread {
         this.encryptConfigCacheFile = strBuff
                 .append(clientConfig.getConfigStoreBasePath())
                 .append(ConfigConstants.META_STORE_SUB_DIR)
-                .append(clientConfig.getAuthSecretId())
+                .append(clientConfig.getUserName())
                 .append(ConfigConstants.REMOTE_ENCRYPT_CACHE_FILE_SUFFIX)
                 .toString();
         strBuff.delete(0, strBuff.length());
