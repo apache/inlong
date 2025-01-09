@@ -63,7 +63,7 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     private KafkaProducer<String, byte[]> producer;
 
-    private long configuredMaxPayloadSize;
+    private long configuredMaxPayloadSize = 8388608L;
 
     public KafkaProducerCluster(
             String workerName,
