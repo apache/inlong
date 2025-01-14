@@ -237,6 +237,9 @@ func (p *connPool) initConns(count int) error {
 
 	for err := range errs {
 		if err != nil {
+			for conn := range conns {
+				_ = conn.Close()
+			}
 			return err
 		}
 	}
