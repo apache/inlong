@@ -22,6 +22,7 @@ import (
 	"errors"
 	"math"
 	"sync"
+	"time"
 
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/connpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/discoverer"
@@ -135,7 +136,8 @@ func (c *client) initNetClient() error {
 		gnet.WithWriteBufferCap(c.options.WriteBufferSize),
 		gnet.WithReadBufferCap(c.options.ReadBufferSize),
 		gnet.WithSocketSendBuffer(c.options.SocketSendBufferSize),
-		gnet.WithSocketRecvBuffer(c.options.SocketRecvBufferSize))
+		gnet.WithSocketRecvBuffer(c.options.SocketRecvBufferSize),
+		gnet.WithTCPKeepAlive(5*time.Minute))
 	if err != nil {
 		return err
 	}
