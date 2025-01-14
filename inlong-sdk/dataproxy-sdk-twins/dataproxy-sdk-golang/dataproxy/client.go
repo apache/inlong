@@ -164,7 +164,7 @@ func (c *client) initConns() error {
 
 	// minimum connection number per endpoint is 1
 	connsPerEndpoint := int(math.Ceil(float64(c.options.WorkerNum) * 1.2 / float64(epLen)))
-	pool, err := connpool.NewConnPool(endpoints, connsPerEndpoint, 512, c, c.log)
+	pool, err := connpool.NewConnPool(endpoints, connsPerEndpoint, 512, c, c.log, c.options.MaxConnLifetime)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (c *client) initConns() error {
 }
 
 func (c *client) initFramer() error {
-	framer, err := framer.NewLengthField(framer.LengthFieldCfg{
+	fr, err := framer.NewLengthField(framer.LengthFieldCfg{
 		MaxFrameLen:  64 * 1024,
 		FieldOffset:  0,
 		FieldLength:  4,
@@ -184,7 +184,7 @@ func (c *client) initFramer() error {
 	if err != nil {
 		return err
 	}
-	c.framer = framer
+	c.framer = fr
 	return nil
 }
 
@@ -209,8 +209,8 @@ func (c *client) initWorkers() error {
 	return nil
 }
 
-func (c *client) Dial(addr string) (gnet.Conn, error) {
-	return c.netClient.Dial("tcp", addr)
+func (c *client) Dial(addr string, ctx any) (gnet.Conn, error) {
+	return c.netClient.DialContext("tcp", addr, ctx)
 }
 
 func (c *client) Send(ctx context.Context, msg Message) error {
