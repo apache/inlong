@@ -22,7 +22,7 @@ import org.apache.inlong.sdk.commons.protocol.SdkEvent;
 import org.apache.inlong.sdk.dataproxy.MessageSender;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.pb.channel.BufferQueueChannel;
 import org.apache.inlong.sdk.dataproxy.pb.context.CallbackProfile;
 
@@ -336,12 +336,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  dt
      * @param  msgUUID
      * @param  extraAttrMap
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt,
             String msgUUID, Map<String, String> extraAttrMap)
-            throws ProxysdkException {
+            throws ProxySdkException {
         SdkEvent sdkEvent = new SdkEvent();
         sdkEvent.setInlongGroupId(groupId);
         sdkEvent.setInlongStreamId(streamId);
@@ -364,11 +364,11 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(SendMessageCallback callback, byte[] body,
-            String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException {
+            String groupId, String streamId, long dt, String msgUUID) throws ProxySdkException {
         this.asyncSendMessage(callback, body, groupId, streamId, dt, msgUUID, null);
     }
 
@@ -381,11 +381,11 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  streamId
      * @param  dt
      * @param  msgUUID
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(SendMessageCallback callback, List<byte[]> bodyList,
-            String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException {
+            String groupId, String streamId, long dt, String msgUUID) throws ProxySdkException {
         this.asyncSendMessage(callback, bodyList, groupId, streamId, dt, msgUUID, null);
     }
 
@@ -399,12 +399,12 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  dt
      * @param  msgUUID
      * @param  extraAttrMap
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(SendMessageCallback callback,
             List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            Map<String, String> extraAttrMap) throws ProxysdkException {
+            Map<String, String> extraAttrMap) throws ProxySdkException {
         List<CallbackProfile> events = new ArrayList<>(bodyList.size());
         for (byte[] body : bodyList) {
             SdkEvent sdkEvent = new SdkEvent();
@@ -429,11 +429,11 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  inlongStreamId
      * @param  body
      * @param  callback
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
-            throws ProxysdkException {
+            throws ProxySdkException {
         this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null, null);
     }
 
@@ -444,11 +444,11 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
      * @param  inlongStreamId
      * @param  bodyList
      * @param  callback
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     @Override
     public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
-            SendMessageCallback callback) throws ProxysdkException {
+            SendMessageCallback callback) throws ProxySdkException {
         this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(), null,
                 null);
     }

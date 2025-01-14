@@ -35,7 +35,7 @@ import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
@@ -271,7 +271,7 @@ public class SenderManager {
 
     private void asyncSendByMessageSender(SendMessageCallback cb,
             List<byte[]> bodyList, String groupId, String streamId, long dataTime, String msgUUID,
-            Map<String, String> extraAttrMap, boolean isProxySend) throws ProxysdkException {
+            Map<String, String> extraAttrMap, boolean isProxySend) throws ProxySdkException {
         sender.asyncSendMessage(cb, bodyList, groupId,
                 streamId, dataTime, msgUUID, extraAttrMap, isProxySend);
     }

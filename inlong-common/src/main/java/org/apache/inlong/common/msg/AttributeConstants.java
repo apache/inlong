@@ -62,6 +62,9 @@ public interface AttributeConstants {
     /* from where */
     String FROM = "f";
 
+    /* msg uuid */
+    String MSG_UUID = "msgUUID";
+
     // whether to return a response, false: not need, true or not exist: need
     String MESSAGE_IS_ACK = "isAck";
 
@@ -105,6 +108,9 @@ public interface AttributeConstants {
     // calculate the end-to-end message delay; if this field does not exist in the request,
     // it will be added by the Bus with the current time
     String MSG_RPT_TIME = "rtms";
+
+    // inlong sdk version
+    String PROXY_SDK_VERSION = "inlongSdkVer";
 
     // Audit version is used for audit to reconciliation
     String AUDIT_VERSION = "auditVersion";
