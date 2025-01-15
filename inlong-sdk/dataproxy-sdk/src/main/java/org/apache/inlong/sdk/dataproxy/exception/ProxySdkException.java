@@ -15,22 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.network;
+package org.apache.inlong.sdk.dataproxy.exception;
 
-public class ProxysdkException extends Exception {
+/**
+ * Proxy Sdk Exception
+ *
+ * Used for unacceptable situations when reporting messages, such as empty input parameters,
+ * illegal parameters, abnormal execution status, and exceptions encountered during execution that
+ * were not considered during design, etc.
+ *
+ * If this exception is thrown during the debugging phase, the caller needs to check and
+ * adjust the corresponding implementation according to the exception content; if the exception
+ * is encountered during operation; the caller can try a limited number of times,
+ * and discard this report if it fails after trying again.
+ */
+public class ProxySdkException extends Exception {
 
-    public ProxysdkException() {
+    public ProxySdkException() {
     }
 
-    public ProxysdkException(String message) {
+    public ProxySdkException(String message) {
         super(message);
     }
 
-    public ProxysdkException(String message, Throwable cause) {
+    public ProxySdkException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ProxysdkException(Throwable cause) {
+    public ProxySdkException(Throwable cause) {
         super(cause);
     }
 }

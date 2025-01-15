@@ -23,9 +23,10 @@ import (
 
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -78,6 +79,7 @@ type Options struct {
 	AddColumns              map[string]string     // addition columns to add to the message, for example: __addcol1__worldid=xxx&__addcol2__ip=yyy, all the message will be added 2 more columns with worldid=xxx and ip=yyy
 	addColumnStr            string                // the string format of the AddColumns, just a cache, used internal
 	Auth                    Auth                  // dataproxy authentication interface
+	MaxConnLifetime         time.Duration         // connection max lifetime, default: 0, set to 5m/10m when the servers provide service though CLBs (Cloud Load Balancers)
 }
 
 // ValidateAndSetDefault validates an options and set up the default values

@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,7 @@ public interface MessageSender {
      */
     void asyncSendMessage(SendMessageCallback callback,
             byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            Map<String, String> extraAttrMap) throws ProxysdkException;
+            Map<String, String> extraAttrMap) throws ProxySdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data  without packing
@@ -89,7 +89,7 @@ public interface MessageSender {
      * @param body     The data will be sent
      */
     void asyncSendMessage(SendMessageCallback callback,
-            byte[] body, String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException;
+            byte[] body, String groupId, String streamId, long dt, String msgUUID) throws ProxySdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data  with packing
@@ -98,7 +98,7 @@ public interface MessageSender {
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
     void asyncSendMessage(SendMessageCallback callback,
-            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID) throws ProxysdkException;
+            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID) throws ProxySdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data with packing
@@ -111,7 +111,7 @@ public interface MessageSender {
      */
     void asyncSendMessage(SendMessageCallback callback,
             List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            Map<String, String> extraAttrMap) throws ProxysdkException;
+            Map<String, String> extraAttrMap) throws ProxySdkException;
 
     /**
      * This method provides an asynchronized function which you want to send data.<br>
@@ -121,10 +121,10 @@ public interface MessageSender {
      * @param inlongStreamId
      * @param body
      * @param callback callback can be null
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
-            throws ProxysdkException;
+            throws ProxySdkException;
 
     /**
      * This method provides an asynchronized function which you want to send datas.<br>
@@ -134,9 +134,9 @@ public interface MessageSender {
      * @param inlongStreamId
      * @param bodyList
      * @param callback callback can be null
-     * @throws ProxysdkException
+     * @throws ProxySdkException
      */
     void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
-            SendMessageCallback callback) throws ProxysdkException;
+            SendMessageCallback callback) throws ProxySdkException;
 
 }

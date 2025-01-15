@@ -19,8 +19,8 @@ package org.apache.inlong.sdk.dataproxy.example;
 
 import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class HttpClientExample {
             proxyConfig.setDiscardOldMessage(true);
             proxyConfig.setProtocolType(ProtocolType.HTTP);
             sender = new HttpProxySender(proxyConfig);
-        } catch (ProxysdkException e) {
+        } catch (ProxySdkException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

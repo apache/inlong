@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -308,13 +309,13 @@ public class Sender {
      * Following methods used by asynchronously message sending.
      */
     public void asyncSendMessage(EncodeObject encodeObject,
-            SendMessageCallback callback, String msgUUID) throws ProxysdkException {
+            SendMessageCallback callback, String msgUUID) throws ProxySdkException {
         if (!started.get()) {
             if (callback != null) {
                 callback.onMessageAck(SendResult.SENDER_CLOSED);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.SENDER_CLOSED.toString());
+                throw new ProxySdkException(SendResult.SENDER_CLOSED.toString());
             }
         }
         if (configure.isEnableMetric()) {
@@ -331,7 +332,7 @@ public class Sender {
                 callback.onMessageAck(SendResult.MAX_FLIGHT_ON_ALL_CONNECTION);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.MAX_FLIGHT_ON_ALL_CONNECTION.toString());
+                throw new ProxySdkException(SendResult.MAX_FLIGHT_ON_ALL_CONNECTION.toString());
             }
         }
         if (clientResult.getF0() != SendResult.OK) {
@@ -339,7 +340,7 @@ public class Sender {
                 callback.onMessageAck(clientResult.getF0());
                 return;
             } else {
-                throw new ProxysdkException(clientResult.getF0().toString());
+                throw new ProxySdkException(clientResult.getF0().toString());
             }
         }
         if (!clientResult.getF1().getChannel().isWritable()) {
@@ -352,7 +353,7 @@ public class Sender {
                 callback.onMessageAck(SendResult.WRITE_OVER_WATERMARK);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.WRITE_OVER_WATERMARK.toString());
+                throw new ProxySdkException(SendResult.WRITE_OVER_WATERMARK.toString());
             }
         }
         if (currentBufferSize.get() >= asyncCallbackMaxSize) {
@@ -361,7 +362,7 @@ public class Sender {
                 callback.onMessageAck(SendResult.ASYNC_CALLBACK_BUFFER_FULL);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.ASYNC_CALLBACK_BUFFER_FULL.toString());
+                throw new ProxySdkException(SendResult.ASYNC_CALLBACK_BUFFER_FULL.toString());
             }
         }
         if (isNotValidateAttr(encodeObject.getCommonattr(), encodeObject.getAttributes())) {
@@ -374,7 +375,7 @@ public class Sender {
                 callback.onMessageAck(SendResult.INVALID_ATTRIBUTES);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
+                throw new ProxySdkException(SendResult.INVALID_ATTRIBUTES.toString());
             }
         }
         int size = 1;
@@ -385,7 +386,7 @@ public class Sender {
                 callback.onMessageAck(SendResult.ASYNC_CALLBACK_BUFFER_FULL);
                 return;
             } else {
-                throw new ProxysdkException(SendResult.ASYNC_CALLBACK_BUFFER_FULL.toString());
+                throw new ProxySdkException(SendResult.ASYNC_CALLBACK_BUFFER_FULL.toString());
             }
         }
         ConcurrentHashMap<String, QueueObject> msgQueueMap =

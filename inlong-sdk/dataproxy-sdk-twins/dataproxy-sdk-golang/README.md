@@ -161,6 +161,8 @@ type Options struct {
 	BlockIfQueueIsFull      bool                  // whether Send and SendAsync block if producer's message queue is full, default: false
 	AddColumns              map[string]string     // addition columns to add to the message, for example: __addcol1__worldid=xxx&__addcol2__ip=yyy, all the message will be added 2 more columns with worldid=xxx and ip=yyy
 	addColumnStr            string                // the string format of the AddColumns, just a cache, used internal
+	Auth                    Auth                  // dataproxy authentication interface
+	MaxConnLifetime         time.Duration         // connection max lifetime, default: 0, set to 5m/10m when the servers provide service though CLBs (Cloud Load Balancers)
 }
 ```
 

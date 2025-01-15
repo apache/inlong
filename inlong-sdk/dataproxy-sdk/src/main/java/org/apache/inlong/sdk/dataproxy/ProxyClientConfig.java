@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
 import org.apache.inlong.sdk.dataproxy.network.IpUtils;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -99,18 +99,18 @@ public class ProxyClientConfig {
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean visitManagerByHttp, String managerIp,
-            int managerPort, String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
+            int managerPort, String inlongGroupId, String authSecretId, String authSecretKey) throws ProxySdkException {
         if (StringUtils.isBlank(localHost)) {
-            throw new ProxysdkException("localHost is blank!");
+            throw new ProxySdkException("localHost is blank!");
         }
         if (StringUtils.isBlank(managerIp)) {
-            throw new ProxysdkException("managerIp is Blank!");
+            throw new ProxySdkException("managerIp is Blank!");
         }
         if (managerPort <= 0) {
-            throw new ProxysdkException("managerPort <= 0!");
+            throw new ProxySdkException("managerPort <= 0!");
         }
         if (StringUtils.isBlank(inlongGroupId)) {
-            throw new ProxysdkException("groupId is blank!");
+            throw new ProxySdkException("groupId is blank!");
         }
         this.inlongGroupId = inlongGroupId.trim();
         this.visitManagerByHttp = visitManagerByHttp;
@@ -126,10 +126,10 @@ public class ProxyClientConfig {
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String managerAddress,
-            String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
+            String inlongGroupId, String authSecretId, String authSecretKey) throws ProxySdkException {
         checkAndParseAddress(managerAddress);
         if (StringUtils.isBlank(inlongGroupId)) {
-            throw new ProxysdkException("groupId is blank!");
+            throw new ProxySdkException("groupId is blank!");
         }
         this.inlongGroupId = inlongGroupId.trim();
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
@@ -519,11 +519,11 @@ public class ProxyClientConfig {
         this.senderMaxAttempt = senderMaxAttempt;
     }
 
-    private void checkAndParseAddress(String managerAddress) throws ProxysdkException {
+    private void checkAndParseAddress(String managerAddress) throws ProxySdkException {
         if (StringUtils.isBlank(managerAddress)
                 || (!managerAddress.startsWith(ConfigConstants.HTTP)
                         && !managerAddress.startsWith(ConfigConstants.HTTPS))) {
-            throw new ProxysdkException("managerAddress is blank or missing http/https protocol");
+            throw new ProxySdkException("managerAddress is blank or missing http/https protocol");
         }
         String hostPortInfo;
         if (managerAddress.startsWith(ConfigConstants.HTTPS)) {
@@ -533,25 +533,25 @@ public class ProxyClientConfig {
             hostPortInfo = managerAddress.substring(ConfigConstants.HTTP.length());
         }
         if (StringUtils.isBlank(hostPortInfo)) {
-            throw new ProxysdkException("managerAddress must include host:port info!");
+            throw new ProxySdkException("managerAddress must include host:port info!");
         }
         String[] fields = hostPortInfo.split(":");
         if (fields.length == 1) {
-            throw new ProxysdkException("managerAddress must include port info!");
+            throw new ProxySdkException("managerAddress must include port info!");
         } else if (fields.length > 2) {
-            throw new ProxysdkException("managerAddress must only include host:port info!");
+            throw new ProxySdkException("managerAddress must only include host:port info!");
         }
         if (StringUtils.isBlank(fields[0])) {
-            throw new ProxysdkException("managerAddress's host is blank!");
+            throw new ProxySdkException("managerAddress's host is blank!");
         }
         this.managerIP = fields[0].trim();
         if (StringUtils.isBlank(fields[1])) {
-            throw new ProxysdkException("managerAddress's port is blank!");
+            throw new ProxySdkException("managerAddress's port is blank!");
         }
         try {
             this.managerPort = Integer.parseInt(fields[1]);
         } catch (Throwable ex) {
-            throw new ProxysdkException("managerAddress's port must be number!");
+            throw new ProxySdkException("managerAddress's port must be number!");
         }
     }
 }
