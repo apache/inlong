@@ -62,6 +62,9 @@ public interface AttributeConstants {
     /* from where */
     String FROM = "f";
 
+    /* msg uuid */
+    String MSG_UUID = "msgUUID";
+
     // whether to return a response, false: not need, true or not exist: need
     String MESSAGE_IS_ACK = "isAck";
 
@@ -101,10 +104,13 @@ public interface AttributeConstants {
 
     // Message reporting time, in milliseconds
     // Provided by the initial sender of the data, and passed to
-    // the downstream by the Bus without modification for the downstream to
+    // the downstream by the DataProxy without modification for the downstream to
     // calculate the end-to-end message delay; if this field does not exist in the request,
-    // it will be added by the Bus with the current time
+    // it will be added by the DataProxy with the current time
     String MSG_RPT_TIME = "rtms";
+
+    // inlong sdk version
+    String PROXY_SDK_VERSION = "sdkVersion";
 
     // Audit version is used for audit to reconciliation
     String AUDIT_VERSION = "auditVersion";

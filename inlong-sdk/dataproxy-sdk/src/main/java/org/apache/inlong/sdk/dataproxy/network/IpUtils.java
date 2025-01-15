@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.slf4j.Logger;
@@ -54,7 +56,7 @@ public class IpUtils {
         return ip;
     }
 
-    public static boolean validLocalIp(String currLocalHost) throws ProxysdkException {
+    public static boolean validLocalIp(String currLocalHost) throws ProxySdkException {
         String ip = "127.0.0.1";
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
