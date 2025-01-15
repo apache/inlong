@@ -182,3 +182,10 @@ func WithAuth(auth Auth) Option {
 		o.Auth = auth
 	}
 }
+
+// WithMaxConnLifetime sets MaxConnLifetime
+func WithMaxConnLifetime(lifetime time.Duration) Option {
+	return func(o *Options) {
+		o.MaxConnLifetime = lifetime
+	}
+}
