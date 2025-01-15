@@ -464,6 +464,13 @@ loop:
 }
 
 func (p *connPool) markUnavailable(ep string) {
+	// if there is only 1 endpoint, it is always available
+	// it is common when endpoint address is a CLB VIP
+	epCount := p.getEndpointCount()
+	if epCount <= 1 {
+		return
+	}
+
 	p.log.Debug("endpoint cannot be connected, marking as unavailable, addr: ", ep)
 	p.unavailable.Store(ep, time.Now())
 	p.retryCounts.Store(ep, 0)
@@ -565,6 +572,16 @@ func (p *connPool) getConnCount() int {
 		return true
 	})
 	return totalConnCount
+}
+
+func (p *connPool) getEndpointCount() int {
+	epValue := p.endpoints.Load()
+	endpoints, ok := epValue.([]string)
+	if !ok {
+		return 0
+	}
+
+	return len(endpoints)
 }
 
 func (p *connPool) getAvailableEndpointCount() int {
