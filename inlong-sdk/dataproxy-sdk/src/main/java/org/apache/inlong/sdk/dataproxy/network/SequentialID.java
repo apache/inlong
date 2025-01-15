@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
+
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,7 +26,7 @@ public class SequentialID {
 
     private static final SecureRandom sRandom = new SecureRandom(
             Long.toString(System.nanoTime()).getBytes());
-    private final String ip = IpUtils.getLocalIp();
+    private final String ip = ProxyUtils.getLocalIp();
     private final AtomicInteger id = new AtomicInteger(sRandom.nextInt());
 
     public SequentialID() {

@@ -26,6 +26,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import io.netty.bootstrap.Bootstrap;
@@ -55,7 +56,7 @@ public class ClientMgr {
     private static final LogCounter logCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter updConExptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
-    private static final byte[] hbMsgBody = IpUtils.getLocalIp().getBytes(StandardCharsets.UTF_8);
+    private static final byte[] hbMsgBody = ProxyUtils.getLocalIp().getBytes(StandardCharsets.UTF_8);
 
     private final Sender sender;
     private final ProxyClientConfig configure;

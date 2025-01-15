@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import org.apache.inlong.sdk.dataproxy.network.IpUtils;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UtilsTest {
+public class ProxyUtilsTest {
 
     @Test
     public void getLocalIp() {
-        String ip = IpUtils.getLocalIp();
+        String ip = ProxyUtils.getLocalIp();
         Assert.assertNotNull(ip);
     }
 

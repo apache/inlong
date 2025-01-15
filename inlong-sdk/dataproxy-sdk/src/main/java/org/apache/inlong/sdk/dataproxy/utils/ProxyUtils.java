@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -34,14 +36,36 @@ import java.util.Set;
 public class ProxyUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyUtils.class);
+    private static final LogCounter exceptCounter = new LogCounter(10, 200000, 60 * 1000L);
+
     private static final int TIME_LENGTH = 13;
     private static final Set<String> invalidAttr = new HashSet<>();
 
+    private static String localHost;
+
     static {
+        localHost = getLocalIp();
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
                 "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
                 "proxySend", "errMsg", "errCode", AttributeConstants.MSG_RPT_TIME);
+    }
+
+    public static String getLocalIp() {
+        if (localHost != null) {
+            return localHost;
+        }
+        String ip = "127.0.0.1";
+        try (DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            ip = socket.getLocalAddress().getHostAddress();
+        } catch (Throwable ex) {
+            if (exceptCounter.shouldPrint()) {
+                logger.error("DataProxy-SDK get local IP failure", ex);
+            }
+        }
+        localHost = ip;
+        return ip;
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {

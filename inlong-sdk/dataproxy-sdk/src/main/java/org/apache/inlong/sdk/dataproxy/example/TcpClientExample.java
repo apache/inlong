@@ -32,8 +32,6 @@ public class TcpClientExample {
 
     private static final Logger logger = LoggerFactory.getLogger(TcpClientExample.class);
 
-    public static String localIP = "127.0.0.1";
-
     /**
      * Example of client tcp.
      */
@@ -54,20 +52,20 @@ public class TcpClientExample {
 
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
-                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort,
+                .getMessageSender(inLongManagerAddr, inLongManagerPort,
                         inlongGroupId, true, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
         sender.close(); // close the sender
     }
 
-    public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
+    public DefaultMessageSender getMessageSender(String inLongManagerAddr, String inLongManagerPort,
             String inlongGroupId, boolean requestByHttp, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
-            dataProxyConfig = new ProxyClientConfig(localIP, requestByHttp, inLongManagerAddr,
+            dataProxyConfig = new ProxyClientConfig(requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort), inlongGroupId, "admin", "inlong");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfigStoreBasePath(configBasePath);
