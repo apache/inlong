@@ -24,9 +24,9 @@ import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.metric.MessageRecord;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
 import org.apache.inlong.sdk.dataproxy.metric.MetricTimeNumSummary;
-import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +207,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         EncodeObject encodeObject = new EncodeObject(Collections.singletonList(line.getBytes()), 7,
                 false, false, false,
                 dtTime, idGenerator.getNextInt(),
-                metricConfig.getMetricGroupId(), streamId, "", "", IpUtils.getLocalIp());
+                metricConfig.getMetricGroupId(), streamId, "", "", ProxyUtils.getLocalIp());
         MetricSendCallBack callBack = new MetricSendCallBack(encodeObject);
         tryToSendMetricToManager(encodeObject, callBack);
     }

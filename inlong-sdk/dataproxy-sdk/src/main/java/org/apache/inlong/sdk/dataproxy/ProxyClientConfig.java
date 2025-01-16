@@ -19,7 +19,6 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
-import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -98,11 +97,8 @@ public class ProxyClientConfig {
     private int senderMaxAttempt = ConfigConstants.DEFAULT_SENDER_MAX_ATTEMPT;
 
     /* pay attention to the last url parameter ip */
-    public ProxyClientConfig(String localHost, boolean visitManagerByHttp, String managerIp,
+    public ProxyClientConfig(boolean visitManagerByHttp, String managerIp,
             int managerPort, String inlongGroupId, String authSecretId, String authSecretKey) throws ProxySdkException {
-        if (StringUtils.isBlank(localHost)) {
-            throw new ProxySdkException("localHost is blank!");
-        }
         if (StringUtils.isBlank(managerIp)) {
             throw new ProxySdkException("managerIp is Blank!");
         }
@@ -116,7 +112,6 @@ public class ProxyClientConfig {
         this.visitManagerByHttp = visitManagerByHttp;
         this.managerPort = managerPort;
         this.managerIP = managerIp;
-        IpUtils.validLocalIp(localHost);
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
         this.asyncCallbackSize = ConfigConstants.ASYNC_CALLBACK_SIZE;
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;

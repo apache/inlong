@@ -23,8 +23,8 @@ import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
-import org.apache.inlong.sdk.dataproxy.network.IpUtils;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import com.google.gson.Gson;
@@ -850,7 +850,7 @@ public class ProxyConfigManager extends Thread {
 
     private List<BasicNameValuePair> buildProxyNodeQueryParams() {
         ArrayList<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("ip", IpUtils.getLocalIp()));
+        params.add(new BasicNameValuePair("ip", ProxyUtils.getLocalIp()));
         params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
         return params;
     }

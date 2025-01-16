@@ -26,6 +26,7 @@ import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import io.netty.channel.Channel;
@@ -167,7 +168,7 @@ public class Sender {
         }
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
-                    encodeObject.getStreamId(), IpUtils.getLocalIp(), encodeObject.getDt(),
+                    encodeObject.getStreamId(), ProxyUtils.getLocalIp(), encodeObject.getDt(),
                     encodeObject.getPackageTime(), encodeObject.getRealCnt());
         }
         SendResult message;
@@ -320,7 +321,7 @@ public class Sender {
         }
         if (configure.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
-                    encodeObject.getStreamId(), IpUtils.getLocalIp(), encodeObject.getPackageTime(),
+                    encodeObject.getStreamId(), ProxyUtils.getLocalIp(), encodeObject.getPackageTime(),
                     encodeObject.getDt(), encodeObject.getRealCnt());
         }
         // send message package time

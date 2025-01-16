@@ -27,7 +27,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -60,7 +59,7 @@ public class InlongSdkDirtySender {
         Preconditions.checkNotNull(authKey, "authKey cannot be null");
 
         ProxyClientConfig proxyClientConfig =
-                new ProxyClientConfig(InetAddress.getLocalHost().getHostAddress(), true,
+                new ProxyClientConfig(true,
                         inlongManagerAddr, inlongManagerPort, inlongGroupId, authId, authKey);
         proxyClientConfig.setOnlyUseLocalProxyConfig(false);
         proxyClientConfig.setAsyncCallbackSize(maxCallbackSize);
