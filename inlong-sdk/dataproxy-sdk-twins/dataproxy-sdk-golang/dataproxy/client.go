@@ -166,7 +166,7 @@ func (c *client) initConns() error {
 
 	// minimum connection number per endpoint is 1
 	connsPerEndpoint := int(math.Ceil(float64(c.options.WorkerNum) * 1.2 / float64(epLen)))
-	pool, err := connpool.NewConnPool(endpoints, connsPerEndpoint, 512, c, c.log, c.options.MaxConnLifetime)
+	pool, err := connpool.NewConnPool(endpoints, connsPerEndpoint, 2048, c, c.log, c.options.MaxConnLifetime)
 	if err != nil {
 		return err
 	}
