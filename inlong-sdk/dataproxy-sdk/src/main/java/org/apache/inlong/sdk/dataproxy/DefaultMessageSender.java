@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
@@ -55,26 +55,26 @@ public class DefaultMessageSender implements MessageSender {
     /* Store index <groupId_streamId,cnt> */
     private final Map<String, Long> storeIndex = new ConcurrentHashMap<String, Long>();
     private String groupId;
-    private int msgtype = ConfigConstants.MSG_TYPE;
+    private int msgtype = SdkConsts.MSG_TYPE;
     private boolean isCompress = true;
     private boolean isGroupIdTransfer = false;
     private boolean isReport = false;
     private boolean isSupportLF = false;
     private int maxPacketLength = -1;
-    private int cpsSize = ConfigConstants.COMPRESS_SIZE;
+    private int cpsSize = SdkConsts.COMPRESS_SIZE;
     private final int senderMaxAttempt;
 
-    public DefaultMessageSender(ProxyClientConfig configure) throws Exception {
+    public DefaultMessageSender(TcpMsgSenderConfig configure) throws Exception {
         this(configure, null);
     }
 
-    public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
+    public DefaultMessageSender(TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
         sender.start();
         groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
-        senderMaxAttempt = configure.getSenderMaxAttempt();
+        senderMaxAttempt = configure.getMaxSyncSendAttempt();
         indexCol.start();
 
     }
@@ -82,31 +82,27 @@ public class DefaultMessageSender implements MessageSender {
     /**
      * generate by cluster id
      *
-     * @param configure - sender
+     * @param tcpConfig - sender
      * @return - sender
      */
     public static DefaultMessageSender generateSenderByClusterId(
-            ProxyClientConfig configure) throws Exception {
+            TcpMsgSenderConfig tcpConfig) throws Exception {
 
-        return generateSenderByClusterId(configure, null);
+        return generateSenderByClusterId(tcpConfig, null);
     }
 
     /**
      * generate by cluster id
      *
-     * @param configure - sender
+     * @param tcpConfig - sender
      * @param selfDefineFactory - sender factory
      * @return - sender
      */
-    public static DefaultMessageSender generateSenderByClusterId(ProxyClientConfig configure,
+    public static DefaultMessageSender generateSenderByClusterId(TcpMsgSenderConfig tcpConfig,
             ThreadFactory selfDefineFactory) throws Exception {
-        // correct ProtocolType settings
-        if (!ProtocolType.TCP.equals(configure.getProtocolType())) {
-            configure.setProtocolType(ProtocolType.TCP);
-        }
-        LOGGER.info("Initial tcp sender, configure is {}", configure);
+        LOGGER.info("Initial tcp sender, configure is {}", tcpConfig);
         // initial sender object
-        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure);
+        ProxyConfigManager proxyConfigManager = new ProxyConfigManager(tcpConfig);
         Tuple2<ProxyConfigEntry, String> result =
                 proxyConfigManager.getGroupIdConfigure(true);
         if (result.getF0() == null) {
@@ -117,7 +113,7 @@ public class DefaultMessageSender implements MessageSender {
             return sender;
         } else {
             DefaultMessageSender tmpMessageSender =
-                    new DefaultMessageSender(configure, selfDefineFactory);
+                    new DefaultMessageSender(tcpConfig, selfDefineFactory);
             tmpMessageSender.setMaxPacketLength(result.getF0().getMaxPacketLength());
             CACHE_SENDER.put(result.getF0().getClusterId(), tmpMessageSender);
             return tmpMessageSender;
@@ -144,8 +140,8 @@ public class DefaultMessageSender implements MessageSender {
         shutdownInternalThreads();
     }
 
-    public ProxyClientConfig getProxyClientConfig() {
-        return sender.getConfigure();
+    public TcpMsgSenderConfig getProxyClientConfig() {
+        return sender.getTcpConfig();
     }
 
     public boolean isSupportLF() {
@@ -213,7 +209,7 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public String getSDKVersion() {
-        return ConfigConstants.PROXY_SDK_VERSION;
+        return SdkConsts.PROXY_SDK_VERSION;
     }
 
     private SendResult attemptSendMessage(Function<Sender, SendResult> sendOperation) {

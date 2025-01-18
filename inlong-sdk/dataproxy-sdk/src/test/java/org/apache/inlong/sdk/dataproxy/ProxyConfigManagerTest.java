@@ -35,12 +35,12 @@ public class ProxyConfigManagerTest {
     private final String localFile = Paths.get(
             Objects.requireNonNull(this.getClass().getClassLoader().getResource("proxylist.json")).toURI())
             .toString();
-    private final ProxyClientConfig clientConfig = PowerMockito.mock(ProxyClientConfig.class);
+    private final TcpMsgSenderConfig clientConfig = PowerMockito.mock(TcpMsgSenderConfig.class);
     private final ClientMgr clientMgr = PowerMockito.mock(ClientMgr.class);
     private final ProxyConfigManager proxyConfigManager;
 
     public ProxyConfigManagerTest() throws URISyntaxException {
-        clientConfig.setConfigStoreBasePath(localFile);
+        clientConfig.setMetaStoreBasePath(localFile);
         proxyConfigManager =
                 new ProxyConfigManager("test", clientConfig, clientMgr);
     }

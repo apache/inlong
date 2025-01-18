@@ -18,27 +18,30 @@
 package org.apache.inlong.sdk.dataproxy.metric;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class MetricConfig {
 
-    private static final long DEF_METRIC_REPORT_INTVL_MS = 60000L;
-    private static final long MIN_METRIC_REPORT_INTVL_MS = 30000L;
+    private static final Logger logger = LoggerFactory.getLogger(MetricConfig.class);
+    private static final long DEF_METRIC_OUTPUT_INTVL_MS = 60000L;
+    private static final long MIN_METRIC_OUTPUT_INTVL_MS = 10000L;
+    private static final long DEF_METRIC_OUTPUT_WARN_INT_MS = 10000L;
     private static final long DEF_METRIC_DATE_FORMAT_MS = 60000L;
-    private static final long MIN_METRIC_DATE_FORMAT_MS = 1L;
     private static final String DEF_METRIC_REPORT_GROUP_ID = "inlong_sla_metric";
     // metric enable
-    private boolean enableMetric = false;
+    private boolean enableMetric = true;
     // whether use groupId as key for metric, default is true
-    private boolean useGroupIdAsKey = true;
-    // whether use StreamId as key for metric, default is true
-    private boolean useStreamIdAsKey = true;
-    // whether use localIp as key for metric, default is true
-    private boolean useLocalIpAsKey = true;
+    private boolean maskGroupId = false;
+    // whether mask StreamId for metric, default is false
+    private boolean maskStreamId = false;
     // metric report interval, default is 1 mins in milliseconds.
-    private long metricRptIntvlMs = DEF_METRIC_REPORT_INTVL_MS;
+    private long metricOutIntvlMs = DEF_METRIC_OUTPUT_INTVL_MS;
+    private long metricOutWarnIntMs = DEF_METRIC_OUTPUT_WARN_INT_MS;
     // metric date format
     private long dateFormatIntvlMs = DEF_METRIC_DATE_FORMAT_MS;
-    // metric groupId
     private String metricGroupId = DEF_METRIC_REPORT_GROUP_ID;
 
     public MetricConfig() {
@@ -53,38 +56,36 @@ public class MetricConfig {
         return enableMetric;
     }
 
-    public void setMetricKeyBuildParams(
-            boolean useGroupIdAsKey, boolean useStreamIdAsKey, boolean useLocalIpAsKey) {
-        this.useGroupIdAsKey = useGroupIdAsKey;
-        this.useStreamIdAsKey = useStreamIdAsKey;
-        this.useLocalIpAsKey = useLocalIpAsKey;
+    public void setMetricKeyMaskInfos(boolean maskGroupId, boolean maskStreamId) {
+        this.maskGroupId = maskGroupId;
+        this.maskStreamId = maskStreamId;
     }
 
-    public boolean isUseGroupIdAsKey() {
-        return useGroupIdAsKey;
+    public boolean isMaskGroupId() {
+        return maskGroupId;
     }
 
-    public boolean isUseStreamIdAsKey() {
-        return useStreamIdAsKey;
+    public boolean isMaskStreamId() {
+        return maskStreamId;
     }
 
-    public boolean isUseLocalIpAsKey() {
-        return useLocalIpAsKey;
-    }
-
-    public void setMetricRptIntvlMs(long metricRptIntvlMs) {
-        if (metricRptIntvlMs >= MIN_METRIC_REPORT_INTVL_MS) {
-            this.metricRptIntvlMs = metricRptIntvlMs;
+    public void setMetricOutIntvlMs(long metricOutIntvlMs) {
+        if (metricOutIntvlMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
+            this.metricOutIntvlMs = metricOutIntvlMs;
         }
     }
 
-    public long getMetricRptIntvlMs() {
-        return metricRptIntvlMs;
+    public long getMetricOutIntvlMs() {
+        return metricOutIntvlMs;
     }
 
-    public void setDateFormatIntvlMs(long dateFormatIntvlMs) {
-        if (dateFormatIntvlMs >= MIN_METRIC_DATE_FORMAT_MS) {
-            this.dateFormatIntvlMs = dateFormatIntvlMs;
+    public long getMetricOutWarnIntMs() {
+        return metricOutWarnIntMs;
+    }
+
+    public void setMetricOutWarnIntMs(long metricOutWarnIntMs) {
+        if (metricOutWarnIntMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
+            this.metricOutWarnIntMs = metricOutWarnIntMs;
         }
     }
 
@@ -98,21 +99,51 @@ public class MetricConfig {
 
     public void setMetricGroupId(String metricGroupId) {
         if (StringUtils.isNotBlank(metricGroupId)) {
-            this.metricGroupId = metricGroupId;
+            this.metricGroupId = metricGroupId.trim();
         }
     }
 
     @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("MetricConfig{");
-        sb.append("enableMetric=").append(enableMetric);
-        sb.append(", useGroupIdAsKey=").append(useGroupIdAsKey);
-        sb.append(", useStreamIdAsKey=").append(useStreamIdAsKey);
-        sb.append(", useLocalIpAsKey=").append(useLocalIpAsKey);
-        sb.append(", metricRptIntvlMs=").append(metricRptIntvlMs);
-        sb.append(", dateFormatIntvlMs=").append(dateFormatIntvlMs);
-        sb.append(", metricGroupId='").append(metricGroupId).append('\'');
-        sb.append('}');
-        return sb.toString();
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MetricConfig that = (MetricConfig) o;
+        return enableMetric == that.enableMetric
+                && maskGroupId == that.maskGroupId
+                && maskStreamId == that.maskStreamId
+                && metricOutIntvlMs == that.metricOutIntvlMs
+                && metricOutWarnIntMs == that.metricOutWarnIntMs
+                && dateFormatIntvlMs == that.dateFormatIntvlMs
+                && Objects.equals(metricGroupId, that.metricGroupId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enableMetric, maskGroupId, maskStreamId,
+                metricOutIntvlMs, dateFormatIntvlMs, metricOutWarnIntMs,
+                metricGroupId);
+    }
+
+    @Override
+    public MetricConfig clone() {
+        try {
+            return (MetricConfig) super.clone();
+        } catch (Throwable ex) {
+            logger.warn("Failed to clone MetricConfig", ex);
+            return null;
+        }
+    }
+
+    public void getSetting(StringBuilder strBuff) {
+        strBuff.append("{enableMetric=").append(enableMetric)
+                .append(", maskGroupId=").append(maskGroupId)
+                .append(", maskStreamId=").append(maskStreamId)
+                .append(", metricRptIntvlMs=").append(metricOutIntvlMs)
+                .append(", metricOutWarnIntMs=").append(metricOutWarnIntMs)
+                .append(", dateFormatIntvlMs=").append(dateFormatIntvlMs)
+                .append(", metricGroupId='").append(metricGroupId)
+                .append("'}");
     }
 }

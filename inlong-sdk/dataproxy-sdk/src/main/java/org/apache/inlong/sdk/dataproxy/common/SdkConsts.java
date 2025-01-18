@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy;
+package org.apache.inlong.sdk.dataproxy.common;
 
-public class ConfigConstants {
+public class SdkConsts {
 
     public static final String PROXY_SDK_VERSION = "1.2.11";
 
-    public static String HTTP = "http://";
-    public static String HTTPS = "https://";
+    public static String PREFIX_HTTP = "http://";
+    public static String PREFIX_HTTPS = "https://";
 
     // dataproxy node config
     public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
@@ -40,12 +40,19 @@ public class ConfigConstants {
     public static final int VAL_MAX_CONFIG_SYNC_INTERVAL_MIN = 30;
     public static final long VAL_UNIT_MIN_TO_MS = 60 * 1000L;
     // config info sync max retry if failure
+    public static final int VAL_DEF_RETRY_IF_CONFIG_QUERY_FAIL = 3;
     public static final int VAL_DEF_RETRY_IF_CONFIG_SYNC_FAIL = 2;
     public static final int VAL_MAX_RETRY_IF_CONFIG_SYNC_FAIL = 5;
+    // config wait ms if retry failure
+    public static final int VAL_DEF_WAIT_MS_IF_CONFIG_QUERY_FAIL = 500;
+    public static final int VAL_DEF_WAIT_MS_IF_CONFIG_SYNC_FAIL = 800;
+    public static final int VAL_MAX_WAIT_MS_IF_CONFIG_REQ_FAIL = 20000;
+    public static final int VAL_MIN_WAIT_MS_IF_CONFIG_REQ_FAIL = 100;
+
     // cache config expired time in ms
     public static final long VAL_DEF_CACHE_CONFIG_EXPIRED_MS = 20 * 60 * 1000L;
     // cache config fail status expired time in ms
-    public static final long VAL_DEF_CONFIG_FAIL_STATUS_EXPIRED_MS = 1000L;
+    public static final long VAL_DEF_CONFIG_FAIL_STATUS_EXPIRED_MS = 400L;
     public static final long VAL_MAX_CONFIG_FAIL_STATUS_EXPIRED_MS = 3 * 60 * 1000L;
 
     // node force choose interval in ms
@@ -53,28 +60,65 @@ public class ConfigConstants {
     public static final long VAL_MIN_FORCE_CHOOSE_INR_MS = 30 * 1000L;
 
     // connection timeout in milliseconds
-    public static final int VAL_DEF_CONNECT_TIMEOUT_MS = 8000;
+    public static final int VAL_DEF_TCP_CONNECT_TIMEOUT_MS = 8000;
+    public static final int VAL_DEF_HTTP_CONNECT_TIMEOUT_MS = 8000;
     public static final int VAL_MIN_CONNECT_TIMEOUT_MS = 2000;
     public static final int VAL_MAX_CONNECT_TIMEOUT_MS = 60000;
     public static final int VAL_DEF_CONNECT_CLOSE_DELAY_MS = 500;
     // socket timeout in milliseconds
-    public static final int VAL_DEF_SOCKET_TIMEOUT_MS = 20000;
+    public static final int VAL_DEF_MGR_SOCKET_TIMEOUT_MS = 15000;
+    public static final int VAL_DEF_NODE_SOCKET_TIMEOUT_MS = 10000;
     public static final int VAL_MIN_SOCKET_TIMEOUT_MS = 2000;
     public static final int VAL_MAX_SOCKET_TIMEOUT_MS = 60000;
     // active connects
-    public static final int VAL_DEF_ALIVE_CONNECTIONS = 6;
+    public static final int VAL_DEF_ALIVE_CONNECTIONS = 7;
     public static final int VAL_MIN_ALIVE_CONNECTIONS = 1;
     // request timeout in milliseconds
     public static final long VAL_DEF_REQUEST_TIMEOUT_MS = 10000L;
     public static final long VAL_MIN_REQUEST_TIMEOUT_MS = 500L;
     // reconnect wait ms
-    public static final long VAL_DEF_RECONNECT_WAIT_MS = 1000L;
-    public static final long VAL_MAX_RECONNECT_WAIT_MS = 180000L;
+    public static final long VAL_DEF_FROZEN_RECONNECT_WAIT_MS = 30000L;
+    public static final long VAL_DEF_BUSY_RECONNECT_WAIT_MS = 20000L;
+    public static final long VAL_DEF_RECONNECT_FAIL_WAIT_MS = 120000L;
+    public static final long VAL_MAX_RECONNECT_WAIT_MS = 600000L;
     // socket buffer size
-    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
-    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
+    public static final int DEFAULT_SEND_BUFFER_SIZE = 16 * 1024 * 1024; // 16M
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16 * 1024 * 1024; // 16M
     // max inflight msg count per connection
-    public static final long MAX_INFLIGHT_MSG_COUNT_PER_CONNECTION = 10000L;
+    public static final int MAX_INFLIGHT_MSG_COUNT_PER_CONNECTION = 4000;
+
+    // data compress enable size
+    public static final int VAL_DEF_COMPRESS_ENABLE_SIZE = 120;
+    public static final int VAL_MIN_COMPRESS_ENABLE_SIZE = 1;
+    // TCP netty worker thread num
+    public static final int VAL_DEF_TCP_NETTY_WORKER_THREAD_NUM =
+            Runtime.getRuntime().availableProcessors();
+    public static final int VAL_MIN_TCP_NETTY_WORKER_THREAD_NUM = 1;
+    // sync message timeout allowed count
+    public static final int VAL_DEF_SYNC_MSG_TIMEOUT_CNT = 10;
+    // sync message timeout check duration ms
+    public static final long VAL_DEF_SYNC_TIMEOUT_CHK_DUR_MS = 3 * 60 * 1000L;
+    public static final long VAL_MIN_SYNC_TIMEOUT_CHK_DUR_MS = 10 * 1000L;
+
+    // HTTP sdk close wait period ms
+    public static final long VAL_DEF_HTTP_SDK_CLOSE_WAIT_MS = 20000L;
+    public static final long VAL_MAX_HTTP_SDK_CLOSE_WAIT_MS = 90000L;
+    public static final long VAL_MIN_HTTP_SDK_CLOSE_WAIT_MS = 100L;
+    // HTTP node reuse wait ms if failed
+    public static final long VAL_DEF_HTTP_REUSE_FAIL_WAIT_MS = 20000L;
+    public static final long VAL_MAX_HTTP_REUSE_FAIL_WAIT_MS = 300000L;
+    public static final long VAL_MIN_HTTP_REUSE_FAIL_WAIT_MS = 1000L;
+    // HTTP async report request cache size
+    public static final int VAL_DEF_HTTP_ASYNC_RPT_CACHE_SIZE = 2000;
+    public static final int VAL_MIN_HTTP_ASYNC_RPT_CACHE_SIZE = 1;
+    // HTTP async report worker thread count
+    public static final int VAL_DEF_HTTP_ASYNC_RPT_WORKER_NUM =
+            Runtime.getRuntime().availableProcessors();
+    public static final int VAL_MIN_HTTP_ASYNC_RPT_WORKER_NUM = 1;
+    // HTTP async report worker thread sleep ms if idle
+    public static final int VAL_DEF_HTTP_ASYNC_WORKER_IDLE_WAIT_MS = 300;
+    public static final int VAL_MAX_HTTP_ASYNC_WORKER_IDLE_WAIT_MS = 3000;
+    public static final int VAL_MIN_HTTP_ASYNC_WORKER_IDLE_WAIT_MS = 10;
 
     public static final int MAX_TIMEOUT_CNT = 10;
     public static final int LOAD_THRESHOLD = 0;
@@ -109,6 +153,5 @@ public class ConfigConstants {
     public static int DEFAULT_SENDER_MAX_ATTEMPT = 1;
 
     /* Reserved attribute data size(bytes). */
-    public static int RESERVED_ATTRIBUTE_LENGTH = 10000;
-
+    public static int RESERVED_ATTRIBUTE_LENGTH = 256;
 }

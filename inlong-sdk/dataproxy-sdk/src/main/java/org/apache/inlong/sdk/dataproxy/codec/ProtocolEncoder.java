@@ -41,9 +41,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.List;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+import static org.apache.inlong.sdk.dataproxy.common.SdkConsts.FLAG_ALLOW_AUTH;
+import static org.apache.inlong.sdk.dataproxy.common.SdkConsts.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.common.SdkConsts.FLAG_ALLOW_ENCRYPT;
 
 public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
 

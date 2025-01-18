@@ -17,9 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import org.apache.commons.lang3.StringUtils;
@@ -62,18 +61,17 @@ public class TcpClientExample {
     public DefaultMessageSender getMessageSender(String inLongManagerAddr, String inLongManagerPort,
             String inlongGroupId, boolean requestByHttp, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
-        ProxyClientConfig dataProxyConfig = null;
+        TcpMsgSenderConfig tcpConfig = null;
         DefaultMessageSender messageSender = null;
         try {
-            dataProxyConfig = new ProxyClientConfig(requestByHttp, inLongManagerAddr,
+            tcpConfig = new TcpMsgSenderConfig(requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort), inlongGroupId, "admin", "inlong");
             if (StringUtils.isNotEmpty(configBasePath)) {
-                dataProxyConfig.setConfigStoreBasePath(configBasePath);
+                tcpConfig.setMetaStoreBasePath(configBasePath);
             }
-            dataProxyConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
-            dataProxyConfig.setProtocolType(ProtocolType.TCP);
-            dataProxyConfig.setRequestTimeoutMs(20000L);
-            messageSender = DefaultMessageSender.generateSenderByClusterId(dataProxyConfig);
+            tcpConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
+            tcpConfig.setRequestTimeoutMs(20000L);
+            messageSender = DefaultMessageSender.generateSenderByClusterId(tcpConfig);
             messageSender.setMsgtype(msgType);
         } catch (Exception e) {
             logger.error("getMessageSender has exception e = {}", e);

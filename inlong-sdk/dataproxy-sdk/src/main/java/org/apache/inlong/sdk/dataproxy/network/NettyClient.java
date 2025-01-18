@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -49,7 +49,7 @@ public class NettyClient {
     private final static int CLIENT_STATUS_BUSY = 3;
 
     private final String callerId;
-    private final ProxyClientConfig configure;
+    private final TcpMsgSenderConfig tcpConfig;
     private final Bootstrap bootstrap;
     private final HostInfo hostInfo;
     private Channel channel = null;
@@ -60,11 +60,11 @@ public class NettyClient {
     private final AtomicLong lstReConTime = new AtomicLong(0);
 
     public NettyClient(String callerId,
-            Bootstrap bootstrap, HostInfo hostInfo, ProxyClientConfig configure) {
+            Bootstrap bootstrap, HostInfo hostInfo, TcpMsgSenderConfig tcpConfig) {
         this.callerId = callerId;
         this.bootstrap = bootstrap;
         this.hostInfo = hostInfo;
-        this.configure = configure;
+        this.tcpConfig = tcpConfig;
         setState(CLIENT_STATUS_INIT);
     }
 
@@ -84,7 +84,7 @@ public class NettyClient {
         });
         try {
             // Wait until the connection is built.
-            awaitLatch.await(configure.getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
+            awaitLatch.await(tcpConfig.getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
         } catch (Throwable ex) {
             if (conExptCnt.shouldPrint()) {
                 logger.warn("NettyClient({}) connect to {} exception",
@@ -129,7 +129,7 @@ public class NettyClient {
                     }
                 });
                 // Wait until the connection is close.
-                awaitLatch.await(configure.getConCloseWaitPeriodMs(), TimeUnit.MILLISECONDS);
+                awaitLatch.await(tcpConfig.getConCloseWaitPeriodMs(), TimeUnit.MILLISECONDS);
                 // Return if close this connection fail.
                 if (!future.isSuccess()) {
                     ret = false;
@@ -172,7 +172,7 @@ public class NettyClient {
     public boolean reconnect(boolean needPrint) {
         if (this.isActive()
                 || this.msgInFlight.get() > 0
-                || (System.currentTimeMillis() - this.lstReConTime.get()) < this.configure.getReConnectWaitMs()) {
+                || (System.currentTimeMillis() - this.lstReConTime.get()) < this.tcpConfig.getReconFailWaitMs()) {
             return false;
         }
         if (reconSemaphore.tryAcquire()) {
@@ -237,8 +237,8 @@ public class NettyClient {
     }
 
     public boolean tryIncMsgInFlight() {
-        if (configure.getMaxMsgInFlightPerConn() > 0) {
-            if (msgInFlight.getAndIncrement() > configure.getMaxMsgInFlightPerConn()) {
+        if (tcpConfig.getMaxMsgInFlightPerConn() > 0) {
+            if (msgInFlight.getAndIncrement() > tcpConfig.getMaxMsgInFlightPerConn()) {
                 msgInFlight.decrementAndGet();
                 return false;
             }
@@ -247,7 +247,7 @@ public class NettyClient {
     }
 
     public void decMsgInFlight() {
-        if (configure.getMaxMsgInFlightPerConn() > 0) {
+        if (tcpConfig.getMaxMsgInFlightPerConn() > 0) {
             if (msgInFlight.decrementAndGet() < 0L) {
                 logger.warn("NettyClient({}) dec inflight({}) value  < 0", callerId, hostInfo.getReferenceName());
             }

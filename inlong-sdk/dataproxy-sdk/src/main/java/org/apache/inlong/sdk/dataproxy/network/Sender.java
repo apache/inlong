@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -53,7 +53,6 @@ public class Sender {
     private static final LogCounter exptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter unwritableExptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter reqChkLoggCount = new LogCounter(10, 100000, 60 * 1000L);
-
     private static final AtomicLong senderIdGen = new AtomicLong(0L);
     /* Store the callback used by asynchronously message sending. */
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks =
@@ -67,26 +66,26 @@ public class Sender {
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final ClientMgr clientMgr;
     private final String instanceId;
-    private final ProxyClientConfig configure;
+    private final TcpMsgSenderConfig tcpConfig;
     private MetricWorkerThread metricWorker = null;
     private int clusterId = -1;
 
-    public Sender(ProxyClientConfig configure) throws Exception {
-        this(configure, null);
+    public Sender(TcpMsgSenderConfig tcpConfig) throws Exception {
+        this(tcpConfig, null);
     }
 
     /**
-     * Constructor of sender takes two arguments {@link ProxyClientConfig} and {@link ThreadFactory}
+     * Constructor of sender takes two arguments {@link TcpMsgSenderConfig} and {@link ThreadFactory}
      */
-    public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
-        this.configure = configure;
+    public Sender(TcpMsgSenderConfig tcpConfig, ThreadFactory selfDefineFactory) throws Exception {
+        this.tcpConfig = tcpConfig;
         this.instanceId = "sender-" + senderIdGen.incrementAndGet();
-        this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
+        this.asyncCallbackMaxSize = tcpConfig.getTotalAsyncCallbackSize();
         this.threadPool = Executors.newCachedThreadPool();
-        this.clientMgr = new ClientMgr(configure, this, selfDefineFactory);
-        this.scanThread = new TimeoutScanThread(this, configure);
-        if (configure.isEnableMetric()) {
-            metricWorker = new MetricWorkerThread(configure, this);
+        this.clientMgr = new ClientMgr(tcpConfig, this, selfDefineFactory);
+        this.scanThread = new TimeoutScanThread(this, tcpConfig);
+        if (tcpConfig.isEnableMetric()) {
+            metricWorker = new MetricWorkerThread(tcpConfig, this);
         }
         logger.info("Sender({}) instance initialized!", this.instanceId);
     }
@@ -102,21 +101,21 @@ public class Sender {
             proxyConfigEntry = this.clientMgr.getGroupIdConfigure();
             setClusterId(proxyConfigEntry.getClusterId());
         } catch (Throwable ex) {
-            if (configure.isOnlyUseLocalProxyConfig()) {
+            if (tcpConfig.isOnlyUseLocalProxyConfig()) {
                 throw new Exception("Get local proxy configure failure!", ex);
             } else {
                 throw new Exception("Visit manager error!", ex);
             }
         }
         if (!proxyConfigEntry.isInterVisit()) {
-            if (!configure.isEnableAuthentication()) {
+            if (!tcpConfig.isEnableReportAuthz()) {
                 throw new Exception("In OutNetwork isNeedAuthentication must be true!");
             }
-            if (!configure.isEnableDataEncrypt()) {
+            if (!tcpConfig.isEnableReportEncrypt()) {
                 throw new Exception("In OutNetwork isNeedDataEncry must be true!");
             }
         }
-        if (this.configure.isEnableMetric()) {
+        if (this.tcpConfig.isEnableMetric()) {
             this.metricWorker.start();
         }
         logger.info("Sender({}) instance started!", this.instanceId);
@@ -130,7 +129,7 @@ public class Sender {
         scanThread.shutDown();
         clientMgr.shutDown();
         threadPool.shutdown();
-        if (configure.isEnableMetric()) {
+        if (tcpConfig.isEnableMetric()) {
             metricWorker.close();
         }
         logger.info("Sender({}) instance stopped!", this.instanceId);
@@ -166,7 +165,7 @@ public class Sender {
         if (!started.get()) {
             return SendResult.SENDER_CLOSED;
         }
-        if (configure.isEnableMetric()) {
+        if (tcpConfig.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                     encodeObject.getStreamId(), ProxyUtils.getLocalIp(), encodeObject.getDt(),
                     encodeObject.getPackageTime(), encodeObject.getRealCnt());
@@ -203,16 +202,16 @@ public class Sender {
                             clientMgr.getStreamIdNum(encodeObject.getStreamId()));
                 }
             }
-            if (this.configure.isEnableDataEncrypt()) {
+            if (this.tcpConfig.isEnableReportEncrypt()) {
                 encodeObject.setEncryptEntry(true,
-                        configure.getAuthSecretId(), clientMgr.getEncryptConfigureInfo());
+                        tcpConfig.getRptUserName(), clientMgr.getEncryptConfigureInfo());
             }
             encodeObject.setMsgUUID(msgUUID);
             SyncMessageCallable callable = new SyncMessageCallable(
-                    clientResult.getF1(), encodeObject, configure.getRequestTimeoutMs());
+                    clientResult.getF1(), encodeObject, tcpConfig.getRequestTimeoutMs());
             syncCallables.put(encodeObject.getMessageId(), callable);
             Future<SendResult> future = threadPool.submit(callable);
-            message = future.get(configure.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
+            message = future.get(tcpConfig.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.THREAD_INTERRUPT;
@@ -255,7 +254,7 @@ public class Sender {
         }
         scanThread.resetTimeoutChannel(clientResult.getF1().getChannel());
         if (message == SendResult.OK) {
-            if (configure.isEnableMetric()) {
+            if (tcpConfig.isEnableMetric()) {
                 metricWorker.recordSuccessByMessageId(encodeObject.getMessageId());
             }
         }
@@ -319,7 +318,7 @@ public class Sender {
                 throw new ProxySdkException(SendResult.SENDER_CLOSED.toString());
             }
         }
-        if (configure.isEnableMetric()) {
+        if (tcpConfig.isEnableMetric()) {
             metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                     encodeObject.getStreamId(), ProxyUtils.getLocalIp(), encodeObject.getPackageTime(),
                     encodeObject.getDt(), encodeObject.getRealCnt());
@@ -394,7 +393,7 @@ public class Sender {
                 callbacks.computeIfAbsent(clientResult.getF1().getChannel(), (k) -> new ConcurrentHashMap<>());
         QueueObject queueObject = msgQueueMap.putIfAbsent(encodeObject.getMessageId(),
                 new QueueObject(clientResult.getF1(), System.currentTimeMillis(), callback,
-                        size, configure.getRequestTimeoutMs()));
+                        size, tcpConfig.getRequestTimeoutMs()));
         if (queueObject != null) {
             if (reqChkLoggCount.shouldPrint()) {
                 logger.warn("Sender({}) found message id {} has existed.",
@@ -408,9 +407,9 @@ public class Sender {
                         clientMgr.getStreamIdNum(encodeObject.getStreamId()));
             }
         }
-        if (this.configure.isEnableDataEncrypt()) {
+        if (this.tcpConfig.isEnableReportEncrypt()) {
             encodeObject.setEncryptEntry(true,
-                    configure.getAuthSecretId(), clientMgr.getEncryptConfigureInfo());
+                    tcpConfig.getRptUserName(), clientMgr.getEncryptConfigureInfo());
         }
         encodeObject.setMsgUUID(msgUUID);
         clientResult.getF1().write(encodeObject);
@@ -422,7 +421,7 @@ public class Sender {
         SyncMessageCallable callable = syncCallables.remove(messageId);
         SendResult result = response.getSendResult();
         if (result == SendResult.OK) {
-            if (configure.isEnableMetric()) {
+            if (tcpConfig.isEnableMetric()) {
                 metricWorker.recordSuccessByMessageId(messageId);
             }
         } else {
@@ -512,7 +511,7 @@ public class Sender {
         }
         try {
             while (!queueObjMap.isEmpty()) {
-                if (System.currentTimeMillis() - startTime >= configure.getConCloseWaitPeriodMs()) {
+                if (System.currentTimeMillis() - startTime >= tcpConfig.getConCloseWaitPeriodMs()) {
                     break;
                 }
                 try {
@@ -558,8 +557,8 @@ public class Sender {
         return clientMgr;
     }
 
-    public ProxyClientConfig getConfigure() {
-        return configure;
+    public TcpMsgSenderConfig getTcpConfig() {
+        return tcpConfig;
     }
 
     private void checkCallbackList() {
@@ -567,7 +566,7 @@ public class Sender {
         try {
             long startTime = System.currentTimeMillis();
             while (currentBufferSize.get() > 0
-                    && System.currentTimeMillis() - startTime < configure.getConCloseWaitPeriodMs()) {
+                    && System.currentTimeMillis() - startTime < tcpConfig.getConCloseWaitPeriodMs()) {
                 Thread.sleep(300L);
             }
             if (currentBufferSize.get() > 0) {

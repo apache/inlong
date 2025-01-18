@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
@@ -59,7 +59,7 @@ public class ClientMgr {
     private static final byte[] hbMsgBody = ProxyUtils.getLocalIp().getBytes(StandardCharsets.UTF_8);
 
     private final Sender sender;
-    private final ProxyClientConfig configure;
+    private final TcpMsgSenderConfig tcpConfig;
     private final Bootstrap bootstrap;
     private final ProxyConfigManager configManager;
     private final SendHBThread sendHBThread;
@@ -82,21 +82,21 @@ public class ClientMgr {
     /**
      * Build up the connection between the server and client.
      */
-    public ClientMgr(ProxyClientConfig configure, Sender sender) {
-        this(configure, sender, null);
+    public ClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender) {
+        this(tcpConfig, sender, null);
     }
 
     /**
      * Build up the connection between the server and client.
      */
-    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) {
-        this.configure = configure;
+    public ClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender, ThreadFactory selfDefineFactory) {
+        this.tcpConfig = tcpConfig;
         this.sender = sender;
         // Initialize the bootstrap
-        this.bootstrap = buildBootstrap(this.configure, this.sender, selfDefineFactory);
+        this.bootstrap = buildBootstrap(this.tcpConfig, this.sender, selfDefineFactory);
         // initial configure manager
         this.configManager = new ProxyConfigManager(
-                sender.getInstanceId(), configure, this);
+                sender.getInstanceId(), tcpConfig, this);
         this.sendHBThread = new SendHBThread();
     }
 
@@ -109,7 +109,7 @@ public class ClientMgr {
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
                 logger.error("ClientMgr({}) query {} exception",
-                        sender.getInstanceId(), configure.getInlongGroupId(), ex);
+                        sender.getInstanceId(), tcpConfig.getInlongGroupId(), ex);
             }
         }
         this.configManager.setDaemon(true);
@@ -313,7 +313,7 @@ public class ClientMgr {
             Collections.sort(candidateNodes);
             Collections.shuffle(candidateNodes);
             int curTotalCnt = candidateNodes.size();
-            int needActiveCnt = Math.min(this.configure.getAliveConnections(), curTotalCnt);
+            int needActiveCnt = Math.min(this.tcpConfig.getAliveConnections(), curTotalCnt);
             // build next step nodes
             NettyClient client;
             int maxCycleCnt = 3;
@@ -328,7 +328,7 @@ public class ClientMgr {
                     }
                     try {
                         client = new NettyClient(this.sender.getInstanceId(),
-                                this.bootstrap, hostInfo, this.configure);
+                                this.bootstrap, hostInfo, this.tcpConfig);
                         if (!client.connect(true)) {
                             this.connFailNodeMap.put(hostInfo.getReferenceName(), hostInfo);
                             client.close(false);
@@ -385,7 +385,7 @@ public class ClientMgr {
     }
 
     public String getGroupId() {
-        return configure.getInlongGroupId();
+        return tcpConfig.getInlongGroupId();
     }
 
     public boolean isIdTransNum() {
@@ -449,18 +449,22 @@ public class ClientMgr {
         }
     }
 
-    private Bootstrap buildBootstrap(ProxyClientConfig config, Sender sender, ThreadFactory selfFactory) {
+    private Bootstrap buildBootstrap(TcpMsgSenderConfig tcpConfig, Sender sender, ThreadFactory selfFactory) {
         if (selfFactory == null) {
             selfFactory = new DefaultThreadFactory(
                     "sdk-netty-workers", Thread.currentThread().isDaemon());
         }
         EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(
-                config.getIoThreadNum(), config.isEnableBusyWait(), selfFactory);
+                tcpConfig.getNettyWorkerThreadNum(), tcpConfig.isEnableEpollBusyWait(), selfFactory);
         Bootstrap tmpBootstrap = new Bootstrap();
         tmpBootstrap.group(eventLoopGroup);
         tmpBootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
-        tmpBootstrap.option(ChannelOption.SO_RCVBUF, config.getRecvBufferSize());
-        tmpBootstrap.option(ChannelOption.SO_SNDBUF, config.getSendBufferSize());
+        if (tcpConfig.getRcvBufferSize() > 0) {
+            tmpBootstrap.option(ChannelOption.SO_RCVBUF, tcpConfig.getRcvBufferSize());
+        }
+        if (tcpConfig.getSendBufferSize() > 0) {
+            tmpBootstrap.option(ChannelOption.SO_SNDBUF, tcpConfig.getSendBufferSize());
+        }
         tmpBootstrap.handler(new ClientPipelineFactory(this, sender));
         return tmpBootstrap;
     }
@@ -482,9 +486,9 @@ public class ClientMgr {
                 Collections.singletonList(hbMsgBody),
                 8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
         try {
-            if (configure.isEnableAuthentication()) {
-                encodeObject.setAuth(configure.isEnableAuthentication(),
-                        configure.getAuthSecretId(), configure.getAuthSecretKey());
+            if (tcpConfig.isEnableReportAuthz()) {
+                encodeObject.setAuth(tcpConfig.isEnableReportAuthz(),
+                        tcpConfig.getRptUserName(), tcpConfig.getRptSecretKey());
             }
             client.write(encodeObject);
         } catch (Throwable ex) {
@@ -519,7 +523,7 @@ public class ClientMgr {
                     curTime = System.currentTimeMillis();
                     if (deletingClientMaps != null && !deletingClientMaps.isEmpty()) {
                         if (lastUpdateTime > 0
-                                && curTime - lastUpdateTime > configure.getConCloseWaitPeriodMs()) {
+                                && curTime - lastUpdateTime > tcpConfig.getConCloseWaitPeriodMs()) {
                             for (NettyClient client : deletingClientMaps.values()) {
                                 if (client == null) {
                                     continue;
