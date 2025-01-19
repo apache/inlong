@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_INSTALL_PLATFORM;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
@@ -221,7 +222,7 @@ public class AgentStatusManager {
 
     private AgentStatus getStatus() {
         AgentStatus data = new AgentStatus();
-        data.setAgentIp(AgentUtils.fetchLocalIp());
+        data.setAgentIp(conf.get(AGENT_LOCAL_IP));
         data.setTag(conf.get(AGENT_CLUSTER_TAG));
         data.setCluster(conf.get(AGENT_CLUSTER_NAME));
         data.setAgentVersion(TaskManager.class.getPackage().getImplementationVersion());

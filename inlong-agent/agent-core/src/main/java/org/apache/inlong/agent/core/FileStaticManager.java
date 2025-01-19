@@ -37,6 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 
 /**
  * Collect various indicators of agent processes for backend problem analysis
@@ -109,7 +110,7 @@ public class FileStaticManager {
     }
 
     private void doPutStaticMsg(FileStatic data) {
-        data.setAgentIp(AgentUtils.fetchLocalIp());
+        data.setAgentIp(conf.get(AGENT_LOCAL_IP));
         data.setTag(conf.get(AGENT_CLUSTER_TAG));
         data.setCluster(conf.get(AGENT_CLUSTER_NAME));
         while (!queue.offer(data)) {

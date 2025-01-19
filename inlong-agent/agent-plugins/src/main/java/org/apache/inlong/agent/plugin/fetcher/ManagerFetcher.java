@@ -48,6 +48,7 @@ import java.util.List;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
@@ -59,7 +60,6 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FE
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
-import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
 
 /**
@@ -259,7 +259,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     @Override
     public void start() throws Exception {
         // when agent start, check local ip and fetch manager ip list;
-        localIp = fetchLocalIp();
+        localIp = conf.get(AGENT_LOCAL_IP);
         uuid = fetchLocalUuid();
         submitWorker(configFetchThread());
     }
