@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.dirtydata;
 
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
@@ -58,13 +58,12 @@ public class InlongSdkDirtySender {
         Preconditions.checkNotNull(authId, "authId cannot be null");
         Preconditions.checkNotNull(authKey, "authKey cannot be null");
 
-        ProxyClientConfig proxyClientConfig =
-                new ProxyClientConfig(true,
+        TcpMsgSenderConfig proxyClientConfig =
+                new TcpMsgSenderConfig(true,
                         inlongManagerAddr, inlongManagerPort, inlongGroupId, authId, authKey);
         proxyClientConfig.setOnlyUseLocalProxyConfig(false);
-        proxyClientConfig.setAsyncCallbackSize(maxCallbackSize);
+        proxyClientConfig.setTotalAsyncCallbackSize(maxCallbackSize);
         this.sender = DefaultMessageSender.generateSenderByClusterId(proxyClientConfig);
-        this.sender.setMsgtype(7);
 
         this.dirtyDataQueue = new LinkedBlockingQueue<>(maxCallbackSize);
         this.executor = Executors.newSingleThreadExecutor();

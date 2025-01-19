@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
@@ -41,13 +41,13 @@ public class TimeoutScanThread extends Thread {
     private static final LogCounter exptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private volatile boolean bShutDown = false;
     private long printCount = 0;
-    private final ProxyClientConfig config;
+    private final TcpMsgSenderConfig tcpConfig;
     private final Sender sender;
     private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat = new ConcurrentHashMap<>();
 
-    public TimeoutScanThread(Sender sender, ProxyClientConfig config) {
+    public TimeoutScanThread(Sender sender, TcpMsgSenderConfig tcpConfig) {
         this.bShutDown = false;
-        this.config = config;
+        this.tcpConfig = tcpConfig;
         this.sender = sender;
         this.setDaemon(true);
         this.setName("TimeoutScanThread-" + this.sender.getInstanceId());
@@ -111,7 +111,7 @@ public class TimeoutScanThread extends Thread {
             if (System.currentTimeMillis() - timeScanObject.getTime() > MAX_CHANNEL_TIMEOUT) {
                 timeoutChannelStat.remove(tmpChannel);
             } else {
-                if (timeScanObject.getCurTimeoutCount() > config.getMaxTimeoutCnt()) {
+                if (timeScanObject.getCurTimeoutCount() > tcpConfig.getMaxAllowedSyncMsgTimeoutCnt()) {
                     timeoutChannelStat.remove(tmpChannel);
                     if (tmpChannel.isOpen() && tmpChannel.isActive()) {
                         sender.getClientMgr().setConnectionBusy(tmpChannel);

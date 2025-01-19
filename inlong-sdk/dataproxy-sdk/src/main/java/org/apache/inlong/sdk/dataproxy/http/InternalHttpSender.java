@@ -18,11 +18,11 @@
 package org.apache.inlong.sdk.dataproxy.http;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.network.HttpMessage;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -58,7 +58,7 @@ public class InternalHttpSender {
 
     private static final Logger logger = LoggerFactory.getLogger(InternalHttpSender.class);
 
-    private final ProxyClientConfig proxyClientConfig;
+    private final HttpMsgSenderConfig httpConfig;
     private final ConcurrentHashSet<HostInfo> hostList;
 
     private final LinkedBlockingQueue<HttpMessage> messageCache;
@@ -66,17 +66,16 @@ public class InternalHttpSender {
     private CloseableHttpClient httpClient;
     private boolean bShutDown = false;
 
-    public InternalHttpSender(ProxyClientConfig proxyClientConfig,
-            ConcurrentHashSet<HostInfo> hostList,
-            LinkedBlockingQueue<HttpMessage> messageCache) {
-        this.proxyClientConfig = proxyClientConfig;
+    public InternalHttpSender(HttpMsgSenderConfig httpConfig,
+            ConcurrentHashSet<HostInfo> hostList, LinkedBlockingQueue<HttpMessage> messageCache) {
+        this.httpConfig = httpConfig;
         this.hostList = hostList;
         this.messageCache = messageCache;
         submitWorkThread();
     }
 
     private void submitWorkThread() {
-        for (int i = 0; i < proxyClientConfig.getAsyncWorkerNumber(); i++) {
+        for (int i = 0; i < httpConfig.getHttpAsyncRptWorkerNum(); i++) {
             workerServices.execute(new WorkerRunner());
         }
     }
@@ -132,7 +131,7 @@ public class InternalHttpSender {
                             httpMessage.getCallback().onMessageAck(result);
                         }
                     }
-                    TimeUnit.MILLISECONDS.sleep(proxyClientConfig.getAsyncWorkerInterval());
+                    TimeUnit.MILLISECONDS.sleep(httpConfig.getHttpAsyncWorkerIdleWaitMs());
                 } catch (Exception exception) {
                     logger.error("exception caught", exception);
                 }
@@ -149,7 +148,7 @@ public class InternalHttpSender {
         List<HostInfo> tmpHostList = new ArrayList<>(hostList);
         Collections.shuffle(tmpHostList);
         // respect alive connection
-        int maxIndex = Math.min(proxyClientConfig.getAliveConnections(), tmpHostList.size());
+        int maxIndex = Math.min(httpConfig.getAliveConnections(), tmpHostList.size());
         return tmpHostList.subList(0, maxIndex);
     }
 
@@ -231,8 +230,20 @@ public class InternalHttpSender {
      */
     public void close() throws Exception {
         bShutDown = true;
-        if (proxyClientConfig.isCleanHttpCacheWhenClosing()) {
-            messageCache.clear();
+        if (!messageCache.isEmpty()) {
+            if (httpConfig.isDiscardHttpCacheWhenClosing()) {
+                messageCache.clear();
+            } else {
+                long curTime = System.currentTimeMillis();
+                while (!messageCache.isEmpty()
+                        || (System.currentTimeMillis() - curTime) < httpConfig.getHttpCloseWaitPeriodMs()) {
+                    ProxyUtils.sleepSomeTime(100);
+                }
+                if (!messageCache.isEmpty()) {
+                    logger.warn("Close httpClient, remain {} messages", messageCache.size());
+                    messageCache.clear();
+                }
+            }
         }
         if (httpClient != null) {
             httpClient.close();

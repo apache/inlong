@@ -17,13 +17,12 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.common.constant.ProtocolType;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
@@ -47,7 +46,7 @@ public class HttpProxySender extends Thread {
 
     private final ConcurrentHashSet<HostInfo> hostList = new ConcurrentHashSet<>();
 
-    private final ProxyClientConfig proxyClientConfig;
+    private final HttpMsgSenderConfig proxyClientConfig;
     private ProxyConfigManager proxyConfigManager;
 
     private boolean bShutDown = false;
@@ -55,35 +54,31 @@ public class HttpProxySender extends Thread {
     private final InternalHttpSender internalHttpSender;
     private final LinkedBlockingQueue<HttpMessage> messageCache;
 
-    public HttpProxySender(ProxyClientConfig configure) throws Exception {
-        // correct ProtocolType settings
-        if (!ProtocolType.HTTP.equals(configure.getProtocolType())) {
-            configure.setProtocolType(ProtocolType.HTTP);
-        }
-        logger.info("Initial http sender, configure is {}", configure);
-        this.proxyClientConfig = configure;
-        initTDMClientAndRequest(configure);
-        this.messageCache = new LinkedBlockingQueue<>(configure.getTotalAsyncCallbackSize());
-        internalHttpSender = new InternalHttpSender(configure, hostList, messageCache);
+    public HttpProxySender(HttpMsgSenderConfig httpConfig) throws Exception {
+        logger.info("Initial http sender, configure is {}", httpConfig);
+        this.proxyClientConfig = httpConfig;
+        initTDMClientAndRequest(httpConfig);
+        this.messageCache = new LinkedBlockingQueue<>(httpConfig.getHttpAsyncRptCacheSize());
+        internalHttpSender = new InternalHttpSender(httpConfig, hostList, messageCache);
     }
 
     /**
      * get proxy list
      *
-     * @param configure
+     * @param httpConfig
      * @throws Exception
      */
-    private void initTDMClientAndRequest(ProxyClientConfig configure) throws Exception {
+    private void initTDMClientAndRequest(HttpMsgSenderConfig httpConfig) throws Exception {
 
         try {
-            proxyConfigManager = new ProxyConfigManager(configure);
+            proxyConfigManager = new ProxyConfigManager(httpConfig);
             ProxyConfigEntry proxyConfigEntry = retryGettingProxyConfig();
             hostList.addAll(proxyConfigEntry.getHostMap().values());
 
             this.setDaemon(true);
             this.start();
         } catch (Throwable e) {
-            if (configure.isOnlyUseLocalProxyConfig()) {
+            if (httpConfig.isOnlyUseLocalProxyConfig()) {
                 throw new Exception("Get local proxy configure failure! e = {}", e);
             } else {
                 throw new Exception("Visit TDManager error! e = {}", e);
@@ -111,8 +106,8 @@ public class HttpProxySender extends Thread {
         while (!bShutDown) {
             try {
                 int rand = ThreadLocalRandom.current().nextInt(0, 600);
-                int randSleepTime = proxyClientConfig.getProxyHttpUpdateIntervalMinutes() * 60 + rand;
-                TimeUnit.MILLISECONDS.sleep(randSleepTime * 1000);
+                long randSleepTime = proxyClientConfig.getMgrMetaSyncInrMs() + rand;
+                TimeUnit.MILLISECONDS.sleep(randSleepTime);
                 if (proxyConfigManager != null) {
                     Tuple2<ProxyConfigEntry, String> result =
                             proxyConfigManager.getGroupIdConfigure(false);
@@ -190,18 +185,7 @@ public class HttpProxySender extends Thread {
                 timeout, timeUnit, callback);
         try {
             if (!messageCache.offer(httpMessage)) {
-                if (!proxyClientConfig.isDiscardOldMessage()) {
-                    // put and wait for capacity available.
-                    messageCache.put(httpMessage);
-                } else {
-                    // discard old message and use new message instead.
-                    logger.debug("discard old message and use new message instead");
-                    HttpMessage oldMessage = messageCache.poll();
-                    if (oldMessage != null) {
-                        oldMessage.getCallback().onMessageAck(SendResult.TIMEOUT);
-                    }
-                    messageCache.offer(httpMessage);
-                }
+                callback.onMessageAck(SendResult.ASYNC_CALLBACK_BUFFER_FULL);
             }
         } catch (Exception exception) {
             logger.error("error async sending data", exception);

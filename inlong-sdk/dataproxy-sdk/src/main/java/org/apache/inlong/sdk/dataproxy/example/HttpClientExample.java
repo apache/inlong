@@ -17,9 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.inlong.common.constant.ProtocolType;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
 
 import java.util.ArrayList;
@@ -47,17 +46,16 @@ public class HttpClientExample {
             String inLongManagerPort, String inlongGroupId,
             boolean requestByHttp, boolean isReadProxyIPFromLocal,
             String configBasePath) {
-        ProxyClientConfig proxyConfig = null;
+        HttpMsgSenderConfig httpConfig = null;
         HttpProxySender sender = null;
         try {
-            proxyConfig = new ProxyClientConfig(requestByHttp, inLongManagerAddr,
+            httpConfig = new HttpMsgSenderConfig(requestByHttp, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
                     inlongGroupId, "admin", "inlong");// user and password of manager
-            proxyConfig.setConfigStoreBasePath(configBasePath);
-            proxyConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
-            proxyConfig.setDiscardOldMessage(true);
-            proxyConfig.setProtocolType(ProtocolType.HTTP);
-            sender = new HttpProxySender(proxyConfig);
+            httpConfig.setMetaStoreBasePath(configBasePath);
+            httpConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
+            httpConfig.setDiscardHttpCacheWhenClosing(true);
+            sender = new HttpProxySender(httpConfig);
         } catch (ProxySdkException e) {
             e.printStackTrace();
         } catch (Exception e) {

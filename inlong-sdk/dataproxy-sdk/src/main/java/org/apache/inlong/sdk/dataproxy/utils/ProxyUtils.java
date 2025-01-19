@@ -18,8 +18,9 @@
 package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class ProxyUtils {
 
     private static final int TIME_LENGTH = 13;
     private static final Set<String> invalidAttr = new HashSet<>();
-
+    public static final Set<MsgType> SdkAllowedMsgType = new HashSet<>();
     private static String localHost;
 
     static {
@@ -49,6 +50,9 @@ public class ProxyUtils {
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
                 "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
                 "proxySend", "errMsg", "errCode", AttributeConstants.MSG_RPT_TIME);
+
+        Collections.addAll(SdkAllowedMsgType,
+                MsgType.MSG_ACK_SERVICE, MsgType.MSG_MULTI_BODY, MsgType.MSG_BIN_MULTI_BODY);
     }
 
     public static String getLocalIp() {
@@ -66,6 +70,15 @@ public class ProxyUtils {
         }
         localHost = ip;
         return ip;
+    }
+
+    public static boolean sleepSomeTime(long sleepTimeMs) {
+        try {
+            Thread.sleep(sleepTimeMs);
+            return true;
+        } catch (Throwable ex) {
+            return false;
+        }
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
@@ -129,9 +142,9 @@ public class ProxyUtils {
             return true;
         }
         // Reserve space for attribute
-        if (body.length > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
+        if (body.length > maxLen - SdkConsts.RESERVED_ATTRIBUTE_LENGTH) {
             logger.debug("body length({}) > max length({}) - fixed attribute length({})",
-                    body.length, maxLen, ConfigConstants.RESERVED_ATTRIBUTE_LENGTH);
+                    body.length, maxLen, SdkConsts.RESERVED_ATTRIBUTE_LENGTH);
             return false;
         }
         return true;
@@ -153,9 +166,9 @@ public class ProxyUtils {
             size += body.length;
         }
         // Reserve space for attribute
-        if (size > maxLen - ConfigConstants.RESERVED_ATTRIBUTE_LENGTH) {
+        if (size > maxLen - SdkConsts.RESERVED_ATTRIBUTE_LENGTH) {
             logger.debug("bodyList length({}) > max length({}) - fixed attribute length({})",
-                    size, maxLen, ConfigConstants.RESERVED_ATTRIBUTE_LENGTH);
+                    size, maxLen, SdkConsts.RESERVED_ATTRIBUTE_LENGTH);
             return false;
         }
         return true;
@@ -171,14 +184,14 @@ public class ProxyUtils {
     /**
      * valid client config
      *
-     * @param clientConfig
+     * @param tcpConfig
      */
-    public static void validClientConfig(ProxyClientConfig clientConfig) {
-        if (clientConfig.isEnableAuthentication()) {
-            if (StringUtils.isBlank(clientConfig.getAuthSecretId())) {
+    public static void validClientConfig(TcpMsgSenderConfig tcpConfig) {
+        if (tcpConfig.isEnableMgrAuthz()) {
+            if (StringUtils.isBlank(tcpConfig.getMgrAuthSecretId())) {
                 throw new IllegalArgumentException("Authentication require secretId not Blank!");
             }
-            if (StringUtils.isBlank(clientConfig.getAuthSecretKey())) {
+            if (StringUtils.isBlank(tcpConfig.getMgrAuthSecretKey())) {
                 throw new IllegalArgumentException("Authentication require secretKey not Blank!");
             }
         }

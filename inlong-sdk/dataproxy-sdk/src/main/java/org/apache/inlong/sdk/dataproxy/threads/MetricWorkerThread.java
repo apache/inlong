@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -57,8 +57,8 @@ public class MetricWorkerThread extends Thread implements Closeable {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private volatile boolean bShutdown = false;
 
-    public MetricWorkerThread(ProxyClientConfig proxyClientConfig, Sender sender) {
-        this.metricConfig = proxyClientConfig.getMetricConfig();
+    public MetricWorkerThread(TcpMsgSenderConfig clientConfig, Sender sender) {
+        this.metricConfig = clientConfig.getMetricConfig();
         this.sender = sender;
         this.setDaemon(true);
         this.setName("MetricWorkerThread");
@@ -73,13 +73,11 @@ public class MetricWorkerThread extends Thread implements Closeable {
      */
     private String getKeyStringByConfig(String groupId, String streamId, String localIp, long keyTime) {
         StringBuilder builder = new StringBuilder();
-        String groupIdStr = metricConfig.isUseGroupIdAsKey() ? groupId : DEFAULT_KEY_ITEM;
-        String streamIdStr = metricConfig.isUseStreamIdAsKey() ? streamId : DEFAULT_KEY_ITEM;
-        String localIpStr = metricConfig.isUseLocalIpAsKey() ? localIp : DEFAULT_KEY_ITEM;
+        String groupIdStr = metricConfig.isMaskGroupId() ? DEFAULT_KEY_ITEM : groupId;
+        String streamIdStr = metricConfig.isMaskStreamId() ? DEFAULT_KEY_ITEM : streamId;
 
         builder.append(groupIdStr).append(DEFAULT_KEY_SPLITTER)
                 .append(streamIdStr).append(DEFAULT_KEY_SPLITTER)
-                .append(localIpStr).append(DEFAULT_KEY_SPLITTER)
                 .append(keyTime);
         return builder.toString();
     }
@@ -181,7 +179,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
             try {
                 checkCacheRecords();
                 flushMetric(false);
-                TimeUnit.MILLISECONDS.sleep(metricConfig.getMetricRptIntvlMs());
+                TimeUnit.MILLISECONDS.sleep(metricConfig.getMetricOutIntvlMs());
             } catch (Throwable ex) {
                 // exception happens
             }
@@ -216,7 +214,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
         for (String keyName : cacheMap.keySet()) {
             MetricTimeNumSummary summary = cacheMap.get(keyName);
             if (isClosing || (summary != null && summary.getSummaryTime()
-                    + delayTime > metricConfig.getMetricRptIntvlMs())) {
+                    + delayTime > metricConfig.getMetricOutIntvlMs())) {
                 summary = cacheMap.remove(keyName);
                 if (summary != null) {
                     long metricDtTime = summary.getStartCalculateTime() / 1000;
@@ -247,7 +245,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     private void checkCacheRecords() {
         for (String msgId : metricValueCache.keySet()) {
             MessageRecord record = metricValueCache.get(msgId);
-            if (record != null && record.getMessageTime() + delayTime > metricConfig.getMetricRptIntvlMs()) {
+            if (record != null && record.getMessageTime() + delayTime > metricConfig.getMetricOutIntvlMs()) {
                 recordFailedByMessageId(msgId);
             }
         }

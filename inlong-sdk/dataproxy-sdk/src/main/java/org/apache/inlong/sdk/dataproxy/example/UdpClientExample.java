@@ -48,8 +48,8 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+import static org.apache.inlong.sdk.dataproxy.common.SdkConsts.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.common.SdkConsts.FLAG_ALLOW_ENCRYPT;
 
 public class UdpClientExample {
 
