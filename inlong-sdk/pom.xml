@@ -31,8 +31,8 @@
 
     <modules>
         <module>sdk-common</module>
-        <module>sort-sdk</module>
         <module>dataproxy-sdk</module>
+        <module>sort-sdk</module>
         <module>transform-sdk</module>
         <module>dirty-data-sdk</module>
     </modules>

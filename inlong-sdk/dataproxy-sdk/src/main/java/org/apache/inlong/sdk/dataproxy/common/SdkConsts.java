@@ -19,8 +19,6 @@ package org.apache.inlong.sdk.dataproxy.common;
 
 public class SdkConsts {
 
-    public static final String PROXY_SDK_VERSION = "1.2.11";
-
     public static String PREFIX_HTTP = "http://";
     public static String PREFIX_HTTPS = "https://";
 

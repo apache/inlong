@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
@@ -25,7 +26,6 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
-import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,10 +92,12 @@ public class HttpProxySender extends Thread {
      *
      * @return proxy config entry.
      */
-    private ProxyConfigEntry retryGettingProxyConfig() throws Exception {
-        Tuple2<ProxyConfigEntry, String> result =
-                proxyConfigManager.getGroupIdConfigure(true);
-        return result.getF0();
+    private ProxyConfigEntry retryGettingProxyConfig() {
+        ProcessResult procResult = new ProcessResult();
+        if (proxyConfigManager.getGroupIdConfigure(true, procResult)) {
+            return (ProxyConfigEntry) procResult.getRetData();
+        }
+        return null;
     }
 
     /**
@@ -103,19 +105,19 @@ public class HttpProxySender extends Thread {
      */
     @Override
     public void run() {
+        ProcessResult procResult = new ProcessResult();
         while (!bShutDown) {
             try {
                 int rand = ThreadLocalRandom.current().nextInt(0, 600);
                 long randSleepTime = proxyClientConfig.getMgrMetaSyncInrMs() + rand;
                 TimeUnit.MILLISECONDS.sleep(randSleepTime);
                 if (proxyConfigManager != null) {
-                    Tuple2<ProxyConfigEntry, String> result =
-                            proxyConfigManager.getGroupIdConfigure(false);
-                    if (result.getF0() == null) {
-                        throw new Exception(result.getF1());
+                    if (!proxyConfigManager.getGroupIdConfigure(false, procResult)) {
+                        throw new Exception(procResult.toString());
                     }
-                    hostList.addAll(result.getF0().getHostMap().values());
-                    hostList.retainAll(result.getF0().getHostMap().values());
+                    ProxyConfigEntry configEntry = (ProxyConfigEntry) procResult.getRetData();
+                    hostList.addAll(configEntry.getHostMap().values());
+                    hostList.retainAll(configEntry.getHostMap().values());
                 } else {
                     logger.error("manager is null, please check it!");
                 }
