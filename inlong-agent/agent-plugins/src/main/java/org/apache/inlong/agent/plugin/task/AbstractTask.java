@@ -109,32 +109,32 @@ public abstract class AbstractTask extends Task {
     public void run() {
         Thread.currentThread().setName("task-core-" + getTaskId());
         running = true;
-        try {
-            doRun();
-        } catch (Throwable e) {
-            LOGGER.error("do run error: ", e);
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+        while (!isFinished()) {
+            try {
+                doRun();
+            } catch (Throwable e) {
+                LOGGER.error("do run error: ", e);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+            }
+            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
         }
         running = false;
     }
 
     protected void doRun() {
-        while (!isFinished()) {
-            taskPrint();
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-            if (!initOK) {
-                continue;
-            }
-            List<InstanceProfile> profileList = getNewInstanceList();
-            for (InstanceProfile profile : profileList) {
-                InstanceAction action = new InstanceAction(ActionType.ADD, profile);
-                while (!isFinished() && !instanceManager.submitAction(action)) {
-                    LOGGER.error("instance manager action queue is full: taskId {}", getTaskId());
-                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-                }
-            }
-            taskHeartbeat();
+        taskPrint();
+        if (!initOK) {
+            return;
         }
+        List<InstanceProfile> profileList = getNewInstanceList();
+        for (InstanceProfile profile : profileList) {
+            InstanceAction action = new InstanceAction(ActionType.ADD, profile);
+            while (!isFinished() && !instanceManager.submitAction(action)) {
+                LOGGER.error("instance manager action queue is full: taskId {}", getTaskId());
+                AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+            }
+        }
+        taskHeartbeat();
     }
 
     protected abstract List<InstanceProfile> getNewInstanceList();
