@@ -366,6 +366,11 @@ public class InstanceManager extends AbstractDaemon {
 
     private void deleteFromStore(String instanceId) {
         InstanceProfile profile = instanceStore.getInstance(taskId, instanceId);
+        if (profile == null) {
+            LOGGER.error("try to delete instance from store but not found: taskId {} instanceId {}", taskId,
+                    instanceId);
+            return;
+        }
         String inlongGroupId = profile.getInlongGroupId();
         String inlongStreamId = profile.getInlongStreamId();
         instanceStore.deleteInstance(taskId, instanceId);

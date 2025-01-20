@@ -140,7 +140,11 @@ public class ProxySink extends AbstractSink {
             LOGGER.info("start flush cache {}:{} flush interval {}", inlongGroupId, sourceName, batchFlushInterval);
             running = true;
             while (!shutdown) {
-                sendMessageFromCache();
+                try {
+                    sendMessageFromCache();
+                } catch (Throwable e) {
+                    LOGGER.error("send message from cache error: ", e);
+                }
                 AgentUtils.silenceSleepInMs(batchFlushInterval);
             }
             LOGGER.info("stop flush cache {}:{}", inlongGroupId, sourceName);
