@@ -72,7 +72,7 @@ public class InstanceStore {
      * @return list of task
      */
     public List<InstanceProfile> getInstances(String taskId) {
-        List<KeyValueEntity> result = this.store.findAll(getKeyByTaskId(taskId));
+        List<KeyValueEntity> result = this.store.findAll(getKeyByTaskId(taskId) + store.getSplitter());
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
