@@ -195,6 +195,9 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
                     metadataKey = CONSUME_AUDIT_TIME;
                 }
                 break;
+            case INLONG_PROPERTIES:
+                metadataKey = INLONG_MSG_PROPERTIES;
+                break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                         this.getClass().getSimpleName(), metaField));
@@ -209,7 +212,7 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME, MetaField.INLONG_PROPERTIES);
     }
 
     @Override
