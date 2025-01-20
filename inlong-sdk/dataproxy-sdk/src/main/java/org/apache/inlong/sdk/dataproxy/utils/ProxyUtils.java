@@ -73,11 +73,10 @@ public class ProxyUtils {
                 KEY_SECRET_ID, KEY_SIGNATURE, KEY_TIME_STAMP, KEY_NONCE, KEY_USERNAME,
                 KEY_CLIENT_IP, KEY_ENCY_VERSION, KEY_ENCY_AES_KEY);
         /*
-        Collections.addAll(SdkReservedWords, "groupId", "streamId", "dt", "msgUUID", "cp",
-                "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "isAck", "proxySend",
-                "errCode", "errMsg", "rtms", "sdkVersion", "auditVersion",
-                "_file_status_check", "_secretId", "_signature", "_timeStamp", "_nonce",
-                "_userName", "_clientIP", "_encyVersion", "_encyAesKey");
+         * Collections.addAll(SdkReservedWords, "groupId", "streamId", "dt", "msgUUID", "cp", "cnt", "mt", "m", "sid",
+         * "t", "NodeIP", "messageId", "isAck", "proxySend", "errCode", "errMsg", "rtms", "sdkVersion", "auditVersion",
+         * "_file_status_check", "_secretId", "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP",
+         * "_encyVersion", "_encyAesKey");
          */
 
         Collections.addAll(SdkAllowedMsgType,

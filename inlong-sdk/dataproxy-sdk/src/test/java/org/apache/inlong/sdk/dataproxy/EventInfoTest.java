@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.dataproxy;
 import org.apache.inlong.sdk.dataproxy.exception.ProxyEventException;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpEventInfo;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
+
 import org.junit.Assert;
 import org.junit.Test;
 
