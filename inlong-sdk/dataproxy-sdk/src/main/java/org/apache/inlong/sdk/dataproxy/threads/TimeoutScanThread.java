@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
 import io.netty.channel.Channel;

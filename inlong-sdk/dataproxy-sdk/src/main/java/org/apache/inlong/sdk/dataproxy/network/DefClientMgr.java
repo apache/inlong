@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dataproxy.config.ConfigHolder;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
@@ -51,9 +52,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ClientMgr {
+public class DefClientMgr implements ConfigHolder {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientMgr.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefClientMgr.class);
     private static final LogCounter logCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter updConExptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
@@ -83,14 +84,14 @@ public class ClientMgr {
     /**
      * Build up the connection between the server and client.
      */
-    public ClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender) {
+    public DefClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender) {
         this(tcpConfig, sender, null);
     }
 
     /**
      * Build up the connection between the server and client.
      */
-    public ClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender, ThreadFactory selfDefineFactory) {
+    public DefClientMgr(TcpMsgSenderConfig tcpConfig, Sender sender, ThreadFactory selfDefineFactory) {
         this.tcpConfig = tcpConfig;
         this.sender = sender;
         // Initialize the bootstrap
@@ -301,7 +302,13 @@ public class ClientMgr {
         }
     }
 
-    public void updateProxyInfoList(boolean nodeChanged, List<HostInfo> newNodes) {
+    @Override
+    public void updateAllowedMaxPkgLength(int maxPkgLength) {
+        //
+    }
+
+    @Override
+    public void updateProxyNodes(boolean nodeChanged, List<HostInfo> newNodes) {
         if (newNodes == null || newNodes.isEmpty() || !this.started.get()) {
             return;
         }

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -64,7 +64,7 @@ public class Sender {
     private final AtomicInteger currentBufferSize = new AtomicInteger(0);
     private final TimeoutScanThread scanThread;
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private final ClientMgr clientMgr;
+    private final DefClientMgr clientMgr;
     private final String instanceId;
     private final TcpMsgSenderConfig tcpConfig;
     private MetricWorkerThread metricWorker = null;
@@ -82,7 +82,7 @@ public class Sender {
         this.instanceId = "sender-" + senderIdGen.incrementAndGet();
         this.asyncCallbackMaxSize = tcpConfig.getTotalAsyncCallbackSize();
         this.threadPool = Executors.newCachedThreadPool();
-        this.clientMgr = new ClientMgr(tcpConfig, this, selfDefineFactory);
+        this.clientMgr = new DefClientMgr(tcpConfig, this, selfDefineFactory);
         this.scanThread = new TimeoutScanThread(this, tcpConfig);
         if (tcpConfig.isEnableMetric()) {
             metricWorker = new MetricWorkerThread(tcpConfig, this);
@@ -553,7 +553,7 @@ public class Sender {
         return callbacks;
     }
 
-    public ClientMgr getClientMgr() {
+    public DefClientMgr getClientMgr() {
         return clientMgr;
     }
 

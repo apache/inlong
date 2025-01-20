@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.http;
+package org.apache.inlong.sdk.dataproxy.sender.http;
 
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.common.HttpContentType;

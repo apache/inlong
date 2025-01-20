@@ -21,6 +21,7 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.network.HttpMessage;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 

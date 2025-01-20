@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTP Event Information class
+ * TCP Event Information class
  *
  * Used to encapsulate the data information reported by TCP
  */

@@ -26,10 +26,10 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
 
-    private final ClientMgr clientMgr;
+    private final DefClientMgr clientMgr;
     private final Sender sender;
 
-    public ClientPipelineFactory(ClientMgr clientMgr, Sender sender) {
+    public ClientPipelineFactory(DefClientMgr clientMgr, Sender sender) {
         this.clientMgr = clientMgr;
         this.sender = sender;
     }

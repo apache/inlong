@@ -24,7 +24,6 @@ import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
-import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
@@ -101,7 +100,7 @@ public class ProxyConfigManager extends Thread {
 
     private final String callerId;
     private final Gson gson = new Gson();
-    private final ClientMgr clientManager;
+    private final ConfigHolder configHolder;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final AtomicBoolean shutDown = new AtomicBoolean(false);
     // proxy configure info
@@ -125,13 +124,13 @@ public class ProxyConfigManager extends Thread {
         this("MetaQuery", configure, null);
     }
 
-    public ProxyConfigManager(String callerId, ProxyClientConfig configure, ClientMgr clientManager) {
+    public ProxyConfigManager(String callerId, ProxyClientConfig configure, ConfigHolder configHolder) {
         this.callerId = callerId;
-        this.clientManager = clientManager;
+        this.configHolder = configHolder;
         if (configure != null) {
             this.storeAndBuildMetaConfigure(configure);
         }
-        if (this.clientManager != null) {
+        if (this.configHolder != null) {
             this.setName("ConfigManager-" + this.callerId);
             logger.info("ConfigManager({}) started, groupId={}",
                     this.callerId, mgrConfig.getInlongGroupId());
@@ -148,7 +147,7 @@ public class ProxyConfigManager extends Thread {
         if (this.shutDown.get()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        if (this.clientManager != null) {
+        if (this.configHolder != null) {
             return procResult.setFailResult(ErrorCode.ILLEGAL_CALL_STATE);
         }
         this.storeAndBuildMetaConfigure(configure);
@@ -156,7 +155,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     public void shutDown() {
-        if (clientManager == null) {
+        if (this.configHolder == null) {
             return;
         }
         if (shutDown.compareAndSet(false, true)) {
@@ -479,6 +478,7 @@ public class ProxyConfigManager extends Thread {
             newProxyNodeList.addAll(proxyInfoList);
         } else {
             this.proxyConfigEntry = proxyEntry;
+            configHolder.updateAllowedMaxPkgLength(proxyEntry.getMaxPacketLength());
             newSwitchStat = proxyEntry.getSwitchStat();
             newProxyNodeList = new ArrayList<>(proxyEntry.getSize());
             for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
@@ -491,7 +491,7 @@ public class ProxyConfigManager extends Thread {
         if (nodeChanged || newSwitchStat != oldStat
                 || (System.currentTimeMillis() - lstUpdateTime) >= mgrConfig.getForceReChooseInrMs()) {
             proxyInfoList = newProxyNodeList;
-            clientManager.updateProxyInfoList(nodeChanged, proxyInfoList);
+            configHolder.updateProxyNodes(nodeChanged, proxyInfoList);
             lstUpdateTime = System.currentTimeMillis();
             oldStat = newSwitchStat;
         }
@@ -813,6 +813,12 @@ public class ProxyConfigManager extends Thread {
 
     private void storeAndBuildMetaConfigure(ProxyClientConfig config) {
         this.mgrConfig = config;
+        this.proxyConfigEntry = null;
+        this.proxyInfoList.clear();
+        this.oldStat = 0;
+        this.localMd5 = null;
+        this.lstUpdateTime = 0;
+        this.userEncryptConfigEntry = null;
         StringBuilder strBuff = new StringBuilder(512);
         this.proxyConfigVisitUrl = strBuff
                 .append(mgrConfig.isVisitMgrByHttps() ? SdkConsts.PREFIX_HTTPS : SdkConsts.PREFIX_HTTP)

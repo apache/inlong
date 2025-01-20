@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.http.HttpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 
 import org.junit.Assert;
 import org.junit.Test;

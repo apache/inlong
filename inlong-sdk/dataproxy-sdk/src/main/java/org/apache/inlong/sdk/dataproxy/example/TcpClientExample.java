@@ -18,8 +18,8 @@
 package org.apache.inlong.sdk.dataproxy.example;
 
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
