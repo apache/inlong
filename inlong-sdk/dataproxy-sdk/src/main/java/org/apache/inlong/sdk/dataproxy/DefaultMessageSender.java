@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.dataproxy;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -30,7 +31,6 @@ import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
-import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,20 +102,20 @@ public class DefaultMessageSender implements MessageSender {
             ThreadFactory selfDefineFactory) throws Exception {
         LOGGER.info("Initial tcp sender, configure is {}", tcpConfig);
         // initial sender object
+        ProcessResult procResult = new ProcessResult();
         ProxyConfigManager proxyConfigManager = new ProxyConfigManager(tcpConfig);
-        Tuple2<ProxyConfigEntry, String> result =
-                proxyConfigManager.getGroupIdConfigure(true);
-        if (result.getF0() == null) {
-            throw new Exception(result.getF1());
+        if (!proxyConfigManager.getGroupIdConfigure(true, procResult)) {
+            throw new Exception(procResult.toString());
         }
-        DefaultMessageSender sender = CACHE_SENDER.get(result.getF0().getClusterId());
+        ProxyConfigEntry configEntry = (ProxyConfigEntry) procResult.getRetData();
+        DefaultMessageSender sender = CACHE_SENDER.get(configEntry.getClusterId());
         if (sender != null) {
             return sender;
         } else {
             DefaultMessageSender tmpMessageSender =
                     new DefaultMessageSender(tcpConfig, selfDefineFactory);
-            tmpMessageSender.setMaxPacketLength(result.getF0().getMaxPacketLength());
-            CACHE_SENDER.put(result.getF0().getClusterId(), tmpMessageSender);
+            tmpMessageSender.setMaxPacketLength(configEntry.getMaxPacketLength());
+            CACHE_SENDER.put(configEntry.getClusterId(), tmpMessageSender);
             return tmpMessageSender;
         }
     }
@@ -209,7 +209,7 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public String getSDKVersion() {
-        return SdkConsts.PROXY_SDK_VERSION;
+        return ProxyUtils.getJarVersion();
     }
 
     private SendResult attemptSendMessage(Function<Sender, SendResult> sendOperation) {

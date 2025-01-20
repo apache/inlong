@@ -26,12 +26,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 public class ProxyUtils {
@@ -43,9 +45,11 @@ public class ProxyUtils {
     private static final Set<String> invalidAttr = new HashSet<>();
     public static final Set<MsgType> SdkAllowedMsgType = new HashSet<>();
     private static String localHost;
+    private static String sdkVersion;
 
     static {
         localHost = getLocalIp();
+        getJarVersion();
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
                 "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
@@ -70,6 +74,22 @@ public class ProxyUtils {
         }
         localHost = ip;
         return ip;
+    }
+
+    public static String getJarVersion() {
+        if (sdkVersion != null) {
+            return sdkVersion;
+        }
+        Properties properties = new Properties();
+        try (InputStream is = ProxyUtils.class.getResourceAsStream("/git.properties")) {
+            properties.load(is);
+            sdkVersion = properties.getProperty("git.build.version");
+        } catch (Throwable ex) {
+            if (exceptCounter.shouldPrint()) {
+                logger.error("DataProxy-SDK get version failure", ex);
+            }
+        }
+        return sdkVersion;
     }
 
     public static boolean sleepSomeTime(long sleepTimeMs) {

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import org.apache.inlong.sdk.dataproxy.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
@@ -104,8 +105,9 @@ public class ClientMgr {
         if (!started.compareAndSet(false, true)) {
             return;
         }
+        ProcessResult procResult = new ProcessResult();
         try {
-            this.configManager.doProxyEntryQueryWork();
+            this.configManager.doProxyEntryQueryWork(procResult);
         } catch (Throwable ex) {
             if (exptCounter.shouldPrint()) {
                 logger.error("ClientMgr({}) query {} exception",
@@ -159,22 +161,23 @@ public class ClientMgr {
         if (!this.started.get()) {
             throw new Exception("SDK not start or has shutdown!");
         }
-        Tuple2<ProxyConfigEntry, String> result =
-                configManager.getGroupIdConfigure(true);
-        if (result.getF0() == null) {
-            throw new Exception(result.getF1());
+        ProcessResult procResult = new ProcessResult();
+        if (!configManager.getGroupIdConfigure(true, procResult)) {
+            throw new Exception(procResult.toString());
         }
-        return result.getF0();
+        return (ProxyConfigEntry) procResult.getRetData();
     }
 
     public EncryptConfigEntry getEncryptConfigureInfo() {
         if (!this.started.get()) {
             return null;
         }
-        Tuple2<EncryptConfigEntry, String> result;
+        ProcessResult procResult = new ProcessResult();
         try {
-            result = configManager.getEncryptConfigure(false);
-            return result.getF0();
+            if (configManager.getEncryptConfigure(false, procResult)) {
+                return (EncryptConfigEntry) procResult.getRetData();
+            }
+            return null;
         } catch (Throwable ex) {
             return null;
         }
