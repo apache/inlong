@@ -41,6 +41,7 @@ import java.util.concurrent.ThreadFactory;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
@@ -145,7 +146,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
      * build heartbeat message of agent
      */
     private HeartbeatMsg buildHeartbeatMsg() {
-        final String agentIp = AgentUtils.fetchLocalIp();
+        final String agentIp = conf.get(AGENT_LOCAL_IP);
         final String clusterName = conf.get(AGENT_CLUSTER_NAME);
         final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
         final String inCharges = conf.get(AGENT_CLUSTER_IN_CHARGES);
