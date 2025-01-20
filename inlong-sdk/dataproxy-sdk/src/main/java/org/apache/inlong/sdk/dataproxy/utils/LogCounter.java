@@ -27,7 +27,7 @@ public class LogCounter {
     private long control = 100000L;
     private long reset = 60 * 1000L;
 
-    private AtomicLong lastLogTime = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong lastLogTime = new AtomicLong(System.currentTimeMillis());
 
     public LogCounter(long start, long control, long reset) {
         this.start = start;

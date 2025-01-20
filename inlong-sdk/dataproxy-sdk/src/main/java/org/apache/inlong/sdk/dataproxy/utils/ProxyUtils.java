@@ -38,11 +38,20 @@ import java.util.Set;
 
 public class ProxyUtils {
 
+    public static final String KEY_FILE_STATUS_CHECK = "_file_status_check";
+    public static final String KEY_SECRET_ID = "_secretId";
+    public static final String KEY_SIGNATURE = "_signature";
+    public static final String KEY_TIME_STAMP = "_timeStamp";
+    public static final String KEY_NONCE = "_nonce";
+    public static final String KEY_USERNAME = "_userName";
+    public static final String KEY_CLIENT_IP = "_clientIP";
+    public static final String KEY_ENCY_VERSION = "_encyVersion";
+    public static final String KEY_ENCY_AES_KEY = "_encyAesKey";
     private static final Logger logger = LoggerFactory.getLogger(ProxyUtils.class);
     private static final LogCounter exceptCounter = new LogCounter(10, 200000, 60 * 1000L);
 
     private static final int TIME_LENGTH = 13;
-    private static final Set<String> invalidAttr = new HashSet<>();
+    public static final Set<String> SdkReservedWords = new HashSet<>();
     public static final Set<MsgType> SdkAllowedMsgType = new HashSet<>();
     private static String localHost;
     private static String sdkVersion;
@@ -50,10 +59,26 @@ public class ProxyUtils {
     static {
         localHost = getLocalIp();
         getJarVersion();
-        Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
-                "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
-                "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
-                "proxySend", "errMsg", "errCode", AttributeConstants.MSG_RPT_TIME);
+        Collections.addAll(SdkReservedWords,
+                AttributeConstants.GROUP_ID, AttributeConstants.STREAM_ID,
+                AttributeConstants.DATA_TIME, AttributeConstants.MSG_UUID,
+                AttributeConstants.COMPRESS_TYPE, AttributeConstants.MESSAGE_COUNT,
+                AttributeConstants.MESSAGE_TYPE, AttributeConstants.METHOD,
+                AttributeConstants.SEQUENCE_ID, AttributeConstants.TIME_STAMP,
+                AttributeConstants.NODE_IP, AttributeConstants.MESSAGE_ID,
+                AttributeConstants.MESSAGE_IS_ACK, AttributeConstants.MESSAGE_PROXY_SEND,
+                AttributeConstants.MESSAGE_PROCESS_ERRCODE, AttributeConstants.MESSAGE_PROCESS_ERRMSG,
+                AttributeConstants.MSG_RPT_TIME, AttributeConstants.AUDIT_VERSION,
+                AttributeConstants.PROXY_SDK_VERSION, KEY_FILE_STATUS_CHECK,
+                KEY_SECRET_ID, KEY_SIGNATURE, KEY_TIME_STAMP, KEY_NONCE, KEY_USERNAME,
+                KEY_CLIENT_IP, KEY_ENCY_VERSION, KEY_ENCY_AES_KEY);
+        /*
+        Collections.addAll(SdkReservedWords, "groupId", "streamId", "dt", "msgUUID", "cp",
+                "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "isAck", "proxySend",
+                "errCode", "errMsg", "rtms", "sdkVersion", "auditVersion",
+                "_file_status_check", "_secretId", "_signature", "_timeStamp", "_nonce",
+                "_userName", "_clientIP", "_encyVersion", "_encyAesKey");
+         */
 
         Collections.addAll(SdkAllowedMsgType,
                 MsgType.MSG_ACK_SERVICE, MsgType.MSG_MULTI_BODY, MsgType.MSG_BIN_MULTI_BODY);
@@ -106,7 +131,7 @@ public class ProxyUtils {
             return false;
         }
         for (String key : attrsMap.keySet()) {
-            if (invalidAttr.contains(key)) {
+            if (SdkReservedWords.contains(key)) {
                 logger.error("the attributes is invalid ,please check ! {}", key);
                 return false;
             }
