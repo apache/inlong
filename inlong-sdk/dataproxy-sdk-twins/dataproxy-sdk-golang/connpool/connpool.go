@@ -323,7 +323,8 @@ func (p *connPool) put(conn gnet.Conn, err error, isNewConn bool) {
 	if p.expired(conn) {
 		p.log.Debug("connection expired, close it, addr:", addr, ", err:", err)
 		CloseConn(conn, defaultConnCloseDelay)
-		// 关闭连接后，可用连接数变少，addr对应的节点的连接数可能也不均衡，尽管会递归调用当前函数，仍在这里追加创建新的连接
+		// when conn is closed, available connections is less than before, the number of connections for the endpoint may not be balanced,
+		// although it may be called recursively, we still append a new connection here
 		_ = p.appendNewConn(addr)
 		return
 	}
@@ -571,6 +572,8 @@ func (p *connPool) recoverAndRebalance() {
 				default:
 					time.Sleep(time.Second)
 				}
+			} else {
+				time.Sleep(time.Second)
 			}
 		}
 	}
