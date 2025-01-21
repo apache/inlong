@@ -148,6 +148,9 @@ public class SdkConsts {
     public static final int FLAG_ALLOW_ENCRYPT = 1 << 6;
     public static final int FLAG_ALLOW_COMPRESS = 1 << 5;
 
+    public static final int EXT_FIELD_FLAG_DISABLE_ID2NUM = 1 << 2;
+    public static final int EXT_FIELD_FLAG_SEP_BY_LF = 1 << 5;
+
     public static int DEFAULT_SENDER_MAX_ATTEMPT = 1;
 
     /* Reserved attribute data size(bytes). */

@@ -57,7 +57,7 @@ public class ProxyUtils {
     private static String sdkVersion;
 
     static {
-        localHost = getLocalIp();
+        getLocalIp();
         getJarVersion();
         Collections.addAll(SdkReservedWords,
                 AttributeConstants.GROUP_ID, AttributeConstants.STREAM_ID,
@@ -68,13 +68,12 @@ public class ProxyUtils {
                 AttributeConstants.NODE_IP, AttributeConstants.MESSAGE_ID,
                 AttributeConstants.MESSAGE_IS_ACK, AttributeConstants.MESSAGE_PROXY_SEND,
                 AttributeConstants.MESSAGE_PROCESS_ERRCODE, AttributeConstants.MESSAGE_PROCESS_ERRMSG,
-                AttributeConstants.MSG_RPT_TIME, AttributeConstants.AUDIT_VERSION,
-                AttributeConstants.PROXY_SDK_VERSION, KEY_FILE_STATUS_CHECK,
-                KEY_SECRET_ID, KEY_SIGNATURE, KEY_TIME_STAMP, KEY_NONCE, KEY_USERNAME,
-                KEY_CLIENT_IP, KEY_ENCY_VERSION, KEY_ENCY_AES_KEY);
+                AttributeConstants.MSG_RPT_TIME, AttributeConstants.PROXY_SDK_VERSION,
+                KEY_FILE_STATUS_CHECK, KEY_SECRET_ID, KEY_SIGNATURE, KEY_TIME_STAMP,
+                KEY_NONCE, KEY_USERNAME, KEY_CLIENT_IP, KEY_ENCY_VERSION, KEY_ENCY_AES_KEY);
         /*
          * Collections.addAll(SdkReservedWords, "groupId", "streamId", "dt", "msgUUID", "cp", "cnt", "mt", "m", "sid",
-         * "t", "NodeIP", "messageId", "isAck", "proxySend", "errCode", "errMsg", "rtms", "sdkVersion", "auditVersion",
+         * "t", "NodeIP", "messageId", "isAck", "proxySend", "errCode", "errMsg", "rtms", "sdkVersion",
          * "_file_status_check", "_secretId", "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP",
          * "_encyVersion", "_encyAesKey");
          */

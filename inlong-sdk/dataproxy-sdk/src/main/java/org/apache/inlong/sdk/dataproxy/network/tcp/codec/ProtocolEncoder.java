@@ -46,6 +46,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
         int totalLength;
         try {
             if (encObject.getMsgType() == MsgType.MSG_ACK_SERVICE) {
+                // msgType(1) + bodyLength(4) + attrsLength(4)
                 totalLength = 1 + 4 + 4 + encObject.getMsgSize();
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
@@ -59,6 +60,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     buf.writeBytes(encObject.getAttrData());
                 }
             } else if (encObject.getMsgType() == MsgType.MSG_MULTI_BODY) {
+                // msgType(1) + bodyLength(4) + attrsLength(4)
                 totalLength = 1 + 4 + 4 + encObject.getMsgSize();
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
@@ -72,6 +74,9 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     buf.writeBytes(encObject.getAttrData());
                 }
             } else if (encObject.getMsgType() == MsgType.MSG_BIN_MULTI_BODY) {
+                // msgType(1) + groupNum(2) + streamNum(2) + extField(2)
+                // + dataTime(4) + msgCnt(2) + uniqueId(4) + bodyLength(4)
+                // + attrsLength(2) + magic(2)
                 totalLength = 1 + 2 + 2 + 2 + 4 + 2 + 4 + 4 + 2 + 2 + encObject.getMsgSize();
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
@@ -92,6 +97,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 buf.writeShort(0xee01);
             } else if (encObject.getMsgType() == MsgType.MSG_BIN_HEARTBEAT) {
+                // msgType(1) + dataTime(4) + version(1) + bodyLength(4)
+                // + attrsLength(2) + magic(2)
                 totalLength = 1 + 4 + 1 + 4 + 2 + encObject.getAttrDataLength() + 2;
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);

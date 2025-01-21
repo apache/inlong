@@ -60,7 +60,20 @@ public enum ErrorCode {
     PARSE_ENCRYPT_META_EXCEPTION(52, "Parse encrypt content failure"),
     META_REQUIRED_FIELD_NOT_EXIST(53, "Required meta field not exist"),
     META_FIELD_VALUE_ILLEGAL(54, "Meta field value illegal"),
-
+    //
+    FETCH_PROXY_META_FAILURE(59, "Fetch dataproxy meta info failure"),
+    FETCH_ENCRYPT_META_FAILURE(60, "Fetch encrypt meta info failure"),
+    //
+    NO_NODE_META_INFOS(81, "No proxy node metadata info in local"),
+    EMPTY_ACTIVE_NODE_SET(82, "Empty active node set"),
+    EMPTY_WRITABLE_NODE_SET(83, "Empty writable node set"),
+    NO_VALID_REMOTE_NODE(84, "No valid remote node set"),
+    //
+    REPORT_INFO_EXCEED_MAX_LEN(91, "Report info exceed max allowed length"),
+    ENCODE_BODY_EXCEPTION(92, "Encode body exception"),
+    COMPRESS_BODY_EXCEPTION(93, "Compress body exception"),
+    ENCRYPT_BODY_EXCEPTION(94, "Encrypt body exception"),
+    GENERATE_SIGNATURE_EXCEPTION(95, "Generate signature exception"),
     //
     CONNECTION_UNAVAILABLE(111, "Connection unavailable"),
     CONNECTION_BREAK(112, "Connection break"),
