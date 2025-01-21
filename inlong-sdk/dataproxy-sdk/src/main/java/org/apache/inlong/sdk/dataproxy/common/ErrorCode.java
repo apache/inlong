@@ -62,6 +62,25 @@ public enum ErrorCode {
     META_FIELD_VALUE_ILLEGAL(54, "Meta field value illegal"),
 
     //
+    CONNECTION_UNAVAILABLE(111, "Connection unavailable"),
+    CONNECTION_BREAK(112, "Connection break"),
+    CONNECTION_UNWRITABLE(113, "Connection unwritable"),
+    CONNECTION_WRITE_EXCEPTION(114, "Connection write exception"),
+    DUPLICATED_MESSAGE_ID(115, "Duplicated message id"),
+    SEND_WAIT_INTERRUPT(116, "Send wait interrupted"),
+    //
+    SEND_WAIT_TIMEOUT(121, "Send wait timeout"),
+    SEND_ON_EXCEPTION(122, "Send on exception"),
+
+    // dataproxy return failure
+    DP_SINK_SERVICE_UNREADY(151, "DataProxy sink service unready"),
+    DP_INVALID_ATTRS(152, "DataProxy return invalid attributes"),
+    DP_EMPTY_BODY(153, "DataProxy return empty body"),
+    DP_BODY_EXCEED_MAX_LEN(154, "DataProxy return body length over max"),
+    DP_UNCONFIGURED_GROUPID_OR_STREAMID(155, "DataProxy return unconfigured groupId or streamId"),
+    //
+    DP_RECEIVE_FAILURE(160, "DataProxy return message receive failure"),
+
     UNKNOWN_ERROR(9999, "Unknown error");
 
     public static ErrorCode valueOf(int value) {
