@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy;
+package org.apache.inlong.sdk.dataproxy.sender.tcp;
 
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;

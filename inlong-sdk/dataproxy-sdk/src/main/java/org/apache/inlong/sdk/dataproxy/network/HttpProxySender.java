@@ -23,8 +23,8 @@ import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
-import org.apache.inlong.sdk.dataproxy.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 
 import org.slf4j.Logger;

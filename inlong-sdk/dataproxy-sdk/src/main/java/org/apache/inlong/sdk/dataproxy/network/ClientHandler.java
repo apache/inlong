@@ -32,9 +32,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
     private static final LogCounter thrownCnt = new LogCounter(10, 100000, 60 * 1000L);
 
     private final Sender sender;
-    private final ClientMgr clientMgr;
+    private final DefClientMgr clientMgr;
 
-    public ClientHandler(Sender sender, ClientMgr clientMgr) {
+    public ClientHandler(Sender sender, DefClientMgr clientMgr) {
         this.sender = sender;
         this.clientMgr = clientMgr;
     }
