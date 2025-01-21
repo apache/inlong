@@ -67,7 +67,7 @@ public enum ErrorCode {
     CONNECTION_UNWRITABLE(113, "Connection unwritable"),
     CONNECTION_WRITE_EXCEPTION(114, "Connection write exception"),
     DUPLICATED_MESSAGE_ID(115, "Duplicated message id"),
-    SEND_WAIT_INTERRUPT(116, "Send wait timeout"),
+    SEND_WAIT_INTERRUPT(116, "Send wait interrupted"),
     //
     SEND_WAIT_TIMEOUT(121, "Send wait timeout"),
     SEND_ON_EXCEPTION(122, "Send on exception"),
