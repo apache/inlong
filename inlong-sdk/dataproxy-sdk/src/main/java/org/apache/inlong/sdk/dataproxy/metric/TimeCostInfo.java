@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
-public class TimeWastInfo {
+public class TimeCostInfo {
 
     private final String name;
     // bucketT
@@ -33,39 +33,39 @@ public class TimeWastInfo {
     private final AtomicLong minValue = new AtomicLong(Long.MAX_VALUE);
     private final LongAdder totalCnt = new LongAdder();
 
-    public TimeWastInfo(String name) {
+    public TimeCostInfo(String name) {
         this.name = name;
     }
 
-    public void addTimeWastMs(long timeMs) {
-        this.sumTime.add(timeMs);
+    public void addTimeCostInMs(long timeInMs) {
+        this.sumTime.add(timeInMs);
         this.totalCnt.increment();
-        this.updateMin(timeMs);
-        this.updateMax(timeMs);
-        if (timeMs < 2) {
-            addTimeWastBucketT("0t2");
-        } else if (timeMs < 4) {
-            addTimeWastBucketT("2t4");
-        } else if (timeMs < 8) {
-            addTimeWastBucketT("4t8");
-        } else if (timeMs < 16) {
-            addTimeWastBucketT("8t16");
-        } else if (timeMs < 32) {
-            addTimeWastBucketT("16t32");
-        } else if (timeMs < 96) {
-            addTimeWastBucketT("32t96");
-        } else if (timeMs < 128) {
-            addTimeWastBucketT("96t128");
-        } else if (timeMs < 256) {
-            addTimeWastBucketT("128t256");
-        } else if (timeMs < 512) {
-            addTimeWastBucketT("256t512");
-        } else if (timeMs < 1024) {
-            addTimeWastBucketT("512t1024");
-        } else if (timeMs < 20480) {
-            addTimeWastBucketT("1024t20480");
+        this.updateMin(timeInMs);
+        this.updateMax(timeInMs);
+        if (timeInMs < 2) {
+            addTimeCostBucketT("0t2");
+        } else if (timeInMs < 4) {
+            addTimeCostBucketT("2t4");
+        } else if (timeInMs < 8) {
+            addTimeCostBucketT("4t8");
+        } else if (timeInMs < 16) {
+            addTimeCostBucketT("8t16");
+        } else if (timeInMs < 32) {
+            addTimeCostBucketT("16t32");
+        } else if (timeInMs < 96) {
+            addTimeCostBucketT("32t96");
+        } else if (timeInMs < 128) {
+            addTimeCostBucketT("96t128");
+        } else if (timeInMs < 256) {
+            addTimeCostBucketT("128t256");
+        } else if (timeInMs < 512) {
+            addTimeCostBucketT("256t512");
+        } else if (timeInMs < 1024) {
+            addTimeCostBucketT("512t1024");
+        } else if (timeInMs < 20480) {
+            addTimeCostBucketT("1024t20480");
         } else {
-            addTimeWastBucketT("20480t+∞");
+            addTimeCostBucketT("20480t+∞");
         }
     }
 
@@ -122,7 +122,7 @@ public class TimeWastInfo {
         }
     }
 
-    private void addTimeWastBucketT(String key) {
+    private void addTimeCostBucketT(String key) {
         LongAdder longCount = this.sendTimeBucketT.get(key);
         if (longCount == null) {
             LongAdder tmpCount = new LongAdder();

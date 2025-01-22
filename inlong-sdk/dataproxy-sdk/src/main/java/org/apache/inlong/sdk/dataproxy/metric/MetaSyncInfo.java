@@ -25,8 +25,8 @@ public class MetaSyncInfo {
 
     // meta error info
     private final Map<Integer, LongAdder> syncErrInfo = new ConcurrentHashMap<>();
-    // msMs
-    private final TimeWastInfo syncWastMs = new TimeWastInfo("msMs");
+    // msMs: meta sync cost in Ms
+    private final TimeCostInfo syncCostMs = new TimeCostInfo("msMs");
 
     public MetaSyncInfo() {
     }
@@ -41,13 +41,13 @@ public class MetaSyncInfo {
             }
         }
         longCount.increment();
-        syncWastMs.addTimeWastMs(wastMs);
+        syncCostMs.addTimeCostInMs(wastMs);
     }
 
     public void getAndResetValue(StringBuilder strBuff) {
         if (syncErrInfo.isEmpty()) {
             strBuff.append("\"mSync\":{\"errT\":{},");
-            syncWastMs.getAndResetValue(strBuff);
+            syncCostMs.getAndResetValue(strBuff);
             strBuff.append("}");
         } else {
             long curCnt = 0;
@@ -59,14 +59,14 @@ public class MetaSyncInfo {
                 strBuff.append("\"e").append(entry.getKey()).append("\":").append(entry.getValue());
             }
             strBuff.append("},");
-            syncWastMs.getAndResetValue(strBuff);
+            syncCostMs.getAndResetValue(strBuff);
             strBuff.append("}");
             syncErrInfo.clear();
         }
     }
 
     public void clear() {
-        syncWastMs.clear();
+        syncCostMs.clear();
         syncErrInfo.clear();
     }
 }

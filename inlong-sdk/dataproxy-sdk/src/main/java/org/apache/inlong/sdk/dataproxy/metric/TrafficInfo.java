@@ -35,27 +35,27 @@ public class TrafficInfo {
     private final LongAdder failedPgkCount = new LongAdder();
     // fMsg
     private final LongAdder failedMsgCount = new LongAdder();
-    // sucMs
-    private final TimeWastInfo sendWastMs = new TimeWastInfo("sucMs");
-    // cbMs
-    private final TimeWastInfo callbackWastMs = new TimeWastInfo("cbMs");
+    // sucMs: send success time cost in Ms
+    private final TimeCostInfo sendCostMs = new TimeCostInfo("sucMs");
+    // cbMs: call back time cost in Ms
+    private final TimeCostInfo callbackCostMs = new TimeCostInfo("cbMs");
 
     public TrafficInfo(String groupId, String streamId) {
         this.groupId = groupId;
         this.streamId = streamId;
     }
 
-    public void addSucMsgInfo(int msgCnt, long wastMs) {
+    public void addSucMsgInfo(int msgCnt, long costMs) {
         sendPkgCount.add(1);
         sendMsgCount.add(msgCnt);
-        sendWastMs.addTimeWastMs(wastMs);
+        sendCostMs.addTimeCostInMs(costMs);
     }
 
-    public void addSucMsgInfo(int msgCnt, long sdWastMs, long cbWastMs) {
+    public void addSucMsgInfo(int msgCnt, long sdCostMs, long cbCostMs) {
         sendPkgCount.add(1);
         sendMsgCount.add(msgCnt);
-        sendWastMs.addTimeWastMs(sdWastMs);
-        callbackWastMs.addTimeWastMs(cbWastMs);
+        sendCostMs.addTimeCostInMs(sdCostMs);
+        callbackCostMs.addTimeCostInMs(cbCostMs);
     }
 
     public void addFailMsgInfo(int msgCnt) {
@@ -63,10 +63,10 @@ public class TrafficInfo {
         failedMsgCount.add(msgCnt);
     }
 
-    public void addFailMsgInfo(int msgCnt, long cbWastMs) {
+    public void addFailMsgInfo(int msgCnt, long cbCostMs) {
         failedPgkCount.add(1);
         failedMsgCount.add(msgCnt);
-        callbackWastMs.addTimeWastMs(cbWastMs);
+        callbackCostMs.addTimeCostInMs(cbCostMs);
     }
 
     public void getAndResetValue(StringBuilder strBuff) {
@@ -79,9 +79,9 @@ public class TrafficInfo {
                 .append(",\"fMsg\":").append(failedPgkCount.sumThenReset())
                 .append(",\"fMsg\":").append(failedMsgCount.sumThenReset())
                 .append(",");
-        this.sendWastMs.getAndResetValue(strBuff);
+        this.sendCostMs.getAndResetValue(strBuff);
         strBuff.append(",");
-        this.callbackWastMs.getAndResetValue(strBuff);
+        this.callbackCostMs.getAndResetValue(strBuff);
         strBuff.append("}");
     }
 
@@ -90,7 +90,7 @@ public class TrafficInfo {
         this.sendMsgCount.reset();
         this.failedPgkCount.reset();
         this.failedMsgCount.reset();
-        this.sendWastMs.clear();
-        this.callbackWastMs.clear();
+        this.sendCostMs.clear();
+        this.callbackCostMs.clear();
     }
 }

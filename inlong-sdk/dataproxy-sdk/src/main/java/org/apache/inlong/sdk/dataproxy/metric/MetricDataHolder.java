@@ -76,7 +76,7 @@ public class MetricDataHolder implements Runnable {
         outputMetricData(startTime, getAndIncIndex());
         long dltTime = System.currentTimeMillis() - startTime;
         if (dltTime > this.metricConfig.getMetricOutWarnIntMs()) {
-            logger.warn("Metric DataHolder({}) snapshot finished, wast={}ms!",
+            logger.warn("Metric DataHolder({}) snapshot finished, cost = {} ms!",
                     this.sender.getSenderId(), dltTime);
         }
         this.lstReportTime = startTime;
@@ -90,24 +90,24 @@ public class MetricDataHolder implements Runnable {
         outputMetricData(startTime, getOldIndex());
         outputMetricData(startTime, getCurIndex());
         this.started = false;
-        logger.info("Metric DataHolder({}) closed, wast{}ms!",
+        logger.info("Metric DataHolder({}) closed, cost = {} ms!",
                 this.sender.getSenderId(), System.currentTimeMillis() - startTime);
     }
 
-    public void addMetaSyncMetric(int errCode, long syncWastMs) {
+    public void addMetaSyncMetric(int errCode, long syncCostMs) {
         if (!this.started || !this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
         selectedUnit.refCnt.incrementAndGet();
         try {
-            selectedUnit.metaSyncInfo.addSucMsgInfo(errCode, syncWastMs);
+            selectedUnit.metaSyncInfo.addSucMsgInfo(errCode, syncCostMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
     }
 
-    public void addSucMetric(String groupId, String streamId, int msgCnt, long wastMs) {
+    public void addSucMetric(String groupId, String streamId, int msgCnt, long costMs) {
         if (!this.started || !this.metricConfig.isEnableMetric()) {
             return;
         }
@@ -115,7 +115,7 @@ public class MetricDataHolder implements Runnable {
         selectedUnit.refCnt.incrementAndGet();
         try {
             selectedUnit.addSucMsgInfo(groupId,
-                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, wastMs);
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, costMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
@@ -135,7 +135,7 @@ public class MetricDataHolder implements Runnable {
         }
     }
 
-    public void addCallbackSucMetric(String groupId, String streamId, int msgCnt, long wastMs, long callDurMs) {
+    public void addCallbackSucMetric(String groupId, String streamId, int msgCnt, long costMs, long callDurMs) {
         if (!this.started || !this.metricConfig.isEnableMetric()) {
             return;
         }
@@ -143,13 +143,13 @@ public class MetricDataHolder implements Runnable {
         selectedUnit.refCnt.incrementAndGet();
         try {
             selectedUnit.addSucMsgInfo(groupId,
-                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, wastMs, callDurMs);
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, costMs, callDurMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
     }
 
-    public void addCallbackFailMetric(int errCode, String groupId, String streamId, int msgCnt, long wastMs) {
+    public void addCallbackFailMetric(int errCode, String groupId, String streamId, int msgCnt, long costMs) {
         if (!this.started || !this.metricConfig.isEnableMetric()) {
             return;
         }
@@ -157,7 +157,7 @@ public class MetricDataHolder implements Runnable {
         selectedUnit.refCnt.incrementAndGet();
         try {
             selectedUnit.addFailMsgInfo(groupId,
-                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode, wastMs);
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode, costMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
@@ -209,7 +209,7 @@ public class MetricDataHolder implements Runnable {
         protected final ConcurrentHashMap<String, TrafficInfo> trafficMap = new ConcurrentHashMap<>();
         protected final ConcurrentHashMap<Integer, LongAdder> errCodeMap = new ConcurrentHashMap<>();
 
-        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long wastMs) {
+        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long costMs) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -219,10 +219,10 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addSucMsgInfo(msgCnt, wastMs);
+            trafficInfo.addSucMsgInfo(msgCnt, costMs);
         }
 
-        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long sdWastMs, long cbWastMs) {
+        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long sdCostMs, long cbCostMs) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -232,7 +232,7 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addSucMsgInfo(msgCnt, sdWastMs, cbWastMs);
+            trafficInfo.addSucMsgInfo(msgCnt, sdCostMs, cbCostMs);
         }
 
         public void addFailMsgInfo(String groupId, String streamId, int msgCnt, int errCode) {
@@ -250,7 +250,7 @@ public class MetricDataHolder implements Runnable {
         }
 
         public void addFailMsgInfo(String groupId, String streamId,
-                int msgCnt, int errCode, long cbWastMs) {
+                int msgCnt, int errCode, long cbCostMs) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -260,7 +260,7 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addFailMsgInfo(msgCnt, cbWastMs);
+            trafficInfo.addFailMsgInfo(msgCnt, cbCostMs);
             addSendErrCodeInfo(errCode);
         }
 
