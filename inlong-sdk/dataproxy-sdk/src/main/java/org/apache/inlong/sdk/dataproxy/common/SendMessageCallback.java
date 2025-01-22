@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sdk.dataproxy.common;
 
+@Deprecated
+/**
+ * Replace by MsgSendCallback
+ *
+ */
 public interface SendMessageCallback {
 
     /* Invoked when a message is confirmed by TDBus. */

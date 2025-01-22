@@ -19,7 +19,9 @@ package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import org.apache.commons.lang3.StringUtils;
@@ -122,6 +124,20 @@ public class ProxyUtils {
         } catch (Throwable ex) {
             return false;
         }
+    }
+
+    public static void validProxyConfigNotNull(ProxyClientConfig configure) throws ProxySdkException {
+        if (configure == null) {
+            throw new ProxySdkException("configure is null!");
+        }
+    }
+
+    public static String buildClusterIdKey(String protocol, String regionName, Integer clusterId) {
+        return clusterId + ":" + regionName + ":" + protocol;
+    }
+
+    public static String buildGroupIdConfigKey(String protocol, String regionName, String groupId) {
+        return protocol + ":" + regionName + ":" + groupId;
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {

@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sdk.dataproxy.sender;
 
+import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
 import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.config.ConfigHolder;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
+import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -58,6 +60,8 @@ public abstract class BaseSender implements ConfigHolder {
     private static final AtomicLong senderIdGen = new AtomicLong(0L);
     //
     protected final AtomicInteger senderStatus = new AtomicInteger(SENDER_STATUS_UNINITIALIZED);
+    protected final MsgSenderFactory senderFactory;
+    private final String factoryClusterIdKey;
     protected final String senderId;
     protected final ProxyClientConfig baseConfig;
     protected ClientMgr clientMgr;
@@ -71,15 +75,20 @@ public abstract class BaseSender implements ConfigHolder {
     protected volatile int groupIdNum = 0;
     private Map<String, Integer> streamIdMap = new HashMap<>();
 
-    protected BaseSender(ProxyClientConfig configure) {
+    protected BaseSender(ProxyClientConfig configure, MsgSenderFactory senderFactory, String clusterIdKey) {
+        if (configure == null) {
+            throw new NullPointerException("configure is null");
+        }
         this.baseConfig = configure.clone();
+        this.senderFactory = senderFactory;
+        this.factoryClusterIdKey = clusterIdKey;
         this.senderId = configure.getDataRptProtocol() + "-" + senderIdGen.incrementAndGet();
     }
 
     public boolean start(ProcessResult procResult) {
         if (!this.senderStatus.compareAndSet(
                 SENDER_STATUS_UNINITIALIZED, SENDER_STATUS_INITIALIZING)) {
-            return procResult.setFailResult(ErrorCode.OK);
+            return procResult.setSuccess();
         }
         // start client manager
         if (!this.clientMgr.start(procResult)) {
@@ -103,7 +112,7 @@ public abstract class BaseSender implements ConfigHolder {
         this.configManager.start();
         this.senderStatus.set(SENDER_STATUS_STARTED);
         logger.info("Sender({}) instance started!", senderId);
-        return procResult.setFailResult(ErrorCode.OK);
+        return procResult.setSuccess();
     }
 
     public void close() {
@@ -116,6 +125,9 @@ public abstract class BaseSender implements ConfigHolder {
         }
         configManager.shutDown();
         clientMgr.stop();
+        if (this.senderFactory != null) {
+            this.senderFactory.removeClient(this);
+        }
         logger.info("Sender({}) instance stopped!", senderId);
     }
 
@@ -165,8 +177,20 @@ public abstract class BaseSender implements ConfigHolder {
         return senderStatus.get() == SENDER_STATUS_STARTED;
     }
 
+    public MsgSenderFactory getSenderFactory() {
+        return senderFactory;
+    }
+
+    public String getFactoryClusterIdKey() {
+        return factoryClusterIdKey;
+    }
+
     public String getMetaConfigKey() {
         return this.baseConfig.getGroupMetaConfigKey();
+    }
+
+    public ProxyConfigEntry getProxyConfigEntry() {
+        return configManager.getProxyConfigEntry();
     }
 
     public String getSenderId() {

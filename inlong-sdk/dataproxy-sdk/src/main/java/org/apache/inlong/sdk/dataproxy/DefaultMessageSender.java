@@ -44,6 +44,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+@Deprecated
+/**
+ * Replace by InLongTcpMsgSender
+ */
 public class DefaultMessageSender implements MessageSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMessageSender.class);

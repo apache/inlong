@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.dataproxy.common;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.metric.MetricConfig;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -112,7 +113,8 @@ public class ProxyClientConfig implements Cloneable {
         this.inlongGroupId = groupId.trim();
         this.dataRptProtocol = rptProtocol.name();
         this.setRegionName(regionName);
-        this.groupMetaConfigKey = this.buildMgrConfigKey();
+        this.groupMetaConfigKey = ProxyUtils.buildGroupIdConfigKey(
+                this.dataRptProtocol, this.regionName, this.inlongGroupId);
     }
 
     protected ProxyClientConfig(String managerAddress,
@@ -124,7 +126,8 @@ public class ProxyClientConfig implements Cloneable {
         this.inlongGroupId = groupId.trim();
         this.dataRptProtocol = rptProtocol.name();
         this.setRegionName(regionName);
-        this.groupMetaConfigKey = this.buildMgrConfigKey();
+        this.groupMetaConfigKey = ProxyUtils.buildGroupIdConfigKey(
+                this.dataRptProtocol, this.regionName, this.inlongGroupId);
     }
 
     public void setMgrAuthzInfo(boolean needMgrAuthz,
@@ -226,7 +229,8 @@ public class ProxyClientConfig implements Cloneable {
     public void setRegionName(String regionName) {
         if (StringUtils.isNotBlank(regionName)) {
             this.regionName = regionName.trim().toLowerCase();
-            this.groupMetaConfigKey = this.buildMgrConfigKey();
+            this.groupMetaConfigKey = ProxyUtils.buildGroupIdConfigKey(
+                    this.dataRptProtocol, this.regionName, this.inlongGroupId);
         }
     }
 
@@ -519,9 +523,5 @@ public class ProxyClientConfig implements Cloneable {
             throw new ProxySdkException("managerAddress's port must be > 0!");
         }
         this.managerPort = tmValue;
-    }
-
-    private String buildMgrConfigKey() {
-        return this.inlongGroupId + ":" + this.regionName + ":" + this.dataRptProtocol;
     }
 }
