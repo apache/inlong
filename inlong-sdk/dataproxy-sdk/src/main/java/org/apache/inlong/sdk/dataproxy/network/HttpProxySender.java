@@ -37,8 +37,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 /**
  * http sender
+ * Replace by InLongHttpMsgSender
  */
 public class HttpProxySender extends Thread {
 

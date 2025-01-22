@@ -93,6 +93,16 @@ public enum ErrorCode {
     DP_UNCONFIGURED_GROUPID_OR_STREAMID(155, "DataProxy return unconfigured groupId or streamId"),
     //
     DP_RECEIVE_FAILURE(160, "DataProxy return message receive failure"),
+    //
+    HTTP_ASYNC_POOL_FULL(171, "Http async pool full"),
+    HTTP_ASYNC_OFFER_FAIL(172, "Http async offer event fail"),
+    HTTP_ASYNC_OFFER_EXCEPTION(173, "Http async offer event exception"),
+    HTTP_BUILD_CLIENT_EXCEPTION(174, "Http build client exception"),
+    //
+    BUILD_FORM_CONTENT_EXCEPTION(181, "Build form content exception"),
+    DP_RETURN_FAILURE(182, "DataProxy return failure"),
+    HTTP_VISIT_DP_EXCEPTION(183, "Http visit exception"),
+    DP_RETURN_UNKNOWN_ERROR(184, "DataProxy return unknown error"),
 
     UNKNOWN_ERROR(9999, "Unknown error");
 

@@ -21,6 +21,8 @@ public class SdkConsts {
 
     public static String PREFIX_HTTP = "http://";
     public static String PREFIX_HTTPS = "https://";
+    public static final String KEY_HTTP_FIELD_BODY = "body";
+    public static final String KEY_HTTP_FIELD_DELIMITER = "rcdDlmtr";
 
     // dataproxy node config
     public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
@@ -32,6 +34,8 @@ public class SdkConsts {
     public static final String BASIC_AUTH_HEADER = "authorization";
     // default region name
     public static final String VAL_DEF_REGION_NAME = "";
+    // http report method
+    public static final String DATAPROXY_REPORT_METHOD = "/dataproxy/message";
     // config info sync interval in minutes
     public static final int VAL_DEF_CONFIG_SYNC_INTERVAL_MIN = 3;
     public static final int VAL_MIN_CONFIG_SYNC_INTERVAL_MIN = 1;

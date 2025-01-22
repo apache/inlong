@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.common;
+package org.apache.inlong.sdk.dataproxy.network.http;
 
 /**
  * HTTP Report Content Type enum

@@ -19,9 +19,10 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
-import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -79,7 +80,6 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
         if (!this.initialized.get()) {
             throw new ProxySdkException("Please initialize the factory first!");
         }
-        ProxyUtils.validProxyConfigNotNull(configure);
         return this.baseMsgSenderFactory.genTcpSenderByGroupId(configure, selfDefineFactory);
     }
 
@@ -95,7 +95,22 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
         if (!this.initialized.get()) {
             throw new ProxySdkException("Please initialize the factory first!");
         }
-        ProxyUtils.validProxyConfigNotNull(configure);
         return this.baseMsgSenderFactory.genTcpSenderByClusterId(configure, selfDefineFactory);
+    }
+
+    @Override
+    public InLongHttpMsgSender genHttpSenderByGroupId(HttpMsgSenderConfig configure) throws ProxySdkException {
+        if (!this.initialized.get()) {
+            throw new ProxySdkException("Please initialize the factory first!");
+        }
+        return this.baseMsgSenderFactory.genHttpSenderByGroupId(configure);
+    }
+
+    @Override
+    public InLongHttpMsgSender genHttpSenderByClusterId(HttpMsgSenderConfig configure) throws ProxySdkException {
+        if (!this.initialized.get()) {
+            throw new ProxySdkException("Please initialize the factory first!");
+        }
+        return this.baseMsgSenderFactory.genHttpSenderByClusterId(configure);
     }
 }
