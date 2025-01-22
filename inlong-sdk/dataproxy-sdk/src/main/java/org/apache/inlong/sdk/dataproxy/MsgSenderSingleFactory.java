@@ -19,6 +19,8 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
@@ -86,7 +88,6 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
         if (!initialized.get()) {
             throw new ProxySdkException("Please initialize the factory first!");
         }
-        ProxyUtils.validProxyConfigNotNull(configure);
         return baseMsgSenderFactory.genTcpSenderByGroupId(configure, selfDefineFactory);
     }
 
@@ -102,7 +103,22 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
         if (!initialized.get()) {
             throw new ProxySdkException("Please initialize the factory first!");
         }
-        ProxyUtils.validProxyConfigNotNull(configure);
         return baseMsgSenderFactory.genTcpSenderByClusterId(configure, selfDefineFactory);
+    }
+
+    @Override
+    public InLongHttpMsgSender genHttpSenderByGroupId(HttpMsgSenderConfig configure) throws ProxySdkException {
+        if (!initialized.get()) {
+            throw new ProxySdkException("Please initialize the factory first!");
+        }
+        return baseMsgSenderFactory.genHttpSenderByGroupId(configure);
+    }
+
+    @Override
+    public InLongHttpMsgSender genHttpSenderByClusterId(HttpMsgSenderConfig configure) throws ProxySdkException {
+        if (!initialized.get()) {
+            throw new ProxySdkException("Please initialize the factory first!");
+        }
+        return baseMsgSenderFactory.genHttpSenderByClusterId(configure);
     }
 }

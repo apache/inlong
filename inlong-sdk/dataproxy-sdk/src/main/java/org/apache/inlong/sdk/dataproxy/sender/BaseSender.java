@@ -83,6 +83,8 @@ public abstract class BaseSender implements ConfigHolder {
         this.senderFactory = senderFactory;
         this.factoryClusterIdKey = clusterIdKey;
         this.senderId = configure.getDataRptProtocol() + "-" + senderIdGen.incrementAndGet();
+        this.configManager = new ProxyConfigManager(this.senderId, this.baseConfig, this);
+        this.configManager.setDaemon(true);
     }
 
     public boolean start(ProcessResult procResult) {

@@ -23,6 +23,8 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -69,9 +71,9 @@ public class BaseMsgSenderFactory {
         senderCacheLock.writeLock().lock();
         try {
             // release groupId mapped senders
-            totalSenderCnt = innReleaseAllGroupIdSenders(groupIdSenderMap);
+            totalSenderCnt = releaseAllGroupIdSenders(groupIdSenderMap);
             // release clusterId mapped senders
-            totalSenderCnt += innReleaseAllClusterIdSenders(clusterIdSenderMap);
+            totalSenderCnt += releaseAllClusterIdSenders(clusterIdSenderMap);
         } finally {
             senderCacheLock.writeLock().unlock();
         }
@@ -90,9 +92,9 @@ public class BaseMsgSenderFactory {
         senderCacheLock.writeLock().lock();
         try {
             if (msgSender.getFactoryClusterIdKey() == null) {
-                removed = innRemoveGroupIdSender(msgSender, groupIdSenderMap);
+                removed = removeGroupIdSender(msgSender, groupIdSenderMap);
             } else {
-                removed = innRemoveClusterIdSender(msgSender, clusterIdSenderMap);
+                removed = removeClusterIdSender(msgSender, clusterIdSenderMap);
             }
         } finally {
             senderCacheLock.writeLock().unlock();
@@ -108,7 +110,7 @@ public class BaseMsgSenderFactory {
 
     public InLongTcpMsgSender genTcpSenderByGroupId(
             TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) throws ProxySdkException {
-        ProxyUtils.validProxyConfigNotNull(configure);
+        validProxyConfigNotNull(configure);
         // query cached sender
         String metaConfigKey = configure.getGroupMetaConfigKey();
         InLongTcpMsgSender messageSender =
@@ -148,9 +150,51 @@ public class BaseMsgSenderFactory {
         }
     }
 
+    public InLongHttpMsgSender genHttpSenderByGroupId(
+            HttpMsgSenderConfig configure) throws ProxySdkException {
+        validProxyConfigNotNull(configure);
+        // query cached sender
+        String metaConfigKey = configure.getGroupMetaConfigKey();
+        InLongHttpMsgSender messageSender =
+                (InLongHttpMsgSender) groupIdSenderMap.get(metaConfigKey);
+        if (messageSender != null) {
+            return messageSender;
+        }
+        // valid configure info
+        ProcessResult procResult = new ProcessResult();
+        qryProxyMetaConfigure(configure, procResult);
+        // generate sender
+        senderCacheLock.writeLock().lock();
+        try {
+            // re-get the created sender based on the groupId key after locked
+            messageSender = (InLongHttpMsgSender) groupIdSenderMap.get(metaConfigKey);
+            if (messageSender != null) {
+                return messageSender;
+            }
+            // build a new sender based on groupId
+            messageSender = new InLongHttpMsgSender(configure, msgSenderFactory, null);
+            if (!messageSender.start(procResult)) {
+                messageSender.close();
+                throw new ProxySdkException("Failed to start groupId sender: " + procResult);
+            }
+            groupIdSenderMap.put(metaConfigKey, messageSender);
+            logger.info("MsgSenderFactory({}) generated a new groupId({}) sender({})",
+                    this.factoryNo, metaConfigKey, messageSender.getSenderId());
+            return messageSender;
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("MsgSenderFactory({}) build groupId sender({}) exception",
+                        this.factoryNo, metaConfigKey, ex);
+            }
+            throw new ProxySdkException("Failed to build groupId sender: " + ex.getMessage());
+        } finally {
+            senderCacheLock.writeLock().unlock();
+        }
+    }
+
     public InLongTcpMsgSender genTcpSenderByClusterId(
             TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) throws ProxySdkException {
-        ProxyUtils.validProxyConfigNotNull(configure);
+        validProxyConfigNotNull(configure);
         // get groupId's clusterIdKey
         ProcessResult procResult = new ProcessResult();
         ProxyConfigEntry proxyConfigEntry = qryProxyMetaConfigure(configure, procResult);;
@@ -191,6 +235,48 @@ public class BaseMsgSenderFactory {
         }
     }
 
+    public InLongHttpMsgSender genHttpSenderByClusterId(
+            HttpMsgSenderConfig configure) throws ProxySdkException {
+        validProxyConfigNotNull(configure);
+        // get groupId's clusterIdKey
+        ProcessResult procResult = new ProcessResult();
+        ProxyConfigEntry proxyConfigEntry = qryProxyMetaConfigure(configure, procResult);;
+        String clusterIdKey = ProxyUtils.buildClusterIdKey(
+                configure.getDataRptProtocol(), configure.getRegionName(), proxyConfigEntry.getClusterId());
+        // get local built sender
+        InLongHttpMsgSender messageSender = (InLongHttpMsgSender) clusterIdSenderMap.get(clusterIdKey);
+        if (messageSender != null) {
+            return messageSender;
+        }
+        // generate sender
+        senderCacheLock.writeLock().lock();
+        try {
+            // re-get the created sender based on the clusterId Key after locked
+            messageSender = (InLongHttpMsgSender) clusterIdSenderMap.get(clusterIdKey);
+            if (messageSender != null) {
+                return messageSender;
+            }
+            // build a new sender based on clusterId Key
+            messageSender = new InLongHttpMsgSender(configure, msgSenderFactory, clusterIdKey);
+            if (!messageSender.start(procResult)) {
+                messageSender.close();
+                throw new ProxySdkException("Failed to start cluster sender: " + procResult);
+            }
+            clusterIdSenderMap.put(clusterIdKey, messageSender);
+            logger.info("MsgSenderFactory({}) generated a new clusterId({}) sender({})",
+                    this.factoryNo, clusterIdKey, messageSender.getSenderId());
+            return messageSender;
+        } catch (Throwable ex) {
+            if (exptCounter.shouldPrint()) {
+                logger.warn("MsgSenderFactory({}) build cluster sender({}) exception",
+                        this.factoryNo, clusterIdKey, ex);
+            }
+            throw new ProxySdkException("Failed to build cluster sender: " + ex.getMessage());
+        } finally {
+            senderCacheLock.writeLock().unlock();
+        }
+    }
+
     private ProxyConfigEntry qryProxyMetaConfigure(
             ProxyClientConfig proxyConfig, ProcessResult procResult) throws ProxySdkException {
         ProxyConfigManager inlongMetaQryMgr = new ProxyConfigManager(proxyConfig);
@@ -205,7 +291,7 @@ public class BaseMsgSenderFactory {
         return inlongMetaQryMgr.getProxyConfigEntry();
     }
 
-    private boolean innRemoveGroupIdSender(BaseSender msgSender, Map<String, BaseSender> senderMap) {
+    private boolean removeGroupIdSender(BaseSender msgSender, Map<String, BaseSender> senderMap) {
         BaseSender tmpSender = senderMap.get(msgSender.getMetaConfigKey());
         if (tmpSender == null
                 || !tmpSender.getSenderId().equals(msgSender.getSenderId())) {
@@ -214,7 +300,7 @@ public class BaseMsgSenderFactory {
         return senderMap.remove(msgSender.getMetaConfigKey()) != null;
     }
 
-    private boolean innRemoveClusterIdSender(BaseSender msgSender, Map<String, BaseSender> senderMap) {
+    private boolean removeClusterIdSender(BaseSender msgSender, Map<String, BaseSender> senderMap) {
         BaseSender tmpSender = senderMap.get(msgSender.getFactoryClusterIdKey());
         if (tmpSender == null
                 || !tmpSender.getSenderId().equals(msgSender.getSenderId())) {
@@ -223,7 +309,7 @@ public class BaseMsgSenderFactory {
         return senderMap.remove(msgSender.getFactoryClusterIdKey()) != null;
     }
 
-    private int innReleaseAllGroupIdSenders(Map<String, BaseSender> senderMap) {
+    private int releaseAllGroupIdSenders(Map<String, BaseSender> senderMap) {
         int totalSenderCnt = 0;
         for (Map.Entry<String, BaseSender> entry : senderMap.entrySet()) {
             if (entry == null || entry.getValue() == null) {
@@ -243,7 +329,7 @@ public class BaseMsgSenderFactory {
         return totalSenderCnt;
     }
 
-    private int innReleaseAllClusterIdSenders(Map<String, BaseSender> senderMap) {
+    private int releaseAllClusterIdSenders(Map<String, BaseSender> senderMap) {
         int totalSenderCnt = 0;
         for (Map.Entry<String, BaseSender> entry : senderMap.entrySet()) {
             if (entry == null
@@ -263,5 +349,11 @@ public class BaseMsgSenderFactory {
         }
         senderMap.clear();
         return totalSenderCnt;
+    }
+
+    private void validProxyConfigNotNull(ProxyClientConfig configure) throws ProxySdkException {
+        if (configure == null) {
+            throw new ProxySdkException("configure is null!");
+        }
     }
 }

@@ -18,11 +18,11 @@
 package org.apache.inlong.sdk.dataproxy.sender.http;
 
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.sdk.dataproxy.common.HttpContentType;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.ReportProtocol;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.network.http.HttpContentType;
 
 import org.apache.commons.lang3.StringUtils;
 

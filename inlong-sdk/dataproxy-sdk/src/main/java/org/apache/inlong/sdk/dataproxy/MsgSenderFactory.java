@@ -19,6 +19,8 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
@@ -88,4 +90,22 @@ public interface MsgSenderFactory {
      */
     InLongTcpMsgSender genTcpSenderByClusterId(
             TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) throws ProxySdkException;
+
+    /**
+     * Get or generate a http sender from the factory according to groupId
+     *
+     * @param configure  the sender configure
+     * @return the sender
+     */
+    InLongHttpMsgSender genHttpSenderByGroupId(
+            HttpMsgSenderConfig configure) throws ProxySdkException;
+
+    /**
+     * Get or generate a http sender from the factory according to clusterId
+     *
+     * @param configure  the sender configure
+     * @return the sender
+     */
+    InLongHttpMsgSender genHttpSenderByClusterId(
+            HttpMsgSenderConfig configure) throws ProxySdkException;
 }
