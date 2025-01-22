@@ -144,7 +144,7 @@ func NewConnPool(initEndpoints []string, connsPerEndpoint, size int,
 	}
 
 	// starts a backbround task, do rebalancing and recovering periodically
-	go pool.recoverAndRebalance()
+	go pool.innerWork()
 
 	return pool, nil
 }
@@ -527,8 +527,8 @@ func (p *connPool) markUnavailable(ep string) {
 	p.retryCounts.Store(ep, 0)
 }
 
-// recoverAndRebalance recovers the down endpoint and rebalaces the conns periodically
-func (p *connPool) recoverAndRebalance() {
+// innerWork recovers the down endpoint, rebalaces the conns and cleans the expired conns periodically
+func (p *connPool) innerWork() {
 	// server failure is a low-probability event, so there's basically no endpoint need to recover, a higher frequency is also acceptable
 	recoverTicker := time.NewTicker(10 * time.Second)
 	defer recoverTicker.Stop()
@@ -540,15 +540,12 @@ func (p *connPool) recoverAndRebalance() {
 	defer reBalanceTicker.Stop()
 
 	// clean expired conn every minute
-	var cleanExpiredConnTicker *time.Ticker
+	var cleanExpiredConnChan <-chan time.Time
 	if p.maxConnLifetime > 0 {
-		cleanExpiredConnTicker = time.NewTicker(1 * time.Minute)
+		cleanExpiredConnTicker := time.NewTicker(1 * time.Minute)
+		defer cleanExpiredConnTicker.Stop()
+		cleanExpiredConnChan = cleanExpiredConnTicker.C
 	}
-	defer func() {
-		if cleanExpiredConnTicker != nil {
-			cleanExpiredConnTicker.Stop()
-		}
-	}()
 
 	for {
 		select {
@@ -564,17 +561,8 @@ func (p *connPool) recoverAndRebalance() {
 			p.rebalance()
 		case <-p.closeCh:
 			return
-		default:
-			if cleanExpiredConnTicker != nil {
-				select {
-				case <-cleanExpiredConnTicker.C:
-					p.cleanExpiredConns()
-				default:
-					time.Sleep(time.Second)
-				}
-			} else {
-				time.Sleep(time.Second)
-			}
+		case <-cleanExpiredConnChan:
+			p.cleanExpiredConns()
 		}
 	}
 }
