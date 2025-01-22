@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.dataproxy.sender.tcp;
 
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
 import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
@@ -56,11 +57,52 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
     private final TcpMsgSenderConfig tcpConfig;
     private final TcpClientMgr tcpClientMgr;
 
-    protected InLongTcpMsgSender(TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) {
-        super(configure);
+    public InLongTcpMsgSender(TcpMsgSenderConfig configure) {
+        this(configure, null, null, null);
+    }
+
+    public InLongTcpMsgSender(TcpMsgSenderConfig configure, ThreadFactory selfDefineFactory) {
+        this(configure, selfDefineFactory, null, null);
+    }
+
+    public InLongTcpMsgSender(TcpMsgSenderConfig configure,
+            ThreadFactory selfDefineFactory, MsgSenderFactory senderFactory, String clusterIdKey) {
+        super(configure, senderFactory, clusterIdKey);
         this.tcpConfig = (TcpMsgSenderConfig) baseConfig;
         this.clientMgr = new TcpClientMgr(this.getSenderId(), this.tcpConfig, selfDefineFactory);
         this.tcpClientMgr = (TcpClientMgr) clientMgr;
+    }
+
+    @Override
+    public boolean sendMessage(TcpEventInfo eventInfo, ProcessResult procResult) {
+        if (eventInfo == null) {
+            throw new NullPointerException("eventInfo is null");
+        }
+        if (procResult == null) {
+            throw new NullPointerException("procResult is null");
+        }
+        if (!this.isStarted()) {
+            return procResult.setFailResult(ErrorCode.SDK_CLOSED);
+        }
+        return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
+    }
+
+    @Override
+    public boolean asyncSendMessage(
+            TcpEventInfo eventInfo, MsgSendCallback callback, ProcessResult procResult) {
+        if (eventInfo == null) {
+            throw new NullPointerException("eventInfo is null");
+        }
+        if (callback == null) {
+            throw new NullPointerException("callback is null");
+        }
+        if (procResult == null) {
+            throw new NullPointerException("procResult is null");
+        }
+        if (!this.isStarted()) {
+            return procResult.setFailResult(ErrorCode.SDK_CLOSED);
+        }
+        return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
     }
 
     @Override
@@ -78,8 +120,7 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
     }
 
     @Override
-    public boolean syncSendMessage(boolean sendInB2B,
-            TcpEventInfo eventInfo, ProcessResult procResult) {
+    public boolean sendMsgWithSinkAck(TcpEventInfo eventInfo, ProcessResult procResult) {
         if (eventInfo == null) {
             throw new NullPointerException("eventInfo is null");
         }
@@ -89,15 +130,11 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        if (sendInB2B) {
-            return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
-        } else {
-            return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
-        }
+        return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
     }
 
     @Override
-    public boolean asyncSendMessage(boolean sendInB2B,
+    public boolean asyncSendMsgWithSinkAck(
             TcpEventInfo eventInfo, MsgSendCallback callback, ProcessResult procResult) {
         if (eventInfo == null) {
             throw new NullPointerException("eventInfo is null");
@@ -111,11 +148,7 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        if (sendInB2B) {
-            return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
-        } else {
-            return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
-        }
+        return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public interface MessageSender {
 
     void close();
