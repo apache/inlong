@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.metric.MetricDataHolder;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
@@ -392,6 +393,11 @@ public class DefClientMgr implements ConfigHolder {
         } finally {
             writeUnlock();
         }
+    }
+
+    @Override
+    public MetricDataHolder getMetricHolder() {
+        return null;
     }
 
     public String getGroupId() {

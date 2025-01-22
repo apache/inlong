@@ -69,86 +69,110 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
             ThreadFactory selfDefineFactory, MsgSenderFactory senderFactory, String clusterIdKey) {
         super(configure, senderFactory, clusterIdKey);
         this.tcpConfig = (TcpMsgSenderConfig) baseConfig;
-        this.clientMgr = new TcpClientMgr(this.getSenderId(), this.tcpConfig, selfDefineFactory);
+        this.clientMgr = new TcpClientMgr(this, this.tcpConfig, selfDefineFactory);
         this.tcpClientMgr = (TcpClientMgr) clientMgr;
     }
 
     @Override
     public boolean sendMessage(TcpEventInfo eventInfo, ProcessResult procResult) {
-        if (eventInfo == null) {
-            throw new NullPointerException("eventInfo is null");
-        }
-        if (procResult == null) {
-            throw new NullPointerException("procResult is null");
-        }
+        validParamsNotNull(eventInfo, procResult);
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
+        long curTime = System.currentTimeMillis();
+        try {
+            return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
+        }
     }
 
     @Override
     public boolean asyncSendMessage(
             TcpEventInfo eventInfo, MsgSendCallback callback, ProcessResult procResult) {
-        if (eventInfo == null) {
-            throw new NullPointerException("eventInfo is null");
-        }
-        if (callback == null) {
-            throw new NullPointerException("callback is null");
-        }
-        if (procResult == null) {
-            throw new NullPointerException("procResult is null");
-        }
+        validParamsNotNull(eventInfo, callback, procResult);
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
+        long curTime = System.currentTimeMillis();
+        try {
+            return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
+        }
     }
 
     @Override
     public boolean sendMessageWithoutAck(TcpEventInfo eventInfo, ProcessResult procResult) {
-        if (eventInfo == null) {
-            throw new NullPointerException("eventInfo is null");
-        }
-        if (procResult == null) {
-            throw new NullPointerException("procResult is null");
-        }
+        validParamsNotNull(eventInfo, procResult);
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        return processEvent(SendQos.NO_ACK, eventInfo, null, procResult);
+        long curTime = System.currentTimeMillis();
+        try {
+            return processEvent(SendQos.NO_ACK, eventInfo, null, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
+        }
     }
 
     @Override
     public boolean sendMsgWithSinkAck(TcpEventInfo eventInfo, ProcessResult procResult) {
-        if (eventInfo == null) {
-            throw new NullPointerException("eventInfo is null");
-        }
-        if (procResult == null) {
-            throw new NullPointerException("procResult is null");
-        }
+        validParamsNotNull(eventInfo, procResult);
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
+        long curTime = System.currentTimeMillis();
+        try {
+            return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
+        }
     }
 
     @Override
     public boolean asyncSendMsgWithSinkAck(
             TcpEventInfo eventInfo, MsgSendCallback callback, ProcessResult procResult) {
-        if (eventInfo == null) {
-            throw new NullPointerException("eventInfo is null");
-        }
-        if (callback == null) {
-            throw new NullPointerException("callback is null");
-        }
-        if (procResult == null) {
-            throw new NullPointerException("procResult is null");
-        }
+        validParamsNotNull(eventInfo, callback, procResult);
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
+        long curTime = System.currentTimeMillis();
+        try {
+            return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
+        }
     }
 
     @Override
@@ -383,6 +407,27 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
                 logger.warn("Sender({}) aesEncrypt body exception", senderId, ex);
             }
             return null;
+        }
+    }
+
+    private void validParamsNotNull(TcpEventInfo eventInfo, ProcessResult procResult) {
+        if (eventInfo == null) {
+            throw new NullPointerException("eventInfo is null");
+        }
+        if (procResult == null) {
+            throw new NullPointerException("procResult is null");
+        }
+    }
+
+    private void validParamsNotNull(TcpEventInfo eventInfo, MsgSendCallback callback, ProcessResult procResult) {
+        if (eventInfo == null) {
+            throw new NullPointerException("eventInfo is null");
+        }
+        if (callback == null) {
+            throw new NullPointerException("callback is null");
+        }
+        if (procResult == null) {
+            throw new NullPointerException("procResult is null");
         }
     }
 }

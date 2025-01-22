@@ -451,6 +451,15 @@ public class HttpClientMgr implements ClientMgr {
                         }
                     } finally {
                         asyncIdleCellCnt.release();
+                        if (procResult.isSuccess()) {
+                            sender.getMetricHolder().addCallbackSucMetric(asyncObj.getHttpEvent().getGroupId(),
+                                    asyncObj.getHttpEvent().getStreamId(), asyncObj.getHttpEvent().getMsgCnt(),
+                                    (curTime - asyncObj.getRptMs()), (System.currentTimeMillis() - curTime));
+                        } else {
+                            sender.getMetricHolder().addCallbackFailMetric(procResult.getErrCode(),
+                                    asyncObj.getHttpEvent().getGroupId(), asyncObj.getHttpEvent().getStreamId(),
+                                    asyncObj.getHttpEvent().getMsgCnt(), (System.currentTimeMillis() - curTime));
+                        }
                     }
                 }
                 ProxyUtils.sleepSomeTime(httpConfig.getHttpAsyncWorkerIdleWaitMs());

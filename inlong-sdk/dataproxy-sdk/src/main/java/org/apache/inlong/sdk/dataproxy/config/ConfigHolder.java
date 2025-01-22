@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
+import org.apache.inlong.sdk.dataproxy.metric.MetricDataHolder;
+
 import java.util.List;
 
 /**
@@ -29,4 +31,6 @@ public interface ConfigHolder {
     void updateAllowedMaxPkgLength(int maxPkgLength);
 
     void updateProxyNodes(boolean nodeChanged, List<HostInfo> newProxyNodes);
+
+    MetricDataHolder getMetricHolder();
 }

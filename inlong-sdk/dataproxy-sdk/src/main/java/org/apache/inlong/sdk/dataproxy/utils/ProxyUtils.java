@@ -19,9 +19,7 @@ package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
-import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
-import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Collections;
@@ -57,9 +56,11 @@ public class ProxyUtils {
     public static final Set<MsgType> SdkAllowedMsgType = new HashSet<>();
     private static String localHost;
     private static String sdkVersion;
+    private static Integer sdkProcessId;
 
     static {
         getLocalIp();
+        getProcessPid();
         getJarVersion();
         Collections.addAll(SdkReservedWords,
                 AttributeConstants.GROUP_ID, AttributeConstants.STREAM_ID,
@@ -117,18 +118,27 @@ public class ProxyUtils {
         return sdkVersion;
     }
 
+    public static Integer getProcessPid() {
+        if (sdkProcessId != null) {
+            return sdkProcessId;
+        }
+        try {
+            String processName = ManagementFactory.getRuntimeMXBean().getName();
+            sdkProcessId = Integer.parseInt(processName.split("@")[0]);
+        } catch (Throwable ex) {
+            if (exceptCounter.shouldPrint()) {
+                logger.error("DataProxy-SDK get process ID failure", ex);
+            }
+        }
+        return sdkProcessId;
+    }
+
     public static boolean sleepSomeTime(long sleepTimeMs) {
         try {
             Thread.sleep(sleepTimeMs);
             return true;
         } catch (Throwable ex) {
             return false;
-        }
-    }
-
-    public static void validProxyConfigNotNull(ProxyClientConfig configure) throws ProxySdkException {
-        if (configure == null) {
-            throw new ProxySdkException("configure is null!");
         }
     }
 

@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.dataproxy.config.ConfigHolder;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.metric.MetricDataHolder;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 
@@ -74,6 +75,8 @@ public abstract class BaseSender implements ConfigHolder {
     protected volatile boolean idTransNum = false;
     protected volatile int groupIdNum = 0;
     private Map<String, Integer> streamIdMap = new HashMap<>();
+    // metric holder
+    protected MetricDataHolder metricHolder;
 
     protected BaseSender(ProxyClientConfig configure, MsgSenderFactory senderFactory, String clusterIdKey) {
         if (configure == null) {
@@ -85,12 +88,17 @@ public abstract class BaseSender implements ConfigHolder {
         this.senderId = configure.getDataRptProtocol() + "-" + senderIdGen.incrementAndGet();
         this.configManager = new ProxyConfigManager(this.senderId, this.baseConfig, this);
         this.configManager.setDaemon(true);
+        this.metricHolder = new MetricDataHolder(this);
     }
 
     public boolean start(ProcessResult procResult) {
         if (!this.senderStatus.compareAndSet(
                 SENDER_STATUS_UNINITIALIZED, SENDER_STATUS_INITIALIZING)) {
             return procResult.setSuccess();
+        }
+        // start metric holder
+        if (!this.metricHolder.start(procResult)) {
+            return false;
         }
         // start client manager
         if (!this.clientMgr.start(procResult)) {
@@ -127,6 +135,7 @@ public abstract class BaseSender implements ConfigHolder {
         }
         configManager.shutDown();
         clientMgr.stop();
+        metricHolder.close();
         if (this.senderFactory != null) {
             this.senderFactory.removeClient(this);
         }
@@ -173,6 +182,11 @@ public abstract class BaseSender implements ConfigHolder {
         } finally {
             this.fsLock.writeLock().unlock();
         }
+    }
+
+    @Override
+    public MetricDataHolder getMetricHolder() {
+        return metricHolder;
     }
 
     public boolean isStarted() {
