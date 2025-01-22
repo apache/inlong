@@ -55,14 +55,25 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        if (this.isMetaInfoUnReady()) {
-            return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
+        long curTime = System.currentTimeMillis();
+        try {
+            if (this.isMetaInfoUnReady()) {
+                return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
+            }
+            // check package length
+            if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
+                return false;
+            }
+            return httpClientMgr.sendMessage(eventInfo, procResult);
+        } finally {
+            if (procResult.isSuccess()) {
+                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+            } else {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
         }
-        // check package length
-        if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
-            return false;
-        }
-        return httpClientMgr.sendMessage(eventInfo, procResult);
     }
 
     @Override
@@ -71,14 +82,21 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        if (this.isMetaInfoUnReady()) {
-            return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
+        try {
+            if (this.isMetaInfoUnReady()) {
+                return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
+            }
+            // check package length
+            if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
+                return false;
+            }
+            return httpClientMgr.asyncSendMessage(new HttpAsyncObj(eventInfo, callback), procResult);
+        } finally {
+            if (!procResult.isSuccess()) {
+                metricHolder.addFailMetric(procResult.getErrCode(),
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            }
         }
-        // check package length
-        if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
-            return false;
-        }
-        return httpClientMgr.asyncSendMessage(new HttpAsyncObj(eventInfo, callback), procResult);
     }
 
     @Override

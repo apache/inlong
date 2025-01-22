@@ -24,6 +24,7 @@ import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.network.tcp.codec.DecodeObject;
 import org.apache.inlong.sdk.dataproxy.network.tcp.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.MsgSendCallback;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
@@ -70,6 +71,8 @@ public class TcpClientMgr implements ClientMgr {
     private static final LogCounter callbackExceptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final AtomicLong timerRefCnt = new AtomicLong(0);
     private static Timer timerObj;
+
+    private final BaseSender baseSender;
     private final String senderId;
     private final TcpMsgSenderConfig tcpConfig;
     private final Bootstrap bootstrap;
@@ -97,8 +100,9 @@ public class TcpClientMgr implements ClientMgr {
     /**
      * Build up the connection between the server and client.
      */
-    public TcpClientMgr(String senderId, TcpMsgSenderConfig tcpConfig, ThreadFactory selfDefineFactory) {
-        this.senderId = senderId;
+    public TcpClientMgr(BaseSender baseSender, TcpMsgSenderConfig tcpConfig, ThreadFactory selfDefineFactory) {
+        this.baseSender = baseSender;
+        this.senderId = baseSender.getSenderId();
         this.tcpConfig = tcpConfig;
         // Initialize the bootstrap
         this.bootstrap = buildBootstrap(selfDefineFactory);
@@ -384,6 +388,15 @@ public class TcpClientMgr implements ClientMgr {
             }
         } finally {
             this.descInflightMsgCnt(callFuture);
+            if (decObject.getSendResult().isSuccess()) {
+                baseSender.getMetricHolder().addCallbackSucMetric(callFuture.getGroupId(),
+                        callFuture.getStreamId(), callFuture.getMsgCnt(),
+                        (curTime - callFuture.getRtTime()), (System.currentTimeMillis() - curTime));
+            } else {
+                baseSender.getMetricHolder().addCallbackFailMetric(decObject.getSendResult().getErrCode(),
+                        callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
+                        (System.currentTimeMillis() - curTime));
+            }
         }
     }
 
@@ -456,6 +469,9 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.CONNECTION_BREAK.getErrCode(),
+                            callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
                 }
                 return;
             }
@@ -473,6 +489,9 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.CONNECTION_BREAK.getErrCode(),
+                            callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
                 }
             }
         }
@@ -645,6 +664,9 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(future.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SEND_WAIT_TIMEOUT.getErrCode(),
+                            future.getGroupId(), future.getStreamId(), future.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
                 }
                 return;
             }
@@ -666,6 +688,9 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(future.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SEND_WAIT_TIMEOUT.getErrCode(),
+                            future.getGroupId(), future.getStreamId(), future.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
                 }
             }
         }

@@ -255,6 +255,10 @@ public class ProxyConfigManager extends Thread {
             // update proxy nodes meta configures
             curTime = System.currentTimeMillis();
             updateMetaInfoFromRemote(procResult);
+            if (configHolder != null && configHolder.getMetricHolder() != null) {
+                configHolder.getMetricHolder().addMetaSyncMetric(
+                        procResult.getErrCode(), System.currentTimeMillis() - curTime);
+            }
             if (shutDown.get()) {
                 break;
             }
