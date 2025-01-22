@@ -78,6 +78,8 @@ public abstract class ExtractNode implements Node {
 
     public static final String INLONG_MSG_AUDIT_TIME = "value.data-time";
 
+    public static final String INLONG_MSG_PROPERTIES = "value.inlong-msg-properties";
+
     public static final String CONSUME_AUDIT_TIME = "consume_time";
 
     @JsonProperty("id")

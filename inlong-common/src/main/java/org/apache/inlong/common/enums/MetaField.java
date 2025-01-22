@@ -168,7 +168,12 @@ public enum MetaField {
     /**
      * Inlong data time for audit.
      */
-    AUDIT_DATA_TIME;
+    AUDIT_DATA_TIME,
+
+    /**
+     * Inlong properties in InlongMsg.
+     */
+    INLONG_PROPERTIES;
 
     public static MetaField forName(String name) {
         for (MetaField metaField : values()) {
