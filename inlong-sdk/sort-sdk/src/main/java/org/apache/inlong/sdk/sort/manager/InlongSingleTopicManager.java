@@ -66,7 +66,7 @@ public class InlongSingleTopicManager extends TopicManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongSingleTopicManager.class);
 
     private final ConcurrentHashMap<String, TopicFetcher> fetchers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
 
     private final PeriodicTask updateMetaDataWorker;
@@ -370,6 +370,7 @@ public class InlongSingleTopicManager extends TopicManager {
                         auth = AuthenticationFactory.token(token);
                     }
                     PulsarClient pulsarClient = PulsarClient.builder()
+                            .useNoopDnsResolver(true)
                             .serviceUrl(topic.getInLongCluster().getBootstraps())
                             .authentication(auth)
                             .build();
