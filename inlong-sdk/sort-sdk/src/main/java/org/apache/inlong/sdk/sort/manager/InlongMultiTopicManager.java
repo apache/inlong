@@ -220,7 +220,6 @@ public class InlongMultiTopicManager extends TopicManager {
                     auth = AuthenticationFactory.token(token);
                 }
                 PulsarClient pulsarClient = PulsarClient.builder()
-                        .useNoopDnsResolver(true)
                         .serviceUrl(topic.getInLongCluster().getBootstraps())
                         .authentication(auth)
                         .build();
