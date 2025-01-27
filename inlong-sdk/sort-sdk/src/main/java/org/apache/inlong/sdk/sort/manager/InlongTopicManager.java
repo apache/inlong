@@ -88,7 +88,7 @@ public class InlongTopicManager extends TopicManager {
             LOGGER.info("start to clean topic manager, sortTaskId={}", sortTaskId);
             stopAssign = true;
             closeAllFetchers();
-//            closeAllPulsarClients();
+            // closeAllPulsarClients();
             closeAllTubeFactories();
             LOGGER.info("success to clean topic manager, sortTaskId={}", sortTaskId);
             return true;

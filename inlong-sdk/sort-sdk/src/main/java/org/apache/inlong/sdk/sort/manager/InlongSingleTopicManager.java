@@ -199,7 +199,7 @@ public class InlongSingleTopicManager extends TopicManager {
             }
 
             closeFetcher();
-//            closePulsarClient();
+            // closePulsarClient();
             closeTubeSessionFactory();
             LOGGER.info("close finished {}", sortTaskId);
             return true;
