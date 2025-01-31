@@ -209,8 +209,6 @@ func (d *dnsDiscoverer) update() {
 				d.lookup()
 			case <-stopCh:
 				return
-			default:
-				time.Sleep(500 * time.Millisecond)
 			}
 		}
 	}()
