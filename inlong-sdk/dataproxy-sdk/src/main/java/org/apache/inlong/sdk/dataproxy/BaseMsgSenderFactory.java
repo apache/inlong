@@ -68,6 +68,7 @@ public class BaseMsgSenderFactory {
     public void close() {
         int totalSenderCnt;
         int totalTDBankCnt;
+        logger.info("MsgSenderFactory({}) is closing", this.factoryNo);
         senderCacheLock.writeLock().lock();
         try {
             // release groupId mapped senders
@@ -197,7 +198,7 @@ public class BaseMsgSenderFactory {
         validProxyConfigNotNull(configure);
         // get groupId's clusterIdKey
         ProcessResult procResult = new ProcessResult();
-        ProxyConfigEntry proxyConfigEntry = qryProxyMetaConfigure(configure, procResult);;
+        ProxyConfigEntry proxyConfigEntry = qryProxyMetaConfigure(configure, procResult);
         String clusterIdKey = ProxyUtils.buildClusterIdKey(
                 configure.getDataRptProtocol(), configure.getRegionName(), proxyConfigEntry.getClusterId());
         // get local built sender
@@ -288,7 +289,7 @@ public class BaseMsgSenderFactory {
                 && !inlongMetaQryMgr.getEncryptConfigure(true, procResult)) {
             throw new ProxySdkException("Failed to query remote encrypt config: " + procResult);
         }
-        return inlongMetaQryMgr.getProxyConfigEntry();
+        return (ProxyConfigEntry) procResult.getRetData();
     }
 
     private boolean removeGroupIdSender(BaseSender msgSender, Map<String, BaseSender> senderMap) {

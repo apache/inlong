@@ -70,22 +70,22 @@ public class TimeCostInfo {
     }
 
     public void getAndResetValue(StringBuilder strBuff) {
-        long curCnt = totalCnt.sumThenReset();
-        if (curCnt == 0) {
+        long curTotalCnt = totalCnt.sumThenReset();
+        if (curTotalCnt == 0) {
             strBuff.append("\"").append(name)
                     .append("\":{\"bucketT\":{},\"min\":0,\"max\":0,\"avgT\":0,\"cnt\":0}");
         } else {
-            curCnt = 0;
+            long bucketCnt = 0;
             strBuff.append("\"").append(name).append("\":{\"bucketT\":{");
             for (Map.Entry<String, LongAdder> entry : sendTimeBucketT.entrySet()) {
-                if (curCnt++ > 0) {
+                if (bucketCnt++ > 0) {
                     strBuff.append(",");
                 }
                 strBuff.append("\"").append(entry.getKey()).append("\":").append(entry.getValue());
             }
             strBuff.append("},\"min\":").append(this.minValue.getAndSet(Long.MAX_VALUE))
                     .append(",\"max\":").append(this.maxValue.getAndSet(Long.MIN_VALUE))
-                    .append(",\"avgT\":").append(sumTime.sumThenReset() / curCnt).append("}");
+                    .append(",\"avgT\":").append(sumTime.sumThenReset() / curTotalCnt).append("}");
             sendTimeBucketT.clear();
         }
     }
