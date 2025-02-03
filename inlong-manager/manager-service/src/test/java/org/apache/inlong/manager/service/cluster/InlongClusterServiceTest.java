@@ -358,7 +358,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(id);
 
         // save cluster node
-        String ip = "127.0.0.1";
+        String ip = "127.0.0.2";
         Integer port1 = 46800;
         Integer nodeId1 =
                 this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
