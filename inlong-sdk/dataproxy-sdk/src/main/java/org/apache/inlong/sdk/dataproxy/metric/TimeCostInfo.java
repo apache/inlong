@@ -73,7 +73,7 @@ public class TimeCostInfo {
         long curTotalCnt = totalCnt.sumThenReset();
         if (curTotalCnt == 0) {
             strBuff.append("\"").append(name)
-                    .append("\":{\"bucketT\":{},\"min\":0,\"max\":0,\"avgT\":0,\"cnt\":0}");
+                    .append("\":{\"bucketT\":{},\"min\":0,\"max\":0,\"avgT\":0}");
         } else {
             long bucketCnt = 0;
             strBuff.append("\"").append(name).append("\":{\"bucketT\":{");

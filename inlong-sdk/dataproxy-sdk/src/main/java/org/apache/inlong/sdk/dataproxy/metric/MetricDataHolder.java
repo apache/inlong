@@ -327,10 +327,13 @@ public class MetricDataHolder implements Runnable {
             TcpMsgSenderConfig tcpConfig = (TcpMsgSenderConfig) sender.getConfigure();
             strBuff.append(",\"mT\":").append(tcpConfig.getSdkMsgType().getValue())
                     .append(",\"comp\":").append(tcpConfig.isEnableDataCompress())
+                    .append(",\"mCLen\":").append(tcpConfig.getMinCompEnableLength())
+                    .append(",\"lfSep\":").append(tcpConfig.isSeparateEventByLF())
                     .append(",\"nWk\":").append(tcpConfig.getNettyWorkerThreadNum())
                     .append(",\"sB\":").append(tcpConfig.getSendBufferSize())
-                    .append(",\"rTout\":").append(tcpConfig.getRequestTimeoutMs())
-                    .append(",\"reqOut\":").append(tcpConfig.getRequestTimeoutMs())
+                    .append(",\"rB\":").append(tcpConfig.getRcvBufferSize())
+                    .append(",\"cOut\":").append(tcpConfig.getConnectTimeoutMs())
+                    .append(",\"rOut\":").append(tcpConfig.getRequestTimeoutMs())
                     .append(",\"syncOut\":").append(tcpConfig.getMaxAllowedSyncMsgTimeoutCnt());
         } else {
             HttpMsgSenderConfig httpConfig = (HttpMsgSenderConfig) sender.getConfigure();
