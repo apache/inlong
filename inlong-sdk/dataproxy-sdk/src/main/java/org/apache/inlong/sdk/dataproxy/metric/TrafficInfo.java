@@ -76,7 +76,7 @@ public class TrafficInfo {
         }
         strBuff.append("\",\"sPkg\":").append(sendPkgCount.sumThenReset())
                 .append(",\"sMsg\":").append(sendMsgCount.sumThenReset())
-                .append(",\"fMsg\":").append(failedPgkCount.sumThenReset())
+                .append(",\"fPkg\":").append(failedPgkCount.sumThenReset())
                 .append(",\"fMsg\":").append(failedMsgCount.sumThenReset())
                 .append(",");
         this.sendCostMs.getAndResetValue(strBuff);
