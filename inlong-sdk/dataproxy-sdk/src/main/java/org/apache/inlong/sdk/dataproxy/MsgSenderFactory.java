@@ -37,7 +37,7 @@ public interface MsgSenderFactory {
      * Shutdown all senders at the factory
      *
      */
-    void shutdownAll() throws ProxySdkException;
+    void shutdownAll();
 
     /**
      * Remove the specified sender from the factory
