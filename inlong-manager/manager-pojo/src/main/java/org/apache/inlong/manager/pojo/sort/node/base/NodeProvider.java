@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.node.base;
 
+import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import java.util.ArrayList;
@@ -52,6 +54,14 @@ public interface NodeProvider {
 
     default List<FieldInfo> getMetaFields() {
         return new ArrayList<>();
+    }
+
+    default boolean needInlongPropertiesField(StreamNode streamNode) {
+        return false;
+    }
+
+    default List<StreamField> addInlongPropertiesFieldForStream(List<StreamField> streamFields) {
+        return streamFields;
     }
 
 }
