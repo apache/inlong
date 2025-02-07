@@ -19,8 +19,9 @@ package org.apache.inlong.agent.core;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -124,25 +125,27 @@ public class FileStaticManager {
         }
     }
 
-    private void doSendStaticMsg(DefaultMessageSender sender) {
+    private void doSendStaticMsg(TcpMsgSender sender) {
         while (!queue.isEmpty()) {
             FileStatic data = queue.poll();
             LOGGER.info("file static detail: {}", data);
             if (sender == null) {
                 continue;
             }
-            SendResult ret = sender.sendMessage(data.getFieldsString().getBytes(StandardCharsets.UTF_8),
-                    INLONG_AGENT_SYSTEM,
-                    INLONG_FILE_STATIC,
-                    AgentUtils.getCurrentTime(),
-                    "");
-            if (ret != SendResult.OK) {
-                LOGGER.error("send static failed: ret {}", ret);
+            try {
+                ProcessResult procResult = new ProcessResult();
+                if (!sender.sendMessage(new TcpEventInfo(INLONG_AGENT_SYSTEM,
+                        INLONG_FILE_STATIC, AgentUtils.getCurrentTime(), null,
+                        data.getFieldsString().getBytes(StandardCharsets.UTF_8)), procResult)) {
+                    LOGGER.error("send static failed: ret = {}", procResult);
+                }
+            } catch (Throwable ex) {
+                LOGGER.error("send static throw exception", ex);
             }
         }
     }
 
-    public static void sendStaticMsg(DefaultMessageSender sender) {
+    public static void sendStaticMsg(TcpMsgSender sender) {
         if (FileStaticManager.getInstance() != null) {
             FileStaticManager.getInstance().doSendStaticMsg(sender);
         }

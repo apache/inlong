@@ -23,8 +23,9 @@ import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ExcuteLinux;
-import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -158,23 +159,25 @@ public class AgentStatusManager {
         return manager;
     }
 
-    private void doSendStatusMsg(DefaultMessageSender sender) {
+    private void doSendStatusMsg(TcpMsgSender sender) {
         AgentStatus data = AgentStatusManager.getInstance().getStatus();
         LOGGER.info("status detail: {}", data);
         if (sender == null) {
             return;
         }
-        SendResult ret = sender.sendMessage(data.getFieldsString().getBytes(StandardCharsets.UTF_8),
-                INLONG_AGENT_SYSTEM,
-                INLONG_AGENT_STATUS,
-                AgentUtils.getCurrentTime(),
-                "");
-        if (ret != SendResult.OK) {
-            LOGGER.error("send status failed: ret {}", ret);
+        try {
+            ProcessResult procResult = new ProcessResult();
+            if (!sender.sendMessage(new TcpEventInfo(INLONG_AGENT_SYSTEM,
+                    INLONG_AGENT_STATUS, AgentUtils.getCurrentTime(), null,
+                    data.getFieldsString().getBytes(StandardCharsets.UTF_8)), procResult)) {
+                LOGGER.error("send status failed: ret = {}", procResult);
+            }
+        } catch (Throwable ex) {
+            LOGGER.error("send status throw exception", ex);
         }
     }
 
-    public static void sendStatusMsg(DefaultMessageSender sender) {
+    public static void sendStatusMsg(TcpMsgSender sender) {
         if (AgentStatusManager.getInstance() != null) {
             AgentStatusManager.getInstance().doSendStatusMsg(sender);
         }

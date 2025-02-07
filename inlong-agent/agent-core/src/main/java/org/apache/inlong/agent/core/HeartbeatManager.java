@@ -28,7 +28,8 @@ import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
-import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -64,7 +65,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     private final HttpManager httpManager;
     private final String baseManagerUrl;
     private final String reportHeartbeatUrl;
-    private DefaultMessageSender sender;
+    private TcpMsgSender sender;
 
     /**
      * Init heartbeat manager.
@@ -194,18 +195,19 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         String managerAddr = conf.get(AGENT_MANAGER_ADDR);
         String authSecretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
         String authSecretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
-        TcpMsgSenderConfig proxyClientConfig = null;
+        TcpMsgSenderConfig proxyClientConfig;
         try {
-            proxyClientConfig = new TcpMsgSenderConfig(managerAddr, INLONG_AGENT_SYSTEM, authSecretId, authSecretKey);
-            proxyClientConfig.setTotalAsyncCallbackSize(CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
+            proxyClientConfig = new TcpMsgSenderConfig(managerAddr,
+                    INLONG_AGENT_SYSTEM, authSecretId, authSecretKey);
+            proxyClientConfig.setSendBufferSize(CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
             proxyClientConfig.setAliveConnections(CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
             proxyClientConfig.setNettyWorkerThreadNum(CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
             proxyClientConfig.setRequestTimeoutMs(30000L);
             ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-heartbeat",
                     Thread.currentThread().isDaemon());
-            sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
-        } catch (Exception e) {
-            LOGGER.error("heartbeat manager create sdk failed: ", e);
+            sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
+        } catch (Throwable ex) {
+            LOGGER.error("heartbeat manager create sdk failed: ", ex);
         }
     }
 }
