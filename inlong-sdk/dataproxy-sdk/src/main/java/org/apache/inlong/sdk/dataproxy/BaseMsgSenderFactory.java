@@ -67,7 +67,6 @@ public class BaseMsgSenderFactory {
 
     public void close() {
         int totalSenderCnt;
-        int totalTDBankCnt;
         logger.info("MsgSenderFactory({}) is closing", this.factoryNo);
         senderCacheLock.writeLock().lock();
         try {
