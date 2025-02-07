@@ -56,18 +56,18 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
 
     @Override
     public void shutdownAll() {
-        if (!initialized.get()) {
-            return;
-        }
         BaseMsgSenderFactory tmpFactory;
         synchronized (singletonRefCounter) {
-            if (singletonRefCounter.decrementAndGet() > 0) {
+            if (!initialized.get()
+                    || singletonRefCounter.decrementAndGet() > 0) {
                 return;
             }
             tmpFactory = baseMsgSenderFactory;
+            baseMsgSenderFactory = null;
+            initialized.set(false);
         }
         if (tmpFactory != null) {
-            baseMsgSenderFactory.close();
+            tmpFactory.close();
         }
     }
 
