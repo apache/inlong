@@ -58,6 +58,7 @@ public class DefClientMgr implements ConfigHolder {
     private static final Logger logger = LoggerFactory.getLogger(DefClientMgr.class);
     private static final LogCounter logCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter updConExptCnt = new LogCounter(10, 100000, 60 * 1000L);
+    private static final LogCounter indexExptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final byte[] hbMsgBody = ProxyUtils.getLocalIp().getBytes(StandardCharsets.UTF_8);
 
@@ -197,6 +198,7 @@ public class DefClientMgr implements ConfigHolder {
         if (curNodeSize == 0) {
             return new Tuple2<>(SendResult.EMPTY_ACTIVE_NODE_SET, null);
         }
+        int indexPos;
         String curNode;
         NettyClient client;
         NettyClient backClient = null;
@@ -204,7 +206,16 @@ public class DefClientMgr implements ConfigHolder {
         int incFlightFailCnt = 0;
         int startPos = reqSendIndex.getAndIncrement();
         for (int step = 0; step < curNodeSize; step++) {
-            curNode = curNodes.get(Math.abs(startPos++) % curNodeSize);
+            startPos = Math.abs(startPos + 1);
+            indexPos = startPos % curNodeSize;
+            if (indexPos >= curNodes.size()) {
+                if (indexExptCnt.shouldPrint()) {
+                    logger.warn("IndexOutOfBounds, startPos={}, curNodeSize={}, indexPos={}， realSize={}",
+                            startPos, curNodeSize, indexPos, curNodes.size());
+                }
+                continue;
+            }
+            curNode = curNodes.get(indexPos);
             client = usingClientMaps.get(curNode);
             if (client == null) {
                 nullClientCnt++;
