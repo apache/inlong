@@ -116,9 +116,24 @@ public class NodeFactory {
             sinkInfo.setSinkFieldList(loadNodeProvider.addSinkFieldsForSinkMultiple(sinkInfo.getSinkFieldList()));
         }
         if (FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields())) {
+            if (loadNodeProvider.needInlongPropertiesField(sinkInfo)) {
+                loadNodeProvider.addInlongPropertiesFieldForStream(sourceInfo.getFieldList());
+                loadNodeProvider.addInlongPropertiesFieldForSink(sinkInfo.getSinkFieldList());
+            }
+            if (extractNodeProvider.needInlongPropertiesField(sourceInfo)) {
+                extractNodeProvider.addInlongPropertiesFieldForStream(sourceInfo.getFieldList());
+            }
             extractNodeProvider.addStreamMetaFields(sourceInfo.getFieldList());
             if (CollectionUtils.isNotEmpty(transformResponses)) {
-                transformResponses.forEach(v -> extractNodeProvider.addStreamMetaFields(v.getFieldList()));
+                transformResponses.forEach(v -> {
+                    if (loadNodeProvider.needInlongPropertiesField(sinkInfo)) {
+                        loadNodeProvider.addInlongPropertiesFieldForStream(v.getFieldList());
+                    }
+                    if (extractNodeProvider.needInlongPropertiesField(sourceInfo)) {
+                        extractNodeProvider.addInlongPropertiesFieldForStream(v.getFieldList());
+                    }
+                    extractNodeProvider.addStreamMetaFields(v.getFieldList());
+                });
             }
             loadNodeProvider.addSinkMetaFields(sinkInfo.getSinkFieldList());
         }

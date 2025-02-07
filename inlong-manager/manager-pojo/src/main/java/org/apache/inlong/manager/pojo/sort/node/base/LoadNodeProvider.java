@@ -158,4 +158,8 @@ public interface LoadNodeProvider extends NodeProvider {
     default List<SinkField> addSinkFieldsForSinkMultiple(List<SinkField> sinkFields) {
         return new ArrayList<>();
     }
+
+    default List<SinkField> addInlongPropertiesFieldForSink(List<SinkField> sinkFields) {
+        return sinkFields;
+    }
 }
