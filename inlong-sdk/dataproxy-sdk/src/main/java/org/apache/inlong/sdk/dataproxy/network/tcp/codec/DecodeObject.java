@@ -84,6 +84,7 @@ public class DecodeObject {
 
     private void handleAttr(String attributes) {
         if (StringUtils.isBlank(attributes)) {
+            this.procResult = new ProcessResult(ErrorCode.OK);
             return;
         }
         retAttr = new HashMap<>(MAP_SPLITTER.split(attributes));

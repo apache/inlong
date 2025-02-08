@@ -27,8 +27,9 @@ import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
-import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
+import org.apache.inlong.sdk.dataproxy.sender.MsgSendCallback;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -84,14 +85,14 @@ public class TestSenderManager {
 
     @Test
     public void testNormalAck() {
-        List<SendMessageCallback> cbList = new ArrayList<>();
+        List<MsgSendCallback> cbList = new ArrayList<>();
         try {
             profile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(profile.getInstanceId()));
             SenderManager senderManager = PowerMockito.spy(new SenderManager(profile, "inlongGroupId", "sourceName"));
             PowerMockito.doNothing().when(senderManager, "createMessageSender");
 
             PowerMockito.doAnswer(invocation -> {
-                SendMessageCallback cb = invocation.getArgument(0);
+                MsgSendCallback cb = invocation.getArgument(0);
                 cbList.add(cb);
                 return null;
             }).when(senderManager, "asyncSendByMessageSender", Mockito.any(),
@@ -115,11 +116,11 @@ public class TestSenderManager {
             }
             Assert.assertTrue(cbList.size() == 10);
             for (int i = 0; i < 5; i++) {
-                cbList.get(4 - i).onMessageAck(SendResult.OK);
+                cbList.get(4 - i).onMessageAck(new ProcessResult(ErrorCode.OK));
             }
             Assert.assertTrue(calHasAckCount(ackInfoListTotal) == 5);
             for (int i = 5; i < 10; i++) {
-                cbList.get(i).onMessageAck(SendResult.OK);
+                cbList.get(i).onMessageAck(new ProcessResult(ErrorCode.OK));
                 AgentUtils.silenceSleepInMs(10);
             }
             Assert.assertTrue(String.valueOf(calHasAckCount(ackInfoListTotal)), calHasAckCount(ackInfoListTotal) == 10);
