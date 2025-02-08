@@ -46,9 +46,9 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
     }
 
     @Override
-    public void shutdownAll() throws ProxySdkException {
-        if (!this.initialized.get()) {
-            throw new ProxySdkException("Please initialize the factory first!");
+    public void shutdownAll() {
+        if (!this.initialized.compareAndSet(true, false)) {
+            return;
         }
         this.baseMsgSenderFactory.close();
     }

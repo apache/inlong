@@ -36,14 +36,18 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MsgSenderSingleFactory implements MsgSenderFactory {
 
+    private static final AtomicLong refCounter = new AtomicLong(0);
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final AtomicLong singletonRefCounter = new AtomicLong(0);
     private static BaseMsgSenderFactory baseMsgSenderFactory;
 
     public MsgSenderSingleFactory() {
-        if (singletonRefCounter.incrementAndGet() == 1) {
-            baseMsgSenderFactory = new BaseMsgSenderFactory(this, "iSingleFct");
-            initialized.set(true);
+        synchronized (singletonRefCounter) {
+            if (singletonRefCounter.incrementAndGet() == 1) {
+                baseMsgSenderFactory = new BaseMsgSenderFactory(
+                        this, "iSingleFct-" + refCounter.incrementAndGet());
+                initialized.set(true);
+            }
         }
         while (!initialized.get()) {
             ProxyUtils.sleepSomeTime(50L);
@@ -51,14 +55,20 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
     }
 
     @Override
-    public void shutdownAll() throws ProxySdkException {
-        if (!initialized.get()) {
-            throw new ProxySdkException("Please initialize the factory first!");
+    public void shutdownAll() {
+        BaseMsgSenderFactory tmpFactory;
+        synchronized (singletonRefCounter) {
+            if (!initialized.get()
+                    || singletonRefCounter.decrementAndGet() > 0) {
+                return;
+            }
+            tmpFactory = baseMsgSenderFactory;
+            baseMsgSenderFactory = null;
+            initialized.set(false);
         }
-        if (singletonRefCounter.decrementAndGet() > 0) {
-            return;
+        if (tmpFactory != null) {
+            tmpFactory.close();
         }
-        baseMsgSenderFactory.close();
     }
 
     @Override

@@ -67,6 +67,7 @@ public class TcpClientMgr implements ClientMgr {
     private static final Logger logger = LoggerFactory.getLogger(TcpClientMgr.class);
     private static final LogCounter sendExceptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter updConExptCnt = new LogCounter(10, 100000, 60 * 1000L);
+    private static final LogCounter indexExptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter callbackExceptCnt = new LogCounter(10, 100000, 60 * 1000L);
     private static final AtomicLong timerRefCnt = new AtomicLong(0);
@@ -326,6 +327,7 @@ public class TcpClientMgr implements ClientMgr {
         if (curNodeSize == 0) {
             return procResult.setFailResult(ErrorCode.EMPTY_ACTIVE_NODE_SET);
         }
+        int indexPos;
         String curNode;
         TcpNettyClient client;
         TcpNettyClient back1thClient = null;
@@ -333,7 +335,16 @@ public class TcpClientMgr implements ClientMgr {
         int unWritableCnt = 0;
         int startPos = reqSendIndex.getAndIncrement();
         for (int step = 0; step < curNodeSize; step++) {
-            curNode = curNodes.get(Math.abs(startPos++) % curNodeSize);
+            startPos = Math.abs(startPos + 1);
+            indexPos = startPos % curNodeSize;
+            if (indexPos >= curNodes.size()) {
+                if (indexExptCnt.shouldPrint()) {
+                    logger.warn("IndexOutOfBounds, startPos={}, curNodeSize={}, indexPos={}， realSize={}",
+                            startPos, curNodeSize, indexPos, curNodes.size());
+                }
+                continue;
+            }
+            curNode = curNodes.get(indexPos);
             client = usingClientMaps.get(curNode);
             if (client == null) {
                 nullClientCnt++;

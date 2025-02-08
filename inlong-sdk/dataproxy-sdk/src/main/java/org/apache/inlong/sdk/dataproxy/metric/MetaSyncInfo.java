@@ -51,7 +51,7 @@ public class MetaSyncInfo {
             strBuff.append("}");
         } else {
             long curCnt = 0;
-            strBuff.append("\"metaSync\":{\"errT\":{");
+            strBuff.append("\"mSync\":{\"errT\":{");
             for (Map.Entry<Integer, LongAdder> entry : syncErrInfo.entrySet()) {
                 if (curCnt++ > 0) {
                     strBuff.append(",");

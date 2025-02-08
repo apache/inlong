@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -105,5 +107,25 @@ public class PulsarProvider implements ExtractNodeProvider {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         fieldInfos.add(0, new FieldInfo(MetaField.AUDIT_DATA_TIME.name(), new LongFormatInfo()));
         return fieldInfos;
+    }
+
+    @Override
+    public boolean needInlongPropertiesField(StreamNode streamNode) {
+        if (streamNode instanceof PulsarSource) {
+            PulsarSource pulsarSource = (PulsarSource) streamNode;
+            return !Objects.equals(pulsarSource.getWrapType(), MessageWrapType.RAW.getName());
+        }
+        return true;
+    }
+
+    @Override
+    public List<StreamField> addInlongPropertiesFieldForStream(List<StreamField> streamFields) {
+        List<String> fieldNames = streamFields.stream().map(StreamField::getFieldName).collect(Collectors.toList());
+        if (!fieldNames.contains(MetaField.INLONG_PROPERTIES.name())) {
+            streamFields.add(0,
+                    new StreamField(0, "map", MetaField.INLONG_PROPERTIES.name(), "inlong properties", null, 1,
+                            MetaField.INLONG_PROPERTIES.name()));
+        }
+        return streamFields;
     }
 }
