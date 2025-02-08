@@ -30,10 +30,13 @@ import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
-import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.common.SendResult;
+import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.sender.MsgSendCallback;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
+import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -71,7 +74,7 @@ public class SenderManager {
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     public static final int RESEND_QUEUE_WAIT_MS = 10;
     // cache for group and sender list, share the map cross agent lifecycle.
-    private DefaultMessageSender sender;
+    private TcpMsgSender sender;
     private LinkedBlockingQueue<AgentSenderCallback> resendQueue;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -200,20 +203,22 @@ public class SenderManager {
     private void createMessageSender() throws Exception {
         TcpMsgSenderConfig proxyClientConfig = new TcpMsgSenderConfig(
                 managerAddr, inlongGroupId, authSecretId, authSecretKey);
-        proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
+        proxyClientConfig.setSendBufferSize(totalAsyncBufSize);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
         proxyClientConfig.setRequestTimeoutMs(maxSenderTimeout * 1000L);
-
         proxyClientConfig.setNettyWorkerThreadNum(ioThreadNum);
         proxyClientConfig.setEnableEpollBusyWait(enableBusyWait);
-
+        proxyClientConfig.setSdkMsgType(MsgType.valueOf(msgType));
+        proxyClientConfig.setEnableDataCompress(isCompress);
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());
-
-        DefaultMessageSender sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
-        sender.setMsgtype(msgType);
-        sender.setCompress(isCompress);
-        this.sender = sender;
+        // build sender object
+        this.sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
+        ProcessResult procResult = new ProcessResult();
+        // start sender object
+        if (!sender.start(procResult)) {
+            throw new ProxySdkException("Start sender failure, " + procResult);
+        }
     }
 
     public void sendBatch(SenderMessage message) {
@@ -230,7 +235,7 @@ public class SenderManager {
      */
     private void sendBatchWithRetryCount(SenderMessage message, int retry) {
         boolean suc = false;
-        while (!suc) {
+        while (!suc && !shutdown) {
             try {
                 AgentSenderCallback cb = new AgentSenderCallback(message, retry);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TRY_SEND, message.getGroupId(),
@@ -267,11 +272,21 @@ public class SenderManager {
         }
     }
 
-    private void asyncSendByMessageSender(SendMessageCallback cb,
+    private void asyncSendByMessageSender(MsgSendCallback cb,
             List<byte[]> bodyList, String groupId, String streamId, long dataTime, String msgUUID,
-            Map<String, String> extraAttrMap, boolean isProxySend) throws ProxySdkException {
-        sender.asyncSendMessage(cb, bodyList, groupId,
-                streamId, dataTime, msgUUID, extraAttrMap, isProxySend);
+            Map<String, String> extraAttrMap, boolean isProxySend) throws Exception {
+        boolean isSuccess;
+        ProcessResult procResult = new ProcessResult();
+        if (isProxySend) {
+            isSuccess = sender.asyncSendMsgWithSinkAck(new TcpEventInfo(
+                    groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
+        } else {
+            isSuccess = sender.asyncSendMessage(new TcpEventInfo(
+                    groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
+        }
+        if (!isSuccess) {
+            throw new ProxySdkException("Send message failure, " + procResult);
+        }
     }
 
     /**
@@ -330,7 +345,7 @@ public class SenderManager {
     /**
      * sender callback
      */
-    private class AgentSenderCallback implements SendMessageCallback {
+    private class AgentSenderCallback implements MsgSendCallback {
 
         private final int retry;
         private final SenderMessage message;
@@ -343,13 +358,13 @@ public class SenderManager {
         }
 
         @Override
-        public void onMessageAck(SendResult result) {
+        public void onMessageAck(ProcessResult result) {
             String groupId = message.getGroupId();
             String streamId = message.getStreamId();
             String taskId = message.getTaskId();
             String instanceId = message.getInstanceId();
             long dataTime = message.getDataTime();
-            if (result != null && result.equals(SendResult.OK)) {
+            if (result.isSuccess()) {
                 message.getOffsetAckList().forEach(ack -> ack.setHasAck(true));
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
