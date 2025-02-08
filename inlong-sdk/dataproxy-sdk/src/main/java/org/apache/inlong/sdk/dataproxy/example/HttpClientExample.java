@@ -17,15 +17,20 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
-import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
+import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
+import org.apache.inlong.sdk.dataproxy.MsgSenderSingleFactory;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
+import org.apache.inlong.sdk.dataproxy.sender.MsgSendCallback;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpEventInfo;
+import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpClientExample {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientExample.class);
 
     public static void main(String[] args) {
         String inlongGroupId = "test_group_id";
@@ -35,40 +40,77 @@ public class HttpClientExample {
         String inLongManagerPort = "8083";
         String messageBody = "inlong message body!";
 
-        HttpProxySender sender = getMessageSender(inLongManagerAddr,
-                inLongManagerPort, inlongGroupId, true, false,
-                configBasePath);
+        // build sender factory
+        MsgSenderSingleFactory senderFactory = new MsgSenderSingleFactory();
+        // build sender object
+        HttpMsgSender sender = getMessageSender(senderFactory, false,
+                inLongManagerAddr, inLongManagerPort, inlongGroupId, false, configBasePath);
+        // send message
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
-        sender.close(); // close the sender
+        // close all senders
+        sender.close();
     }
 
-    public static HttpProxySender getMessageSender(String inLongManagerAddr,
-            String inLongManagerPort, String inlongGroupId,
-            boolean requestByHttp, boolean isReadProxyIPFromLocal,
+    public static HttpMsgSender getMessageSender(MsgSenderFactory senderFactory, boolean visitMsgByHttps,
+            String managerAddr, String managerPort, String inlongGroupId, boolean useLocalMetaConfig,
             String configBasePath) {
-        HttpMsgSenderConfig httpConfig = null;
-        HttpProxySender sender = null;
+        HttpMsgSender sender = null;
         try {
-            httpConfig = new HttpMsgSenderConfig(requestByHttp, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort),
-                    inlongGroupId, "admin", "inlong");// user and password of manager
-            httpConfig.setMetaStoreBasePath(configBasePath);
-            httpConfig.setOnlyUseLocalProxyConfig(isReadProxyIPFromLocal);
+            HttpMsgSenderConfig httpConfig = new HttpMsgSenderConfig(visitMsgByHttps, managerAddr,
+                    Integer.parseInt(managerPort), inlongGroupId, "admin", "inlong");
             httpConfig.setDiscardHttpCacheWhenClosing(true);
-            sender = new HttpProxySender(httpConfig);
-        } catch (ProxySdkException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            httpConfig.setMetaStoreBasePath(configBasePath);
+            httpConfig.setOnlyUseLocalProxyConfig(useLocalMetaConfig);
+            httpConfig.setHttpConTimeoutMs(20000);
+            sender = senderFactory.genHttpSenderByGroupId(httpConfig);
+        } catch (Throwable ex) {
+            System.out.println("Get MessageSender throw exception, " + ex);
         }
         return sender;
     }
 
-    public static void sendHttpMessage(HttpProxySender sender, String inlongGroupId,
-            String inlongStreamId, String messageBody) {
-        List<String> bodyList = new ArrayList<>();
-        bodyList.add(messageBody);
-        sender.asyncSendMessage(bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                20, TimeUnit.SECONDS, new MyMessageCallBack());
+    public static void sendHttpMessage(HttpMsgSender sender,
+            String inlongGroupId, String inlongStreamId, String messageBody) {
+        try {
+            ProcessResult procResult = new ProcessResult();
+            if (!sender.asyncSendMessage(new HttpEventInfo(inlongGroupId,
+                    inlongStreamId, System.currentTimeMillis(), messageBody), new MyMessageCallBack(), procResult)) {
+                System.out.println("Send message failure, result = " + procResult);
+                return;
+            }
+            System.out.println("Send message success!");
+        } catch (Throwable ex) {
+            System.out.println("Send message exception" + ex);
+        }
+    }
+
+    // async callback class
+    public static class MyMessageCallBack implements MsgSendCallback {
+
+        private HttpMsgSender messageSender = null;
+        private HttpEventInfo event = null;
+
+        public MyMessageCallBack() {
+
+        }
+
+        public MyMessageCallBack(HttpMsgSender messageSender, HttpEventInfo event) {
+            this.messageSender = messageSender;
+            this.event = event;
+        }
+
+        @Override
+        public void onMessageAck(ProcessResult result) {
+            if (result.isSuccess()) {
+                logger.info("onMessageAck return Ok");
+            } else {
+                logger.info("onMessageAck return failure = {}", result);
+            }
+        }
+
+        @Override
+        public void onException(Throwable ex) {
+            logger.error("Send message throw exception", ex);
+        }
     }
 }
