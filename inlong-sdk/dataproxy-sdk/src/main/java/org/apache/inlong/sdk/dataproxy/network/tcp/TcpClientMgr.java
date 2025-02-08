@@ -133,19 +133,14 @@ public class TcpClientMgr implements ClientMgr {
             timerObj.stop();
         }
         this.bootstrap.config().group().shutdownGracefully();
-
         this.maintThread.shutDown();
-        if (!channelMsgIdMap.isEmpty()) {
-            long startTime = System.currentTimeMillis();
-            while (!channelMsgIdMap.isEmpty()) {
-                if (System.currentTimeMillis() - startTime >= tcpConfig.getConCloseWaitPeriodMs()) {
-                    break;
-                }
-                ProxyUtils.sleepSomeTime(100L);
-            }
+        long startTime = System.currentTimeMillis();
+        if (!this.reqTimeouts.isEmpty()) {
+            notifyInflightMsgClosed();
         }
         this.activeNodes.clear();
-        logger.info("ClientMgr({}) stopped!", senderId);
+        logger.info("ClientMgr({}) stopped, release cost {} ms!",
+                senderId, System.currentTimeMillis() - startTime);
     }
 
     @Override
@@ -550,6 +545,65 @@ public class TcpClientMgr implements ClientMgr {
         }
         tmpBootstrap.handler(new ClientPipelineFactory(this));
         return tmpBootstrap;
+    }
+
+    public void notifyInflightMsgClosed() {
+        long curTime;
+        Timeout timeoutTask;
+        TcpNettyClient nettyTcpClient;
+        for (Integer messageId : this.reqTimeouts.keySet()) {
+            if (messageId == null) {
+                continue;
+            }
+            timeoutTask = this.reqTimeouts.remove(messageId);
+            if (timeoutTask != null) {
+                timeoutTask.cancel();
+            }
+            TcpCallFuture callFuture = this.reqObjects.remove(messageId);
+            if (callFuture == null) {
+                continue;
+            }
+            curTime = System.currentTimeMillis();
+            // find and process in using clients
+            nettyTcpClient = usingClientMaps.get(callFuture.getClientAddr());
+            if (nettyTcpClient != null
+                    && nettyTcpClient.getChanTermId() == callFuture.getChanTerm()) {
+                try {
+                    nettyTcpClient.getChannel().eventLoop().execute(
+                            () -> callFuture.onMessageAck(new ProcessResult(ErrorCode.SDK_CLOSED)));
+                } catch (Throwable ex) {
+                    if (callbackExceptCnt.shouldPrint()) {
+                        logger.info("ClientMgr({}) closed, callback exception!",
+                                senderId, ex);
+                    }
+                } finally {
+                    nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SDK_CLOSED.getErrCode(),
+                            callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
+                }
+                return;
+            }
+            // find and process in deleting clients
+            nettyTcpClient = deletingClientMaps.get(callFuture.getClientAddr());
+            if (nettyTcpClient != null
+                    && nettyTcpClient.getChanTermId() == callFuture.getChanTerm()) {
+                try {
+                    nettyTcpClient.getChannel().eventLoop().execute(
+                            () -> callFuture.onMessageAck(new ProcessResult(ErrorCode.SDK_CLOSED)));
+                } catch (Throwable ex) {
+                    if (callbackExceptCnt.shouldPrint()) {
+                        logger.info("ClientMgr({}) closed, callback2 exception!",
+                                senderId, ex);
+                    }
+                } finally {
+                    nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SDK_CLOSED.getErrCode(),
+                            callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
+                            (System.currentTimeMillis() - curTime));
+                }
+            }
+        }
     }
 
     private class MaintThread extends Thread {

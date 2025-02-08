@@ -133,13 +133,16 @@ public abstract class BaseSender implements ConfigHolder {
         if (!senderStatus.compareAndSet(currentStatus, SENDER_STATUS_CLOSED)) {
             return;
         }
+        long startTime = System.currentTimeMillis();
+        logger.info("Sender({}) instance is stopping...", senderId);
         configManager.shutDown();
         clientMgr.stop();
         metricHolder.close();
         if (this.senderFactory != null) {
             this.senderFactory.removeClient(this);
         }
-        logger.info("Sender({}) instance stopped!", senderId);
+        logger.info("Sender({}) instance stopped, cost {} ms!",
+                senderId, System.currentTimeMillis() - startTime);
     }
 
     @Override

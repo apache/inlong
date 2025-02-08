@@ -69,9 +69,16 @@ public class MetricConfig {
         return maskStreamId;
     }
 
-    public void setMetricOutIntvlMs(long metricOutIntvlMs) {
-        if (metricOutIntvlMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
-            this.metricOutIntvlMs = metricOutIntvlMs;
+    public void setMetricOutIntvlInfo(Long metricOutIntvlMs, Long metricOutWarnIntMs) {
+        if (metricOutIntvlMs != null) {
+            if (metricOutIntvlMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
+                this.metricOutIntvlMs = metricOutIntvlMs;
+            }
+        }
+        if (metricOutWarnIntMs != null) {
+            if (metricOutWarnIntMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
+                this.metricOutWarnIntMs = metricOutWarnIntMs;
+            }
         }
     }
 
@@ -81,12 +88,6 @@ public class MetricConfig {
 
     public long getMetricOutWarnIntMs() {
         return metricOutWarnIntMs;
-    }
-
-    public void setMetricOutWarnIntMs(long metricOutWarnIntMs) {
-        if (metricOutWarnIntMs >= MIN_METRIC_OUTPUT_INTVL_MS) {
-            this.metricOutWarnIntMs = metricOutWarnIntMs;
-        }
     }
 
     public long getDateFormatIntvlMs() {

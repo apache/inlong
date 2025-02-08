@@ -85,11 +85,11 @@ public class MetricDataHolder implements Runnable {
     public void close() {
         logger.info("Metric DataHolder({}) closing ......", this.sender.getSenderId());
         // process rest data
-        this.outputExecutor.shutdown();
         long startTime = System.currentTimeMillis();
+        this.started = false;
+        this.outputExecutor.shutdown();
         outputMetricData(startTime, getOldIndex());
         outputMetricData(startTime, getCurIndex());
-        this.started = false;
         logger.info("Metric DataHolder({}) closed, cost = {} ms!",
                 this.sender.getSenderId(), System.currentTimeMillis() - startTime);
     }
@@ -181,7 +181,12 @@ public class MetricDataHolder implements Runnable {
             } catch (InterruptedException e) {
                 break;
             }
-        } while (selectedUnit.refCnt.get() > 0);
+        } while (started && selectedUnit.refCnt.get() > 0);
+        if (!started) {
+            logger.info("Metric DataHolder({}) closed, stop output metric info",
+                    sender.getSenderId());
+            return;
+        }
         StringBuilder strBuff = new StringBuilder(512);
         String rptContent = buildMetricReportInfo(strBuff, reportTime, selectedUnit);
         logger.info("Metric DataHolder({}) output metricInfo={}",

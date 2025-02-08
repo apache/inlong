@@ -67,6 +67,7 @@ public class BaseMsgSenderFactory {
 
     public void close() {
         int totalSenderCnt;
+        long startTime = System.currentTimeMillis();
         logger.info("MsgSenderFactory({}) is closing", this.factoryNo);
         senderCacheLock.writeLock().lock();
         try {
@@ -77,8 +78,8 @@ public class BaseMsgSenderFactory {
         } finally {
             senderCacheLock.writeLock().unlock();
         }
-        logger.info("MsgSenderFactory({}) closed, release {} inlong senders",
-                this.factoryNo, totalSenderCnt);
+        logger.info("MsgSenderFactory({}) closed, release {} inlong senders, cost {} ms",
+                this.factoryNo, totalSenderCnt, System.currentTimeMillis() - startTime);
     }
 
     public void removeClient(BaseSender msgSender) {

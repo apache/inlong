@@ -123,16 +123,22 @@ public class HttpClientMgr implements ClientMgr {
             return;
         }
         int remainCnt = 0;
+        long stopTime = System.currentTimeMillis();
+        logger.info("ClientMgr({}) is closing...", this.sender.getSenderId());
         if (!messageCache.isEmpty()) {
-            long startTime = System.currentTimeMillis();
-            while (!messageCache.isEmpty()) {
-                if (System.currentTimeMillis() - startTime >= httpConfig.getHttpCloseWaitPeriodMs()) {
-                    break;
+            if (httpConfig.isDiscardHttpCacheWhenClosing()) {
+                messageCache.clear();
+            } else {
+                long startTime = System.currentTimeMillis();
+                while (!messageCache.isEmpty()) {
+                    if (System.currentTimeMillis() - startTime >= httpConfig.getHttpCloseWaitPeriodMs()) {
+                        break;
+                    }
+                    ProxyUtils.sleepSomeTime(100L);
                 }
-                ProxyUtils.sleepSomeTime(100L);
+                remainCnt = messageCache.size();
+                messageCache.clear();
             }
-            remainCnt = messageCache.size();
-            messageCache.clear();
         }
         workerServices.shutdown();
         if (httpClient != null) {
@@ -142,8 +148,8 @@ public class HttpClientMgr implements ClientMgr {
                 //
             }
         }
-        logger.info("ClientMgr({}) stopped, remain ({}) messages discarded!",
-                this.sender.getSenderId(), remainCnt);
+        logger.info("ClientMgr({}) stopped, remain ({}) messages discarded, cost {} ms!",
+                this.sender.getSenderId(), remainCnt, System.currentTimeMillis() - stopTime);
     }
 
     @Override
