@@ -28,6 +28,8 @@ import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
+import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
+import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
@@ -206,6 +208,11 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-heartbeat",
                     Thread.currentThread().isDaemon());
             sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
+            // start sender object
+            ProcessResult procResult = new ProcessResult();
+            if (!sender.start(procResult)) {
+                throw new ProxySdkException("Sender start failure, " + procResult);
+            }
         } catch (Throwable ex) {
             LOGGER.error("heartbeat manager create sdk failed: ", ex);
         }

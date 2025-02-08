@@ -29,6 +29,7 @@ public class ProxyClientConfigTest {
     public void testManagerConfig() throws Exception {
         HttpMsgSenderConfig httpConfig = new HttpMsgSenderConfig(
                 "http://127.0.0.1:800", "test_id", "secretId", "secretKey");
+        httpConfig.setHttpAsyncRptPoolConfig(30, 20);
         HttpMsgSenderConfig httpConfig1 = httpConfig.clone();
         Assert.assertEquals(httpConfig, httpConfig1);
         httpConfig1.setRegionName("sz");
