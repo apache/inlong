@@ -379,11 +379,16 @@ public class ProxyClientConfig implements Cloneable {
         return metricConfig.isEnableMetric();
     }
 
-    public void setMetricConfig(MetricConfig metricConfig) {
-        if (metricConfig == null) {
-            throw new IllegalArgumentException("metricConfig is null");
-        }
-        this.metricConfig = metricConfig;
+    public void setEnableMetric(boolean enableMetric) {
+        this.metricConfig.setEnableMetric(enableMetric);
+    }
+
+    public void setMetricOutIntvlInfo(long metricOutIntvlMs, long metricOutWarnIntMs) {
+        this.metricConfig.setMetricOutIntvlInfo(metricOutIntvlMs, metricOutWarnIntMs);
+    }
+
+    public void setMetricKeyMaskInfos(boolean maskGroupId, boolean maskStreamId) {
+        this.metricConfig.setMetricKeyMaskInfos(maskGroupId, maskStreamId);
     }
 
     public MetricConfig getMetricConfig() {

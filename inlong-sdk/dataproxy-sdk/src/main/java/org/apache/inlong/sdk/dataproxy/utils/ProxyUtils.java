@@ -31,6 +31,7 @@ import java.lang.management.ManagementFactory;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +149,38 @@ public class ProxyUtils {
 
     public static String buildGroupIdConfigKey(String protocol, String regionName, String groupId) {
         return protocol + ":" + regionName + ":" + groupId;
+    }
+
+    /**
+     * get valid attrs, remove invalid attrs
+     * @param attrsMap the input attrs
+     * @return valid attrs
+     */
+    public static Map<String, String> getValidAttrs(Map<String, String> attrsMap) {
+        if (attrsMap == null || attrsMap.isEmpty()) {
+            return attrsMap;
+        }
+        String tmpValue;
+        Map<String, String> validAttrsMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : attrsMap.entrySet()) {
+            if (StringUtils.isBlank(entry.getKey())
+                    || entry.getKey().contains(AttributeConstants.SEPARATOR)
+                    || entry.getKey().contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
+                continue;
+            }
+            tmpValue = entry.getKey().trim();
+            if (ProxyUtils.SdkReservedWords.contains(tmpValue)) {
+                continue;
+            }
+            if (entry.getValue() != null) {
+                if (entry.getValue().contains(AttributeConstants.SEPARATOR)
+                        || entry.getValue().contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
+                    continue;
+                }
+            }
+            validAttrsMap.put(tmpValue, entry.getValue());
+        }
+        return validAttrsMap;
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
