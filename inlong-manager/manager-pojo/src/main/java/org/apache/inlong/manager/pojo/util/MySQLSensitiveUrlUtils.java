@@ -119,8 +119,8 @@ public class MySQLSensitiveUrlUtils {
 
     public static String containSensitiveKey(String url) {
         for (String key : SENSITIVE_REPLACE_PARAM_MAP.keySet()) {
-            if (url.contains(key + InlongConstants.EQUAL + "true")
-                    || url.contains(key + InlongConstants.EQUAL + "yes")) {
+            if (StringUtils.containsIgnoreCase(url, key + InlongConstants.EQUAL + "true")
+                    || StringUtils.containsIgnoreCase(url, key + InlongConstants.EQUAL + "yes")) {
                 return key;
             }
         }

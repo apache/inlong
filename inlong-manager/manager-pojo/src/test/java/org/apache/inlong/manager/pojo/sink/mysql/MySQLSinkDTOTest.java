@@ -31,6 +31,12 @@ public class MySQLSinkDTOTest {
     public void testFilterSensitive() throws Exception {
         // the sensitive params no use url code
         String originUrl = MySQLSinkDTO.filterSensitive(
+                "jdbc:mysql://127.0.0.1,(allowLoadLocalInfile=yeſ,allowUrlInLocalInfile=yeſ,allowLoadLocalInfileInPath=.,maxAllowedPacket=655360),:3307/test");
+        Assertions.assertEquals(
+                "jdbc:mysql://127.0.0.1,(,,allowLoadLocalInfileInPath=.,maxAllowedPacket=655360),:3307/test",
+                originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
                 "jdbc:mysql://127.0.0.1:3306?autoDeserialize=TRue&allowLoadLocalInfile = TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/&autoReconnect=true");
         Assertions.assertEquals(
                 "jdbc:mysql://127.0.0.1:3306?autoReconnect=true&autoDeserialize=false&allowUrlInLocalInfile=false&allowLoadLocalInfile=false",
