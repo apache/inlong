@@ -65,7 +65,7 @@ public class InlongTopicManager extends TopicManager {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final Map<String, TopicFetcher> fetchers = new ConcurrentHashMap<>();
-    private final Map<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
+    private static final Map<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final Map<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
 
     protected final ForkJoinPool pool;
@@ -88,7 +88,7 @@ public class InlongTopicManager extends TopicManager {
             LOGGER.info("start to clean topic manager, sortTaskId={}", sortTaskId);
             stopAssign = true;
             closeAllFetchers();
-            closeAllPulsarClients();
+            // closeAllPulsarClients();
             closeAllTubeFactories();
             LOGGER.info("success to clean topic manager, sortTaskId={}", sortTaskId);
             return true;
@@ -359,33 +359,38 @@ public class InlongTopicManager extends TopicManager {
 
     private void createPulsarClient(CacheZoneCluster cluster) {
         LOGGER.info("start to init pulsar client for cluster={}", cluster);
-        if (cluster.getBootstraps() != null) {
-            try {
-                String token = cluster.getToken();
-                Authentication auth = null;
-                if (StringUtils.isNoneBlank(token)) {
-                    auth = AuthenticationFactory.token(token);
-                }
-                PulsarClient pulsarClient = PulsarClient.builder()
-                        .serviceUrl(cluster.getBootstraps())
-                        .authentication(auth)
-                        .build();
-                LOGGER.info("create pulsar client succ cluster:{}, token:{}",
-                        cluster.getClusterId(),
-                        cluster.getToken());
-                PulsarClient oldClient = pulsarClients.putIfAbsent(cluster.getClusterId(), pulsarClient);
-                if (oldClient != null && !oldClient.isClosed()) {
-                    LOGGER.warn("close new pulsar client for cluster={}", cluster);
-                    pulsarClient.close();
-                }
-            } catch (Exception e) {
-                LOGGER.error("create pulsar client error for cluster={}", cluster, e);
-                return;
-            }
-            LOGGER.info("success to init pulsar client for cluster={}", cluster);
-        } else {
+        String clientKey = cluster.getBootstraps();
+        if (clientKey == null) {
             LOGGER.error("bootstrap is null for cluster={}", cluster);
+            return;
         }
+        if (pulsarClients.containsKey(clientKey)) {
+            LOGGER.info("Repeat to init pulsar client for cluster={}", cluster);
+            return;
+        }
+        try {
+            String token = cluster.getToken();
+            Authentication auth = null;
+            if (StringUtils.isNoneBlank(token)) {
+                auth = AuthenticationFactory.token(token);
+            }
+            PulsarClient pulsarClient = PulsarClient.builder()
+                    .serviceUrl(cluster.getBootstraps())
+                    .authentication(auth)
+                    .build();
+            LOGGER.info("create pulsar client succ cluster:{}, token:{}",
+                    cluster.getClusterId(),
+                    cluster.getToken());
+            PulsarClient oldClient = pulsarClients.putIfAbsent(cluster.getClusterId(), pulsarClient);
+            if (oldClient != null && !oldClient.isClosed()) {
+                LOGGER.warn("close new pulsar client for cluster={}", cluster);
+                pulsarClient.close();
+            }
+        } catch (Exception e) {
+            LOGGER.error("create pulsar client error for cluster={}", cluster, e);
+            return;
+        }
+        LOGGER.info("success to init pulsar client for cluster={}", cluster);
     }
 
     private List<CacheZoneCluster> getCacheZoneClusters(InlongTopicTypeEnum type) {
