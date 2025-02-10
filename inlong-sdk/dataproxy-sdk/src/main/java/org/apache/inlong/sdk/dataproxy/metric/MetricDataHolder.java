@@ -73,7 +73,7 @@ public class MetricDataHolder implements Runnable {
     @Override
     public void run() {
         long startTime = System.currentTimeMillis();
-        outputMetricData(startTime, getAndIncIndex());
+        outputMetricData(false, startTime, getAndIncIndex());
         long dltTime = System.currentTimeMillis() - startTime;
         if (dltTime > this.metricConfig.getMetricOutWarnIntMs()) {
             logger.warn("Metric DataHolder({}) snapshot finished, cost = {} ms!",
@@ -88,8 +88,8 @@ public class MetricDataHolder implements Runnable {
         long startTime = System.currentTimeMillis();
         this.started = false;
         this.outputExecutor.shutdown();
-        outputMetricData(startTime, getOldIndex());
-        outputMetricData(startTime, getCurIndex());
+        outputMetricData(true, startTime, getOldIndex());
+        outputMetricData(true, startTime, getCurIndex());
         logger.info("Metric DataHolder({}) closed, cost = {} ms!",
                 this.sender.getSenderId(), System.currentTimeMillis() - startTime);
     }
@@ -163,8 +163,11 @@ public class MetricDataHolder implements Runnable {
         }
     }
 
-    private void outputMetricData(long reportTime, int readIndex) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+    private void outputMetricData(boolean forceOutput, long reportTime, int readIndex) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        if (!forceOutput && !this.started) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[readIndex];
@@ -173,7 +176,8 @@ public class MetricDataHolder implements Runnable {
         }
         long startTime = System.currentTimeMillis();
         do {
-            if (System.currentTimeMillis() - startTime >= 5000L) {
+            if ((!forceOutput && !this.started)
+                    || (System.currentTimeMillis() - startTime >= 5000L)) {
                 break;
             }
             try {
@@ -181,8 +185,8 @@ public class MetricDataHolder implements Runnable {
             } catch (InterruptedException e) {
                 break;
             }
-        } while (started && selectedUnit.refCnt.get() > 0);
-        if (!started) {
+        } while (selectedUnit.refCnt.get() > 0);
+        if (!forceOutput && !this.started) {
             logger.info("Metric DataHolder({}) closed, stop output metric info",
                     sender.getSenderId());
             return;
