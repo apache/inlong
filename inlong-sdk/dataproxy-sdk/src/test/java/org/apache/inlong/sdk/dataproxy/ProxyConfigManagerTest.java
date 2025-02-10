@@ -20,7 +20,6 @@ package org.apache.inlong.sdk.dataproxy;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
-import org.apache.inlong.sdk.dataproxy.network.DefClientMgr;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 
 import org.junit.Assert;
@@ -37,13 +36,11 @@ public class ProxyConfigManagerTest {
             Objects.requireNonNull(this.getClass().getClassLoader().getResource("proxylist.json")).toURI())
             .toString();
     private final TcpMsgSenderConfig clientConfig = PowerMockito.mock(TcpMsgSenderConfig.class);
-    private final DefClientMgr clientMgr = PowerMockito.mock(DefClientMgr.class);
     private final ProxyConfigManager proxyConfigManager;
 
     public ProxyConfigManagerTest() throws URISyntaxException {
         clientConfig.setMetaStoreBasePath(localFile);
-        proxyConfigManager =
-                new ProxyConfigManager("test", clientConfig, clientMgr);
+        proxyConfigManager = new ProxyConfigManager("test", clientConfig, null);
     }
 
     @Test

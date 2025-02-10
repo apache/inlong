@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpProxySender extends Thread {
 
-    private static final Logger logger = LoggerFactory.getLogger(Sender.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpProxySender.class);
 
     private final ConcurrentHashSet<HostInfo> hostList = new ConcurrentHashSet<>();
 
