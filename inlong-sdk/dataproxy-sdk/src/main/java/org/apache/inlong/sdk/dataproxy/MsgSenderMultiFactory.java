@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,8 +41,8 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
     private final BaseMsgSenderFactory baseMsgSenderFactory;
 
     public MsgSenderMultiFactory() {
-        this.baseMsgSenderFactory = new BaseMsgSenderFactory(
-                this, "iMultiFact-" + refCounter.incrementAndGet());
+        this.baseMsgSenderFactory = new BaseMsgSenderFactory(this,
+                "iMultiFact-" + ProxyUtils.getProcessPid() + "-" + refCounter.incrementAndGet());
         this.initialized.set(true);
     }
 
