@@ -73,10 +73,10 @@ public class TimeCostInfo {
         long curTotalCnt = totalCnt.sumThenReset();
         if (curTotalCnt == 0) {
             strBuff.append("\"").append(name)
-                    .append("\":{\"bucketT\":{},\"min\":0,\"max\":0,\"avgT\":0}");
+                    .append("\":{\"bkts\":{},\"min\":0,\"max\":0,\"avgT\":0}");
         } else {
             long bucketCnt = 0;
-            strBuff.append("\"").append(name).append("\":{\"bucketT\":{");
+            strBuff.append("\"").append(name).append("\":{\"bkts\":{");
             for (Map.Entry<String, LongAdder> entry : sendTimeBucketT.entrySet()) {
                 if (bucketCnt++ > 0) {
                     strBuff.append(",");

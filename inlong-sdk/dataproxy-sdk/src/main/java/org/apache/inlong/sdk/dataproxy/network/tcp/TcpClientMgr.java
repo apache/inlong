@@ -281,7 +281,7 @@ public class TcpClientMgr implements ClientMgr {
                 }
                 rmvMsgStubInfo(encObject.getMessageId());
             }
-            return procResult.setSuccess();
+            return procResult.isSuccess();
         } else {
             // process sync report
             if (!client.write(clientTerm, encObject, procResult)) {

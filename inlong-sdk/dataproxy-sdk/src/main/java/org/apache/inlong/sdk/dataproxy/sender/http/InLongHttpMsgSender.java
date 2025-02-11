@@ -67,10 +67,10 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
             return httpClientMgr.sendMessage(eventInfo, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addSyncFailMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -92,8 +92,11 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
             }
             return httpClientMgr.asyncSendMessage(new HttpAsyncObj(eventInfo, callback), procResult);
         } finally {
-            if (!procResult.isSuccess()) {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+            if (procResult.isSuccess()) {
+                metricHolder.addAsyncHttpSucPutMetric(
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            } else {
+                metricHolder.addAsyncHttpFailPutMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }

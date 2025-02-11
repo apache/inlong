@@ -80,6 +80,7 @@ public class HttpClientMgr implements ClientMgr {
     private final LinkedBlockingQueue<HttpAsyncObj> messageCache;
     private final Semaphore asyncIdleCellCnt;
     private final ExecutorService workerServices = Executors.newCachedThreadPool();
+    private volatile boolean existSend = false;
     private final AtomicBoolean shutDown = new AtomicBoolean(false);
     // meta info
     private ConcurrentHashMap<String, HostInfo> usingNodeMaps = new ConcurrentHashMap<>();
@@ -126,9 +127,8 @@ public class HttpClientMgr implements ClientMgr {
         long stopTime = System.currentTimeMillis();
         logger.info("ClientMgr({}) is closing...", this.sender.getSenderId());
         if (!messageCache.isEmpty()) {
-            if (httpConfig.isDiscardHttpCacheWhenClosing()) {
-                messageCache.clear();
-            } else {
+            if (!httpConfig.isDiscardHttpCacheWhenClosing()) {
+                // wait last event report
                 long startTime = System.currentTimeMillis();
                 while (!messageCache.isEmpty()) {
                     if (System.currentTimeMillis() - startTime >= httpConfig.getHttpCloseWaitPeriodMs()) {
@@ -136,8 +136,43 @@ public class HttpClientMgr implements ClientMgr {
                     }
                     ProxyUtils.sleepSomeTime(100L);
                 }
-                remainCnt = messageCache.size();
-                messageCache.clear();
+            }
+            // force exist report
+            existSend = true;
+            // call back result
+            boolean isSucc;
+            long currentTime;
+            HttpAsyncObj asyncObj;
+            while (!messageCache.isEmpty()) {
+                asyncObj = messageCache.poll();
+                if (asyncObj == null) {
+                    continue;
+                }
+                isSucc = true;
+                currentTime = System.currentTimeMillis();
+                sender.getMetricHolder().addAsyncHttpSucGetMetric(
+                        asyncObj.getHttpEvent().getGroupId(),
+                        asyncObj.getHttpEvent().getStreamId(),
+                        asyncObj.getHttpEvent().getMsgCnt());
+                try {
+                    asyncObj.getCallback().onMessageAck(new ProcessResult(ErrorCode.SDK_CLOSED));
+                } catch (Throwable ex) {
+                    isSucc = false;
+                    if (asyncSendExptCnt.shouldPrint()) {
+                        logger.error("HttpAsync({}) callback event exception", this.sender.getSenderId(), ex);
+                    }
+                } finally {
+                    asyncIdleCellCnt.release();
+                    if (isSucc) {
+                        sender.getMetricHolder().addCallbackSucMetric(asyncObj.getHttpEvent().getGroupId(),
+                                asyncObj.getHttpEvent().getStreamId(), asyncObj.getHttpEvent().getMsgCnt(),
+                                (currentTime - asyncObj.getRptMs()), (System.currentTimeMillis() - currentTime));
+                    } else {
+                        sender.getMetricHolder().addCallbackFailMetric(ErrorCode.SDK_CLOSED.getErrCode(),
+                                asyncObj.getHttpEvent().getGroupId(), asyncObj.getHttpEvent().getStreamId(),
+                                asyncObj.getHttpEvent().getMsgCnt(), (System.currentTimeMillis() - currentTime));
+                    }
+                }
             }
         }
         workerServices.shutdown();
@@ -443,10 +478,17 @@ public class HttpClientMgr implements ClientMgr {
             // if not shutdown or queue is not empty
             while (!shutDown.get() || !messageCache.isEmpty()) {
                 while (!messageCache.isEmpty()) {
+                    if (existSend) {
+                        break;
+                    }
                     asyncObj = messageCache.poll();
                     if (asyncObj == null) {
                         continue;
                     }
+                    sender.getMetricHolder().addAsyncHttpSucGetMetric(
+                            asyncObj.getHttpEvent().getGroupId(),
+                            asyncObj.getHttpEvent().getStreamId(),
+                            asyncObj.getHttpEvent().getMsgCnt());
                     try {
                         sendMessage(asyncObj.getHttpEvent(), procResult);
                         curTime = System.currentTimeMillis();
@@ -467,6 +509,9 @@ public class HttpClientMgr implements ClientMgr {
                                     asyncObj.getHttpEvent().getMsgCnt(), (System.currentTimeMillis() - curTime));
                         }
                     }
+                }
+                if (existSend) {
+                    break;
                 }
                 ProxyUtils.sleepSomeTime(httpConfig.getHttpAsyncWorkerIdleWaitMs());
             }
