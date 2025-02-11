@@ -28,6 +28,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.metric.MetricDataHolder;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,8 @@ public abstract class BaseSender implements ConfigHolder {
         this.baseConfig = configure.clone();
         this.senderFactory = senderFactory;
         this.factoryClusterIdKey = clusterIdKey;
-        this.senderId = configure.getDataRptProtocol() + "-" + senderIdGen.incrementAndGet();
+        this.senderId = configure.getDataRptProtocol()
+                + "-" + ProxyUtils.getProcessPid() + "-" + senderIdGen.incrementAndGet();
         this.configManager = new ProxyConfigManager(this.senderId, this.baseConfig, this);
         this.configManager.setDaemon(true);
         this.metricHolder = new MetricDataHolder(this);

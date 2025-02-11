@@ -84,10 +84,10 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
             return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addSyncFailMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -100,15 +100,14 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        long curTime = System.currentTimeMillis();
         try {
             return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
-                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+                metricHolder.addAsyncSucReqMetric(
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addAsyncFailReqMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -125,10 +124,10 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
             return processEvent(SendQos.NO_ACK, eventInfo, null, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addSyncFailMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -145,10 +144,10 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
             return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addSyncFailMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -161,15 +160,14 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
-        long curTime = System.currentTimeMillis();
         try {
             return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
-                        eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
+                metricHolder.addAsyncSucReqMetric(
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addAsyncFailReqMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }

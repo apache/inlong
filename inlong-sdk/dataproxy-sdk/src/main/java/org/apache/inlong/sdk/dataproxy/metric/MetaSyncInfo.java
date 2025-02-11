@@ -46,12 +46,12 @@ public class MetaSyncInfo {
 
     public void getAndResetValue(StringBuilder strBuff) {
         if (syncErrInfo.isEmpty()) {
-            strBuff.append("\"mSync\":{\"errT\":{},");
+            strBuff.append("\"ms\":{\"errT\":{},");
             syncCostMs.getAndResetValue(strBuff);
             strBuff.append("}");
         } else {
             long curCnt = 0;
-            strBuff.append("\"mSync\":{\"errT\":{");
+            strBuff.append("\"ms\":{\"errT\":{");
             for (Map.Entry<Integer, LongAdder> entry : syncErrInfo.entrySet()) {
                 if (curCnt++ > 0) {
                     strBuff.append(",");

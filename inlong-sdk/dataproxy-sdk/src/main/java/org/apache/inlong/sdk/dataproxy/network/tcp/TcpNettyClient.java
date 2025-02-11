@@ -265,6 +265,7 @@ public class TcpNettyClient {
             this.msgSentCnt.incrementAndGet();
             this.channel.writeAndFlush(encodeObject);
             this.msgInflightCnt.incrementAndGet();
+            return procResult.setSuccess();
         } catch (Throwable ex) {
             if (conExptCnt.shouldPrint()) {
                 logger.warn("NettyClient({}) write {} exception",
@@ -274,7 +275,6 @@ public class TcpNettyClient {
         } finally {
             this.rw.readLock().unlock();
         }
-        return procResult.setSuccess();
     }
 
     public void setFrozen(long termId) {
