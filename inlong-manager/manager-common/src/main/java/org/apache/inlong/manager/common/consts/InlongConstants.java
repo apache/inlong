@@ -66,6 +66,8 @@ public class InlongConstants {
 
     public static final String LEFT_BRACKET = "(";
 
+    public static final String RIGHT_BRACKET = ")";
+
     public static final String PERCENT = "%";
 
     public static final String QUESTION_MARK = "?";

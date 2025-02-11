@@ -33,7 +33,14 @@ public class MySQLSinkDTOTest {
         String originUrl = MySQLSinkDTO.filterSensitive(
                 "jdbc:mysql://127.0.0.1,(allowLoadLocalInfile=yeſ,allowUrlInLocalInfile=yeſ,allowLoadLocalInfileInPath=.,maxAllowedPacket=655360),:3307/test");
         Assertions.assertEquals(
-                "jdbc:mysql://127.0.0.1,(,,allowLoadLocalInfileInPath=.,maxAllowedPacket=655360),:3307/test",
+                "jdbc:mysql://127.0.0.1,(maxAllowedPacket=655360)(autoDeserialize=false,allowUrlInLocalInfile=false,allowLoadLocalInfile=false),:3307/test",
+                originUrl);
+
+        String jdbcUrl =
+                "jdbc:mysql://127.0.0.1,(allowLoadLocalInfile=%08true,allowUrlInLocalInfile=%08true,allowLoadLocalInfileInPath=.,maxAllowedPacket=655360),:3307/test";
+        originUrl = MySQLSinkDTO.filterSensitive(jdbcUrl);
+        Assertions.assertEquals(
+                "jdbc:mysql://127.0.0.1,(maxAllowedPacket=655360)(autoDeserialize=false,allowUrlInLocalInfile=false,allowLoadLocalInfile=false),:3307/test",
                 originUrl);
 
         originUrl = MySQLSinkDTO.filterSensitive(
@@ -44,7 +51,9 @@ public class MySQLSinkDTOTest {
 
         originUrl = MySQLSinkDTO.filterSensitive(
                 "jdbc:mysql://address=(host=127.0.0.1)(port=3306)(allowLoadallowLoadLocalInfile=trueLocalInfile=true)");
-        Assertions.assertEquals("jdbc:mysql://address=(host=127.0.0.1)(port=3306)()", originUrl);
+        Assertions.assertEquals(
+                "jdbc:mysql://address=(host=127.0.0.1)(port=3306)(allowLoadallowLoadLocalInfile=trueLocalInfile=true)(autoDeserialize=false,allowUrlInLocalInfile=false,allowLoadLocalInfile=false)",
+                originUrl);
 
         originUrl = MySQLSinkDTO.filterSensitive(
                 "jdbc:mysql://127.0.0.1:3306?autoReconnect=true&autoDeserialize = TRue&allowLoadLocalInfile=TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/");
