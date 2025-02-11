@@ -64,8 +64,6 @@ public class ProxyClientConfig implements Cloneable {
     private int mgrConnTimeoutMs = SdkConsts.VAL_DEF_TCP_CONNECT_TIMEOUT_MS;
     // whether to start using local proxy configure
     private boolean onlyUseLocalProxyConfig = false;
-    // max retry count if meta query
-    private int metaQryMaxRetryIfFail = SdkConsts.VAL_DEF_RETRY_IF_CONFIG_SYNC_FAIL;
     // meta sync interval ms
     private long mgrMetaSyncInrMs =
             SdkConsts.VAL_DEF_CONFIG_SYNC_INTERVAL_MIN * SdkConsts.VAL_UNIT_MIN_TO_MS;
@@ -88,7 +86,7 @@ public class ProxyClientConfig implements Cloneable {
     // node forced selection interval ms
     private long forceReChooseInrMs = SdkConsts.VAL_DEF_FORCE_CHOOSE_INR_MS;
     // metric setting
-    private MetricConfig metricConfig = new MetricConfig();
+    private final MetricConfig metricConfig = new MetricConfig();
     // report setting
     private boolean enableReportAuthz = false;
     private boolean enableReportEncrypt = false;

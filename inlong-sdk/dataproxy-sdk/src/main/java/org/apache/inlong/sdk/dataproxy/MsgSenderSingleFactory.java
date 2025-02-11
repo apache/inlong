@@ -44,8 +44,8 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
     public MsgSenderSingleFactory() {
         synchronized (singletonRefCounter) {
             if (singletonRefCounter.incrementAndGet() == 1) {
-                baseMsgSenderFactory = new BaseMsgSenderFactory(
-                        this, "iSingleFct-" + refCounter.incrementAndGet());
+                baseMsgSenderFactory = new BaseMsgSenderFactory(this,
+                        "iSingleFct-" + ProxyUtils.getProcessPid() + "-" + refCounter.incrementAndGet());
                 initialized.set(true);
             }
         }

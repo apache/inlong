@@ -122,31 +122,7 @@ public class SdkConsts {
     public static final int VAL_MAX_HTTP_ASYNC_WORKER_IDLE_WAIT_MS = 3000;
     public static final int VAL_MIN_HTTP_ASYNC_WORKER_IDLE_WAIT_MS = 10;
 
-    public static final int MAX_TIMEOUT_CNT = 10;
     public static final int LOAD_THRESHOLD = 0;
-    public static final int CYCLE = 30;
-
-    public static final int MSG_TYPE = 7;
-    public static final int COMPRESS_SIZE = 120;
-
-    /* Configure the thread pool size for sync message sending. */
-    public static final int SYNC_THREAD_POOL_SIZE = 5;
-    public static final int MAX_SYNC_THREAD_POOL_SIZE = 10;
-
-    /* Configure the in-memory callback size for asynchronously message sending. */
-    public static final int ASYNC_CALLBACK_SIZE = 50000;
-    public static final int MAX_ASYNC_CALLBACK_SIZE = 2000000;
-
-    /* Configure the proxy IP list refresh parameters. */
-    public static final int PROXY_UPDATE_INTERVAL_MINUTES = 5;
-
-    /* one hour interval */
-    public static final int PROXY_HTTP_UPDATE_INTERVAL_MINUTES = 60;
-
-    public static final int MAX_LINE_CNT = 30;
-
-    public static final String RECEIVE_BUFFER_SIZE = "receiveBufferSize";
-    public static final String SEND_BUFFER_SIZE = "sendBufferSize";
 
     public static final int FLAG_ALLOW_AUTH = 1 << 7;
     public static final int FLAG_ALLOW_ENCRYPT = 1 << 6;
@@ -154,8 +130,6 @@ public class SdkConsts {
 
     public static final int EXT_FIELD_FLAG_DISABLE_ID2NUM = 1 << 2;
     public static final int EXT_FIELD_FLAG_SEP_BY_LF = 1 << 5;
-
-    public static int DEFAULT_SENDER_MAX_ATTEMPT = 1;
 
     /* Reserved attribute data size(bytes). */
     public static int RESERVED_ATTRIBUTE_LENGTH = 256;

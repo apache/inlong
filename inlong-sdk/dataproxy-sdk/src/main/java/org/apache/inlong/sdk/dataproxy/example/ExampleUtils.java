@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.dataproxy.sender.http.HttpEventInfo;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.apache.commons.codec.binary.StringUtils;
 
@@ -53,13 +54,15 @@ public class ExampleUtils {
             if (isMultiItem) {
                 // send single message
                 while (curCount++ < reqCnt) {
+                    Map<String, String> filteredAttrs;
                     try {
                         if (curCount > 1) {
                             localAttrs.clear();
                             localAttrs.put("index", String.valueOf(curCount));
                         }
+                        filteredAttrs = ProxyUtils.getValidAttrs(localAttrs);
                         eventInfo = new TcpEventInfo(groupId, streamId,
-                                System.currentTimeMillis(), localAttrs, multiBodys);
+                                System.currentTimeMillis(), filteredAttrs, multiBodys);
                     } catch (Throwable ex) {
                         System.out.println("Build tcp event failure, ex=" + ex);
                         continue;

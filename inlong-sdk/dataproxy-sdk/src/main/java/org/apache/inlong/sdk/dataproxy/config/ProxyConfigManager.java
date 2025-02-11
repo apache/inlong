@@ -863,9 +863,11 @@ public class ProxyConfigManager extends Thread {
     }
 
     private void addAuthorizationInfo(HttpPost httpPost) {
-        httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
-                BasicAuth.genBasicAuthCredential(mgrConfig.getMgrAuthSecretId(),
-                        mgrConfig.getMgrAuthSecretKey()));
+        if (mgrConfig.isEnableMgrAuthz()) {
+            httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
+                    BasicAuth.genBasicAuthCredential(mgrConfig.getMgrAuthSecretId(),
+                            mgrConfig.getMgrAuthSecretKey()));
+        }
     }
 
     private List<BasicNameValuePair> buildProxyNodeQueryParams() {
