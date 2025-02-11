@@ -68,11 +68,6 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
     private int maxAllowedSyncMsgTimeoutCnt = SdkConsts.VAL_DEF_SYNC_MSG_TIMEOUT_CNT;
     // the synchronization message timeout check duration ms
     private long syncMsgTimeoutChkDurMs = SdkConsts.VAL_DEF_SYNC_TIMEOUT_CHK_DUR_MS;
-    // max sync send attempt
-    private int maxSyncSendAttempt = SdkConsts.DEFAULT_SENDER_MAX_ATTEMPT;
-
-    // async callback size
-    private int asyncCallbackSize = SdkConsts.ASYNC_CALLBACK_SIZE;
 
     public TcpMsgSenderConfig(boolean visitMgrByHttps,
             String managerIP, int managerPort, String groupId) throws ProxySdkException {
@@ -252,22 +247,6 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
                 SdkConsts.VAL_MIN_SYNC_TIMEOUT_CHK_DUR_MS, syncMsgTimeoutChkDurMs);
     }
 
-    public int getMaxSyncSendAttempt() {
-        return maxSyncSendAttempt;
-    }
-
-    public void setMaxSyncSendAttempt(int maxSyncSendAttempt) {
-        this.maxSyncSendAttempt = maxSyncSendAttempt;
-    }
-
-    public int getTotalAsyncCallbackSize() {
-        return asyncCallbackSize;
-    }
-
-    public void setTotalAsyncCallbackSize(int asyncCallbackSize) {
-        this.asyncCallbackSize = asyncCallbackSize;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -293,9 +272,7 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
                 && reconFailWaitMs == config.reconFailWaitMs
                 && maxAllowedSyncMsgTimeoutCnt == config.maxAllowedSyncMsgTimeoutCnt
                 && syncMsgTimeoutChkDurMs == config.syncMsgTimeoutChkDurMs
-                && sdkMsgType == config.sdkMsgType
-                && maxSyncSendAttempt == config.maxSyncSendAttempt
-                && asyncCallbackSize == config.asyncCallbackSize;
+                && sdkMsgType == config.sdkMsgType;
     }
 
     @Override
@@ -305,8 +282,7 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
                 nettyWorkerThreadNum, rcvBufferSize, sendBufferSize, connectTimeoutMs,
                 requestTimeoutMs, conCloseWaitPeriodMs, maxMsgInFlightPerConn,
                 frozenReconnectWaitMs, busyReconnectWaitMs, reconFailWaitMs,
-                maxAllowedSyncMsgTimeoutCnt, maxSyncSendAttempt, syncMsgTimeoutChkDurMs,
-                asyncCallbackSize);
+                maxAllowedSyncMsgTimeoutCnt, syncMsgTimeoutChkDurMs);
     }
 
     @Override
@@ -342,9 +318,7 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
                         .append(", busyReconnectWaitMs=").append(busyReconnectWaitMs)
                         .append(", reconFailWaitMs=").append(reconFailWaitMs)
                         .append(", maxAllowedSyncMsgTimeoutCnt=").append(maxAllowedSyncMsgTimeoutCnt)
-                        .append(", maxSyncSendAttempt=").append(maxSyncSendAttempt)
-                        .append(", syncMsgTimeoutChkDurMs=").append(syncMsgTimeoutChkDurMs)
-                        .append(", asyncCallbackSize=").append(asyncCallbackSize);
+                        .append(", syncMsgTimeoutChkDurMs=").append(syncMsgTimeoutChkDurMs);
         return super.getSetting(strBuff);
     }
 }
