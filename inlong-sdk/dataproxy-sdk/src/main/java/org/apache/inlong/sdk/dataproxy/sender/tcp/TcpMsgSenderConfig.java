@@ -48,9 +48,9 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
     // netty worker thread num
     private int nettyWorkerThreadNum = SdkConsts.VAL_DEF_TCP_NETTY_WORKER_THREAD_NUM;
     // socket receive buffer
-    private int rcvBufferSize = SdkConsts.DEFAULT_RECEIVE_BUFFER_SIZE;
+    private int rcvBufferSize = SdkConsts.UNDEFINED_VALUE;
     // socket send buffer
-    private int sendBufferSize = SdkConsts.DEFAULT_SEND_BUFFER_SIZE;
+    private int sendBufferSize = SdkConsts.UNDEFINED_VALUE;
     // connect timeout in milliseconds
     private int connectTimeoutMs = SdkConsts.VAL_DEF_TCP_CONNECT_TIMEOUT_MS;
     // request timeout in milliseconds

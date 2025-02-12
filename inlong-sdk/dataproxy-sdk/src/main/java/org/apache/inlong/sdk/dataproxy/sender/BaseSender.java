@@ -27,6 +27,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.metric.MetricDataHolder;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
@@ -76,6 +77,8 @@ public abstract class BaseSender implements ConfigHolder {
     protected volatile boolean idTransNum = false;
     protected volatile int groupIdNum = 0;
     private Map<String, Integer> streamIdMap = new HashMap<>();
+    private final PkgCacheQuota globalCacheQuota;
+    private final PkgCacheQuota sdkPkgCacheQuota;
     // metric holder
     protected MetricDataHolder metricHolder;
 
@@ -91,6 +94,13 @@ public abstract class BaseSender implements ConfigHolder {
         this.configManager = new ProxyConfigManager(this.senderId, this.baseConfig, this);
         this.configManager.setDaemon(true);
         this.metricHolder = new MetricDataHolder(this);
+        if (this.senderFactory == null) {
+            this.globalCacheQuota = null;
+        } else {
+            this.globalCacheQuota = this.senderFactory.getFactoryPkgCacheQuota();
+        }
+        this.sdkPkgCacheQuota = new PkgCacheQuota(false, this.senderId,
+                configure.getMaxInFlightReqCnt(), configure.getMaxInFlightSizeKb(), configure.getPaddingSize());
     }
 
     public boolean start(ProcessResult procResult) {
@@ -198,6 +208,10 @@ public abstract class BaseSender implements ConfigHolder {
         return senderStatus.get() == SENDER_STATUS_STARTED;
     }
 
+    public boolean isGenByFactory() {
+        return senderFactory != null;
+    }
+
     public MsgSenderFactory getSenderFactory() {
         return senderFactory;
     }
@@ -240,6 +254,31 @@ public abstract class BaseSender implements ConfigHolder {
 
     public int getProxyNodeCnt() {
         return proxyNodeInfos.size();
+    }
+
+    public boolean tryAcquireCachePermits(int sizeInByte, ProcessResult procResult) {
+        if (this.globalCacheQuota == null) {
+            return this.sdkPkgCacheQuota.tryAcquire(sizeInByte, procResult);
+        } else {
+            if (this.globalCacheQuota.tryAcquire(sizeInByte, procResult)) {
+                if (this.sdkPkgCacheQuota.tryAcquire(sizeInByte, procResult)) {
+                    return true;
+                } else {
+                    this.globalCacheQuota.release(sizeInByte);
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
+
+    public void releaseCachePermits(int sizeInByte) {
+        if (this.globalCacheQuota == null) {
+            this.sdkPkgCacheQuota.release(sizeInByte);
+        } else {
+            this.sdkPkgCacheQuota.release(sizeInByte);
+            this.globalCacheQuota.release(sizeInByte);
+        }
     }
 
     public abstract int getActiveNodeCnt();

@@ -56,8 +56,6 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
     private long httpCloseWaitPeriodMs = SdkConsts.VAL_DEF_HTTP_SDK_CLOSE_WAIT_MS;
     // node reuse freezing time
     private long httpNodeReuseWaitIfFailMs = SdkConsts.VAL_DEF_HTTP_REUSE_FAIL_WAIT_MS;
-    // message cache size for async report data.
-    private int httpAsyncRptCacheSize = SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_CACHE_SIZE;
     // thread number for async report data.
     private int httpAsyncRptWorkerNum = SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_WORKER_NUM;
     // interval for async worker in microseconds.
@@ -66,21 +64,25 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
     public HttpMsgSenderConfig(boolean visitMgrByHttps,
             String managerIP, int managerPort, String groupId) throws ProxySdkException {
         super(visitMgrByHttps, managerIP, managerPort, groupId, ReportProtocol.HTTP, null);
+        this.setMaxInFlightReqCnt(SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_CACHE_CNT);
     }
 
     public HttpMsgSenderConfig(String managerAddress, String groupId) throws ProxySdkException {
         super(managerAddress, groupId, ReportProtocol.HTTP, null);
+        this.setMaxInFlightReqCnt(SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_CACHE_CNT);
     }
 
     public HttpMsgSenderConfig(boolean visitMgrByHttps, String managerIP, int managerPort,
             String groupId, String mgrAuthSecretId, String mgrAuthSecretKey) throws ProxySdkException {
         super(visitMgrByHttps, managerIP, managerPort, groupId, ReportProtocol.HTTP, null);
+        this.setMaxInFlightReqCnt(SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_CACHE_CNT);
         this.setMgrAuthzInfo(true, mgrAuthSecretId, mgrAuthSecretKey);
     }
 
     public HttpMsgSenderConfig(String managerAddress,
             String groupId, String mgrAuthSecretId, String mgrAuthSecretKey) throws ProxySdkException {
         super(managerAddress, groupId, ReportProtocol.HTTP, null);
+        this.setMaxInFlightReqCnt(SdkConsts.VAL_DEF_HTTP_ASYNC_RPT_CACHE_CNT);
         this.setMgrAuthzInfo(true, mgrAuthSecretId, mgrAuthSecretKey);
     }
 
@@ -171,17 +173,11 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
                         Math.max(SdkConsts.VAL_MIN_HTTP_REUSE_FAIL_WAIT_MS, httpNodeReuseWaitIfFailMs));
     }
 
-    public int getHttpAsyncRptCacheSize() {
-        return httpAsyncRptCacheSize;
-    }
-
     public int getHttpAsyncRptWorkerNum() {
         return httpAsyncRptWorkerNum;
     }
 
-    public void setHttpAsyncRptPoolConfig(int httpAsyncRptCacheSize, int httpAsyncRptWorkerNum) {
-        this.httpAsyncRptCacheSize =
-                Math.max(SdkConsts.VAL_MIN_HTTP_ASYNC_RPT_CACHE_SIZE, httpAsyncRptCacheSize);
+    public void setHttpAsyncRptWorkerNum(int httpAsyncRptWorkerNum) {
         this.httpAsyncRptWorkerNum =
                 Math.max(SdkConsts.VAL_MIN_HTTP_ASYNC_RPT_WORKER_NUM, httpAsyncRptWorkerNum);
     }
@@ -212,7 +208,6 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
                 && discardHttpCacheWhenClosing == that.discardHttpCacheWhenClosing
                 && httpCloseWaitPeriodMs == that.httpCloseWaitPeriodMs
                 && httpNodeReuseWaitIfFailMs == that.httpNodeReuseWaitIfFailMs
-                && httpAsyncRptCacheSize == that.httpAsyncRptCacheSize
                 && httpAsyncRptWorkerNum == that.httpAsyncRptWorkerNum
                 && httpAsyncWorkerIdleWaitMs == that.httpAsyncWorkerIdleWaitMs
                 && httpContentType == that.httpContentType
@@ -224,7 +219,7 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
         return Objects.hash(super.hashCode(), rptDataByHttps, httpContentType,
                 httpEventsSeparator, sepEventByLF, httpConTimeoutMs, httpSocketTimeoutMs,
                 discardHttpCacheWhenClosing, httpCloseWaitPeriodMs, httpNodeReuseWaitIfFailMs,
-                httpAsyncRptCacheSize, httpAsyncRptWorkerNum, httpAsyncWorkerIdleWaitMs);
+                httpAsyncRptWorkerNum, httpAsyncWorkerIdleWaitMs);
     }
 
     @Override
@@ -253,7 +248,6 @@ public class HttpMsgSenderConfig extends ProxyClientConfig implements Cloneable 
                         .append(", discardHttpCacheWhenClosing=").append(discardHttpCacheWhenClosing)
                         .append(", httpCloseWaitPeriodMs=").append(httpCloseWaitPeriodMs)
                         .append(", httpNodeReuseWaitIfFailMs=").append(httpNodeReuseWaitIfFailMs)
-                        .append(", httpAsyncRptCacheSize=").append(httpAsyncRptCacheSize)
                         .append(", httpAsyncRptWorkerNum=").append(httpAsyncRptWorkerNum)
                         .append(", httpAsyncWorkerIdleWaitMs=").append(httpAsyncWorkerIdleWaitMs);
         return super.getSetting(strBuff);

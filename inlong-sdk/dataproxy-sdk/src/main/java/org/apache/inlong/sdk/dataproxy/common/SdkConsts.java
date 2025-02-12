@@ -36,6 +36,8 @@ public class SdkConsts {
     public static final String VAL_DEF_REGION_NAME = "";
     // http report method
     public static final String DATAPROXY_REPORT_METHOD = "/dataproxy/message";
+    // undefined value
+    public static final int UNDEFINED_VALUE = -1;
     // config info sync interval in minutes
     public static final int VAL_DEF_CONFIG_SYNC_INTERVAL_MIN = 3;
     public static final int VAL_MIN_CONFIG_SYNC_INTERVAL_MIN = 1;
@@ -110,9 +112,8 @@ public class SdkConsts {
     public static final long VAL_DEF_HTTP_REUSE_FAIL_WAIT_MS = 20000L;
     public static final long VAL_MAX_HTTP_REUSE_FAIL_WAIT_MS = 300000L;
     public static final long VAL_MIN_HTTP_REUSE_FAIL_WAIT_MS = 1000L;
-    // HTTP async report request cache size
-    public static final int VAL_DEF_HTTP_ASYNC_RPT_CACHE_SIZE = 2000;
-    public static final int VAL_MIN_HTTP_ASYNC_RPT_CACHE_SIZE = 1;
+    // HTTP async report request cache request count
+    public static final int VAL_DEF_HTTP_ASYNC_RPT_CACHE_CNT = 2000;
     // HTTP async report worker thread count
     public static final int VAL_DEF_HTTP_ASYNC_RPT_WORKER_NUM =
             Runtime.getRuntime().availableProcessors();
@@ -133,4 +134,10 @@ public class SdkConsts {
 
     /* Reserved attribute data size(bytes). */
     public static int RESERVED_ATTRIBUTE_LENGTH = 256;
+    // unit KB
+    public static final int UNIT_KB_SIZE = 1024;
+    // padding size per package
+    public static final int VAL_DEF_PADDING_SIZE = 200;
+    public static final int VAL_MIN_PADDING_SIZE = 0;
+    public static final int VAL_MAX_PADDING_SIZE = 4096;
 }

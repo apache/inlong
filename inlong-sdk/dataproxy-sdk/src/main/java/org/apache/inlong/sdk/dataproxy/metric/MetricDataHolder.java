@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sdk.dataproxy.metric;
 
+import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
-import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.slf4j.Logger;
@@ -40,7 +40,6 @@ public class MetricDataHolder implements Runnable {
 
     private static final String DEFAULT_KEY_SPLITTER = "#";
     private static final Logger logger = LoggerFactory.getLogger(MetricDataHolder.class);
-    private static final LogCounter exceptCnt = new LogCounter(5, 100000, 60 * 1000L);
 
     private final MetricConfig metricConfig;
     private final BaseSender sender;
@@ -457,10 +456,24 @@ public class MetricDataHolder implements Runnable {
                 .append(",\"lrT\":").append(lstReportTime)
                 .append(",");
         metricUnit.getAndResetValue(strBuff);
+        int ifRc = -1;
+        int ifRs = -1;
+        boolean genByFactory = false;
+        MsgSenderFactory factory = sender.getSenderFactory();
+        if (factory != null) {
+            ifRc = factory.getFactoryPkgCacheQuota().getPkgCntPermits();
+            ifRs = factory.getFactoryPkgCacheQuota().getPkgSizeKbPermits();
+        }
         strBuff.append(",\"s\":{\"tNs\":").append(sender.getProxyNodeCnt())
                 .append(",\"aNs\":").append(sender.getActiveNodeCnt())
                 .append(",\"ifRs\":").append(sender.getInflightMsgCnt())
                 .append("},\"c\":{\"aC\":").append(sender.getConfigure().getAliveConnections())
+                .append(",\"iRc\":").append(sender.getConfigure().getMaxInFlightReqCnt())
+                .append(",\"iRs\":").append(sender.getConfigure().getMaxInFlightSizeKb())
+                .append(",\"iRp\":").append(sender.getConfigure().getPaddingSize())
+                .append(",\"gBf\":").append(genByFactory)
+                .append(",\"ifRc\":").append(ifRc)
+                .append(",\"ifRs\":").append(ifRs)
                 .append(",\"rP\":\"").append(sender.getConfigure().getDataRptProtocol())
                 .append("\",\"rG\":\"").append(sender.getConfigure().getRegionName())
                 .append("\"");
@@ -481,8 +494,7 @@ public class MetricDataHolder implements Runnable {
             strBuff.append(",\"iHs\":").append(httpConfig.isRptDataByHttps())
                     .append(",\"sOt\":").append(httpConfig.getHttpSocketTimeoutMs())
                     .append(",\"cOt\":").append(httpConfig.getHttpConTimeoutMs())
-                    .append(",\"aWk\":").append(httpConfig.getHttpAsyncRptWorkerNum())
-                    .append(",\"aC\":").append(httpConfig.getHttpAsyncRptCacheSize());
+                    .append(",\"aWk\":").append(httpConfig.getHttpAsyncRptWorkerNum());
         }
         String content = strBuff.append("}}").toString();
         strBuff.delete(0, strBuff.length());

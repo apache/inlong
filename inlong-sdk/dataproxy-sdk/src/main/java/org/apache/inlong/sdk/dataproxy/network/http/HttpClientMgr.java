@@ -56,7 +56,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -78,7 +77,6 @@ public class HttpClientMgr implements ClientMgr {
     private final HttpMsgSenderConfig httpConfig;
     private CloseableHttpClient httpClient;
     private final LinkedBlockingQueue<HttpAsyncObj> messageCache;
-    private final Semaphore asyncIdleCellCnt;
     private final ExecutorService workerServices = Executors.newCachedThreadPool();
     private volatile boolean existSend = false;
     private final AtomicBoolean shutDown = new AtomicBoolean(false);
@@ -94,8 +92,7 @@ public class HttpClientMgr implements ClientMgr {
     public HttpClientMgr(BaseSender sender, HttpMsgSenderConfig httpConfig) {
         this.sender = sender;
         this.httpConfig = httpConfig;
-        this.messageCache = new LinkedBlockingQueue<>(httpConfig.getHttpAsyncRptCacheSize());
-        this.asyncIdleCellCnt = new Semaphore(httpConfig.getHttpAsyncRptCacheSize(), true);
+        this.messageCache = new LinkedBlockingQueue<>(httpConfig.getMaxInFlightReqCnt());
     }
 
     @Override
@@ -162,7 +159,7 @@ public class HttpClientMgr implements ClientMgr {
                         logger.error("HttpAsync({}) callback event exception", this.sender.getSenderId(), ex);
                     }
                 } finally {
-                    asyncIdleCellCnt.release();
+                    sender.releaseCachePermits(asyncObj.getHttpEvent().getBodySize());
                     if (isSucc) {
                         sender.getMetricHolder().addCallbackSucMetric(asyncObj.getHttpEvent().getGroupId(),
                                 asyncObj.getHttpEvent().getStreamId(), asyncObj.getHttpEvent().getMsgCnt(),
@@ -282,21 +279,12 @@ public class HttpClientMgr implements ClientMgr {
         if (curNodes.isEmpty()) {
             return procResult.setFailResult(ErrorCode.EMPTY_ACTIVE_NODE_SET);
         }
-        if (!this.asyncIdleCellCnt.tryAcquire()) {
-            return procResult.setFailResult(ErrorCode.HTTP_ASYNC_POOL_FULL);
-        }
-        boolean released = false;
         try {
             if (!this.messageCache.offer(asyncObj)) {
-                this.asyncIdleCellCnt.release();
-                released = true;
                 return procResult.setFailResult(ErrorCode.HTTP_ASYNC_OFFER_FAIL);
             }
             return procResult.setSuccess();
         } catch (Throwable ex) {
-            if (!released) {
-                this.asyncIdleCellCnt.release();
-            }
             if (asyncSendExptCnt.shouldPrint()) {
                 logger.warn("ClientMgr({}) async offer event exception", this.sender.getSenderId(), ex);
             }
@@ -498,7 +486,7 @@ public class HttpClientMgr implements ClientMgr {
                             logger.error("HttpAsync({}) report event exception", workerId, ex);
                         }
                     } finally {
-                        asyncIdleCellCnt.release();
+                        sender.releaseCachePermits(asyncObj.getHttpEvent().getBodySize());
                         if (procResult.isSuccess()) {
                             sender.getMetricHolder().addCallbackSucMetric(asyncObj.getHttpEvent().getGroupId(),
                                     asyncObj.getHttpEvent().getStreamId(), asyncObj.getHttpEvent().getMsgCnt(),
