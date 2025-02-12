@@ -201,8 +201,8 @@
                     <artifactId>woodstox-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>nimbus-jose-jwt</artifactId>
                     <groupId>com.nimbusds</groupId>
+                    <artifactId>nimbus-jose-jwt</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
