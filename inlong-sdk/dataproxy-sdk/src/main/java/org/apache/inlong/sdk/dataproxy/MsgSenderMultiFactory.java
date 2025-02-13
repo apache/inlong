@@ -68,16 +68,25 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
                 || msgSender.getSenderFactory() != this) {
             return;
         }
+        if (baseMsgSenderFactory == null) {
+            return;
+        }
         this.baseMsgSenderFactory.removeClient(msgSender);
     }
 
     @Override
     public int getMsgSenderCount() {
+        if (baseMsgSenderFactory == null) {
+            return SdkConsts.UNDEFINED_VALUE;
+        }
         return this.baseMsgSenderFactory.getMsgSenderCount();
     }
 
     @Override
     public PkgCacheQuota getFactoryPkgCacheQuota() {
+        if (baseMsgSenderFactory == null) {
+            return null;
+        }
         return baseMsgSenderFactory.getPkgCacheQuota();
     }
 
