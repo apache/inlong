@@ -44,6 +44,7 @@ public class EncodeObject {
     private final long rtms;
     private int messageId;
     private int msgCnt = 0;
+    private int eventSize;
     private int extField = 0;
     private int attrDataLength = 0;
     private byte[] attrData = null;
@@ -56,10 +57,11 @@ public class EncodeObject {
     private boolean compress;
     private byte[] aesKey;
 
-    public EncodeObject(String groupId, String streamId, MsgType msgType, long dtMs) {
+    public EncodeObject(String groupId, String streamId, MsgType msgType, long dtMs, int eventSize) {
         this.groupId = groupId;
         this.streamId = streamId;
         this.msgType = msgType;
+        this.eventSize = eventSize;
         this.intMsgType = this.msgType.getValue();
         this.rtms = System.currentTimeMillis();
         if (this.msgType == MsgType.MSG_BIN_MULTI_BODY) {
@@ -184,5 +186,9 @@ public class EncodeObject {
 
     public long getDtMs() {
         return dtMs;
+    }
+
+    public int getEventSize() {
+        return eventSize;
     }
 }

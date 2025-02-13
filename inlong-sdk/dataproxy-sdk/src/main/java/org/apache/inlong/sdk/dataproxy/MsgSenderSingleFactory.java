@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
@@ -42,10 +44,15 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
     private static BaseMsgSenderFactory baseMsgSenderFactory;
 
     public MsgSenderSingleFactory() {
+        this(SdkConsts.UNDEFINED_VALUE, SdkConsts.UNDEFINED_VALUE);
+    }
+
+    public MsgSenderSingleFactory(int factoryPkgCntPermits, int factoryPkgSizeKbPermits) {
         synchronized (singletonRefCounter) {
             if (singletonRefCounter.incrementAndGet() == 1) {
                 baseMsgSenderFactory = new BaseMsgSenderFactory(this,
-                        "iSingleFct-" + ProxyUtils.getProcessPid() + "-" + refCounter.incrementAndGet());
+                        "iSingleFct-" + ProxyUtils.getProcessPid() + "-" + refCounter.incrementAndGet(),
+                        factoryPkgCntPermits, factoryPkgSizeKbPermits);
                 initialized.set(true);
             }
         }
@@ -84,6 +91,11 @@ public class MsgSenderSingleFactory implements MsgSenderFactory {
     @Override
     public int getMsgSenderCount() {
         return baseMsgSenderFactory.getMsgSenderCount();
+    }
+
+    @Override
+    public PkgCacheQuota getFactoryPkgCacheQuota() {
+        return baseMsgSenderFactory.getPkgCacheQuota();
     }
 
     @Override

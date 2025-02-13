@@ -82,10 +82,15 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         try {
             if (this.isMetaInfoUnReady()) {
                 return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
             }
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             // check package length
             if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
                 return false;
@@ -96,6 +101,9 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
                 metricHolder.addAsyncHttpSucPutMetric(
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             } else {
+                if (gotPermits) {
+                    releaseCachePermits(eventInfo.getBodySize());
+                }
                 metricHolder.addAsyncHttpFailPutMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }

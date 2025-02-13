@@ -36,6 +36,7 @@ public class TcpCallFuture implements MsgSendCallback {
     private final String groupId;
     private final String streamId;
     private final int msgCnt;
+    private final int eventSize;
     private final long rtTime;
     private final String clientAddr;
     private final long chanTerm;
@@ -53,6 +54,7 @@ public class TcpCallFuture implements MsgSendCallback {
         this.streamId = encObject.getStreamId();
         this.rtTime = encObject.getRtms();
         this.msgCnt = encObject.getMsgCnt();
+        this.eventSize = encObject.getEventSize();
         this.clientAddr = clientAddr;
         this.chanTerm = chanTerm;
         this.chanStr = chanStr;
@@ -131,5 +133,9 @@ public class TcpCallFuture implements MsgSendCallback {
 
     public boolean isAsyncCall() {
         return isAsyncCall;
+    }
+
+    public int getEventSize() {
+        return eventSize;
     }
 }

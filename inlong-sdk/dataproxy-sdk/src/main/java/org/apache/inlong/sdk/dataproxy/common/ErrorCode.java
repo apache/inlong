@@ -63,6 +63,13 @@ public enum ErrorCode {
     //
     FETCH_PROXY_META_FAILURE(59, "Fetch dataproxy meta info failure"),
     FETCH_ENCRYPT_META_FAILURE(60, "Fetch encrypt meta info failure"),
+
+    //
+    INF_REQ_COUNT_REACH_FACTORY_LIMIT(71, "In-flight Request count reach factory limit"),
+    INF_REQ_SIZE_REACH_FACTORY_LIMIT(72, "In-flight Request size reach factory limit"),
+    INF_REQ_COUNT_REACH_SDK_LIMIT(73, "In-flight Request count reach sdk limit"),
+    INF_REQ_SIZE_REACH_SDK_LIMIT(74, "In-flight Request size reach sdk limit"),
+
     //
     NO_NODE_META_INFOS(81, "No proxy node metadata info in local"),
     EMPTY_ACTIVE_NODE_SET(82, "Empty active node set"),
@@ -94,10 +101,9 @@ public enum ErrorCode {
     //
     DP_RECEIVE_FAILURE(160, "DataProxy return message receive failure"),
     //
-    HTTP_ASYNC_POOL_FULL(171, "Http async pool full"),
-    HTTP_ASYNC_OFFER_FAIL(172, "Http async offer event fail"),
-    HTTP_ASYNC_OFFER_EXCEPTION(173, "Http async offer event exception"),
-    HTTP_BUILD_CLIENT_EXCEPTION(174, "Http build client exception"),
+    HTTP_ASYNC_OFFER_FAIL(171, "Http async offer event fail"),
+    HTTP_ASYNC_OFFER_EXCEPTION(172, "Http async offer event exception"),
+    HTTP_BUILD_CLIENT_EXCEPTION(173, "Http build client exception"),
     //
     BUILD_FORM_CONTENT_EXCEPTION(181, "Build form content exception"),
     DP_RETURN_FAILURE(182, "DataProxy return failure"),

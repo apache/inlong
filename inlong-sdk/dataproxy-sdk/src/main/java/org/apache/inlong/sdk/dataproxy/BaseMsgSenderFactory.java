@@ -19,9 +19,11 @@ package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
@@ -52,6 +54,7 @@ public class BaseMsgSenderFactory {
     // msg send factory
     private final MsgSenderFactory msgSenderFactory;
     private final String factoryNo;
+    private final PkgCacheQuota pkgCacheQuota;
     // for senders
     private final ReentrantReadWriteLock senderCacheLock = new ReentrantReadWriteLock();
     // for inlong groupId -- Sender map
@@ -59,10 +62,14 @@ public class BaseMsgSenderFactory {
     // for inlong clusterId -- Sender map
     private final ConcurrentHashMap<String, BaseSender> clusterIdSenderMap = new ConcurrentHashMap<>();
 
-    public BaseMsgSenderFactory(MsgSenderFactory msgSenderFactory, String factoryNo) {
+    protected BaseMsgSenderFactory(MsgSenderFactory msgSenderFactory,
+            String factoryNo, int factoryPkgCntPermits, int factoryPkgSizeKbPermits) {
         this.msgSenderFactory = msgSenderFactory;
         this.factoryNo = factoryNo;
-        logger.info("MsgSenderFactory({}) started", this.factoryNo);
+        this.pkgCacheQuota = new PkgCacheQuota(true, factoryNo,
+                factoryPkgCntPermits, factoryPkgSizeKbPermits, SdkConsts.VAL_DEF_PADDING_SIZE);
+        logger.info("MsgSenderFactory({}) started, factoryPkgCntPermits={}, factoryPkgSizeKbPermits={}",
+                this.factoryNo, factoryPkgCntPermits, factoryPkgSizeKbPermits);
     }
 
     public void close() {
@@ -103,6 +110,10 @@ public class BaseMsgSenderFactory {
         if (removed) {
             logger.info("MsgSenderFactory({}) removed sender({})", this.factoryNo, senderId);
         }
+    }
+
+    public PkgCacheQuota getPkgCacheQuota() {
+        return pkgCacheQuota;
     }
 
     public int getMsgSenderCount() {

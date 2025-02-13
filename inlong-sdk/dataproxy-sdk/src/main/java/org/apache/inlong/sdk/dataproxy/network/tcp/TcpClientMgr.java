@@ -394,6 +394,7 @@ public class TcpClientMgr implements ClientMgr {
             }
         } finally {
             this.descInflightMsgCnt(callFuture);
+            this.releaseAsyncCachedPermits(callFuture);
             if (decObject.getSendResult().isSuccess()) {
                 baseSender.getMetricHolder().addCallbackSucMetric(callFuture.getGroupId(),
                         callFuture.getStreamId(), callFuture.getMsgCnt(),
@@ -475,6 +476,7 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    this.releaseAsyncCachedPermits(callFuture);
                     baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.CONNECTION_BREAK.getErrCode(),
                             callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
                             (System.currentTimeMillis() - curTime));
@@ -495,6 +497,7 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    this.releaseAsyncCachedPermits(callFuture);
                     baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.CONNECTION_BREAK.getErrCode(),
                             callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
                             (System.currentTimeMillis() - curTime));
@@ -578,6 +581,7 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    this.releaseAsyncCachedPermits(callFuture);
                     baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SDK_CLOSED.getErrCode(),
                             callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
                             (System.currentTimeMillis() - curTime));
@@ -598,11 +602,18 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(callFuture.getChanTerm());
+                    this.releaseAsyncCachedPermits(callFuture);
                     baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SDK_CLOSED.getErrCode(),
                             callFuture.getGroupId(), callFuture.getStreamId(), callFuture.getMsgCnt(),
                             (System.currentTimeMillis() - curTime));
                 }
             }
+        }
+    }
+
+    private void releaseAsyncCachedPermits(TcpCallFuture callFuture) {
+        if (callFuture.isAsyncCall()) {
+            baseSender.releaseCachePermits(callFuture.getEventSize());
         }
     }
 
@@ -729,9 +740,11 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(future.getChanTerm());
-                    baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SEND_WAIT_TIMEOUT.getErrCode(),
-                            future.getGroupId(), future.getStreamId(), future.getMsgCnt(),
-                            (System.currentTimeMillis() - curTime));
+                    releaseAsyncCachedPermits(future);
+                    baseSender.getMetricHolder().addCallbackFailMetric(
+                            ErrorCode.SEND_WAIT_TIMEOUT.getErrCode(),
+                            future.getGroupId(), future.getStreamId(),
+                            future.getMsgCnt(), (System.currentTimeMillis() - curTime));
                 }
                 return;
             }
@@ -753,6 +766,7 @@ public class TcpClientMgr implements ClientMgr {
                     }
                 } finally {
                     nettyTcpClient.decInFlightMsgCnt(future.getChanTerm());
+                    releaseAsyncCachedPermits(future);
                     baseSender.getMetricHolder().addCallbackFailMetric(ErrorCode.SEND_WAIT_TIMEOUT.getErrCode(),
                             future.getGroupId(), future.getStreamId(), future.getMsgCnt(),
                             (System.currentTimeMillis() - curTime));

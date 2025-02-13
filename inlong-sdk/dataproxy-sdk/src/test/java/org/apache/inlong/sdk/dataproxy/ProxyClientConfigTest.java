@@ -29,13 +29,15 @@ public class ProxyClientConfigTest {
     public void testManagerConfig() throws Exception {
         HttpMsgSenderConfig httpConfig = new HttpMsgSenderConfig(
                 "http://127.0.0.1:800", "test_id", "secretId", "secretKey");
-        httpConfig.setHttpAsyncRptPoolConfig(30, 20);
+        httpConfig.setMaxInFlightReqCnt(30);
+        httpConfig.setHttpAsyncRptWorkerNum(20);
         HttpMsgSenderConfig httpConfig1 = httpConfig.clone();
         Assert.assertEquals(httpConfig, httpConfig1);
         httpConfig1.setRegionName("sz");
-        httpConfig1.setHttpAsyncRptPoolConfig(50, 10);
+        httpConfig.setMaxInFlightReqCnt(50);
+        httpConfig.setHttpAsyncRptWorkerNum(10);
         Assert.assertNotEquals(httpConfig1.getRegionName(), httpConfig.getRegionName());
-        Assert.assertNotEquals(httpConfig1.getHttpAsyncRptCacheSize(), httpConfig.getHttpAsyncRptCacheSize());
+        Assert.assertNotEquals(httpConfig1.getMaxInFlightReqCnt(), httpConfig.getMaxInFlightReqCnt());
         Assert.assertNotEquals(httpConfig1.getHttpAsyncRptWorkerNum(), httpConfig.getHttpAsyncRptWorkerNum());
         httpConfig.setRptDataByHttps(true);
         httpConfig.setMetaCacheExpiredMs(30000);

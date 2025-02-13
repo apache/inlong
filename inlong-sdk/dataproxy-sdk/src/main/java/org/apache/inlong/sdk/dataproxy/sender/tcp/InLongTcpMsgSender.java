@@ -79,10 +79,18 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         long curTime = System.currentTimeMillis();
         try {
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             return processEvent(SendQos.SOURCE_ACK, eventInfo, null, procResult);
         } finally {
+            if (gotPermits) {
+                releaseCachePermits(eventInfo.getBodySize());
+            }
             if (procResult.isSuccess()) {
                 metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
@@ -100,13 +108,21 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         try {
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             return processEvent(SendQos.SOURCE_ACK, eventInfo, callback, procResult);
         } finally {
             if (procResult.isSuccess()) {
                 metricHolder.addAsyncSucReqMetric(
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             } else {
+                if (gotPermits) {
+                    releaseCachePermits(eventInfo.getBodySize());
+                }
                 metricHolder.addAsyncFailReqMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
@@ -139,10 +155,18 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         long curTime = System.currentTimeMillis();
         try {
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             return processEvent(SendQos.SINK_ACK, eventInfo, null, procResult);
         } finally {
+            if (gotPermits) {
+                releaseCachePermits(eventInfo.getBodySize());
+            }
             if (procResult.isSuccess()) {
                 metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
@@ -160,13 +184,21 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         try {
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             return processEvent(SendQos.SINK_ACK, eventInfo, callback, procResult);
         } finally {
             if (procResult.isSuccess()) {
                 metricHolder.addAsyncSucReqMetric(
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             } else {
+                if (gotPermits) {
+                    releaseCachePermits(eventInfo.getBodySize());
+                }
                 metricHolder.addAsyncFailReqMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
@@ -188,8 +220,9 @@ public class InLongTcpMsgSender extends BaseSender implements TcpMsgSender {
         if (this.isMetaInfoUnReady()) {
             return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
         }
-        EncodeObject encObject = new EncodeObject(eventInfo.getGroupId(),
-                eventInfo.getStreamId(), tcpConfig.getSdkMsgType(), eventInfo.getDtMs());
+        EncodeObject encObject =
+                new EncodeObject(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                        tcpConfig.getSdkMsgType(), eventInfo.getDtMs(), eventInfo.getBodySize());
         // pre-process attributes
         processEventAttrsInfo(sendQos, eventInfo, encObject);
         // check package length
