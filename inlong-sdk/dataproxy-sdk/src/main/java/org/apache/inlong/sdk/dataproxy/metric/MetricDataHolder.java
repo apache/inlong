@@ -468,7 +468,7 @@ public class MetricDataHolder implements Runnable {
                 .append("},\"c\":{\"aC\":").append(sender.getConfigure().getAliveConnections())
                 .append(",\"gBf\":").append(sender.isGenByFactory())
                 .append(",\"ifCc\":").append(sender.getFactoryPkgCntPermits())
-                .append(",\"ifCs\":").append(sender.getFactoryPkgCntPermits())
+                .append(",\"ifCs\":").append(sender.getFactoryPkgSizeKbPermits())
                 .append(",\"iCc\":").append(sender.getConfigure().getMaxInFlightReqCnt())
                 .append(",\"iCs\":").append(sender.getConfigure().getMaxInFlightSizeKb())
                 .append(",\"iRp\":").append(sender.getConfigure().getPaddingSize())
