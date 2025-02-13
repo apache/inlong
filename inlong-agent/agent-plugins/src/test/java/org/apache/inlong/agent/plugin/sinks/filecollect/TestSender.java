@@ -24,6 +24,7 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.file.OffsetAckInfo;
 import org.apache.inlong.agent.message.file.SenderMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
+import org.apache.inlong.agent.plugin.sinks.Sender;
 import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -52,12 +53,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(SenderManager.class)
+@PrepareForTest(Sender.class)
 @PowerMockIgnore({"javax.management.*"})
-public class TestSenderManager {
+public class TestSender {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestSenderManager.class);
-    private static final ClassLoader LOADER = TestSenderManager.class.getClassLoader();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSender.class);
+    private static final ClassLoader LOADER = TestSender.class.getClassLoader();
     private static AgentBaseTestsHelper helper;
     private static InstanceProfile profile;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
@@ -69,7 +70,7 @@ public class TestSenderManager {
     @BeforeClass
     public static void setup() {
         String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
-        helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(TestSender.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile =
                 helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
@@ -88,17 +89,17 @@ public class TestSenderManager {
         List<MsgSendCallback> cbList = new ArrayList<>();
         try {
             profile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(profile.getInstanceId()));
-            SenderManager senderManager = PowerMockito.spy(new SenderManager(profile, "inlongGroupId", "sourceName"));
-            PowerMockito.doNothing().when(senderManager, "createMessageSender");
+            Sender sender = PowerMockito.spy(new Sender(profile, "inlongGroupId", "sourceName"));
+            PowerMockito.doNothing().when(sender, "createMessageSender");
 
             PowerMockito.doAnswer(invocation -> {
                 MsgSendCallback cb = invocation.getArgument(0);
                 cbList.add(cb);
                 return null;
-            }).when(senderManager, "asyncSendByMessageSender", Mockito.any(),
+            }).when(sender, "asyncSendByMessageSender", Mockito.any(),
                     Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.any(),
                     Mockito.any(), Mockito.anyBoolean());
-            senderManager.Start();
+            sender.Start();
             Long offset = 0L;
             List<OffsetAckInfo> ackInfoListTotal = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
@@ -112,7 +113,7 @@ public class TestSenderManager {
                 }
                 SenderMessage senderMessage = new SenderMessage("taskId", "instanceId", "groupId", "streamId", bodyList,
                         AgentUtils.getCurrentTime(), null, ackInfoList);
-                senderManager.sendBatch(senderMessage);
+                sender.sendBatch(senderMessage);
             }
             Assert.assertTrue(cbList.size() == 10);
             for (int i = 0; i < 5; i++) {

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils.regex;
 
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.utils.DateTransUtils;
 
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import java.util.List;
 public class Scanner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
-    public static final String SCAN_CYCLE_RANCE = "-2";
 
     public static class TimeRange {
 
@@ -87,9 +87,8 @@ public class Scanner {
             boolean isRetry) {
         if (!isRetry) {
             long currentTime = System.currentTimeMillis();
-            // only scan two cycle, like two hours or two days
-            long offset = DateTransUtils.calcOffset(SCAN_CYCLE_RANCE + cycleUnit);
-            startTime = currentTime + offset + DateTransUtils.calcOffset(timeOffset);
+            startTime =
+                    currentTime + OffsetManager.getScanCycleRange(cycleUnit) + DateTransUtils.calcOffset(timeOffset);
             endTime = currentTime + DateTransUtils.calcOffset(timeOffset);
         }
         return new TimeRange(startTime, endTime);

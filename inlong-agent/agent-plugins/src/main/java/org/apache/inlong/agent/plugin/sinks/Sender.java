@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sinks.filecollect;
+package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -68,9 +68,9 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 /**
  * proxy client
  */
-public class SenderManager {
+public class Sender {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sender.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     public static final int RESEND_QUEUE_WAIT_MS = 10;
     // cache for group and sender list, share the map cross agent lifecycle.
@@ -112,7 +112,7 @@ public class SenderManager {
     private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     private long auditVersion;
 
-    public SenderManager(InstanceProfile profile, String inlongGroupId, String sourcePath) {
+    public Sender(InstanceProfile profile, String inlongGroupId, String sourcePath) {
         this.profile = profile;
         auditVersion = Long.parseLong(profile.get(TASK_AUDIT_VERSION));
         managerAddr = agentConf.get(AGENT_MANAGER_ADDR);

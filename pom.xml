@@ -207,6 +207,7 @@
         <libfb303.version>0.9.3</libfb303.version>
         <apache.thrift.version>0.14.1</apache.thrift.version>
         <aircompressor.version>0.27</aircompressor.version>
+        <json.smart.version>2.5.1</json.smart.version>
     </properties>
 
     <dependencyManagement>
@@ -1268,6 +1269,11 @@
                 <groupId>com.tencentcloudapi</groupId>
                 <artifactId>tencentcloud-sdk-java-cls</artifactId>
                 <version>${tencentcloud-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>${json.smart.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
