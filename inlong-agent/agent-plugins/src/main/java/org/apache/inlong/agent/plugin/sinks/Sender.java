@@ -120,7 +120,7 @@ public class Sender {
         totalAsyncBufSize = profile
                 .getInt(
                         CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
-                        CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
+                        CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE_KB);
         aliveConnectionNum = profile
                 .getInt(
                         CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
@@ -203,7 +203,7 @@ public class Sender {
     private void createMessageSender() throws Exception {
         TcpMsgSenderConfig proxyClientConfig = new TcpMsgSenderConfig(
                 managerAddr, inlongGroupId, authSecretId, authSecretKey);
-        proxyClientConfig.setMaxInFlightSizeInKb(totalAsyncBufSize / 1024);
+        proxyClientConfig.setMaxInFlightSizeInKb(totalAsyncBufSize);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
         proxyClientConfig.setRequestTimeoutMs(maxSenderTimeout * 1000L);
         proxyClientConfig.setNettyWorkerThreadNum(ioThreadNum);

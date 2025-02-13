@@ -83,7 +83,7 @@ public class TestInstanceManager {
         Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK);
         TaskStore taskStore = new TaskStore(taskBasicStore);
         taskStore.storeTask(taskProfile);
-        manager = new InstanceManager("1", 20, basicInstanceStore, taskStore);
+        manager = new InstanceManager(null, "1", 20, basicInstanceStore, taskStore);
         manager.CORE_THREAD_SLEEP_TIME_MS = 100;
     }
 

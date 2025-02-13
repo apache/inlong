@@ -22,6 +22,8 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.store.InstanceStore;
@@ -81,6 +83,8 @@ public class InstanceManager extends AbstractDaemon {
     private long auditVersion;
     private volatile boolean running = false;
     private final double reserveCoefficient = 0.8;
+    protected TaskManager taskManager;
+    private final int globalInstanceLimit;
 
     private class InstancePrintStat {
 
@@ -118,7 +122,9 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, int instanceLimit, Store basicStore, TaskStore taskStore) {
+    public InstanceManager(TaskManager taskManager, String taskId, int instanceLimit, Store basicStore,
+            TaskStore taskStore) {
+        this.taskManager = taskManager;
         this.taskId = taskId;
         instanceStore = new InstanceStore(basicStore);
         this.taskStore = taskStore;
@@ -127,6 +133,8 @@ public class InstanceManager extends AbstractDaemon {
         this.instanceLimit = instanceLimit;
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
         addActionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+        globalInstanceLimit = agentConf.getInt(AgentConstants.AGENT_INSTANCE_LIMIT,
+                AgentConstants.DEFAULT_AGENT_INSTANCE_LIMIT);
     }
 
     public String getTaskId() {
@@ -292,8 +300,12 @@ public class InstanceManager extends AbstractDaemon {
 
     private void dealWithAddActionQueue() {
         while (isRunnable()) {
+            if (taskManager != null && taskManager.getInstanceNum() > globalInstanceLimit) {
+                LOGGER.error("global instance num {} over limit {}", taskManager.getInstanceNum(), globalInstanceLimit);
+                return;
+            }
             if (instanceMap.size() > instanceLimit) {
-                LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+                LOGGER.error("task {} instanceMap size {} over limit {}", taskId, instanceMap.size(), instanceLimit);
                 return;
             }
             InstanceAction action = addActionQueue.poll();
@@ -506,5 +518,10 @@ public class InstanceManager extends AbstractDaemon {
             }
         }
         return count;
+    }
+
+    public int getInstanceNum() {
+
+        return instanceMap.size();
     }
 }

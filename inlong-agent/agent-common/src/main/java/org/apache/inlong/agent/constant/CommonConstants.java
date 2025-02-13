@@ -29,7 +29,7 @@ public class CommonConstants {
     public static final String DEFAULT_PROXY_INLONG_STREAM_ID = "default_inlong_stream_id";
 
     public static final String PROXY_TOTAL_ASYNC_PROXY_SIZE = "proxy.total.async.proxy.size";
-    public static final int DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE = 200 * 1024 * 1024;
+    public static final int DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE_KB = 200 * 1024;
 
     public static final String PROXY_ALIVE_CONNECTION_NUM = "proxy.alive.connection.num";
     public static final int DEFAULT_PROXY_ALIVE_CONNECTION_NUM = 10;

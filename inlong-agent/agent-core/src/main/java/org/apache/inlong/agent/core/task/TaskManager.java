@@ -527,6 +527,14 @@ public class TaskManager extends AbstractDaemon {
         return taskMap.get(taskId);
     }
 
+    public int getInstanceNum() {
+        int num = 0;
+        for (Task task : taskMap.values()) {
+            num += task.getInstanceNum();
+        }
+        return num;
+    }
+
     public TaskProfile getTaskProfile(String taskId) {
         return taskStore.getTask(taskId);
     }
