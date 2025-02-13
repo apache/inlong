@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy.metric;
 
-import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
@@ -25,6 +24,7 @@ import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -456,24 +456,22 @@ public class MetricDataHolder implements Runnable {
                 .append(",\"lrT\":").append(lstReportTime)
                 .append(",");
         metricUnit.getAndResetValue(strBuff);
-        int ifRc = -1;
-        int ifRs = -1;
-        boolean genByFactory = false;
-        MsgSenderFactory factory = sender.getSenderFactory();
-        if (factory != null) {
-            ifRc = factory.getFactoryPkgCacheQuota().getPkgCntPermits();
-            ifRs = factory.getFactoryPkgCacheQuota().getPkgSizeKbPermits();
-        }
+        Tuple2<Integer, Integer> factoryAvailQuota = sender.getFactoryAvailQuota();
+        Tuple2<Integer, Integer> senderAvailQuota = sender.getSenderAvailQuota();
         strBuff.append(",\"s\":{\"tNs\":").append(sender.getProxyNodeCnt())
                 .append(",\"aNs\":").append(sender.getActiveNodeCnt())
                 .append(",\"ifRs\":").append(sender.getInflightMsgCnt())
+                .append(",\"afPc\":").append(factoryAvailQuota.getF0())
+                .append(",\"afPs\":").append(factoryAvailQuota.getF1())
+                .append(",\"aPc\":").append(senderAvailQuota.getF0())
+                .append(",\"aPs\":").append(senderAvailQuota.getF1())
                 .append("},\"c\":{\"aC\":").append(sender.getConfigure().getAliveConnections())
-                .append(",\"iRc\":").append(sender.getConfigure().getMaxInFlightReqCnt())
-                .append(",\"iRs\":").append(sender.getConfigure().getMaxInFlightSizeKb())
+                .append(",\"gBf\":").append(sender.isGenByFactory())
+                .append(",\"ifCc\":").append(sender.getFactoryPkgCntPermits())
+                .append(",\"ifCs\":").append(sender.getFactoryPkgCntPermits())
+                .append(",\"iCc\":").append(sender.getConfigure().getMaxInFlightReqCnt())
+                .append(",\"iCs\":").append(sender.getConfigure().getMaxInFlightSizeKb())
                 .append(",\"iRp\":").append(sender.getConfigure().getPaddingSize())
-                .append(",\"gBf\":").append(genByFactory)
-                .append(",\"ifRc\":").append(ifRc)
-                .append(",\"ifRs\":").append(ifRs)
                 .append(",\"rP\":\"").append(sender.getConfigure().getDataRptProtocol())
                 .append("\",\"rG\":\"").append(sender.getConfigure().getRegionName())
                 .append("\"");

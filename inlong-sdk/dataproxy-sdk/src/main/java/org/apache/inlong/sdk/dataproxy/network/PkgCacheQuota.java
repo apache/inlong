@@ -35,7 +35,7 @@ import java.util.concurrent.Semaphore;
 public class PkgCacheQuota {
 
     private static final Logger logger = LoggerFactory.getLogger(PkgCacheQuota.class);
-    private static final Tuple2<Integer, Integer> DISABLE_RET =
+    public static final Tuple2<Integer, Integer> DISABLE_RET =
             new Tuple2<>(SdkConsts.UNDEFINED_VALUE, SdkConsts.UNDEFINED_VALUE);
     // whether factory level quota
     private final boolean factoryLevel;

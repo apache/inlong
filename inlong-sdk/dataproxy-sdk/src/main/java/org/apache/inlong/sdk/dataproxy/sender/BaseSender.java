@@ -21,6 +21,7 @@ import org.apache.inlong.sdk.dataproxy.MsgSenderFactory;
 import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.config.ConfigHolder;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
@@ -31,6 +32,7 @@ import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -254,6 +256,39 @@ public abstract class BaseSender implements ConfigHolder {
 
     public int getProxyNodeCnt() {
         return proxyNodeInfos.size();
+    }
+
+    public Tuple2<Integer, Integer> getFactoryAvailQuota() {
+        if (senderFactory == null) {
+            return PkgCacheQuota.DISABLE_RET;
+        }
+        return globalCacheQuota.getPkgCacheAvailQuota();
+    }
+
+    public Tuple2<Integer, Integer> getSenderAvailQuota() {
+        return sdkPkgCacheQuota.getPkgCacheAvailQuota();
+    }
+
+    public int getFactoryPkgCntPermits() {
+        if (senderFactory == null) {
+            return SdkConsts.UNDEFINED_VALUE;
+        }
+        return senderFactory.getFactoryPkgCacheQuota().getPkgCntPermits();
+    }
+
+    public int getFactoryPkgSizeKbPermits() {
+        if (senderFactory == null) {
+            return SdkConsts.UNDEFINED_VALUE;
+        }
+        return senderFactory.getFactoryPkgCacheQuota().getPkgSizeKbPermits();
+    }
+
+    public int getSenderPkgCntPermits() {
+        return sdkPkgCacheQuota.getPkgCntPermits();
+    }
+
+    public int getSenderPkgSizeKbPermits() {
+        return sdkPkgCacheQuota.getPkgSizeKbPermits();
     }
 
     public boolean tryAcquireCachePermits(int sizeInByte, ProcessResult procResult) {
