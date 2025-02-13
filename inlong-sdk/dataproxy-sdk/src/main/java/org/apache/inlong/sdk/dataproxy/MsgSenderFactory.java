@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
@@ -52,6 +53,13 @@ public interface MsgSenderFactory {
      * @return the number of senders currently in use
      */
     int getMsgSenderCount();
+
+    /**
+     * Get factory level inflight request quota
+     *
+     * @return the factory level inflight request quota
+     */
+    PkgCacheQuota getFactoryPkgCacheQuota();
 
     /**
      * Get or generate a sender from the factory according to groupId

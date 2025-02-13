@@ -17,12 +17,15 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.exception.ProxySdkException;
+import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.http.InLongHttpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.InLongTcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
+import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,8 +43,13 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
     private final BaseMsgSenderFactory baseMsgSenderFactory;
 
     public MsgSenderMultiFactory() {
-        this.baseMsgSenderFactory = new BaseMsgSenderFactory(
-                this, "iMultiFact-" + refCounter.incrementAndGet());
+        this(SdkConsts.UNDEFINED_VALUE, SdkConsts.UNDEFINED_VALUE);
+    }
+
+    public MsgSenderMultiFactory(int factoryPkgCntPermits, int factoryPkgSizeKbPermits) {
+        this.baseMsgSenderFactory = new BaseMsgSenderFactory(this,
+                "iMultiFact-" + ProxyUtils.getProcessPid() + "-" + refCounter.incrementAndGet(),
+                factoryPkgCntPermits, factoryPkgSizeKbPermits);
         this.initialized.set(true);
     }
 
@@ -66,6 +74,11 @@ public class MsgSenderMultiFactory implements MsgSenderFactory {
     @Override
     public int getMsgSenderCount() {
         return this.baseMsgSenderFactory.getMsgSenderCount();
+    }
+
+    @Override
+    public PkgCacheQuota getFactoryPkgCacheQuota() {
+        return baseMsgSenderFactory.getPkgCacheQuota();
     }
 
     @Override

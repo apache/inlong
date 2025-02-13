@@ -22,8 +22,8 @@ import org.apache.inlong.sdk.dataproxy.sender.BaseSender;
 import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
-import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
+import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,6 @@ public class MetricDataHolder implements Runnable {
 
     private static final String DEFAULT_KEY_SPLITTER = "#";
     private static final Logger logger = LoggerFactory.getLogger(MetricDataHolder.class);
-    private static final LogCounter exceptCnt = new LogCounter(10, 100000, 60 * 1000L);
 
     private final MetricConfig metricConfig;
     private final BaseSender sender;
@@ -95,7 +94,7 @@ public class MetricDataHolder implements Runnable {
     }
 
     public void addMetaSyncMetric(int errCode, long syncCostMs) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+        if (!this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
@@ -107,28 +106,56 @@ public class MetricDataHolder implements Runnable {
         }
     }
 
-    public void addSucMetric(String groupId, String streamId, int msgCnt, long costMs) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+    public void addSyncSucMetric(String groupId, String streamId, int msgCnt, long costMs) {
+        if (!this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
         selectedUnit.refCnt.incrementAndGet();
         try {
-            selectedUnit.addSucMsgInfo(groupId,
+            selectedUnit.addSyncSendSucInfo(groupId,
                     (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, costMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
     }
 
-    public void addFailMetric(int errCode, String groupId, String streamId, int msgCnt) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+    public void addSyncFailMetric(int errCode, String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
         selectedUnit.refCnt.incrementAndGet();
         try {
-            selectedUnit.addFailMsgInfo(groupId,
+            selectedUnit.addSyncSendFailInfo(groupId,
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode);
+        } finally {
+            selectedUnit.refCnt.decrementAndGet();
+        }
+    }
+
+    public void addAsyncSucReqMetric(String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        MetricInfoUnit selectedUnit = metricUnits[itemIndex];
+        selectedUnit.refCnt.incrementAndGet();
+        try {
+            selectedUnit.addAsyncSendSucInfo(groupId,
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt);
+        } finally {
+            selectedUnit.refCnt.decrementAndGet();
+        }
+    }
+
+    public void addAsyncFailReqMetric(int errCode, String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        MetricInfoUnit selectedUnit = metricUnits[itemIndex];
+        selectedUnit.refCnt.incrementAndGet();
+        try {
+            selectedUnit.addAsyncSendFailInfo(groupId,
                     (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
@@ -136,13 +163,13 @@ public class MetricDataHolder implements Runnable {
     }
 
     public void addCallbackSucMetric(String groupId, String streamId, int msgCnt, long costMs, long callDurMs) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+        if (!this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
         selectedUnit.refCnt.incrementAndGet();
         try {
-            selectedUnit.addSucMsgInfo(groupId,
+            selectedUnit.addAsyncRspSucInfo(groupId,
                     (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, costMs, callDurMs);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
@@ -150,14 +177,56 @@ public class MetricDataHolder implements Runnable {
     }
 
     public void addCallbackFailMetric(int errCode, String groupId, String streamId, int msgCnt, long costMs) {
-        if (!this.started || !this.metricConfig.isEnableMetric()) {
+        if (!this.metricConfig.isEnableMetric()) {
             return;
         }
         MetricInfoUnit selectedUnit = metricUnits[itemIndex];
         selectedUnit.refCnt.incrementAndGet();
         try {
-            selectedUnit.addFailMsgInfo(groupId,
+            selectedUnit.addAsyncRspFailInfo(groupId,
                     (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode, costMs);
+        } finally {
+            selectedUnit.refCnt.decrementAndGet();
+        }
+    }
+
+    public void addAsyncHttpSucPutMetric(String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        MetricInfoUnit selectedUnit = metricUnits[itemIndex];
+        selectedUnit.refCnt.incrementAndGet();
+        try {
+            selectedUnit.addAsyncHttpPutSucInfo(groupId,
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt);
+        } finally {
+            selectedUnit.refCnt.decrementAndGet();
+        }
+    }
+
+    public void addAsyncHttpFailPutMetric(int errCode, String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        MetricInfoUnit selectedUnit = metricUnits[itemIndex];
+        selectedUnit.refCnt.incrementAndGet();
+        try {
+            selectedUnit.addAsyncHttpPutFailInfo(groupId,
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt, errCode);
+        } finally {
+            selectedUnit.refCnt.decrementAndGet();
+        }
+    }
+
+    public void addAsyncHttpSucGetMetric(String groupId, String streamId, int msgCnt) {
+        if (!this.metricConfig.isEnableMetric()) {
+            return;
+        }
+        MetricInfoUnit selectedUnit = metricUnits[itemIndex];
+        selectedUnit.refCnt.incrementAndGet();
+        try {
+            selectedUnit.addAsyncHttpGetSucInfo(groupId,
+                    (this.metricConfig.isMaskStreamId() ? "" : streamId), msgCnt);
         } finally {
             selectedUnit.refCnt.decrementAndGet();
         }
@@ -180,11 +249,7 @@ public class MetricDataHolder implements Runnable {
                     || (System.currentTimeMillis() - startTime >= 5000L)) {
                 break;
             }
-            try {
-                Thread.sleep(3);
-            } catch (InterruptedException e) {
-                break;
-            }
+            ProxyUtils.sleepSomeTime(80);
         } while (selectedUnit.refCnt.get() > 0);
         if (!forceOutput && !this.started) {
             logger.info("Metric DataHolder({}) closed, stop output metric info",
@@ -218,7 +283,7 @@ public class MetricDataHolder implements Runnable {
         protected final ConcurrentHashMap<String, TrafficInfo> trafficMap = new ConcurrentHashMap<>();
         protected final ConcurrentHashMap<Integer, LongAdder> errCodeMap = new ConcurrentHashMap<>();
 
-        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long costMs) {
+        public void addSyncSendSucInfo(String groupId, String streamId, int msgCnt, long costMs) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -228,10 +293,10 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addSucMsgInfo(msgCnt, costMs);
+            trafficInfo.addSyncSucMsgInfo(msgCnt, costMs);
         }
 
-        public void addSucMsgInfo(String groupId, String streamId, int msgCnt, long sdCostMs, long cbCostMs) {
+        public void addSyncSendFailInfo(String groupId, String streamId, int msgCnt, int errCode) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -241,25 +306,11 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addSucMsgInfo(msgCnt, sdCostMs, cbCostMs);
-        }
-
-        public void addFailMsgInfo(String groupId, String streamId, int msgCnt, int errCode) {
-            String recordKey = getKeyStringByConfig(groupId, streamId);
-            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
-            if (trafficInfo == null) {
-                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
-                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
-                if (trafficInfo == null) {
-                    trafficInfo = tmpInfo;
-                }
-            }
-            trafficInfo.addFailMsgInfo(msgCnt);
+            trafficInfo.addSyncFailMsgInfo(msgCnt);
             addSendErrCodeInfo(errCode);
         }
 
-        public void addFailMsgInfo(String groupId, String streamId,
-                int msgCnt, int errCode, long cbCostMs) {
+        public void addAsyncSendSucInfo(String groupId, String streamId, int msgCnt) {
             String recordKey = getKeyStringByConfig(groupId, streamId);
             TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
             if (trafficInfo == null) {
@@ -269,11 +320,91 @@ public class MetricDataHolder implements Runnable {
                     trafficInfo = tmpInfo;
                 }
             }
-            trafficInfo.addFailMsgInfo(msgCnt, cbCostMs);
+            trafficInfo.addAsyncSucSendInfo(msgCnt);
+        }
+
+        public void addAsyncSendFailInfo(String groupId, String streamId, int msgCnt, int errCode) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncFailSendInfo(msgCnt);
             addSendErrCodeInfo(errCode);
         }
 
-        public void addSendErrCodeInfo(int errCode) {
+        public void addAsyncHttpPutSucInfo(String groupId, String streamId, int msgCnt) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncHttpSucPutInfo(msgCnt);
+        }
+
+        public void addAsyncHttpPutFailInfo(String groupId, String streamId, int msgCnt, int errCode) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncHttpFailPutInfo(msgCnt);
+            addSendErrCodeInfo(errCode);
+        }
+
+        public void addAsyncHttpGetSucInfo(String groupId, String streamId, int msgCnt) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncHttpSucGetInfo(msgCnt);
+        }
+
+        public void addAsyncRspSucInfo(String groupId, String streamId, int msgCnt, long sdCostMs, long cbCostMs) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncSucRspInfo(msgCnt, sdCostMs, cbCostMs);
+        }
+
+        public void addAsyncRspFailInfo(String groupId, String streamId, int msgCnt, int errCode, long cbCostMs) {
+            String recordKey = getKeyStringByConfig(groupId, streamId);
+            TrafficInfo trafficInfo = this.trafficMap.get(recordKey);
+            if (trafficInfo == null) {
+                TrafficInfo tmpInfo = new TrafficInfo(groupId, streamId);
+                trafficInfo = this.trafficMap.putIfAbsent(recordKey, tmpInfo);
+                if (trafficInfo == null) {
+                    trafficInfo = tmpInfo;
+                }
+            }
+            trafficInfo.addAsyncFailRspInfo(msgCnt, cbCostMs);
+            addSendErrCodeInfo(errCode);
+        }
+
+        private void addSendErrCodeInfo(int errCode) {
             LongAdder longCount = this.errCodeMap.get(errCode);
             if (longCount == null) {
                 LongAdder tmpCount = new LongAdder();
@@ -288,7 +419,7 @@ public class MetricDataHolder implements Runnable {
         public void getAndResetValue(StringBuilder strBuff) {
             int count = 0;
             metaSyncInfo.getAndResetValue(strBuff);
-            strBuff.append(",\"m\":[");
+            strBuff.append(",\"tr\":[");
             for (Map.Entry<String, TrafficInfo> entry : trafficMap.entrySet()) {
                 if (count++ > 0) {
                     strBuff.append(",");
@@ -325,32 +456,43 @@ public class MetricDataHolder implements Runnable {
                 .append(",\"lrT\":").append(lstReportTime)
                 .append(",");
         metricUnit.getAndResetValue(strBuff);
-        strBuff.append(",\"s\":{\"tNodes\":").append(sender.getProxyNodeCnt())
-                .append(",\"aNodes\":").append(sender.getActiveNodeCnt())
-                .append(",\"ifReqs\":").append(sender.getInflightMsgCnt())
+        Tuple2<Integer, Integer> factoryAvailQuota = sender.getFactoryAvailQuota();
+        Tuple2<Integer, Integer> senderAvailQuota = sender.getSenderAvailQuota();
+        strBuff.append(",\"s\":{\"tNs\":").append(sender.getProxyNodeCnt())
+                .append(",\"aNs\":").append(sender.getActiveNodeCnt())
+                .append(",\"ifRs\":").append(sender.getInflightMsgCnt())
+                .append(",\"afPc\":").append(factoryAvailQuota.getF0())
+                .append(",\"afPs\":").append(factoryAvailQuota.getF1())
+                .append(",\"aPc\":").append(senderAvailQuota.getF0())
+                .append(",\"aPs\":").append(senderAvailQuota.getF1())
                 .append("},\"c\":{\"aC\":").append(sender.getConfigure().getAliveConnections())
+                .append(",\"gBf\":").append(sender.isGenByFactory())
+                .append(",\"ifCc\":").append(sender.getFactoryPkgCntPermits())
+                .append(",\"ifCs\":").append(sender.getFactoryPkgCntPermits())
+                .append(",\"iCc\":").append(sender.getConfigure().getMaxInFlightReqCnt())
+                .append(",\"iCs\":").append(sender.getConfigure().getMaxInFlightSizeKb())
+                .append(",\"iRp\":").append(sender.getConfigure().getPaddingSize())
                 .append(",\"rP\":\"").append(sender.getConfigure().getDataRptProtocol())
                 .append("\",\"rG\":\"").append(sender.getConfigure().getRegionName())
                 .append("\"");
         if (sender instanceof TcpMsgSender) {
             TcpMsgSenderConfig tcpConfig = (TcpMsgSenderConfig) sender.getConfigure();
             strBuff.append(",\"mT\":").append(tcpConfig.getSdkMsgType().getValue())
-                    .append(",\"comp\":").append(tcpConfig.isEnableDataCompress())
-                    .append(",\"mCLen\":").append(tcpConfig.getMinCompEnableLength())
-                    .append(",\"lfSep\":").append(tcpConfig.isSeparateEventByLF())
+                    .append(",\"cp\":").append(tcpConfig.isEnableDataCompress())
+                    .append(",\"mCp\":").append(tcpConfig.getMinCompEnableLength())
+                    .append(",\"lf\":").append(tcpConfig.isSeparateEventByLF())
                     .append(",\"nWk\":").append(tcpConfig.getNettyWorkerThreadNum())
                     .append(",\"sB\":").append(tcpConfig.getSendBufferSize())
                     .append(",\"rB\":").append(tcpConfig.getRcvBufferSize())
-                    .append(",\"cOut\":").append(tcpConfig.getConnectTimeoutMs())
-                    .append(",\"rOut\":").append(tcpConfig.getRequestTimeoutMs())
-                    .append(",\"syncOut\":").append(tcpConfig.getMaxAllowedSyncMsgTimeoutCnt());
+                    .append(",\"cOt\":").append(tcpConfig.getConnectTimeoutMs())
+                    .append(",\"rOt\":").append(tcpConfig.getRequestTimeoutMs())
+                    .append(",\"syOt\":").append(tcpConfig.getMaxAllowedSyncMsgTimeoutCnt());
         } else {
             HttpMsgSenderConfig httpConfig = (HttpMsgSenderConfig) sender.getConfigure();
-            strBuff.append(",\"iHttps\":").append(httpConfig.isRptDataByHttps())
-                    .append(",\"sOut\":").append(httpConfig.getHttpSocketTimeoutMs())
-                    .append(",\"cOut\":").append(httpConfig.getHttpConTimeoutMs())
-                    .append(",\"asyWk\":").append(httpConfig.getHttpAsyncRptWorkerNum())
-                    .append(",\"asyCh\":").append(httpConfig.getHttpAsyncRptCacheSize());
+            strBuff.append(",\"iHs\":").append(httpConfig.isRptDataByHttps())
+                    .append(",\"sOt\":").append(httpConfig.getHttpSocketTimeoutMs())
+                    .append(",\"cOt\":").append(httpConfig.getHttpConTimeoutMs())
+                    .append(",\"aWk\":").append(httpConfig.getHttpAsyncRptWorkerNum());
         }
         String content = strBuff.append("}}").toString();
         strBuff.delete(0, strBuff.length());

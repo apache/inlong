@@ -265,6 +265,7 @@ public class TcpNettyClient {
             this.msgSentCnt.incrementAndGet();
             this.channel.writeAndFlush(encodeObject);
             this.msgInflightCnt.incrementAndGet();
+            return procResult.setSuccess();
         } catch (Throwable ex) {
             if (conExptCnt.shouldPrint()) {
                 logger.warn("NettyClient({}) write {} exception",
@@ -274,7 +275,6 @@ public class TcpNettyClient {
         } finally {
             this.rw.readLock().unlock();
         }
-        return procResult.setSuccess();
     }
 
     public void setFrozen(long termId) {
@@ -454,7 +454,7 @@ public class TcpNettyClient {
 
     private EncodeObject buildHeartBeatMsg(String senderId, ProxyClientConfig configure) {
         EncodeObject encObject = new EncodeObject(null, null,
-                MsgType.MSG_BIN_HEARTBEAT, System.currentTimeMillis());
+                MsgType.MSG_BIN_HEARTBEAT, System.currentTimeMillis(), 30);
         encObject.setMessageIdInfo(0);
         int intMsgType = encObject.getMsgType().getValue();
         Map<String, String> newAttrs = new HashMap<>();

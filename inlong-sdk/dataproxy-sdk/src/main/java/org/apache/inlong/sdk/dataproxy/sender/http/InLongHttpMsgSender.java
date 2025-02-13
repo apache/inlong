@@ -67,10 +67,10 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
             return httpClientMgr.sendMessage(eventInfo, procResult);
         } finally {
             if (procResult.isSuccess()) {
-                metricHolder.addSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
+                metricHolder.addSyncSucMetric(eventInfo.getGroupId(), eventInfo.getStreamId(),
                         eventInfo.getMsgCnt(), (System.currentTimeMillis() - curTime));
             } else {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+                metricHolder.addSyncFailMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }
@@ -82,18 +82,29 @@ public class InLongHttpMsgSender extends BaseSender implements HttpMsgSender {
         if (!this.isStarted()) {
             return procResult.setFailResult(ErrorCode.SDK_CLOSED);
         }
+        boolean gotPermits = false;
         try {
             if (this.isMetaInfoUnReady()) {
                 return procResult.setFailResult(ErrorCode.NO_NODE_META_INFOS);
             }
+            if (!tryAcquireCachePermits(eventInfo.getBodySize(), procResult)) {
+                return false;
+            }
+            gotPermits = true;
             // check package length
             if (!isValidPkgLength(eventInfo, this.getAllowedPkgLength(), procResult)) {
                 return false;
             }
             return httpClientMgr.asyncSendMessage(new HttpAsyncObj(eventInfo, callback), procResult);
         } finally {
-            if (!procResult.isSuccess()) {
-                metricHolder.addFailMetric(procResult.getErrCode(),
+            if (procResult.isSuccess()) {
+                metricHolder.addAsyncHttpSucPutMetric(
+                        eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
+            } else {
+                if (gotPermits) {
+                    releaseCachePermits(eventInfo.getBodySize());
+                }
+                metricHolder.addAsyncHttpFailPutMetric(procResult.getErrCode(),
                         eventInfo.getGroupId(), eventInfo.getStreamId(), eventInfo.getMsgCnt());
             }
         }

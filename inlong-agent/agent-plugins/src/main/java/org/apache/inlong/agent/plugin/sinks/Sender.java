@@ -203,7 +203,7 @@ public class Sender {
     private void createMessageSender() throws Exception {
         TcpMsgSenderConfig proxyClientConfig = new TcpMsgSenderConfig(
                 managerAddr, inlongGroupId, authSecretId, authSecretKey);
-        proxyClientConfig.setSendBufferSize(totalAsyncBufSize);
+        proxyClientConfig.setMaxInFlightSizeInKb(totalAsyncBufSize / 1024);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
         proxyClientConfig.setRequestTimeoutMs(maxSenderTimeout * 1000L);
         proxyClientConfig.setNettyWorkerThreadNum(ioThreadNum);

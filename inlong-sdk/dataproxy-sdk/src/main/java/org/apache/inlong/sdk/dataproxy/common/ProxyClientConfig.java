@@ -64,8 +64,6 @@ public class ProxyClientConfig implements Cloneable {
     private int mgrConnTimeoutMs = SdkConsts.VAL_DEF_TCP_CONNECT_TIMEOUT_MS;
     // whether to start using local proxy configure
     private boolean onlyUseLocalProxyConfig = false;
-    // max retry count if meta query
-    private int metaQryMaxRetryIfFail = SdkConsts.VAL_DEF_RETRY_IF_CONFIG_SYNC_FAIL;
     // meta sync interval ms
     private long mgrMetaSyncInrMs =
             SdkConsts.VAL_DEF_CONFIG_SYNC_INTERVAL_MIN * SdkConsts.VAL_UNIT_MIN_TO_MS;
@@ -87,8 +85,13 @@ public class ProxyClientConfig implements Cloneable {
     private int aliveConnections = SdkConsts.VAL_DEF_ALIVE_CONNECTIONS;
     // node forced selection interval ms
     private long forceReChooseInrMs = SdkConsts.VAL_DEF_FORCE_CHOOSE_INR_MS;
+    // max inflight request count and size per SDK
+    private int maxInFlightReqCnt = SdkConsts.UNDEFINED_VALUE;
+    private int maxInFlightSizeKb = SdkConsts.UNDEFINED_VALUE;
+    private int paddingSize = SdkConsts.VAL_DEF_PADDING_SIZE;
+
     // metric setting
-    private MetricConfig metricConfig = new MetricConfig();
+    private final MetricConfig metricConfig = new MetricConfig();
     // report setting
     private boolean enableReportAuthz = false;
     private boolean enableReportEncrypt = false;
@@ -306,7 +309,6 @@ public class ProxyClientConfig implements Cloneable {
     public void setMetaSyncWaitMsIfFail(int metaSyncWaitMsIfFail) {
         this.metaSyncWaitMsIfFail = Math.min(SdkConsts.VAL_MAX_WAIT_MS_IF_CONFIG_REQ_FAIL,
                 Math.max(SdkConsts.VAL_MIN_WAIT_MS_IF_CONFIG_REQ_FAIL, metaSyncWaitMsIfFail));
-
     }
 
     public String getMetaStoreBasePath() {
@@ -391,6 +393,40 @@ public class ProxyClientConfig implements Cloneable {
         this.metricConfig.setMetricKeyMaskInfos(maskGroupId, maskStreamId);
     }
 
+    public int getMaxInFlightReqCnt() {
+        return maxInFlightReqCnt;
+    }
+
+    public int getMaxInFlightSizeKb() {
+        return maxInFlightSizeKb;
+    }
+
+    public void setMaxInFlightReqCnt(int maxInFlightReqCnt) {
+        if (maxInFlightReqCnt > 0) {
+            this.maxInFlightReqCnt = maxInFlightReqCnt;
+        }
+    }
+
+    public void setMaxInFlightSizeInKb(int maxInFlightSizeInKb) {
+        if (maxInFlightSizeInKb > 0) {
+            this.maxInFlightSizeKb = maxInFlightSizeInKb;
+        }
+    }
+
+    public void setMaxInFlightPermitsPerSdk(int maxInFlightReqCnt, int maxInFlightSizeInKb) {
+        setMaxInFlightReqCnt(maxInFlightReqCnt);
+        setMaxInFlightSizeInKb(maxInFlightSizeInKb);
+    }
+
+    public int getPaddingSize() {
+        return paddingSize;
+    }
+
+    public void setPaddingSize(int paddingSize) {
+        this.paddingSize = Math.min(SdkConsts.VAL_MAX_PADDING_SIZE,
+                Math.max(SdkConsts.VAL_MIN_PADDING_SIZE, paddingSize));
+    }
+
     public MetricConfig getMetricConfig() {
         return metricConfig;
     }
@@ -415,6 +451,9 @@ public class ProxyClientConfig implements Cloneable {
                 && aliveConnections == that.aliveConnections
                 && forceReChooseInrMs == that.forceReChooseInrMs
                 && enableReportAuthz == that.enableReportAuthz
+                && maxInFlightReqCnt == that.maxInFlightReqCnt
+                && maxInFlightSizeKb == that.maxInFlightSizeKb
+                && paddingSize == that.paddingSize
                 && enableReportEncrypt == that.enableReportEncrypt
                 && Objects.equals(tlsVersion, that.tlsVersion)
                 && Objects.equals(managerIP, that.managerIP)
@@ -441,7 +480,8 @@ public class ProxyClientConfig implements Cloneable {
                 mgrMetaSyncInrMs, metaSyncMaxRetryIfFail, metaStoreBasePath,
                 metaCacheExpiredMs, metaQryFailCacheExpiredMs, aliveConnections,
                 forceReChooseInrMs, metricConfig, enableReportAuthz, enableReportEncrypt,
-                rptRsaPubKeyUrl, rptUserName, rptSecretKey);
+                rptRsaPubKeyUrl, rptUserName, rptSecretKey, maxInFlightReqCnt,
+                maxInFlightSizeKb, paddingSize);
     }
 
     @Override
@@ -478,6 +518,9 @@ public class ProxyClientConfig implements Cloneable {
                 .append(", forceReChooseInrMs=").append(forceReChooseInrMs)
                 .append(", enableReportAuthz=").append(enableReportAuthz)
                 .append(", enableReportEncrypt=").append(enableReportEncrypt)
+                .append(", maxInFlightReqCnt=").append(maxInFlightReqCnt)
+                .append(", maxInFlightSizeKb=").append(maxInFlightSizeKb)
+                .append(", paddingSize=").append(paddingSize)
                 .append(", rptRsaPubKeyUrl='").append(rptRsaPubKeyUrl)
                 .append("', rptUserName='").append(rptUserName)
                 .append("', rptSecretKey='").append(rptSecretKey)
