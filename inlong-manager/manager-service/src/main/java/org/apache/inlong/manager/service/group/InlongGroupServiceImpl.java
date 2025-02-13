@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
+import org.apache.inlong.manager.common.enums.GroupMode;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -648,9 +649,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                     String.format("current group status=%s was not allowed to delete", curState));
         }
 
-        // If the status not allowed deleting directly, you need to delete the related "inlong_stream" first,
+        // If the status not allowed deleting directly, and the group mode is STANDARD,
+        // you need to delete the related "inlong_stream" first.
         // otherwise, all associated info will be logically deleted.
-        if (GroupStatus.deleteStreamFirst(curState)) {
+        if (GroupStatus.deleteStreamFirst(curState) && groupInfo.getInlongGroupMode() == GroupMode.STANDARD.getCode()) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM,
