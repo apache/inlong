@@ -23,8 +23,8 @@ import org.apache.inlong.sdk.dataproxy.sender.http.HttpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSenderConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
-
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,8 +31,8 @@ import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.PkgCacheQuota;
 import org.apache.inlong.sdk.dataproxy.utils.LogCounter;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
-
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
