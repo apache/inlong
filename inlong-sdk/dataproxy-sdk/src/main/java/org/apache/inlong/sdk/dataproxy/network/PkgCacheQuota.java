@@ -19,9 +19,9 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
-import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SdkConsts;
 import org.apache.inlong.sdk.dataproxy.utils.Tuple2;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,7 @@ import java.util.concurrent.Semaphore;
  * Used to manage the total number and byte size of ongoing requests.
  */
 public class PkgCacheQuota {
+
     private static final Logger logger = LoggerFactory.getLogger(PkgCacheQuota.class);
     private static final Tuple2<Integer, Integer> DISABLE_RET =
             new Tuple2<>(SdkConsts.UNDEFINED_VALUE, SdkConsts.UNDEFINED_VALUE);
