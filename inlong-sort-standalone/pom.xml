@@ -200,10 +200,6 @@
                     <groupId>com.fasterxml.woodstox</groupId>
                     <artifactId>woodstox-core</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.nimbusds</groupId>
-                    <artifactId>nimbus-jose-jwt</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
