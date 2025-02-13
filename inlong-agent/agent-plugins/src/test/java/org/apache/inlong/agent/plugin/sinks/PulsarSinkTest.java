@@ -21,7 +21,7 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.sinks.filecollect.TestSenderManager;
+import org.apache.inlong.agent.plugin.sinks.filecollect.TestSender;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -40,12 +40,12 @@ public class PulsarSinkTest {
     private static MockSink pulsarSink;
     private static InstanceProfile profile;
     private static AgentBaseTestsHelper helper;
-    private static final ClassLoader LOADER = TestSenderManager.class.getClassLoader();
+    private static final ClassLoader LOADER = TestSender.class.getClassLoader();
 
     @BeforeClass
     public static void setUp() throws Exception {
         String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
-        helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(TestSender.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile =
                 helper.getFileTaskProfile(1, pattern, "csv", false, "", "", TaskStateEnum.RUNNING, "D",
