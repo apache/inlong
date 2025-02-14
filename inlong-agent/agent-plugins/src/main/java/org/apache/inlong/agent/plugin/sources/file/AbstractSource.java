@@ -81,7 +81,7 @@ public abstract class AbstractSource implements Source {
     protected final Integer BATCH_READ_LINE_TOTAL_LEN = 1024 * 1024;
     protected final Integer CACHE_QUEUE_SIZE = 10 * BATCH_READ_LINE_COUNT;
     protected final Integer WAIT_TIMEOUT_MS = 10;
-    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60 * 100;
+    private final Integer SOURCE_NO_UPDATE_INTERVAL_MS = 5 * 60 * 1000;
     private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
     protected BlockingQueue<SourceData> queue;
 
@@ -429,6 +429,19 @@ public abstract class AbstractSource implements Source {
         if (isRealTime) {
             return false;
         }
-        return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
+        if (emptyCount == 0) {
+            return false;
+        }
+        if (profile.isRetry()) {
+            return true;
+        }
+        if (AgentUtils.getCurrentTime() - getLastModifyTime() > SOURCE_NO_UPDATE_INTERVAL_MS) {
+            return true;
+        }
+        return false;
+    }
+
+    public long getLastModifyTime() {
+        return 0;
     }
 }
