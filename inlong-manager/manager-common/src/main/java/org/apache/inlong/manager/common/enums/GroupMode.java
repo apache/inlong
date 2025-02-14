@@ -25,29 +25,32 @@ import lombok.Getter;
 public enum GroupMode {
 
     /**
-     * Standard mode(include Data Ingestion and Synchronization): group init with all components in InLong Cluster
+     * Standard mode(only Data Ingestion): group init with all components in InLong Cluster
      * StreamSource -> Agent/SDK -> DataProxy -> MQ Cache -> Sort -> StreamSink
      */
-    STANDARD("standard"),
+    STANDARD(0, "standard"),
 
     /**
      * DataSync mode(only Data Synchronization): real-time data sync in stream way, group init only with
      * sort in InLong Cluster.
      * StreamSource -> Sort -> Sink
      */
-    DATASYNC("datasync"),
+    DATASYNC(1, "datasync"),
 
     /**
      * DataSync mode(only Data Synchronization): offline data sync in batch way, group init only with sort
      * in InLong Cluster.
      * BatchSource -> Sort -> Sink
      */
-    DATASYNC_BATCH("datasync_offline");
+    DATASYNC_OFFLINE(2, "datasync_offline");
 
+    @Getter
+    private final int code;
     @Getter
     private final String mode;
 
-    GroupMode(String mode) {
+    GroupMode(int code, String mode) {
+        this.code = code;
         this.mode = mode;
     }
 
@@ -60,4 +63,12 @@ public enum GroupMode {
         throw new IllegalArgumentException(String.format("Unsupported group mode for %s", mode));
     }
 
+    public static GroupMode forCode(int code) {
+        for (GroupMode groupMode : values()) {
+            if (groupMode.getCode() == code) {
+                return groupMode;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported group code for %d", code));
+    }
 }
