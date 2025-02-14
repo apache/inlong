@@ -652,7 +652,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // If the status not allowed deleting directly, and the group mode is STANDARD,
         // you need to delete the related "inlong_stream" first.
         // otherwise, all associated info will be logically deleted.
-        if (GroupStatus.deleteStreamFirst(curState) && groupInfo.getInlongGroupMode() == GroupMode.STANDARD.getCode()) {
+        if (GroupStatus.deleteStreamFirst(curState) && InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode())) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM,
