@@ -57,6 +57,11 @@ public class CronTask extends Task {
     }
 
     @Override
+    public int getInstanceNum() {
+        return 0;
+    }
+
+    @Override
     public void addCallbacks() {
 
     }

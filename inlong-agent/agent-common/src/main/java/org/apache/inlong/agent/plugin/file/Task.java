@@ -54,4 +54,6 @@ public abstract class Task extends AbstractStateWrapper {
      * is profile valid
      */
     public abstract boolean isProfileValid(TaskProfile profile);
+
+    public abstract int getInstanceNum();
 }

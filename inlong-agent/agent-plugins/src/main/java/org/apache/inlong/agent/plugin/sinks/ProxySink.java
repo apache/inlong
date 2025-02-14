@@ -275,8 +275,8 @@ public class ProxySink extends AbstractSink {
         }
         MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, lenToRelease);
         if (info != null) {
-            LOGGER.info("save offset {} taskId {} instanceId {}", info.getOffset(), profile.getTaskId(),
-                    profile.getInstanceId());
+            LOGGER.info("save offset {} taskId {} instanceId {} ackInfoList {}", info.getOffset(), profile.getTaskId(),
+                    profile.getInstanceId(), ackInfoList.size());
             OffsetProfile offsetProfile = new OffsetProfile(profile.getTaskId(), profile.getInstanceId(),
                     info.getOffset(), profile.get(INODE_INFO));
             offsetManager.setOffset(offsetProfile);

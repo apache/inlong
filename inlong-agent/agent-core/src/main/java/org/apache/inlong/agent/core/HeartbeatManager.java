@@ -202,7 +202,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             proxyClientConfig = new TcpMsgSenderConfig(managerAddr,
                     INLONG_AGENT_SYSTEM, authSecretId, authSecretKey);
             proxyClientConfig.setMaxInFlightSizeInKb(
-                    CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE / 1024);
+                    CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE_KB);
             proxyClientConfig.setAliveConnections(CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
             proxyClientConfig.setNettyWorkerThreadNum(CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
             proxyClientConfig.setRequestTimeoutMs(30000L);
