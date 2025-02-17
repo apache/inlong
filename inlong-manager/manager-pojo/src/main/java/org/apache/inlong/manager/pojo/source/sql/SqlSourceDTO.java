@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.source.cos;
+package org.apache.inlong.manager.pojo.source.sql;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -32,29 +32,24 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
-import java.util.List;
-
 /**
- * COS source information data transfer object
+ * Sql source information data transfer object
  */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Slf4j
-public class COSSourceDTO {
+public class SqlSourceDTO {
 
-    @ApiModelProperty(value = "Path regex pattern for file, such as /a/b/*.txt", required = true)
-    private String pattern;
+    @ApiModelProperty(value = "sql", required = true)
+    private String sql;
 
     @ApiModelProperty("Cycle unit")
-    private String cycleUnit = "D";
+    private String cycleUnit;
 
     @ApiModelProperty("Whether retry")
-    private Boolean retry = false;;
-
-    @ApiModelProperty("Column separator of data source ")
-    private String dataSeparator;
+    private Boolean retry = false;
 
     @ApiModelProperty(value = "Data start time")
     private String dataTimeFrom;
@@ -69,45 +64,40 @@ public class COSSourceDTO {
             + "Null or blank means from current timestamp")
     private String timeOffset;
 
-    @ApiModelProperty("Max file count")
-    private String maxFileCount;
+    @ApiModelProperty("Max instance count")
+    private Integer maxInstanceCount;
 
-    @ApiModelProperty(" Type of data result for column separator"
-            + "         CSV format, set this parameter to a custom separator: , | : "
-            + "         Json format, set this parameter to json ")
-    private String contentStyle;
+    @ApiModelProperty("Jdbc url")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("jdbc password")
+    private String jdbcPassword;
+
+    @ApiModelProperty("Fetch size")
+    private Integer fetchSize;
+
+    @ApiModelProperty("Column separator of data source ")
+    private String dataSeparator;
 
     @ApiModelProperty(value = "Audit version")
     private String auditVersion;
 
-    @ApiModelProperty("filterStreams")
-    private List<String> filterStreams;
-
-    @ApiModelProperty(value = "COS bucket name")
-    private String bucketName;
-
-    @ApiModelProperty(value = "COS secret id")
-    private String credentialsId;
-
-    @ApiModelProperty(value = "COS secret key")
-    private String credentialsKey;
-
-    @ApiModelProperty(value = "COS region")
-    private String region;
-
-    public static COSSourceDTO getFromRequest(@NotNull COSSourceRequest cosSourceRequest, String extParams) {
-        COSSourceDTO dto = StringUtils.isNotBlank(extParams)
-                ? COSSourceDTO.getFromJson(extParams)
-                : new COSSourceDTO();
-        return CommonBeanUtils.copyProperties(cosSourceRequest, dto, true);
+    public static SqlSourceDTO getFromRequest(@NotNull SqlSourceRequest sqlSourceRequest, String extParams) {
+        SqlSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? SqlSourceDTO.getFromJson(extParams)
+                : new SqlSourceDTO();
+        return CommonBeanUtils.copyProperties(sqlSourceRequest, dto, true);
     }
 
-    public static COSSourceDTO getFromJson(@NotNull String extParams) {
+    public static SqlSourceDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, COSSourceDTO.class);
+            return JsonUtils.parseObject(extParams, SqlSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("parse extParams of COSSource failure: %s", e.getMessage()));
+                    String.format("parse extParams of SqlSource failure: %s", e.getMessage()));
         }
     }
 

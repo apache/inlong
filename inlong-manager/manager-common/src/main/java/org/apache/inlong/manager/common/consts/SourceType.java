@@ -32,6 +32,7 @@ public class SourceType extends StreamType {
 
     public static final String FILE = "FILE";
     public static final String COS = "COS";
+    public static final String SQL = "SQL";
     public static final String MYSQL_SQL = "MYSQL_SQL";
     public static final String MYSQL_BINLOG = "MYSQL_BINLOG";
     public static final String MONGODB = "MONGODB";

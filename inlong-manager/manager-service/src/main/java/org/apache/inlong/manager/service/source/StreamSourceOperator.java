@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.source;
 
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -143,5 +145,9 @@ public interface StreamSourceOperator {
      * @param operator name of the operator
      */
     void updateAgentTaskConfig(SourceRequest request, String operator);
+
+    default String updateDataConfig(String extParams, InlongStreamEntity streamEntity, DataConfig dataConfig) {
+        return extParams;
+    }
 
 }
