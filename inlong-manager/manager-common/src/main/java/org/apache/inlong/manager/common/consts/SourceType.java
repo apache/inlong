@@ -33,7 +33,6 @@ public class SourceType extends StreamType {
     public static final String FILE = "FILE";
     public static final String COS = "COS";
     public static final String SQL = "SQL";
-    public static final String MYSQL_SQL = "MYSQL_SQL";
     public static final String MYSQL_BINLOG = "MYSQL_BINLOG";
     public static final String MONGODB = "MONGODB";
     public static final String REDIS = "REDIS";
@@ -50,7 +49,6 @@ public class SourceType extends StreamType {
 
             put(FILE, TaskTypeEnum.FILE);
             put(COS, TaskTypeEnum.COS);
-            put(MYSQL_SQL, TaskTypeEnum.SQL);
             put(MYSQL_BINLOG, TaskTypeEnum.BINLOG);
             put(POSTGRESQL, TaskTypeEnum.POSTGRES);
             put(ORACLE, TaskTypeEnum.ORACLE);

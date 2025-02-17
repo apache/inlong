@@ -118,7 +118,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
                 || !Objects.equals(nodeRequest.getUsername(), nodeInfo.getUsername())
                 || !Objects.equals(nodeRequest.getToken(), nodeInfo.getToken());
         if (changed) {
-            retryStreamSourceByDataNodeNameAndType(dataNodeEntity.getName(), SourceType.MYSQL_SQL, operator);
+            retryStreamSourceByDataNodeNameAndType(dataNodeEntity.getName(), SourceType.MYSQL_BINLOG, operator);
         }
     }
 
