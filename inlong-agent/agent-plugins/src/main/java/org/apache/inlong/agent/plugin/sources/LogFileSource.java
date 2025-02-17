@@ -30,6 +30,7 @@ import org.apache.inlong.agent.plugin.sources.extend.DefaultExtendedHandler;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.task.logcollection.local.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.file.FileUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -373,5 +374,10 @@ public class LogFileSource extends AbstractSource {
                 LOGGER.error("close randomAccessFile error", e);
             }
         }
+    }
+
+    @Override
+    public long getLastModifyTime() {
+        return FileUtils.getFileLastModifyTime(fileName);
     }
 }

@@ -76,6 +76,14 @@ public class AgentConstants {
     public static final String AGENT_ENABLE_OOM_EXIT = "agent.enable.oom.exit";
     public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
 
+    public static final String AGENT_SCAN_RANGE = "agent.scan.range";
+    public static final String DEFAULT_AGENT_SCAN_RANGE = "-2";
+    public static final String DEFAULT_AGENT_SCAN_RANGE_DAY = "-2";
+    public static final String DEFAULT_AGENT_SCAN_RANGE_HOUR = "-10";
+    public static final String DEFAULT_AGENT_SCAN_RANGE_MINUTE = "-600";
+    public static final String AGENT_INSTANCE_LIMIT = "agent.instance.limit";
+    public static final int DEFAULT_AGENT_INSTANCE_LIMIT = 100;
+
     // pulsar sink config
     public static final String PULSAR_CLIENT_IO_TREHAD_NUM = "agent.sink.pulsar.client.io.thread.num";
     public static final int DEFAULT_PULSAR_CLIENT_IO_TREHAD_NUM = Math.max(1,

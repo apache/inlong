@@ -95,7 +95,7 @@ public class TestLogFileSource {
             Whitebox.setInternalState(source, "BATCH_READ_LINE_TOTAL_LEN", 10);
             Whitebox.setInternalState(source, "CORE_THREAD_PRINT_INTERVAL_MS", 0);
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
-            Whitebox.setInternalState(source, "EMPTY_CHECK_COUNT_AT_LEAST", 3);
+            Whitebox.setInternalState(source, "SOURCE_NO_UPDATE_INTERVAL_MS", 1000);
             Whitebox.setInternalState(source, "WAIT_TIMEOUT_MS", 10);
             if (lineOffset > 0) {
                 String finalOffset = Long.toString(lineOffset);

@@ -60,7 +60,7 @@ public abstract class AbstractTask extends Task {
         this.taskProfile = taskProfile;
         this.basicStore = basicStore;
         auditVersion = Long.parseLong(taskProfile.get(TASK_AUDIT_VERSION));
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), getInstanceLimit(),
+        instanceManager = new InstanceManager(taskManager, taskProfile.getTaskId(), getInstanceLimit(),
                 basicStore, taskManager.getTaskStore());
         try {
             instanceManager.start();
@@ -162,5 +162,10 @@ public abstract class AbstractTask extends Task {
 
     protected boolean isFull() {
         return instanceManager.isFull();
+    }
+
+    @Override
+    public int getInstanceNum() {
+        return instanceManager.getInstanceNum();
     }
 }

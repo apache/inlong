@@ -22,6 +22,8 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.store.InstanceStore;
@@ -56,7 +58,9 @@ public class InstanceManager extends AbstractDaemon {
     public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
     public static final int INSTANCE_PRINT_INTERVAL_MS = 10000;
     public static final long INSTANCE_KEEP_ALIVE_MS = 5 * 60 * 1000;
+    public static final long KEEP_PACE_INTERVAL_MS = 60 * 1000;
     private long lastPrintTime = 0;
+    private long lastTraverseTime = 0;
     // instance in instance store
     private final InstanceStore instanceStore;
     private TaskStore taskStore;
@@ -67,7 +71,7 @@ public class InstanceManager extends AbstractDaemon {
     private final BlockingQueue<InstanceAction> actionQueue;
     private final BlockingQueue<InstanceAction> addActionQueue;
     // task thread pool;
-    private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
+    private final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             1L, TimeUnit.SECONDS,
             new SynchronousQueue<>(),
@@ -77,10 +81,10 @@ public class InstanceManager extends AbstractDaemon {
     private final AgentConfiguration agentConf;
     private final String taskId;
     private long auditVersion;
-    private volatile boolean runAtLeastOneTime = false;
     private volatile boolean running = false;
     private final double reserveCoefficient = 0.8;
-    private long finishedInstanceCount = 0;
+    protected TaskManager taskManager;
+    private final int globalInstanceLimit;
 
     private class InstancePrintStat {
 
@@ -118,7 +122,9 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, int instanceLimit, Store basicStore, TaskStore taskStore) {
+    public InstanceManager(TaskManager taskManager, String taskId, int instanceLimit, Store basicStore,
+            TaskStore taskStore) {
+        this.taskManager = taskManager;
         this.taskId = taskId;
         instanceStore = new InstanceStore(basicStore);
         this.taskStore = taskStore;
@@ -127,6 +133,8 @@ public class InstanceManager extends AbstractDaemon {
         this.instanceLimit = instanceLimit;
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
         addActionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+        globalInstanceLimit = agentConf.getInt(AgentConstants.AGENT_INSTANCE_LIMIT,
+                AgentConstants.DEFAULT_AGENT_INSTANCE_LIMIT);
     }
 
     public String getTaskId() {
@@ -165,12 +173,16 @@ public class InstanceManager extends AbstractDaemon {
             Thread.currentThread().setName("instance-manager-core-" + taskId);
             running = true;
             while (isRunnable()) {
+                long currentTime = AgentUtils.getCurrentTime();
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
                     printInstanceState();
                     dealWithActionQueue();
                     dealWithAddActionQueue();
-                    keepPaceWithStore();
+                    if (currentTime - lastTraverseTime > KEEP_PACE_INTERVAL_MS) {
+                        keepPaceWithStore();
+                        lastTraverseTime = currentTime;
+                    }
                     String inlongGroupId = taskFromStore.getInlongGroupId();
                     String inlongStreamId = taskFromStore.getInlongStreamId();
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT, inlongGroupId, inlongStreamId,
@@ -179,7 +191,6 @@ public class InstanceManager extends AbstractDaemon {
                     LOGGER.error("coreThread error: ", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
-                runAtLeastOneTime = true;
             }
             running = false;
         };
@@ -289,8 +300,12 @@ public class InstanceManager extends AbstractDaemon {
 
     private void dealWithAddActionQueue() {
         while (isRunnable()) {
+            if (taskManager != null && taskManager.getInstanceNum() > globalInstanceLimit) {
+                LOGGER.error("global instance num {} over limit {}", taskManager.getInstanceNum(), globalInstanceLimit);
+                return;
+            }
             if (instanceMap.size() > instanceLimit) {
-                LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+                LOGGER.error("task {} instanceMap size {} over limit {}", taskId, instanceMap.size(), instanceLimit);
                 return;
             }
             InstanceAction action = addActionQueue.poll();
@@ -356,7 +371,6 @@ public class InstanceManager extends AbstractDaemon {
         deleteFromMemory(profile.getInstanceId());
         LOGGER.info("finished instance state {} taskId {} instanceId {}", profile.getState(),
                 profile.getTaskId(), profile.getInstanceId());
-        finishedInstanceCount++;
     }
 
     private void deleteInstance(String instanceId) {
@@ -504,5 +518,10 @@ public class InstanceManager extends AbstractDaemon {
             }
         }
         return count;
+    }
+
+    public int getInstanceNum() {
+
+        return instanceMap.size();
     }
 }

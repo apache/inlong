@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.task.logcollection;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.plugin.task.AbstractTask;
 import org.apache.inlong.agent.plugin.utils.regex.DateUtils;
@@ -44,7 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class LogAbstractTask extends AbstractTask {
 
     private static final int INSTANCE_QUEUE_CAPACITY = 10;
-    public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
+    public static final long ONE_HOUR_TIMEOUT_INTERVAL = 3600 * 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(LogAbstractTask.class);
     protected boolean retry;
     protected BlockingQueue<InstanceProfile> instanceQueue;
@@ -207,10 +208,13 @@ public abstract class LogAbstractTask extends AbstractTask {
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             /* If the data time of the event is within 2 days before (after) the current time, it is valid */
             String dataTime = entry.getKey();
-            if (!DateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
+            if (!DateUtils.isValidCreationTime(dataTime,
+                    Math.abs(OffsetManager.getScanCycleRange(taskProfile.getCycleUnit()))
+                            + ONE_HOUR_TIMEOUT_INTERVAL)) {
                 /* Remove it from memory map. */
                 eventMap.remove(dataTime);
-                LOGGER.warn("remove too old event from event map. dataTime {}", dataTime);
+                LOGGER.warn("remove too old event from event map taskId {} dataTime {}", taskProfile.getTaskId(),
+                        dataTime);
             }
         }
     }
