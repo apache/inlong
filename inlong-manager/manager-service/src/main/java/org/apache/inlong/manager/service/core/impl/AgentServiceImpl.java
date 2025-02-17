@@ -401,6 +401,13 @@ public class AgentServiceImpl implements AgentService {
                     if (moduleConfig == null) {
                         continue;
                     }
+                    if (configResult != null && CollectionUtils.isNotEmpty(configResult.getModuleList())) {
+                        for (ModuleConfig config : configResult.getModuleList()) {
+                            if (Objects.equals(config.getEntityId(), moduleId)) {
+                                restartTime = config.getRestartTime();
+                            }
+                        }
+                    }
                     moduleConfig.setRestartTime(restartTime);
                     String moduleStr = GSON.toJson(moduleConfig);
                     String moduleMd5 = DigestUtils.md5Hex(moduleStr);
@@ -591,13 +598,13 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public ConfigResult getConfig(ConfigRequest request) {
-        if (!updateModuleConfigQueue.contains(request)) {
-            updateModuleConfigQueue.add(request);
-        }
         String key = request.getLocalIp() + InlongConstants.UNDERSCORE + request.getClusterName();
 
         ConfigResult configResult = installerConfigMap.get(key);
         if (configResult == null) {
+            if (!updateModuleConfigQueue.contains(request)) {
+                updateModuleConfigQueue.add(request);
+            }
             LOGGER.debug(String.format("can not get config result for cluster name=%s, ip=%s", request.getClusterName(),
                     request.getLocalIp()));
             return null;
@@ -653,8 +660,7 @@ public class AgentServiceImpl implements AgentService {
             needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
-        List<String> sourceTypes = Lists.newArrayList(SourceType.MYSQL_SQL, SourceType.KAFKA,
-                SourceType.MYSQL_BINLOG, SourceType.POSTGRESQL);
+        List<String> sourceTypes = Lists.newArrayList(SourceType.KAFKA, SourceType.MYSQL_BINLOG, SourceType.POSTGRESQL);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
                 TASK_FETCH_SIZE);
         for (StreamSourceEntity sourceEntity : sourceEntities) {

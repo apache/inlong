@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.source.cos;
 
+import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.node.cos.COSDataNodeInfo;
@@ -155,6 +157,19 @@ public class COSSourceOperator extends AbstractSourceOperator {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                     String.format("serialize extParams of COS SourceDTO failure: %s", e.getMessage()));
         }
+    }
+
+    @Override
+    public String updateDataConfig(String extParams, InlongStreamEntity streamEntity, DataConfig dataConfig) {
+        String dataSeparator = String.valueOf((char) Integer.parseInt(streamEntity.getDataSeparator()));
+        COSSourceDTO cosSourceDTO = JsonUtils.parseObject(extParams, COSSourceDTO.class);
+        if (Objects.nonNull(cosSourceDTO)) {
+            cosSourceDTO.setDataSeparator(dataSeparator);
+            dataConfig.setAuditVersion(cosSourceDTO.getAuditVersion());
+            cosSourceDTO.setContentStyle(streamEntity.getDataType());
+            extParams = JsonUtils.toJsonString(cosSourceDTO);
+        }
+        return extParams;
     }
 
 }

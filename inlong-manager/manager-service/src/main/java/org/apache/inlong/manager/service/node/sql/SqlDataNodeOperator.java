@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.node.mysql;
+package org.apache.inlong.manager.service.node.sql;
 
 import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -27,31 +26,24 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeDTO;
-import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeInfo;
-import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeRequest;
+import org.apache.inlong.manager.pojo.node.sql.SqlDataNodeInfo;
+import org.apache.inlong.manager.pojo.node.sql.SqlDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.apache.inlong.manager.service.resource.sink.mysql.MySQLJdbcUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.util.Objects;
 
 /**
- * MySQL data node operator
+ * Sql data node operator
  */
 @Service
-public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
+public class SqlDataNodeOperator extends AbstractDataNodeOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeOperator.class);
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlDataNodeOperator.class);
 
     @Override
     public Boolean accept(String dataNodeType) {
@@ -60,7 +52,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public String getDataNodeType() {
-        return DataNodeType.MYSQL;
+        return DataNodeType.SQL;
     }
 
     @Override
@@ -69,26 +61,15 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
 
-        MySQLDataNodeInfo dataNodeInfo = new MySQLDataNodeInfo();
+        SqlDataNodeInfo dataNodeInfo = new SqlDataNodeInfo();
         CommonBeanUtils.copyProperties(entity, dataNodeInfo);
-        if (StringUtils.isNotBlank(entity.getExtParams())) {
-            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromJson(entity.getExtParams());
-            CommonBeanUtils.copyProperties(dto, dataNodeInfo);
-        }
         return dataNodeInfo;
     }
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        MySQLDataNodeRequest dataNodeRequest = (MySQLDataNodeRequest) request;
+        SqlDataNodeRequest dataNodeRequest = (SqlDataNodeRequest) request;
         CommonBeanUtils.copyProperties(dataNodeRequest, targetEntity, true);
-        try {
-            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest, targetEntity.getExtParams());
-            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("Failed to build extParams for MySQL node: %s", e.getMessage()));
-        }
     }
 
     @Override
@@ -106,19 +87,6 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
                     username, password);
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
-        }
-    }
-
-    @Override
-    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity dataNodeEntity, String operator) {
-        MySQLDataNodeRequest nodeRequest = (MySQLDataNodeRequest) request;
-        MySQLDataNodeInfo nodeInfo = (MySQLDataNodeInfo) this.getFromEntity(dataNodeEntity);
-        boolean changed = !Objects.equals(nodeRequest.getUrl(), nodeInfo.getUrl())
-                || !Objects.equals(nodeRequest.getBackupUrl(), nodeInfo.getBackupUrl())
-                || !Objects.equals(nodeRequest.getUsername(), nodeInfo.getUsername())
-                || !Objects.equals(nodeRequest.getToken(), nodeInfo.getToken());
-        if (changed) {
-            retryStreamSourceByDataNodeNameAndType(dataNodeEntity.getName(), SourceType.MYSQL_BINLOG, operator);
         }
     }
 
