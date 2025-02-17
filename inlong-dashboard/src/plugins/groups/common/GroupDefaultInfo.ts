@@ -57,7 +57,7 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
   @FieldDecorator({
     type: 'input',
     props: {
-      maxLength: 32,
+      maxLength: 200,
     },
   })
   @I18n('meta.Group.InlongGroupName')

@@ -1062,5 +1062,12 @@
   "meta.Sinks.DirtyData.DirtyType.FieldMappingError":"字段映射错误",
   "meta.Sinks.DirtyData.DirtyType.LoadError":"加载错误",
   "meta.Sinks.DirtyData.Search.KeyWordHelp":"请输入关键字",
-  "meta.Sinks.DirtyData.Search.KeyWord":"关键字"
+  "meta.Sinks.DirtyData.Search.KeyWord":"关键字",
+  "meta.Sources.COS.DataNode": "数据节点",
+  "meta.Sinks.SQL.Sql": "Sql",
+  "meta.Sinks.SQL.JdbcUrl": "JDBC 地址",
+  "meta.Sinks.SQL.Username": "用户名",
+  "meta.Sinks.SQL.Password": "密码",
+  "meta.Sinks.SQL.FetchSize": "捕获大小",
+  "meta.SQL.Check": "校验失败，请输入正确的SQL连接地址"
 }

@@ -100,4 +100,9 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'COS',
     LoadEntity: () => import('./COS'),
   },
+  {
+    label: 'SQL',
+    value: 'SQL',
+    LoadEntity: () => import('./SQL'),
+  },
 ];

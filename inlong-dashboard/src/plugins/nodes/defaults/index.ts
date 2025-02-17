@@ -106,4 +106,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'COS',
     LoadEntity: () => import('./COS'),
   },
+  {
+    label: 'SQL',
+    value: 'SQL',
+    LoadEntity: () => import('./SQL'),
+  },
 ];
