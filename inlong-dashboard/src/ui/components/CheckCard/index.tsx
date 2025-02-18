@@ -26,6 +26,7 @@ export interface CheckCardOption {
   label: string;
   value: string | number;
   image?: string | Promise<{ default: string }>;
+  isSmallImage?: boolean;
 }
 
 export interface CheckCardProps {
@@ -45,6 +46,7 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
 
   const [isExpand, setExpandStatus] = useState(!Boolean(currentValue));
 
+  const [smallImageMap, setSmallImageMap] = useState({});
   const { token } = useToken();
 
   useEffect(() => {
@@ -77,6 +79,16 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     })();
   }, [options]);
 
+  useEffect(() => {
+    setSmallImageMap(
+      options
+        .filter(item => item.isSmallImage)
+        .reduce((acc, item) => {
+          acc[item.label] = item.isSmallImage;
+          return acc;
+        }, {}),
+    );
+  }, [options]);
   const handleCardClick = newValue => {
     setExpandStatus(false);
     if (newValue !== currentValue) {
@@ -91,7 +103,22 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     <Tooltip placement="top" title={label}>
       <div className={styles.cardInfo}>
         {logoMap[label] ? (
-          <img height="100%" alt={label} src={logoMap[label]}></img>
+          !smallImageMap[label] ? (
+            <img height="100%" alt={label} src={logoMap[label]}></img>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                width: '100%',
+              }}
+            >
+              <img style={{ marginLeft: 10 }} height="100%" alt={label} src={logoMap[label]}></img>
+              <span style={{ marginLeft: 10 }}>{label}</span>
+            </div>
+          )
         ) : (
           <>
             <DatabaseOutlined style={{ fontSize: 20 }} />
@@ -101,7 +128,7 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
       </div>
     </Tooltip>
   );
-
+  console.log(smallImageMap);
   return (
     <Row gutter={15} className={styles.cardRow}>
       {!isExpand ? (
