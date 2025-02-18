@@ -648,7 +648,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                     String.format("current group status=%s was not allowed to delete", curState));
         }
 
-        // If the status not allowed deleting directly, and the group mode is STANDARD,
+        // If the status does not allow deleting directly, and the group mode is STANDARD,
         // you need to delete the related "inlong_stream" first.
         // otherwise, all associated info will be logically deleted.
         if (GroupStatus.deleteStreamFirst(curState)
