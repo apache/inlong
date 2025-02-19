@@ -128,7 +128,7 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
       </div>
     </Tooltip>
   );
-  console.log(smallImageMap);
+
   return (
     <Row gutter={15} className={styles.cardRow}>
       {!isExpand ? (
