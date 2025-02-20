@@ -91,14 +91,16 @@ public interface InlongGroupService {
      * Query the group information of each status of the current user
      *
      * @param operator name of operator
+     * @param inlongGroupMode inlong group mode
+     * @param mqType MQ Type
      * @return inlong group status statistics
      */
-    InlongGroupCountResponse countGroupByUser(String operator, Integer inlongGroupMode);
+    InlongGroupCountResponse countGroupByUser(String operator, Integer inlongGroupMode, String mqType);
 
     /**
      * According to the group id, query the topic to which it belongs
      *
-     * @param groupId Inlong group id
+     * @param groupId inlong group id
      * @return Topic information
      * @apiNote TubeMQ corresponds to the group, only 1 topic
      */

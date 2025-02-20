@@ -230,6 +230,9 @@
             <if test="inlongGroupMode != null">
                 and inlong_group_mode = #{inlongGroupMode,jdbcType=TINYINT}
             </if>
+            <if test="mqType != null and mqType != ''">
+                and mq_type = #{mqType,jdbcType=VARCHAR}
+            </if>
             and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         </where>
         group by status

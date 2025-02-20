@@ -43,7 +43,8 @@ public interface InlongGroupEntityMapper {
     InlongGroupEntity selectByPrimaryKey(Integer id);
 
     List<Map<String, Object>> countGroupByUser(@Param(value = "username") String username,
-            @Param(value = "inlongGroupMode") Integer inlongGroupMode);
+            @Param(value = "inlongGroupMode") Integer inlongGroupMode,
+            @Param(value = "mqType") String mqType);
 
     InlongGroupEntity selectByGroupId(String groupId);
 

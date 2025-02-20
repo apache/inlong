@@ -53,6 +53,7 @@ const Comp: React.FC = () => {
     url: '/group/countByStatus',
     params: {
       inlongGroupMode: options.inlongGroupMode,
+      mqType: 'NONE',
     },
   });
 

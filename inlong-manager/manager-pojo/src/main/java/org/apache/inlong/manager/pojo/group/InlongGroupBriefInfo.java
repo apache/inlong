@@ -46,6 +46,9 @@ public class InlongGroupBriefInfo {
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty(value = "Inlong group mode")
+    private Integer inlongGroupMode;
+
     @ApiModelProperty(value = "Inlong group name")
     private String name;
 
