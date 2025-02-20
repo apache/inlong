@@ -81,8 +81,8 @@ public class ParquetSourceData implements SourceData {
             } else if (StringUtils.startsWith(fieldName, CHILD_KEY)) {
                 // To meet various situations
                 if (childType instanceof GroupType) {
-                    Group group = childParent.getGroup(childName, rowNum);
                     if (childParent != null && rowNum < getRowCount()) {
+                        Group group = childParent.getGroup(childName, rowNum);
                         // Dealing with multi-level paths
                         fieldName = fieldName.substring(CHILD_KEY.length());
                         fieldValue = parseFields(fieldName, group);

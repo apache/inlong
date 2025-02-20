@@ -72,7 +72,7 @@ SendGroup::~SendGroup() {
     update_conf_timer_->cancel();
   }
   if (load_balance_timer_) {
-    update_conf_timer_->cancel();
+    load_balance_timer_->cancel();
   }
 
   io_context_.stop();

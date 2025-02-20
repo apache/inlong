@@ -49,7 +49,7 @@
         <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <!-- specify mysql connector version because we are using cdc 2.2 -->
         <!-- see also in https://github.com/ververica/flink-cdc-connectors/issues/627 -->
-        <mysql-connector-java.version>8.0.21</mysql-connector-java.version>
+
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
@@ -106,7 +106,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql-connector-java.version}</version>
+                <version>${mysql.jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
