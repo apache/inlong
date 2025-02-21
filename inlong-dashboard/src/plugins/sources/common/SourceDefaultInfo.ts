@@ -201,6 +201,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
               label: item.label,
               value: item.value,
               image: loadImage(item.label),
+              isSmallImage: item.label === 'SQL' || item.label === 'COS' || item.label === 'File',
             })),
         });
       }
@@ -222,6 +223,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
               label: item.label,
               value: item.value,
               image: loadImage(item.label),
+              isSmallImage: item.label === 'SQL' || item.label === 'COS' || item.label === 'File',
             })),
         });
       }

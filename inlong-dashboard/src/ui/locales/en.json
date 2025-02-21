@@ -1056,5 +1056,12 @@
   "meta.Sinks.DirtyData.DirtyType.FieldMappingError":"Field Mapping Error",
   "meta.Sinks.DirtyData.DirtyType.LoadError":"Load Error",
   "meta.Sinks.DirtyData.Search.KeyWordHelp":"Please enter a keyword",
-  "meta.Sinks.DirtyData.Search.KeyWord":"Key word"
+  "meta.Sinks.DirtyData.Search.KeyWord":"Key word",
+  "meta.Sources.COS.DataNode": "Data node",
+  "meta.Sinks.SQL.Sql": "Sql",
+  "meta.Sinks.SQL.JdbcUrl": "JDBC url",
+  "meta.Sinks.SQL.Username": "username",
+  "meta.Sinks.SQL.Password": "password",
+  "meta.Sinks.SQL.FetchSize": "Fetch size",
+  "meta.SQL.Check": "Check failed, please enter the correct SQL connection address"
 }
