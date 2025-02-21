@@ -39,7 +39,8 @@ const Comp: React.FC = () => {
   const [options, setOptions] = useState({
     pageSize: defaultSize,
     pageNum: 1,
-    inlongGroupMode: 1,
+    inlongGroupMode: null,
+    mqType: 'NONE',
   });
 
   const [groupLogs, setGroupLogs] = useState({
@@ -52,6 +53,7 @@ const Comp: React.FC = () => {
     url: '/group/countByStatus',
     params: {
       inlongGroupMode: options.inlongGroupMode,
+      mqType: 'NONE',
     },
   });
 
@@ -214,7 +216,6 @@ const Comp: React.FC = () => {
               rowKey: 'id',
               dataSource: data?.list?.map(item => ({
                 ...item,
-                inlongGroupMode: options.inlongGroupMode,
               })),
               pagination,
               loading,

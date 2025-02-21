@@ -352,9 +352,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public InlongGroupCountResponse countGroupByUser(String operator, Integer inlongGroupMode) {
+    public InlongGroupCountResponse countGroupByUser(String operator, Integer inlongGroupMode, String mqType) {
         InlongGroupCountResponse countVO = new InlongGroupCountResponse();
-        List<Map<String, Object>> statusCount = groupMapper.countGroupByUser(operator, inlongGroupMode);
+        List<Map<String, Object>> statusCount = groupMapper.countGroupByUser(operator, inlongGroupMode, mqType);
         for (Map<String, Object> map : statusCount) {
             int status = (Integer) map.get("status");
             long count = (Long) map.get("count");
