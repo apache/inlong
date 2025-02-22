@@ -318,7 +318,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void login(UserLoginRequest req) {
-        String username = req.getUsername();
+        String username = req.getUsername().trim();
+        String password = req.getPassword().trim();
         UserLoginLockStatus userLoginLockStatus = loginLockStatusMap.getOrDefault(username, new UserLoginLockStatus());
         LocalDateTime lockoutTime = userLoginLockStatus.getLockoutTime();
         if (lockoutTime != null && lockoutTime.isAfter(LocalDateTime.now())) {
@@ -328,7 +329,7 @@ public class UserServiceImpl implements UserService {
         }
 
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(username, req.getPassword());
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             subject.login(token);
         } catch (AuthenticationException e) {

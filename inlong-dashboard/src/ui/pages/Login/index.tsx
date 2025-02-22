@@ -55,6 +55,8 @@ const Comp: React.FC = () => {
 
   const login = async () => {
     const data = await form.validateFields();
+    data.username = data.username.trim();
+    data.password = data.password.trim();
     await request({
       url: '/anno/login',
       method: 'POST',
