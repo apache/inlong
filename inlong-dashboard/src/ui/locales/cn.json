@@ -917,7 +917,7 @@
   "pages.Login.PasswordRules": "只能包含字母、数字、中划线、下划线、@",
   "pages.Login.Login": "登录",
   "pages.Login.PleaseEnterYourPassword": "请输入密码",
-  "pages.Login.UserPasswordSpaceNotAllowed": "密码不能包含空格，请删除空格后重试。",
+  "pages.Login.UserPasswordSpaceNotAllowed": "密码不能包含空格，请删除空格后重试",
   "pages.UserManagement.DetailModal.Day": "天",
   "pages.UserManagement.DetailModal.New": "新建",
   "pages.UserManagement.DetailModal.UserPassword": "用户密码",
