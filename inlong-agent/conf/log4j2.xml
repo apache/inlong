@@ -37,13 +37,16 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
+        <property name="sdk_info_fileName">${basePath}/sdk-info.log</property>
+        <property name="sdk_info_filePattern">${basePath}/sdk-info-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="sdk_info_max">10</property>
+        <property name="sdk_warn_fileName">${basePath}/sdk-warn.log</property>
+        <property name="sdk_warn_filePattern">${basePath}/sdk-warn-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="sdk_warn_max">10</property>
+        <property name="sdk_error_fileName">${basePath}/sdk-error.log</property>
+        <property name="sdk_error_filePattern">${basePath}/sdk-error-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="sdk_error_max">10</property>
         <property name="console_print_level">INFO</property>
-        <property name="index_max">10</property>
-        <property name="index_fileName">${basePath}/index.log</property>
-        <property name="index_filePattern">${basePath}/index-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="monitors_max">10</property>
-        <property name="monitors_fileName">${basePath}/monitors.log</property>
-        <property name="monitors_filePattern">${basePath}/monitors-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="last_modify_time">15d</property>
     </Properties>
 
@@ -90,42 +93,6 @@
             </Filters>
         </RollingFile>
 
-        <RollingFile name="IndexFile" fileName="${index_fileName}" filePattern="${index_filePattern}">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %m%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
-                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            </Policies>
-            <DefaultRolloverStrategy max="${index_max}">
-                <Delete basePath="${basePath}" maxDepth="1">
-                    <IfFileName glob="index*.log.gz"/>
-                    <IfLastModified age="${last_modify_time}"/>
-                </Delete>
-            </DefaultRolloverStrategy>
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-
-        <RollingFile name="MonitorFile" fileName="${monitors_fileName}" filePattern="${monitors_filePattern}">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %m%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
-                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            </Policies>
-            <DefaultRolloverStrategy max="${monitors_max}">
-                <Delete basePath="${basePath}" maxDepth="1">
-                    <IfFileName glob="monitors*.log.gz"/>
-                    <IfLastModified age="${last_modify_time}"/>
-                </Delete>
-            </DefaultRolloverStrategy>
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-
         <RollingFile name="WarnFile" fileName="${warn_fileName}" filePattern="${warn_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
             <Policies>
@@ -161,9 +128,70 @@
                 <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </RollingFile>
+
+        <RollingFile name="SDKInfoFile" fileName="${sdk_info_fileName}" filePattern="${sdk_info_filePattern}">
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${sdk_info_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="info*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingFile name="SDKWarnFile" fileName="${sdk_warn_fileName}" filePattern="${sdk_warn_filePattern}">
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${sdk_warn_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="warn*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingFile name="SDKErrorFile" fileName="${sdk_error_fileName}" filePattern="${sdk_error_filePattern}">
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${sdk_error_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="error*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+            <Filters>
+                <ThresholdFilter level="FATAL" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+
     </appenders>
 
     <loggers>
+        <logger name="org.apache.inlong.sdk" level="info" additivity="false">
+            <!-- 使用 Filters 分流不同级别日志 -->
+            <appender-ref ref="SDKInfoFile"/>
+            <appender-ref ref="SDKWarnFile"/>
+            <appender-ref ref="SDKErrorFile"/>
+        </logger>
         <root level="${output_log_level}">
             <appender-ref ref="Console"/>
             <appender-ref ref="DebugFile"/>
