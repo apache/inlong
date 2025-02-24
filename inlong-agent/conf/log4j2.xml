@@ -187,7 +187,6 @@
 
     <loggers>
         <logger name="org.apache.inlong.sdk" level="info" additivity="false">
-            <!-- 使用 Filters 分流不同级别日志 -->
             <appender-ref ref="SDKInfoFile"/>
             <appender-ref ref="SDKWarnFile"/>
             <appender-ref ref="SDKErrorFile"/>
