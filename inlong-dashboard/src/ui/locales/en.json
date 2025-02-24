@@ -911,7 +911,7 @@
   "pages.Login.PasswordRules": "Only letters, numbers, minus, @, and underscores",
   "pages.Login.Login": "Login",
   "pages.Login.PleaseEnterYourPassword": "Please enter your password",
-  "pages.Login.UserPasswordSpaceNotAllowed": "Password cannot contain spaces. Please remove any spaces and try again",
+  "pages.Login.UserPasswordSpaceNotAllowed": "The username cannot contain spaces, please remove any spaces and try again",
   "pages.UserManagement.DetailModal.Day": "Days",
   "pages.UserManagement.DetailModal.New": "New construction",
   "pages.UserManagement.DetailModal.UserPassword": "Password",
