@@ -29,6 +29,8 @@ import org.apache.inlong.agent.message.file.ProxyMessage;
 import org.apache.inlong.agent.message.file.SenderMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
+import org.apache.inlong.agent.plugin.sinks.dataproxy.Sender;
+import org.apache.inlong.agent.plugin.sinks.dataproxy.SenderManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 
@@ -177,9 +179,8 @@ public class ProxySink extends AbstractSink {
                 StandardCharsets.UTF_8);
         sourceName = profile.getInstanceId();
         offsetManager = OffsetManager.getInstance();
-        sender = new Sender(profile, inlongGroupId, sourceName);
+        sender = SenderManager.getInstance().getSender(profile.getTaskId(), profile);
         try {
-            sender.Start();
             EXECUTOR_SERVICE.execute(coreThread());
             EXECUTOR_SERVICE.execute(flushOffset());
             inited = true;
@@ -199,7 +200,6 @@ public class ProxySink extends AbstractSink {
         }
         Long start = AgentUtils.getCurrentTime();
         shutdown = true;
-        sender.Stop();
         LOGGER.info("destroy proxySink, wait for sender close {} ms instance {}", AgentUtils.getCurrentTime() - start,
                 profile.getInstanceId());
         start = AgentUtils.getCurrentTime();
