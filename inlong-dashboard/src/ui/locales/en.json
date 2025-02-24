@@ -907,7 +907,7 @@
   "pages.ClusterTags.TagPlaceholder": "Please enter a tag",
   "pages.ClusterTags.TenantPlaceholder": "Please select a tenant",
   "pages.Login.PleaseEnterUserName": "Please enter user name",
-  "pages.Login.UserNameSpaceNotAllowed": "Username cannot contain spaces. Please remove any spaces and try again",
+  "pages.Login.UserNameSpaceNotAllowed": "The username cannot contain spaces, please remove any spaces and try again",
   "pages.Login.PasswordRules": "Only letters, numbers, minus, @, and underscores",
   "pages.Login.Login": "Login",
   "pages.Login.PleaseEnterYourPassword": "Please enter your password",
