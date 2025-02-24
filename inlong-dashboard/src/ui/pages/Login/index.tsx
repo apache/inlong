@@ -39,7 +39,10 @@ const Comp: React.FC = () => {
         size: 'large',
         prefix: <UserOutlined />,
       },
-      rules: [{ required: true, message: t('pages.Login.PleaseEnterUserName') }],
+      rules: [
+        { required: true, message: t('pages.Login.PleaseEnterUserName') },
+        { pattern: /^\S+$/, message: t('pages.Login.UserNameSpaceNotAllowed') },
+      ],
     },
     {
       type: 'password',
@@ -49,7 +52,10 @@ const Comp: React.FC = () => {
         size: 'large',
         prefix: <LockOutlined />,
       },
-      rules: [{ required: true, message: t('pages.Login.PleaseEnterYourPassword') }],
+      rules: [
+        { required: true, message: t('pages.Login.PleaseEnterYourPassword') },
+        { pattern: /^\S+$/, message: t('pages.Login.UserPasswordSpaceNotAllowed') },
+      ],
     },
   ];
 
