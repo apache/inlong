@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sinks;
+package org.apache.inlong.agent.plugin.sinks.dataproxy;
 
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -43,6 +43,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,8 @@ public class Sender {
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     public static final int RESEND_QUEUE_WAIT_MS = 10;
     // cache for group and sender list, share the map cross agent lifecycle.
-    private TcpMsgSender sender;
+    private List<TcpMsgSender> senders = new ArrayList<>();
+    private AtomicLong senderIndex = new AtomicLong(0);
     private LinkedBlockingQueue<AgentSenderCallback> resendQueue;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -117,27 +119,25 @@ public class Sender {
         auditVersion = Long.parseLong(profile.get(TASK_AUDIT_VERSION));
         managerAddr = agentConf.get(AGENT_MANAGER_ADDR);
         proxySend = profile.getBoolean(TASK_PROXY_SEND, DEFAULT_TASK_PROXY_SEND);
-        totalAsyncBufSize = profile
-                .getInt(
-                        CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
-                        CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE_KB);
-        aliveConnectionNum = profile
-                .getInt(
-                        CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
-        isCompress = profile.getBoolean(
+        totalAsyncBufSize = agentConf.getInt(
+                CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
+                CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE_KB);
+        aliveConnectionNum = agentConf.getInt(
+                CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
+        isCompress = agentConf.getBoolean(
                 CommonConstants.PROXY_IS_COMPRESS, CommonConstants.DEFAULT_PROXY_IS_COMPRESS);
-        maxSenderPerGroup = profile.getInt(
+        maxSenderPerGroup = agentConf.getInt(
                 CommonConstants.PROXY_MAX_SENDER_PER_GROUP, CommonConstants.DEFAULT_PROXY_MAX_SENDER_PER_GROUP);
-        msgType = profile.getInt(CommonConstants.PROXY_MSG_TYPE, CommonConstants.DEFAULT_PROXY_MSG_TYPE);
-        maxSenderTimeout = profile.getInt(
+        msgType = agentConf.getInt(CommonConstants.PROXY_MSG_TYPE, CommonConstants.DEFAULT_PROXY_MSG_TYPE);
+        maxSenderTimeout = agentConf.getInt(
                 CommonConstants.PROXY_SENDER_MAX_TIMEOUT, CommonConstants.DEFAULT_PROXY_SENDER_MAX_TIMEOUT);
-        maxSenderRetry = profile.getInt(
+        maxSenderRetry = agentConf.getInt(
                 CommonConstants.PROXY_SENDER_MAX_RETRY, CommonConstants.DEFAULT_PROXY_SENDER_MAX_RETRY);
         retrySleepTime = agentConf.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
-        ioThreadNum = profile.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
+        ioThreadNum = agentConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
-        enableBusyWait = profile.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
+        enableBusyWait = agentConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
                 CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
         batchFlushInterval = agentConf.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
         authSecretId = agentConf.get(AGENT_MANAGER_AUTH_SECRET_ID);
@@ -176,9 +176,11 @@ public class Sender {
 
     private void closeMessageSender() {
         Long start = AgentUtils.getCurrentTime();
-        if (sender != null) {
-            sender.close();
-        }
+        senders.forEach(sender -> {
+            if (sender != null) {
+                sender.close();
+            }
+        });
         LOGGER.info("close sender elapse {} ms instance {}", AgentUtils.getCurrentTime() - start,
                 profile.getInstanceId());
     }
@@ -212,12 +214,13 @@ public class Sender {
         proxyClientConfig.setEnableDataCompress(isCompress);
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());
-        // build sender object
-        this.sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
-        ProcessResult procResult = new ProcessResult();
-        // start sender object
-        if (!sender.start(procResult)) {
-            throw new ProxySdkException("Start sender failure, " + procResult);
+        for (int i = 0; i < maxSenderPerGroup; i++) {
+            InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
+            ProcessResult procResult = new ProcessResult();
+            if (!sender.start(procResult)) {
+                throw new ProxySdkException("Start sender failure, " + procResult);
+            }
+            senders.add(sender);
         }
     }
 
@@ -277,12 +280,15 @@ public class Sender {
             Map<String, String> extraAttrMap, boolean isProxySend) throws Exception {
         boolean isSuccess;
         ProcessResult procResult = new ProcessResult();
+        int index = (int) Math.abs(senderIndex.getAndAdd(1) % maxSenderPerGroup);
         if (isProxySend) {
-            isSuccess = sender.asyncSendMsgWithSinkAck(new TcpEventInfo(
-                    groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
+            isSuccess = senders.get(index)
+                    .asyncSendMsgWithSinkAck(new TcpEventInfo(
+                            groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
         } else {
-            isSuccess = sender.asyncSendMessage(new TcpEventInfo(
-                    groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
+            isSuccess =
+                    senders.get(index).asyncSendMessage(new TcpEventInfo(
+                            groupId, streamId, dataTime, msgUUID, extraAttrMap, bodyList), cb, procResult);
         }
         if (!isSuccess) {
             throw new ProxySdkException("Send message failure, " + procResult);
@@ -336,10 +342,6 @@ public class Sender {
         } catch (Throwable throwable) {
             LOGGER.error("putInResendQueue e = {}", throwable);
         }
-    }
-
-    public boolean sendFinished() {
-        return true;
     }
 
     /**
