@@ -64,10 +64,6 @@ public class InLongFactoryExample {
         InLongTcpMsgSender tcpMsgSender =
                 singleFactory.genTcpSenderByClusterId(tcpMsgSenderConfig);
         ProcessResult procResult = new ProcessResult();
-        if (!tcpMsgSender.start(procResult)) {
-            System.out.println("Start tcp sender failure: process result=" + procResult);
-        }
-
         // report data
         ExampleUtils.sendTcpMessages(tcpMsgSender, false, false,
                 groupId, streamId, reqCnt, msgSize, msgCnt, procResult);
@@ -81,9 +77,7 @@ public class InLongFactoryExample {
                 false, managerIp, managerPort, groupId, secretId, secretKey);
         InLongHttpMsgSender httpMsgSender =
                 singleFactory.genHttpSenderByGroupId(httpMsgSenderConfig);
-        if (!httpMsgSender.start(procResult)) {
-            System.out.println("Start http sender failure: process result=" + procResult);
-        }
+        // report data
         ExampleUtils.sendHttpMessages(httpMsgSender, false, false,
                 groupId, streamId, reqCnt, msgSize, msgCnt, procResult);
         ExampleUtils.sendHttpMessages(httpMsgSender, false, true,
@@ -99,10 +93,7 @@ public class InLongFactoryExample {
         tcpMsgSenderConfig.setSdkMsgType(MsgType.MSG_ACK_SERVICE);
         InLongTcpMsgSender tcpMsgSender1 =
                 multiFactory1.genTcpSenderByGroupId(tcpMsgSenderConfig);
-        if (!tcpMsgSender1.start(procResult)) {
-            System.out.println("Start tcp sender1 failure: process result=" + procResult);
-        }
-
+        // report data
         String managerAddr = "http://" + managerIp + ":" + managerPort;
         TcpMsgSenderConfig tcpMsgSenderConfig2 =
                 new TcpMsgSenderConfig(managerAddr, groupId, secretId, secretKey);
