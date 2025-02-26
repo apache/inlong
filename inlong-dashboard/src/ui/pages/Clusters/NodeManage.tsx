@@ -339,7 +339,7 @@ const Comp: React.FC = () => {
             title: i18n.t('basic.Operating'),
             dataIndex: 'action',
             key: 'operation',
-            width: isSmall ? 200 : 400,
+            width: 200,
             render: (text, record) => (
               <>
                 <Button type="link" onClick={() => onEdit(record)}>
@@ -367,7 +367,7 @@ const Comp: React.FC = () => {
             title: i18n.t('basic.Operating'),
             dataIndex: 'action',
             key: 'operation',
-            width: isSmall ? 200 : 400,
+            width: type !== 'AGENT' ? 200 : 400,
             render: (text, record) => (
               <>
                 <Button type="link" onClick={() => onEdit(record)}>
@@ -376,33 +376,43 @@ const Comp: React.FC = () => {
                 <Button type="link" onClick={() => onDelete(record)}>
                   {i18n.t('basic.Delete')}
                 </Button>
-                <Button
-                  type="link"
-                  onClick={() => getNodeData(record.id).then(() => setOperationType('onInstall'))}
-                >
-                  {i18n.t('pages.Cluster.Node.Install')}
-                </Button>
-                <Button
-                  type="link"
-                  onClick={() => getNodeData(record.id).then(() => setOperationType('onRestart'))}
-                >
-                  {i18n.t('pages.Nodes.Restart')}
-                </Button>
-                <Button
-                  type="link"
-                  onClick={() => getNodeData(record.id).then(() => setOperationType('onUnload'))}
-                >
-                  {i18n.t('pages.Cluster.Node.Unload')}
-                </Button>
-                <Button type="link" onClick={() => onLog(record)}>
-                  {i18n.t('pages.Cluster.Node.InstallLog')}
-                </Button>
-                <Button type="link" onClick={() => openHeartModal(record)}>
-                  {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
-                </Button>
-                <Button type="link" onClick={() => openOperationLogModal(record)}>
-                  {i18n.t('pages.GroupDetail.OperationLog')}
-                </Button>
+                {type === 'AGENT' && (
+                  <>
+                    <Button
+                      type="link"
+                      onClick={() =>
+                        getNodeData(record.id).then(() => setOperationType('onInstall'))
+                      }
+                    >
+                      {i18n.t('pages.Cluster.Node.Install')}
+                    </Button>
+                    <Button
+                      type="link"
+                      onClick={() =>
+                        getNodeData(record.id).then(() => setOperationType('onRestart'))
+                      }
+                    >
+                      {i18n.t('pages.Nodes.Restart')}
+                    </Button>
+                    <Button
+                      type="link"
+                      onClick={() =>
+                        getNodeData(record.id).then(() => setOperationType('onUnload'))
+                      }
+                    >
+                      {i18n.t('pages.Cluster.Node.Unload')}
+                    </Button>
+                    <Button type="link" onClick={() => onLog(record)}>
+                      {i18n.t('pages.Cluster.Node.InstallLog')}
+                    </Button>
+                    <Button type="link" onClick={() => openHeartModal(record)}>
+                      {i18n.t('pages.Clusters.Node.Agent.HeartbeatDetection')}
+                    </Button>
+                    <Button type="link" onClick={() => openOperationLogModal(record)}>
+                      {i18n.t('pages.GroupDetail.OperationLog')}
+                    </Button>
+                  </>
+                )}
               </>
             ),
           },
