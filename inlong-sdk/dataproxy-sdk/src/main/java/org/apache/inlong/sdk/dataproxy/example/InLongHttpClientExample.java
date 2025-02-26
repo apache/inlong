@@ -46,19 +46,18 @@ public class InLongHttpClientExample {
         }
 
         String managerAddr = "http://" + managerIp + ":" + managerPort;
-
         HttpMsgSenderConfig dataProxyConfig =
                 new HttpMsgSenderConfig(managerAddr, groupId, secretId, secretKey);
         InLongHttpMsgSender messageSender = new InLongHttpMsgSender(dataProxyConfig);
-
         ProcessResult procResult = new ProcessResult();
         if (!messageSender.start(procResult)) {
+            messageSender.close();
             System.out.println("Start http sender failure: process result=" + procResult);
+            return;
         }
 
         System.out.println("InLongHttpMsgSender start, nodes="
                 + messageSender.getProxyNodeInfos());
-
         ExampleUtils.sendHttpMessages(messageSender, true, false,
                 groupId, streamId, reqCnt, msgSize, msgCnt, procResult);
         ExampleUtils.sendHttpMessages(messageSender, true, true,

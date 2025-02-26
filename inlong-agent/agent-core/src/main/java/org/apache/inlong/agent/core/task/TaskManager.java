@@ -61,13 +61,13 @@ public class TaskManager extends AbstractDaemon {
     private static final int ACTION_QUEUE_CAPACITY = 1000;
     private long lastPrintTime = 0;
     // task basic store
-    private final Store taskBasicStore;
+    private static Store taskBasicStore;
     // instance basic store
-    private final Store instanceBasicStore;
+    private static Store instanceBasicStore;
     // offset basic store
-    private final Store offsetBasicStore;
+    private static Store offsetBasicStore;
     // task in task store
-    private final TaskStore taskStore;
+    private static TaskStore taskStore;
     // task in memory
     private final ConcurrentHashMap<String, Task> taskMap;
     // task config from manager.
@@ -146,7 +146,7 @@ public class TaskManager extends AbstractDaemon {
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
-    public TaskStore getTaskStore() {
+    public static TaskStore getTaskStore() {
         return taskStore;
     }
 

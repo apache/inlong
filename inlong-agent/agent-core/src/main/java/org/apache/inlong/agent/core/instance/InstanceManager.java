@@ -157,7 +157,7 @@ public class InstanceManager extends AbstractDaemon {
         if (action == null) {
             return false;
         }
-        if (isFull()) {
+        if (action.getActionType() == ActionType.ADD && isFull()) {
             return false;
         }
         return actionQueue.offer(action);
@@ -448,6 +448,10 @@ public class InstanceManager extends AbstractDaemon {
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
+            if (taskManager != null && taskManager.getInstanceNum() > globalInstanceLimit) {
+                LOGGER.error("global instance num {} over limit {}", taskManager.getInstanceNum(), globalInstanceLimit);
+                return;
+            }
             if (instanceMap.size() > instanceLimit) {
                 LOGGER.info("add instance to memory refused because instanceMap size over limit {}",
                         instanceProfile.getInstanceId());
