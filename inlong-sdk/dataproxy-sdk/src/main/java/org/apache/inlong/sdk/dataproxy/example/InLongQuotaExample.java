@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 
-public class InLongFactoryExample {
+public class InLongQuotaExample {
 
-    protected static final Logger logger = LoggerFactory.getLogger(InLongFactoryExample.class);
+    protected static final Logger logger = LoggerFactory.getLogger(InLongQuotaExample.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -56,10 +56,11 @@ public class InLongFactoryExample {
         System.out.println("InLongFactoryExample start");
 
         // build singleton factory
-        MsgSenderSingleFactory singleFactory = new MsgSenderSingleFactory();
+        MsgSenderSingleFactory singleFactory = new MsgSenderSingleFactory(50, 20);
         // report data by tcp
         TcpMsgSenderConfig tcpMsgSenderConfig = new TcpMsgSenderConfig(
                 false, managerIp, managerPort, groupId, secretId, secretKey);
+        tcpMsgSenderConfig.setMaxInFlightPermitsPerSdk(30, 90);
         tcpMsgSenderConfig.setRequestTimeoutMs(20000L);
         InLongTcpMsgSender tcpMsgSender =
                 singleFactory.genTcpSenderByClusterId(tcpMsgSenderConfig);
@@ -75,9 +76,9 @@ public class InLongFactoryExample {
         // report data by http
         HttpMsgSenderConfig httpMsgSenderConfig = new HttpMsgSenderConfig(
                 false, managerIp, managerPort, groupId, secretId, secretKey);
+        httpMsgSenderConfig.setMaxInFlightPermitsPerSdk(80, 30);
         InLongHttpMsgSender httpMsgSender =
                 singleFactory.genHttpSenderByGroupId(httpMsgSenderConfig);
-        // report data
         ExampleUtils.sendHttpMessages(httpMsgSender, false, false,
                 groupId, streamId, reqCnt, msgSize, msgCnt, procResult);
         ExampleUtils.sendHttpMessages(httpMsgSender, false, true,
@@ -93,7 +94,7 @@ public class InLongFactoryExample {
         tcpMsgSenderConfig.setSdkMsgType(MsgType.MSG_ACK_SERVICE);
         InLongTcpMsgSender tcpMsgSender1 =
                 multiFactory1.genTcpSenderByGroupId(tcpMsgSenderConfig);
-        // report data
+
         String managerAddr = "http://" + managerIp + ":" + managerPort;
         TcpMsgSenderConfig tcpMsgSenderConfig2 =
                 new TcpMsgSenderConfig(managerAddr, groupId, secretId, secretKey);

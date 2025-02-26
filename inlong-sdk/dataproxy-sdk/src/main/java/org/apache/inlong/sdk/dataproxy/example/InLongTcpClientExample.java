@@ -46,18 +46,18 @@ public class InLongTcpClientExample {
         }
 
         String managerAddr = "http://" + managerIp + ":" + managerPort;
-
         TcpMsgSenderConfig dataProxyConfig =
                 new TcpMsgSenderConfig(managerAddr, groupId, secretId, secretKey);
         dataProxyConfig.setRequestTimeoutMs(20000L);
         InLongTcpMsgSender messageSender = new InLongTcpMsgSender(dataProxyConfig);
-
-        logger.info("InLongTcpMsgSender start");
-
         ProcessResult procResult = new ProcessResult();
         if (!messageSender.start(procResult)) {
-            System.out.println("Start sender failure: process result=" + procResult.toString());
+            messageSender.close();
+            System.out.println("Start sender failure: process result=" + procResult);
+            return;
         }
+
+        logger.info("InLongTcpMsgSender start");
         ExampleUtils.sendTcpMessages(messageSender, true, false,
                 groupId, streamId, reqCnt, msgSize, msgCnt, procResult);
         ExampleUtils.sendTcpMessages(messageSender, true, true,
