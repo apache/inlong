@@ -111,4 +111,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'SQL',
     LoadEntity: () => import('./SQL'),
   },
+  {
+    label: 'Paimon',
+    value: 'PAIMON',
+    LoadEntity: () => import('./Paimon'),
+  },
 ];
