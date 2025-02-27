@@ -27,7 +27,7 @@ public class ProcessResult {
     // error code
     private int errCode = ErrorCode.UNKNOWN_ERROR.getErrCode();
     // error message
-    private String errMsg = "";
+    private String errMsg = ErrorCode.UNKNOWN_ERROR.getErrMsg();
     // return data if success
     private Object retData = null;
 
@@ -37,6 +37,7 @@ public class ProcessResult {
 
     public ProcessResult(ErrorCode errCode) {
         this.errCode = errCode.getErrCode();
+        this.errMsg = errCode.getErrMsg();
     }
 
     public ProcessResult(ErrorCode errCode, String errMsg) {
@@ -46,14 +47,14 @@ public class ProcessResult {
 
     public boolean setSuccess() {
         this.errCode = ErrorCode.OK.getErrCode();
-        this.errMsg = "";
+        this.errMsg = ErrorCode.OK.getErrMsg();
         this.retData = null;
         return isSuccess();
     }
 
     public boolean setSuccess(Object retData) {
         this.errCode = ErrorCode.OK.getErrCode();
-        this.errMsg = "";
+        this.errMsg = ErrorCode.OK.getErrMsg();
         this.retData = retData;
         return isSuccess();
     }
@@ -67,7 +68,7 @@ public class ProcessResult {
 
     public boolean setFailResult(ErrorCode errCode) {
         this.errCode = errCode.getErrCode();
-        this.errMsg = "";
+        this.errMsg = errCode.getErrMsg();
         this.retData = null;
         return isSuccess();
     }

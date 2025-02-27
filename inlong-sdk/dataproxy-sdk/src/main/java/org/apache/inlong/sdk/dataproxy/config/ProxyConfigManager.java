@@ -92,6 +92,7 @@ public class ProxyConfigManager extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
     private static final LogCounter exptCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final LogCounter parseCounter = new LogCounter(10, 100000, 60 * 1000L);
+    protected static final LogCounter cntCounter = new LogCounter(10, 100000, 60 * 1000L);
     private static final Map<String, Tuple2<AtomicLong, String>> fetchFailProxyMap =
             new ConcurrentHashMap<>();
     private static final Map<String, Tuple2<AtomicLong, String>> fetchFailEncryptMap =
@@ -432,6 +433,10 @@ public class ProxyConfigManager extends Thread {
                 rmvManagerQryFailStatus(true);
             } else {
                 bookManagerQryFailStatus(true, procResult.getErrMsg());
+                if (cntCounter.shouldPrint()) {
+                    logger.warn("ConfigManager({}) illegal content, from=({}), groupId={}, content={}, result={}",
+                            callerId, proxyConfigVisitUrl, mgrConfig.getInlongGroupId(), content, procResult);
+                }
             }
             return procResult.isSuccess();
         } catch (Throwable ex) {
@@ -945,6 +950,9 @@ public class ProxyConfigManager extends Thread {
                 return procResult.setFailResult(ErrorCode.META_FIELD_DATA_IS_NULL);
             }
             proxyNodeConfig = clusterConfig.getData();
+            if (proxyNodeConfig.getNodeList() == null) {
+                return procResult.setFailResult(ErrorCode.META_FIELD_NODE_LIST_NULL);
+            }
         } else {
             try {
                 proxyNodeConfig = gson.fromJson(strRet, DataProxyNodeResponse.class);
@@ -958,6 +966,9 @@ public class ProxyConfigManager extends Thread {
             }
             if (proxyNodeConfig == null) {
                 return procResult.setFailResult(ErrorCode.PARSE_FILE_CONTENT_IS_NULL);
+            }
+            if (proxyNodeConfig.getNodeList() == null) {
+                return procResult.setFailResult(ErrorCode.META_FIELD_NODE_LIST_NULL);
             }
         }
         // parse nodeList
