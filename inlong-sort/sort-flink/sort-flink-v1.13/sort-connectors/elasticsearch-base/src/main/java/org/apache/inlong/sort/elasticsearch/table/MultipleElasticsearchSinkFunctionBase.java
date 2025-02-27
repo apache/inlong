@@ -207,7 +207,11 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
         // dirty data & archive
         if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == schemaUpdateExceptionPolicy) {
             dirtySinkHelper.invoke(rowData, dirtyType, e);
-            if (sinkMetricData != null && index != null) {
+            if (sinkMetricData == null) {
+                return;
+            }
+
+            if (index != null) {
                 sinkMetricData.outputDirtyMetrics(index, 1,
                         rowData.toString().getBytes(StandardCharsets.UTF_8).length);
             } else {
