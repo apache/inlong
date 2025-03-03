@@ -49,6 +49,7 @@ public class SourceType extends StreamType {
 
             put(FILE, TaskTypeEnum.FILE);
             put(COS, TaskTypeEnum.COS);
+            put(SQL, TaskTypeEnum.SQL);
             put(MYSQL_BINLOG, TaskTypeEnum.BINLOG);
             put(POSTGRESQL, TaskTypeEnum.POSTGRES);
             put(ORACLE, TaskTypeEnum.ORACLE);
