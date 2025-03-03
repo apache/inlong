@@ -157,7 +157,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (groupEntity == null) {
             throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
-        userService.checkUser(groupEntity.getInCharges(), operator,
+        userService.checkUser(groupEntity.getInCharges() + InlongConstants.COMMA + groupEntity.getFollowers(), operator,
                 "Current user does not have permission to create sink info");
         // Make sure that there is no same sink name under the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -458,7 +458,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         chkUnmodifiableParams(curEntity, request);
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(request.getInlongGroupId(), operator);
-        userService.checkUser(groupEntity.getInCharges(), operator,
+        userService.checkUser(groupEntity.getInCharges() + InlongConstants.COMMA + groupEntity.getFollowers(), operator,
                 "Current user does not have permission to update sink info");
         // Check whether the stream exist or not
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
@@ -537,7 +537,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.expectNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
 
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
-        userService.checkUser(groupEntity.getInCharges(), operator,
+        userService.checkUser(groupEntity.getInCharges() + InlongConstants.COMMA + groupEntity.getFollowers(), operator,
                 "Current user does not have permission to delete sink info");
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
@@ -566,7 +566,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 groupId, streamId, sinkName));
 
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
-        userService.checkUser(groupEntity.getInCharges(), operator,
+        userService.checkUser(groupEntity.getInCharges() + InlongConstants.COMMA + groupEntity.getFollowers(), operator,
                 "Current user does not have permission to delete sink info");
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
