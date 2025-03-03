@@ -58,7 +58,7 @@ public class ClsOperator {
     @Value("${cls.manager.endpoint}")
     private String endpoint;
     private static final Logger LOG = LoggerFactory.getLogger(ClsOperator.class);
-    private static final String TOPIC_NAME = "topicName";
+    private static final String TOPIC_ID = "topicId";
     private static final String LOG_SET_ID = "logsetId";
     private static final long PRECISE_SEARCH = 1L;
 
@@ -117,12 +117,12 @@ public class ClsOperator {
     }
 
     /**
-     * Describe cls topicId by topic name
+     * Describe cls topicName by topic id
      */
-    public String describeTopicIDByTopicName(String topicName, String logSetId, String secretId, String secretKey,
+    public String describeTopicNameByTopicId(String topicId, String logSetId, String secretId, String secretKey,
             String region) {
         ClsClient clsClient = getClsClient(secretId, secretKey, region);
-        Filter[] filters = getDescribeFilters(topicName, logSetId);
+        Filter[] filters = getDescribeFilters(topicId, logSetId);
         DescribeTopicsRequest req = new DescribeTopicsRequest();
         req.setFilters(filters);
         req.setPreciseSearch(PRECISE_SEARCH);
@@ -130,7 +130,7 @@ public class ClsOperator {
             DescribeTopicsResponse describeTopicsResponse = clsClient.DescribeTopics(req);
             if (ArrayUtils.isNotEmpty(describeTopicsResponse.getTopics())) {
                 TopicInfo[] topics = describeTopicsResponse.getTopics();
-                return topics[0].getTopicId();
+                return topics[0].getTopicName();
             }
             return null;
         } catch (Exception e) {
@@ -140,17 +140,33 @@ public class ClsOperator {
         }
     }
 
-    public Filter[] getDescribeFilters(String topicName, String logSetId) {
-        Filter topicNameFilter = new Filter();
-        topicNameFilter.setKey(TOPIC_NAME);
-        String[] topicNameFilterValues = new String[]{topicName};
-        topicNameFilter.setValues(topicNameFilterValues);
+    public void modifyTopicNameByTopicId(String topicId, String topicName, String secretId, String secretKey,
+            String region) {
+        ClsClient clsClient = getClsClient(secretId, secretKey, region);
+        ModifyTopicRequest req = new ModifyTopicRequest();
+        req.setTopicId(topicId);
+        req.setTopicName(topicName);
+        try {
+            ModifyTopicResponse modifyTopicResponse = clsClient.ModifyTopic(req);
+            LOG.info("modify cls topic name success for topicId={}, topicName={}", topicId, topicName);
+        } catch (Exception e) {
+            String errMsg = "modify cls topic name failed: " + e.getMessage();
+            LOG.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+    }
+
+    public Filter[] getDescribeFilters(String topicId, String logSetId) {
+        Filter topicIdFilter = new Filter();
+        topicIdFilter.setKey(TOPIC_ID);
+        String[] topicIdFilterValues = new String[]{topicId};
+        topicIdFilter.setValues(topicIdFilterValues);
 
         Filter logSetIdFilter = new Filter();
         logSetIdFilter.setKey(LOG_SET_ID);
         String[] logSetFilterValues = new String[]{logSetId};
         logSetIdFilter.setValues(logSetFilterValues);
-        return new Filter[]{topicNameFilter, logSetIdFilter};
+        return new Filter[]{topicIdFilter, logSetIdFilter};
     }
 
     /**

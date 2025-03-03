@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
@@ -80,8 +82,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
-            String topicId = getTopicID(clsDataNode, clsSinkDTO);
-            clsSinkDTO.setTopicId(topicId);
+            createOrUpdateTopicName(clsDataNode, clsSinkDTO);
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             // create topic index by tokenizer
             clsOperator.createTopicIndex(clsSinkDTO.getTokenizer(), clsSinkDTO.getTopicId(),
@@ -101,19 +102,26 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         }
     }
 
-    private String getTopicID(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
+    private void createOrUpdateTopicName(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
             throws Exception {
-        String topicId = clsOperator.describeTopicIDByTopicName(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
-                clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
-                clsDataNode.getRegion());
-        if (StringUtils.isBlank(topicId)) {
+        String topicName = clsSinkDTO.getTopicName();
+        if (StringUtils.isBlank(clsSinkDTO.getTopicId())) {
             // if topic don't exist, create topic in cls
-            topicId = clsOperator.createTopicReturnTopicId(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
+            String topicId = clsOperator.createTopicReturnTopicId(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                     clsSinkDTO.getTag(), clsSinkDTO.getStorageDuration(), clsDataNode.getManageSecretId(),
                     clsDataNode.getManageSecretKey(),
                     clsDataNode.getRegion());
+            clsSinkDTO.setTopicId(topicId);
+        } else {
+            topicName = clsOperator.describeTopicNameByTopicId(clsSinkDTO.getTopicId(), clsDataNode.getLogSetId(),
+                    clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
+                    clsDataNode.getRegion());
+            if (!Objects.equals(topicName, clsSinkDTO.getTopicName())) {
+                clsOperator.modifyTopicNameByTopicId(clsSinkDTO.getTopicId(), clsSinkDTO.getTopicName(),
+                        clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
+                        clsDataNode.getRegion());
+            }
         }
-        return topicId;
     }
 
     private void updateSinkInfo(SinkInfo sinkInfo, ClsSinkDTO clsSinkDTO) {
