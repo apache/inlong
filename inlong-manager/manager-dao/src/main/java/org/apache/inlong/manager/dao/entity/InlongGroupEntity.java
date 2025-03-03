@@ -49,7 +49,7 @@ public class InlongGroupEntity implements Serializable {
 
     private String extParams;
     private String inCharges;
-    private String followers;
+    private String followers = "";
     private Integer status;
     private Integer previousStatus;
     private Integer isDeleted;
