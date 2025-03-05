@@ -66,7 +66,9 @@ public class PulsarProvider implements ExtractNodeProvider {
                 pulsarSource.getDataEscapeChar(),
                 pulsarSource.getIgnoreParseError());
 
-        PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
+        String startupMode =
+                StringUtils.isNotBlank(pulsarSource.getScanStartupMode()) ? PulsarScanStartupMode.forName(
+                        pulsarSource.getScanStartupMode()).getValue() : null;
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
         final String adminUrl = pulsarSource.getAdminUrl();
@@ -83,7 +85,7 @@ public class PulsarProvider implements ExtractNodeProvider {
                 adminUrl,
                 serviceUrl,
                 format,
-                startupMode.getValue(),
+                startupMode,
                 primaryKey,
                 pulsarSource.getSubscription(),
                 scanStartupSubStartOffset,

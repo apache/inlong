@@ -108,7 +108,7 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
             @JsonProperty("adminUrl") String adminUrl,
             @Nonnull @JsonProperty("serviceUrl") String serviceUrl,
             @Nonnull @JsonProperty("format") Format format,
-            @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
+            @JsonProperty("scanStartupMode") String scanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("scanStartupSubName") String scanStartupSubName,
             @JsonProperty("scanStartupSubStartOffset") String scanStartupSubStartOffset,
@@ -119,8 +119,7 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
         this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
-        this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
-                "pulsar scanStartupMode is null.");
+        this.scanStartupMode = scanStartupMode;
         this.adminUrl = adminUrl;
         this.primaryKey = primaryKey;
         this.scanStartupSubName = scanStartupSubName;
@@ -150,10 +149,14 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         }
         options.put("service-url", serviceUrl);
         options.put("topic", topic);
-        options.put("scan.startup.mode", scanStartupMode);
+        if (StringUtils.isNotBlank(scanStartupMode)) {
+            options.put("scan.startup.mode", scanStartupMode);
+        }
         if (StringUtils.isNotBlank(scanStartupSubName)) {
             options.put("scan.startup.sub-name", scanStartupSubName);
-            options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
+            if (StringUtils.isNotBlank(scanStartupSubStartOffset)) {
+                options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
+            }
         }
 
         if (StringUtils.isNotBlank(clientAuthPluginClassName)
