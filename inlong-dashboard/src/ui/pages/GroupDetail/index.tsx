@@ -54,6 +54,10 @@ const Comp: React.FC = () => {
     if (!hasOpened(current)) addOpened(current);
   }, [current, addOpened, hasOpened]);
 
+  useEffect(() => {
+    setId(groupId);
+  }, [groupId]);
+
   const { data } = useRequest(`/group/get/${id}`, {
     ready: !!id && !mqType,
     refreshDeps: [id],
