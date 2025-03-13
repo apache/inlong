@@ -24,6 +24,7 @@
 #include <atomic>
 #include <thread>
 #include <iostream>
+#include <mutex>
 
 namespace py = pybind11;
 
