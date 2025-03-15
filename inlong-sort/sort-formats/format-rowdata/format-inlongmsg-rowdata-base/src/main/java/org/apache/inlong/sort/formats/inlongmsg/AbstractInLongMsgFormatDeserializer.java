@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
@@ -24,19 +25,26 @@ import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * The base for all InLongMsg format deserializers.
  */
 public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQueryable<RowData>, Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractInLongMsgFormatDeserializer.class);
 
     protected FailureHandler failureHandler;
 
@@ -81,6 +89,20 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
         final List<InLongMsgWrap> result = new ArrayList<>();
 
         InLongMsg inLongMsg = InLongMsg.parseFrom(bytes);
+        if (inLongMsg == null) {
+            failureHandler.onParsingMsgFailure(bytes, new IOException(
+                    String.format("Could not parse InLongMsg from bytes. bytes={}.",
+                            StringUtils.join(bytes))));
+            return result;
+        }
+        try {
+            Set<String> set = inLongMsg.getAttrs();
+        } catch (Exception e) {
+            failureHandler.onParsingMsgFailure(bytes, new IOException(
+                    String.format("Parse InLongMsg from bytes has exception. bytes={}.",
+                    StringUtils.join(bytes)), e));
+            return result;
+        }
         for (String attr : inLongMsg.getAttrs()) {
             Iterator<byte[]> iterator = inLongMsg.getIterator(attr);
             if (iterator == null) {
