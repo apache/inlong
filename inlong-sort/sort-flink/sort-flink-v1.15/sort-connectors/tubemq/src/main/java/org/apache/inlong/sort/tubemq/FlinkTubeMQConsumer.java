@@ -144,6 +144,10 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
      * The TubeMQ pull consumer.
      */
     private transient PullMessageConsumer messagePullConsumer;
+    /**
+     * The restore checkpoint id.
+     */
+    private transient Long restoredCheckpointId;
 
     /**
      * Build a TubeMQ source function
@@ -190,11 +194,12 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
+        restoredCheckpointId = context.getRestoredCheckpointId().orElse(-1L);
+
         TypeInformation<Tuple2<String, Long>> typeInformation =
                 new TupleTypeInfo<>(STRING_TYPE_INFO, LONG_TYPE_INFO);
         ListStateDescriptor<Tuple2<String, Long>> stateDescriptor =
                 new ListStateDescriptor<>(TUBE_OFFSET_STATE, typeInformation);
-
         OperatorStateStore stateStore = context.getOperatorStateStore();
         offsetsState = stateStore.getListState(stateDescriptor);
         currentOffsets = new HashMap<>();
@@ -224,7 +229,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer.subscribe(topic, streamIdSet);
         String jobId = getRuntimeContext().getJobId().toString();
-        messagePullConsumer.completeSubscribe(sessionKey.concat(jobId), numTasks, true, currentOffsets);
+        String realSessionKey = sessionKey + jobId + restoredCheckpointId;
+        messagePullConsumer.completeSubscribe(realSessionKey, numTasks, true, currentOffsets);
 
         running = true;
     }
