@@ -38,7 +38,7 @@ public class TcpMsgSenderConfig extends ProxyClientConfig implements Cloneable {
     // msg report type
     private MsgType sdkMsgType = MsgType.MSG_BIN_MULTI_BODY;
     // whether separate event by line feed
-    private boolean separateEventByLF = true;
+    private boolean separateEventByLF = false;
     // whether enable data compress
     private boolean enableDataCompress = true;
     // min compress enable data length
