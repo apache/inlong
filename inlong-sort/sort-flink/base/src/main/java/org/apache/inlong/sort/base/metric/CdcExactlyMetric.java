@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import org.apache.inlong.audit.AuditReporterImpl;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.audit.AuditReporterImpl;
 
 import java.io.Serializable;
 import java.util.HashMap;
