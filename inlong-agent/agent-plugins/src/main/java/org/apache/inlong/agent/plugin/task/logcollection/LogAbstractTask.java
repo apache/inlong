@@ -45,7 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class LogAbstractTask extends AbstractTask {
 
     private static final int INSTANCE_QUEUE_CAPACITY = 10;
-    public static final long ONE_HOUR_TIMEOUT_INTERVAL = 3600 * 1000;
+    public static final long ONE_HOUR_TIMEOUT_INTERVAL_MS = 3600 * 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(LogAbstractTask.class);
     protected boolean retry;
     protected BlockingQueue<InstanceProfile> instanceQueue;
@@ -210,7 +210,7 @@ public abstract class LogAbstractTask extends AbstractTask {
             String dataTime = entry.getKey();
             if (!DateUtils.isValidCreationTime(dataTime,
                     Math.abs(OffsetManager.getScanCycleRange(taskProfile.getCycleUnit()))
-                            + ONE_HOUR_TIMEOUT_INTERVAL)) {
+                            + ONE_HOUR_TIMEOUT_INTERVAL_MS)) {
                 /* Remove it from memory map. */
                 eventMap.remove(dataTime);
                 LOGGER.warn("remove too old event from event map taskId {} dataTime {}", taskProfile.getTaskId(),

@@ -53,7 +53,7 @@ public class OffsetManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(OffsetManager.class);
     public static final int CORE_THREAD_SLEEP_TIME = 60 * 1000;
     public static final int CLEAN_INSTANCE_ONCE_LIMIT = 1000;
-    public static final long TWO_HOUR_TIMEOUT_INTERVAL = 2 * 3600 * 1000;
+    public static final long SEVEN_DAY_TIMEOUT_INTERVAL_MS = 7 * 24 * 3600 * 1000;
     private static volatile OffsetManager offsetManager = null;
     private final OffsetStore offsetStore;
     private final InstanceStore instanceStore;
@@ -163,7 +163,9 @@ public class OffsetManager extends AbstractDaemon {
                     }
                 }
             }
-            long expireTime = Math.abs(getScanCycleRange(instanceFromDb.getCycleUnit())) + TWO_HOUR_TIMEOUT_INTERVAL;
+            long expireTime =
+                    Math.abs(getScanCycleRange(instanceFromDb.getCycleUnit())) + AgentConfiguration.getAgentConf()
+                            .getLong(AgentConstants.AGENT_OFFSET_TTL, SEVEN_DAY_TIMEOUT_INTERVAL_MS);
             if (AgentUtils.getCurrentTime() - instanceFromDb.getModifyTime() > expireTime) {
                 cleanCount.getAndIncrement();
                 LOGGER.info("instance has expired, delete from instance store dataTime {} taskId {} instanceId {}",
