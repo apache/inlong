@@ -77,10 +77,11 @@ public class AgentConstants {
     public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
 
     public static final String AGENT_SCAN_RANGE = "agent.scan.range";
+    public static final String AGENT_OFFSET_TTL = "agent.offset.ttl";
     public static final String DEFAULT_AGENT_SCAN_RANGE = "-2";
     public static final String DEFAULT_AGENT_SCAN_RANGE_DAY = "-2";
-    public static final String DEFAULT_AGENT_SCAN_RANGE_HOUR = "-10";
-    public static final String DEFAULT_AGENT_SCAN_RANGE_MINUTE = "-600";
+    public static final String DEFAULT_AGENT_SCAN_RANGE_HOUR = "-2";
+    public static final String DEFAULT_AGENT_SCAN_RANGE_MINUTE = "-120";
     public static final String AGENT_INSTANCE_LIMIT = "agent.instance.limit";
     public static final int DEFAULT_AGENT_INSTANCE_LIMIT = 100;
 
