@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.core;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
@@ -134,10 +135,20 @@ public class FileStaticManager {
             }
             try {
                 ProcessResult procResult = new ProcessResult();
+                long dataTime = AgentUtils.getCurrentTime();
+                byte[] body = data.getFieldsString().getBytes(StandardCharsets.UTF_8);
                 if (!sender.sendMessage(new TcpEventInfo(INLONG_AGENT_SYSTEM,
-                        INLONG_FILE_STATIC, AgentUtils.getCurrentTime(), null,
-                        data.getFieldsString().getBytes(StandardCharsets.UTF_8)), procResult)) {
+                        INLONG_FILE_STATIC, dataTime, null, body), procResult)) {
                     LOGGER.error("send static failed: ret = {}", procResult);
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED, INLONG_AGENT_SYSTEM, INLONG_FILE_STATIC,
+                            dataTime, 1, body.length);
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME, INLONG_AGENT_SYSTEM,
+                            INLONG_FILE_STATIC, dataTime, 1, body.length);
+                } else {
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, INLONG_AGENT_SYSTEM, INLONG_FILE_STATIC,
+                            dataTime, 1, body.length);
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME, INLONG_AGENT_SYSTEM,
+                            INLONG_FILE_STATIC, dataTime, 1, body.length);
                 }
             } catch (Throwable ex) {
                 LOGGER.error("send static throw exception", ex);

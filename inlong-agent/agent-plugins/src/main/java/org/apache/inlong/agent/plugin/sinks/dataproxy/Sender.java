@@ -218,6 +218,7 @@ public class Sender {
             InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
             ProcessResult procResult = new ProcessResult();
             if (!sender.start(procResult)) {
+                sender.close();
                 throw new ProxySdkException("Start sender failure, " + procResult);
             }
             senders.add(sender);
@@ -376,7 +377,7 @@ public class Sender {
                 AgentStatusManager.sendPackageCount.addAndGet(message.getMsgCnt());
                 AgentStatusManager.sendDataLen.addAndGet(message.getTotalSize());
             } else {
-                LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
+                LOGGER.error("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
                 getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
                 putInResendQueue(new AgentSenderCallback(message, retry));
