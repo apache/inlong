@@ -46,6 +46,9 @@
         <property name="sdk_error_fileName">${basePath}/sdk-error.log</property>
         <property name="sdk_error_filePattern">${basePath}/sdk-error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="sdk_error_max">10</property>
+        <property name="sdk_debug_fileName">${basePath}/sdk-debug.log</property>
+        <property name="sdk_debug_filePattern">${basePath}/sdk-debug-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="sdk_debug_max">10</property>
         <property name="console_print_level">INFO</property>
         <property name="last_modify_time">15d</property>
     </Properties>
@@ -137,7 +140,7 @@
             </Policies>
             <DefaultRolloverStrategy max="${sdk_info_max}">
                 <Delete basePath="${basePath}" maxDepth="1">
-                    <IfFileName glob="info*.log.gz"/>
+                    <IfFileName glob="sdk-info*.log.gz"/>
                     <IfLastModified age="${last_modify_time}"/>
                 </Delete>
             </DefaultRolloverStrategy>
@@ -155,7 +158,7 @@
             </Policies>
             <DefaultRolloverStrategy max="${sdk_warn_max}">
                 <Delete basePath="${basePath}" maxDepth="1">
-                    <IfFileName glob="warn*.log.gz"/>
+                    <IfFileName glob="sdk-warn*.log.gz"/>
                     <IfLastModified age="${last_modify_time}"/>
                 </Delete>
             </DefaultRolloverStrategy>
@@ -173,7 +176,7 @@
             </Policies>
             <DefaultRolloverStrategy max="${sdk_error_max}">
                 <Delete basePath="${basePath}" maxDepth="1">
-                    <IfFileName glob="error*.log.gz"/>
+                    <IfFileName glob="sdk-error*.log.gz"/>
                     <IfLastModified age="${last_modify_time}"/>
                 </Delete>
             </DefaultRolloverStrategy>
@@ -183,10 +186,30 @@
             </Filters>
         </RollingFile>
 
+        <RollingFile name="SDKDebugFile" fileName="${sdk_debug_fileName}" filePattern="${sdk_debug_filePattern}">
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>]
+            </Policies>
+            <DefaultRolloverStrategy max="${sdk_debug_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="sdk-debug*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+
     </appenders>
 
     <loggers>
-        <logger name="org.apache.inlong.sdk" level="info" additivity="false">
+        <logger name="org.apache.inlong.sdk" level="${output_log_level}" additivity="false">
+            <appender-ref ref="SDKDebugFile"/>
             <appender-ref ref="SDKInfoFile"/>
             <appender-ref ref="SDKWarnFile"/>
             <appender-ref ref="SDKErrorFile"/>
