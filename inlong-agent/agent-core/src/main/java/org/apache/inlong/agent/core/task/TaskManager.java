@@ -27,6 +27,8 @@ import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.EventReportUtils;
+import org.apache.inlong.agent.utils.EventReportUtils.EvenCodeEnum;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -144,6 +146,7 @@ public class TaskManager extends AbstractDaemon {
         pendingTasks = new LinkedBlockingQueue<>(taskMaxLimit);
         configQueue = new LinkedBlockingQueue<>(CONFIG_QUEUE_CAPACITY);
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+        EventReportUtils.init();
     }
 
     public static TaskStore getTaskStore() {
@@ -299,6 +302,11 @@ public class TaskManager extends AbstractDaemon {
                         profileFromManager.getTaskId(),
                         profileFromManager.isRetry(), profileFromManager.getState());
                 addTask(profileFromManager);
+                EventReportUtils.report(profileFromManager.getInlongGroupId(),
+                        profileFromManager.getInlongStreamId(), AgentUtils.getCurrentTime(),
+                        EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_INFO,
+                        EvenCodeEnum.TASK_ADD, profileFromManager.toJsonStr(),
+                        EvenCodeEnum.TASK_ADD.getMessage());
             } else {
                 TaskStateEnum managerState = profileFromManager.getState();
                 TaskStateEnum storeState = taskFromStore.getState();
@@ -331,6 +339,11 @@ public class TaskManager extends AbstractDaemon {
         taskStore.getTasks().forEach((profileFromStore) -> {
             if (!tasksFromManager.containsKey(profileFromStore.getTaskId())) {
                 LOGGER.info("traverseStoreTasksToManager try to delete task {}", profileFromStore.getTaskId());
+                EventReportUtils.report(profileFromStore.getInlongGroupId(),
+                        profileFromStore.getInlongStreamId(), AgentUtils.getCurrentTime(),
+                        EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_INFO,
+                        EvenCodeEnum.TASK_DELETE, profileFromStore.toJsonStr(),
+                        EvenCodeEnum.TASK_DELETE.getMessage());
                 deleteTask(profileFromStore);
             }
         });

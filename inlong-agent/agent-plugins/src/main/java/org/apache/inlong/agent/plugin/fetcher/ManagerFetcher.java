@@ -25,6 +25,8 @@ import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.EventReportUtils;
+import org.apache.inlong.agent.utils.EventReportUtils.EvenCodeEnum;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
@@ -132,10 +134,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
         LOGGER.info("Get static config  end");
         if (element != null) {
-            LOGGER.info("Get static config  not null {}", resultData);
+            LOGGER.info("Get static config not null {}", resultData);
             return GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
         } else {
-            LOGGER.info("Get static config  nothing to do");
+            LOGGER.info("Get static config nothing to do");
             return null;
         }
     }
@@ -192,16 +194,45 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             while (isRunnable()) {
                 try {
                     TaskResult taskResult = getStaticConfig();
-                    if (taskResult != null && taskResult.getCode().equals(AgentResponseCode.SUCCESS)
-                            && agentManager.getTaskManager().getTaskResultVersion() < taskResult.getVersion()) {
-                        List<TaskProfile> taskProfiles = new ArrayList<>();
-                        taskResult.getDataConfigs().forEach((config) -> {
-                            TaskProfile profile = TaskProfile.convertToTaskProfile(config);
-                            taskProfiles.add(profile);
-                        });
-                        agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
-                        agentManager.getTaskManager().setTaskResultMd5(taskResult.getMd5());
-                        agentManager.getTaskManager().setTaskResultVersion(taskResult.getVersion());
+                    if (taskResult != null) {
+                        if (taskResult.getCode().equals(AgentResponseCode.SUCCESS)) {
+                            if (agentManager.getTaskManager().getTaskResultVersion() < taskResult.getVersion()) {
+                                EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                                        EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_INFO,
+                                        EvenCodeEnum.CONFIG_UPDATE_SUC, taskResult.toString(),
+                                        EvenCodeEnum.CONFIG_UPDATE_SUC.getMessage());
+                                List<TaskProfile> taskProfiles = new ArrayList<>();
+                                taskResult.getDataConfigs().forEach((config) -> {
+                                    TaskProfile profile = TaskProfile.convertToTaskProfile(config);
+                                    taskProfiles.add(profile);
+                                });
+                                agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
+                                agentManager.getTaskManager().setTaskResultMd5(taskResult.getMd5());
+                                agentManager.getTaskManager().setTaskResultVersion(taskResult.getVersion());
+                            } else {
+                                EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                                        EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_WARN,
+                                        EvenCodeEnum.CONFIG_UPDATE_VERSION_NO_CHANGE, taskResult.toString(),
+                                        EvenCodeEnum.CONFIG_UPDATE_VERSION_NO_CHANGE.getMessage());
+                                LOGGER.warn("%s: %s", EvenCodeEnum.CONFIG_UPDATE_VERSION_NO_CHANGE.getMessage(),
+                                        taskResult);
+                            }
+                        } else if (taskResult.getCode().equals(AgentResponseCode.NO_UPDATE)) {
+                            EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                                    EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_INFO,
+                                    EvenCodeEnum.CONFIG_NO_UPDATE, taskResult.toString(),
+                                    EvenCodeEnum.CONFIG_NO_UPDATE.getMessage());
+                        } else {
+                            EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                                    EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_ERROR,
+                                    EvenCodeEnum.CONFIG_INVALID_RET_CODE, taskResult.toString(),
+                                    EvenCodeEnum.CONFIG_INVALID_RET_CODE.getMessage());
+                        }
+                    } else {
+                        EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                                EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_ERROR,
+                                EvenCodeEnum.CONFIG_INVALID_RESULT, taskResult.toString(),
+                                EvenCodeEnum.CONFIG_INVALID_RESULT.getMessage());
                     }
                     AgentConfigInfo config = getAgentConfigInfo();
                     if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)) {
@@ -211,6 +242,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                         }
                     }
                 } catch (Throwable ex) {
+                    EventReportUtils.report("", "", AgentUtils.getCurrentTime(),
+                            EventReportUtils.EVENT_TYPE_CONFIG_UPDATE, EventReportUtils.EVENT_LEVEL_ERROR,
+                            EvenCodeEnum.CONFIG_INVALID_RESULT, ex.getMessage(),
+                            EvenCodeEnum.CONFIG_INVALID_RESULT.getMessage());
                     LOGGER.warn("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 } finally {
