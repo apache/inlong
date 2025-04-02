@@ -77,6 +77,9 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         httpManager = new HttpManager(conf);
         baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
+        createMessageSender();
+        AgentStatusManager.init(agentManager);
+        FileStaticManager.init();
     }
 
     public static HeartbeatManager getInstance(AgentManager agentManager) {
@@ -122,6 +125,9 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     reportHeartbeat(heartbeatMsg);
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(" {} report heartbeat to manager", heartbeatMsg);
+                    }
+                    if (sender == null) {
+                        createMessageSender();
                     }
                     AgentStatusManager.sendStatusMsg(sender);
                     FileStaticManager.sendStaticMsg(sender);
@@ -212,6 +218,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             // start sender object
             ProcessResult procResult = new ProcessResult();
             if (!sender.start(procResult)) {
+                sender.close();
                 throw new ProxySdkException("Sender start failure, " + procResult);
             }
         } catch (Throwable ex) {

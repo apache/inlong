@@ -21,6 +21,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ExcuteLinux;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
@@ -167,10 +168,20 @@ public class AgentStatusManager {
         }
         try {
             ProcessResult procResult = new ProcessResult();
+            long dataTime = AgentUtils.getCurrentTime();
+            byte[] body = data.getFieldsString().getBytes(StandardCharsets.UTF_8);
             if (!sender.sendMessage(new TcpEventInfo(INLONG_AGENT_SYSTEM,
-                    INLONG_AGENT_STATUS, AgentUtils.getCurrentTime(), null,
-                    data.getFieldsString().getBytes(StandardCharsets.UTF_8)), procResult)) {
+                    INLONG_AGENT_STATUS, dataTime, null, body), procResult)) {
                 LOGGER.error("send status failed: ret = {}", procResult);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED, INLONG_AGENT_SYSTEM, INLONG_AGENT_STATUS,
+                        dataTime, 1, body.length);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME, INLONG_AGENT_SYSTEM,
+                        INLONG_AGENT_STATUS, dataTime, 1, body.length);
+            } else {
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, INLONG_AGENT_SYSTEM, INLONG_AGENT_STATUS,
+                        dataTime, 1, body.length);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME, INLONG_AGENT_SYSTEM,
+                        INLONG_AGENT_STATUS, dataTime, 1, body.length);
             }
         } catch (Throwable ex) {
             LOGGER.error("send status throw exception", ex);

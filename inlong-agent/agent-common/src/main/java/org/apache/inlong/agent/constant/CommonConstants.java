@@ -41,7 +41,7 @@ public class CommonConstants {
     public static final boolean DEFAULT_PROXY_IS_COMPRESS = true;
 
     public static final String PROXY_MAX_SENDER_PER_GROUP = "proxy.max.sender.per.group";
-    public static final int DEFAULT_PROXY_MAX_SENDER_PER_GROUP = 10;
+    public static final int DEFAULT_PROXY_MAX_SENDER_PER_GROUP = 3;
 
     // max size of message list
     public static final String PROXY_PACKAGE_MAX_SIZE = "proxy.package.maxSize";

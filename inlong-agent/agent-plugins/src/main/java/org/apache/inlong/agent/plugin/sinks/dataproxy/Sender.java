@@ -214,13 +214,22 @@ public class Sender {
         proxyClientConfig.setEnableDataCompress(isCompress);
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());
+        boolean hasError = false;
+        ProcessResult procResult = null;
         for (int i = 0; i < maxSenderPerGroup; i++) {
             InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
-            ProcessResult procResult = new ProcessResult();
+            procResult = new ProcessResult();
             if (!sender.start(procResult)) {
-                throw new ProxySdkException("Start sender failure, " + procResult);
+                hasError = true;
+                break;
             }
             senders.add(sender);
+        }
+        if (hasError) {
+            senders.forEach(sender -> {
+                sender.close();
+            });
+            throw new ProxySdkException("Start sender failure, " + procResult);
         }
     }
 
@@ -376,7 +385,7 @@ public class Sender {
                 AgentStatusManager.sendPackageCount.addAndGet(message.getMsgCnt());
                 AgentStatusManager.sendDataLen.addAndGet(message.getTotalSize());
             } else {
-                LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
+                LOGGER.error("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
                 getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
                 putInResendQueue(new AgentSenderCallback(message, retry));
