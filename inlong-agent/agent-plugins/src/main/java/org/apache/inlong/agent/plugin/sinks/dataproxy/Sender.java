@@ -214,14 +214,22 @@ public class Sender {
         proxyClientConfig.setEnableDataCompress(isCompress);
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());
+        boolean hasError = false;
+        ProcessResult procResult = null;
         for (int i = 0; i < maxSenderPerGroup; i++) {
             InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
-            ProcessResult procResult = new ProcessResult();
+            procResult = new ProcessResult();
             if (!sender.start(procResult)) {
-                sender.close();
-                throw new ProxySdkException("Start sender failure, " + procResult);
+                hasError = true;
+                break;
             }
             senders.add(sender);
+        }
+        if (hasError) {
+            senders.forEach(sender -> {
+                sender.close();
+            });
+            throw new ProxySdkException("Start sender failure, " + procResult);
         }
     }
 
