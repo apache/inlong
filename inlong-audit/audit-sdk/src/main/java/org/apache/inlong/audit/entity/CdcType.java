@@ -17,33 +17,24 @@
 
 package org.apache.inlong.audit.entity;
 
-public enum AuditType {
+import lombok.Getter;
 
-    SDK("SDK"),
-    AGENT("Agent"),
-    DATAPROXY("DataProxy"),
-    HIVE("Hive"),
-    CLICKHOUSE("ClickHouse"),
-    ELASTICSEARCH("ElasticSearch"),
-    STARROCKS("StarRocks"),
-    HUDI("HuDi"),
-    ICEBERG("Iceberg"),
-    HBASE("HBase"),
-    DORIS("Doris"),
-    KUDU("Kudu"),
-    POSTGRES("Postgres"),
-    BINLOG("MYSQL_BINLOG"),
-    TUBEMQ("TubeMQ"),
-    MYSQL("MYSQL"),
-    HDFS("HDFS"),
-    TDSQL_MYSQL("TDSQL_MYSQL");
+/**
+ * CDC (Change Data Capture) operation types.
+ */
+@Getter
+public enum CdcType {
 
-    private final String auditType;
+    INSERT(" insert ", "写入"),
+    DELETE(" delete ", "删除"),
+    UPDATE_BEFORE("update before", "update before"),
+    UPDATE_AFTER("update after", "update after");
 
-    AuditType(String auditType) {
-        this.auditType = auditType;
-    }
-    public String value() {
-        return auditType;
+    private final String nameInEnglish;
+    private final String nameInChinese;
+
+    CdcType(String nameInEnglish, String nameInChinese) {
+        this.nameInEnglish = nameInEnglish;
+        this.nameInChinese = nameInChinese;
     }
 }

@@ -17,33 +17,17 @@
 
 package org.apache.inlong.audit.entity;
 
-public enum AuditType {
+/**
+ * Audit rules constants definition.
+ */
+public class AuditRules {
 
-    SDK("SDK"),
-    AGENT("Agent"),
-    DATAPROXY("DataProxy"),
-    HIVE("Hive"),
-    CLICKHOUSE("ClickHouse"),
-    ELASTICSEARCH("ElasticSearch"),
-    STARROCKS("StarRocks"),
-    HUDI("HuDi"),
-    ICEBERG("Iceberg"),
-    HBASE("HBase"),
-    DORIS("Doris"),
-    KUDU("Kudu"),
-    POSTGRES("Postgres"),
-    BINLOG("MYSQL_BINLOG"),
-    TUBEMQ("TubeMQ"),
-    MYSQL("MYSQL"),
-    HDFS("HDFS"),
-    TDSQL_MYSQL("TDSQL_MYSQL");
+    // Metric ID starting range
+    public static final int START_METRIC_ID = 0;
 
-    private final String auditType;
+    // CDC input ID starting range
+    public static final int START_CDC_INPUT_ID = 100000;
 
-    AuditType(String auditType) {
-        this.auditType = auditType;
-    }
-    public String value() {
-        return auditType;
-    }
+    // CDC output ID starting range
+    public static final int START_CDC_OUTPUT_ID = 200000;
 }

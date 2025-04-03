@@ -19,6 +19,7 @@ package org.apache.inlong.audit;
 
 import org.apache.inlong.audit.util.AuditManagerUtils;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,9 @@ public enum MetricIdEnum {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricIdEnum.class);
     private final int metricId;
+    @Getter
     private final String chineseDescription;
+    @Getter
     private final String englishDescription;
 
     MetricIdEnum(int metricId, String chineseDescription, String englishDescription) {
@@ -62,11 +65,4 @@ public enum MetricIdEnum {
         return metricId + AuditManagerUtils.getStartAuditIdForMetric();
     }
 
-    public String getChineseDescription() {
-        return chineseDescription;
-    }
-
-    public String getEnglishDescription() {
-        return englishDescription;
-    }
 }
