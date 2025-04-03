@@ -17,20 +17,21 @@
 
 package org.apache.inlong.audit.util;
 
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.audit.entity.AuditInformation;
-import org.apache.inlong.audit.entity.FlowType;
-
-import org.junit.Test;
-
-import java.util.List;
-
 import static org.apache.inlong.audit.AuditIdEnum.AGENT_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.DATA_PROXY_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.SORT_HIVE_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.SORT_STARROCKS_INPUT;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import java.util.List;
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.CdcIdEnum;
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.CdcType;
+import org.apache.inlong.audit.entity.FlowType;
+import org.junit.Test;
 
 public class AuditManagerUtilsTest {
 
@@ -77,6 +78,11 @@ public class AuditManagerUtilsTest {
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(SORT_HIVE_INPUT.getValue(), auditInfo.getAuditId());
         assertEquals("Hive 接收成功", auditInfo.getNameInChinese());
+        assertEquals(7, auditInfo.getAuditId());
+
+        auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, true, false, false, false);
+        assertEquals(262151, auditInfo.getAuditId());
+        assertEquals("Hive 接收成功(CheckPoint)", auditInfo.getNameInChinese());
 
         auditType = "STARROCKS";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
@@ -131,4 +137,68 @@ public class AuditManagerUtilsTest {
         System.out.println(metricInformationList);
         assertTrue(metricInformationList.size() > 0);
     }
+
+    @Test
+    public void getAllCdcIdInformation() {
+        List<AuditInformation> cdcIdInfoList = AuditManagerUtils.getAllCdcIdInformation();
+        assertNotNull("CDC ID information list should not be null", cdcIdInfoList);
+        assertFalse("CDC ID information list should not be empty", cdcIdInfoList.isEmpty());
+    }
+
+    @Test
+    public void getCdcIdEnum() {
+        CdcType cdcType = CdcType.INSERT;
+        String auditType = "TDSQL_MYSQL";
+        CdcIdEnum cdcIdEnum = CdcIdEnum.getCdcIdEnum(auditType, cdcType);
+        assertNotNull("CDC ID enum should not be null", cdcIdEnum);
+        assertTrue("CDC ID value should be greater than 0", cdcIdEnum.getValue(FlowType.INPUT) > 0);
+    }
+
+    @Test
+    public void getCdcId() {
+        int expectedCdcId = 1073841925;
+        int actualCdcId = AuditManagerUtils.getCdcId("TDSQL_MYSQL", FlowType.INPUT, CdcType.INSERT);
+        assertEquals("CDC ID should match expected value", expectedCdcId, actualCdcId);
+    }
+
+    @Test
+    public void getAllCdcIdInformationWithAuditType() {
+        String auditType = "MYSQL";
+        List<AuditInformation> cdcIdInfoList = AuditManagerUtils.getAllCdcIdInformation(auditType);
+        assertNotNull("CDC ID information list should not be null", cdcIdInfoList);
+        assertFalse("CDC ID information list should not be empty", cdcIdInfoList.isEmpty());
+
+        for (AuditInformation info : cdcIdInfoList) {
+            assertTrue("Name should contain audit type",
+                    info.getNameInEnglish().toUpperCase().contains(auditType));
+        }
+    }
+
+    @Test
+    public void getAllCdcIdInformationWithAuditTypeAndFlowType() {
+        String auditType = "MYSQL";
+        FlowType flowType = FlowType.INPUT;
+        List<AuditInformation> cdcIdInfoList = AuditManagerUtils.getAllCdcIdInformation(auditType, flowType);
+        assertNotNull("CDC ID information list should not be null", cdcIdInfoList);
+
+        for (AuditInformation info : cdcIdInfoList) {
+            assertTrue("Name should contain receive for input flow",
+                    info.getNameInEnglish().toLowerCase().contains("receive"));
+        }
+    }
+
+    @Test
+    public void getCdcIdInformationWithAuditTypeAndFlowTypeAndCdcType() {
+        String auditType = "MYSQL";
+        FlowType flowType = FlowType.INPUT;
+        CdcType cdcType = CdcType.INSERT;
+        int expectedAuditId = 1073841825;
+        String expectedName = "MYSQL 接收写入";
+
+        AuditInformation cdcIdInfo = AuditManagerUtils.getCdcIdInformation(auditType, flowType, cdcType);
+        assertNotNull("CDC ID information should not be null", cdcIdInfo);
+        assertEquals("Audit ID should match expected value", expectedAuditId, cdcIdInfo.getAuditId());
+        assertEquals("Name in Chinese should match expected value", expectedName, cdcIdInfo.getNameInChinese());
+    }
+
 }
