@@ -17,6 +17,16 @@
 
 package org.apache.inlong.audit.util;
 
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.CdcIdEnum;
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.CdcType;
+import org.apache.inlong.audit.entity.FlowType;
+
+import org.junit.Test;
+
+import java.util.List;
+
 import static org.apache.inlong.audit.AuditIdEnum.AGENT_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.DATA_PROXY_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.SORT_HIVE_INPUT;
@@ -25,13 +35,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import java.util.List;
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.audit.CdcIdEnum;
-import org.apache.inlong.audit.entity.AuditInformation;
-import org.apache.inlong.audit.entity.CdcType;
-import org.apache.inlong.audit.entity.FlowType;
-import org.junit.Test;
 
 public class AuditManagerUtilsTest {
 

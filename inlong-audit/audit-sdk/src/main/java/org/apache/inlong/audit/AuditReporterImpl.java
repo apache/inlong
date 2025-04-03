@@ -20,6 +20,7 @@ package org.apache.inlong.audit;
 import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditMetric;
+import org.apache.inlong.audit.entity.CdcType;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.loader.SocketAddressListLoader;
 import org.apache.inlong.audit.protocol.AuditApi;
@@ -681,6 +682,26 @@ public class AuditReporterImpl implements Serializable {
 
     public void setMaxGlobalAuditMemory(long maxGlobalAuditMemory) {
         SenderManager.setMaxGlobalAuditMemory(maxGlobalAuditMemory);
+    }
+
+    public int getCdcId(String auditType, FlowType flowType, CdcType cdcType) {
+        return AuditManagerUtils.getCdcId(auditType, flowType, cdcType);
+    }
+
+    public List<AuditInformation> getAllCdcIdInformation() {
+        return AuditManagerUtils.getAllCdcIdInformation();
+    }
+
+    public List<AuditInformation> getAllCdcIdInformation(String auditType) {
+        return AuditManagerUtils.getAllCdcIdInformation(auditType);
+    }
+
+    public List<AuditInformation> getAllCdcIdInformation(String auditType, FlowType flowType) {
+        return AuditManagerUtils.getAllCdcIdInformation(auditType, flowType);
+    }
+
+    public AuditInformation getCdcIdInformation(String auditType, FlowType flowType, CdcType cdcType) {
+        return AuditManagerUtils.getCdcIdInformation(auditType, flowType, cdcType);
     }
 
     public void shutdown() {

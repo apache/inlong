@@ -17,20 +17,22 @@
 
 package org.apache.inlong.audit;
 
+import org.apache.inlong.audit.entity.AuditType;
+import org.apache.inlong.audit.entity.CdcType;
+import org.apache.inlong.audit.entity.FlowType;
+import org.apache.inlong.audit.exceptions.AuditTypeNotExistException;
+import org.apache.inlong.audit.util.AuditManagerUtils;
+
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.TDSQL_MYSQL;
 import static org.apache.inlong.audit.entity.CdcType.DELETE;
 import static org.apache.inlong.audit.entity.CdcType.INSERT;
 import static org.apache.inlong.audit.entity.CdcType.UPDATE_AFTER;
 import static org.apache.inlong.audit.entity.CdcType.UPDATE_BEFORE;
-import lombok.Getter;
-import org.apache.inlong.audit.entity.AuditType;
-import org.apache.inlong.audit.entity.CdcType;
-import org.apache.inlong.audit.entity.FlowType;
-import org.apache.inlong.audit.exceptions.AuditTypeNotExistException;
-import org.apache.inlong.audit.util.AuditManagerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Enumeration for CDC (Change Data Capture) audit identifiers.
@@ -117,4 +119,3 @@ public enum CdcIdEnum {
         return cdcIdEnum.getValue(flowType);
     }
 }
-

@@ -17,6 +17,20 @@
 
 package org.apache.inlong.audit.util;
 
+import org.apache.inlong.audit.AuditIdEnum;
+import org.apache.inlong.audit.CdcIdEnum;
+import org.apache.inlong.audit.MetricIdEnum;
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.CdcType;
+import org.apache.inlong.audit.entity.FlowType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.apache.inlong.audit.AuditIdEnum.AGENT_INPUT;
 import static org.apache.inlong.audit.AuditIdEnum.AGENT_OUTPUT;
 import static org.apache.inlong.audit.AuditIdEnum.DATA_PROXY_INPUT;
@@ -26,17 +40,6 @@ import static org.apache.inlong.audit.AuditIdEnum.SDK_OUTPUT;
 import static org.apache.inlong.audit.entity.AuditRules.START_CDC_INPUT_ID;
 import static org.apache.inlong.audit.entity.AuditRules.START_CDC_OUTPUT_ID;
 import static org.apache.inlong.audit.entity.AuditRules.START_METRIC_ID;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.inlong.audit.AuditIdEnum;
-import org.apache.inlong.audit.CdcIdEnum;
-import org.apache.inlong.audit.MetricIdEnum;
-import org.apache.inlong.audit.entity.AuditInformation;
-import org.apache.inlong.audit.entity.CdcType;
-import org.apache.inlong.audit.entity.FlowType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Audit item ID generation rules: composed of basic audit item ID + extension bits.

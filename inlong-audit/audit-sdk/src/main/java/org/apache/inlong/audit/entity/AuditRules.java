@@ -31,4 +31,3 @@ public class AuditRules {
     // CDC output ID starting range
     public static final int START_CDC_OUTPUT_ID = 200000;
 }
-
