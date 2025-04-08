@@ -101,7 +101,7 @@ public class InLongMsgKvUtils {
                         kvDelimiter,
                         escapeChar,
                         quoteChar,
-                        lineDelimiter);
+                        lineDelimiter, true);
 
         return list.stream().map((line) -> {
             return new InLongMsgBody(
@@ -125,7 +125,7 @@ public class InLongMsgKvUtils {
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
             List<String> predefinedFields,
-            Map<String, String> entries) {
+            Map<String, String> entries) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -147,7 +147,7 @@ public class InLongMsgKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i, field);
         }
 
@@ -163,7 +163,7 @@ public class InLongMsgKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i, field);
         }
 

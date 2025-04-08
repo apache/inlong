@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgkv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
@@ -91,7 +92,8 @@ public class InLongMsgKvUtils {
             char kvDelimiter,
             Character lineDelimiter,
             Character escapeChar,
-            Character quoteChar) {
+            Character quoteChar,
+            boolean isDeleteEscapeChar) {
         String text = new String(bytes, Charset.forName(charset));
 
         List<Map<String, String>> list =
@@ -101,7 +103,8 @@ public class InLongMsgKvUtils {
                         kvDelimiter,
                         escapeChar,
                         quoteChar,
-                        lineDelimiter);
+                        lineDelimiter,
+                        isDeleteEscapeChar);
 
         return list.stream().map((line) -> new InLongMsgBody(
                 bytes,
@@ -124,7 +127,8 @@ public class InLongMsgKvUtils {
             String nullLiteral,
             List<String> predefinedFields,
             Map<String, String> entries,
-            FieldToRowDataConverter[] converters) {
+            FieldToRowDataConverter[] converters,
+            FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -146,7 +150,7 @@ public class InLongMsgKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral));
+                            nullLiteral, failureHandler));
             row.setField(i, field);
         }
 
@@ -161,7 +165,8 @@ public class InLongMsgKvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral));
+                    nullLiteral,
+                    failureHandler));
             row.setField(i, field);
         }
 

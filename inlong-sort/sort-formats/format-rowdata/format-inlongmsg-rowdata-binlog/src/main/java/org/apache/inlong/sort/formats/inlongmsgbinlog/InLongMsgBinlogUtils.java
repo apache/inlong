@@ -21,6 +21,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.binlog.InLongBinlog;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
@@ -34,7 +35,6 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarCharType;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,7 +145,7 @@ public class InLongMsgBinlogUtils {
             String metadataFieldName,
             Map<String, String> attributes,
             byte[] bytes,
-            boolean includeUpdateBefore) throws IOException {
+            boolean includeUpdateBefore, FailureHandler failureHandler) throws Exception {
 
         InLongBinlog.RowData rowData = InLongBinlog.RowData.parseFrom(bytes);
 
@@ -162,7 +162,8 @@ public class InLongMsgBinlogUtils {
                                 attributes,
                                 rowData,
                                 DBSYNC_OPERATION_INERT,
-                                rowData.getAfterColumnsList()));
+                                rowData.getAfterColumnsList(),
+                                failureHandler));
                 break;
             case UPDATE:
                 if (includeUpdateBefore) {
@@ -175,7 +176,8 @@ public class InLongMsgBinlogUtils {
                                     attributes,
                                     rowData,
                                     DBSYNC_OPERATION_UPDATE_BEFORE,
-                                    rowData.getBeforeColumnsList()));
+                                    rowData.getBeforeColumnsList(),
+                                    failureHandler));
                 }
                 rows.add(
                         constructRowData(
@@ -186,7 +188,8 @@ public class InLongMsgBinlogUtils {
                                 attributes,
                                 rowData,
                                 DBSYNC_OPERATION_UPDATE,
-                                rowData.getAfterColumnsList()));
+                                rowData.getAfterColumnsList(),
+                                failureHandler));
                 break;
             case DELETE:
                 rows.add(
@@ -198,7 +201,8 @@ public class InLongMsgBinlogUtils {
                                 attributes,
                                 rowData,
                                 DBSYNC_OPERATION_DELETE,
-                                rowData.getBeforeColumnsList()));
+                                rowData.getBeforeColumnsList(),
+                                failureHandler));
                 break;
             default:
                 return null;
@@ -215,7 +219,7 @@ public class InLongMsgBinlogUtils {
             Map<String, String> attributes,
             InLongBinlog.RowData rowData,
             String operation,
-            List<InLongBinlog.Column> columns) {
+            List<InLongBinlog.Column> columns, FailureHandler failureHandler) throws Exception {
         List<Object> headFields = new ArrayList<>();
 
         if (timeFieldName != null) {
@@ -270,7 +274,7 @@ public class InLongMsgBinlogUtils {
                                 fieldName,
                                 dataFieldFormatInfos[i],
                                 fieldText,
-                                null);
+                                null, failureHandler);
                 row.setField(i + headFields.size(), field);
             }
         }

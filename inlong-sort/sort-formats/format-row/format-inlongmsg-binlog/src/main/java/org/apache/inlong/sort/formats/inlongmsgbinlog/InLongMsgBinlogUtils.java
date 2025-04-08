@@ -29,7 +29,6 @@ import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.types.Row;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -186,7 +185,7 @@ public class InLongMsgBinlogUtils {
             String metadataFieldName,
             Map<String, String> attributes,
             byte[] bytes,
-            boolean includeUpdateBefore) throws IOException {
+            boolean includeUpdateBefore) throws Exception {
 
         InLongBinlog.RowData rowData = InLongBinlog.RowData.parseFrom(bytes);
 
@@ -256,7 +255,7 @@ public class InLongMsgBinlogUtils {
             Map<String, String> attributes,
             InLongBinlog.RowData rowData,
             String operation,
-            List<InLongBinlog.Column> columns) {
+            List<InLongBinlog.Column> columns) throws Exception {
         List<Object> headFields = new ArrayList<>();
 
         if (timeFieldName != null) {
@@ -311,7 +310,7 @@ public class InLongMsgBinlogUtils {
                                 fieldName,
                                 dataFieldFormatInfos[i],
                                 fieldText,
-                                null);
+                                null, null);
                 row.setField(i + headFields.size(), field);
             }
         }

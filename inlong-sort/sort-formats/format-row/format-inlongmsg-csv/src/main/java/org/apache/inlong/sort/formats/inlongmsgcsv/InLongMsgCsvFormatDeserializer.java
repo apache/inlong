@@ -40,9 +40,11 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_D
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LINE_DELIMITER;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_APPEND_ESCAPE;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_PREDEFINED_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_APPEND_ESCAPE_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_RETAIN_PREDEFINED_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.row.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
@@ -119,6 +121,11 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
      * True if the predefinedField existed, default true.
      */
     private boolean retainPredefinedField = true;
+
+    /**
+     * True if the append configed escape char, default false.
+     */
+    private boolean appendEscapeChar = false;
 
     public InLongMsgCsvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
@@ -223,7 +230,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
     }
 
     @Override
-    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) {
+    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) throws Exception {
         Row dataRow =
                 InLongMsgCsvUtils.deserializeRow(
                         rowFormatInfo,
@@ -252,6 +259,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
         private Character lineDelimiter = DEFAULT_LINE_DELIMITER;
         private Boolean deleteHeadDelimiter = DEFAULT_DELETE_HEAD_DELIMITER;
         private Boolean retainPredefinedField = DEFAULT_PREDEFINED_FIELD;
+        private Boolean appendEscapeChar = DEFAULT_APPEND_ESCAPE;
 
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
@@ -287,6 +295,11 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             return this;
         }
 
+        public Builder setAppendEscapeChar(Boolean appendEscapeChar) {
+            this.appendEscapeChar = appendEscapeChar;
+            return this;
+        }
+
         @Override
         public Builder configure(DescriptorProperties descriptorProperties) {
             super.configure(descriptorProperties);
@@ -303,6 +316,8 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                     .ifPresent(this::setDeleteHeadDelimiter);
             descriptorProperties.getOptionalBoolean(FORMAT_RETAIN_PREDEFINED_FIELD)
                     .ifPresent(this::setRetainPredefinedField);
+            descriptorProperties.getOptionalBoolean(FORMAT_APPEND_ESCAPE_FIELD)
+                    .ifPresent(this::setAppendEscapeChar);
             return this;
         }
 

@@ -44,6 +44,7 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_E
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_KV_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_IS_DELETE_ESCAPE_CHAR;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
 /**
@@ -120,6 +121,11 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
      */
     private boolean retainPredefinedField = true;
 
+    /**
+     * True if delete escape char while parsing.
+     */
+    private boolean isDeleteEscapeChar = DEFAULT_IS_DELETE_ESCAPE_CHAR;
+
     public InLongMsgKvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
@@ -144,6 +150,7 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
                 escapeChar,
                 quoteChar,
                 nullLiteral,
+                DEFAULT_IS_DELETE_ESCAPE_CHAR,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
         if (retainPredefinedField != null) {
             this.retainPredefinedField = retainPredefinedField;
@@ -173,6 +180,7 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
                 escapeChar,
                 quoteChar,
                 nullLiteral,
+                DEFAULT_IS_DELETE_ESCAPE_CHAR,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -187,6 +195,7 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
+            @Nullable Boolean isDeleteEscapeChar,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -200,6 +209,7 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
+        this.isDeleteEscapeChar = isDeleteEscapeChar;
 
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
@@ -231,17 +241,19 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
                 kvDelimiter,
                 lineDelimiter,
                 escapeChar,
-                quoteChar);
+                quoteChar,
+                isDeleteEscapeChar);
     }
 
     @Override
-    protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) {
+    protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
         GenericRowData genericRowData = InLongMsgKvUtils.deserializeRowData(
                 rowFormatInfo,
                 nullLiteral,
                 retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList(),
                 body.getEntries(),
-                converters);
+                converters,
+                failureHandler);
 
         // Decorate result with time and attributes fields if needed
         return Collections.singletonList(InLongMsgUtils.decorateRowDataWithNeededHeadFields(

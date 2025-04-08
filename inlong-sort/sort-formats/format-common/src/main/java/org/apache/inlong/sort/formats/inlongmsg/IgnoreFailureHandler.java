@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,13 @@ public class IgnoreFailureHandler implements FailureHandler {
     @Override
     public void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception) {
         LOG.warn("Cannot properly convert the InLongMsg ({}, {})", head, body, exception);
+    }
+
+    @Override
+    public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+            Exception exception) throws Exception {
+        LOG.warn("Cannot convert the InLongMsg Filed (fieldName = {}, formatInfo = {}, fieldText = {}),",
+                fieldName, formatInfo, fieldText, exception);
     }
 
     @Override
