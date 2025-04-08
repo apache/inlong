@@ -95,7 +95,7 @@ public class InLongMsgKvMixedFormatConverter extends AbstractInLongMsgMixedForma
             Timestamp time,
             List<String> predefinedFields,
             List<String> fields,
-            Map<String, String> entries) {
+            Map<String, String> entries) throws Exception {
         Row dataRow =
                 InLongMsgKvUtils.deserializeRow(
                         rowFormatInfo,

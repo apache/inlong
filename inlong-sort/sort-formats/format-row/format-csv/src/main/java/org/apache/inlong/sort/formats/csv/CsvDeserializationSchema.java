@@ -160,7 +160,7 @@ public final class CsvDeserializationSchema extends DefaultDeserializationSchema
                                     fieldNames[i],
                                     fieldFormatInfos[i],
                                     fieldTexts[i],
-                                    nullLiteral);
+                                    nullLiteral, null);
 
                     row.setField(i, field);
                 }

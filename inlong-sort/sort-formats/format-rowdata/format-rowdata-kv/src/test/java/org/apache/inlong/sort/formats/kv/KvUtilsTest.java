@@ -37,7 +37,8 @@ public class KvUtilsTest {
     @Test
     public void testSplitNormal() {
         List<Map<String, String>> list =
-                splitKv("f1=a\nf1=b", '&', '=', '\\', '\"', '\n');
+                splitKv("f1=a\nf1=b", '&', '=', '\\', '\"',
+                        '\n', true);
         List<Map<String, String>> expectedList = new ArrayList<>();
         expectedList.add(new HashMap<String, String>() {
 
@@ -193,6 +194,103 @@ public class KvUtilsTest {
                     }
                 },
                 splitKv("=a&f=", '&', '=', '\\', '\"'));
+    }
+
+    @Test
+    public void testSplitNormalWithoutEscape() {
+        List<Map<String, String>> list =
+                splitKv("f1=a\nf1=b", '&', '=', '\\', '\"',
+                        '\n', false);
+        List<Map<String, String>> expectedList = new ArrayList<>();
+        expectedList.add(new HashMap<String, String>() {
+
+            {
+                put("f1", "a");
+            }
+        });
+        expectedList.add(new HashMap<String, String>() {
+
+            {
+                put("f1", "b");
+            }
+        });
+        assertEquals(list, expectedList);
+        ArrayList expectedListMap = new ArrayList<HashMap<String, String>>();
+        HashMap expectedMap = new HashMap<String, String>();
+        expectedMap.put("\\=f1", "a");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        expectedListMap.add(expectedMap);
+        assertEquals(expectedListMap,
+                splitKv("\\=f1=a&f2=b&f3=c", '&', '=', '\\',
+                        null, null, false));
+
+        expectedMap.clear();
+        expectedMap.put("\\&f1", "a");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        assertEquals(expectedListMap,
+                splitKv("\\&f1=a&f2=b&f3=c", '&', '=', '\\',
+                        null, null, false));
+
+        expectedMap.clear();
+        expectedMap.put("&f1", "a");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        assertEquals(expectedListMap,
+                splitKv("\"&f1\"=a&f2=b&f3=c", '&', '=', '\\',
+                        '\"', null, false));
+
+        expectedMap.clear();
+        expectedMap.put("f1", "a\\&");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        assertEquals(expectedListMap,
+                splitKv("f1=a\\&&f2=b&f3=c", '&', '=', '\\',
+                        null, null, false));
+
+        expectedMap.clear();
+        expectedMap.put("f1", "a\\\\");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        assertEquals(expectedListMap,
+                splitKv("f1=a\\\\&f2=b&f3=c", '&', '=',
+                        '\\', null, null, false));
+
+        expectedMap.clear();
+        expectedMap.put("f1", "a&f2=b");
+        expectedMap.put("f3", "c");
+        expectedMap.put("f4", "d");
+        assertEquals(expectedListMap,
+                splitKv("f1=a\"&f2=\"b&f3=c&f4=d", '&', '=',
+                        '\\', '\"', null, false));
+
+        expectedMap.clear();
+        expectedMap.put("f1", "atest\\test");
+        expectedMap.put("f2", "b");
+        expectedMap.put("f3", "c");
+        assertEquals(expectedListMap,
+                splitKv("f1=a\"test\\test\"&f2=b&f3=c", '&', '=', '\\',
+                        '\"', null, false));
+
+        expectedMap.clear();
+        expectedMap.put("f1", "a");
+        expectedMap.put("f2", "\\\"b");
+        expectedMap.put("f3", "c\\\"");
+        expectedMap.put("f4", "d");
+        assertEquals(expectedListMap,
+                splitKv("f1=a&f2=\\\"b&f3=c\\\"&f4=d", '&', '=', '\\',
+                        '\"', null, false));
+
+        expectedMap.clear();
+        expectedMap.put("", "a");
+        expectedMap.put("f", "");
+        HashMap expectedMap2 = new HashMap<String, String>();
+        expectedMap2.put("c", "dd");
+        expectedListMap.add(expectedMap2);
+        assertEquals(expectedListMap,
+                splitKv("=a&f=\nc=d\\d", '&', '=', '\\',
+                        '\"', '\n', true));
     }
 
     @Test

@@ -225,7 +225,7 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
     }
 
     @Override
-    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) {
+    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) throws Exception {
         Row dataRow =
                 InLongMsgKvUtils.deserializeRow(
                         rowFormatInfo,

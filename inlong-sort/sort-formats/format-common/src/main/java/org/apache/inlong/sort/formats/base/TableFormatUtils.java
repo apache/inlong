@@ -58,6 +58,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimestampTypeInf
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.TypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarBinaryFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarCharFormatInfo;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -547,7 +548,8 @@ public class TableFormatUtils {
             String fieldName,
             FormatInfo fieldFormatInfo,
             String fieldText,
-            String nullLiteral) {
+            String nullLiteral,
+            FailureHandler failureHandler) throws Exception {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (fieldText == null) {
@@ -573,6 +575,9 @@ public class TableFormatUtils {
         } catch (Exception e) {
             LOG.warn("Could not properly deserialize the " + "text "
                     + fieldText + " for field " + fieldName + ".", e);
+            if (failureHandler != null) {
+                failureHandler.onConvertingFieldFailure(fieldName, fieldText, fieldFormatInfo, e);
+            }
         }
         return null;
     }

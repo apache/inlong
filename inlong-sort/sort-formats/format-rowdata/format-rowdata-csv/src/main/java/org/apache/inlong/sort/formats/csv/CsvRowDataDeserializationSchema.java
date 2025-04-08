@@ -23,6 +23,7 @@ import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -118,6 +119,30 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
             @Nullable String nullLiteral,
             Boolean ignoreErrors) {
         super(ignoreErrors);
+        this.resultTypeInfo = resultTypeInfo;
+        this.rowFormatInfo = rowFormatInfo;
+        this.charset = charset;
+        this.delimiter = delimiter;
+        this.escapeChar = escapeChar;
+        this.quoteChar = quoteChar;
+        this.nullLiteral = nullLiteral;
+
+        converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
+                .map(formatInfo -> FieldToRowDataConverters.createConverter(
+                        TableFormatUtils.deriveLogicalType(formatInfo)))
+                .toArray(FieldToRowDataConverter[]::new);
+    }
+
+    public CsvRowDataDeserializationSchema(
+            @Nonnull TypeInformation<RowData> resultTypeInfo,
+            @Nonnull RowFormatInfo rowFormatInfo,
+            @Nonnull String charset,
+            @Nonnull Character delimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar,
+            @Nullable String nullLiteral,
+            FailureHandler failureHandler) {
+        super(failureHandler);
         this.resultTypeInfo = resultTypeInfo;
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
@@ -236,7 +261,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
                                     fieldNames[i],
                                     fieldFormatInfos[i],
                                     fieldTexts[i],
-                                    nullLiteral);
+                                    nullLiteral, failureHandler);
 
                     rowData.setField(i, converters[i].convert(field));
                 }

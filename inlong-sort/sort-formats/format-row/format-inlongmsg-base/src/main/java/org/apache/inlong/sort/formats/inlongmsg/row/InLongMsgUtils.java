@@ -79,10 +79,12 @@ public class InLongMsgUtils {
     public static final String FORMAT_TIME_FIELD_NAME = "format.time-field-name";
     public static final String FORMAT_ATTRIBUTES_FIELD_NAME = "format.attributes-field-name";
     public static final String FORMAT_RETAIN_PREDEFINED_FIELD = "format.retain-predefined-field";
+    public static final String FORMAT_APPEND_ESCAPE_FIELD = "format.append-escape";
 
     public static final String DEFAULT_TIME_FIELD_NAME = "inlongmsg_time";
     public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = "inlongmsg_attributes";
     public static final boolean DEFAULT_PREDEFINED_FIELD = true;
+    public static final boolean DEFAULT_APPEND_ESCAPE = false;
 
     public static final TypeInformation<Row> MIXED_ROW_TYPE =
             Types.ROW_NAMED(

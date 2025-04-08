@@ -39,7 +39,7 @@ public class StringUtils {
     private static final int STATE_QUOTING = 16;
 
     /**
-     * @see StringUtils#splitKv(String, Character, Character, Character,Character, Character)
+     * @see StringUtils#splitKv(String, Character, Character, Character,Character)
      */
     public static Map<String, String> splitKv(
             @Nonnull String text,
@@ -48,7 +48,8 @@ public class StringUtils {
             @Nullable Character escapeChar,
             @Nullable Character quoteChar) {
         List<Map<String, String>> lines =
-                splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar, null);
+                splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar, null,
+                        true);
         if (lines.size() == 0) {
             return new HashMap<>();
         }
@@ -77,7 +78,8 @@ public class StringUtils {
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable Character lineDelimiter) {
+            @Nullable Character lineDelimiter,
+            @Nullable boolean isDeleteEscapeChar) {
         Map<String, String> fields = new HashMap<>();
         List<Map<String, String>> lines = new ArrayList<>();
 
@@ -158,6 +160,9 @@ public class StringUtils {
                     case STATE_VALUE:
                         kvState = state;
                         state = STATE_ESCAPING;
+                        if (!isDeleteEscapeChar) {
+                            stringBuilder.append(ch);
+                        }
                         break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
@@ -369,7 +374,7 @@ public class StringUtils {
     /**
      * Splits a single line of csv text.
      *
-     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character)
      */
     public static String[] splitCsv(
             @Nonnull String text,
@@ -384,7 +389,7 @@ public class StringUtils {
     }
 
     /**
-     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character)
      */
     public static String[][] splitCsv(
             @Nonnull String text,
@@ -392,11 +397,12 @@ public class StringUtils {
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable Character lineDelimiter) {
-        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, false);
+        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter,
+                false, true);
     }
 
     /**
-     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean, Integer)
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean, boolean)
      */
     public static String[][] splitCsv(
             @Nonnull String text,
@@ -404,8 +410,10 @@ public class StringUtils {
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable Character lineDelimiter,
-            boolean deleteHeadDelimiter) {
-        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter, null);
+            boolean deleteHeadDelimiter,
+            boolean isDeleteEscapeChar) {
+        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter,
+                deleteHeadDelimiter, isDeleteEscapeChar, null);
     }
 
     /**
@@ -434,6 +442,7 @@ public class StringUtils {
             @Nullable Character quoteChar,
             @Nullable Character lineDelimiter,
             boolean deleteHeadDelimiter,
+            boolean isDeleteEscapeChar,
             @Nullable Integer maxFieldSize) {
         if (maxFieldSize != null && maxFieldSize <= 0) {
             return new String[0][];
@@ -481,6 +490,9 @@ public class StringUtils {
                 switch (state) {
                     case STATE_NORMAL:
                         state = STATE_ESCAPING;
+                        if (!isDeleteEscapeChar) {
+                            stringBuilder.append(ch);
+                        }
                         break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
