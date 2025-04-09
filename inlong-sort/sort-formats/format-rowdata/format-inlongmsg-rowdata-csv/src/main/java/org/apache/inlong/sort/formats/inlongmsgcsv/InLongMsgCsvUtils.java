@@ -21,6 +21,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
@@ -109,11 +110,12 @@ public class InLongMsgCsvUtils {
             Character lineDelimiter,
             Character escapeChar,
             Character quoteChar,
-            boolean deleteHeadDelimiter) {
+            boolean deleteHeadDelimiter, boolean isDeleteEscapeChar) {
         String bodyStr = new String(bytes, Charset.forName(charset));
 
         String[][] split =
-                splitCsv(bodyStr, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter);
+                splitCsv(bodyStr, delimiter, escapeChar, quoteChar, lineDelimiter,
+                        deleteHeadDelimiter, isDeleteEscapeChar);
 
         return Arrays.stream(split)
                 .map((line) -> {
@@ -132,7 +134,8 @@ public class InLongMsgCsvUtils {
             String nullLiteral,
             List<String> predefinedFields,
             List<String> fields,
-            FieldToRowDataConverters.FieldToRowDataConverter[] converters) {
+            FieldToRowDataConverters.FieldToRowDataConverter[] converters,
+            FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -160,7 +163,7 @@ public class InLongMsgCsvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral));
+                    nullLiteral, failureHandler));
             rowData.setField(i, field);
         }
 
@@ -180,7 +183,7 @@ public class InLongMsgCsvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral));
+                    nullLiteral, failureHandler));
             rowData.setField(i + predefinedFields.size(), field);
         }
 

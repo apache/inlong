@@ -45,12 +45,15 @@ import java.util.Objects;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_ENTRY_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ATTRIBUTE_FIELD_NAME;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_IS_DELETE_ESCAPE_CHAR;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsgtlogkv.InLongMsgTlogKvUtils.DEFAULT_INLONGMSG_TLOGKV_CHARSET;
 
@@ -115,11 +118,16 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
     @Nullable
     private final Character quoteChar;
 
+    @Nullable
+    private final Character lineDelimiter;
+
     /**
      * The literal represented null values, default "".
      */
     @Nullable
     private final String nullLiteral;
+
+    private boolean isDeleteEscapeChar = DEFAULT_IS_DELETE_ESCAPE_CHAR;
 
     private final FieldToRowDataConverter[] converters;
 
@@ -133,6 +141,7 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter,
             @Nullable String nullLiteral,
             @Nonnull Boolean ignoreErrors) {
         this(
@@ -145,7 +154,9 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                 kvDelimiter,
                 escapeChar,
                 quoteChar,
+                lineDelimiter,
                 nullLiteral,
+                DEFAULT_IS_DELETE_ESCAPE_CHAR,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -159,7 +170,9 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter,
             @Nullable String nullLiteral,
+            @Nullable Boolean isDeleteEscapeChar,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -172,7 +185,9 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
         this.kvDelimiter = kvDelimiter;
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
+        this.lineDelimiter = lineDelimiter;
         this.nullLiteral = nullLiteral;
+        this.isDeleteEscapeChar = isDeleteEscapeChar;
 
         this.converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
@@ -193,15 +208,14 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
 
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
-        return Collections.singletonList(
-                InLongMsgTlogKvUtils.parseBody(
-                        bytes,
-                        charset,
-                        delimiter,
-                        entryDelimiter,
-                        kvDelimiter,
-                        escapeChar,
-                        quoteChar));
+        return InLongMsgTlogKvUtils.parseBody(
+                bytes,
+                charset,
+                delimiter,
+                entryDelimiter,
+                kvDelimiter,
+                escapeChar,
+                quoteChar, lineDelimiter, isDeleteEscapeChar);
     }
 
     @Override
@@ -211,7 +225,7 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                         rowFormatInfo,
                         nullLiteral,
                         head.getPredefinedFields(),
-                        body.getEntries(), converters);
+                        body.getEntries(), converters, failureHandler);
 
         RowData rowData = InLongMsgUtils.decorateRowWithNeededHeadFields(
                 timeFieldName,
@@ -233,6 +247,8 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
         private Character delimiter = DEFAULT_DELIMITER;
         private Character entryDelimiter = DEFAULT_ENTRY_DELIMITER;
         private Character kvDelimiter = DEFAULT_KV_DELIMITER;
+        private Character lineDelimiter = DEFAULT_LINE_DELIMITER;
+        private boolean isDeleteEscapeChar = DEFAULT_IS_DELETE_ESCAPE_CHAR;
 
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
@@ -265,6 +281,16 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
             return this;
         }
 
+        public Builder setLineDelimiter(Character lineDelimiter) {
+            this.lineDelimiter = lineDelimiter;
+            return this;
+        }
+
+        public Builder setDeleteEscapeChar(boolean isDeleteEscapeChar) {
+            this.isDeleteEscapeChar = isDeleteEscapeChar;
+            return this;
+        }
+
         public Builder configure(DescriptorProperties descriptorProperties) {
             super.configure(descriptorProperties);
 
@@ -278,11 +304,29 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                     .ifPresent(this::setEntryDelimiter);
             descriptorProperties.getOptionalCharacter(FORMAT_KV_DELIMITER)
                     .ifPresent(this::setKvDelimiter);
+            descriptorProperties.getOptionalCharacter(FORMAT_LINE_DELIMITER)
+                    .ifPresent(this::setLineDelimiter);
 
             return this;
         }
 
         public InLongMsgTlogKvFormatDeserializer build() {
+            if (failureHandler != null) {
+                return new InLongMsgTlogKvFormatDeserializer(
+                        rowFormatInfo,
+                        timeFieldName,
+                        attributesFieldName,
+                        charset,
+                        delimiter,
+                        entryDelimiter,
+                        kvDelimiter,
+                        escapeChar,
+                        quoteChar,
+                        lineDelimiter,
+                        nullLiteral,
+                        isDeleteEscapeChar,
+                        failureHandler);
+            }
             return new InLongMsgTlogKvFormatDeserializer(
                     rowFormatInfo,
                     timeFieldName,
@@ -293,6 +337,7 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                     kvDelimiter,
                     escapeChar,
                     quoteChar,
+                    lineDelimiter,
                     nullLiteral,
                     ignoreErrors);
         }
@@ -322,13 +367,15 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                 kvDelimiter.equals(that.kvDelimiter) &&
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
-                Objects.equals(nullLiteral, that.nullLiteral);
+                Objects.equals(lineDelimiter, that.lineDelimiter) &&
+                Objects.equals(nullLiteral, that.nullLiteral) &&
+                Objects.equals(isDeleteEscapeChar, that.isDeleteEscapeChar);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
                 attributesFieldName, charset, delimiter, entryDelimiter, kvDelimiter,
-                escapeChar, quoteChar, nullLiteral);
+                escapeChar, quoteChar, lineDelimiter, nullLiteral, isDeleteEscapeChar);
     }
 }

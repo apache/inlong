@@ -278,6 +278,8 @@ public class InLongMsgCsvFormatDeserializerTest {
                         null,
                         InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
                         Collections.emptyList(),
+                        true,
+                        true,
                         errorHandler);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
@@ -290,7 +292,7 @@ public class InLongMsgCsvFormatDeserializerTest {
         List<RowData> actualRows = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg.buildArray(), collector);
-        assertEquals(0, errorHandler.getRowCount());
+        assertEquals(1, errorHandler.getRowCount());
 
         InLongMsg inLongMsg1Head = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&streamId=testInterfaceId&__addcol1__=1&__addcol2__=2";
@@ -871,6 +873,12 @@ public class InLongMsgCsvFormatDeserializerTest {
 
         @Override
         public void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body,
+                Exception exception) throws Exception {
+            rowCount++;
+        }
+
+        @Override
+        public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
                 Exception exception) throws Exception {
             rowCount++;
         }

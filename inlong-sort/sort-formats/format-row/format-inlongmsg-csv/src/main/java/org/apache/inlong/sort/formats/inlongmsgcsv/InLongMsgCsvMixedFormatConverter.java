@@ -96,7 +96,7 @@ public class InLongMsgCsvMixedFormatConverter extends AbstractInLongMsgMixedForm
             Timestamp time,
             List<String> predefinedFields,
             List<String> fields,
-            Map<String, String> entries) {
+            Map<String, String> entries) throws Exception {
         Row dataRow =
                 InLongMsgCsvUtils.deserializeRow(
                         rowFormatInfo,

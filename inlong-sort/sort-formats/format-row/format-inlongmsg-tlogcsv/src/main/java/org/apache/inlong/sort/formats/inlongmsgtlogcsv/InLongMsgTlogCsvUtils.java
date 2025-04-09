@@ -110,7 +110,7 @@ public class InLongMsgTlogCsvUtils {
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
             List<String> predefinedFields,
-            List<String> fields) {
+            List<String> fields) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -138,7 +138,7 @@ public class InLongMsgTlogCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i, field);
         }
 
@@ -158,7 +158,7 @@ public class InLongMsgTlogCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i + predefinedFields.size(), field);
         }
 

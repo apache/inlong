@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.TableFormatForRowDataUtils;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
@@ -33,6 +34,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -144,13 +146,40 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                 .toArray(FieldToRowDataConverters.FieldToRowDataConverter[]::new);
     }
 
+    public KvRowDataDeserializationSchema(
+            @Nonnull RowFormatInfo rowFormatInfo,
+            @Nonnull TypeInformation<RowData> producedTypeInfo,
+            @Nonnull String charset,
+            @Nonnull Character entryDelimiter,
+            @Nonnull Character kvDelimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar,
+            @Nullable String nullLiteral,
+            @Nullable FailureHandler failureHandler) {
+        super(failureHandler);
+        this.rowFormatInfo = rowFormatInfo;
+        this.producedTypeInfo = producedTypeInfo;
+        this.charset = charset;
+        this.entryDelimiter = entryDelimiter;
+        this.kvDelimiter = kvDelimiter;
+        this.escapeChar = escapeChar;
+        this.quoteChar = quoteChar;
+        this.nullLiteral = nullLiteral;
+
+        converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
+                .map(formatInfo -> FieldToRowDataConverters.createConverter(
+                        TableFormatForRowDataUtils.deriveLogicalType(formatInfo)))
+                .toArray(FieldToRowDataConverters.FieldToRowDataConverter[]::new);
+    }
+
     @Override
     public RowData deserializeInternal(byte[] bytes) throws Exception {
         String text = new String(bytes, Charset.forName(charset));
         GenericRowData rowData = null;
         try {
-            Map<String, String> fieldTexts =
-                    splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar);
+            List<Map<String, String>> fieldTexts =
+                    splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar, null,
+                            true);
 
             String[] fieldNames = rowFormatInfo.getFieldNames();
             FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
@@ -160,13 +189,13 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                 String fieldName = fieldNames[i];
                 FormatInfo fieldFormatInfo = fieldFormatInfos[i];
 
-                String fieldText = fieldTexts.get(fieldName);
+                String fieldText = fieldTexts.get(0).get(fieldName);
 
                 Object field = deserializeBasicField(
                         fieldName,
                         fieldFormatInfo,
                         fieldText,
-                        nullLiteral);
+                        nullLiteral, failureHandler);
                 rowData.setField(i, converters[i].convert(field));
             }
             return rowData;
@@ -199,6 +228,17 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
         }
 
         public KvRowDataDeserializationSchema build() {
+            if (failureHandler != null) {
+                return new KvRowDataDeserializationSchema(
+                        rowFormatInfo,
+                        producedTypeInfo,
+                        charset,
+                        entryDelimiter,
+                        kvDelimiter,
+                        escapeChar,
+                        quoteChar,
+                        nullLiteral, failureHandler);
+            }
             return new KvRowDataDeserializationSchema(
                     rowFormatInfo,
                     producedTypeInfo,
@@ -229,7 +269,8 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                 kvDelimiter.equals(that.kvDelimiter) &&
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
-                Objects.equals(nullLiteral, that.nullLiteral);
+                Objects.equals(nullLiteral, that.nullLiteral) &&
+                Objects.equals(failureHandler, that.failureHandler);
     }
 
     @Override
@@ -242,6 +283,6 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                 kvDelimiter,
                 escapeChar,
                 quoteChar,
-                nullLiteral);
+                nullLiteral, failureHandler);
     }
 }

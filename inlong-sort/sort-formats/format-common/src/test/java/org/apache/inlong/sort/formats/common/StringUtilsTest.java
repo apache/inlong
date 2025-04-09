@@ -34,27 +34,27 @@ public class StringUtilsTest {
     public void testSplitKvString() {
 
         String kvString1 = "name=n&age=10";
-        Map<String, String> map1 = StringUtils.splitKv(kvString1, '&',
-                '=', '\\', '\'');
-        assertEquals("n", map1.get("name"));
-        assertEquals("10", map1.get("age"));
+        List<Map<String, String>> listMap1 = StringUtils.splitKv(kvString1, '&',
+                '=', '\\', '\'', '\n', true);
+        assertEquals("n", listMap1.get(0).get("name"));
+        assertEquals("10", listMap1.get(0).get("age"));
 
         String kvString2 = "name=&age=20&";
-        Map<String, String> map2 = StringUtils.splitKv(kvString2, '&',
-                '=', '\\', '\'');
-        assertEquals("", map2.get("name"));
-        assertEquals("20&", map2.get("age"));
+        List<Map<String, String>> listMap2 = StringUtils.splitKv(kvString2, '&',
+                '=', '\\', '\'', '\n', true);
+        assertEquals("", listMap2.get(0).get("name"));
+        assertEquals("20&", listMap2.get(0).get("age"));
 
         String kvString3 = "name==&age=20&&&value=aaa&dddd&";
-        Map<String, String> map3 = StringUtils.splitKv(kvString3, '&',
-                '=', '\\', '\'');
-        assertEquals("=", map3.get("name"));
-        assertEquals("20&&", map3.get("age"));
-        assertEquals("aaa&dddd&", map3.get("value"));
+        List<Map<String, String>> listMap3 = StringUtils.splitKv(kvString3, '&',
+                '=', '\\', '\'', '\n', true);
+        assertEquals("=", listMap3.get(0).get("name"));
+        assertEquals("20&&", listMap3.get(0).get("age"));
+        assertEquals("aaa&dddd&", listMap3.get(0).get("value"));
 
         String kvString4 = "name==&age=20&&\nname1==&age1=20&&";
         List<Map<String, String>> map4 = StringUtils.splitKv(kvString4, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map4.get(0).get("name"));
         assertEquals("20&&", map4.get(0).get("age"));
         assertEquals("=", map4.get(1).get("name1"));
@@ -62,7 +62,7 @@ public class StringUtilsTest {
 
         String kvString5 = "name==&age=20&&\nname1==&age1=20&&&value=aaa&dddd&";
         List<Map<String, String>> map5 = StringUtils.splitKv(kvString5, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map5.get(0).get("name"));
         assertEquals("20&&", map5.get(0).get("age"));
         assertEquals("=", map5.get(1).get("name1"));
@@ -71,25 +71,25 @@ public class StringUtilsTest {
 
         String kvString6 = "name==&age=20&&\\";
         List<Map<String, String>> map6 = StringUtils.splitKv(kvString6, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map6.get(0).get("name"));
         assertEquals("20&&", map6.get(0).get("age"));
 
         String kvString7 = "name==&age=20&&'";
         List<Map<String, String>> map7 = StringUtils.splitKv(kvString7, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map7.get(0).get("name"));
         assertEquals("20&&", map7.get(0).get("age"));
 
         String kvString8 = "name=\\=&age=20&a&'";
         List<Map<String, String>> map8 = StringUtils.splitKv(kvString8, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map8.get(0).get("name"));
         assertEquals("20&a&", map8.get(0).get("age"));
 
         String kvString9 = "name=\\=&age=20&a\\&'";
         List<Map<String, String>> map9 = StringUtils.splitKv(kvString9, '&',
-                '=', '\\', '\'', '\n');
+                '=', '\\', '\'', '\n', true);
         assertEquals("=", map8.get(0).get("name"));
         assertEquals("20&a&", map8.get(0).get("age"));
     }
@@ -116,21 +116,45 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testSplitCsvStringWhiteEscape() {
+        String csvString1 = "name|age=20\\||&'";
+        String[][] csv1Array1 = StringUtils.splitCsv(csvString1, '|',
+                '\\', '\'', '\n', false, false);
+
+        assertEquals("age=20\\|", csv1Array1[0][1]);
+        assertEquals("&", csv1Array1[0][2]);
+
+        String csvString2 = "name|age=20\\||&'\n\name|age=20\\||&'\n\n|home|\\home\\";
+        String[][] csv1Array2 = StringUtils.splitCsv(csvString2, '|',
+                '\\', '\'', '\n', false, false);
+
+        assertEquals("name", csv1Array2[0][0]);
+        assertEquals("age=20\\|", csv1Array2[0][1]);
+        assertEquals("&\n\name|age=20\\||&", csv1Array2[0][2]);
+        assertEquals("", csv1Array2[2][0]);
+        assertEquals("home", csv1Array2[2][1]);
+        assertEquals("\\home\\", csv1Array2[2][2]);
+    }
+
+    @Test
     public void testSplitCsvStringWithMaxFields() {
 
         String csvString = "name|age=20\\||&'\n\name|age=20\\||&'\n\n|home|\\home\\";
         String[][] csv1Array0 = StringUtils.splitCsv(csvString, '|',
-                '\\', '\'', '\n', false, 0);
+                '\\', '\'', '\n', false, true,
+                0);
         assertEquals(0, csv1Array0.length);
 
         String[][] csv1Array1 = StringUtils.splitCsv(csvString, '|',
-                '\\', '\'', '\n', false, 1);
+                '\\', '\'', '\n', false, true,
+                1);
         assertEquals("name|age=20\\||&'\n\name|age=20\\||&'", csv1Array1[0][0]);
         assertEquals("", csv1Array1[1][0]);
         assertEquals("|home|\\home\\", csv1Array1[2][0]);
 
         String[][] csv1Array2 = StringUtils.splitCsv(csvString, '|',
-                '\\', '\'', '\n', false, 2);
+                '\\', '\'', '\n', false, true,
+                2);
         assertEquals("name", csv1Array2[0][0]);
         assertEquals("age=20\\||&'\n\name|age=20\\||&'", csv1Array2[0][1]);
         assertEquals("", csv1Array2[1][0]);
@@ -138,7 +162,8 @@ public class StringUtilsTest {
         assertEquals("home|\\home\\", csv1Array2[2][1]);
 
         String[][] csv1Array3 = StringUtils.splitCsv(csvString, '|',
-                '\\', '\'', '\n', false, 3);
+                '\\', '\'', '\n', false, true,
+                3);
         assertEquals("name", csv1Array3[0][0]);
         assertEquals("age=20|", csv1Array3[0][1]);
         assertEquals("&\n\name|age=20\\||&", csv1Array3[0][2]);
@@ -147,7 +172,8 @@ public class StringUtilsTest {
         assertEquals("home", csv1Array3[2][2]);
 
         String[][] csv1Array4 = StringUtils.splitCsv(csvString, '|',
-                '\\', '\'', '\n', false, 4);
+                '\\', '\'', '\n', false, true,
+                4);
         assertEquals("name", csv1Array4[0][0]);
         assertEquals("age=20|", csv1Array4[0][1]);
         assertEquals("&\n\name|age=20\\||&", csv1Array4[0][2]);
@@ -159,9 +185,11 @@ public class StringUtilsTest {
     @Test
     public void testKvScapeCharSplit() {
         String text = "k1=v1&\nk\\2=v2\\&&k3=v3";
-        Map<String, String> kvMap = splitKv(text, '&', '=', '\\', null);
-        Assert.assertTrue(kvMap != null && kvMap.size() == 3);
-        Assert.assertTrue(kvMap.get("k3") != null);
-        Assert.assertTrue(kvMap.get("\nk2") != null);
+        List<Map<String, String>> kvMapList = splitKv(text, '&', '=', '\\',
+                null, '\n', false);
+        Assert.assertTrue(kvMapList != null && kvMapList.size() == 2);
+        Assert.assertTrue(kvMapList.get(0).get("k3") == null);
+        Assert.assertTrue(kvMapList.get(1).get("\nk2") == null);
+        Assert.assertTrue(kvMapList.get(1).get("k\\2") != null);
     }
 }

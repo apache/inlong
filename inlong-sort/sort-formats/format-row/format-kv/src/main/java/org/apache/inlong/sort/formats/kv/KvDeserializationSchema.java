@@ -162,7 +162,7 @@ public final class KvDeserializationSchema extends DefaultDeserializationSchema<
                                 fieldName,
                                 fieldFormatInfo,
                                 fieldText,
-                                nullLiteral);
+                                nullLiteral, null);
                 row.setField(i, field);
             }
 

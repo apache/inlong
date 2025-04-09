@@ -285,5 +285,11 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                 InLongMsgBody body, Exception exception) throws Exception {
             rowCount++;
         }
+
+        @Override
+        public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+                Exception exception) throws Exception {
+            rowCount++;
+        }
     }
 }

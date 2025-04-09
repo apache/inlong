@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.base;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
@@ -44,6 +45,7 @@ public abstract class TextFormatBuilder<T extends TextFormatBuilder> {
     protected Character quoteChar = DEFAULT_QUOTE_CHARACTER;
     protected String nullLiteral = DEFAULT_NULL_LITERAL;
     protected boolean ignoreErrors = DEFAULT_IGNORE_ERRORS;
+    protected FailureHandler failureHandler;
 
     protected TextFormatBuilder(RowFormatInfo rowFormatInfo) {
         this.rowFormatInfo = rowFormatInfo;
@@ -76,6 +78,11 @@ public abstract class TextFormatBuilder<T extends TextFormatBuilder> {
     @SuppressWarnings("unchecked")
     public T setIgnoreErrors(boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors;
+        return (T) this;
+    }
+
+    public T setFailureHandler(FailureHandler failureHandler) {
+        this.failureHandler = failureHandler;
         return (T) this;
     }
 

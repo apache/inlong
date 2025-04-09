@@ -84,6 +84,7 @@ public class InLongMsgKvFormatDeserializerTest {
                         null,
                         null,
                         null,
+                        true,
                         errorHandler);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
@@ -96,7 +97,7 @@ public class InLongMsgKvFormatDeserializerTest {
         List<RowData> actualRows = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg.buildArray(), collector);
-        assertEquals(0, errorHandler.getRowCount());
+        assertEquals(1, errorHandler.getRowCount());
 
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&iname=testInterfaceId&__addcol1__=1&__addcol2__=2";
@@ -339,6 +340,12 @@ public class InLongMsgKvFormatDeserializerTest {
         @Override
         public void onConvertingRowFailure(InLongMsgHead head,
                 InLongMsgBody body, Exception exception) throws Exception {
+            rowCount++;
+        }
+
+        @Override
+        public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+                Exception exception) throws Exception {
             rowCount++;
         }
     }
