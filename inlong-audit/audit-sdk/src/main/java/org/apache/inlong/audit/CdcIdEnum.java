@@ -17,7 +17,6 @@
 
 package org.apache.inlong.audit;
 
-import lombok.Getter;
 import org.apache.inlong.audit.entity.AuditType;
 import org.apache.inlong.audit.entity.CdcType;
 import org.apache.inlong.audit.entity.FlowType;
