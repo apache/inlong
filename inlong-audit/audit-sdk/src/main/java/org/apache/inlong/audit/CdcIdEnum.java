@@ -17,16 +17,16 @@
 
 package org.apache.inlong.audit;
 
+import lombok.Getter;
 import org.apache.inlong.audit.entity.AuditType;
 import org.apache.inlong.audit.entity.CdcType;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.exceptions.AuditTypeNotExistException;
 import org.apache.inlong.audit.util.AuditManagerUtils;
-
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.audit.entity.AuditType.BINLOG;
 import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.TDSQL_MYSQL;
 import static org.apache.inlong.audit.entity.CdcType.DELETE;
@@ -49,7 +49,12 @@ public enum CdcIdEnum {
     TDSQL_INSERT(101, INSERT, TDSQL_MYSQL, "Insert Audit Metrics for TDSQL"),
     TDSQL_DELETE(102, DELETE, TDSQL_MYSQL, "Delete Audit Metrics for TDSQL"),
     TDSQL_UPDATE_BEFORE(103, UPDATE_BEFORE, TDSQL_MYSQL, "Update before Audit Metrics for TDSQL"),
-    TDSQL_UPDATE_AFTER(104, UPDATE_AFTER, TDSQL_MYSQL, "Update after Audit Metrics for TDSQL");
+    TDSQL_UPDATE_AFTER(104, UPDATE_AFTER, TDSQL_MYSQL, "Update after Audit Metrics for TDSQL"),
+
+    BINLOG_INSERT(201, INSERT, BINLOG, "Insert Audit Metrics for MYSQL BINLOG"),
+    BINLOG_DELETE(202, DELETE, BINLOG, "Delete Audit Metrics for MYSQL BINLOG"),
+    BINLOG_UPDATE_BEFORE(203, UPDATE_BEFORE, BINLOG, "Update before Audit Metrics for MYSQL BINLOG"),
+    BINLOG_UPDATE_AFTER(204, UPDATE_AFTER, BINLOG, "Update after Audit Metrics for MYSQL BINLOG");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CdcIdEnum.class);
     private final int auditId;
@@ -65,6 +70,28 @@ public enum CdcIdEnum {
         this.cdcType = cdcType;
         this.auditType = auditType;
         this.description = description;
+    }
+
+    public static CdcIdEnum getCdcIdEnum(String auditType, CdcType cdcType) {
+        if (auditType == null || cdcType == null) {
+            throw new IllegalArgumentException("Audit type and CDC type must not be null");
+        }
+
+        for (CdcIdEnum cdcIdEnum : CdcIdEnum.values()) {
+            if (cdcIdEnum.getCdcType() == cdcType &&
+                    auditType.equalsIgnoreCase(cdcIdEnum.getAuditType().value())) {
+                return cdcIdEnum;
+            }
+        }
+
+        String errorMsg = String.format("Audit type %s does not exist for cdc type %s", auditType, cdcType);
+        LOGGER.error(errorMsg);
+        throw new AuditTypeNotExistException(errorMsg);
+    }
+
+    public static int getCdcId(String auditType, FlowType flowType, CdcType cdcType) {
+        CdcIdEnum cdcIdEnum = getCdcIdEnum(auditType, cdcType);
+        return cdcIdEnum.getValue(flowType);
     }
 
     public int getValue(FlowType flowType) {
@@ -95,27 +122,5 @@ public enum CdcIdEnum {
                 auditType.value(),
                 flowType.getNameInChinese(),
                 cdcType.getNameInChinese());
-    }
-
-    public static CdcIdEnum getCdcIdEnum(String auditType, CdcType cdcType) {
-        if (auditType == null || cdcType == null) {
-            throw new IllegalArgumentException("Audit type and CDC type must not be null");
-        }
-
-        for (CdcIdEnum cdcIdEnum : CdcIdEnum.values()) {
-            if (cdcIdEnum.getCdcType() == cdcType &&
-                    auditType.equalsIgnoreCase(cdcIdEnum.getAuditType().value())) {
-                return cdcIdEnum;
-            }
-        }
-
-        String errorMsg = String.format("Audit type %s does not exist for cdc type %s", auditType, cdcType);
-        LOGGER.error(errorMsg);
-        throw new AuditTypeNotExistException(errorMsg);
-    }
-
-    public static int getCdcId(String auditType, FlowType flowType, CdcType cdcType) {
-        CdcIdEnum cdcIdEnum = getCdcIdEnum(auditType, cdcType);
-        return cdcIdEnum.getValue(flowType);
     }
 }
