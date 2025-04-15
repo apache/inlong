@@ -36,7 +36,8 @@ public enum AuditType {
     TUBEMQ("TubeMQ"),
     MYSQL("MYSQL"),
     HDFS("HDFS"),
-    TDSQL_MYSQL("TDSQL_MYSQL");
+    TDSQL_MYSQL("TDSQL_MYSQL"),
+    MQ_PULSAR("MQ_PULSAR");
 
     private final String auditType;
 

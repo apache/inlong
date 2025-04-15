@@ -36,6 +36,7 @@ import static org.apache.inlong.audit.entity.AuditType.HIVE;
 import static org.apache.inlong.audit.entity.AuditType.HUDI;
 import static org.apache.inlong.audit.entity.AuditType.ICEBERG;
 import static org.apache.inlong.audit.entity.AuditType.KUDU;
+import static org.apache.inlong.audit.entity.AuditType.MQ_PULSAR;
 import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.POSTGRES;
 import static org.apache.inlong.audit.entity.AuditType.SDK;
@@ -98,7 +99,10 @@ public enum AuditIdEnum {
     SORT_MYSQL_OUTPUT(36, OUTPUT, MYSQL, "Sent Audit Metrics for Sort MySQL"),
 
     SORT_HDFS_INPUT(37, INPUT, HDFS, "Received Audit Metrics for Sort HDFS"),
-    SORT_HDFS_OUTPUT(38, OUTPUT, HDFS, "Sent Audit Metrics for Sort HDFS");
+    SORT_HDFS_OUTPUT(38, OUTPUT, HDFS, "Sent Audit Metrics for Sort HDFS"),
+
+    MQ_PULSAR_INPUT(39, INPUT, MQ_PULSAR, "Received Audit Metrics for MQ Pulsar"),
+    MQ_PULSAR_OUTPUT(40, OUTPUT, MQ_PULSAR, "Sent Audit Metrics for MQ Pulsar");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdEnum.class);
     private final int auditId;
