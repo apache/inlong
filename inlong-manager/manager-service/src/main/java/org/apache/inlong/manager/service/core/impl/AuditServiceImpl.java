@@ -204,8 +204,8 @@ public class AuditServiceImpl implements AuditService {
                             cdcAuditInfoList.stream().map(v -> String.valueOf(v.getAuditId()))
                                     .collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(cdcAuditIdList)) {
-                        String finalSourceNodeType = sourceNodeType;
-                        cdcAuditIdList.forEach(v -> auditIdMap.put(v, finalSourceNodeType));
+                        String tempSourceNodeType = sourceNodeType;
+                        cdcAuditIdList.forEach(v -> auditIdMap.put(v, tempSourceNodeType));
                     }
                     auditIdMap.put(getAuditId(sourceNodeType, IndicatorType.RECEIVED_SUCCESS), sourceNodeType);
                     request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
