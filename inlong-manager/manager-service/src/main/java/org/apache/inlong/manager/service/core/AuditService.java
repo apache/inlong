@@ -71,4 +71,6 @@ public interface AuditService {
      */
     List<AuditProxy> getAuditProxy(String component) throws Exception;
 
+    List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType);
+
 }

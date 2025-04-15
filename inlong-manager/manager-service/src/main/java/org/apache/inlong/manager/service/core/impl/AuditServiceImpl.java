@@ -67,6 +67,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Audit service layer implementation
@@ -116,6 +117,10 @@ public class AuditServiceImpl implements AuditService {
             auditIndicatorMap.clear();
             List<AuditInformation> auditInformationList = AuditOperator.getInstance().getAllAuditInformation();
             List<AuditInformation> metricInformationList = AuditOperator.getInstance().getAllMetricInformation();
+            List<AuditInformation> cdcMetricInformationList = AuditOperator.getInstance().getAllCdcIdInformation();
+            cdcMetricInformationList.forEach(v -> {
+                auditItemMap.put(String.valueOf(v.getAuditId()), v.getNameInChinese());
+            });
             auditInformationList.forEach(v -> {
                 auditItemMap.put(String.valueOf(v.getAuditId()), v.getNameInChinese());
             });
@@ -193,6 +198,15 @@ public class AuditServiceImpl implements AuditService {
                 // properly overwrite audit ids by role and stream config
                 if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupEntity.getInlongGroupMode())
                         || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupEntity.getInlongGroupMode())) {
+                    List<AuditInformation> cdcAuditInfoList =
+                            getCdcAuditInfoList(sourceNodeType, IndicatorType.RECEIVED_SUCCESS);
+                    List<String> cdcAuditIdList =
+                            cdcAuditInfoList.stream().map(v -> String.valueOf(v.getAuditId()))
+                                    .collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(cdcAuditIdList)) {
+                        String finalSourceNodeType = sourceNodeType;
+                        cdcAuditIdList.forEach(v -> auditIdMap.put(v, finalSourceNodeType));
+                    }
                     auditIdMap.put(getAuditId(sourceNodeType, IndicatorType.RECEIVED_SUCCESS), sourceNodeType);
                     request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
                 } else {
@@ -250,6 +264,14 @@ public class AuditServiceImpl implements AuditService {
             InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
             if (InlongConstants.DATASYNC_REALTIME_MODE.equals(inlongGroup.getInlongGroupMode())
                     || InlongConstants.DATASYNC_OFFLINE_MODE.equals(inlongGroup.getInlongGroupMode())) {
+                List<AuditInformation> cdcAuditInfoList =
+                        getCdcAuditInfoList(sourceNodeType, IndicatorType.RECEIVED_SUCCESS);
+                if (CollectionUtils.isNotEmpty(cdcAuditInfoList)) {
+                    List<String> cdcAuditIdList =
+                            cdcAuditInfoList.stream().map(v -> String.valueOf(v.getAuditId()))
+                                    .collect(Collectors.toList());
+                    auditSet.addAll(cdcAuditIdList);
+                }
                 auditSet.add(getAuditId(sourceNodeType, IndicatorType.RECEIVED_SUCCESS));
             } else {
                 auditSet.add(getAuditId(sinkNodeType, IndicatorType.RECEIVED_SUCCESS));
@@ -294,4 +316,16 @@ public class AuditServiceImpl implements AuditService {
         }
     }
 
+    @Override
+    public List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType) {
+        if (StringUtils.isBlank(type)) {
+            return null;
+        }
+
+        FlowType flowType = indicatorType.getCode() % 2 == 0 ? FlowType.INPUT : FlowType.OUTPUT;
+        List<AuditInformation> cdcAuditInfo = AuditOperator.getInstance().getAllCdcIdInformation(type, flowType);
+        Preconditions.expectNotNull(cdcAuditInfo, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
+                String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
+        return cdcAuditInfo;
+    }
 }
