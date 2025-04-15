@@ -89,14 +89,16 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                         DEFAULT_DELIMITER,
                         null,
                         null,
+                        '\n',
                         null,
                         Collections.emptyList(),
                         false,
+                        false,
+                        false,
                         errorHandler);
-
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg(true);
         String attrs = "m=0&dt=1584806400000&__addcol1_=1&__addcol2_=test";
-        String body1 = "interfaceId1,field1,field2,field3";
+        String body1 = "interfaceId1,field1,field2,field3\ninterfaceId1,field1,field2,field3";
         String body2 = "interfaceId2,field1,field2,field3";
         inLongMsg1.addMsg(attrs, body1.getBytes());
         inLongMsg1.addMsg(attrs, body2.getBytes());
@@ -104,7 +106,8 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         List<RowData> actualRows = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg1.buildArray(), collector);
-        assertEquals(0, errorHandler.getRowCount());
+        assertEquals(3, errorHandler.getRowCount());
+        assertEquals(3, actualRows.size());
 
         InLongMsg inLongMsg1Head = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&__addcol1_=1&__addcol2_=test";
@@ -334,6 +337,12 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         @Override
         public void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception)
                 throws Exception {
+            rowCount++;
+        }
+
+        @Override
+        public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+                Exception exception) throws Exception {
             rowCount++;
         }
     }

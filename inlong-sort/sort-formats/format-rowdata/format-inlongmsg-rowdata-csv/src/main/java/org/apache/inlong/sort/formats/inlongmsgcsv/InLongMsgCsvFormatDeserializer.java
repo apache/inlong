@@ -44,6 +44,8 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_D
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_RETAIN_PREDEFINED_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_IS_DELETE_ESCAPE_CHAR;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_IS_RETAIN_PREDEFINED_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER;
 
@@ -122,6 +124,11 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
      */
     private boolean retainPredefinedField = true;
 
+    /**
+     * True if delete escape char while parsing.
+     */
+    private boolean isDeleteEscapeChar = DEFAULT_IS_DELETE_ESCAPE_CHAR;
+
     public InLongMsgCsvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
@@ -148,8 +155,9 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 nullLiteral,
                 deleteHeadDelimiter,
                 metadataKeys,
+                DEFAULT_IS_DELETE_ESCAPE_CHAR,
+                retainPredefinedField,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
-        this.retainPredefinedField = retainPredefinedField;
     }
 
     public InLongMsgCsvFormatDeserializer(
@@ -177,6 +185,8 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 nullLiteral,
                 deleteHeadDelimiter,
                 metadataKeys,
+                DEFAULT_IS_DELETE_ESCAPE_CHAR,
+                DEFAULT_IS_RETAIN_PREDEFINED_FIELD,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -192,6 +202,8 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             @Nullable String nullLiteral,
             boolean deleteHeadDelimiter,
             List<String> metadataKeys,
+            boolean isDeleteEscapeChar,
+            boolean retainPredefinedField,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -206,6 +218,8 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
         this.nullLiteral = nullLiteral;
         this.deleteHeadDelimiter = deleteHeadDelimiter;
         this.metadataKeys = metadataKeys;
+        this.isDeleteEscapeChar = isDeleteEscapeChar;
+        this.retainPredefinedField = retainPredefinedField;
 
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
@@ -236,17 +250,18 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 lineDelimiter,
                 escapeChar,
                 quoteChar,
-                deleteHeadDelimiter);
+                deleteHeadDelimiter,
+                isDeleteEscapeChar);
     }
 
     @Override
-    protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) {
+    protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
         GenericRowData genericRowData = InLongMsgCsvUtils.deserializeRowData(
                 rowFormatInfo,
                 nullLiteral,
                 retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList(),
                 body.getFields(),
-                converters);
+                converters, failureHandler);
 
         // Decorate result with time and attributes fields if needed
         genericRowData = InLongMsgUtils.decorateRowDataWithNeededHeadFields(
@@ -272,6 +287,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
         private Boolean deleteHeadDelimiter = DEFAULT_DELETE_HEAD_DELIMITER;
         private List<String> metadataKeys = Collections.emptyList();
         private Boolean retainPredefinedField = DEFAULT_RETAIN_PREDEFINED_FIELD;
+        private boolean isDeleteEscapeChar = DEFAULT_IS_DELETE_ESCAPE_CHAR;
 
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
@@ -312,7 +328,28 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             return this;
         }
 
+        public Builder setDeleteEscapeChar(Boolean isDeleteEscapeChar) {
+            this.isDeleteEscapeChar = isDeleteEscapeChar;
+            return this;
+        }
+
         public InLongMsgCsvFormatDeserializer build() {
+            if (failureHandler != null) {
+                return new InLongMsgCsvFormatDeserializer(
+                        rowFormatInfo,
+                        timeFieldName,
+                        attributesFieldName,
+                        charset,
+                        delimiter,
+                        lineDelimiter,
+                        escapeChar,
+                        quoteChar,
+                        nullLiteral,
+                        deleteHeadDelimiter,
+                        metadataKeys,
+                        isDeleteEscapeChar,
+                        retainPredefinedField, failureHandler);
+            }
             return new InLongMsgCsvFormatDeserializer(
                     rowFormatInfo,
                     timeFieldName,
@@ -327,6 +364,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                     metadataKeys,
                     ignoreErrors,
                     retainPredefinedField);
+
         }
     }
 
@@ -355,7 +393,8 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
                 Objects.equals(nullLiteral, that.nullLiteral) &&
-                Objects.equals(metadataKeys, that.metadataKeys);
+                Objects.equals(metadataKeys, that.metadataKeys) &&
+                Objects.equals(isDeleteEscapeChar, that.isDeleteEscapeChar);
 
     }
 
@@ -363,7 +402,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
                 attributesFieldName, charset, delimiter, lineDelimiter, escapeChar, quoteChar,
-                nullLiteral, deleteHeadDelimiter, metadataKeys);
+                nullLiteral, deleteHeadDelimiter, metadataKeys, isDeleteEscapeChar);
     }
 
     @Override
@@ -380,6 +419,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 ", nullLiteral='" + nullLiteral + '\'' +
                 ", deleteHeadDelimiter=" + deleteHeadDelimiter +
                 ", metadataKeys=" + metadataKeys +
+                ", isDeleteEscapeChar=" + isDeleteEscapeChar +
                 '}';
     }
 }

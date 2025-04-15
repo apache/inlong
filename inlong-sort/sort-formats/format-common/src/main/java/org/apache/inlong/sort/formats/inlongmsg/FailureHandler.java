@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+
 import java.io.Serializable;
 
 /**
@@ -70,5 +72,17 @@ public interface FailureHandler extends Serializable {
      * @throws Exception the exception
      */
     void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception) throws Exception;
+
+    /**
+     * This method is called when there is a failure occurred while converting any field to row.
+     *
+     * @param fieldName the filed name
+     * @param fieldText the filed test
+     * @param formatInfo the filed target type info
+     * @param exception the thrown exception
+     * @throws Exception the exception
+     */
+    void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+            Exception exception) throws Exception;
 
 }

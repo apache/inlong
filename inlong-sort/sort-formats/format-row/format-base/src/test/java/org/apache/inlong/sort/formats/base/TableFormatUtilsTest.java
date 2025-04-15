@@ -34,13 +34,13 @@ import static org.junit.Assert.assertNull;
 public class TableFormatUtilsTest {
 
     @Test
-    public void testDeserializeStringWithoutNullLiteral() {
+    public void testDeserializeStringWithoutNullLiteral() throws Exception {
         Object result1 =
                 deserializeBasicField(
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        null);
+                        null, null);
         assertEquals("data", result1);
 
         Object result2 =
@@ -48,7 +48,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        null);
+                        null, null);
         assertEquals("", result2);
     }
 
@@ -72,13 +72,13 @@ public class TableFormatUtilsTest {
     }
 
     @Test
-    public void testDeserializeStringWithNullLiteral() {
+    public void testDeserializeStringWithNullLiteral() throws Exception {
         Object result1 =
                 deserializeBasicField(
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        "n/a");
+                        "n/a", null);
         assertEquals("data", result1);
 
         Object result2 =
@@ -86,7 +86,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        "n/a");
+                        "n/a", null);
         assertEquals("", result2);
 
         Object result3 =
@@ -94,7 +94,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "n/a",
-                        "n/a");
+                        "n/a", null);
         assertNull(result3);
     }
 
@@ -126,13 +126,13 @@ public class TableFormatUtilsTest {
     }
 
     @Test
-    public void testDeserializeNumberWithoutNullLiteral() {
+    public void testDeserializeNumberWithoutNullLiteral() throws Exception {
         Object result1 =
                 deserializeBasicField(
                         "f",
                         IntFormatInfo.INSTANCE,
                         "1",
-                        null);
+                        null, null);
         assertEquals(1, result1);
 
         Object result2 =
@@ -140,7 +140,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "",
-                        null);
+                        null, null);
         assertNull(result2);
     }
 
@@ -164,13 +164,13 @@ public class TableFormatUtilsTest {
     }
 
     @Test
-    public void testDeserializeNumberWithNullLiteral() {
+    public void testDeserializeNumberWithNullLiteral() throws Exception {
         Object result1 =
                 deserializeBasicField(
                         "f",
                         IntFormatInfo.INSTANCE,
                         "1",
-                        "n/a");
+                        "n/a", null);
         assertEquals(1, result1);
 
         try {
@@ -178,7 +178,7 @@ public class TableFormatUtilsTest {
                     "f",
                     IntFormatInfo.INSTANCE,
                     "",
-                    "n/a");
+                    "n/a", null);
             Assert.assertEquals(null, result2);
         } catch (Exception e) {
             // ignored
@@ -189,7 +189,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "n/a",
-                        "n/a");
+                        "n/a", null);
         assertNull(result3);
     }
 

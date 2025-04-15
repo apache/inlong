@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
@@ -27,6 +28,7 @@ import org.apache.flink.table.data.GenericRowData;
 
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +71,14 @@ public class InLongMsgTlogKvUtils {
         return new InLongMsgHead(attributes, null, time, predefinedFields);
     }
 
-    public static InLongMsgBody parseBody(
+    public static List<InLongMsgBody> parseBody(
             byte[] bytes,
             String charset,
             char delimiter,
             char entryDelimiter,
             char kvDelimiter,
             Character escapeChar,
-            Character quoteChar) {
+            Character quoteChar, Character lineDelimiter, boolean isDeleteEscapeChar) {
         String text;
         if (bytes[0] == delimiter) {
             text = new String(bytes, 1, bytes.length - 1, Charset.forName(charset));
@@ -87,15 +89,18 @@ public class InLongMsgTlogKvUtils {
         String[] segments = splitCsv(text, delimiter, escapeChar, quoteChar);
 
         String streamId = segments[0];
-
-        Map<String, String> entries;
+        List<InLongMsgBody> inLongMsgBodies = new ArrayList<>();
+        List<Map<String, String>> entries;
         if (segments.length > 1) {
-            entries = splitKv(segments[1], entryDelimiter, kvDelimiter, escapeChar, quoteChar);
+            entries = splitKv(segments[1], entryDelimiter, kvDelimiter, escapeChar, quoteChar,
+                    lineDelimiter, isDeleteEscapeChar);
+            for (Map<String, String> maps : entries) {
+                inLongMsgBodies.add(new InLongMsgBody(null, streamId, Collections.emptyList(), maps));
+            }
         } else {
-            entries = Collections.emptyMap();
+            inLongMsgBodies.add(new InLongMsgBody(null, streamId, Collections.emptyList(), Collections.emptyMap()));
         }
-
-        return new InLongMsgBody(bytes, streamId, Collections.emptyList(), entries);
+        return inLongMsgBodies;
     }
 
     /**
@@ -112,7 +117,8 @@ public class InLongMsgTlogKvUtils {
             String nullLiteral,
             List<String> predefinedFields,
             Map<String, String> entries,
-            FieldToRowDataConverter[] converters) {
+            FieldToRowDataConverter[] converters,
+            FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -133,7 +139,7 @@ public class InLongMsgTlogKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral));
+                            nullLiteral, failureHandler));
             rowData.setField(i, field);
         }
 
@@ -146,7 +152,7 @@ public class InLongMsgTlogKvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral));
+                    nullLiteral, failureHandler));
             rowData.setField(i, field);
         }
 

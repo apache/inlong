@@ -30,7 +30,6 @@ import org.apache.flink.types.Row;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -152,7 +151,7 @@ public final class InLongMsgBinlogFormatDeserializer extends AbstractInLongMsgFo
     }
 
     @Override
-    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) throws IOException {
+    protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) throws Exception {
         return InLongMsgBinlogUtils.getRows(
                 rowFormatInfo,
                 timeFieldName,

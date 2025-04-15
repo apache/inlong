@@ -108,7 +108,8 @@ public class InLongMsgCsvUtils {
         String bodyStr = new String(bytes, Charset.forName(charset));
 
         String[][] split =
-                splitCsv(bodyStr, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter);
+                splitCsv(bodyStr, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter,
+                        true);
 
         return Arrays.stream(split)
                 .map((line) -> {
@@ -135,7 +136,7 @@ public class InLongMsgCsvUtils {
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
             List<String> predefinedFields,
-            List<String> fields) {
+            List<String> fields) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -164,7 +165,7 @@ public class InLongMsgCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i, field);
         }
 
@@ -184,7 +185,7 @@ public class InLongMsgCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
+                            nullLiteral, null);
             row.setField(i + predefinedFields.size(), field);
         }
         for (int i = predefinedFields.size() + fields.size(); i < fieldNames.length; ++i) {

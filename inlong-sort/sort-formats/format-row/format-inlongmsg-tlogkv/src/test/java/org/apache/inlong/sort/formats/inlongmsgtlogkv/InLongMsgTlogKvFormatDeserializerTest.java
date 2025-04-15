@@ -209,5 +209,11 @@ public class InLongMsgTlogKvFormatDeserializerTest {
                 InLongMsgBody body, Exception exception) throws Exception {
             rowCount++;
         }
+
+        @Override
+        public void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+                Exception exception) throws Exception {
+            rowCount++;
+        }
     }
 }
