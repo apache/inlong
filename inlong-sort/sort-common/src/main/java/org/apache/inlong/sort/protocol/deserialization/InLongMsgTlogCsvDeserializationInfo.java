@@ -28,6 +28,9 @@ import javax.annotation.Nullable;
 
 import java.util.Objects;
 
+import static org.apache.inlong.sort.protocol.constant.Constant.AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT;
+import static org.apache.inlong.sort.protocol.constant.Constant.DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT;
+
 /**
  * It represents TLog CSV format of InLongMsg(m=10).
  */
@@ -42,6 +45,14 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
     @Nullable
     private final Character escapeChar;
 
+    @JsonProperty("delete_escape_char_while_deserialize")
+    @Nullable
+    private final Boolean deleteEscapeCharWhileDes;
+
+    @JsonProperty("auto_append_escape_char_after_deserialize")
+    @Nullable
+    private final Boolean autoAppendEscapeCharAfterDes;
+
     public InLongMsgTlogCsvDeserializationInfo(
             @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter) {
@@ -53,9 +64,22 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
             @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        this(streamId, delimiter, escapeChar, DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT,
+                AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT);
+    }
+
+    @JsonCreator
+    public InLongMsgTlogCsvDeserializationInfo(
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
+            @JsonProperty("delimiter") char delimiter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar,
+            @JsonProperty("delete_escape_char_while_deserialize") @Nullable Boolean deleteEscapeCharWhileDes,
+            @JsonProperty("auto_append_escape_char_after_deserialize") @Nullable Boolean autoAppendEscapeCharAfterDes) {
         super(streamId);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
+        this.deleteEscapeCharWhileDes = deleteEscapeCharWhileDes;
+        this.autoAppendEscapeCharAfterDes = autoAppendEscapeCharAfterDes;
     }
 
     @JsonProperty("delimiter")
@@ -67,6 +91,24 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
     @Nullable
     public Character getEscapeChar() {
         return escapeChar;
+    }
+
+    @JsonProperty("delete_escape_char_while_deserialize")
+    @Nullable
+    public Boolean getDeleteEscapeCharWhileDes() {
+        if (deleteEscapeCharWhileDes != null) {
+            return deleteEscapeCharWhileDes;
+        }
+        return DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT;
+    }
+
+    @JsonProperty("auto_append_escape_char_after_deserialize")
+    @Nullable
+    public Boolean getAutoAppendEscapeCharAfterDes() {
+        if (autoAppendEscapeCharAfterDes != null) {
+            return autoAppendEscapeCharAfterDes;
+        }
+        return AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT;
     }
 
     @Override
@@ -82,7 +124,9 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
         InLongMsgTlogCsvDeserializationInfo other = (InLongMsgTlogCsvDeserializationInfo) o;
         return super.equals(other)
                 && delimiter == other.delimiter
-                && Objects.equals(escapeChar, other.escapeChar);
+                && Objects.equals(escapeChar, other.escapeChar)
+                && Objects.equals(deleteEscapeCharWhileDes, other.deleteEscapeCharWhileDes)
+                && Objects.equals(autoAppendEscapeCharAfterDes, other.autoAppendEscapeCharAfterDes);
     }
 
 }
