@@ -36,6 +36,7 @@ import static org.apache.inlong.audit.entity.AuditType.HDFS;
 import static org.apache.inlong.audit.entity.AuditType.HIVE;
 import static org.apache.inlong.audit.entity.AuditType.HUDI;
 import static org.apache.inlong.audit.entity.AuditType.ICEBERG;
+import static org.apache.inlong.audit.entity.AuditType.ICEBERG_AO;
 import static org.apache.inlong.audit.entity.AuditType.KUDU;
 import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.POSTGRES;
@@ -108,9 +109,8 @@ public enum AuditIdEnum {
     BSS_INPUT(41, INPUT, BSS, "Received Audit Metrics for BSS"),
     BSS_OUTPUT(42, OUTPUT, BSS, "Sent Audit Metrics for BSS"),
 
-    ICEBERG_AO_INPUT(43, INPUT, BSS, "Received Audit Metrics for ICEBERG AO"),
-    ICEBERG_AO_OUTPUT(44, OUTPUT, BSS, "Sent Audit Metrics for ICEBERG AO");
-
+    ICEBERG_AO_INPUT(43, INPUT, ICEBERG_AO, "Received Audit Metrics for ICEBERG AO"),
+    ICEBERG_AO_OUTPUT(44, OUTPUT, ICEBERG_AO, "Sent Audit Metrics for ICEBERG AO");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdEnum.class);
     private final int auditId;
