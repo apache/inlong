@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.audit.entity.AuditType.AGENT;
 import static org.apache.inlong.audit.entity.AuditType.BINLOG;
+import static org.apache.inlong.audit.entity.AuditType.BSS;
 import static org.apache.inlong.audit.entity.AuditType.CLICKHOUSE;
 import static org.apache.inlong.audit.entity.AuditType.DATAPROXY;
 import static org.apache.inlong.audit.entity.AuditType.DORIS;
@@ -36,11 +37,11 @@ import static org.apache.inlong.audit.entity.AuditType.HIVE;
 import static org.apache.inlong.audit.entity.AuditType.HUDI;
 import static org.apache.inlong.audit.entity.AuditType.ICEBERG;
 import static org.apache.inlong.audit.entity.AuditType.KUDU;
-import static org.apache.inlong.audit.entity.AuditType.MQ_PULSAR;
 import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.POSTGRES;
 import static org.apache.inlong.audit.entity.AuditType.SDK;
 import static org.apache.inlong.audit.entity.AuditType.STARROCKS;
+import static org.apache.inlong.audit.entity.AuditType.TDSQL_MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.TUBEMQ;
 import static org.apache.inlong.audit.entity.FlowType.INPUT;
 import static org.apache.inlong.audit.entity.FlowType.OUTPUT;
@@ -101,8 +102,15 @@ public enum AuditIdEnum {
     SORT_HDFS_INPUT(37, INPUT, HDFS, "Received Audit Metrics for Sort HDFS"),
     SORT_HDFS_OUTPUT(38, OUTPUT, HDFS, "Sent Audit Metrics for Sort HDFS"),
 
-    MQ_PULSAR_INPUT(39, INPUT, MQ_PULSAR, "Received Audit Metrics for MQ Pulsar"),
-    MQ_PULSAR_OUTPUT(40, OUTPUT, MQ_PULSAR, "Sent Audit Metrics for MQ Pulsar");
+    SORT_TDSQL_MYSQL_INPUT(39, INPUT, TDSQL_MYSQL, "Received Audit Metrics for TDSQL MYSQL"),
+    SORT_TDSQL_MYSQL_OUTPUT(40, OUTPUT, TDSQL_MYSQL, "Sent Audit Metrics for TDSQL MYSQL"),
+
+    BSS_INPUT(41, INPUT, BSS, "Received Audit Metrics for BSS"),
+    BSS_OUTPUT(42, OUTPUT, BSS, "Sent Audit Metrics for BSS"),
+
+    ICEBERG_AO_INPUT(43, INPUT, BSS, "Received Audit Metrics for ICEBERG AO"),
+    ICEBERG_AO_OUTPUT(44, OUTPUT, BSS, "Sent Audit Metrics for ICEBERG AO");
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdEnum.class);
     private final int auditId;
