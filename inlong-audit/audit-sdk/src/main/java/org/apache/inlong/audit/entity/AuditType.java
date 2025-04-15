@@ -38,7 +38,7 @@ public enum AuditType {
     HDFS("HDFS"),
     TDSQL_MYSQL("TDSQL_MYSQL"),
     BSS("BSS"),
-    ICEBERG_AO("ICEBERG_AO"),;
+    ICEBERG_AO("ICEBERG_AO");
 
     private final String auditType;
 
