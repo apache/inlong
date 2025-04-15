@@ -23,6 +23,8 @@ import org.apache.inlong.audit.entity.CdcType;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.exceptions.AuditTypeNotExistException;
 import org.apache.inlong.audit.util.AuditManagerUtils;
+
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
