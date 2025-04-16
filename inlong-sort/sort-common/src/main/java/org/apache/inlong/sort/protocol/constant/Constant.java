@@ -40,4 +40,8 @@ public class Constant {
      * The multiple table-pattern of sink
      */
     public static final String SINK_MULTIPLE_TABLE_PATTERN = "sink.multiple.table-pattern";
+
+    public static final Boolean DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT = true;
+
+    public static final Boolean AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT = false;
 }

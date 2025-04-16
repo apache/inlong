@@ -28,6 +28,9 @@ import javax.annotation.Nullable;
 
 import java.util.Objects;
 
+import static org.apache.inlong.sort.protocol.constant.Constant.AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT;
+import static org.apache.inlong.sort.protocol.constant.Constant.DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT;
+
 /**
  * It represents KV format of InLongMsg(m=5).
  */
@@ -48,6 +51,14 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
     @Nullable
     private final Character lineDelimiter;
 
+    @JsonProperty("delete_escape_char_while_deserialize")
+    @Nullable
+    private final Boolean deleteEscapeCharWhileDes;
+
+    @JsonProperty("auto_append_escape_char_after_deserialize")
+    @Nullable
+    private final Boolean autoAppendEscapeCharAfterDes;
+
     public InLongMsgKvDeserializationInfo(
             @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("entry_delimiter") char entryDelimiter,
@@ -62,11 +73,27 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
             @JsonProperty("kv_delimiter") char kvDelimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar,
             @JsonProperty("line_delimiter") @Nullable Character lineDelimiter) {
+        this(streamId, entryDelimiter, kvDelimiter, escapeChar, lineDelimiter,
+                DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT,
+                AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT);
+    }
+
+    @JsonCreator
+    public InLongMsgKvDeserializationInfo(
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
+            @JsonProperty("entry_delimiter") char entryDelimiter,
+            @JsonProperty("kv_delimiter") char kvDelimiter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar,
+            @JsonProperty("line_delimiter") @Nullable Character lineDelimiter,
+            @JsonProperty("delete_escape_char_while_deserialize") @Nullable Boolean deleteEscapeCharWhileDes,
+            @JsonProperty("auto_append_escape_char_after_deserialize") @Nullable Boolean autoAppendEscapeCharAfterDes) {
         super(streamId);
         this.entryDelimiter = entryDelimiter;
         this.kvDelimiter = kvDelimiter;
         this.escapeChar = escapeChar;
         this.lineDelimiter = lineDelimiter == null ? '\n' : lineDelimiter;
+        this.deleteEscapeCharWhileDes = deleteEscapeCharWhileDes;
+        this.autoAppendEscapeCharAfterDes = autoAppendEscapeCharAfterDes;
     }
 
     @JsonProperty("entry_delimiter")
@@ -91,6 +118,24 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
         return lineDelimiter;
     }
 
+    @JsonProperty("delete_escape_char_while_deserialize")
+    @Nullable
+    public Boolean getDeleteEscapeCharWhileDes() {
+        if (deleteEscapeCharWhileDes != null) {
+            return deleteEscapeCharWhileDes;
+        }
+        return DELETE_ESCAPE_CHAR_WHILE_DESERIALIZE_DEFAULT;
+    }
+
+    @JsonProperty("auto_append_escape_char_after_deserialize")
+    @Nullable
+    public Boolean getAutoAppendEscapeCharAfterDes() {
+        if (autoAppendEscapeCharAfterDes != null) {
+            return autoAppendEscapeCharAfterDes;
+        }
+        return AUTO_APPEND_ESCAPE_CHAR_AFTER_DESERIALIZE_DEFAULT;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -106,6 +151,8 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
                 && entryDelimiter == other.entryDelimiter
                 && kvDelimiter == other.kvDelimiter
                 && Objects.equals(escapeChar, other.escapeChar)
-                && Objects.equals(lineDelimiter, other.lineDelimiter);
+                && Objects.equals(lineDelimiter, other.lineDelimiter)
+                && Objects.equals(deleteEscapeCharWhileDes, other.deleteEscapeCharWhileDes)
+                && Objects.equals(autoAppendEscapeCharAfterDes, other.autoAppendEscapeCharAfterDes);
     }
 }
