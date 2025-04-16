@@ -259,7 +259,7 @@ public abstract class BaseSender implements ConfigHolder {
     }
 
     public Tuple2<Integer, Integer> getFactoryAvailQuota() {
-        if (senderFactory == null) {
+        if (senderFactory == null || globalCacheQuota == null) {
             return PkgCacheQuota.DISABLE_RET;
         }
         return globalCacheQuota.getPkgCacheAvailQuota();
@@ -270,14 +270,16 @@ public abstract class BaseSender implements ConfigHolder {
     }
 
     public int getFactoryPkgCntPermits() {
-        if (senderFactory == null) {
+        if (senderFactory == null
+                || senderFactory.getFactoryPkgCacheQuota() == null) {
             return SdkConsts.UNDEFINED_VALUE;
         }
         return senderFactory.getFactoryPkgCacheQuota().getPkgCntPermits();
     }
 
     public int getFactoryPkgSizeKbPermits() {
-        if (senderFactory == null) {
+        if (senderFactory == null
+                || senderFactory.getFactoryPkgCacheQuota() == null) {
             return SdkConsts.UNDEFINED_VALUE;
         }
         return senderFactory.getFactoryPkgCacheQuota().getPkgSizeKbPermits();
