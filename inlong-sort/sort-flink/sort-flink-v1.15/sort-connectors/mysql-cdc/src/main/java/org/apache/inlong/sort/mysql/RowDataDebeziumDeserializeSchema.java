@@ -137,21 +137,19 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
+        if (cdcExactlyMetric != null) {
+            out = createMetricsCollector(record, out);
+        }
+
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
             GenericRowData insert = extractAfterRow(value, valueSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
-            if (cdcExactlyMetric != null) {
-                out = createMetricsCollector(record, out);
-            }
             emit(record, insert, out);
         } else if (op == Envelope.Operation.DELETE) {
             GenericRowData delete = extractBeforeRow(value, valueSchema);
             validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
-            if (cdcExactlyMetric != null) {
-                out = createMetricsCollector(record, out);
-            }
             emit(record, delete, out);
         } else {
             if (changelogMode == DebeziumChangelogMode.ALL) {
@@ -164,9 +162,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData after = extractAfterRow(value, valueSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
-            if (cdcExactlyMetric != null) {
-                out = createMetricsCollector(record, out);
-            }
             emit(record, after, out);
         }
     }

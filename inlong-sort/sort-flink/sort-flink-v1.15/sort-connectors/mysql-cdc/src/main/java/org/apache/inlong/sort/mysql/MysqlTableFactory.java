@@ -104,9 +104,11 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.get(INLONG_AUDIT);
         String auditKeys = config.get(AUDIT_KEYS);
+        String changelogKeys = config.get(CHANGELOG_AUDIT_KEYS);
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withAuditAddress(auditHostAndPorts)
+                .withChangelogAuditKeys(changelogKeys)
                 .withAuditKeys(auditKeys)
                 .build();
 
@@ -177,6 +179,7 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
         options.add(INLONG_AUDIT);
         options.add(ROW_KINDS_FILTERED);
         options.add(AUDIT_KEYS);
+        options.add(CHANGELOG_AUDIT_KEYS);
         options.add(GH_OST_DDL_CHANGE);
         options.add(GH_OST_TABLE_REGEX);
         options.add(CHUNK_KEY_COLUMN);
@@ -547,5 +550,11 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                     .stringType()
                     .defaultValue("")
                     .withDescription("Audit keys for metrics collecting");
+
+    public static final ConfigOption<String> CHANGELOG_AUDIT_KEYS =
+            ConfigOptions.key("metrics.changelog.audit.key")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("Audit keys for changelog metrics collecting");
 
 }

@@ -20,13 +20,10 @@ package org.apache.inlong.sort.base.metric;
 import org.apache.inlong.audit.AuditReporterImpl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
@@ -39,7 +36,7 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
 
     private final Map<String, String> labels;
-    private final Map<RowKind, Integer> auditKeyMap;
+    private Map<RowKind, Integer> auditKeyMap;
     private final String groupId;
     private final String streamId;
 
@@ -51,27 +48,12 @@ public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
         this.labels = option.getLabels();
         this.groupId = labels.get(GROUP_ID);
         this.streamId = labels.get(STREAM_ID);
-        this.auditKeyMap = new HashMap<>();
 
         if (option.getIpPorts().isPresent()) {
             auditReporter = new AuditReporterImpl();
             auditReporter.setAutoFlush(false);
             auditReporter.setAuditProxy(option.getIpPortSet());
-            List<Integer> auditKeys = option.getInlongAuditKeys();
-
-            if (CollectionUtils.isEmpty(auditKeys)) {
-                log.warn("inlong audit keys is empty");
-            } else if (auditKeys.size() == 1) {
-                auditKeyMap.put(RowKind.INSERT, auditKeys.get(0));
-                log.warn("only the insert audit key is set, the update and delete audit will be ignored");
-            } else if (auditKeys.size() == 4) {
-                auditKeyMap.put(RowKind.INSERT, auditKeys.get(0));
-                auditKeyMap.put(RowKind.UPDATE_BEFORE, auditKeys.get(1));
-                auditKeyMap.put(RowKind.UPDATE_AFTER, auditKeys.get(2));
-                auditKeyMap.put(RowKind.DELETE, auditKeys.get(3));
-            } else {
-                throw new IllegalArgumentException("audit key size must be 1 or 4");
-            }
+            auditKeyMap = option.getInlongChangelogAuditKeys();
         }
         log.info("CdcExactlyMetric init, groupId: {}, streamId: {}, audit key: {}", groupId, streamId, auditKeyMap);
     }
@@ -89,8 +71,8 @@ public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
         }
     }
 
-    public void outputMetrics(long rowCountSize, long rowDataSize, long dataTime, int key) {
-        if (auditReporter != null) {
+    public void outputMetrics(long rowCountSize, long rowDataSize, long dataTime, Integer key) {
+        if (auditReporter != null && key != null) {
             auditReporter.add(
                     this.currentCheckpointId,
                     key,
