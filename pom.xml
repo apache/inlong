@@ -208,6 +208,7 @@
         <apache.thrift.version>0.14.1</apache.thrift.version>
         <aircompressor.version>0.27</aircompressor.version>
         <json.smart.version>2.5.2</json.smart.version>
+        <commons.dbcp>1.4</commons.dbcp>
     </properties>
 
     <dependencyManagement>
