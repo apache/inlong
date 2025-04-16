@@ -36,7 +36,7 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
 
     private final Map<String, String> labels;
-    private Map<RowKind, Integer> auditKeyMap;
+    private final Map<RowKind, Integer> auditKeyMap;
     private final String groupId;
     private final String streamId;
 
@@ -53,8 +53,8 @@ public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
             auditReporter = new AuditReporterImpl();
             auditReporter.setAutoFlush(false);
             auditReporter.setAuditProxy(option.getIpPortSet());
-            auditKeyMap = option.getInlongChangelogAuditKeys();
         }
+        auditKeyMap = option.getInlongChangelogAuditKeys();
         log.info("CdcExactlyMetric init, groupId: {}, streamId: {}, audit key: {}", groupId, streamId, auditKeyMap);
     }
 
