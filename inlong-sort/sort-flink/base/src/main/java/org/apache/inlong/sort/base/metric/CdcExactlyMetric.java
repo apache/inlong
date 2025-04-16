@@ -64,7 +64,7 @@ public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
         if (data instanceof RowData) {
             RowData rowData = (RowData) data;
             RowKind rowKind = rowData.getRowKind();
-            int key = auditKeyMap.get(rowKind);
+            Integer key = auditKeyMap.get(rowKind);
             outputMetrics(1, size, dataTime, key);
         } else {
             outputMetrics(1, size, dataTime, auditKeyMap.get(RowKind.INSERT));
