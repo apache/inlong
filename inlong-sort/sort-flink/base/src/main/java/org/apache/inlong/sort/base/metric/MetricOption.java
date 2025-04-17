@@ -19,6 +19,7 @@ package org.apache.inlong.sort.base.metric;
 
 import org.apache.inlong.sort.util.AuditUtils;
 
+import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ public class MetricOption implements Serializable {
     private long initDirtyBytes;
     private long readPhase;
     private List<Integer> inlongAuditKeys;
+    private Map<RowKind, Integer> inlongChangelogAuditKeys;
 
     private MetricOption(
             Map<String, String> labels,
@@ -67,6 +69,7 @@ public class MetricOption implements Serializable {
             Long initDirtyBytes,
             Long readPhase,
             List<Integer> inlongAuditKeys,
+            Map<RowKind, Integer> inlongChangelogAuditKeys,
             Set<String> ipPortSet) {
         this.initRecords = initRecords;
         this.initBytes = initBytes;
@@ -78,6 +81,7 @@ public class MetricOption implements Serializable {
         this.inlongAuditKeys = inlongAuditKeys;
         this.ipPortSet = ipPortSet;
         this.registeredMetric = registeredMetric;
+        this.inlongChangelogAuditKeys = inlongChangelogAuditKeys;
     }
 
     public Map<String, String> getLabels() {
@@ -124,6 +128,10 @@ public class MetricOption implements Serializable {
         return inlongAuditKeys;
     }
 
+    public Map<RowKind, Integer> getInlongChangelogAuditKeys() {
+        return inlongChangelogAuditKeys;
+    }
+
     public long getInitDirtyBytes() {
         return initDirtyBytes;
     }
@@ -155,6 +163,7 @@ public class MetricOption implements Serializable {
         private String inlongLabels;
         private String inlongAudit;
         private String inlongAuditKeys;
+        private String inlongChangelogAuditKeys;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
         private long initRecords = 0L;
         private long initBytes = 0L;
@@ -177,6 +186,11 @@ public class MetricOption implements Serializable {
 
         public MetricOption.Builder withAuditKeys(String inlongAuditIds) {
             this.inlongAuditKeys = inlongAuditIds;
+            return this;
+        }
+
+        public MetricOption.Builder withChangelogAuditKeys(String inlongChangelogAuditKeys) {
+            this.inlongChangelogAuditKeys = inlongChangelogAuditKeys;
             return this;
         }
 
@@ -231,6 +245,7 @@ public class MetricOption implements Serializable {
 
             List<Integer> inlongAuditKeysList = null;
             Set<String> ipPortSet = null;
+            Map<RowKind, Integer> inlongChangelogAuditKeysMap = null;
 
             if (inlongAudit != null) {
                 Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
@@ -244,10 +259,13 @@ public class MetricOption implements Serializable {
 
                 inlongAuditKeysList = AuditUtils.extractAuditKeys(inlongAuditKeys);
                 ipPortSet = AuditUtils.extractAuditIpPorts(inlongAudit);
+                inlongChangelogAuditKeysMap = AuditUtils.extractChangelogAuditKeyMap(inlongChangelogAuditKeys);
+
             }
 
             return new MetricOption(labels, inlongAudit, registeredMetric, initRecords, initBytes,
-                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeysList, ipPortSet);
+                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeysList, inlongChangelogAuditKeysMap,
+                    ipPortSet);
         }
     }
 }
