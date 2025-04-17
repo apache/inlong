@@ -181,7 +181,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
 
-        if ("upsert".equals(appendMode)) {
+        if ("upsert".equalsIgnoreCase(appendMode)) {
             options.put(IcebergConstant.UPSERT_ENABLED_KEY, Boolean.TRUE.toString());
         } else {
             options.put(IcebergConstant.UPSERT_ENABLED_KEY, Boolean.FALSE.toString());
