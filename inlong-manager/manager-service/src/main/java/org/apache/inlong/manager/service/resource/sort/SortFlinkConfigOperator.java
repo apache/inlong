@@ -318,8 +318,10 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
                         }
                         throw new BusinessException("current audit id can not find cdc audit information");
                     }).collect(Collectors.toList());
-            properties.putIfAbsent("metrics.changelog.audit.key",
-                    Joiner.on(InlongConstants.AMPERSAND).join(cdcAuditIdList));
+            if (CollectionUtils.isNotEmpty(cdcAuditIdList)) {
+                properties.putIfAbsent("metrics.changelog.audit.key",
+                        Joiner.on(InlongConstants.AMPERSAND).join(cdcAuditIdList));
+            }
         } catch (Exception e) {
             LOGGER.error("Current type ={} is not set auditId", type);
         }
