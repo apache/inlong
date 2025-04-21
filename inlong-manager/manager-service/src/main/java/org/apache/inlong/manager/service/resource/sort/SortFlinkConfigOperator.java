@@ -76,6 +76,8 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortFlinkConfigOperator.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private static final String CDC_AUDIT_KEY = "metrics.changelog.audit.key";
+
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -318,8 +320,9 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
                         }
                         throw new BusinessException("current audit id can not find cdc audit information");
                     }).collect(Collectors.toList());
-            properties.putIfAbsent("metrics.changelog.audit.key",
-                    Joiner.on(InlongConstants.AMPERSAND).join(cdcAuditIdList));
+            if (CollectionUtils.isNotEmpty(cdcAuditIdList)) {
+                properties.putIfAbsent(CDC_AUDIT_KEY, Joiner.on(InlongConstants.AMPERSAND).join(cdcAuditIdList));
+            }
         } catch (Exception e) {
             LOGGER.error("Current type ={} is not set auditId", type);
         }
