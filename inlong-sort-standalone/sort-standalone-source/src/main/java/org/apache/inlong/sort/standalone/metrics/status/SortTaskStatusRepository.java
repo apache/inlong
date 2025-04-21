@@ -122,6 +122,7 @@ public class SortTaskStatusRepository {
         if (!failPauseEnable) {
             return;
         }
+        LOG.info("start to SortTaskStatusRepository status:{}", statusMap);
         for (MetricItemValue itemValue : itemValues) {
             Map<String, String> dimensions = itemValue.getDimensions();
             String taskName = dimensions.get(SortMetricItem.KEY_TASK_NAME);
@@ -145,5 +146,6 @@ public class SortTaskStatusRepository {
                 }
             }
         }
+        LOG.info("end to SortTaskStatusRepository status:{}", statusMap);
     }
 }
