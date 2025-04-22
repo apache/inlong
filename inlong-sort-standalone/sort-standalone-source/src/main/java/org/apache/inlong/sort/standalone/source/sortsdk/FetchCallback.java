@@ -24,6 +24,7 @@ import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.metrics.status.SortTaskStatusRepository;
 
 import com.google.common.base.Preconditions;
 import org.apache.flume.channel.ChannelProcessor;
@@ -101,6 +102,7 @@ public class FetchCallback implements ReadCallback {
             CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client,
                     CommonPropertiesHolder.getAckPolicy());
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
+                SortTaskStatusRepository.acquirePutChannel(sortTaskName);
                 final ProfileEvent profileEvent = new ProfileEvent(inLongMessage, cacheRecord);
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);

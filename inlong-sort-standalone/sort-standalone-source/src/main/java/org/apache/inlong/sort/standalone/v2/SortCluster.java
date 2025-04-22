@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
+import org.apache.inlong.sort.standalone.metrics.status.SortTaskStatusRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flume.Context;
@@ -97,9 +98,12 @@ public class SortCluster {
                 if (taskMap.containsKey(newTaskName)) {
                     continue;
                 }
-                SortTask newTask = new SortTask(newTaskName);
-                newTask.start();
-                this.taskMap.put(newTaskName, newTask);
+                if (SortTaskStatusRepository.canResumeSortTask(newTaskName)) {
+                    SortTaskStatusRepository.resetStatus(newTaskName);
+                    SortTask newTask = new SortTask(newTaskName);
+                    newTask.start();
+                    this.taskMap.put(newTaskName, newTask);
+                }
             }
             // remove task
             deletingTasks.clear();
@@ -113,6 +117,13 @@ public class SortCluster {
                     }
                 }
                 if (!isFound) {
+                    this.deletingTasks.add(entry.getValue());
+                }
+            }
+            // failPauseTask
+            for (Map.Entry<String, SortTask> entry : taskMap.entrySet()) {
+                String taskName = entry.getKey();
+                if (SortTaskStatusRepository.needPauseSortTask(taskName)) {
                     this.deletingTasks.add(entry.getValue());
                 }
             }

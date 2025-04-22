@@ -126,7 +126,8 @@ public class KafkaProducerCluster implements LifecycleAware {
             props.putAll(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
             props.put(ProducerConfig.ACKS_CONFIG, nodeConfig.getAcks());
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, nodeConfig.getBootstrapServers());
-            props.put(ProducerConfig.CLIENT_ID_CONFIG, nodeConfig.getClientId() + "-" + workerName);
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, nodeConfig.getClientId()
+                    + "-" + workerName + "-" + System.currentTimeMillis());
             LOG.info("init kafka client by node config info: " + props);
             configuredMaxPayloadSize = Long.parseLong(props.getProperty(ProducerConfig.MAX_REQUEST_SIZE_CONFIG));
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
