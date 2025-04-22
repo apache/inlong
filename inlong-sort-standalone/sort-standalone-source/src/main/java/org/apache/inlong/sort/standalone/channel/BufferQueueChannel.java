@@ -131,6 +131,16 @@ public class BufferQueueChannel extends AbstractChannel {
         }
     }
 
+    @Override
+    public synchronized void stop() {
+        super.stop();
+        ProfileEvent event = this.bufferQueue.pollRecord();
+        while (event != null) {
+            this.bufferQueue.release(event.getBody().length);
+            event = this.bufferQueue.pollRecord();
+        }
+    }
+
     /**
      * setReloadTimer
      */
