@@ -16,6 +16,10 @@
 
 package dataproxy
 
+import (
+	"strings"
+)
+
 // Callback is the callback function signature of the DataProxy producer
 type Callback func(message Message, err error)
 
@@ -26,4 +30,13 @@ type Message struct {
 	Payload  []byte            // the content of the message
 	Headers  map[string]string // message headers, won't be sent to the server right now
 	MetaData interface{}       // any data you want, won't be sent to the server, but you can get it in the callback
+}
+
+// IsValid checks if the message is valid
+func (m *Message) IsValid() bool {
+	if strings.ContainsAny(m.GroupID, " \t\n\r") || strings.ContainsAny(m.StreamID, " \t\n\r") || m.GroupID == "" || m.StreamID == "" || len(m.Payload) == 0 {
+		return false
+	}
+
+	return true
 }
