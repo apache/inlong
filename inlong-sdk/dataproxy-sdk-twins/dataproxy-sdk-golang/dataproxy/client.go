@@ -39,6 +39,7 @@ var (
 	ErrInvalidURL        = errors.New("invalid URL")
 	ErrNoEndpoint        = errors.New("service has no endpoints")
 	ErrNoAvailableWorker = errors.New("no available worker")
+	ErrInvalidMessage    = errors.New("invalid message, GroupID/StreamID/Payload is empty")
 )
 
 // Client is the interface of a DataProxy client
@@ -216,6 +217,10 @@ func (c *client) Dial(addr string, ctx any) (gnet.Conn, error) {
 }
 
 func (c *client) Send(ctx context.Context, msg Message) error {
+	if !msg.IsValid() {
+		return ErrInvalidMessage
+	}
+
 	worker, err := c.getWorker()
 	if err != nil {
 		return ErrNoAvailableWorker
@@ -224,6 +229,13 @@ func (c *client) Send(ctx context.Context, msg Message) error {
 }
 
 func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
+	if !msg.IsValid() {
+		if cb != nil {
+			cb(msg, ErrInvalidMessage)
+		}
+		return
+	}
+
 	worker, err := c.getWorker()
 	if err != nil {
 		if cb != nil {

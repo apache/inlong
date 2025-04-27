@@ -27,3 +27,12 @@ type Message struct {
 	Headers  map[string]string // message headers, won't be sent to the server right now
 	MetaData interface{}       // any data you want, won't be sent to the server, but you can get it in the callback
 }
+
+// IsValid checks if the message is valid
+func (m *Message) IsValid() bool {
+	if m.GroupID == "" || m.StreamID == "" || len(m.Payload) == 0 {
+		return false
+	}
+
+	return true
+}
