@@ -34,7 +34,7 @@ type Message struct {
 
 // IsValid checks if the message is valid
 func (m *Message) IsValid() bool {
-	if strings.TrimSpace(m.GroupID) == "" || strings.TrimSpace(m.StreamID) == "" || len(m.Payload) == 0 {
+	if strings.ContainsAny(m.GroupID, " \t\n\r") || strings.ContainsAny(m.StreamID, " \t\n\r") || m.GroupID == "" || m.StreamID == "" || len(m.Payload) == 0 {
 		return false
 	}
 
