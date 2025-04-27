@@ -16,6 +16,10 @@
 
 package dataproxy
 
+import (
+	"strings"
+)
+
 // Callback is the callback function signature of the DataProxy producer
 type Callback func(message Message, err error)
 
@@ -30,7 +34,7 @@ type Message struct {
 
 // IsValid checks if the message is valid
 func (m *Message) IsValid() bool {
-	if m.GroupID == "" || m.StreamID == "" || len(m.Payload) == 0 {
+	if strings.TrimSpace(m.GroupID) == "" || strings.TrimSpace(m.StreamID) == "" || len(m.Payload) == 0 {
 		return false
 	}
 
