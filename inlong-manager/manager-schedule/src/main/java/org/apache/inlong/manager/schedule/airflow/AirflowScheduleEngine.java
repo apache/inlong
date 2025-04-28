@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.schedule.airflow;
 
 import org.apache.inlong.common.bounded.BoundaryType;
+import org.apache.inlong.common.util.ConcurrentHashSet;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.airflow.AirflowConnection;
 import org.apache.inlong.manager.pojo.schedule.airflow.DAG;
@@ -39,7 +40,6 @@ import org.apache.inlong.manager.schedule.airflow.util.DateUtil;
 import org.apache.inlong.manager.schedule.exception.AirflowScheduleException;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
