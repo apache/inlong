@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.schedule.airflow;
 
 import org.apache.inlong.common.bounded.BoundaryType;
-import org.apache.inlong.common.util.ConcurrentHashSet;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.airflow.AirflowConnection;
 import org.apache.inlong.manager.pojo.schedule.airflow.DAG;
@@ -35,6 +34,7 @@ import org.apache.inlong.manager.schedule.airflow.api.dag.DAGDeletor;
 import org.apache.inlong.manager.schedule.airflow.api.dag.DAGUpdater;
 import org.apache.inlong.manager.schedule.airflow.api.dagruns.DAGRunsTrigger;
 import org.apache.inlong.manager.schedule.airflow.config.AirflowConfig;
+import org.apache.inlong.manager.schedule.airflow.util.ConcurrentHashSet;
 import org.apache.inlong.manager.schedule.airflow.util.DAGUtil;
 import org.apache.inlong.manager.schedule.airflow.util.DateUtil;
 import org.apache.inlong.manager.schedule.exception.AirflowScheduleException;
