@@ -140,5 +140,29 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-node</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-text</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-configuration</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

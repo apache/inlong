@@ -27,7 +27,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import okhttp3.OkHttpClient;
-import org.eclipse.jetty.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,7 +79,7 @@ public class AirflowConfig extends ClientConfiguration {
     @PostConstruct
     public void init() {
         try {
-            if (StringUtil.isNotBlank(inlongManagerUrl)) {
+            if (StringUtils.isNotBlank(inlongManagerUrl)) {
                 URL url = new URL(inlongManagerUrl);
                 this.inlongManagerHost = url.getHost();
                 this.inlongManagerPort = url.getPort();

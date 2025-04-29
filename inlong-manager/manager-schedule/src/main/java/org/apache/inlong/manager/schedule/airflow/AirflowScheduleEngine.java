@@ -34,12 +34,12 @@ import org.apache.inlong.manager.schedule.airflow.api.dag.DAGDeletor;
 import org.apache.inlong.manager.schedule.airflow.api.dag.DAGUpdater;
 import org.apache.inlong.manager.schedule.airflow.api.dagruns.DAGRunsTrigger;
 import org.apache.inlong.manager.schedule.airflow.config.AirflowConfig;
+import org.apache.inlong.manager.schedule.airflow.util.ConcurrentHashSet;
 import org.apache.inlong.manager.schedule.airflow.util.DAGUtil;
 import org.apache.inlong.manager.schedule.airflow.util.DateUtil;
 import org.apache.inlong.manager.schedule.exception.AirflowScheduleException;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -30,7 +30,7 @@ import org.apache.inlong.audit.service.utils.AuditUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
