@@ -21,6 +21,7 @@ import org.apache.inlong.audit.service.config.ConfigConstants;
 import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
 import org.apache.inlong.audit.service.entities.StatData;
+import org.apache.inlong.audit.service.utils.AuditUtils;
 import org.apache.inlong.audit.service.utils.JdbcUtils;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -34,11 +35,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_AUDIT_ID;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_AUDIT_TAG;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_CNT;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_DELAY;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_GROUP_ID;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_LOG_TS;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_SIZE;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_STREAM_ID;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY_DAY_SQL;
+import static org.apache.inlong.audit.service.config.SqlConstants.WILDCARD_STREAM_ID;
 
 /**
  * Cache Of day ,for day openapi
@@ -49,16 +60,13 @@ public class DayCache implements AutoCloseable {
     private static volatile DayCache dayCache = null;
     private DataSource dataSource;
 
-    private final String querySql;
-
     private DayCache() {
         createDataSource();
-        querySql = Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_DAY_SQL,
-                DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL);
     }
 
     /**
      * Get instance
+     *
      * @return
      */
     public static DayCache getInstance() {
@@ -74,6 +82,7 @@ public class DayCache implements AutoCloseable {
 
     /**
      * Get data
+     *
      * @param startTime
      * @param endTime
      * @param inlongGroupId
@@ -84,27 +93,48 @@ public class DayCache implements AutoCloseable {
     public List<StatData> getData(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
         List<StatData> result = new LinkedList<>();
+        String querySQL = Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_DAY_SQL,
+                DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL);
+        List<String> paramList = new ArrayList<>();
+        if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+            querySQL = AuditUtils.removeStreamIdCondition(querySQL);
+            querySQL = AuditUtils.removeStreamIdColumn(querySQL);
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(auditId);
+        } else {
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(inlongStreamId);
+            paramList.add(auditId);
+        }
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement pstat = connection.prepareStatement(querySql)) {
+                PreparedStatement pstat = connection.prepareStatement(querySQL)) {
             if (connection.isClosed()) {
                 createDataSource();
             }
-            pstat.setString(1, startTime);
-            pstat.setString(2, endTime);
-            pstat.setString(3, inlongGroupId);
-            pstat.setString(4, inlongStreamId);
-            pstat.setString(5, auditId);
+            for (int i = 0; i < paramList.size(); i++) {
+                pstat.setString(i + 1, paramList.get(i));
+            }
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setLogTs(resultSet.getString(1));
-                    data.setInlongGroupId(resultSet.getString(2));
-                    data.setInlongStreamId(resultSet.getString(3));
-                    data.setAuditId(resultSet.getString(4));
-                    data.setAuditTag(resultSet.getString(5));
-                    data.setCount(resultSet.getLong(6));
-                    data.setSize(resultSet.getLong(7));
-                    data.setDelay(resultSet.getLong(8));
+                    data.setLogTs(resultSet.getString(COLUMN_LOG_TS));
+                    data.setInlongGroupId(resultSet.getString(COLUMN_GROUP_ID));
+                    data.setAuditId(resultSet.getString(COLUMN_AUDIT_ID));
+                    data.setAuditTag(resultSet.getString(COLUMN_AUDIT_TAG));
+                    data.setCount(resultSet.getLong(COLUMN_CNT));
+                    data.setSize(resultSet.getLong(COLUMN_SIZE));
+                    data.setDelay(resultSet.getLong(COLUMN_DELAY));
+
+                    if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+                        data.setInlongStreamId(WILDCARD_STREAM_ID);
+                    } else {
+                        data.setInlongStreamId(resultSet.getString(COLUMN_STREAM_ID));
+                    }
+
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
@@ -113,7 +143,10 @@ public class DayCache implements AutoCloseable {
         } catch (Exception exception) {
             LOGGER.error("Query has exception! ", exception);
         }
-        return result;
+
+        return WILDCARD_STREAM_ID.equals(inlongStreamId)
+                ? AuditUtils.aggregateStatData(result, inlongStreamId)
+                : result;
     }
 
     /**
