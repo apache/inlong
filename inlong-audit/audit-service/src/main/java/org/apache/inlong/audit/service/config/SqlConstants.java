@@ -143,7 +143,7 @@ public class SqlConstants {
 
     public static final String KEY_MYSQL_SOURCE_QUERY_DAY_SQL = "mysql.query.day.sql";
     public static final String DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL =
-            "select log_ts,inlong_group_id,inlong_stream_id,audit_id,audit_tag,count,size,delay " +
+            "select log_ts,inlong_group_id,inlong_stream_id,audit_id,audit_tag,count AS cnt,size,delay " +
                     "from audit_data_day where log_ts >= ? AND log_ts < ? AND inlong_group_id=? AND inlong_stream_id=? AND audit_id =? ";
 
     public static final String KEY_MYSQL_QUERY_AUDIT_ID_SQL = "mysql.query.audit.id.sql";
@@ -182,7 +182,7 @@ public class SqlConstants {
     public static final String KEY_RECONCILIATION_SQL = "audit.reconciliation.sql";
     public static final String DEFAULT_RECONCILIATION_SQL = "select\n" +
             "audit_version,\n" +
-            "sum(count) count\n" +
+            "sum(count) cnt\n" +
             "from\n" +
             "    audit_data\n" +
             "where\n" +
@@ -200,7 +200,7 @@ public class SqlConstants {
     public static final String KEY_RECONCILIATION_DISTINCT_SQL = "audit.reconciliation.distinct.sql";
     public static final String DEFAULT_RECONCILIATION_DISTINCT_SQL = "SELECT\n" +
             "    audit_version,\n" +
-            "    sum(count) AS count\n" +
+            "    sum(count) AS cnt\n" +
             "FROM\n" +
             "    (\n" +
             "        SELECT\n" +
@@ -251,4 +251,5 @@ public class SqlConstants {
             "    ) t_distinct\n" +
             "GROUP BY\n" +
             "    audit_version";
+    public static final String WILDCARD_STREAM_ID = "*";
 }

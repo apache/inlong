@@ -47,6 +47,16 @@ import java.util.concurrent.Executors;
 
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_AUDIT_ID;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_AUDIT_TAG;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_AUDIT_VERSION;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_CNT;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_DELAY;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_GROUP_ID;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_IP;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_LOG_TS;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_SIZE;
+import static org.apache.inlong.audit.service.config.AuditColumn.COLUMN_STREAM_ID;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_RECONCILIATION_DISTINCT_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_RECONCILIATION_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.DEFAULT_SOURCE_QUERY_IDS_SQL;
@@ -57,6 +67,7 @@ import static org.apache.inlong.audit.service.config.SqlConstants.KEY_RECONCILIA
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_IDS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_IPS_SQL;
 import static org.apache.inlong.audit.service.config.SqlConstants.KEY_SOURCE_QUERY_MINUTE_SQL;
+import static org.apache.inlong.audit.service.config.SqlConstants.WILDCARD_STREAM_ID;
 
 /**
  * Real time query data from audit source.
@@ -67,10 +78,6 @@ public class RealTimeQuery {
     private static volatile RealTimeQuery realTimeQuery = null;
 
     private final List<BasicDataSource> dataSourceList = new LinkedList<>();
-
-    private final String queryLogTsSql;
-    private final String queryIdsByIpSql;
-    private final String queryReportIpsSql;
     private final ExecutorService executor =
             Executors.newFixedThreadPool(
                     Configuration.getInstance().get(KEY_API_THREAD_POOL_SIZE, DEFAULT_API_THREAD_POOL_SIZE));
@@ -103,13 +110,6 @@ public class RealTimeQuery {
 
             dataSourceList.add(dataSource);
         }
-
-        queryLogTsSql = Configuration.getInstance().get(KEY_SOURCE_QUERY_MINUTE_SQL,
-                DEFAULT_SOURCE_QUERY_MINUTE_SQL);
-        queryIdsByIpSql = Configuration.getInstance().get(KEY_SOURCE_QUERY_IDS_SQL,
-                DEFAULT_SOURCE_QUERY_IDS_SQL);
-        queryReportIpsSql = Configuration.getInstance().get(KEY_SOURCE_QUERY_IPS_SQL,
-                DEFAULT_SOURCE_QUERY_IPS_SQL);
     }
 
     public static RealTimeQuery getInstance() {
@@ -152,7 +152,14 @@ public class RealTimeQuery {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         LOGGER.info("Query log ts by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,
                 inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
-        return filterMaxAuditVersion(statDataList);
+
+        List<StatData> maxAuditVersion = filterMaxAuditVersion(statDataList);
+        // If querying for wildcard stream ID, aggregate the data
+        if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+            return AuditUtils.aggregateStatData(maxAuditVersion, WILDCARD_STREAM_ID);
+        }
+        // Otherwise return the filtered data directly
+        return maxAuditVersion;
     }
 
     /**
@@ -202,26 +209,51 @@ public class RealTimeQuery {
             String inlongStreamId, String auditId) {
         long currentTime = System.currentTimeMillis();
         List<StatData> result = new LinkedList<>();
+
+        String querySQL = Configuration.getInstance().get(KEY_SOURCE_QUERY_MINUTE_SQL,
+                DEFAULT_SOURCE_QUERY_MINUTE_SQL);
+        List<String> paramList = new ArrayList<>();
+
+        if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+            querySQL = AuditUtils.removeStreamIdCondition(querySQL);
+            querySQL = AuditUtils.removeStreamIdColumn(querySQL);
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(auditId);
+        } else {
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(inlongStreamId);
+            paramList.add(auditId);
+        }
+
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement pstat = connection.prepareStatement(queryLogTsSql)) {
-            pstat.setString(1, startTime);
-            pstat.setString(2, endTime);
-            pstat.setString(3, inlongGroupId);
-            pstat.setString(4, inlongStreamId);
-            pstat.setString(5, auditId);
+                PreparedStatement pstat = connection.prepareStatement(querySQL)) {
+            for (int i = 0; i < paramList.size(); i++) {
+                pstat.setString(i + 1, paramList.get(i));
+            }
+
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setLogTs(resultSet.getString(1));
-                    data.setInlongGroupId(resultSet.getString(2));
-                    data.setInlongStreamId(resultSet.getString(3));
-                    data.setAuditId(resultSet.getString(4));
-                    data.setAuditTag(resultSet.getString(5));
-                    long count = resultSet.getLong(6);
+                    data.setLogTs(resultSet.getString(COLUMN_LOG_TS));
+                    data.setInlongGroupId(resultSet.getString(COLUMN_GROUP_ID));
+                    data.setAuditId(resultSet.getString(COLUMN_AUDIT_ID));
+                    data.setAuditTag(resultSet.getString(COLUMN_AUDIT_TAG));
+                    long count = resultSet.getLong(COLUMN_CNT);
                     data.setCount(count);
-                    data.setSize(resultSet.getLong(7));
-                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(8)));
-                    data.setAuditVersion(resultSet.getLong(9));
+                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(COLUMN_DELAY)));
+                    data.setSize(resultSet.getLong(COLUMN_SIZE));
+                    data.setAuditVersion(resultSet.getLong(COLUMN_AUDIT_VERSION));
+
+                    if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+                        data.setInlongStreamId(WILDCARD_STREAM_ID);
+                    } else {
+                        data.setInlongStreamId(resultSet.getString(COLUMN_STREAM_ID));
+                    }
+
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
@@ -270,23 +302,30 @@ public class RealTimeQuery {
     private List<StatData> doQueryIdsByIp(DataSource dataSource, String startTime, String endTime, String ip,
             String auditId) {
         List<StatData> result = new LinkedList<>();
+        String querySQL = Configuration.getInstance().get(KEY_SOURCE_QUERY_IDS_SQL,
+                DEFAULT_SOURCE_QUERY_IDS_SQL);
+        List<String> paramList = new ArrayList<>();
+        paramList.add(startTime);
+        paramList.add(endTime);
+        paramList.add(auditId);
+        paramList.add(ip);
+
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement pstat = connection.prepareStatement(queryIdsByIpSql)) {
-            pstat.setString(1, startTime);
-            pstat.setString(2, endTime);
-            pstat.setString(3, auditId);
-            pstat.setString(4, ip);
+                PreparedStatement pstat = connection.prepareStatement(querySQL)) {
+            for (int i = 0; i < paramList.size(); i++) {
+                pstat.setString(i + 1, paramList.get(i));
+            }
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setInlongGroupId(resultSet.getString(1));
-                    data.setInlongStreamId(resultSet.getString(2));
-                    data.setAuditId(resultSet.getString(3));
-                    data.setAuditTag(resultSet.getString(4));
-                    long count = resultSet.getLong(5);
+                    data.setInlongGroupId(resultSet.getString(COLUMN_GROUP_ID));
+                    data.setInlongStreamId(resultSet.getString(COLUMN_STREAM_ID));
+                    data.setAuditId(resultSet.getString(COLUMN_AUDIT_ID));
+                    data.setAuditTag(resultSet.getString(COLUMN_AUDIT_TAG));
+                    long count = resultSet.getLong(COLUMN_CNT);
                     data.setCount(count);
-                    data.setSize(resultSet.getLong(6));
-                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(7)));
+                    data.setSize(resultSet.getLong(COLUMN_SIZE));
+                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(COLUMN_DELAY)));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
@@ -337,20 +376,38 @@ public class RealTimeQuery {
             String inlongGroupId,
             String inlongStreamId, String auditId) {
         List<StatData> result = new LinkedList<>();
+        String querySQL = Configuration.getInstance().get(KEY_SOURCE_QUERY_IPS_SQL,
+                DEFAULT_SOURCE_QUERY_IPS_SQL);
+        List<String> paramList = new ArrayList<>();
+        if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+            querySQL = AuditUtils.removeStreamIdCondition(querySQL);
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(auditId);
+        } else {
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(inlongGroupId);
+            paramList.add(inlongStreamId);
+            paramList.add(auditId);
+        }
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement pstat = connection.prepareStatement(queryReportIpsSql)) {
-            pstat.setString(1, startTime);
-            pstat.setString(2, endTime);
-            pstat.setString(3, inlongGroupId);
-            pstat.setString(4, inlongStreamId);
-            pstat.setString(5, auditId);
+                PreparedStatement pstat = connection.prepareStatement(querySQL)) {
+            for (int i = 0; i < paramList.size(); i++) {
+                pstat.setString(i + 1, paramList.get(i));
+            }
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setIp(resultSet.getString(1));
-                    long count = resultSet.getLong(2);
+                    data.setIp(resultSet.getString(COLUMN_IP));
+                    long count = resultSet.getLong(COLUMN_CNT);
+                    data.setSize(resultSet.getLong(COLUMN_SIZE));
+                    data.setLogTs(startTime);
+                    data.setInlongGroupId(inlongGroupId);
+                    data.setInlongStreamId(inlongStreamId);
+                    data.setAuditId(auditId);
                     data.setCount(count);
-                    data.setSize(resultSet.getLong(3));
                     data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(4)));
                     result.add(data);
                 }
@@ -397,21 +454,33 @@ public class RealTimeQuery {
         String querySQL = distinct
                 ? Configuration.getInstance().get(KEY_RECONCILIATION_DISTINCT_SQL, DEFAULT_RECONCILIATION_DISTINCT_SQL)
                 : Configuration.getInstance().get(KEY_RECONCILIATION_SQL, DEFAULT_RECONCILIATION_SQL);
+        List<String> paramList = new ArrayList<>();
+        if (WILDCARD_STREAM_ID.equals(inlongStreamId)) {
+            querySQL = AuditUtils.removeStreamIdCondition(querySQL);
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(auditId);
+            paramList.add(inlongGroupId);
+        } else {
+            paramList.add(startTime);
+            paramList.add(endTime);
+            paramList.add(auditId);
+            paramList.add(inlongGroupId);
+            paramList.add(inlongStreamId);
+        }
+        paramList.add(auditTag);
 
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(querySQL)) {
+            for (int i = 0; i < paramList.size(); i++) {
+                pstat.setString(i + 1, paramList.get(i));
+            }
 
-            pstat.setString(1, startTime);
-            pstat.setString(2, endTime);
-            pstat.setString(3, auditId);
-            pstat.setString(4, inlongGroupId);
-            pstat.setString(5, inlongStreamId);
-            pstat.setString(6, auditTag);
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setAuditVersion(resultSet.getLong(1));
-                    data.setCount(resultSet.getLong(2));
+                    data.setAuditVersion(resultSet.getLong(COLUMN_AUDIT_VERSION));
+                    data.setCount(resultSet.getLong(COLUMN_CNT));
                     data.setLogTs(startTime);
                     data.setInlongGroupId(inlongGroupId);
                     data.setInlongStreamId(inlongStreamId);
