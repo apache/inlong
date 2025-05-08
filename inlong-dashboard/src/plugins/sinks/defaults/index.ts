@@ -131,4 +131,9 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     value: 'HTTP',
     LoadEntity: () => import('./Http'),
   },
+  {
+    label: 'Paimon',
+    value: 'PAIMON',
+    LoadEntity: () => import('./Paimon'),
+  },
 ];
