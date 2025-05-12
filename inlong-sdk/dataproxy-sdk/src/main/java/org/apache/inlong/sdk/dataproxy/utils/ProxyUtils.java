@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -32,7 +31,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 public class ProxyUtils {
@@ -104,15 +102,7 @@ public class ProxyUtils {
         if (sdkVersion != null) {
             return sdkVersion;
         }
-        Properties properties = new Properties();
-        try (InputStream is = ProxyUtils.class.getResourceAsStream("/git.properties")) {
-            properties.load(is);
-            sdkVersion = properties.getProperty("git.build.version");
-        } catch (Throwable ex) {
-            if (exceptCounter.shouldPrint()) {
-                logger.error("DataProxy-SDK get version failure", ex);
-            }
-        }
+        sdkVersion = SdkVersion.sdkVersion;
         return sdkVersion;
     }
 
