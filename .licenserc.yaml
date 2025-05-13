@@ -93,4 +93,7 @@ header:
     - '**/tubemq-client-go/go.sum'
     - '**/dataproxy-sdk-golang/go.sum'
 
+    # dataproxy sdk version
+    - '**/resources/sdk.version'
+
   comment: on-failure
