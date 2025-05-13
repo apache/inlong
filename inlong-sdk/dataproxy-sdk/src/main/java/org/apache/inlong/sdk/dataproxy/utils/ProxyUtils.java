@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 public class ProxyUtils {
@@ -102,7 +104,23 @@ public class ProxyUtils {
         if (sdkVersion != null) {
             return sdkVersion;
         }
-        sdkVersion = SdkVersion.sdkVersion;
+        try (InputStream is = ProxyUtils.class.getClassLoader().getResourceAsStream("sdk.version")) {
+            if (is == null) {
+                sdkVersion = "unknown";
+                if (exceptCounter.shouldPrint()) {
+                    logger.error("Missing sdk.version file!");
+                }
+            } else {
+                Properties properties = new Properties();
+                properties.load(is);
+                sdkVersion = properties.getProperty("version");
+            }
+        } catch (Throwable ex) {
+            sdkVersion = "unknown";
+            if (exceptCounter.shouldPrint()) {
+                logger.error("DataProxy-SDK get version failure", ex);
+            }
+        }
         return sdkVersion;
     }
 

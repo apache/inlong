@@ -1438,6 +1438,8 @@
                         <exclude>**/*.csv</exclude>
                         <exclude>**/logs/**</exclude>
                         <exclude>**/*.log</exclude>
+                        <!-- dataproxy sdk version -->
+                        <exclude>**/resources/sdk.version</exclude>
 
                         <!-- Web configure files -->
                         <exclude>**/.env</exclude>
