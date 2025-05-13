@@ -1491,7 +1491,7 @@
                         <!-- Docker build-->
                         <exclude>**/docker/docker-compose/**/**</exclude>
                         <!-- dataproxy sdk version -->
-                        <exclude>**/dataproxy-sdk/src/main/resources/sdk.version</exclude>
+                        <exclude>**/resources/sdk.version</exclude>
 
                     </excludes>
                 </configuration>

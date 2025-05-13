@@ -94,6 +94,6 @@ header:
     - '**/dataproxy-sdk-golang/go.sum'
 
     # dataproxy sdk version
-    - '**/dataproxy-sdk/src/main/resources/sdk.version'
+    - '**/resources/sdk.version'
 
   comment: on-failure
