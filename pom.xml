@@ -1438,8 +1438,6 @@
                         <exclude>**/*.csv</exclude>
                         <exclude>**/logs/**</exclude>
                         <exclude>**/*.log</exclude>
-                        <!-- dataproxy sdk version -->
-                        <exclude>**/resources/sdk.version</exclude>
 
                         <!-- Web configure files -->
                         <exclude>**/.env</exclude>
@@ -1492,6 +1490,8 @@
                         <exclude>**/dataproxy-sdk-golang/go.sum</exclude>
                         <!-- Docker build-->
                         <exclude>**/docker/docker-compose/**/**</exclude>
+                        <!-- dataproxy sdk version -->
+                        <exclude>**/dataproxy-sdk/src/main/resources/sdk.version</exclude>
 
                     </excludes>
                 </configuration>
