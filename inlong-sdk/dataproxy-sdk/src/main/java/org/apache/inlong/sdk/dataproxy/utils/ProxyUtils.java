@@ -104,11 +104,19 @@ public class ProxyUtils {
         if (sdkVersion != null) {
             return sdkVersion;
         }
-        Properties properties = new Properties();
-        try (InputStream is = ProxyUtils.class.getResourceAsStream("/git.properties")) {
-            properties.load(is);
-            sdkVersion = properties.getProperty("git.build.version");
+        try (InputStream is = ProxyUtils.class.getClassLoader().getResourceAsStream("sdk.version")) {
+            if (is == null) {
+                sdkVersion = "unknown";
+                if (exceptCounter.shouldPrint()) {
+                    logger.error("Missing sdk.version file!");
+                }
+            } else {
+                Properties properties = new Properties();
+                properties.load(is);
+                sdkVersion = properties.getProperty("version");
+            }
         } catch (Throwable ex) {
+            sdkVersion = "unknown";
             if (exceptCounter.shouldPrint()) {
                 logger.error("DataProxy-SDK get version failure", ex);
             }

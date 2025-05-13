@@ -1490,6 +1490,8 @@
                         <exclude>**/dataproxy-sdk-golang/go.sum</exclude>
                         <!-- Docker build-->
                         <exclude>**/docker/docker-compose/**/**</exclude>
+                        <!-- dataproxy sdk version -->
+                        <exclude>**/resources/sdk.version</exclude>
 
                     </excludes>
                 </configuration>
