@@ -78,6 +78,11 @@ public class TimeCostInfo {
             long bucketCnt = 0;
             strBuff.append("\"").append(name).append("\":{\"bkts\":{");
             for (Map.Entry<String, LongAdder> entry : sendTimeBucketT.entrySet()) {
+                if (entry == null
+                        || entry.getKey() == null
+                        || entry.getValue() == null) {
+                    continue;
+                }
                 if (bucketCnt++ > 0) {
                     strBuff.append(",");
                 }

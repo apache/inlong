@@ -53,6 +53,11 @@ public class MetaSyncInfo {
             long curCnt = 0;
             strBuff.append("\"ms\":{\"errT\":{");
             for (Map.Entry<Integer, LongAdder> entry : syncErrInfo.entrySet()) {
+                if (entry == null
+                        || entry.getKey() == null
+                        || entry.getValue() == null) {
+                    continue;
+                }
                 if (curCnt++ > 0) {
                     strBuff.append(",");
                 }

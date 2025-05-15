@@ -324,7 +324,7 @@ public class BaseMsgSenderFactory {
     private int releaseAllGroupIdSenders(Map<String, BaseSender> senderMap) {
         int totalSenderCnt = 0;
         for (Map.Entry<String, BaseSender> entry : senderMap.entrySet()) {
-            if (entry == null || entry.getValue() == null) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
             try {

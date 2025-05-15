@@ -79,9 +79,12 @@ public class TcpEventInfo extends EventInfo<byte[]> {
 
     public void setAttr(String key, String value) throws ProxyEventException {
         if (StringUtils.isBlank(key)) {
-            throw new ProxyEventException("Key is blank!");
+            throw new ProxyEventException("Parameter key is blank!");
         }
-        innSetAttr(key.trim(), value);
+        if (value == null) {
+            throw new ProxyEventException("Parameter value is null!");
+        }
+        innSetAttr(key.trim(), value.trim());
     }
 
     @Override

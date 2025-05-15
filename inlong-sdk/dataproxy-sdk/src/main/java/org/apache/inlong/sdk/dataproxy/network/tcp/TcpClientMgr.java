@@ -275,22 +275,22 @@ public class TcpClientMgr implements ClientMgr {
                     timerObj.newTimeout(new TimeoutTask(encObject.getMessageId()),
                             tcpConfig.getRequestTimeoutMs(), TimeUnit.MILLISECONDS));
             if (!client.write(clientTerm, encObject, procResult)) {
-                Timeout timeout = reqTimeouts.remove(encObject.getMessageId());
+                Timeout timeout = reqTimeouts.remove(newFuture.getMessageId());
                 if (timeout != null) {
                     timeout.cancel();
                 }
-                rmvMsgStubInfo(encObject.getMessageId());
+                rmvMsgStubInfo(newFuture.getMessageId());
             }
             return procResult.isSuccess();
         } else {
             // process sync report
             if (!client.write(clientTerm, encObject, procResult)) {
-                rmvMsgStubInfo(encObject.getMessageId());
+                rmvMsgStubInfo(newFuture.getMessageId());
                 return false;
             }
             boolean retValue = newFuture.get(procResult,
                     tcpConfig.getRequestTimeoutMs(), TimeUnit.MILLISECONDS);
-            if (rmvMsgStubInfo(encObject.getMessageId())) {
+            if (rmvMsgStubInfo(newFuture.getMessageId())) {
                 if (procResult.getErrCode() == ErrorCode.SEND_WAIT_TIMEOUT.getErrCode()) {
                     client.setBusy(clientTerm);
                 }
