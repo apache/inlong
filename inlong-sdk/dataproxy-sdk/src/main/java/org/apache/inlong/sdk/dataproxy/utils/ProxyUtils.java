@@ -165,25 +165,25 @@ public class ProxyUtils {
         if (attrsMap == null || attrsMap.isEmpty()) {
             return attrsMap;
         }
+        String tmpKey;
         String tmpValue;
         Map<String, String> validAttrsMap = new HashMap<>();
         for (Map.Entry<String, String> entry : attrsMap.entrySet()) {
-            if (StringUtils.isBlank(entry.getKey())
-                    || entry.getKey().contains(AttributeConstants.SEPARATOR)
-                    || entry.getKey().contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
+            if (entry == null
+                    || StringUtils.isBlank(entry.getKey())
+                    || entry.getValue() == null) {
                 continue;
             }
-            tmpValue = entry.getKey().trim();
-            if (ProxyUtils.SdkReservedWords.contains(tmpValue)) {
+            tmpKey = entry.getKey().trim();
+            tmpValue = entry.getValue().trim();
+            if (tmpKey.contains(AttributeConstants.SEPARATOR)
+                    || tmpKey.contains(AttributeConstants.KEY_VALUE_SEPARATOR)
+                    || ProxyUtils.SdkReservedWords.contains(tmpKey)
+                    || tmpValue.contains(AttributeConstants.SEPARATOR)
+                    || tmpValue.contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
                 continue;
             }
-            if (entry.getValue() != null) {
-                if (entry.getValue().contains(AttributeConstants.SEPARATOR)
-                        || entry.getValue().contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
-                    continue;
-                }
-            }
-            validAttrsMap.put(tmpValue, entry.getValue());
+            validAttrsMap.put(tmpKey, tmpValue);
         }
         return validAttrsMap;
     }

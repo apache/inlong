@@ -73,10 +73,12 @@ public abstract class EventInfo<T> {
         // attrs
         if (attrs != null && !attrs.isEmpty()) {
             for (Map.Entry<String, String> entry : attrs.entrySet()) {
-                if (StringUtils.isBlank(entry.getKey())) {
+                if (entry == null
+                        || StringUtils.isBlank(entry.getKey())
+                        || entry.getValue() == null) {
                     continue;
                 }
-                innSetAttr(entry.getKey().trim(), entry.getValue());
+                innSetAttr(entry.getKey().trim(), entry.getValue().trim());
             }
         }
         if (auditId != null && auditId != -1L) {
@@ -129,20 +131,16 @@ public abstract class EventInfo<T> {
                     + AttributeConstants.KEY_VALUE_SEPARATOR + " or "
                     + AttributeConstants.KEY_VALUE_SEPARATOR + ")!");
         }
-        String valValue = value;
-        if (valValue != null) {
-            valValue = valValue.trim();
-            if (valValue.contains(AttributeConstants.SEPARATOR)
-                    || valValue.contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
-                if (exceptCnt.shouldPrint()) {
-                    logger.warn(String.format("Attribute value(%s) include reserved word(%s or %s)",
-                            valValue, AttributeConstants.KEY_VALUE_SEPARATOR, AttributeConstants.KEY_VALUE_SEPARATOR));
-                }
-                throw new ProxyEventException("Attribute value(" + valValue + ") include reserved word("
-                        + AttributeConstants.KEY_VALUE_SEPARATOR + " or "
-                        + AttributeConstants.KEY_VALUE_SEPARATOR + ")!");
+        if (value.contains(AttributeConstants.SEPARATOR)
+                || value.contains(AttributeConstants.KEY_VALUE_SEPARATOR)) {
+            if (exceptCnt.shouldPrint()) {
+                logger.warn(String.format("Attribute value(%s) include reserved word(%s or %s)",
+                        value, AttributeConstants.KEY_VALUE_SEPARATOR, AttributeConstants.KEY_VALUE_SEPARATOR));
             }
+            throw new ProxyEventException("Attribute value(" + value + ") include reserved word("
+                    + AttributeConstants.KEY_VALUE_SEPARATOR + " or "
+                    + AttributeConstants.KEY_VALUE_SEPARATOR + ")!");
         }
-        this.attrs.put(key, valValue);
+        this.attrs.put(key, value);
     }
 }

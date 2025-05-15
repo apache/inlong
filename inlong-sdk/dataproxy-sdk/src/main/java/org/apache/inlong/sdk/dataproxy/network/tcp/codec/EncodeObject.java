@@ -21,6 +21,7 @@ import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
 
 import com.google.common.base.Joiner;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -86,10 +87,10 @@ public class EncodeObject {
         this.aesKey = aesKey;
         if (tgtAttrs != null && !tgtAttrs.isEmpty()) {
             for (Map.Entry<String, String> entry : tgtAttrs.entrySet()) {
-                if (entry == null || entry.getKey() == null) {
+                if (entry == null || StringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                     continue;
                 }
-                this.attrMap.put(entry.getKey(), entry.getValue());
+                this.attrMap.put(entry.getKey().trim(), entry.getValue().trim());
             }
             String preAttrStr = mapJoiner.join(this.attrMap);
             this.attrData = preAttrStr.getBytes(StandardCharsets.UTF_8);

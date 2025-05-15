@@ -17,10 +17,14 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProxyUtilsTest {
 
@@ -30,4 +34,30 @@ public class ProxyUtilsTest {
         Assert.assertNotNull(ip);
     }
 
+    @Test
+    public void testGetValidAttrs() {
+        Map<String, String> attrsMap = new HashMap<>();
+        attrsMap.put("first", "       ");
+        attrsMap.put("second", "");
+        attrsMap.put("third", " stst");
+        attrsMap.put("fourth", null);
+        attrsMap.put("fifth", " fifth ");
+        attrsMap.put("", "sixth");
+        attrsMap.put(null, "seventh");
+        attrsMap.put(null, "seventh");
+        attrsMap.put("eighth", "eig&hth");
+        attrsMap.put("ninth", "=ninth");
+        attrsMap.put(AttributeConstants.DATA_TIME, "tenth");
+        Map<String, String> tgtMap = ProxyUtils.getValidAttrs(attrsMap);
+        Assert.assertNotNull(tgtMap);
+        Assert.assertEquals(tgtMap.size(), 4);
+        Assert.assertNotNull(tgtMap.get("first"));
+        Assert.assertNotNull(tgtMap.get("second"));
+        Assert.assertNotNull(tgtMap.get("third"));
+        Assert.assertNull(tgtMap.get("fourth"));
+        Assert.assertNotNull(tgtMap.get("fifth"));
+        Assert.assertNull(tgtMap.get("eighth"));
+        Assert.assertNull(tgtMap.get("ninth"));
+        Assert.assertNull(tgtMap.get(AttributeConstants.DATA_TIME));
+    }
 }

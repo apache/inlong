@@ -23,7 +23,6 @@ import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.sdk.dataproxy.common.ErrorCode;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 
-import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -35,10 +34,6 @@ import java.util.Map;
  * Used to carry the decoded information of the response
  */
 public class DecodeObject {
-
-    private static final Splitter.MapSplitter MAP_SPLITTER =
-            Splitter.on(AttributeConstants.SEPARATOR).trimResults()
-                    .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     private final MsgType msgType;
     private int messageId;
@@ -87,12 +82,30 @@ public class DecodeObject {
             this.procResult = new ProcessResult(ErrorCode.OK);
             return;
         }
-        retAttr = new HashMap<>(MAP_SPLITTER.split(attributes));
+        // decode attribute string
+        this.retAttr = new HashMap<>();
+        String[] keyValSet = attributes.split(AttributeConstants.SEPARATOR);
+        for (String keyVal : keyValSet) {
+            if (StringUtils.isBlank(keyVal)) {
+                continue;
+            }
+            String[] keyValSplit = keyVal.split(AttributeConstants.KEY_VALUE_SEPARATOR);
+            if (keyValSplit.length == 1) {
+                if (StringUtils.isBlank(keyValSplit[0])) {
+                    continue;
+                }
+                retAttr.put(keyValSplit[0].trim(), "");
+            } else {
+                if (StringUtils.isBlank(keyValSplit[0]) || keyValSplit[1] == null) {
+                    continue;
+                }
+                retAttr.put(keyValSplit[0].trim(), keyValSplit[1].trim());
+            }
+        }
         if (retAttr.containsKey(AttributeConstants.MESSAGE_ID)) {
             this.messageId = Integer.parseInt(retAttr.get(AttributeConstants.MESSAGE_ID));
         }
         dpIp = retAttr.get(AttributeConstants.MESSAGE_DP_IP);
-
         String errCode = retAttr.get(AttributeConstants.MESSAGE_PROCESS_ERRCODE);
         // errCode is empty or equals 0 -> success
         if (StringUtils.isBlank(errCode) || Integer.parseInt(errCode) == 0) {

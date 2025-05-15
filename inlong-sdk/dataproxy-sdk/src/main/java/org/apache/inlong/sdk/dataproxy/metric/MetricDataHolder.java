@@ -421,6 +421,11 @@ public class MetricDataHolder implements Runnable {
             metaSyncInfo.getAndResetValue(strBuff);
             strBuff.append(",\"tr\":[");
             for (Map.Entry<String, TrafficInfo> entry : trafficMap.entrySet()) {
+                if (entry == null
+                        || entry.getKey() == null
+                        || entry.getValue() == null) {
+                    continue;
+                }
                 if (count++ > 0) {
                     strBuff.append(",");
                 }
@@ -429,6 +434,11 @@ public class MetricDataHolder implements Runnable {
             strBuff.append("],\"errs\":{");
             count = 0;
             for (Map.Entry<Integer, LongAdder> entry : errCodeMap.entrySet()) {
+                if (entry == null
+                        || entry.getKey() == null
+                        || entry.getValue() == null) {
+                    continue;
+                }
                 if (count++ > 0) {
                     strBuff.append(",");
                 }
