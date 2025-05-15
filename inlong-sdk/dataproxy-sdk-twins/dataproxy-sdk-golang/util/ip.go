@@ -74,21 +74,54 @@ func IsPrivateIP(ip string) bool {
 	return false
 }
 
+// GetIPv4List obtain all valid local addresses
+func GetIPv4List() ([]string, error) {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	var ipv4List []string
+	for _, iface := range interfaces {
+		if iface.Flags&net.FlagUp == 0 {
+			continue
+		}
+
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+
+		for _, addr := range addrs {
+			ipNet, ok := addr.(*net.IPNet)
+			if !ok {
+				continue
+			}
+
+			ip := ipNet.IP
+			if ip.IsLoopback() || ip.IsLinkLocalUnicast() {
+				continue
+			}
+
+			if ipv4 := ip.To4(); ipv4 != nil {
+				ipv4List = append(ipv4List, ipv4.String())
+			}
+		}
+	}
+	return ipv4List, nil
+}
+
 // GetPrivateIPList gets all the private IPs of the current host
 func GetPrivateIPList() ([]string, error) {
-	ips, err := net.InterfaceAddrs()
+	ips, err := GetIPv4List()
 	if err != nil {
 		return nil, err
 	}
 
 	var privateIPs []string
 	for _, ip := range ips {
-		parts := strings.Split(ip.String(), "/")
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("ip %v address format error", ip.String())
-		}
-		if IsPrivateIP(parts[0]) {
-			privateIPs = append(privateIPs, parts[0])
+		if IsPrivateIP(ip) {
+			privateIPs = append(privateIPs, ip)
 		}
 	}
 
@@ -110,17 +143,13 @@ func GetFirstPrivateIP() (string, error) {
 
 // GetFirstIP gets the first IP of the current host
 func GetFirstIP() (string, error) {
-	ips, err := net.InterfaceAddrs()
+	ips, err := GetIPv4List()
 	if err != nil {
 		return "", err
 	}
 
-	for _, ip := range ips {
-		parts := strings.Split(ip.String(), "/")
-		if len(parts) != 2 {
-			continue
-		}
-		return parts[0], nil
+	if len(ips) > 0 {
+		return ips[0], nil
 	}
 
 	return "", fmt.Errorf("no ip")
