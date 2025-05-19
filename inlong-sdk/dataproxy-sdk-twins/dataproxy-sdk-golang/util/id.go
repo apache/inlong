@@ -29,7 +29,7 @@ var (
 )
 
 func init() {
-	ip, err := GetFirstPrivateIP()
+	ip, err := GetOneIP()
 	if err != nil {
 		log.Fatal(err)
 	}
