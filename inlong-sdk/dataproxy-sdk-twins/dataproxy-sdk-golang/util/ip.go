@@ -154,3 +154,23 @@ func GetFirstIP() (string, error) {
 
 	return "", fmt.Errorf("no ip")
 }
+
+// GetOneIP obtain a valid ip address of the current host, with private ip preferred
+func GetOneIP() (string, error) {
+	ips, err := GetIPv4List()
+	if err != nil {
+		return "", fmt.Errorf("failed to obtain ip. %w", err)
+	}
+
+	if len(ips) == 0 {
+		return "", fmt.Errorf("no ip")
+	}
+
+	for _, ip := range ips {
+		if IsPrivateIP(ip) {
+			return ip, nil
+		}
+	}
+
+	return ips[0], nil
+}

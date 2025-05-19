@@ -41,12 +41,9 @@ var (
 
 func init() {
 	var err error
-	localIP, err = util.GetFirstPrivateIP()
+	localIP, err = util.GetOneIP()
 	if err != nil {
-		localIP, err = util.GetFirstIP()
-		if err != nil {
-			localIP = "noIP"
-		}
+		localIP = "noIP"
 	}
 }
 
