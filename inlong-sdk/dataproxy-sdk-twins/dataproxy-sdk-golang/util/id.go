@@ -28,17 +28,20 @@ var (
 	snowflakeNode *snowflake.Node
 )
 
-func init() {
+// initSnowFlake initialises the snowflake node at most once.
+func initSnowFlake() error {
+	if snowflakeNode != nil {
+		return nil
+	}
+
 	ip, err := GetOneIP()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	id := IPtoUInt(ip)
 	snowflakeNode, err = snowflake.NewNode(int64(id % 1024))
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 // UInt64UUID generates an uint64 UUID
@@ -53,7 +56,21 @@ func UInt64UUID() (uint64, error) {
 	return cityhash.CityHash64WithSeeds(bytes, uint32(length), 13329145742295551469, 7926974186468552394), nil
 }
 
-// SnowFlakeID generates a snowflake ID
+// Deprecated: Use SafeSnowFlakeID instead.
+// SnowFlakeID generates a snowflake ID. If an error occurs, it logs it and exits.
 func SnowFlakeID() string {
-	return snowflakeNode.Generate().String()
+	id, err := SafeSnowFlakeID()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return id
+}
+
+// SafeSnowFlakeID generates a snowflake ID. If an error occurs it returns it.
+func SafeSnowFlakeID() (string, error) {
+	err := initSnowFlake()
+	if err != nil {
+		return "", err
+	}
+	return snowflakeNode.Generate().String(), nil
 }
