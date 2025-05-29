@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * XmlSourceData
  */
-public class XmlSourceData implements SourceData {
+public class XmlSourceData extends AbstractSourceData {
 
     public static final String ROOT_KEY = "$root";
 
@@ -33,7 +35,7 @@ public class XmlSourceData implements SourceData {
 
     private XmlNode childRoot;
 
-    public XmlSourceData(XmlNode root, XmlNode childRoot) {
+    public XmlSourceData(XmlNode root, XmlNode childRoot, Context context) {
         this.root = root;
         this.childRoot = new XmlNode();
         if (childRoot != null) {
@@ -42,6 +44,7 @@ public class XmlSourceData implements SourceData {
                 this.childRoot = (XmlNode) value;
             }
         }
+        this.context = context;
     }
 
     @Override
@@ -61,6 +64,9 @@ public class XmlSourceData implements SourceData {
     @Override
     public String getField(int rowNum, String fieldName) {
         try {
+            if (isContextField(fieldName)) {
+                return getContextField(fieldName);
+            }
             String[] nodeString = fieldName.split("\\.");
             Object cur = null, last = null;
             int start = -1;

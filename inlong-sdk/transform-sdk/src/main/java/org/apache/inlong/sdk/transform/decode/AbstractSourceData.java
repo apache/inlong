@@ -19,15 +19,29 @@ package org.apache.inlong.sdk.transform.decode;
 
 import org.apache.inlong.sdk.transform.process.Context;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 /**
- * BsonSourceData
+ * AbstractSourceData
+ * 
  */
-public class BsonSourceData extends JsonSourceData {
+public abstract class AbstractSourceData implements SourceData {
 
-    public BsonSourceData(JsonObject root, JsonArray childRoot, Context context) {
-        super(root, childRoot, context);
+    public static final String CTX_KEY = "$ctx.";
+
+    protected Context context;
+
+    protected boolean isContextField(String fieldName) {
+        return fieldName.startsWith(CTX_KEY);
+    }
+
+    protected String getContextField(String fieldName) {
+        if (context == null) {
+            return "";
+        }
+        if (!isContextField(fieldName)) {
+            return null;
+        }
+        String realFieldName = fieldName.substring(CTX_KEY.length());
+        String fieldValue = this.context.getStringOrDefault(realFieldName, "");
+        return fieldValue;
     }
 }

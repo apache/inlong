@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.transform.decode;
 import java.util.List;
 import java.util.Map;
 
-public class YamlSourceData implements SourceData {
+public class YamlSourceData extends AbstractSourceData {
 
     public static final String ROOT_KEY = "$root";
 
