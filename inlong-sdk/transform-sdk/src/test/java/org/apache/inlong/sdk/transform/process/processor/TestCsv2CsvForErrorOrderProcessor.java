@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestCsv2CsvForErrorOrderProcessor extends AbstractProcessorTestBase {
 
@@ -42,16 +43,18 @@ public class TestCsv2CsvForErrorOrderProcessor extends AbstractProcessorTestBase
         CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', sourceFields);
         List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', sinkFields);
-        String transformSql = "select ftime as field2,data as field3,extinfo as field4 from source where extinfo='ok'";
+        String transformSql = "select ftime as field2,data as field3,extinfo as field4,$ctx.partition as field1 from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql, false);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
 
-        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok|data1", new HashMap<>());
+        Map<String, Object> extParams = new HashMap<>();
+        extParams.put("partition", "2024042801");
+        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok|data1", extParams);
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals("|2024-04-28 00:00:00|data1", output1.get(0));
+        Assert.assertEquals("2024042801|2024-04-28 00:00:00|data1", output1.get(0));
     }
 
     @Test

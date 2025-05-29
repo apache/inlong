@@ -24,30 +24,32 @@ import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestCsv2KvProcessor extends AbstractProcessorTestBase {
 
     @Test
     public void testCsv2Kv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo", "ds");
         CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', fields);
         KvSinkInfo kvSink = new KvSinkInfo("UTF-8", fields);
-        String transformSql = "select ftime,extinfo from source where extinfo='ok'";
+        String transformSql = "select ftime,extinfo,$ctx.partition from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
                         SinkEncoderFactory.createKvEncoder(kvSink));
 
-        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok", new HashMap<>());
+        Map<String, Object> extParams = new HashMap<>();
+        extParams.put("partition", "2024042801");
+        List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok", extParams);
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output1.get(0), "ftime=2024-04-28 00:00:00&extinfo=ok");
+        Assert.assertEquals(output1.get(0), "ftime=2024-04-28 00:00:00&extinfo=ok&ds=2024042801");
         // case2
         config.setTransformSql("select ftime,extinfo from source where extinfo!='ok'");
         TransformProcessor<String, String> processor2 = TransformProcessor
