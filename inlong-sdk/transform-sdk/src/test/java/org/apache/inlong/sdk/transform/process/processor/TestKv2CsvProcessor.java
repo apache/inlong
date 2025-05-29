@@ -36,7 +36,7 @@ public class TestKv2CsvProcessor extends AbstractProcessorTestBase {
 
     @Test
     public void testKv2Csv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo","ds");
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo", "ds");
         KvSourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
         String transformSql = "select ftime,extinfo,$ctx.partition from source where extinfo='ok'";

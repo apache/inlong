@@ -43,7 +43,8 @@ public class TestCsv2CsvForErrorOrderProcessor extends AbstractProcessorTestBase
         CsvSourceInfo csvSource = new CsvSourceInfo("UTF-8", '|', '\\', sourceFields);
         List<FieldInfo> sinkFields = this.getTestFieldList("field1", "field2", "field3");
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', sinkFields);
-        String transformSql = "select ftime as field2,data as field3,extinfo as field4,$ctx.partition as field1 from source where extinfo='ok'";
+        String transformSql =
+                "select ftime as field2,data as field3,extinfo as field4,$ctx.partition as field1 from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql, false);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
