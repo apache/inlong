@@ -86,18 +86,18 @@ public class JsonSourceDecoder extends SourceDecoder<String> {
         JsonObject root = gson.fromJson(srcString, JsonObject.class);
         JsonArray childRoot = null;
         if (CollectionUtils.isEmpty(childNodes)) {
-            return new JsonSourceData(root, null);
+            return new JsonSourceData(root, null, context);
         }
         JsonElement current = root;
         for (JsonNode node : childNodes) {
             if (!current.isJsonObject()) {
                 // error data
-                return new JsonSourceData(root, null);
+                return new JsonSourceData(root, null, context);
             }
             JsonElement newElement = current.getAsJsonObject().get(node.getName());
             if (newElement == null) {
                 // error data
-                return new JsonSourceData(root, null);
+                return new JsonSourceData(root, null, context);
             }
             // node is not array
             if (!node.isArray()) {
@@ -108,15 +108,15 @@ public class JsonSourceDecoder extends SourceDecoder<String> {
             current = getElementFromArray(node, newElement);
             if (current == null) {
                 // error data
-                return new JsonSourceData(root, null);
+                return new JsonSourceData(root, null, context);
             }
         }
         if (!current.isJsonArray()) {
             // error data
-            return new JsonSourceData(root, null);
+            return new JsonSourceData(root, null, context);
         }
         childRoot = current.getAsJsonArray();
-        return new JsonSourceData(root, childRoot);
+        return new JsonSourceData(root, childRoot, context);
     }
 
     private JsonElement getElementFromArray(JsonNode node, JsonElement curElement) {

@@ -30,15 +30,16 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestJson2CsvProcessor extends AbstractProcessorTestBase {
 
     @Test
     public void testJson2Csv() throws Exception {
-        List<FieldInfo> fields1 = this.getTestFieldList("sid", "packageID", "msgTime", "msg");
+        List<FieldInfo> fields1 = this.getTestFieldList("sid", "packageID", "msgTime", "msg", "ds");
         JsonSourceInfo jsonSource1 = new JsonSourceInfo("UTF-8", "msgs");
         CsvSinkInfo csvSink1 = new CsvSinkInfo("UTF-8", '|', '\\', fields1);
-        String transformSql1 = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
+        String transformSql1 = "select $root.sid,$root.packageID,$child.msgTime,$child.msg,$ctx.partition from source";
         TransformConfig config1 = new TransformConfig(transformSql1);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
@@ -52,10 +53,12 @@ public class TestJson2CsvProcessor extends AbstractProcessorTestBase {
                 + "  {\"msg\":\"v4\",\"msgTime\":1713243918000}\n"
                 + "  ]\n"
                 + "}";
-        List<String> output1 = processor1.transform(srcString1, new HashMap<>());
+        Map<String, Object> extParams = new HashMap<>();
+        extParams.put("partition", "2024042801");
+        List<String> output1 = processor1.transform(srcString1, extParams);
         Assert.assertEquals(2, output1.size());
-        Assert.assertEquals(output1.get(0), "value1|value2|1713243918000|value4");
-        Assert.assertEquals(output1.get(1), "value1|value2|1713243918000|v4");
+        Assert.assertEquals(output1.get(0), "value1|value2|1713243918000|value4|2024042801");
+        Assert.assertEquals(output1.get(1), "value1|value2|1713243918000|v4|2024042801");
         // case2
         List<FieldInfo> fields2 = this.getTestFieldList("id", "itemId", "subItemId", "msg");
         JsonSourceInfo jsonSource2 = new JsonSourceInfo("UTF-8", "items");

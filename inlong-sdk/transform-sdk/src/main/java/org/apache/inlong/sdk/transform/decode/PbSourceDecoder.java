@@ -145,7 +145,7 @@ public class PbSourceDecoder extends SourceDecoder<byte[]> {
                     }
                 }
             }
-            return new PbSourceData(root, childRoot, rootDesc, childDesc, columnNodeMap, srcCharset);
+            return new PbSourceData(root, childRoot, rootDesc, childDesc, columnNodeMap, srcCharset, context);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;

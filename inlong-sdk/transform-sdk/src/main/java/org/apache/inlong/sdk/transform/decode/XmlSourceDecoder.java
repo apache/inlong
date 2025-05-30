@@ -83,7 +83,7 @@ public class XmlSourceDecoder extends SourceDecoder<String> {
                     cur = child.getValue();
                 }
             }
-            return new XmlSourceData(rootObj, child);
+            return new XmlSourceData(rootObj, child, context);
         } catch (Exception e) {
             log.error("Data parsing failed", e);
             return null;

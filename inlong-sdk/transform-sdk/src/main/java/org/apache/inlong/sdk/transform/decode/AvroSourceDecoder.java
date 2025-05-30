@@ -74,7 +74,7 @@ public class AvroSourceDecoder extends SourceDecoder<byte[]> {
             GenericRecord root = dataFileStream.next();
             List<GenericRecord> childRoot = null;
             if (CollectionUtils.isEmpty(childNodes)) {
-                return new AvroSourceData(root, null, srcCharset);
+                return new AvroSourceData(root, null, srcCharset, context);
             }
 
             Object current = root;
@@ -83,12 +83,12 @@ public class AvroSourceDecoder extends SourceDecoder<byte[]> {
             for (AvroNode node : childNodes) {
                 if (curSchema.getType() != Type.RECORD) {
                     // error data
-                    return new AvroSourceData(root, null, srcCharset);
+                    return new AvroSourceData(root, null, srcCharset, context);
                 }
                 Object newElement = ((GenericRecord) current).get(node.getName());
                 if (newElement == null) {
                     // error data
-                    return new AvroSourceData(root, null, srcCharset);
+                    return new AvroSourceData(root, null, srcCharset, context);
                 }
                 // node is not array
                 if (!node.isArray()) {
@@ -100,15 +100,15 @@ public class AvroSourceDecoder extends SourceDecoder<byte[]> {
                 current = getElementFromArray(node, newElement, curSchema);
                 if (current == null) {
                     // error data
-                    return new AvroSourceData(root, null, srcCharset);
+                    return new AvroSourceData(root, null, srcCharset, context);
                 }
             }
             if (curSchema.getType() != Type.ARRAY) {
                 // error data
-                return new AvroSourceData(root, null, srcCharset);
+                return new AvroSourceData(root, null, srcCharset, context);
             }
             childRoot = (List<GenericRecord>) current;
-            return new AvroSourceData(root, childRoot, srcCharset);
+            return new AvroSourceData(root, childRoot, srcCharset, context);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;

@@ -75,7 +75,7 @@ public class KvSourceDecoder extends SourceDecoder<String> {
     public SourceData decode(String srcString, Context context) {
         List<Map<String, String>> rowValues = KvUtils.splitKv(srcString, entryDelimiter, kvDelimiter,
                 escapeChar, quoteChar, lineDelimiter);
-        KvSourceData sourceData = new KvSourceData();
+        KvSourceData sourceData = new KvSourceData(context);
         if (CollectionUtils.isEmpty(fields)) {
             for (Map<String, String> row : rowValues) {
                 sourceData.addRow();

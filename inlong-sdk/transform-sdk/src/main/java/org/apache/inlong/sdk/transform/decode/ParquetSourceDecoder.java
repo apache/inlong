@@ -92,7 +92,7 @@ public class ParquetSourceDecoder extends SourceDecoder<byte[]> {
                     for (int i = 0; i < rows; i++) {
                         Group group = recordReader.read();
                         if (group != null) {
-                            return new ParquetSourceData(group, this.childMessagePath, this.srcCharset);
+                            return new ParquetSourceData(group, this.childMessagePath, this.srcCharset, context);
                         }
                     }
                 }

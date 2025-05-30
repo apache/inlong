@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,13 +27,14 @@ import java.util.Map;
 /**
  * KvSourceData
  */
-public class KvSourceData implements SourceData {
+public class KvSourceData extends AbstractSourceData {
 
     private List<Map<String, String>> rows = new ArrayList<>();
 
     private Map<String, String> currentRow;
 
-    public KvSourceData() {
+    public KvSourceData(Context context) {
+        this.context = context;
     }
 
     public void putField(String fieldName, String fieldValue) {
@@ -52,6 +55,9 @@ public class KvSourceData implements SourceData {
     public String getField(int rowNum, String fieldName) {
         if (rowNum >= this.rows.size()) {
             return null;
+        }
+        if (isContextField(fieldName)) {
+            return getContextField(fieldName);
         }
         Map<String, String> targetRow = this.rows.get(rowNum);
         return targetRow.get(fieldName);
