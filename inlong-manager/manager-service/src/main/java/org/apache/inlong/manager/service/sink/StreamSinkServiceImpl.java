@@ -33,12 +33,14 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
@@ -62,6 +64,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
@@ -110,6 +113,7 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NO
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_CSV;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
+import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarQueueResourceOperator.PULSAR_SUBSCRIPTION;
 import static org.apache.inlong.manager.service.resource.queue.tubemq.TubeMQQueueResourceOperator.TUBE_CONSUMER_GROUP;
 
@@ -133,6 +137,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private GroupCheckService groupCheckService;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -764,8 +770,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.expectNotBlank(request.getTransformSql(), "Transform sql is empty");
         DataTypeOperator dataTypeOperator =
                 dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamEntity.getDataType()));
+        InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
+        unpackExtParams(streamEntity.getExtParams(), streamInfo);
+        List<InlongStreamFieldEntity> fieldEntityList =
+                streamFieldMapper.selectByIdentifier(request.getInlongGroupId(), request.getInlongStreamId());
+        List<StreamField> streamFields = CommonBeanUtils.copyListProperties(fieldEntityList, StreamField::new);
+        streamInfo.setFieldList(streamFields);
         Map<String, Object> result =
-                dataTypeOperator.parseTransform(streamEntity, request.getSinkFieldList(), request.getTransformSql(),
+                dataTypeOperator.parseTransform(streamInfo, request.getSinkFieldList(), request.getTransformSql(),
                         request.getData());
         LOGGER.info("success to parse transform for data: {}, result={}", request, result);
         return result;

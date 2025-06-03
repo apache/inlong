@@ -21,7 +21,6 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -54,10 +53,10 @@ public interface DataTypeOperator {
                 String.format("current type is not support for data type=%s", streamInfo.getDataType()));
     }
 
-    default Map<String, Object> parseTransform(InlongStreamEntity streamEntity, List<SinkField> fieldList,
+    default Map<String, Object> parseTransform(InlongStreamInfo streamInfo, List<SinkField> fieldList,
             String transformSql, String data) {
         throw new BusinessException(
-                String.format("current type is not support for data type=%s", streamEntity.getDataType()));
+                String.format("current type is not support for data type=%s", streamInfo.getDataType()));
     }
 
 }
