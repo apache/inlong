@@ -30,23 +30,26 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestKv2CsvProcessor extends AbstractProcessorTestBase {
 
     @Test
     public void testKv2Csv() throws Exception {
-        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo");
+        List<FieldInfo> fields = this.getTestFieldList("ftime", "extinfo", "ds");
         KvSourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
         CsvSinkInfo csvSink = new CsvSinkInfo("UTF-8", '|', '\\', fields);
-        String transformSql = "select ftime,extinfo from source where extinfo='ok'";
+        String transformSql = "select ftime,extinfo,$ctx.partition from source where extinfo='ok'";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
         TransformProcessor<String, String> processor1 = TransformProcessor
                 .create(config, SourceDecoderFactory.createKvDecoder(kvSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
-        List<String> output1 = processor1.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+        Map<String, Object> extParams = new HashMap<>();
+        extParams.put("partition", "2024042801");
+        List<String> output1 = processor1.transform("ftime=2024-04-28 00:00:00&extinfo=ok", extParams);
         Assert.assertEquals(1, output1.size());
-        Assert.assertEquals(output1.get(0), "2024-04-28 00:00:00|ok");
+        Assert.assertEquals(output1.get(0), "2024-04-28 00:00:00|ok|2024042801");
         // case2
         config.setTransformSql("select ftime,extinfo from source where extinfo!='ok'");
         TransformProcessor<String, String> processor2 = TransformProcessor

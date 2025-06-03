@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
+
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericRecord;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AvroSourceData implements SourceData {
+public class AvroSourceData extends AbstractSourceData {
 
     public static final String ROOT_KEY = "$root";
 
@@ -41,10 +43,11 @@ public class AvroSourceData implements SourceData {
 
     private Charset srcCharset;
 
-    public AvroSourceData(GenericRecord root, List<GenericRecord> childRoot, Charset srcCharset) {
+    public AvroSourceData(GenericRecord root, List<GenericRecord> childRoot, Charset srcCharset, Context context) {
         this.root = root;
         this.childRoot = childRoot;
         this.srcCharset = srcCharset;
+        this.context = context;
     }
 
     @Override
@@ -59,6 +62,9 @@ public class AvroSourceData implements SourceData {
     @Override
     public String getField(int rowNum, String fieldName) {
         try {
+            if (isContextField(fieldName)) {
+                return getContextField(fieldName);
+            }
             List<AvroNode> childNodes = new ArrayList<>();
             String[] nodeStrings = fieldName.split("\\.");
             for (String nodeString : nodeStrings) {

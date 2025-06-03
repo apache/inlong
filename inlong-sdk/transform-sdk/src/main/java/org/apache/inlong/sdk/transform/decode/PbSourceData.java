@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
@@ -34,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * JsonSourceData
  * 
  */
-public class PbSourceData implements SourceData {
+public class PbSourceData extends AbstractSourceData {
 
     private static final Logger LOG = LoggerFactory.getLogger(PbSourceData.class);
 
@@ -60,13 +62,14 @@ public class PbSourceData implements SourceData {
     public PbSourceData(DynamicMessage root, List<DynamicMessage> childRoot,
             Descriptors.Descriptor rootDesc, Descriptors.Descriptor childDesc,
             Map<String, List<PbNode>> columnNodeMap,
-            Charset srcCharset) {
+            Charset srcCharset, Context context) {
         this.root = root;
         this.childRoot = childRoot;
         this.rootDesc = rootDesc;
         this.childDesc = childDesc;
         this.columnNodeMap = columnNodeMap;
         this.srcCharset = srcCharset;
+        this.context = context;
     }
 
     /**
@@ -105,6 +108,9 @@ public class PbSourceData implements SourceData {
     public String getField(int rowNum, String fieldName) {
         String fieldValue = "";
         try {
+            if (isContextField(fieldName)) {
+                return getContextField(fieldName);
+            }
             if (StringUtils.startsWith(fieldName, ROOT_KEY)) {
                 fieldValue = this.getRootField(fieldName);
             } else if (StringUtils.startsWith(fieldName, CHILD_KEY)) {

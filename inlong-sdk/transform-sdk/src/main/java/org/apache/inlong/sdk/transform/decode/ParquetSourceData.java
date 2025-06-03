@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.parquet.example.data.Group;
 import org.apache.parquet.schema.GroupType;
@@ -29,7 +31,7 @@ import java.nio.charset.Charset;
 /**
  * ParquetSourceData
  */
-public class ParquetSourceData implements SourceData {
+public class ParquetSourceData extends AbstractSourceData {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParquetSourceData.class);
 
@@ -44,7 +46,7 @@ public class ParquetSourceData implements SourceData {
     private Type childType;
     private int rowCount = -1;
 
-    public ParquetSourceData(Group root, String childPath, Charset srcCharset) {
+    public ParquetSourceData(Group root, String childPath, Charset srcCharset, Context context) {
         this.rootGroup = root;
         String pathStr = "";
         if (!StringUtils.isEmpty(childPath)) {
@@ -60,6 +62,7 @@ public class ParquetSourceData implements SourceData {
             }
         }
         this.srcCharset = srcCharset;
+        this.context = context;
     }
     @Override
     public int getRowCount() {
@@ -74,6 +77,9 @@ public class ParquetSourceData implements SourceData {
     public String getField(int rowNum, String fieldName) {
         String fieldValue = "";
         try {
+            if (isContextField(fieldName)) {
+                return getContextField(fieldName);
+            }
             if (StringUtils.startsWith(fieldName, ROOT_KEY)) {
                 // Dealing with multi-level paths
                 fieldName = fieldName.substring(ROOT_KEY.length());

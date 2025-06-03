@@ -60,7 +60,7 @@ public class CsvSourceDecoder extends SourceDecoder<String> {
     @Override
     public SourceData decode(String srcString, Context context) {
         String[][] rowValues = SplitUtils.splitCsv(srcString, delimiter, escapeChar, '\"', '\n', true);
-        CsvSourceData sourceData = new CsvSourceData();
+        CsvSourceData sourceData = new CsvSourceData(context);
         for (int i = 0; i < rowValues.length; i++) {
             String[] fieldValues = rowValues[i];
             sourceData.addRow();

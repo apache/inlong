@@ -61,7 +61,7 @@ public class RowDataSourceDecoder extends SourceDecoder<RowData> {
 
     @Override
     public SourceData decode(RowData rowData, Context context) {
-        return new RowDataSourceData(rowData, fieldPositionMap, rowFieldConverters);
+        return new RowDataSourceData(rowData, fieldPositionMap, rowFieldConverters, context);
     }
 
 }

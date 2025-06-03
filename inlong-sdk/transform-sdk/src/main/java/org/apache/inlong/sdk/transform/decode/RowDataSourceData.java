@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.utils.RowToFieldDataUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ import org.apache.flink.table.data.RowData;
 import java.util.Map;
 
 @Slf4j
-public class RowDataSourceData implements SourceData {
+public class RowDataSourceData extends AbstractSourceData {
 
     private final RowData rowData;
     private final Map<String, Integer> fieldPositionMap;
@@ -34,10 +35,11 @@ public class RowDataSourceData implements SourceData {
     public RowDataSourceData(
             RowData rowData,
             Map<String, Integer> fieldPositionMap,
-            RowToFieldDataUtils.RowFieldConverter[] converters) {
+            RowToFieldDataUtils.RowFieldConverter[] converters, Context context) {
         this.rowData = rowData;
         this.fieldPositionMap = fieldPositionMap;
         this.converters = converters;
+        this.context = context;
     }
 
     @Override
@@ -51,6 +53,9 @@ public class RowDataSourceData implements SourceData {
             return null;
         }
         try {
+            if (isContextField(fieldName)) {
+                return getContextField(fieldName);
+            }
             int fieldPosition = fieldPositionMap.get(fieldName);
             return converters[fieldPosition].convert(rowData, fieldPosition);
         } catch (Throwable e) {
