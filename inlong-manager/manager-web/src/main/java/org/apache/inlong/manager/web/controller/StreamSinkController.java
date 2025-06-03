@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.dirtyData.DirtyQueryLogService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
@@ -181,4 +182,9 @@ public class StreamSinkController {
         return Response.success(dirtyQueryLogService.getSqlTaskStatus(taskId));
     }
 
+    @RequestMapping(value = "/sink/parseTransform", method = RequestMethod.POST)
+    @ApiOperation(value = "parse transform sql from data")
+    public Response<Map<String, Object>> parseTransform(@RequestBody TransformParseRequest request) {
+        return Response.success(sinkService.parseTransform(request));
+    }
 }

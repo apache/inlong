@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Open InLong Stream Sink controller
@@ -112,5 +114,11 @@ public class OpenStreamSinkController {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sinkId cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/sink/parseTransform", method = RequestMethod.POST)
+    @ApiOperation(value = "parse transform sql from data")
+    public Response<Map<String, Object>> parseTransform(@RequestBody TransformParseRequest request) {
+        return Response.success(sinkService.parseTransform(request));
     }
 }

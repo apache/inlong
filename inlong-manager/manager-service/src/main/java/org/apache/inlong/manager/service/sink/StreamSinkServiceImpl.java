@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationTarget;
@@ -59,8 +60,11 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.datatype.DataTypeOperator;
+import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.user.UserService;
@@ -135,6 +139,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    public DataTypeOperatorFactory dataTypeOperatorFactory;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
     @Autowired
@@ -744,6 +750,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("parse sink fields error: %s", e.getMessage()));
         }
+    }
+
+    @Override
+    public Map<String, Object> parseTransform(TransformParseRequest request) {
+        LOGGER.info("begin to parse transform for data: {}", request);
+        // Check whether the stream exist or not
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
+                request.getInlongGroupId(), request.getInlongStreamId());
+        Preconditions.expectNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        Preconditions.expectTrue(CollectionUtils.isNotEmpty(request.getSinkFieldList()),
+                ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getTransformSql(), "Transform sql is empty");
+        DataTypeOperator dataTypeOperator =
+                dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamEntity.getDataType()));
+        Map<String, Object> result =
+                dataTypeOperator.parseTransform(streamEntity, request.getSinkFieldList(), request.getTransformSql(),
+                        request.getData());
+        LOGGER.info("success to parse transform for data: {}, result={}", request, result);
+        return result;
     }
 
     private List<SinkField> parseFieldsByCsv(String statement) {

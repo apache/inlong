@@ -30,10 +30,12 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
@@ -170,5 +172,18 @@ public class StreamSinkClient {
         Preconditions.expectNotBlank(statement, "The statement must not empty");
         ParseFieldRequest request = ParseFieldRequest.builder().method(method).statement(statement).build();
         return parseFields(request);
+    }
+
+    /**
+     * Parse transform sql for data
+     *
+     * @param transformParseRequest the request for parse transform
+     * @return result of parse result
+     */
+    public Map<String, Object> parseTransform(TransformParseRequest transformParseRequest) {
+        Response<Map<String, Object>> response =
+                ClientUtils.executeHttpCall(streamSinkApi.parseTransform(transformParseRequest));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
     }
 }
