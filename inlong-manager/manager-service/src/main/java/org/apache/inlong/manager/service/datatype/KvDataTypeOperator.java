@@ -20,15 +20,26 @@ package org.apache.inlong.manager.service.datatype;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sdk.transform.decode.KvUtils;
+import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
+import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
+import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -100,5 +111,55 @@ public class KvDataTypeOperator implements DataTypeOperator {
         kvConfig.setEntrySplitter(separator);
         kvConfig.setEscapeChar(escape);
         return kvConfig;
+    }
+
+    @Override
+    public Map<String, Object> parseTransform(InlongStreamInfo streamInfo, List<SinkField> fieldList,
+            String transformSql,
+            String data) {
+        try {
+            List<org.apache.inlong.sdk.transform.pojo.FieldInfo> srcFields = new ArrayList<>();
+            List<org.apache.inlong.sdk.transform.pojo.FieldInfo> dstFields = new ArrayList<>();
+            for (StreamField streamField : streamInfo.getFieldList()) {
+                if (StringUtils.isNotBlank(streamField.getFieldName())) {
+                    srcFields.add(
+                            new org.apache.inlong.sdk.transform.pojo.FieldInfo(streamField.getFieldName(),
+                                    TypeConverter.DefaultTypeConverter()));
+                }
+            }
+            for (SinkField sinkField : fieldList) {
+                String targetFieldName = sinkField.getFieldName();
+                if (StringUtils.isNotBlank(targetFieldName)) {
+                    dstFields.add(new org.apache.inlong.sdk.transform.pojo.FieldInfo(targetFieldName));
+                }
+            }
+            char separator = '&';
+            if (StringUtils.isNotBlank(streamInfo.getDataSeparator())) {
+                separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
+            }
+            Character escape = null;
+            if (StringUtils.isNotBlank(streamInfo.getDataEscapeChar())) {
+                escape = streamInfo.getDataEscapeChar().charAt(0);
+            }
+            char kvSeparator = '=';
+            if (StringUtils.isNotBlank(streamInfo.getKvSeparator())) {
+                kvSeparator = (char) Integer.parseInt(streamInfo.getKvSeparator());
+            }
+            KvSourceInfo kvSourceInfo = new KvSourceInfo(streamInfo.getDataEncoding(), srcFields);
+            kvSourceInfo.setEscapeChar(escape);
+            kvSourceInfo.setEntryDelimiter(separator);
+            kvSourceInfo.setKvDelimiter(kvSeparator);
+            MapSinkInfo mapSinkInfo = new MapSinkInfo(streamInfo.getDataEncoding(), dstFields);
+            TransformConfig config = new TransformConfig(transformSql);
+            TransformProcessor<String, Map<String, Object>> processor = TransformProcessor
+                    .create(config, SourceDecoderFactory.createKvDecoder(kvSourceInfo),
+                            SinkEncoderFactory.createMapEncoder(mapSinkInfo));
+            List<Map<String, Object>> result = processor.transform(data);
+            log.info("success parse transform sql result={}", result);
+            return result.get(0);
+        } catch (Exception e) {
+            log.error("parse transform sql failed", e);
+            throw new BusinessException("parse transform sql failed" + e.getMessage());
+        }
     }
 }

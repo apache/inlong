@@ -22,9 +22,11 @@ import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Data type operator
@@ -47,6 +49,12 @@ public interface DataTypeOperator {
     }
 
     default DataTypeConfig getDataTypeConfig(InlongStreamInfo streamInfo) {
+        throw new BusinessException(
+                String.format("current type is not support for data type=%s", streamInfo.getDataType()));
+    }
+
+    default Map<String, Object> parseTransform(InlongStreamInfo streamInfo, List<SinkField> fieldList,
+            String transformSql, String data) {
         throw new BusinessException(
                 String.format("current type is not support for data type=%s", streamInfo.getDataType()));
     }

@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -247,4 +248,13 @@ public interface StreamSinkService {
      * @return list of sink field
      */
     List<SinkField> parseFields(ParseFieldRequest parseFieldRequest);
+
+    /**
+     * Parse transform sql for data
+     *
+     * @param request the request for parse transform
+     * @return result of parse result
+     */
+    Map<String, Object> parseTransform(TransformParseRequest request);
+
 }

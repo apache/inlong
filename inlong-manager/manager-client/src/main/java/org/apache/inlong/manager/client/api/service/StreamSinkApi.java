@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.TransformParseRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -36,6 +37,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StreamSinkApi {
 
@@ -67,4 +69,6 @@ public interface StreamSinkApi {
     @POST("sink/parseFields")
     Call<Response<List<SinkField>>> parseFields(@Body ParseFieldRequest parseFieldRequest);
 
+    @POST("sink/parseTransform")
+    Call<Response<Map<String, Object>>> parseTransform(@Body TransformParseRequest request);
 }
