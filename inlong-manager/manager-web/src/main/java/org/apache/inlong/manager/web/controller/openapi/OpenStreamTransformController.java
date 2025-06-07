@@ -105,4 +105,11 @@ public class OpenStreamTransformController {
             @Validated @RequestBody TransformFunctionDocRequest request) {
         return Response.success(transformFunctionDocService.listByCondition(request));
     }
+
+    @RequestMapping(value = "/transform/parseTransformSql", method = RequestMethod.POST)
+    @ApiOperation(value = "Parse stream transform sql")
+    public Response<String> parseTransformSql(@Validated @RequestBody TransformRequest request) {
+        return Response.success(
+                streamTransformService.parseTransformSql(request, LoginUserUtils.getLoginUser().getName()));
+    }
 }

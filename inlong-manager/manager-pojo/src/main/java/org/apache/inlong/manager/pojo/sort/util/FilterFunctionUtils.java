@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringTypeInfo;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -38,6 +40,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.LogicOperator;
 import org.apache.inlong.sort.protocol.transformation.MultiValueCompareOperator;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
@@ -204,12 +207,15 @@ public class FilterFunctionUtils {
             return new ConstantParam("");
         }
         boolean isConstant = value.isConstant();
+        StreamField targetField = value.getTargetField();
+        String fieldType = targetField.getFieldType();
         if (isConstant) {
+            FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
+                    targetField.getFieldType(), targetField.getFieldFormat());
             String constant = value.getTargetConstant();
-            return new ConstantParam(constant);
+            return formatInfo.getTypeInfo() == StringTypeInfo.INSTANCE ? new StringConstantParam(constant)
+                    : new ConstantParam(constant);
         } else {
-            StreamField targetField = value.getTargetField();
-            String fieldType = targetField.getFieldType();
             String fieldFormat = targetField.getFieldFormat();
             String fieldName = targetField.getFieldName();
             if (FieldType.FUNCTION.name().equalsIgnoreCase(fieldType)) {

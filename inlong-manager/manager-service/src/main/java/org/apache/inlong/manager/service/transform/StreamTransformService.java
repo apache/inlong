@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.transform;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
@@ -83,4 +84,21 @@ public interface StreamTransformService {
      * @return Whether succeed
      */
     Boolean delete(DeleteTransformRequest request, String operator);
+
+    /**
+     * Get transform sql by sink
+     *
+     * @param sink sink info
+     * @return return transform sql
+     */
+    String getTransformSql(StreamSink sink);
+
+    /**
+     * Parse transform sql by transform information
+     *
+     * @param request the transform request
+     * @return return transform sql
+     */
+    String parseTransformSql(TransformRequest request, String operator);
+
 }
