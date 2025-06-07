@@ -44,4 +44,7 @@ public interface StreamTransformApi {
     Call<Response<Boolean>> deleteTransform(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId, @Query("transformName") String transformName);
 
+    @POST("transform/parseTransformSql")
+    Call<Response<String>> parseTransformSql(@Body TransformRequest request);
+
 }

@@ -23,12 +23,17 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
@@ -36,9 +41,11 @@ import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -53,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +78,11 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Autowired
     protected StreamTransformFieldEntityMapper transformFieldMapper;
     @Autowired
+    private StreamSinkFieldEntityMapper sinkFieldEntityMapper;
+    @Autowired
     protected GroupCheckService groupCheckService;
+    @Autowired
+    private StreamSinkService sinkService;
     @Autowired
     protected UserService userService;
 
@@ -98,6 +110,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setModifier(operator);
         transformMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, request.getFieldList());
+        saveTransformSql(request, operator);
         return transformEntity.getId();
     }
 
@@ -183,6 +196,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         updateFieldOpt(transformEntity, request.getFieldList());
+        saveTransformSql(request, operator);
         return true;
     }
 
@@ -340,5 +354,46 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
         transformFieldMapper.insertAll(entityList);
         LOGGER.debug("success to save transform fields");
+    }
+
+    @Override
+    public String getTransformSql(StreamSink sink) {
+        List<TransformResponse> transformResponseList =
+                listTransform(sink.getInlongGroupId(), sink.getInlongStreamId());
+        List<TransformResponse> filterList = transformResponseList.stream()
+                .filter(v -> {
+                    Set<String> postNodes = Sets.newHashSet(v.getPostNodeNames().split(InlongConstants.COMMA));
+                    return postNodes.contains(sink.getSinkName());
+                }).collect(
+                        Collectors.toList());
+        List<StreamSinkFieldEntity> sinkFieldEntityList = sinkFieldEntityMapper.selectBySinkId(sink.getId());
+        return TransformSqlParser.parse(filterList,
+                CommonBeanUtils.copyListProperties(sinkFieldEntityList, SinkField::new));
+    }
+
+    @Override
+    public String parseTransformSql(TransformRequest request, String operator) {
+        List<SinkField> sinkFields = CommonBeanUtils.copyListProperties(request.getFieldList(), SinkField::new);
+        sinkFields.forEach(v -> v.setSourceFieldName(v.getOriginFieldName()));
+        List<TransformResponse> filterList =
+                Collections.singletonList(CommonBeanUtils.copyProperties(request, TransformResponse::new));
+        return TransformSqlParser.parse(filterList,
+                CommonBeanUtils.copyListProperties(sinkFields, SinkField::new));
+    }
+
+    private void saveTransformSql(TransformRequest request, String operator) {
+        LOGGER.info("begin to save transform sql: {}", request);
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (InlongConstants.STANDARD_MODE.equals(groupEntity.getInlongGroupMode())) {
+            Set<String> postNodes = Sets.newHashSet(request.getPostNodeNames().split(InlongConstants.COMMA));
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+            sinkList.stream().filter(v -> postNodes.contains(v.getSinkName())).forEach(v -> {
+                SinkRequest sinkRequest = v.genSinkRequest();
+                sinkRequest.setTransformSql(getTransformSql(v));
+                sinkService.update(sinkRequest, operator);
+            });
+        }
     }
 }
