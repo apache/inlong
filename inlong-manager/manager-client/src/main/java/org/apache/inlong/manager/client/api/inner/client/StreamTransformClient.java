@@ -90,4 +90,13 @@ public class StreamTransformClient {
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    /**
+     * Parse transform sql
+     */
+    public String parseTransformSql(TransformRequest transformRequest) {
+        Response<String> response = ClientUtils.executeHttpCall(streamTransformApi.parseTransformSql(transformRequest));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
 }
