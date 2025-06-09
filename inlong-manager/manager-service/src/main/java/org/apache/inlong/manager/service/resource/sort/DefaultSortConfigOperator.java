@@ -36,7 +36,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
@@ -252,13 +251,12 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
         DataTypeConfig dataTypeConfig = dataTypeOperator.getDataTypeConfig(streamInfo);
         SourceConfig sourceConfig = new SourceConfig();
-        List<StreamSinkFieldEntity> sinkFieldEntities = sinkFieldMapper.selectBySinkId(sink.getId());
-        List<FieldConfig> fields = sinkFieldEntities.stream().map(
+        List<FieldConfig> fields = streamInfo.getFieldList().stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
                     FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
-                            v.getSourceFieldType().toLowerCase());
-                    fieldConfig.setName(v.getSourceFieldName());
+                            v.getFieldType().toLowerCase());
+                    fieldConfig.setName(v.getFieldName());
                     fieldConfig.setFormatInfo(formatInfo);
                     return fieldConfig;
                 }).collect(Collectors.toList());
