@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.common.LogItem;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;

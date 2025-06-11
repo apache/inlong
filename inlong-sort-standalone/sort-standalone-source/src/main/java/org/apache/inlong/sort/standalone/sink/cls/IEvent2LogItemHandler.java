@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.tencentcloudapi.cls.producer.common.LogItem;
-
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
+import com.tencentcloudapi.cls.producer.common.LogItem;
 
 import java.util.List;
 import java.util.Map;

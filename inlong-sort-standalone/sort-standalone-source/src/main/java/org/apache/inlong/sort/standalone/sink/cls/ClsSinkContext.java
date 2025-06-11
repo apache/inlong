@@ -17,18 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.tencentcloudapi.cls.producer.AsyncProducerClient;
-import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
-import com.tencentcloudapi.cls.producer.errors.ProducerException;
-import com.tencentcloudapi.cls.producer.util.NetworkUtils;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
@@ -52,6 +40,19 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.tencentcloudapi.cls.producer.AsyncProducerClient;
+import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
+import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import com.tencentcloudapi.cls.producer.util.NetworkUtils;
+import lombok.Getter;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -61,8 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import lombok.Getter;
 
 public class ClsSinkContext extends SinkContext {
 

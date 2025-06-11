@@ -62,7 +62,7 @@ public class SortMetricItem extends MetricItem {
     public static final String M_SINK_DURATION = "sinkDuration";
     public static final String M_NODE_DURATION = "nodeDuration";
     public static final String M_WHOLE_DURATION = "wholeDuration";
-    
+
     public static final String M_READ_FILTER_COUNT = "readFilterCount";
     public static final String M_READ_FILTER_SIZE = "readFilterSize";
 
