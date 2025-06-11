@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.cls;
 
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.ClsSinkConfig;
 import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 public class ClsIdConfig extends IdConfig {
 
     private String separator = "|";
+    private DataTypeConfig dataTypeConfig;
     private String endpoint;
     private String secretId;
     private String secretKey;
@@ -63,6 +65,7 @@ public class ClsIdConfig extends IdConfig {
                 .contentOffset(sinkConfig.getContentOffset())
                 .fieldOffset(sinkConfig.getFieldOffset())
                 .separator(sinkConfig.getSeparator())
+                .dataTypeConfig(dataFlowConfig.getSourceConfig().getDataTypeConfig())
                 .fieldList(fields)
                 .topicId(sinkConfig.getTopicId())
                 .endpoint(nodeConfig.getEndpoint())

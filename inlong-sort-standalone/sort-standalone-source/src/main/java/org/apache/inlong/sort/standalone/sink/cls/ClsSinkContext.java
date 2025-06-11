@@ -17,10 +17,30 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.tencentcloudapi.cls.producer.AsyncProducerClient;
+import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
+import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import com.tencentcloudapi.cls.producer.util.NetworkUtils;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.ClsSinkConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.transform.encode.MapSinkEncoder;
+import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -32,17 +52,6 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tencentcloudapi.cls.producer.AsyncProducerClient;
-import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
-import com.tencentcloudapi.cls.producer.errors.ProducerException;
-import com.tencentcloudapi.cls.producer.util.NetworkUtils;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -52,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 
 public class ClsSinkContext extends SinkContext {
 
@@ -80,6 +91,10 @@ public class ClsSinkContext extends SinkContext {
     private IEvent2LogItemHandler event2LogItemHandler;
     private ClsNodeConfig clsNodeConfig;
     private ObjectMapper objectMapper;
+
+    // Map<Uid, TransformProcessor<String sourceType, Map<String, Object> sinkType>
+    @Getter
+    protected Map<String, TransformProcessor<String, Map<String, Object>>> transformMap;
 
     public ClsSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
@@ -122,7 +137,14 @@ public class ClsSinkContext extends SinkContext {
             Map<String, ClsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig, clsNodeConfig);
             Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
             SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
-            idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
+            Map<String, TransformProcessor<String, Map<String, Object>>> transformProcessor =
+                    reloadTransform(taskConfig);
+            if (unifiedConfiguration) {
+                idConfigMap = fromTaskConfig;
+                transformMap = transformProcessor;
+            } else {
+                idConfigMap = fromSortTaskConfig;
+            }
             this.reloadClients(idConfigMap);
             this.reloadHandler();
         } catch (Exception e) {
@@ -216,6 +238,18 @@ public class ClsSinkContext extends SinkContext {
         }
         deletingClients.add(clientMap.remove(secretId));
     }
+    /**
+     * addSendMetric
+     *
+     * @param currentRecord
+     * @param topic
+     */
+    public void addSendMetric(ProfileEvent currentRecord, String topic) {
+        Map<String, String> dimensions = this.getDimensions(currentRecord, topic);
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        metricItem.sendCount.incrementAndGet();
+        metricItem.sendSize.addAndGet(currentRecord.getBody().length);
+    }
 
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
@@ -237,6 +271,13 @@ public class ClsSinkContext extends SinkContext {
             metricItem.sendFailCount.incrementAndGet();
             metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
+    }
+
+    public void addSendFilterMetric(ProfileEvent currentRecord, String bid) {
+        Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        metricItem.sendFilterCount.incrementAndGet();
+        metricItem.sendFilterSize.addAndGet(currentRecord.getBody().length);
     }
 
     private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
@@ -267,5 +308,57 @@ public class ClsSinkContext extends SinkContext {
 
     public AsyncProducerClient getClient(String secretId) {
         return clientMap.get(secretId);
+    }
+
+    public TransformProcessor<String, Map<String, Object>> getTransformProcessor(String uid) {
+        return this.transformMap.get(uid);
+    }
+
+    private Map<String, TransformProcessor<String, Map<String, Object>>> reloadTransform(TaskConfig taskConfig) {
+        ImmutableMap.Builder<String, TransformProcessor<String, Map<String, Object>>> builder =
+                new ImmutableMap.Builder<>();
+
+        taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .forEach(flow -> {
+                    TransformProcessor<String, Map<String, Object>> transformProcessor =
+                            createTransform(flow);
+                    if (transformProcessor == null) {
+                        return;
+                    }
+                    builder.put(InlongId.generateUid(flow.getInlongGroupId(), flow.getInlongStreamId()),
+                            transformProcessor);
+                });
+
+        return builder.build();
+    }
+
+    private TransformProcessor<String, Map<String, Object>> createTransform(DataFlowConfig dataFlowConfig) {
+        try {
+            return TransformProcessor.create(
+                    createTransformConfig(dataFlowConfig),
+                    createSourceDecoder(dataFlowConfig.getSourceConfig()),
+                    createClsSinkEncoder(dataFlowConfig.getSinkConfig()));
+        } catch (Exception e) {
+            LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
+                    e.getMessage());
+            return null;
+        }
+    }
+
+    private MapSinkEncoder createClsSinkEncoder(SinkConfig sinkConfig) {
+        if (!(sinkConfig instanceof ClsSinkConfig)) {
+            throw new IllegalArgumentException("sinkInfo must be an instance of ClsSinkConfig");
+        }
+        ClsSinkConfig clsSinkConfig = (ClsSinkConfig) sinkConfig;
+        List<FieldInfo> fieldInfos = clsSinkConfig.getFieldConfigs()
+                .stream()
+                .map(config -> new FieldInfo(config.getName(), deriveTypeConverter(config.getFormatInfo())))
+                .collect(Collectors.toList());
+
+        MapSinkInfo sinkInfo = new MapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
+        return SinkEncoderFactory.createMapEncoder(sinkInfo);
     }
 }

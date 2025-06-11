@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -24,6 +25,7 @@ import com.google.common.base.Preconditions;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.common.LogItem;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
+
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -31,6 +33,7 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Cls channel worker.
@@ -136,8 +139,17 @@ public class ClsChannelWorker extends Thread {
             return;
         }
         event.getHeaders().put(ClsSinkContext.KEY_TOPIC_ID, idConfig.getTopicId());
+        context.addSendMetric(event, idConfig.getTopicId());
         AsyncProducerClient client = context.getClient(idConfig.getSecretId());
-        List<LogItem> record = handler.parse(context, event);
+        // transform
+        TransformProcessor<String, Map<String, Object>> processor =
+                context.getTransformProcessor(event.getUid());
+        List<LogItem> record = null;
+        if (processor == null) {
+            record = handler.parse(context, event);
+        } else {
+            record = handler.parse(context, event, processor);
+        }
         ClsCallback callback = new ClsCallback(tx, context, event);
         client.putLogs(idConfig.getTopicId(), record, callback);
     }
