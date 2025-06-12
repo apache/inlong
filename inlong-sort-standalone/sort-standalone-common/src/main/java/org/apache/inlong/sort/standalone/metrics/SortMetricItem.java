@@ -63,6 +63,9 @@ public class SortMetricItem extends MetricItem {
     public static final String M_NODE_DURATION = "nodeDuration";
     public static final String M_WHOLE_DURATION = "wholeDuration";
 
+    public static final String M_READ_FILTER_COUNT = "readFilterCount";
+    public static final String M_READ_FILTER_SIZE = "readFilterSize";
+
     @Dimension
     public String clusterId;
     @Dimension
@@ -110,6 +113,10 @@ public class SortMetricItem extends MetricItem {
     @CountMetric
     // sinkCallbackTime - eventCreateTime(milliseconds)
     public AtomicLong wholeDuration = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong sendFilterCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong sendFilterSize = new AtomicLong(0);
 
     /**
      * fillInlongId

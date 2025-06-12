@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
 import com.tencentcloudapi.cls.producer.common.LogItem;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handler to pares profile event to CLS {@literal List<LogItem>} format.
@@ -36,4 +38,9 @@ public interface IEvent2LogItemHandler {
      * @return {@literal List<LogItem>}
      */
     List<LogItem> parse(ClsSinkContext context, ProfileEvent event);
+
+    List<LogItem> parse(
+            ClsSinkContext context,
+            ProfileEvent event,
+            TransformProcessor<String, Map<String, Object>> processor);
 }
