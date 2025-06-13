@@ -95,6 +95,15 @@ public class EsChannelWorker extends Thread {
             }
             // to profileEvent
             ProfileEvent profileEvent = (ProfileEvent) event;
+            String uid = profileEvent.getUid();
+            EsIdConfig idConfig = context.getIdConfig(uid);
+            if (idConfig == null) {
+                tx.commit();
+                profileEvent.ack();
+                LOG.error("There is no id config for uid {}, discard it", profileEvent.getUid());
+                context.addSendResultMetric(profileEvent, context.getTaskName(), false, System.currentTimeMillis());
+                return;
+            }
             TransformProcessor<String, Map<String, Object>> processor =
                     context.getTransformProcessor(profileEvent.getUid());
             if (processor == null) {
@@ -103,8 +112,8 @@ public class EsChannelWorker extends Thread {
                 if (indexRequest != null) {
                     context.offerDispatchQueue(indexRequest);
                 } else {
-                    context.addSendFailMetric();
                     profileEvent.ack();
+                    context.addSendResultMetric(profileEvent, context.getTaskName(), false, System.currentTimeMillis());
                 }
             } else {
                 List<EsIndexRequest> indexRequestList = handler.parse(
@@ -112,12 +121,11 @@ public class EsChannelWorker extends Thread {
                 if (CollectionUtils.isNotEmpty(indexRequestList)) {
                     indexRequestList.forEach(context::offerDispatchQueue);
                 } else {
-                    context.addSendFailMetric();
                     profileEvent.ack();
+                    context.addSendFilterMetric(profileEvent, uid);
                 }
             }
             tx.commit();
-
         } catch (Throwable t) {
             LOG.error("Process event failed!" + this.getName(), t);
             try {

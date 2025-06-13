@@ -419,6 +419,27 @@ public class EsSinkContext extends SinkContext {
         }
     }
 
+    public void addSendFilterMetric(ProfileEvent currentRecord, String bid) {
+        Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        metricItem.sendFilterCount.incrementAndGet();
+        metricItem.sendFilterSize.addAndGet(currentRecord.getBody().length);
+    }
+
+    private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
+        // metric
+        fillInlongId(currentRecord, dimensions);
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, bid);
+        long msgTime = currentRecord.getRawLogTime();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        return dimensions;
+    }
+
     /**
      * getIdConfig
      *
