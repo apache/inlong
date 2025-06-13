@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
@@ -69,6 +70,7 @@ public class EsIdConfig extends IdConfig {
     };
 
     private String separator = "|";
+    private DataTypeConfig dataTypeConfig;
     private String indexNamePattern;
     private String fieldNames;
     private int fieldOffset = 2; // for ftime,extinfo
@@ -97,6 +99,7 @@ public class EsIdConfig extends IdConfig {
                 .contentOffset(sinkConfig.getContentOffset())
                 .fieldOffset(sinkConfig.getFieldOffset())
                 .separator(sinkConfig.getSeparator())
+                .dataTypeConfig(dataFlowConfig.getSourceConfig().getDataTypeConfig())
                 .indexNamePattern(sinkConfig.getIndexNamePattern())
                 .fieldList(fields)
                 .charset(charset)
