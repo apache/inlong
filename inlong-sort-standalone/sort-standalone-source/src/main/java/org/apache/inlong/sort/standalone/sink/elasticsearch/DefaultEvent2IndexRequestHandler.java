@@ -17,8 +17,12 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.transform.process.TransformProcessor;
+import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
@@ -26,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +67,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
             return null;
         }
         // parse fields
-        String delimeter = idConfig.getSeparator();
-        char cDelimeter = delimeter.charAt(0);
+        String strDelimiter = idConfig.getSeparator();
         String strContext = null;
         // for tab separator
         byte[] bodyBytes = event.getBody();
@@ -73,9 +78,34 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         } else {
             strContext = new String(bodyBytes, Charset.defaultCharset());
         }
+        List<String> columnValues = null;
+        if (idConfig.getDataTypeConfig() == null) {
+            char delimiter = idConfig.getSeparator().charAt(0);
+            columnValues = UnescapeHelper.toFiledList(strContext, delimiter);
+        } else {
+            DataTypeConfig dataTypeConfig = idConfig.getDataTypeConfig();
+            if (dataTypeConfig instanceof CsvConfig) {
+                CsvConfig csvConfig = (CsvConfig) dataTypeConfig;
+                String[] csvArray = StringUtils.splitCsv(strContext, csvConfig.getDelimiter(),
+                        csvConfig.getEscapeChar(), null);
+                columnValues = Arrays.asList(csvArray);
+                strDelimiter = csvConfig.getDelimiter().toString();
+            } else if (dataTypeConfig instanceof KvConfig) {
+                KvConfig kvConfig = (KvConfig) dataTypeConfig;
+                Map<String, String> kvMap = StringUtils.splitKv(strContext, kvConfig.getEntrySplitter(),
+                        kvConfig.getKvSplitter(), kvConfig.getEscapeChar(), null);
+                List<String> listKeys = idConfig.getFieldList();
+                final List<String> finalListValues = new ArrayList<>(listKeys.size());
+                listKeys.forEach(v -> finalListValues.add(kvMap.get(v)));
+                columnValues = finalListValues;
+                strDelimiter = kvConfig.getEntrySplitter().toString();
+            } else {
+                char delimiter = idConfig.getSeparator().charAt(0);
+                columnValues = UnescapeHelper.toFiledList(strContext, delimiter);
+            }
+        }
         // unescape
-        List<String> columnVlues = UnescapeHelper.toFiledList(strContext, cDelimeter);
-        int valueLength = columnVlues.size();
+        int valueLength = columnValues.size();
         List<String> fieldList = idConfig.getFieldList();
         int columnLength = fieldList.size();
         // field offset
@@ -85,7 +115,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         for (int i = fieldOffset; i < columnLength; ++i) {
             String fieldName = fieldList.get(i);
             int columnIndex = i - fieldOffset;
-            String fieldValue = columnIndex < valueLength ? columnVlues.get(columnIndex) : "";
+            String fieldValue = columnIndex < valueLength ? columnValues.get(columnIndex) : "";
             byte[] fieldBytes = fieldValue.getBytes(Charset.defaultCharset());
             if (fieldBytes.length > context.getKeywordMaxLength()) {
                 fieldValue = new String(fieldBytes, 0, context.getKeywordMaxLength());
@@ -103,7 +133,8 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         // build
         EsIndexRequest indexRequest = new EsIndexRequest(indexName, event);
         if (context.isUseIndexId()) {
-            String esIndexId = uid + delimeter + event.getRawLogTime() + delimeter + esIndexIndex.incrementAndGet();
+            String esIndexId =
+                    uid + strDelimiter + event.getRawLogTime() + strDelimiter + esIndexIndex.incrementAndGet();
             indexRequest.id(esIndexId);
         }
         indexRequest.source(fieldMap);
