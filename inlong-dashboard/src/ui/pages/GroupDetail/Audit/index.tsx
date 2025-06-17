@@ -189,8 +189,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     <>
       <div style={{ marginBottom: 20 }}>
         <Radio.Group defaultValue={subTab} buttonStyle="solid" onChange={e => onChange(e)}>
-          <Radio.Button value="group">{i18n.t('pages.GroupDetail.Info')}</Radio.Button>
-          <Radio.Button value="stream">{i18n.t('pages.GroupDetail.Streams')}</Radio.Button>
+          <Radio.Button value="group">{i18n.t('pages.GroupDetail.Audit.Group')}</Radio.Button>
+          <Radio.Button value="stream">{i18n.t('pages.GroupDetail.Audit.Stream')}</Radio.Button>
         </Radio.Group>
       </div>
       <div style={{ marginBottom: 40 }}>
