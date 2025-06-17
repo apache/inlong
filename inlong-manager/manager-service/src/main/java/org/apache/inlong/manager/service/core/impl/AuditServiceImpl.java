@@ -172,17 +172,21 @@ public class AuditServiceImpl implements AuditService {
         String sourceNodeType = null;
         Integer sinkId = request.getSinkId();
         StreamSinkEntity sinkEntity = null;
-        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
-        if (sinkId != null) {
-            sinkEntity = sinkEntityMapper.selectByPrimaryKey(sinkId);
-        } else if (CollectionUtils.isNotEmpty(sinkEntityList)) {
-            sinkEntity = sinkEntityList.get(0);
+        if (StringUtils.isNotBlank(streamId)) {
+            List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
+            if (sinkId != null) {
+                sinkEntity = sinkEntityMapper.selectByPrimaryKey(sinkId);
+            } else if (CollectionUtils.isNotEmpty(sinkEntityList)) {
+                sinkEntity = sinkEntityList.get(0);
+            }
+            // if sink info is existed, get sink type for query audit info.
+            if (sinkEntity != null) {
+                sinkNodeType = sinkEntity.getSinkType();
+            }
+        } else {
+            sinkNodeType = request.getSinkType();
         }
 
-        // if sink info is existed, get sink type for query audit info.
-        if (sinkEntity != null) {
-            sinkNodeType = sinkEntity.getSinkType();
-        }
         Map<String, String> auditIdMap = new HashMap<>();
 
         if (StringUtils.isNotBlank(groupId)) {

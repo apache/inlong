@@ -49,6 +49,9 @@ public class AuditRequest {
     @ApiModelProperty(value = "sink id")
     private Integer sinkId;
 
+    @ApiModelProperty(value = "sink type")
+    private String sinkType;
+
     @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
     private String startDate;
 

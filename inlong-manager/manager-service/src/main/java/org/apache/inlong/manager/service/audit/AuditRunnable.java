@@ -108,6 +108,9 @@ public class AuditRunnable implements Runnable {
         try {
             String start = request.getStartDate();
             String end = request.getEndDate();
+            if (StringUtils.isBlank(streamId)) {
+                streamId = "*";
+            }
             if (StringUtils.isBlank(request.getEndDate())) {
                 end = SECOND_DATE_FORMATTER.parseDateTime(request.getEndDate()).plusDays(1).toString(SECOND_FORMAT);
             }
@@ -143,6 +146,9 @@ public class AuditRunnable implements Runnable {
     private List<AuditInfo> getAuditInfoList(AuditRequest request, String groupId, String streamId, String auditId) {
         List<AuditInfo> auditSet = new ArrayList<>();
         try {
+            if (StringUtils.isBlank(streamId)) {
+                streamId = "*";
+            }
             String start = DAY_DATE_FORMATTER.parseDateTime(request.getStartDate()).toString(SECOND_FORMAT);
             String end = DAY_DATE_FORMATTER.parseDateTime(request.getStartDate()).plusDays(1).toString(SECOND_FORMAT);
             if (StringUtils.isNotBlank(request.getEndDate())) {
