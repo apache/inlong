@@ -25,6 +25,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.event.SimpleEvent;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
@@ -42,6 +44,9 @@ public class ProfileEvent extends SimpleEvent {
     private CacheMessageRecord cacheRecord;
     private final int ackToken;
 
+    private final ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+    private final AtomicInteger sendedTime = new AtomicInteger(0);
+
     /**
      * Constructor
      * @param headers
@@ -50,6 +55,7 @@ public class ProfileEvent extends SimpleEvent {
     public ProfileEvent(Map<String, String> headers, byte[] body) {
         super.setHeaders(headers);
         super.setBody(body);
+        this.headers.putAll(headers);
         this.inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         this.inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
@@ -68,6 +74,7 @@ public class ProfileEvent extends SimpleEvent {
     public ProfileEvent(InLongMessage sdkMessage, CacheMessageRecord cacheRecord) {
         super.setHeaders(sdkMessage.getParams());
         super.setBody(sdkMessage.getBody());
+        this.headers.putAll(sdkMessage.getParams());
         this.inlongGroupId = sdkMessage.getInlongGroupId();
         this.inlongStreamId = sdkMessage.getInlongStreamId();
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
@@ -76,6 +83,15 @@ public class ProfileEvent extends SimpleEvent {
         this.cacheRecord = cacheRecord;
         this.fetchTime = System.currentTimeMillis();
         this.ackToken = cacheRecord.getToken();
+    }
+
+    /**
+     * get headers
+     * @return the headers
+     */
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
     }
 
     /**
@@ -147,5 +163,26 @@ public class ProfileEvent extends SimpleEvent {
         if (cacheRecord != null) {
             cacheRecord.ackMessage(ackToken);
         }
+    }
+
+    /**
+     * negativeAck
+     */
+    public void negativeAck() {
+        if (cacheRecord != null) {
+            cacheRecord.negativeAck();
+        }
+    }
+
+    /**
+     * get sendedTime
+     * @return the sendedTime
+     */
+    public int getSendedTime() {
+        return sendedTime.get();
+    }
+
+    public void incrementSendedTime() {
+        this.sendedTime.incrementAndGet();
     }
 }

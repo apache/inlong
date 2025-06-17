@@ -74,6 +74,19 @@ public class CacheMessageRecord {
     }
 
     /**
+     * negativeAck
+     */
+    public void negativeAck() {
+        if (client != null) {
+            try {
+                client.negativeAck(msgKey, offset);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
      * ackMessage
      * @param ackToken ackToken
      */

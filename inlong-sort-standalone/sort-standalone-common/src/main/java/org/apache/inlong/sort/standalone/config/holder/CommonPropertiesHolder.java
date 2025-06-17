@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
@@ -42,11 +43,19 @@ public class CommonPropertiesHolder {
     public static final String KEY_SORT_SOURCE_ACKPOLICY = "sortSource.ackPolicy";
     public static final String KEY_USE_UNIFIED_CONFIGURATION = "useUnifiedConfiguration";
 
+    public static final String KEY_MAX_SENDFAIL_TIMES = "maxSendFailTimes";
+    public static final int DEFAULT_MAX_SENDFAIL_TIMES = 0;
+    public static final String KEY_SENDFAIL_PAUSE_CONSUMER_MIN = "sendFailPauseConsumerMin";
+    public static final int DEFAULT_SENDFAIL_PAUSE_CONSUMER_MIN = 10;
+
     private static Map<String, String> props;
     private static Context context;
 
     private static long auditFormatInterval = 60000L;
     private static AckPolicy ackPolicy;
+
+    private static AtomicInteger maxSendFailTimes = new AtomicInteger(-1);
+    private static AtomicInteger sendFailPauseConsumerMinutes = new AtomicInteger(-1);
 
     /**
      * init
@@ -232,4 +241,23 @@ public class CommonPropertiesHolder {
         return getBoolean(KEY_USE_UNIFIED_CONFIGURATION, false);
     }
 
+    public static int getMaxSendFailTimes() {
+        int result = maxSendFailTimes.get();
+        if (result >= 0) {
+            return result;
+        }
+        int newResult = getInteger(KEY_MAX_SENDFAIL_TIMES, DEFAULT_MAX_SENDFAIL_TIMES);
+        maxSendFailTimes.compareAndSet(result, newResult);
+        return newResult;
+    }
+
+    public static int getSendFailPauseConsumerMinutes() {
+        int result = sendFailPauseConsumerMinutes.get();
+        if (result >= 0) {
+            return result;
+        }
+        int newResult = getInteger(KEY_SENDFAIL_PAUSE_CONSUMER_MIN, DEFAULT_SENDFAIL_PAUSE_CONSUMER_MIN);
+        sendFailPauseConsumerMinutes.compareAndSet(result, newResult);
+        return newResult;
+    }
 }

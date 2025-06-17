@@ -152,4 +152,19 @@ public class SortClientImpl extends SortClient {
             return false;
         }
     }
+
+    /**
+     * negativeAck offset to msgKey
+     *
+     * @param msgKey String
+     * @param msgOffset String
+     * @throws Exception
+     */
+    @Override
+    public void negativeAck(String msgKey, String msgOffset)
+            throws Exception {
+        logger.debug("negativeAck:{} offset:{}", msgKey, msgOffset);
+        TopicFetcher topicFetcher = getFetcher(msgKey);
+        topicFetcher.negativeAck(msgOffset);
+    }
 }

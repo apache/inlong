@@ -261,6 +261,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
 
                         if (sleepTime > 0) {
                             TimeUnit.MILLISECONDS.sleep(sleepTime);
+                            consumer.resume();
                         }
 
                         context.acquireRequestPermit();
@@ -328,6 +329,55 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                     LOGGER.error("got exception while process fetching", t);
                 }
             }
+        }
+    }
+
+    /**
+     * negativeAck Offset
+     *
+     * @param msgOffset String
+     */
+    @Override
+    public void negativeAck(String msgOffset) throws Exception {
+        if (StringUtils.isEmpty(msgOffset)) {
+            return;
+        }
+        try {
+            if (consumer == null) {
+                context.addAckFail(topic, -1);
+                LOGGER.error("consumer == null {}", topic);
+                return;
+            }
+            MessageId messageId = offsetCache.get(msgOffset);
+            if (messageId == null) {
+                context.addAckFail(topic, -1);
+                LOGGER.error("messageId == null {}", topic);
+                return;
+            }
+            consumer.negativeAcknowledge(messageId);
+            offsetCache.remove(msgOffset);
+            context.addAckFail(topic, -1);
+            this.sleepTime = TimeUnit.MILLISECONDS.convert(context.getConfig().getSendFailPauseConsumerMinutes(),
+                    TimeUnit.MINUTES);
+            LOGGER.error("negativeAck,topic:{}, sleep {} minutes.", this.topic.getTopicKey(), this.sleepTime);
+            this.clearConsumer();
+        } catch (Exception e) {
+            context.addAckFail(topic, -1);
+            LOGGER.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void clearConsumer() {
+        try {
+            consumer.pause();
+            Message<byte[]> message = consumer.receive(1, TimeUnit.MILLISECONDS);
+            while (message != null) {
+                consumer.negativeAcknowledge(message);
+                message = consumer.receive(1, TimeUnit.MILLISECONDS);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

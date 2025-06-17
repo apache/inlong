@@ -108,4 +108,11 @@ public interface TopicFetcher {
      * @return The result of update.
      */
     boolean updateTopics(List<InLongTopic> topics);
+
+    /**
+     * NegativeAck message by the given msgOffset.
+     * @param msgOffset Offset of message.
+     * @throws Exception
+     */
+    void negativeAck(String msgOffset) throws Exception;
 }
