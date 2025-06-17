@@ -392,7 +392,7 @@ export const getFormContent = (
     return [
       {
         type: 'input',
-        label: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
+        label: i18n.t('meta.Group.InlongGroupId'),
         name: 'inlongGroupId',
         initialValue: inlongGroupId,
         props: {
