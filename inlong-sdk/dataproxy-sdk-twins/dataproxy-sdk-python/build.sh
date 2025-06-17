@@ -20,8 +20,8 @@
 
 set -e
 
-BASE_DIR=`dirname "$0"`
-PY_SDK_DIR=`cd "$BASE_DIR";pwd`
+BASE_DIR=$(dirname "$0")
+PY_SDK_DIR=$(cd "$BASE_DIR"; pwd)
 
 echo "The python sdk directory is: $PY_SDK_DIR"
 
@@ -31,7 +31,7 @@ if [ ! -d "$PY_SDK_DIR/../dataproxy-sdk-cpp" ]; then
     exit 1
 fi
 
-CPP_SDK_DIR=`cd "$PY_SDK_DIR/../dataproxy-sdk-cpp";pwd`
+CPP_SDK_DIR=$(cd "$PY_SDK_DIR/../dataproxy-sdk-cpp"; pwd)
 
 echo "The cpp sdk directory is: $CPP_SDK_DIR"
 
@@ -52,9 +52,9 @@ if [ "$(printf '%s\n' "$PYTHON_REQUIRED" "$PYTHON_VERSION" | sort -V | head -n1)
 fi
 
 # Install Python packages from requirements.txt
-if [ -f $PY_SDK_DIR/requirements.txt ]; then
+if [ -f "$PY_SDK_DIR/requirements.txt" ]; then
     echo "Installing Python packages from requirements.txt..."
-    pip install -r $PY_SDK_DIR/requirements.txt
+    pip install -r "$PY_SDK_DIR/requirements.txt"
 else
     echo "Error: cannot find requirements.txt!"
     exit 1
@@ -63,16 +63,17 @@ fi
 # Build pybind11(If the pybind11 has been compiled, this step will be skipped)
 if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
     if [ -d "$PY_SDK_DIR/pybind11" ]; then
-        rm -r $PY_SDK_DIR/pybind11
+        rm -r "$PY_SDK_DIR/pybind11"
     fi
-    git clone https://github.com/pybind/pybind11.git $PY_SDK_DIR/pybind11
-    mkdir $PY_SDK_DIR/pybind11/build && cd $PY_SDK_DIR/pybind11/build
+    PYBIND11_VERSION="v2.13.0"
+    git clone --branch $PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git "$PY_SDK_DIR/pybind11"
+    mkdir "$PY_SDK_DIR/pybind11/build" && cd "$PY_SDK_DIR/pybind11/build"
 
     # Add a trap command to delete the pybind11 folder if an error occurs
     trap 'echo "Error occurred during pybind11 build. Deleting pybind11 folder..."; cd $PY_SDK_DIR; rm -r pybind11; exit 1' ERR
 
-    cmake $PY_SDK_DIR/pybind11
-    cmake --build $PY_SDK_DIR/pybind11/build --config Release --target check
+    cmake "$PY_SDK_DIR/pybind11"
+    cmake --build "$PY_SDK_DIR/pybind11/build" --config Release --target check
     make -j 4
 
     # Remove the trap command if the build is successful
@@ -92,36 +93,52 @@ if [ ! -e "$CPP_SDK_DIR/release/lib/dataproxy_sdk.a" ]; then
     exit 1
 else
     if [ -d "$PY_SDK_DIR/dataproxy-sdk-cpp" ]; then
-        rm -r $PY_SDK_DIR/dataproxy-sdk-cpp
+        rm -r "$PY_SDK_DIR/dataproxy-sdk-cpp"
     fi
-    cp -r $CPP_SDK_DIR $PY_SDK_DIR
+    cp -r "$CPP_SDK_DIR" "$PY_SDK_DIR"
     echo "Copied the dataproxy-sdk-cpp directory to the current directory"
 fi
 
 # Build Python SDK
 if [ -d "$PY_SDK_DIR/build" ]; then
-    rm -r $PY_SDK_DIR/build
+    rm -r "$PY_SDK_DIR/build"
 fi
-mkdir $PY_SDK_DIR/build && cd $PY_SDK_DIR/build
-cmake $PY_SDK_DIR
+mkdir "$PY_SDK_DIR/build" && cd "$PY_SDK_DIR/build"
+cmake "$PY_SDK_DIR"
 make -j 4
 
-# Get Python site-packages directory
-SITE_PACKAGES_DIR=$(python -c "import site; print(site.getsitepackages()[0])")
+# Get all existing Python site-packages directories
+SITE_PACKAGES_DIRS=($(python -c "import site,os; print(' '.join([p for p in site.getsitepackages() if os.path.isdir(p)]))"))
 
-# Prompt user for target directory
-echo "Your system's Python site-packages directory is: $SITE_PACKAGES_DIR"
-read -p "Enter the target directory for the .so files (Press Enter to use the default site-packages directory): " target_dir
-
-# Use default site-packages directory if user input is empty
-if [ -z "$target_dir" ]; then
-    target_dir=$SITE_PACKAGES_DIR
+# Check if the SITE_PACKAGES_DIRS array is not empty
+if [ ${#SITE_PACKAGES_DIRS[@]} -ne 0 ]; then
+    # If not empty, display all found site-packages directories to the user
+    echo "Your system's existing Python site-packages directories are:"
+    for dir in "${SITE_PACKAGES_DIRS[@]}"; do
+        echo "  $dir"
+    done
+else
+    # If empty, warn the user and prompt them to enter the target directory in the next step
+    echo "Warn: No existing site-packages directories found, please enter the target directory for the .so files in the following step!"
 fi
 
-# Copy the generated .so file to target directory
-find $PY_SDK_DIR/build -name "*.so" -print0 | xargs -0 -I {} bash -c 'rm -f $0/$1; cp $1 $0' $target_dir {}
+# Prompt user for the target directory for .so files
+read -r -p "Enter the target directory for the .so files (Press Enter to use all above site-packages directories): " target_dir
 
-# Clean
-rm -r $PY_SDK_DIR/dataproxy-sdk-cpp
+# If user input is empty, use all found site-packages directories
+if [ -z "$target_dir" ]; then
+    for dir in "${SITE_PACKAGES_DIRS[@]}"; do
+        echo "Copying .so files to $dir"
+        # Find all .so files in $PY_SDK_DIR/build and copy them to the current site-packages directory
+        find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$dir"
+    done
+else
+    # If user specified a directory, copy .so files there
+    echo "Copying .so files to $target_dir"
+    find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$target_dir"
+fi
+
+# Clean the cpp dataproxy directory
+rm -r "$PY_SDK_DIR/dataproxy-sdk-cpp"
 
 echo "Build Python SDK successfully"
