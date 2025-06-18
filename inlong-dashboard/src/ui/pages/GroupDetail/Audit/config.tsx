@@ -307,7 +307,6 @@ export const getFormContent = (
     fileName,
   );
   if (key === 'stream') {
-    console.log('stream');
     return [
       {
         type: 'select',
@@ -361,7 +360,6 @@ export const getFormContent = (
       },
     ].concat(commonFormContent);
   } else {
-    console.log('group');
     const sinkTypeList = sinks
       .filter(item => item.value !== '')
       .map(item => {
@@ -373,7 +371,7 @@ export const getFormContent = (
     return [
       {
         type: 'input',
-        label: '数据流组',
+        label: i18n.t('meta.Group.InlongGroupId'),
         name: 'inlongGroupId',
         initialValue: inlongGroupId,
         props: {
@@ -386,7 +384,7 @@ export const getFormContent = (
       },
       {
         type: 'select',
-        label: 'sink类型',
+        label: i18n.t('pages.GroupDetail.SinkType'),
         name: 'sinkType',
         initialValue: initialValues.sinkType,
         props: {
