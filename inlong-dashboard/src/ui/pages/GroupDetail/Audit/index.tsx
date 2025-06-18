@@ -117,7 +117,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     } else {
       setQuery(values);
     }
-    run();
   };
 
   const onDataStreamSuccess = data => {
@@ -126,7 +125,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       setInlongStreamID(defaultDataStream);
       form.setFieldsValue({ inlongStreamId: defaultDataStream });
       setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
-      run();
     }
   };
 
@@ -171,8 +169,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   }, [inlongGroupId, inlongStreamID]);
 
   const onChange = e => {
-    setSubTab(e.target.value);
-    setInlongStreamID(undefined);
     const value = form.getFieldsValue();
     console.log('form value', value);
     const tmp = { ...query };
@@ -183,6 +179,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       delete tmp.sinkType;
     }
     setQuery(tmp);
+    setSubTab(e.target.value);
+    setInlongStreamID(undefined);
   };
 
   return (
