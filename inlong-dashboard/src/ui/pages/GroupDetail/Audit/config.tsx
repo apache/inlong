@@ -291,7 +291,7 @@ export const getFormContent = (
   inlongGroupId,
   initialValues,
   onSearch,
-  onDataStreamSuccess,
+  streamList,
   sourceData,
   csvData,
   fileName,
@@ -307,6 +307,7 @@ export const getFormContent = (
     fileName,
   );
   if (key === 'stream') {
+    console.log('stream');
     return [
       {
         type: 'select',
@@ -319,28 +320,7 @@ export const getFormContent = (
           onChange: (value, option) => {
             setInlongStreamID(value);
           },
-          options: {
-            requestAuto: true,
-            requestTrigger: ['onOpen', 'onSearch'],
-            requestService: keyword => ({
-              url: '/stream/list',
-              method: 'POST',
-              data: {
-                keyword,
-                pageNum: 1,
-                pageSize: 100,
-                inlongGroupId,
-              },
-            }),
-            requestParams: {
-              formatResult: result =>
-                result?.list.map(item => ({
-                  label: item.inlongStreamId,
-                  value: item.inlongStreamId,
-                })) || [],
-              onSuccess: onDataStreamSuccess,
-            },
-          },
+          options: streamList,
         },
         rules: [{ required: true }],
       },
@@ -381,6 +361,7 @@ export const getFormContent = (
       },
     ].concat(commonFormContent);
   } else {
+    console.log('group');
     const sinkTypeList = sinks
       .filter(item => item.value !== '')
       .map(item => {
@@ -392,7 +373,7 @@ export const getFormContent = (
     return [
       {
         type: 'input',
-        label: i18n.t('meta.Group.InlongGroupId'),
+        label: '数据流组',
         name: 'inlongGroupId',
         initialValue: inlongGroupId,
         props: {
@@ -405,7 +386,7 @@ export const getFormContent = (
       },
       {
         type: 'select',
-        label: i18n.t('pages.GroupDetail.SinkType'),
+        label: 'sink类型',
         name: 'sinkType',
         initialValue: initialValues.sinkType,
         props: {

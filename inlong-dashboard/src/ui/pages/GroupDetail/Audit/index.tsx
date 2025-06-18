@@ -34,6 +34,7 @@ import {
 import { Table, Radio, Tabs, TabsProps } from 'antd';
 import i18n from '@/i18n';
 import './index.less';
+import { startCase } from 'lodash';
 type Props = CommonInterface;
 const initialQuery = {
   inlongStreamId: null,
@@ -46,9 +47,40 @@ const initialQuery = {
 const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const [form] = useForm();
   const [query, setQuery] = useState(initialQuery);
-  const [inlongStreamID, setInlongStreamID] = useState('');
+  const [inlongStreamID, setInlongStreamID] = useState(null);
   const [type, setType] = useState('count');
   const [subTab, setSubTab] = useState('stream');
+
+  const onDataStreamSuccess = data => {
+    const defaultDataStream = data[0]?.value;
+    if (defaultDataStream) {
+      setInlongStreamID(defaultDataStream);
+      form.setFieldsValue({ inlongStreamId: defaultDataStream });
+      setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
+    }
+  };
+
+  const { data: streamList } = useRequest(
+    {
+      url: '/stream/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 9999,
+        inlongGroupId,
+      },
+    },
+    {
+      refreshDeps: [inlongGroupId],
+      formatResult: result =>
+        result?.list.map(item => ({
+          label: item.inlongStreamId,
+          value: item.inlongStreamId,
+        })) || [],
+      onSuccess: onDataStreamSuccess,
+    },
+  );
+
   const { data: sourceData = [], run } = useRequest(
     {
       url: '/audit/list',
@@ -58,10 +90,19 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
         endDate: timestampFormat(query.endDate, 'yyyy-MM-dd'),
         inlongGroupId,
+        inlongStreamId: inlongStreamID,
       },
     },
     {
-      refreshDeps: [query],
+      ready: !!(subTab === 'group' || (subTab === 'stream' && inlongStreamID)),
+      refreshDeps: [
+        query.sinkId,
+        query.sinkType,
+        query.endDate,
+        query.startDate,
+        query.timeStaticsDim,
+        inlongStreamID,
+      ],
       formatResult: result => result.sort((a, b) => (a.auditId - b.auditId > 0 ? 1 : -1)),
     },
   );
@@ -117,15 +158,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     } else {
       setQuery(values);
     }
-  };
-
-  const onDataStreamSuccess = data => {
-    const defaultDataStream = data[0]?.value;
-    if (defaultDataStream) {
-      setInlongStreamID(defaultDataStream);
-      form.setFieldsValue({ inlongStreamId: defaultDataStream });
-      setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
-    }
+    run();
   };
 
   const numToName = useCallback(
@@ -169,18 +202,18 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   }, [inlongGroupId, inlongStreamID]);
 
   const onChange = e => {
-    const value = form.getFieldsValue();
-    console.log('form value', value);
     const tmp = { ...query };
     if (e.target.value === 'group') {
-      delete tmp.inlongStreamId;
-      delete tmp.sinkId;
+      tmp.inlongStreamId = null;
+      tmp.sinkId = null;
+      setInlongStreamID(undefined);
     } else {
-      delete tmp.sinkType;
+      tmp.sinkType = null;
+      tmp.inlongStreamId = streamList?.[0]?.value;
+      setInlongStreamID(streamList?.[0]?.value);
     }
     setQuery(tmp);
     setSubTab(e.target.value);
-    setInlongStreamID(undefined);
   };
 
   return (
@@ -199,7 +232,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             inlongGroupId,
             query,
             onSearch,
-            onDataStreamSuccess,
+            streamList,
             sourceData,
             csvData,
             fileName,
