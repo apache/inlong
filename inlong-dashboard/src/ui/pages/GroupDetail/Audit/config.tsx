@@ -291,7 +291,7 @@ export const getFormContent = (
   inlongGroupId,
   initialValues,
   onSearch,
-  onDataStreamSuccess,
+  streamList,
   sourceData,
   csvData,
   fileName,
@@ -319,28 +319,7 @@ export const getFormContent = (
           onChange: (value, option) => {
             setInlongStreamID(value);
           },
-          options: {
-            requestAuto: true,
-            requestTrigger: ['onOpen', 'onSearch'],
-            requestService: keyword => ({
-              url: '/stream/list',
-              method: 'POST',
-              data: {
-                keyword,
-                pageNum: 1,
-                pageSize: 100,
-                inlongGroupId,
-              },
-            }),
-            requestParams: {
-              formatResult: result =>
-                result?.list.map(item => ({
-                  label: item.inlongStreamId,
-                  value: item.inlongStreamId,
-                })) || [],
-              onSuccess: onDataStreamSuccess,
-            },
-          },
+          options: streamList,
         },
         rules: [{ required: true }],
       },
