@@ -289,4 +289,16 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
             }
         }
     }
+
+    /**
+     * negativeAck Offset
+     *
+     * @param msgOffset String
+     */
+    @Override
+    public void negativeAck(String msgOffset) throws Exception {
+        this.sleepTime = TimeUnit.MILLISECONDS.convert(context.getConfig().getSendFailPauseConsumerMinutes(),
+                TimeUnit.MINUTES);
+        LOG.error("negativeAck,topic:{}, sleep {} minutes.", this.topic.getTopicKey(), this.sleepTime);
+    }
 }

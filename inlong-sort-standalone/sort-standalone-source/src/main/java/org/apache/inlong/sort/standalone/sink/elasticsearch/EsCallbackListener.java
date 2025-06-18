@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.elasticsearch.action.DocWriteRequest;
@@ -85,7 +86,12 @@ public class EsCallbackListener implements BulkProcessor.Listener {
             // is fail
             if (responseItem.isFailed()) {
                 context.addSendResultMetric(event, context.getTaskName(), false, sendTime);
-                context.backDispatchQueue(requestItem);
+                event.incrementSendedTime();
+                if (event.getSendedTime() <= CommonPropertiesHolder.getMaxSendFailTimes()) {
+                    context.backDispatchQueue(requestItem);
+                } else {
+                    event.negativeAck();
+                }
             } else {
                 context.addSendResultMetric(event, context.getTaskName(), true, sendTime);
                 context.releaseDispatchQueue(requestItem);
@@ -115,8 +121,12 @@ public class EsCallbackListener implements BulkProcessor.Listener {
             ProfileEvent event = requestItem.getEvent();
             long sendTime = requestItem.getSendTime();
             context.addSendResultMetric(event, context.getTaskName(), false, sendTime);
-            context.backDispatchQueue(requestItem);
+            event.incrementSendedTime();
+            if (event.getSendedTime() <= CommonPropertiesHolder.getMaxSendFailTimes()) {
+                context.backDispatchQueue(requestItem);
+            } else {
+                event.negativeAck();
+            }
         }
     }
-
 }

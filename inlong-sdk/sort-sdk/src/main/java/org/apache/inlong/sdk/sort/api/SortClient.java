@@ -27,4 +27,7 @@ public abstract class SortClient {
     public abstract boolean close();
 
     public abstract SortClientConfig getConfig();
+
+    public abstract void negativeAck(String msgKey, String msgOffset)
+            throws Exception;
 }

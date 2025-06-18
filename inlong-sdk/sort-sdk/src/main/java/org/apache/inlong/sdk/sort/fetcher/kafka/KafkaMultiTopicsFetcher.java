@@ -395,4 +395,16 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             }
         }
     }
+
+    /**
+     * negativeAck Offset
+     *
+     * @param msgOffset String
+     */
+    @Override
+    public void negativeAck(String msgOffset) throws Exception {
+        this.sleepTime = TimeUnit.MILLISECONDS.convert(context.getConfig().getSendFailPauseConsumerMinutes(),
+                TimeUnit.MINUTES);
+        LOGGER.error("negativeAck,sleep {} minutes.", this.sleepTime);
+    }
 }

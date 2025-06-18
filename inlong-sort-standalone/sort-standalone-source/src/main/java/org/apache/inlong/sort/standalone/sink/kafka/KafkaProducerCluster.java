@@ -230,7 +230,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                                     tx.commit();
                                     profileEvent.ack();
                                 } else {
-                                    tx.rollback();
+                                    this.exceptionProcess(profileEvent, tx);
                                 }
                             } else if (ex instanceof UnknownTopicOrPartitionException
                                     || !(ex instanceof RetriableException)) {
@@ -238,7 +238,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                                 tx.commit();
                                 profileEvent.ack();
                             } else {
-                                tx.rollback();
+                                this.exceptionProcess(profileEvent, tx);
                             }
                             LOG.error(String.format("send failed, topic is %s", topic), ex);
                             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
@@ -247,7 +247,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                     });
             return true;
         } catch (Exception e) {
-            tx.rollback();
+            this.exceptionProcess(profileEvent, tx);
             tx.close();
             LOG.error(e.getMessage(), e);
             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
@@ -255,4 +255,13 @@ public class KafkaProducerCluster implements LifecycleAware {
         }
     }
 
+    private void exceptionProcess(ProfileEvent profileEvent, Transaction tx) {
+        profileEvent.incrementSendedTime();
+        if (profileEvent.getSendedTime() <= CommonPropertiesHolder.getMaxSendFailTimes()) {
+            tx.rollback();
+        } else {
+            tx.commit();
+            profileEvent.negativeAck();
+        }
+    }
 }

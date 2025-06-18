@@ -78,6 +78,8 @@ public class SortClientConfig implements Serializable {
 
     private int threadPoolSize = 50;
 
+    private int sendFailPauseConsumerMinutes = 10;
+
     public SortClientConfig(
             String sortTaskId,
             String sortClusterName,
@@ -545,6 +547,22 @@ public class SortClientConfig implements Serializable {
             }
         }
         return subset;
+    }
+
+    /**
+     * get sendFailPauseConsumerMinutes
+     * @return the sendFailPauseConsumerMinutes
+     */
+    public int getSendFailPauseConsumerMinutes() {
+        return sendFailPauseConsumerMinutes;
+    }
+
+    /**
+     * set sendFailPauseConsumerMinutes
+     * @param sendFailPauseConsumerMinutes the sendFailPauseConsumerMinutes to set
+     */
+    public void setSendFailPauseConsumerMinutes(int sendFailPauseConsumerMinutes) {
+        this.sendFailPauseConsumerMinutes = sendFailPauseConsumerMinutes;
     }
 
 }

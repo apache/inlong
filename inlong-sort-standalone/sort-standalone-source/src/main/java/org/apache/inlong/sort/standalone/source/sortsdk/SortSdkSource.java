@@ -185,6 +185,7 @@ public final class SortSdkSource extends AbstractSource
             clientConfig.setCallback(callback);
             Map<String, String> sortSdkParams = this.getSortClientConfigParameters();
             clientConfig.setParameters(sortSdkParams);
+            clientConfig.setSendFailPauseConsumerMinutes(CommonPropertiesHolder.getSendFailPauseConsumerMinutes());
 
             // create SortClient
             String configType = CommonPropertiesHolder
