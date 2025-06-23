@@ -149,8 +149,15 @@ public class ClsChannelWorker extends Thread {
         } else {
             record = handler.parse(context, event, processor);
         }
-        ClsCallback callback = new ClsCallback(tx, context, event);
-        client.putLogs(idConfig.getTopicId(), record, callback);
+        if (record != null) {
+            ClsCallback callback = new ClsCallback(tx, context, event);
+            client.putLogs(idConfig.getTopicId(), record, callback);
+        } else {
+            context.addSendFilterMetric(event, idConfig.getTopicId());
+            event.ack();
+            tx.commit();
+            tx.close();
+        }
     }
 
     /** sleepOneInterval */
