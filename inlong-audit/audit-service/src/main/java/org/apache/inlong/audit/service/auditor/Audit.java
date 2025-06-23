@@ -75,6 +75,9 @@ public class Audit {
             validateRequest(request, auditCycle);
 
             ReconciliationData data = getAuditData(request, auditCycle);
+
+            checkReconciliationData(request, data);
+
             return createResponseJson(true, data, null);
 
         } catch (InvalidRequestException e) {
@@ -187,4 +190,29 @@ public class Audit {
                 return null;
         }
     }
+
+    /**
+     * Checks and initializes reconciliation data if source or destination data is null.
+     *
+     * @param request The request information containing audit parameters
+     * @param data The reconciliation data to be checked and initialized
+     */
+    private void checkReconciliationData(RequestInfo request, ReconciliationData data) {
+        // Extract basic parameters from request
+        String startTime = request.getStartTime();
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+
+        // Initialize source data if null
+        if (data.srcData == null) {
+            data.srcData = new StatData(startTime, groupId, streamId,
+                    request.getSrcAuditId(), request.getSrcAuditTag());
+        }
+        // Initialize destination data if null
+        if (data.destData == null) {
+            data.destData = new StatData(startTime, groupId, streamId,
+                    request.getDestAuditId(), request.getDestAuditTag());
+        }
+    }
+
 }
