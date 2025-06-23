@@ -17,12 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import com.google.gson.Gson;
-
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import com.google.gson.Gson;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -92,7 +91,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
                 if (event.getSendedTime() <= CommonPropertiesHolder.getMaxSendFailTimes()) {
                     context.backDispatchQueue(requestItem);
                 } else {
-                    LOG.error("afterBulk,executionId,executionId:{},request:{},Failure:{}", 
+                    LOG.error("afterBulk,executionId,executionId:{},request:{},Failure:{}",
                             executionId, request, new Gson().toJson(responseItem.getFailure()));
                     event.negativeAck();
                 }
