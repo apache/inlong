@@ -21,6 +21,7 @@ import org.apache.inlong.audit.service.config.ConfigConstants;
 import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
 import org.apache.inlong.audit.service.entities.StatData;
+import org.apache.inlong.audit.service.except.QueryAuditException;
 import org.apache.inlong.audit.service.node.ConfigService;
 import org.apache.inlong.audit.service.utils.AuditUtils;
 import org.apache.inlong.audit.service.utils.CacheUtils;
@@ -490,9 +491,11 @@ public class RealTimeQuery {
                 }
             } catch (SQLException sqlException) {
                 LOGGER.error("Query ips has SQL exception!, datasource={} ", dataSource, sqlException);
+                throw new QueryAuditException("Query audit data has SQL exception! ");
             }
         } catch (Exception exception) {
             LOGGER.error("Query audit data has exception! ", exception);
+            throw new QueryAuditException("Query audit data has exception! ");
         }
         return AuditUtils.getMaxAuditVersionAuditData(result);
     }

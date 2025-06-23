@@ -78,4 +78,19 @@ public class StatData {
         this.inlongStreamId = inlongStreamId;
         this.auditId = auditId;
     }
+
+    /**
+     * @param logTs
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param auditId
+     * @param auditTag
+     */
+    public StatData(String logTs, String inlongGroupId, String inlongStreamId, String auditId, String auditTag) {
+        this.logTs = logTs;
+        this.inlongGroupId = inlongGroupId;
+        this.inlongStreamId = inlongStreamId;
+        this.auditId = auditId;
+        this.auditTag = auditTag;
+    }
 }
