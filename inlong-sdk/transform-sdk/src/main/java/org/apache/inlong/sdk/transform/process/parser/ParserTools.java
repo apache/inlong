@@ -22,7 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
@@ -38,7 +39,9 @@ public class ParserTools {
         init();
     }
     private static void init() {
-        Reflections reflections = new Reflections(PARSER_PATH, Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections(PARSER_PATH,
+                new TypeAnnotationsScanner(),
+                new SubTypesScanner());
         Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformParser.class);
         for (Class<?> clazz : clazzSet) {
             if (ValueParser.class.isAssignableFrom(clazz)) {
