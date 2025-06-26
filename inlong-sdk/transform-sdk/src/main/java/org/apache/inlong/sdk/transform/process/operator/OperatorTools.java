@@ -28,7 +28,8 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.lang.ObjectUtils;
 import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
@@ -58,7 +59,9 @@ public class OperatorTools {
     }
 
     private static void init() {
-        Reflections reflections = new Reflections(OPERATOR_PATH, Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections(OPERATOR_PATH,
+                new TypeAnnotationsScanner(),
+                new SubTypesScanner());
         Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformOperator.class);
         for (Class<?> clazz : clazzSet) {
             if (ExpressionOperator.class.isAssignableFrom(clazz)) {

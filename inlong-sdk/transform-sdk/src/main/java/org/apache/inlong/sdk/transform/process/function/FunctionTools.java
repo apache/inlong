@@ -27,7 +27,8 @@ import net.sf.jsqlparser.expression.Function;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
@@ -48,7 +49,9 @@ public class FunctionTools {
     }
 
     private static void init() {
-        Reflections reflections = new Reflections(FUNCTION_PATH, Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections(FUNCTION_PATH,
+                new TypeAnnotationsScanner(),
+                new SubTypesScanner());
         Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(TransformFunction.class);
         for (Class<?> clazz : clazzSet) {
             TransformFunction annotation = clazz.getAnnotation(TransformFunction.class);
