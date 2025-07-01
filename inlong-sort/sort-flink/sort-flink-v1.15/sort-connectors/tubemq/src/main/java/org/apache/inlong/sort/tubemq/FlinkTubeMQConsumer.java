@@ -229,9 +229,13 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer.subscribe(topic, streamIdSet);
         String jobId = getRuntimeContext().getJobId().toString();
-        String realSessionKey = sessionKey + jobId + restoredCheckpointId;
+        int attempt = getRuntimeContext().getAttemptNumber();
+        String realSessionKey = sessionKey + "_" + jobId + "_" + restoredCheckpointId + "_" + attempt;
+        LOG.info("try to subscribe topic {} with sessionKey: {}, currentOffsets: {}.",
+                topic, realSessionKey, currentOffsets);
         messagePullConsumer.completeSubscribe(realSessionKey, numTasks, true, currentOffsets);
-
+        LOG.info("Subscribe topic {} success, sessionKey: {}, currentOffsets: {}.",
+                topic, realSessionKey, currentOffsets);
         running = true;
     }
 
