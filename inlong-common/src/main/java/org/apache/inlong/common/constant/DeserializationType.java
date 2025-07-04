@@ -24,4 +24,5 @@ public class DeserializationType {
     public static final String RAW = "raw";
     public static final String CSV = "csv";
     public static final String KV = "kv";
+    public static final String PB = "pb";
 }
