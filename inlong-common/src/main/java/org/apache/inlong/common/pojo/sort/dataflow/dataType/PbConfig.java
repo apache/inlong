@@ -20,13 +20,13 @@ package org.apache.inlong.common.pojo.sort.dataflow.dataType;
 import lombok.Data;
 
 @Data
-public class PbConfig implements DataTypeConfig{
+public class PbConfig implements DataTypeConfig {
 
     /**
      * serialVersionUID long
      */
     private static final long serialVersionUID = -160839329020565053L;
-    
+
     private String protoDescription;
     private String rootMessageType;
     private String rowsNodePath;
