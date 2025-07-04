@@ -240,9 +240,9 @@ public class SinkContext {
             return SourceDecoderFactory.createKvDecoder(kvSourceInfo);
         } else if (dataTypeConfig instanceof PbConfig) {
             PbConfig pbConfig = (PbConfig) dataTypeConfig;
-            PbSourceInfo pbSourceInfo = new PbSourceInfo(sourceConfig.getEncodingType(), 
-                    pbConfig.getProtoDescription(), 
-                    pbConfig.getRootMessageType(), 
+            PbSourceInfo pbSourceInfo = new PbSourceInfo(sourceConfig.getEncodingType(),
+                    pbConfig.getProtoDescription(),
+                    pbConfig.getRootMessageType(),
                     pbConfig.getRowsNodePath());
             return SourceDecoderFactory.createPbDecoder(pbSourceInfo);
         } else {

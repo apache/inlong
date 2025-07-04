@@ -70,7 +70,7 @@ public class KafkaIdConfig extends IdConfig {
         DataTypeEnum dataType = DataTypeEnum.TEXT;
         if (dataTypeConfig instanceof CsvConfig) {
             separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
-            dataType = DataTypeEnum.TEXT; 
+            dataType = DataTypeEnum.TEXT;
         } else if (dataTypeConfig instanceof KvConfig) {
             separator = String.valueOf(((KvConfig) dataTypeConfig).getEntrySplitter());
             dataType = DataTypeEnum.TEXT;

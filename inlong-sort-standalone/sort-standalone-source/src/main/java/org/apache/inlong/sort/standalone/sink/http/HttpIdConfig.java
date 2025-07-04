@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 @SuperBuilder
 @Slf4j
 public class HttpIdConfig extends IdConfig {
+
     public static final String DEFAULT_SEPARATOR = "|";
 
     private String path;
