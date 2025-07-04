@@ -44,11 +44,11 @@ public class TestAny2PbProcessor extends AbstractProcessorTestBase {
         PbSinkInfo pbSink = new PbSinkInfo("UTF-8", transformBase64, fields);
         String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
-        TransformProcessor<byte[], byte[]> processor = TransformProcessor
+        TransformProcessor<String, byte[]> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createPbEncoder(pbSink));
         byte[] srcBytes = this.getPbTestData();
-        List<byte[]> output = processor.transform(srcBytes);
+        List<byte[]> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertEquals(2, output.size());
 
         // case1:

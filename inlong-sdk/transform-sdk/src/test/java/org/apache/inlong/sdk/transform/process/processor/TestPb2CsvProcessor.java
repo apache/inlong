@@ -42,11 +42,11 @@ public class TestPb2CsvProcessor extends AbstractProcessorTestBase {
         String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
-        TransformProcessor<byte[], String> processor = TransformProcessor
+        TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         byte[] srcBytes = this.getPbTestData();
-        List<String> output = processor.transform(srcBytes);
+        List<String> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertEquals(2, output.size());
         Assert.assertEquals(output.get(0), "sid|1|1713243918000|msgValue4");
         Assert.assertEquals(output.get(1), "sid|1|1713243918002|msgValue42");
@@ -61,11 +61,11 @@ public class TestPb2CsvProcessor extends AbstractProcessorTestBase {
         String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
-        TransformProcessor<byte[], String> processor = TransformProcessor
+        TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         byte[] srcBytes = this.getPbTestData();
-        List<String> output = processor.transform(srcBytes, new HashMap<>());
+        List<String> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals(output.get(0), "sid|1|1713243918002|msgValue4");
     }
@@ -85,11 +85,11 @@ public class TestPb2CsvProcessor extends AbstractProcessorTestBase {
                 + "+$root.msgs(0).msgTime+$root.msgs(1).msgTime)";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
-        TransformProcessor<byte[], String> processor = TransformProcessor
+        TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         byte[] srcBytes = this.getPbTestData();
-        List<String> output = processor.transform(srcBytes, new HashMap<>());
+        List<String> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals(output.get(0), "sid|2|3426487836002|msgValue4");
     }
@@ -104,11 +104,11 @@ public class TestPb2CsvProcessor extends AbstractProcessorTestBase {
                 + "concat($root.sid,$root.packageID,$child.msgTime,$child.msg) msg,$root.msgs.msgTime.msg from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
-        TransformProcessor<byte[], String> processor = TransformProcessor
+        TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         byte[] srcBytes = this.getPbTestData();
-        List<String> output = processor.transform(srcBytes, new HashMap<>());
+        List<String> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertTrue(output.size() == 2);
         Assert.assertEquals(output.get(0), "sid|1|1713243918000|sid11713243918000msgValue4");
         Assert.assertEquals(output.get(1), "sid|1|1713243918002|sid11713243918002msgValue42");
@@ -123,11 +123,11 @@ public class TestPb2CsvProcessor extends AbstractProcessorTestBase {
         String transformSql = "select now() from source";
         TransformConfig config = new TransformConfig(transformSql);
         // case1
-        TransformProcessor<byte[], String> processor = TransformProcessor
+        TransformProcessor<String, String> processor = TransformProcessor
                 .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         byte[] srcBytes = this.getPbTestData();
-        List<String> output = processor.transform(srcBytes, new HashMap<>());
+        List<String> output = processor.transformForBytes(srcBytes, new HashMap<>());
         Assert.assertEquals(2, output.size());
     }
 }

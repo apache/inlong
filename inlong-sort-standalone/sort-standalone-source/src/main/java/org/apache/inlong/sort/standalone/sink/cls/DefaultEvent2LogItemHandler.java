@@ -167,6 +167,7 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
         // prepare values
         String stringValues = this.getStringValues(event, idConfig);
         Map<String, Object> extParams = new ConcurrentHashMap<>();
+        extParams.putAll(context.getSinkContext().getParameters());
         event.getHeaders().forEach((k, v) -> extParams.put(k, v));
         List<Map<String, Object>> resultList = processor.transform(stringValues, extParams);
         if (resultList == null) {

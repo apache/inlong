@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * PbSourceDecoder
  * 
  */
-public class PbSourceDecoder extends SourceDecoder<byte[]> {
+public class PbSourceDecoder extends SourceDecoder<String> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PbSourceDecoder.class);
 
@@ -150,5 +150,10 @@ public class PbSourceDecoder extends SourceDecoder<byte[]> {
             LOG.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public SourceData decode(String input, Context context) {
+        byte[] srcBytes = Base64.getDecoder().decode(input);
+        return decode(srcBytes, context);
     }
 }

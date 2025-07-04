@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -157,7 +158,10 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         byte[] bodyBytes = event.getBody();
         String strContext = new String(bodyBytes, idConfig.getCharset());
         // build
-        List<Map<String, Object>> esData = processor.transform(strContext);
+        Map<String, Object> extParams = new ConcurrentHashMap<>();
+        extParams.putAll(context.getSinkContext().getParameters());
+        event.getHeaders().forEach((k, v) -> extParams.put(k, v));
+        List<Map<String, Object>> esData = processor.transform(strContext, extParams);
         return esData.stream()
                 .map(data -> {
                     EsIndexRequest indexRequest = new EsIndexRequest(indexName, event);

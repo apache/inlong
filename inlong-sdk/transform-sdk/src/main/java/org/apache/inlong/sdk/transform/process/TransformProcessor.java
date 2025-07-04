@@ -195,4 +195,51 @@ public class TransformProcessor<I, O> {
         return sinkDatas;
     }
 
+    public List<O> transformForBytes(byte[] input, Map<String, Object> extParams) {
+        Context context = new Context(config.getConfiguration(), extParams);
+
+        // decode
+        SourceData sourceData = this.decoder.decode(input, context);
+        if (sourceData == null) {
+            return null;
+        }
+
+        List<O> sinkDatas = new ArrayList<>(sourceData.getRowCount());
+        for (int i = 0; i < sourceData.getRowCount(); i++) {
+
+            // where check
+            if (this.where != null && !this.where.check(sourceData, i, context)) {
+                continue;
+            }
+
+            // parse value
+            DefaultSinkData sinkData = new DefaultSinkData();
+            for (ValueParserNode node : this.selectItems) {
+                String fieldName = node.getFieldName();
+                ValueParser parser = node.getParser();
+                if (parser == null || StringUtils.equals(fieldName, SinkEncoder.ALL_SOURCE_FIELD_SIGN)) {
+                    sinkData.addField(fieldName, "");
+                    continue;
+                }
+                try {
+                    Object fieldValue = parser.parse(sourceData, i, context);
+                    if (fieldValue == null) {
+                        sinkData.addField(fieldName, "");
+                    } else {
+                        sinkData.addField(fieldName, fieldValue.toString());
+                    }
+                } catch (Throwable t) {
+                    sinkData.addField(fieldName, "");
+                }
+            }
+
+            if (this.sinkFieldList != null) {
+                sinkData.setKeyList(this.sinkFieldList);
+            }
+            // encode
+            sinkDatas.add(this.encoder.encode(sinkData, context));
+        }
+        return sinkDatas;
+    }
+
 }
