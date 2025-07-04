@@ -24,6 +24,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.SourceConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.PbConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.BasicFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
@@ -33,6 +34,7 @@ import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -236,6 +238,13 @@ public class SinkContext {
                     .escapeChar(kvConfig.getEscapeChar())
                     .build();
             return SourceDecoderFactory.createKvDecoder(kvSourceInfo);
+        } else if (dataTypeConfig instanceof PbConfig) {
+            PbConfig pbConfig = (PbConfig) dataTypeConfig;
+            PbSourceInfo pbSourceInfo = new PbSourceInfo(sourceConfig.getEncodingType(), 
+                    pbConfig.getProtoDescription(), 
+                    pbConfig.getRootMessageType(), 
+                    pbConfig.getRowsNodePath());
+            return SourceDecoderFactory.createPbDecoder(pbSourceInfo);
         } else {
             throw new IllegalArgumentException("do not support data type=" + dataTypeConfig.getClass().getName());
         }

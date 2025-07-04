@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.PbConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.KafkaSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -47,9 +48,10 @@ public class KafkaIdConfig extends IdConfig {
     public static final String DEFAULT_SEPARATOR = "|";
 
     private String uid;
-    private String separator = "|";
+    private String separator;
     private String topic;
-    private DataTypeEnum dataType = DataTypeEnum.TEXT;
+    private DataTypeEnum dataType;
+    private DataFlowConfig dataFlowConfig;
 
     public KafkaIdConfig(Map<String, String> idParam) {
         this.inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
@@ -65,10 +67,15 @@ public class KafkaIdConfig extends IdConfig {
         KafkaSinkConfig sinkConfig = (KafkaSinkConfig) dataFlowConfig.getSinkConfig();
         DataTypeConfig dataTypeConfig = dataFlowConfig.getSourceConfig().getDataTypeConfig();
         String separator = DEFAULT_SEPARATOR;
+        DataTypeEnum dataType = DataTypeEnum.TEXT;
         if (dataTypeConfig instanceof CsvConfig) {
             separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
+            dataType = DataTypeEnum.TEXT; 
         } else if (dataTypeConfig instanceof KvConfig) {
             separator = String.valueOf(((KvConfig) dataTypeConfig).getEntrySplitter());
+            dataType = DataTypeEnum.TEXT;
+        } else if (dataTypeConfig instanceof PbConfig) {
+            dataType = DataTypeEnum.PB;
         }
 
         return KafkaIdConfig.builder()
@@ -76,8 +83,9 @@ public class KafkaIdConfig extends IdConfig {
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
                 .uid(InlongId.generateUid(dataFlowConfig.getInlongGroupId(), dataFlowConfig.getInlongStreamId()))
                 .topic(sinkConfig.getTopicName())
-                .dataType(DataTypeEnum.TEXT)
+                .dataType(dataType)
                 .separator(separator)
+                .dataFlowConfig(dataFlowConfig)
                 .build();
     }
 

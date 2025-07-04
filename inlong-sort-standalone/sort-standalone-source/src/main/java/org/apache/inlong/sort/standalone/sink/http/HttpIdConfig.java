@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.HttpSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
@@ -41,12 +44,13 @@ import java.util.stream.Collectors;
 @SuperBuilder
 @Slf4j
 public class HttpIdConfig extends IdConfig {
+    public static final String DEFAULT_SEPARATOR = "|";
 
     private String path;
     private String method;
     private Map<String, String> headers;
     private Integer maxRetryTimes;
-    private String separator = "|";
+    private String separator;
     private List<String> fieldList;
     private Charset sourceCharset;
     private Charset sinkCharset;
@@ -73,6 +77,13 @@ public class HttpIdConfig extends IdConfig {
                     dataFlowConfig.getSourceConfig().getEncodingType(), dataFlowConfig.getDataflowId());
             sourceCharset = Charset.defaultCharset();
         }
+        DataTypeConfig dataTypeConfig = dataFlowConfig.getSourceConfig().getDataTypeConfig();
+        String separator = DEFAULT_SEPARATOR;
+        if (dataTypeConfig instanceof CsvConfig) {
+            separator = String.valueOf(((CsvConfig) dataTypeConfig).getDelimiter());
+        } else if (dataTypeConfig instanceof KvConfig) {
+            separator = String.valueOf(((KvConfig) dataTypeConfig).getEntrySplitter());
+        }
         return HttpIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
@@ -80,7 +91,7 @@ public class HttpIdConfig extends IdConfig {
                 .method(sinkConfig.getMethod())
                 .headers(sinkConfig.getHeaders())
                 .maxRetryTimes(sinkConfig.getMaxRetryTimes())
-                .separator("|")
+                .separator(separator)
                 .fieldList(fields)
                 .sinkCharset(sinkCharset)
                 .sourceCharset(sourceCharset)
