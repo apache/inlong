@@ -173,11 +173,13 @@ public class MessageDeserializer implements Deserializer {
             Map<String, String> attributes = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
                     INLONGMSG_ATTR_KV_DELIMITER, null, null);
 
-            String groupId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_GROUP_ID))
+            String groupId = Optional.ofNullable(attributes.getOrDefault(INLONGMSG_ATTR_GROUP_ID,
+                    inLongTopic.getGroupId()))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(PARSE_ATTR_ERROR_STRING,
                             INLONGMSG_ATTR_GROUP_ID)));
 
-            String streamId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_STREAM_ID))
+            String streamId = Optional.ofNullable(attributes.getOrDefault(INLONGMSG_ATTR_STREAM_ID,
+                    inLongTopic.getStreamId()))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(PARSE_ATTR_ERROR_STRING,
                             INLONGMSG_ATTR_STREAM_ID)));
 
