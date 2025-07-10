@@ -38,7 +38,7 @@ public class KvSourceDecoder extends SourceDecoder<String> {
     private Character entryDelimiter = '&';
     private Character kvDelimiter = '=';
     private Character escapeChar = '\\';
-    private Character quoteChar = '\"';
+    private Character quoteChar = null;
     private Character lineDelimiter = '\n';
     private Charset srcCharset = Charset.defaultCharset();
 
