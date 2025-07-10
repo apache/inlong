@@ -189,3 +189,30 @@ func WithMaxConnLifetime(lifetime time.Duration) Option {
 		o.MaxConnLifetime = lifetime
 	}
 }
+
+// WithProtocol sets Protocol
+func WithProtocol(protocol Protocol) Option {
+	return func(o *Options) {
+		o.Protocol = protocol
+	}
+}
+
+// WithHTTPTimeout sets HTTPTimeout
+func WithHTTPTimeout(timeout time.Duration) Option {
+	return func(o *Options) {
+		if timeout <= 0 {
+			return
+		}
+		o.HTTPTimeout = timeout
+	}
+}
+
+// WithHTTPMaxConns sets HTTPMaxConns
+func WithHTTPMaxConns(n int) Option {
+	return func(o *Options) {
+		if n <= 0 {
+			return
+		}
+		o.HTTPMaxConns = n
+	}
+}

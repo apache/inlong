@@ -59,6 +59,8 @@ type client struct {
 	connPool                 connpool.EndpointRestrictedConnPool // connection pool
 	netClient                *gnet.Client                        // client side network manager
 	workers                  []*worker                           // worker to do send and receive jobs
+	httpClient               *HTTPClient                         // HTTP client instance for managing HTTP-based communication
+	httpWorkers              []*HTTPWorker                       // Slice of HTTPWorker instances for handling HTTP tasks
 	curWorkerIndex           atomic.Uint64                       // current worker index
 	log                      logger.Logger                       // debug logger
 	metrics                  *metrics                            // metrics
@@ -101,7 +103,17 @@ func (c *client) initAll() error {
 	if err != nil {
 		return err
 	}
-	err = c.initNetClient()
+
+	switch c.options.Protocol {
+	case ProtocolHTTP:
+		return c.initHTTP()
+	default:
+		return c.initTCP()
+	}
+}
+
+func (c *client) initTCP() error {
+	err := c.initNetClient()
 	if err != nil {
 		return err
 	}
@@ -120,8 +132,31 @@ func (c *client) initAll() error {
 	return nil
 }
 
+func (c *client) initHTTP() error {
+	c.httpClient = NewHTTPClient(c.options, c.log, c.metrics)
+
+	err := c.initHTTPWorkers()
+	if err != nil {
+		return err
+	}
+
+	endpoints := c.discoverer.GetEndpoints()
+	c.httpClient.UpdateEndpoints(endpoints)
+
+	return nil
+}
+
+func (c *client) initHTTPWorkers() error {
+	c.httpWorkers = make([]*HTTPWorker, 0, c.options.WorkerNum)
+	for i := 0; i < c.options.WorkerNum; i++ {
+		worker := NewHTTPWorker(c.httpClient, i, c.options, c.log, c.metrics)
+		c.httpWorkers = append(c.httpWorkers, worker)
+	}
+	return nil
+}
+
 func (c *client) initDiscoverer() error {
-	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.Logger, c.options.Auth)
+	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.Logger, c.options.Auth, c.options.Protocol)
 	if err != nil {
 		return err
 	}
@@ -221,6 +256,9 @@ func (c *client) Send(ctx context.Context, msg Message) error {
 		c.log.Error("invalid message", ErrInvalidGroupID)
 		return ErrInvalidMessage
 	}
+	if c.options.Protocol == ProtocolHTTP {
+		return c.sendHTTP(ctx, msg)
+	}
 
 	worker, err := c.getWorker()
 	if err != nil {
@@ -238,6 +276,11 @@ func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
 		return
 	}
 
+	if c.options.Protocol == ProtocolHTTP {
+		c.sendAsyncHTTP(ctx, msg, cb)
+		return
+	}
+
 	worker, err := c.getWorker()
 	if err != nil {
 		if cb != nil {
@@ -247,6 +290,42 @@ func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
 	}
 
 	worker.sendAsync(ctx, msg, cb)
+}
+
+func (c *client) sendHTTP(ctx context.Context, msg Message) error {
+	worker, err := c.getHTTPWorker()
+	if err != nil {
+		return ErrNoAvailableWorker
+	}
+	return worker.Send(ctx, msg)
+}
+
+func (c *client) sendAsyncHTTP(ctx context.Context, msg Message, cb Callback) {
+	worker, err := c.getHTTPWorker()
+	if err != nil {
+		if cb != nil {
+			cb(msg, ErrNoAvailableWorker)
+		}
+		return
+	}
+	worker.SendAsync(ctx, msg, cb)
+}
+
+func (c *client) getHTTPWorker() (*HTTPWorker, error) {
+	if len(c.httpWorkers) == 0 {
+		return nil, ErrNoAvailableWorker
+	}
+
+	index := c.curWorkerIndex.Load()
+	w := c.httpWorkers[index%uint64(len(c.httpWorkers))]
+	c.curWorkerIndex.Add(1)
+
+	if w.Available() {
+		return w, nil
+	}
+
+	c.metrics.incError(workerBusy.strCode)
+	return nil, workerBusy
 }
 
 func (c *client) getWorker() (*worker, error) {
@@ -267,14 +346,21 @@ func (c *client) Close() {
 		if c.discoverer != nil {
 			c.discoverer.Close()
 		}
-		for _, w := range c.workers {
-			w.close()
-		}
-		if c.netClient != nil {
-			_ = c.netClient.Stop()
-		}
-		if c.connPool != nil {
-			c.connPool.Close()
+
+		if c.options.Protocol == ProtocolHTTP {
+			for _, w := range c.httpWorkers {
+				w.Close()
+			}
+		} else {
+			for _, w := range c.workers {
+				w.close()
+			}
+			if c.netClient != nil {
+				_ = c.netClient.Stop()
+			}
+			if c.connPool != nil {
+				c.connPool.Close()
+			}
 		}
 	})
 }
@@ -389,5 +475,10 @@ func (c *client) onResponse(frame []byte) {
 }
 
 func (c *client) OnEndpointUpdate(all, add, del discoverer.EndpointList) {
-	c.connPool.UpdateEndpoints(all.Addresses(), add.Addresses(), del.Addresses())
+	switch c.options.Protocol {
+	case ProtocolHTTP:
+		c.httpClient.UpdateEndpoints(all)
+	default:
+		c.connPool.UpdateEndpoints(all.Addresses(), add.Addresses(), del.Addresses())
+	}
 }
