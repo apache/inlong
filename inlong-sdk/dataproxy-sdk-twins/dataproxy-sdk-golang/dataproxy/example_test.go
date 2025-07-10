@@ -74,7 +74,78 @@ func ExampleClient_SendAsync() {
 				Payload:  []byte("test|a|b|c"),
 			},
 			func(msg dataproxy.Message, err error) {
-				if err != nil {
+				if err == nil {
+					success.Add(1)
+				} else {
+					failed.Add(1)
+				}
+			})
+	}
+
+	// Wait for async send to complete
+	time.Sleep(3 * time.Second)
+	fmt.Println("success:", success.Load())
+	fmt.Println("failed:", failed.Load())
+	client.Close()
+}
+
+// ExampleClient_SendHTTP demonstrates how to send messages using HTTP protocol
+func ExampleClient_Send_http() {
+	client, err := dataproxy.NewClient(
+		dataproxy.WithGroupID("test"),
+		dataproxy.WithURL("http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList"),
+		dataproxy.WithMetricsName("test-http"),
+		dataproxy.WithProtocol(dataproxy.ProtocolHTTP), // Use HTTP protocol
+		dataproxy.WithHTTPTimeout(10*time.Second),      // Set HTTP timeout
+	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Send messages using HTTP protocol
+	for i := 0; i < 10; i++ {
+		err := client.Send(context.Background(), dataproxy.Message{
+			GroupID:  "test",
+			StreamID: "test",
+			Payload:  []byte("test|a|b|c"),
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	client.Close()
+}
+
+// ExampleClient_SendAsyncHTTP demonstrates how to send messages asynchronously using HTTP protocol
+func ExampleClient_SendAsync_http() {
+	client, err := dataproxy.NewClient(
+		dataproxy.WithGroupID("test"),
+		dataproxy.WithURL("http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList"),
+		dataproxy.WithMetricsName("test-http-async"),
+		dataproxy.WithProtocol(dataproxy.ProtocolHTTP), // Use HTTP protocol
+		dataproxy.WithHTTPTimeout(10*time.Second),      // Set HTTP timeout
+		dataproxy.WithHTTPMaxConns(50),                 // Set HTTP max connections
+	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var success atomic.Uint64
+	var failed atomic.Uint64
+
+	// Send messages asynchronously using HTTP protocol
+	for i := 0; i < 10; i++ {
+		client.SendAsync(context.Background(),
+			dataproxy.Message{
+				GroupID:  "test",
+				StreamID: "test",
+				Payload:  []byte("test|a|b|c"),
+			},
+			func(msg dataproxy.Message, err error) {
+				if err == nil {
 					success.Add(1)
 				} else {
 					failed.Add(1)

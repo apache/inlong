@@ -77,6 +77,9 @@ type Options struct {
 	addColumnStr            string                // the string format of the AddColumns, just a cache, used internal
 	Auth                    Auth                  // dataproxy authentication interface
 	MaxConnLifetime         time.Duration         // connection max lifetime, default: 0, set to 5m/10m when the servers provide service though CLBs (Cloud Load Balancers)
+	Protocol                Protocol              // protocol type for data transmission, default: ProtocolTCP
+	HTTPTimeout             time.Duration         // HTTP request timeout, default: 30s
+	HTTPMaxConns            int                   // HTTP max connections per host, default: 100
 }
 
 // ValidateAndSetDefault validates an options and set up the default values
@@ -173,6 +176,14 @@ func (options *Options) ValidateAndSetDefault() error {
 
 	if options.SocketRecvBufferSize <= 0 {
 		options.SocketRecvBufferSize = 1 * 1024 * 1024
+	}
+
+	if options.HTTPTimeout <= 0 {
+		options.HTTPTimeout = 30 * time.Second
+	}
+
+	if options.HTTPMaxConns <= 0 {
+		options.HTTPMaxConns = 100
 	}
 
 	sb := strings.Builder{}
