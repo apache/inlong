@@ -34,7 +34,6 @@ import (
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 )
 
-// HTTPClient HTTP客户端
 type HTTPClient struct {
 	client           *http.Client
 	endpoints        []discoverer.Endpoint

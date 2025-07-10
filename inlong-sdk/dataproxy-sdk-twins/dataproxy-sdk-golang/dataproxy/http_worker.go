@@ -276,7 +276,6 @@ func (w *HTTPWorker) backoffRetry(batch *HTTPBatchReq) {
 				w.finishBatch(batch, errSendQueueIsFull)
 			}
 		case <-w.stop:
-			// 工作线程关闭，终止重试
 			w.finishBatch(batch, errProducerClosed)
 		}
 	}()
