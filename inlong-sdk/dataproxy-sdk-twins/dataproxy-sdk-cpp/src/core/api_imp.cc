@@ -24,7 +24,7 @@
 #include "../utils/logger.h"
 #include "../utils/utils.h"
 #include "../core/api_code.h"
-#include "../client/http_sender.h"
+#include "../../include/http_sender.h"
 
 namespace inlong {
 int32_t ApiImp::InitApi(const char *config_file_path) {
