@@ -24,6 +24,7 @@
 #include "../utils/logger.h"
 #include "../utils/utils.h"
 #include "../core/api_code.h"
+#include "../client/http_sender.h"
 
 namespace inlong {
 int32_t ApiImp::InitApi(const char *config_file_path) {
@@ -163,6 +164,11 @@ int32_t ApiImp::AddInLongGroupId(const std::vector<std::string> &group_ids) {
     ProxyManager::GetInstance()->CheckGroupIdConf(group_id, false);
   }
   return SdkCode::kSuccess;
+}
+int32_t ApiImp::SendHttp(const char *url, const char *body, int timeout) {
+  if (!url || !body) return -1;
+  inlong::HttpSender sender;
+  return sender.Send(url, body, timeout);
 }
 ApiImp::ApiImp() = default;
 ApiImp::~ApiImp() = default;

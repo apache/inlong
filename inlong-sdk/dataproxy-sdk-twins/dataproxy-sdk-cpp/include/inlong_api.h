@@ -45,6 +45,8 @@ class InLongApi {
   int32_t Send(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len,
                int64_t data_time, UserCallBack call_back = nullptr);
 
+  int32_t SendHttp(const char *url, const char *body, int timeout = 5);
+
   int32_t CloseApi(int32_t max_waitms);
 
  private:
