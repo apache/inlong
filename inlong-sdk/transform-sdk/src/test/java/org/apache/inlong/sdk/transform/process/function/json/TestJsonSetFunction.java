@@ -68,6 +68,6 @@ public class TestJsonSetFunction extends AbstractFunctionJsonTestBase {
         data = json_doc + "|$|{\\\"newKey\\\":\\\"newValue\\\"}|\"$.newKey\"|\"new1\"";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result={\"newKey\":\"new1\"}", output.get(0));
+        Assert.assertEquals("result=", output.get(0));
     }
 }

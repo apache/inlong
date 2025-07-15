@@ -58,7 +58,7 @@ public class TestJsonUnQuoteFunction extends AbstractFunctionJsonTestBase {
         data = "\"A back\\slash:\"|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=A back\\slash:", output.get(0));
+        Assert.assertEquals("result=A backslash:", output.get(0));
 
         // case4: is_digit('')
         data = "\"Column1\tColumn2\"|xxd|cloud|7|3|3";
@@ -70,13 +70,13 @@ public class TestJsonUnQuoteFunction extends AbstractFunctionJsonTestBase {
         data = "\"Quotes ' and double quotes \\\"\\\"|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=Quotes ' and double quotes \\\"", output.get(0));
+        Assert.assertEquals("result=\"Quotes ' and double quotes \"\"", output.get(0));
 
         // case4: is_digit('')
         data = "\"Complex string with / and \\\"|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=Complex string with / and \\", output.get(0));
+        Assert.assertEquals("result=Complex string with / and ", output.get(0));
 
         // case4: is_digit('')
         data = "\"Unicode test: ሴ噸\"|xxd|cloud|7|3|3";

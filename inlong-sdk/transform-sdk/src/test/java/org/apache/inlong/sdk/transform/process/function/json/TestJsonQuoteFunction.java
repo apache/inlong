@@ -52,7 +52,7 @@ public class TestJsonQuoteFunction extends AbstractFunctionJsonTestBase {
         data = "This is a \"quoted\" string|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=\"This is a quoted string\"", output.get(0));
+        Assert.assertEquals("result=\"This is a \\\"quoted\\\" string\"", output.get(0));
 
         // case3: json_quote('A back\slash:')
         data = "A back\\slash:|xxd|cloud|7|3|3";
@@ -124,7 +124,7 @@ public class TestJsonQuoteFunction extends AbstractFunctionJsonTestBase {
         data = "This is a \"quoted\" string|xxd|cloud|7|3|3";
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
-        Assert.assertEquals("result=\"This is a quoted string\"", output.get(0));
+        Assert.assertEquals("result=\"This is a \\\"quoted\\\" string\"", output.get(0));
 
         // case3: json_string('A back\slash:')
         data = "A back\\slash:|xxd|cloud|7|3|3";
