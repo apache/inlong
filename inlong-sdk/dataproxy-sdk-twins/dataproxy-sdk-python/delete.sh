@@ -23,7 +23,10 @@ PY_SDK_DIR=$(cd "$BASE_DIR"; pwd)
 
 echo "InLong Python SDK Uninstaller"
 echo "=============================="
-echo "This script will uninstall the InLong Python SDK by removing the .so files from your Python site-packages directories."
+echo "This script will uninstall the InLong Python SDK by removing the following files:"
+echo "  - inlong_dataproxy*.so"
+echo "  - inlong_dataproxy*.so.*"
+echo "from your Python site-packages directories."
 
 # 获取所有 Python site-packages 目录
 SITE_PACKAGES_DIRS=($(python -c "import site,os; print(' '.join([p for p in site.getsitepackages() if os.path.isdir(p)]))"))
@@ -39,12 +42,15 @@ fi
 
 read -r -p "Enter the target directory to uninstall from (Press Enter to search in all above site-packages directories): " target_dir
 
-SO_FILE_PATTERN="inlong_dataproxy*.so"
+SO_FILE_PATTERNS=("inlong_dataproxy*.so" "inlong_dataproxy*.so.*")
 
 uninstall_from_dir() {
     local dir=$1
     echo "Searching for InLong Python SDK files in $dir..."
-    local so_files=($(find "$dir" -name "$SO_FILE_PATTERN" 2>/dev/null))
+    local so_files=()
+    for pattern in "${SO_FILE_PATTERNS[@]}"; do
+        so_files+=($(find "$dir" -name "$pattern" 2>/dev/null))
+    done
     if [ ${#so_files[@]} -eq 0 ]; then
         echo "  No InLong Python SDK files found in $dir"
         return 0
