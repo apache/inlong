@@ -125,6 +125,21 @@ Follow these steps to use the DataProxy Python SDK:
 
 4. **Function return values**: The functions mentioned above return 0 if they are successful, and a non-zero value indicates failure. Make sure to check the return values to ensure proper execution.
 
+## Uninstall
+
+To uninstall the InLong Python SDK, run the following command in the `dataproxy-sdk-python` directory:
+
+```bash
+chmod +x ./delete.sh
+./delete.sh
+```
+
+This script will:
+1. Automatically detect all Python site-packages directories
+2. Search for InLong Python SDK `.so` files
+3. Prompt for confirmation before deletion
+4. Allow specifying a custom directory if needed
+
 ## Demo
 
 You can refer to the `/demo/send_demo.py` file. To run this demo, you first need to ensure that the SDK has been built and installed properly. Then, follow these steps:
