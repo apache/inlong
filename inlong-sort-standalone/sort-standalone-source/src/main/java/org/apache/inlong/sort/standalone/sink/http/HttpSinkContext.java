@@ -19,8 +19,16 @@ package org.apache.inlong.sort.standalone.sink.http;
 
 import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.HttpSinkConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.common.pojo.sort.node.HttpNodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.transform.encode.MapSinkEncoder;
+import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.MapSinkInfo;
+import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -38,6 +46,8 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -97,6 +107,9 @@ public class HttpSinkContext extends SinkContext {
     private int maxRedirects = DEFAULT_MAX_REDIRECTS;
     private int logMaxLength = DEFAULT_LOG_MAX_LENGTH;
 
+    @Getter
+    protected Map<String, TransformProcessor<String, Map<String, Object>>> transformMap = new ConcurrentHashMap<>();
+
     public HttpSinkContext(String sinkName, Context context, Channel channel,
             BufferQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
@@ -131,8 +144,11 @@ public class HttpSinkContext extends SinkContext {
             // change current config
             Map<String, HttpIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig);
             Map<String, HttpIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
+            Map<String, TransformProcessor<String, Map<String, Object>>> transformProcessor =
+                    reloadTransform(taskConfig);
             if (unifiedConfiguration) {
                 idConfigMap = fromTaskConfig;
+                transformMap = transformProcessor;
                 reloadClientsFromNodeConfig(httpNodeConfig);
             } else {
                 idConfigMap = fromSortTaskConfig;
@@ -145,6 +161,54 @@ public class HttpSinkContext extends SinkContext {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    private Map<String, TransformProcessor<String, Map<String, Object>>> reloadTransform(TaskConfig taskConfig) {
+        ImmutableMap.Builder<String, TransformProcessor<String, Map<String, Object>>> builder =
+                new ImmutableMap.Builder<>();
+
+        taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .forEach(flow -> {
+                    TransformProcessor<String, Map<String, Object>> transformProcessor =
+                            createTransform(flow);
+                    if (transformProcessor == null) {
+                        return;
+                    }
+                    builder.put(InlongId.generateUid(flow.getInlongGroupId(), flow.getInlongStreamId()),
+                            transformProcessor);
+                });
+
+        return builder.build();
+    }
+
+    private TransformProcessor<String, Map<String, Object>> createTransform(DataFlowConfig dataFlowConfig) {
+        try {
+            return TransformProcessor.create(
+                    createTransformConfig(dataFlowConfig),
+                    createSourceDecoder(dataFlowConfig.getSourceConfig()),
+                    createHttpSinkEncoder(dataFlowConfig.getSinkConfig()));
+        } catch (Exception e) {
+            LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
+                    e.getMessage());
+            return null;
+        }
+    }
+
+    private MapSinkEncoder createHttpSinkEncoder(SinkConfig config) {
+        if (!(config instanceof HttpSinkConfig)) {
+            throw new IllegalArgumentException("sinkInfo must be an instance of HttpSinkInfo");
+        }
+        HttpSinkConfig sinkConfig = (HttpSinkConfig) config;
+        List<FieldInfo> fieldInfos = sinkConfig.getFieldConfigs()
+                .stream()
+                .map(conf -> new FieldInfo(conf.getName(), deriveTypeConverter(conf.getFormatInfo())))
+                .collect(Collectors.toList());
+
+        MapSinkInfo sinkInfo = new MapSinkInfo(sinkConfig.getEncodingType(), fieldInfos);
+        return SinkEncoderFactory.createMapEncoder(sinkInfo);
     }
 
     private Map<String, HttpIdConfig> reloadIdParamsFromTaskConfig(TaskConfig taskConfig) {
@@ -401,4 +465,7 @@ public class HttpSinkContext extends SinkContext {
         return null;
     }
 
+    public TransformProcessor<String, Map<String, Object>> getTransformProcessor(String uid) {
+        return this.transformMap.get(uid);
+    }
 }

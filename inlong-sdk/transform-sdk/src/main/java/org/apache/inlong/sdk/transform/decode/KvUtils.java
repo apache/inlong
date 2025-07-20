@@ -115,8 +115,6 @@ public class KvUtils {
                         state = STATE_VALUE;
                         break;
                     case STATE_VALUE:
-                        // throw new IllegalArgumentException("Unexpected token " +
-                        // ch + " at position " + i + ".");
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
                         state = kvState;

@@ -52,6 +52,7 @@ public class HttpIdConfig extends IdConfig {
     private Map<String, String> headers;
     private Integer maxRetryTimes;
     private String separator;
+    private DataTypeConfig dataTypeConfig;
     private List<String> fieldList;
     private Charset sourceCharset;
     private Charset sinkCharset;
@@ -96,6 +97,7 @@ public class HttpIdConfig extends IdConfig {
                 .fieldList(fields)
                 .sinkCharset(sinkCharset)
                 .sourceCharset(sourceCharset)
+                .dataTypeConfig(dataTypeConfig)
                 .dataFlowConfig(dataFlowConfig)
                 .build();
     }
