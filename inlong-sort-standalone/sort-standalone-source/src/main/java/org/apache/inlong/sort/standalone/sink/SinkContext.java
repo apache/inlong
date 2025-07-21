@@ -21,20 +21,13 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.SourceConfig;
-import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
-import org.apache.inlong.common.pojo.sort.dataflow.dataType.KvConfig;
-import org.apache.inlong.common.pojo.sort.dataflow.dataType.PbConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.BasicFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
-import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
-import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
-import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
-import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 import org.apache.inlong.sdk.transform.process.converter.TypeConverter;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -54,11 +47,9 @@ import org.slf4j.Logger;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 public class SinkContext {
 
@@ -212,42 +203,13 @@ public class SinkContext {
 
     public SourceDecoder<String> createSourceDecoder(SourceConfig sourceConfig) {
         DataTypeConfig dataTypeConfig = sourceConfig.getDataTypeConfig();
-        List<FieldInfo> fieldInfoList = sourceConfig.getFieldConfigs()
-                .stream()
-                .map(this::convertToTransformFieldInfo)
-                .collect(Collectors.toList());
-
-        if (dataTypeConfig instanceof CsvConfig) {
-            CsvConfig csvConfig = (CsvConfig) dataTypeConfig;
-            CsvSourceInfo csvSourceInfo = CsvSourceInfo.builder()
-                    .delimiter(csvConfig.getDelimiter())
-                    .escapeChar(csvConfig.getEscapeChar())
-                    .fields(fieldInfoList)
-                    .charset(sourceConfig.getEncodingType())
-                    .build();
-            return SourceDecoderFactory.createCsvDecoder(csvSourceInfo);
-
-        } else if (dataTypeConfig instanceof KvConfig) {
-            KvConfig kvConfig = (KvConfig) dataTypeConfig;
-            KvSourceInfo kvSourceInfo = KvSourceInfo.builder()
-                    .charset(sourceConfig.getEncodingType())
-                    .fields(fieldInfoList)
-                    .kvDelimiter(kvConfig.getKvSplitter())
-                    .entryDelimiter(kvConfig.getEntrySplitter())
-                    .lineDelimiter(kvConfig.getLineSeparator())
-                    .escapeChar(kvConfig.getEscapeChar())
-                    .build();
-            return SourceDecoderFactory.createKvDecoder(kvSourceInfo);
-        } else if (dataTypeConfig instanceof PbConfig) {
-            PbConfig pbConfig = (PbConfig) dataTypeConfig;
-            PbSourceInfo pbSourceInfo = new PbSourceInfo(sourceConfig.getEncodingType(),
-                    pbConfig.getProtoDescription(),
-                    pbConfig.getRootMessageType(),
-                    pbConfig.getRowsNodePath());
-            return SourceDecoderFactory.createPbDecoder(pbSourceInfo);
-        } else {
+        String dataTypeClass = dataTypeConfig.getClass().getSimpleName();
+        IDecoderBuilder builder = DecoderBuilderHolder.getBuilder(dataTypeClass);
+        SourceDecoder<String> decoder = builder.createSourceDecoder(sourceConfig);
+        if (decoder == null) {
             throw new IllegalArgumentException("do not support data type=" + dataTypeConfig.getClass().getName());
         }
+        return decoder;
     }
 
     public FieldInfo convertToTransformFieldInfo(FieldConfig config) {

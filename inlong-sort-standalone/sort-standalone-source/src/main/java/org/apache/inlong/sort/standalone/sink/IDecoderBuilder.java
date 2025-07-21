@@ -15,21 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.sink.http;
+package org.apache.inlong.sort.standalone.sink;
 
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
+import org.apache.inlong.common.pojo.sort.dataflow.SourceConfig;
+import org.apache.inlong.sdk.transform.decode.SourceDecoder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+public interface IDecoderBuilder {
 
-import java.net.URISyntaxException;
-import java.util.List;
-
-public interface IEvent2HttpRequestHandler {
-
-    List<HttpRequest> parse(HttpSinkContext context, ProfileEvent event)
-            throws URISyntaxException, JsonProcessingException;
-
-    List<HttpRequest> parse(HttpSinkContext context, DispatchProfile dispatchProfile)
-            throws URISyntaxException, JsonProcessingException;
+    SourceDecoder<String> createSourceDecoder(SourceConfig sourceConfig);
 }
