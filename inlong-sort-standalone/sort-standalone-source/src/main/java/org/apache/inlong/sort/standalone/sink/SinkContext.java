@@ -40,6 +40,7 @@ import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -64,9 +65,12 @@ public class SinkContext {
     protected final String taskName;
     protected final String sinkName;
     protected final Context sinkContext;
+    protected Gson gson = new Gson();
     protected TaskConfig taskConfig;
+    protected String taskConfigJson;
     @Deprecated
     protected SortTaskConfig sortTaskConfig;
+    protected String sortTaskConfigJson;
     protected final Channel channel;
     protected final int maxThreads;
     protected final long processInterval;
@@ -117,13 +121,23 @@ public class SinkContext {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
+    @SuppressWarnings("deprecation")
     public void reload() {
         try {
-            this.sortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            this.taskConfig = SortConfigHolder.getTaskConfig(taskName);
+            TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
+            SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            this.replaceConfig(newTaskConfig, newSortTaskConfig);
         } catch (Throwable e) {
             LOG.error("failed to stop sink context", e);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    protected void replaceConfig(TaskConfig newTaskConfig, SortTaskConfig newSortTaskConfig) {
+        this.taskConfig = newTaskConfig;
+        this.taskConfigJson = gson.toJson(newTaskConfig);
+        this.sortTaskConfig = newSortTaskConfig;
+        this.sortTaskConfigJson = gson.toJson(newSortTaskConfig);
     }
 
     public String getClusterId() {

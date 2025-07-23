@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
@@ -125,8 +126,9 @@ public class HttpSinkContext extends SinkContext {
                     takeCounter.getAndSet(0), backCounter.getAndSet(0));
             TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if ((newTaskConfig == null || newTaskConfig.equals(taskConfig))
-                    && (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig))) {
+            if ((newTaskConfig == null || StringUtils.equals(this.taskConfigJson, gson.toJson(newTaskConfig)))
+                    && (newSortTaskConfig == null
+                            || StringUtils.equals(this.sortTaskConfigJson, gson.toJson(newSortTaskConfig)))) {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}", taskName);
@@ -138,8 +140,7 @@ public class HttpSinkContext extends SinkContext {
                 }
             }
 
-            this.taskConfig = newTaskConfig;
-            this.sortTaskConfig = newSortTaskConfig;
+            this.replaceConfig(newTaskConfig, newSortTaskConfig);
 
             // change current config
             Map<String, HttpIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig);
