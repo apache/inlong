@@ -102,21 +102,21 @@ public class ParseUrlFunction implements ValueParser {
             try {
                 URL netUrl = new URL(url);
                 switch (part) {
-                    case "HOST" :
+                    case "HOST":
                         return netUrl.getHost();
-                    case "PATH" :
+                    case "PATH":
                         return netUrl.getPath();
-                    case "REF" :
+                    case "REF":
                         return netUrl.getRef();
-                    case "PROTOCOL" :
+                    case "PROTOCOL":
                         return netUrl.getProtocol();
-                    case "AUTHORITY" :
+                    case "AUTHORITY":
                         return netUrl.getAuthority();
-                    case "FILE" :
+                    case "FILE":
                         return netUrl.getFile();
-                    case "USERINFO" :
+                    case "USERINFO":
                         return netUrl.getUserInfo();
-                    default :
+                    default:
                         return null;
                 }
             } catch (MalformedURLException e) {
