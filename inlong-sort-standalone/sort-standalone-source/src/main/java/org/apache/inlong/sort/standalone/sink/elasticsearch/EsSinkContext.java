@@ -150,8 +150,9 @@ public class EsSinkContext extends SinkContext {
                     takeCounter.getAndSet(0), backCounter.getAndSet(0));
             TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if ((newTaskConfig == null || newTaskConfig.equals(taskConfig))
-                    && (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig))) {
+            if ((newTaskConfig == null || StringUtils.equals(this.taskConfigJson, gson.toJson(newTaskConfig)))
+                    && (newSortTaskConfig == null
+                            || StringUtils.equals(this.sortTaskConfigJson, gson.toJson(newSortTaskConfig)))) {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}", taskName);
@@ -163,9 +164,7 @@ public class EsSinkContext extends SinkContext {
                 }
             }
 
-            this.taskConfig = newTaskConfig;
-            this.sortTaskConfig = newSortTaskConfig;
-
+            this.replaceConfig(newTaskConfig, newSortTaskConfig);
             // change current config
             Map<String, EsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig);
             Map<String, TransformProcessor<String, Map<String, Object>>> transformProcessor =

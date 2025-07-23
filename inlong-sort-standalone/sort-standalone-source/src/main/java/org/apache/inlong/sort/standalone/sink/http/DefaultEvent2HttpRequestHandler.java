@@ -173,7 +173,8 @@ public class DefaultEvent2HttpRequestHandler implements IEvent2HttpRequestHandle
         List<Map<String, Object>> results = new ArrayList<>();
         for (Map<String, String> fieldMap : fieldMaps) {
             Map<String, Object> result = new ConcurrentHashMap<>();
-            result.putAll(fieldMap);
+            results.add(result);
+            fieldMap.forEach((k, v) -> result.put(k, String.valueOf(v)));
             if (!result.containsKey(KEY_FTIME)) {
                 result.put(KEY_FTIME, ftime);
             }
