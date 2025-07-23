@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.transform.process.TransformProcessor;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -138,5 +139,46 @@ public class TestParseUrlFunction extends AbstractFunctionStringTestBase {
                 new HashMap<>());
         Assert.assertEquals(1, output9.size());
         Assert.assertEquals(output9.get(0), "result=user:password@www.example.com:8080");
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testUrlDecoderAndParseUrlFunction() throws Exception {
+        String transformSql1 = "select parse_url(string1, string2, string3) from source";
+        TransformConfig config1 = new TransformConfig(transformSql1);
+        TransformProcessor<String, String> processor1 = TransformProcessor
+                .create(config1, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: parse_url('http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1', 'HOST')
+        List<String> output1 = processor1
+                .transform("http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1|QUERY|k1|cloud|1", new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=v1");
+
+        String transformSql2 = "select parse_url(url_decode(string1), string2, string3) from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: parse_url('http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1', 'QUERY')
+        String rawValue = "http://facebook.com/path1/p.php?k1=v1&k2=v2#Ref1";
+        String encodeValue = URLEncoder.encode(rawValue) + "|QUERY|k2|cloud|1";
+        List<String> output2 = processor2
+                .transform(encodeValue, new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0), "result=v2");
+
+        String transformSql3 = "select parse_url(url_decode(string1), 'QUERY', 'K2') from source";
+        TransformConfig config3 = new TransformConfig(transformSql3);
+        TransformProcessor<String, String> processor3 = TransformProcessor
+                .create(config3, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        String rawValue3 = "k1=v1&K2=v2#Ref1";
+        String encodeValue3 = URLEncoder.encode(rawValue3) + "|QUERY|k2|cloud|1";
+        List<String> output3 = processor3
+                .transform(encodeValue3, new HashMap<>());
+        Assert.assertEquals(1, output3.size());
+        Assert.assertEquals(output3.get(0), "result=v2#Ref1");
     }
 }

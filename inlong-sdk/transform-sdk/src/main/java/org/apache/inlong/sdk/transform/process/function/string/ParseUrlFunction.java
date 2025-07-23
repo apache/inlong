@@ -85,36 +85,43 @@ public class ParseUrlFunction implements ValueParser {
             return null;
         }
 
-        try {
-            URL netUrl = new URL(url);
-            Map<String, String> queryPairs = splitQuery(netUrl.getQuery());
-            if ("QUERY".equals(part)) {
-                if (key != null && queryPairs.containsKey(key)) {
-                    return queryPairs.get(key);
-                }
-                return netUrl.getQuery();
-            } else {
+        if ("QUERY".equals(part)) {
+            String strQuery = null;
+            try {
+                URL netUrl = new URL(url);
+                strQuery = netUrl.getQuery();
+            } catch (MalformedURLException e) {
+                strQuery = url;
+            }
+            Map<String, String> queryPairs = splitQuery(strQuery);
+            if (key == null) {
+                return strQuery;
+            }
+            return queryPairs.getOrDefault(key, "");
+        } else {
+            try {
+                URL netUrl = new URL(url);
                 switch (part) {
-                    case "HOST":
+                    case "HOST" :
                         return netUrl.getHost();
-                    case "PATH":
+                    case "PATH" :
                         return netUrl.getPath();
-                    case "REF":
+                    case "REF" :
                         return netUrl.getRef();
-                    case "PROTOCOL":
+                    case "PROTOCOL" :
                         return netUrl.getProtocol();
-                    case "AUTHORITY":
+                    case "AUTHORITY" :
                         return netUrl.getAuthority();
-                    case "FILE":
+                    case "FILE" :
                         return netUrl.getFile();
-                    case "USERINFO":
+                    case "USERINFO" :
                         return netUrl.getUserInfo();
-                    default:
+                    default :
                         return null;
                 }
+            } catch (MalformedURLException e) {
+                return null;
             }
-        } catch (MalformedURLException e) {
-            return null;
         }
     }
 
