@@ -51,6 +51,7 @@ import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
 import lombok.Getter;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
@@ -118,8 +119,9 @@ public class ClsSinkContext extends SinkContext {
 
             TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if ((newTaskConfig == null || newTaskConfig.equals(taskConfig))
-                    && (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig))) {
+            if ((newTaskConfig == null || StringUtils.equals(this.taskConfigJson, gson.toJson(newTaskConfig)))
+                    && (newSortTaskConfig == null
+                            || StringUtils.equals(this.sortTaskConfigJson, gson.toJson(newSortTaskConfig)))) {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}", taskName);
@@ -130,8 +132,7 @@ public class ClsSinkContext extends SinkContext {
                 }
             }
 
-            this.taskConfig = newTaskConfig;
-            this.sortTaskConfig = newSortTaskConfig;
+            this.replaceConfig(newTaskConfig, newSortTaskConfig);
 
             Map<String, ClsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig, clsNodeConfig);
             Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
