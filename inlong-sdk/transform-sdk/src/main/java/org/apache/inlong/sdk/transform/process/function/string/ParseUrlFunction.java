@@ -85,15 +85,22 @@ public class ParseUrlFunction implements ValueParser {
             return null;
         }
 
-        try {
-            URL netUrl = new URL(url);
-            Map<String, String> queryPairs = splitQuery(netUrl.getQuery());
-            if ("QUERY".equals(part)) {
-                if (key != null && queryPairs.containsKey(key)) {
-                    return queryPairs.get(key);
-                }
-                return netUrl.getQuery();
-            } else {
+        if ("QUERY".equals(part)) {
+            String strQuery = null;
+            try {
+                URL netUrl = new URL(url);
+                strQuery = netUrl.getQuery();
+            } catch (MalformedURLException e) {
+                strQuery = url;
+            }
+            Map<String, String> queryPairs = splitQuery(strQuery);
+            if (key == null) {
+                return strQuery;
+            }
+            return queryPairs.getOrDefault(key, "");
+        } else {
+            try {
+                URL netUrl = new URL(url);
                 switch (part) {
                     case "HOST":
                         return netUrl.getHost();
@@ -112,9 +119,9 @@ public class ParseUrlFunction implements ValueParser {
                     default:
                         return null;
                 }
+            } catch (MalformedURLException e) {
+                return null;
             }
-        } catch (MalformedURLException e) {
-            return null;
         }
     }
 
