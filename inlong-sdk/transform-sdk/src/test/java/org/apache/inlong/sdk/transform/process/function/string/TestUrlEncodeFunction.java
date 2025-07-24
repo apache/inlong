@@ -54,4 +54,31 @@ public class TestUrlEncodeFunction extends AbstractFunctionStringTestBase {
         Assert.assertEquals(1, output2.size());
         Assert.assertEquals(output2.get(0), "result=");
     }
+
+    @Test
+    public void testUrlEncodeCharsetFunction() throws Exception {
+        String transformSql = "select url_encode(string1,'GBK') from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        TransformProcessor<String, String> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+
+        // case1: url_encode('A160=汕头市&vuserid=&version_build=76','GBK')
+        List<String> output1 = processor.transform("A160=汕头市&vuserid=&version_build=76|banana|cloud|1",
+                new HashMap<>());
+        Assert.assertEquals(1, output1.size());
+        Assert.assertEquals(output1.get(0), "result=A160%3D%C9%C7%CD%B7%CA%D0%26vuserid%3D%26version_build%3D76");
+
+        String transformSql2 = "select url_encode(string1,'UTF-8') from source";
+        TransformConfig config2 = new TransformConfig(transformSql2);
+        TransformProcessor<String, String> processor2 = TransformProcessor
+                .create(config2, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case2: url_encode(null)
+        List<String> output2 = processor2.transform("A160=汕头市&vuserid=&version_build=76|banana|cloud|1",
+                new HashMap<>());
+        Assert.assertEquals(1, output2.size());
+        Assert.assertEquals(output2.get(0),
+                "result=A160%3D%E6%B1%95%E5%A4%B4%E5%B8%82%26vuserid%3D%26version_build%3D76");
+    }
 }
