@@ -17,7 +17,7 @@
 # under the License.
 #
 # compile protobuf
-FROM gcc:8.5.0 as protobuf
+FROM gcc:9.5 as protobuf
 RUN apt-get update && apt-get install -y unzip \
     && rm -rf /var/lib/apt/lists/
 ARG PROTOBUF_VERSION=2.5.0
