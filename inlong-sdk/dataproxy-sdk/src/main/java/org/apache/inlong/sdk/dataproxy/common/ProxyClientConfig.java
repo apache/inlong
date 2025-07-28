@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -89,6 +91,10 @@ public class ProxyClientConfig implements Cloneable {
     private int maxInFlightReqCnt = SdkConsts.UNDEFINED_VALUE;
     private int maxInFlightSizeKb = SdkConsts.UNDEFINED_VALUE;
     private int paddingSize = SdkConsts.VAL_DEF_PADDING_SIZE;
+
+    // 自动转义配置
+    private boolean autoEscape = false;
+    private List<String> autoEscapeFields = new ArrayList<>();
 
     // metric setting
     private final MetricConfig metricConfig = new MetricConfig();
@@ -427,6 +433,24 @@ public class ProxyClientConfig implements Cloneable {
                 Math.max(SdkConsts.VAL_MIN_PADDING_SIZE, paddingSize));
     }
 
+    public boolean isAutoEscape() {
+        return autoEscape;
+    }
+
+    public void setAutoEscape(boolean autoEscape) {
+        this.autoEscape = autoEscape;
+    }
+
+    public List<String> getAutoEscapeFields() {
+        return autoEscapeFields;
+    }
+
+    public void setAutoEscapeFields(List<String> autoEscapeFields) {
+        if (autoEscapeFields != null) {
+            this.autoEscapeFields = autoEscapeFields;
+        }
+    }
+
     public MetricConfig getMetricConfig() {
         return metricConfig;
     }
@@ -481,7 +505,7 @@ public class ProxyClientConfig implements Cloneable {
                 metaCacheExpiredMs, metaQryFailCacheExpiredMs, aliveConnections,
                 forceReChooseInrMs, metricConfig, enableReportAuthz, enableReportEncrypt,
                 rptRsaPubKeyUrl, rptUserName, rptSecretKey, maxInFlightReqCnt,
-                maxInFlightSizeKb, paddingSize);
+                maxInFlightSizeKb, paddingSize, autoEscape, autoEscapeFields);
     }
 
     @Override

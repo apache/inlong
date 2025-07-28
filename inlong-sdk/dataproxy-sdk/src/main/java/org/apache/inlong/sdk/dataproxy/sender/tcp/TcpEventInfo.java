@@ -25,6 +25,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.inlong.sdk.transform.encode.EscapeUtils;
+import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfigHolder;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * TCP Event Information class
@@ -89,12 +94,19 @@ public class TcpEventInfo extends EventInfo<byte[]> {
 
     @Override
     protected void setBodyList(boolean isSingle, List<byte[]> bodyList) throws ProxyEventException {
+        ProxyClientConfig config = ProxyClientConfigHolder.getConfig();
+        boolean autoEscape = config != null && config.isAutoEscape();
+        List<String> escapeFields = config != null ? config.getAutoEscapeFields() : null;
         if (isSingle) {
             if (bodyList.get(0) == null || bodyList.get(0).length == 0) {
                 throw new ProxyEventException("body is null or empty!");
             }
-            this.bodyList.add(bodyList.get(0));
-            this.bodySize = bodyList.get(0).length;
+            byte[] body = bodyList.get(0);
+            if (autoEscape) {
+                body = escapeBody(body, escapeFields);
+            }
+            this.bodyList.add(body);
+            this.bodySize = body.length;
             this.msgCnt = 1;
         } else {
             if (bodyList == null || bodyList.isEmpty()) {
@@ -104,6 +116,9 @@ public class TcpEventInfo extends EventInfo<byte[]> {
                 if (body == null || body.length == 0) {
                     continue;
                 }
+                if (autoEscape) {
+                    body = escapeBody(body, escapeFields);
+                }
                 this.bodyList.add(body);
                 this.bodySize += body.length;
                 this.msgCnt++;
@@ -112,5 +127,30 @@ public class TcpEventInfo extends EventInfo<byte[]> {
                 throw new ProxyEventException("bodyList no valid content!");
             }
         }
+    }
+
+    /**
+     * 按字段名或整体进行转义
+     */
+    private byte[] escapeBody(byte[] body, List<String> escapeFields) {
+        String str = new String(body);
+        try {
+            JSONObject json = JSON.parseObject(str);
+            if (escapeFields != null && !escapeFields.isEmpty()) {
+                for (String field : escapeFields) {
+                    if (json.containsKey(field)) {
+                        String val = json.getString(field);
+                        if (val != null) {
+                            json.put(field, EscapeUtils.escapeStringSeparator(val, '|'));
+                        }
+                    }
+                }
+                return json.toJSONString().getBytes();
+            }
+        } catch (Exception e) {
+            // 非JSON结构，忽略
+        }
+        // 非结构化或未指定字段，整体转义
+        return EscapeUtils.escapeStringSeparator(str, '|').getBytes();
     }
 }
