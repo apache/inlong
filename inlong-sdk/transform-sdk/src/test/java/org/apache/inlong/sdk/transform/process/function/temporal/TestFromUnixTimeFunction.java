@@ -71,5 +71,25 @@ public class TestFromUnixTimeFunction extends AbstractFunctionTemporalTestBase {
         List<String> output4 = processor4.transform("can|apple|cloud|44|1|3", new HashMap<>());
         Assert.assertEquals(1, output4.size());
         Assert.assertEquals(output4.get(0), "result=197001010844");
+
+        String transformSql5 = "select concat(substr(from_unix_time(numeric1/1000),1,10),' 00:00:00') from source";
+        TransformConfig config5 = new TransformConfig(transformSql5);
+        TransformProcessor<String, String> processor5 = TransformProcessor
+                .create(config5, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case5: from_unix_time(floor(1753353737123/86400000)*86400)
+        List<String> output5 = processor5.transform("can|apple|cloud|1753353737123|1|3", new HashMap<>());
+        Assert.assertEquals(1, output5.size());
+        Assert.assertEquals(output5.get(0), "result=2025-07-24 00:00:00");
+
+        String transformSql6 = "select concat(substr(from_unix_time(numeric1/1000),1,13),':00:00') from source";
+        TransformConfig config6 = new TransformConfig(transformSql6);
+        TransformProcessor<String, String> processor6 = TransformProcessor
+                .create(config6, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case6: from_unix_time(floor(1753353737123/3600000)*3600)
+        List<String> output6 = processor6.transform("can|apple|cloud|1753353737123|1|3", new HashMap<>());
+        Assert.assertEquals(1, output6.size());
+        Assert.assertEquals(output6.get(0), "result=2025-07-24 18:00:00");
     }
 }
