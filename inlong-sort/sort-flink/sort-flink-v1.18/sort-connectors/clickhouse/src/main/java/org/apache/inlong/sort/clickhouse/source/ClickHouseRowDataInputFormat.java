@@ -28,7 +28,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 
 import java.io.IOException;
-import java.sql.*;
 
 public class ClickHouseRowDataInputFormat extends RichInputFormat<RowData, GenericInputSplit> {
 
@@ -85,9 +84,12 @@ public class ClickHouseRowDataInputFormat extends RichInputFormat<RowData, Gener
     @Override
     public void close() throws IOException {
         try {
-            if (resultSet != null) resultSet.close();
-            if (statement != null) statement.close();
-            if (connection != null) connection.close();
+            if (resultSet != null)
+                resultSet.close();
+            if (statement != null)
+                statement.close();
+            if (connection != null)
+                connection.close();
         } catch (SQLException e) {
             throw new IOException("Error closing ClickHouse connection", e);
         }

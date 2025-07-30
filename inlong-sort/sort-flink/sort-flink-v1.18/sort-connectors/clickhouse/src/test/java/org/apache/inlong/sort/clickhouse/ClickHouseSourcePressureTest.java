@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.clickhouse;
 
+import org.apache.inlong.sort.clickhouse.source.ClickHouseSource;
+import org.apache.inlong.sort.clickhouse.source.ClickHouseSourceConfig;
+
+import com.ververica.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
@@ -24,19 +28,16 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseSource;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseSourceConfig;
-import com.ververica.cdc.connectors.base.options.StartupOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class ClickHouseSourcePressureTest {
+
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseSourcePressureTest.class);
     private static final String CLICKHOUSE_URL = "jdbc:clickhouse://localhost:8123/default";
     private static final String USERNAME = "default";
@@ -83,8 +84,7 @@ public class ClickHouseSourcePressureTest {
         env.setParallelism(parallelism);
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
                 5,
-                Time.of(30, TimeUnit.SECONDS)
-        ));
+                Time.of(30, TimeUnit.SECONDS)));
         env.enableCheckpointing(5000);
         env.getConfig().setGlobalJobParameters(config);
         return env;
@@ -119,8 +119,7 @@ public class ClickHouseSourcePressureTest {
                 "id",
                 null,
                 null,
-                "SELECT * FROM my_table WHERE id > ${last_offset} ORDER BY id ASC LIMIT 5000"
-        );
+                "SELECT * FROM my_table WHERE id > ${last_offset} ORDER BY id ASC LIMIT 5000");
     }
 
     private static void createTableAndInsertData(Configuration config) {
@@ -149,7 +148,8 @@ public class ClickHouseSourcePressureTest {
         }
     }
 
-    private static Connection getClickHouseConnection(String url, String username, String password) throws SQLException {
+    private static Connection getClickHouseConnection(String url, String username, String password)
+            throws SQLException {
         Properties props = new Properties();
         props.setProperty("user", username);
         props.setProperty("password", password);
@@ -160,8 +160,8 @@ public class ClickHouseSourcePressureTest {
 
     private static boolean tableExists(Connection connection, String tableName) throws SQLException {
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                     "SELECT name FROM system.tables WHERE database = 'default' AND name = '" + tableName + "'")) {
+                ResultSet rs = stmt.executeQuery(
+                        "SELECT name FROM system.tables WHERE database = 'default' AND name = '" + tableName + "'")) {
             return rs.next();
         }
     }
@@ -193,7 +193,7 @@ public class ClickHouseSourcePressureTest {
 
     private static int getRecordCount(Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM my_table")) {
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM my_table")) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -208,6 +208,7 @@ public class ClickHouseSourcePressureTest {
     }
 
     public static class PerformanceMonitor implements MapFunction<String, String> {
+
         private static final long serialVersionUID = 1L;
         private transient long count;
         private transient long startTime;
@@ -225,7 +226,8 @@ public class ClickHouseSourcePressureTest {
                 long throughput = (long) ((totalBytes / (elapsedTime / 1000.0)) / 1024);
                 LOG.info("Processed {} records | Throughput: {} records/sec, {} KB/s",
                         count, recordsPerSecond, throughput);
-                System.out.println("Processed " + count + " records | Throughput: " + recordsPerSecond + " records/sec, " + throughput + " KB/s");
+                System.out.println("Processed " + count + " records | Throughput: " + recordsPerSecond
+                        + " records/sec, " + throughput + " KB/s");
                 startTime = currentTime;
                 lastReportTime = currentTime;
                 count = 0;

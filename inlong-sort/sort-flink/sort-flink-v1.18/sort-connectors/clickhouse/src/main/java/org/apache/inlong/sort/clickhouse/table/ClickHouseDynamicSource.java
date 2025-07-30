@@ -17,15 +17,16 @@
 
 package org.apache.inlong.sort.clickhouse.table;
 
+import org.apache.inlong.sort.clickhouse.source.ClickHouseOptions;
+import org.apache.inlong.sort.clickhouse.source.ClickHouseRowDataInputFormat;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.source.InputFormatProvider;
 import org.apache.flink.table.connector.source.ScanTableSource;
-import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseOptions;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseRowDataInputFormat;
 
 public class ClickHouseDynamicSource implements ScanTableSource {
 
@@ -49,7 +50,6 @@ public class ClickHouseDynamicSource implements ScanTableSource {
 
         ClickHouseRowDataInputFormat inputFormat =
                 new ClickHouseRowDataInputFormat(configuration, rowType);
-
 
         return InputFormatProvider.of(inputFormat);
     }

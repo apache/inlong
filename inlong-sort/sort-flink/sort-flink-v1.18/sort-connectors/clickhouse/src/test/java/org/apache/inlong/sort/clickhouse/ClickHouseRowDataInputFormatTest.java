@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.clickhouse;
 
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.VarCharType;
-import org.apache.flink.table.types.logical.IntType;
 import org.apache.inlong.sort.clickhouse.source.ClickHouseOptions;
 import org.apache.inlong.sort.clickhouse.source.ClickHouseRowDataInputFormat;
+
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.VarCharType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,11 +46,10 @@ public class ClickHouseRowDataInputFormatTest {
         RowType rowType = new RowType(
                 java.util.Arrays.asList(
                         new RowType.RowField("id", new IntType()),
-                        new RowType.RowField("name", new VarCharType())
-                )
-        );
+                        new RowType.RowField("name", new VarCharType())));
 
-        org.apache.flink.configuration.ReadableConfig mockConfig = mock(org.apache.flink.configuration.ReadableConfig.class);
+        org.apache.flink.configuration.ReadableConfig mockConfig =
+                mock(org.apache.flink.configuration.ReadableConfig.class);
         when(mockConfig.get(ClickHouseOptions.URL)).thenReturn("jdbc:clickhouse://localhost:8123/default");
         when(mockConfig.get(ClickHouseOptions.USERNAME)).thenReturn("default_user");
         when(mockConfig.get(ClickHouseOptions.PASSWORD)).thenReturn("default_pass");

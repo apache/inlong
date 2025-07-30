@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sort.clickhouse;
 
+import org.apache.inlong.sort.clickhouse.source.ClickHouseSinkFunction;
+
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.VarCharType;
-import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseSinkFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,9 +44,7 @@ public class ClickHouseSinkFunctionTest {
         RowType rowType = new RowType(
                 java.util.Arrays.asList(
                         new RowType.RowField("id", new IntType()),
-                        new RowType.RowField("name", new VarCharType())
-                )
-        );
+                        new RowType.RowField("name", new VarCharType())));
 
         sinkFunction = new ClickHouseSinkFunction(
                 "jdbc:clickhouse://localhost:8123/default",

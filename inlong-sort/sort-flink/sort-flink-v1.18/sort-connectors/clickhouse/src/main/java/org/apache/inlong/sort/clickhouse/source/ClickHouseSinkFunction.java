@@ -21,7 +21,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.*;
 import org.apache.flink.types.RowKind;
 
 import java.sql.Connection;
@@ -50,10 +49,10 @@ public class ClickHouseSinkFunction extends RichSinkFunction<RowData> {
     private int batchCount = 0;
 
     public ClickHouseSinkFunction(String jdbcUrl,
-                                  String username,
-                                  String password,
-                                  String tableName,
-                                  RowType rowType) {
+            String username,
+            String password,
+            String tableName,
+            RowType rowType) {
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;

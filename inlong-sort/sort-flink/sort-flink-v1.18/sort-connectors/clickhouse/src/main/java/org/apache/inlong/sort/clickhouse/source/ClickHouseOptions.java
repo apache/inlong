@@ -58,4 +58,3 @@ public class ClickHouseOptions {
                     .noDefaultValue()
                     .withDescription("ClickHouse insert SQL statement");
 }
-

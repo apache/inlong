@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.clickhouse.source;
 
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import io.debezium.relational.RelationalDatabaseConnectorConfig;
 
@@ -56,8 +57,7 @@ public class ClickHouseSourceConfig extends JdbcSourceConfig {
             String chunkKeyColumn,
             String inlongMetric,
             String inlongAudit,
-            String queryTemplate
-    ) {
+            String queryTemplate) {
         super(startupOptions, databaseList, tableList,
                 splitSize, splitMetaGroupSize,
                 distributionFactorUpper, distributionFactorLower,

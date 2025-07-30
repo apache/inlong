@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -20,40 +38,22 @@
         <flink.jdbc.version>3.1.2-1.17</flink.jdbc.version>
         <flink.shaded.jackson.version>2.15.3-19.0</flink.shaded.jackson.version>
         <flink.version>1.18.0</flink.version>
-<!--        <flink-shaded-guava.version>30.1.1-jre-15.0</flink-shaded-guava.version>-->
+        <!--        <flink-shaded-guava.version>30.1.1-jre-15.0</flink-shaded-guava.version>-->
     </properties>
-
-    <!-- 添加ClickHouse官方仓库 -->
-    <repositories>
-        <repository>
-            <id>clickhouse</id>
-            <url>https://packages.clickhouse.com/maven</url>
-        </repository>
-        <repository>
-            <id>apache.snapshots</id>
-            <url>https://repository.apache.org/snapshots/</url>
-            <releases><enabled>false</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>maven-central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-    </repositories>
 
     <dependencies>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-shaded-guava33</artifactId>-->
-<!--            <version>${flink.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.flink</groupId>-->
+        <!--            <artifactId>flink-shaded-guava33</artifactId>-->
+        <!--            <version>${flink.version}</version>-->
+        <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-shaded-guava</artifactId>-->
-<!--            <version>${flink-shaded-guava.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.flink</groupId>-->
+        <!--            <artifactId>flink-shaded-guava</artifactId>-->
+        <!--            <version>${flink-shaded-guava.version}</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -61,14 +61,11 @@
             <version>${flink.shaded.jackson.version}</version>
         </dependency>
 
-
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime</artifactId>
             <version>${flink.version}</version>
         </dependency>
-
 
         <!-- ClickHouse JDBC驱动 - 使用最新版本 -->
         <dependency>
@@ -204,7 +201,7 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
                                 </transformer>
@@ -215,4 +212,26 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- 添加ClickHouse官方仓库 -->
+    <repositories>
+        <repository>
+            <id>clickhouse</id>
+            <url>https://packages.clickhouse.com/maven</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+        </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
 </project>

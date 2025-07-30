@@ -20,10 +20,10 @@ package org.apache.inlong.sort.clickhouse.table;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.catalog.ResolvedSchema;
-import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.factories.DynamicTableSourceFactory;
+import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
+import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
 import java.util.Collections;

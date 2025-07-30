@@ -15,28 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.clickhouse.source;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.util.Map;
+package org.apache.inlong.sort.protocol.enums;
 
 /**
- * Converts each row into JSON string.
+ * Enum for ClickHouse scan startup modes.
+ * Defines how ClickHouse source reads data on startup.
  */
-public class ClickHouseRowConverter {
+public enum ClickHouseScanStartupMode {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    /**
+     * Read all data from the beginning.
+     */
+    FULL("full"),
 
-    public static String convert(ResultSet rs) throws Exception {
-        ResultSetMetaData meta = rs.getMetaData();
-        int cols = meta.getColumnCount();
-        Map<String, Object> map = new java.util.HashMap<>(cols);
-        for (int i = 1; i <= cols; i++) {
-            map.put(meta.getColumnName(i), rs.getObject(i));
-        }
-        return MAPPER.writeValueAsString(map);
+    /**
+     * Read only new data appended after startup.
+     */
+    LATEST("latest"),
+
+    /**
+     * Read data starting from a specific timestamp.
+     */
+    TIMESTAMP("timestamp");
+
+    private final String value;
+
+    ClickHouseScanStartupMode(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Get the string value of the mode.
+     *
+     * @return String value
+     */
+    public String getValue() {
+        return value;
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.clickhouse.table;
 
+import org.apache.inlong.sort.clickhouse.source.ClickHouseSinkFunction;
+
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -24,7 +26,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.clickhouse.source.ClickHouseSinkFunction;
 
 public class ClickHouseDynamicSink implements DynamicTableSink {
 
@@ -44,7 +45,6 @@ public class ClickHouseDynamicSink implements DynamicTableSink {
                 .build();
     }
 
-
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         String jdbcUrl = "jdbc:clickhouse://" + options.get(ClickHouseConnectorOptions.HOSTS)
@@ -59,12 +59,10 @@ public class ClickHouseDynamicSink implements DynamicTableSink {
                 username,
                 password,
                 tableName,
-                rowType
-        );
+                rowType);
 
         return SinkFunctionProvider.of(sinkFunction);
     }
-
 
     @Override
     public DynamicTableSink copy() {

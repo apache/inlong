@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.clickhouse.source;
 
+import org.apache.inlong.sort.clickhouse.protocol.SourceAudit;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.inlong.sort.clickhouse.protocol.SourceAudit;
-import java.sql.*;
+
 import java.util.Properties;
 
 /**
@@ -49,7 +50,7 @@ public class ClickHouseSource extends RichSourceFunction<String> implements Sour
             String sql = config.buildQuery(lastOffset);
             try (Connection conn = DriverManager.getConnection(config.getJdbcUrl(),
                     createProps());
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setFetchSize(config.getFetchSize());
                 try (ResultSet rs = stmt.executeQuery()) {
