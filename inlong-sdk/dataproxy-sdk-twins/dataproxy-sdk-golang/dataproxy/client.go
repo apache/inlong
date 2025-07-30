@@ -330,16 +330,23 @@ func (c *client) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 	for {
 		total := conn.InboundBuffered()
 		if total < heartbeatRspLen {
-			break
+			return gnet.None
 		}
 
-		buf, _ := conn.Peek(total)
+		buf, err := conn.Peek(total)
+		if err != nil {
+			c.metrics.incError(errConnReadFailed.getStrCode())
+			c.log.Error("read connection stream failed, close it, err:", err)
+			// read failed, close the connection
+			return gnet.Close
+		}
+
 		// if it is a heartbeat response, skip it and read the next package
 		if bytes.Equal(buf[:heartbeatRspLen], heartbeatRsp) {
-			_, err := conn.Discard(heartbeatRspLen)
+			_, err = conn.Discard(heartbeatRspLen)
 			if err != nil {
 				c.metrics.incError(errConnReadFailed.getStrCode())
-				c.log.Error("discard connection stream failed, err", err)
+				c.log.Error("discard connection stream failed, close it, err:", err)
 				// read failed, close the connection
 				return gnet.Close
 			}
@@ -349,30 +356,36 @@ func (c *client) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		length, payloadOffset, payloadOffsetEnd, err := c.framer.ReadFrame(buf)
-		if errors.Is(err, framer.ErrIncompleteFrame) {
-			break
-		}
-
 		if err != nil {
+			if errors.Is(err, framer.ErrIncompleteFrame) {
+				return gnet.None
+			}
+
 			c.metrics.incError(errConnReadFailed.getStrCode())
 			c.log.Error("invalid packet from stream connection, close it, err:", err)
 			// read failed, close the connection
 			return gnet.Close
 		}
 
-		frame, _ := conn.Peek(length)
-		_, err = conn.Discard(length)
+		frame, err := conn.Peek(length)
 		if err != nil {
 			c.metrics.incError(errConnReadFailed.getStrCode())
-			c.log.Error("discard connection stream failed, err", err)
+			c.log.Error("read connection stream failed, close it, err:", err)
 			// read failed, close the connection
 			return gnet.Close
 		}
 
 		// handle response
 		c.onResponse(frame[payloadOffset:payloadOffsetEnd])
+
+		_, err = conn.Discard(length)
+		if err != nil {
+			c.metrics.incError(errConnReadFailed.getStrCode())
+			c.log.Error("discard connection stream failed, close it, err:", err)
+			// read failed, close the connection
+			return gnet.Close
+		}
 	}
-	return gnet.None
 }
 
 func (c *client) onResponse(frame []byte) {

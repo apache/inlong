@@ -56,8 +56,8 @@ func UInt64UUID() (uint64, error) {
 	return cityhash.CityHash64WithSeeds(bytes, uint32(length), 13329145742295551469, 7926974186468552394), nil
 }
 
-// Deprecated: Use SafeSnowFlakeID instead.
 // SnowFlakeID generates a snowflake ID. If an error occurs, it logs it and exits.
+// Deprecated: Use SafeSnowFlakeID instead.
 func SnowFlakeID() string {
 	id, err := SafeSnowFlakeID()
 	if err != nil {
