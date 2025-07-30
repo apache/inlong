@@ -135,10 +135,35 @@ chmod +x ./delete.sh
 ```
 
 This script will:
-1. Automatically detect all Python site-packages directories
-2. Search for InLong Python SDK `.so` files
-3. Prompt for confirmation before deletion
-4. Allow specifying a custom directory if needed
+1. Automatically detect Python installation (python3 or python)
+2. Find all Python site-packages directories (including user site-packages)
+3. Search for InLong Python SDK `.so` files in the detected directories
+4. Prompt for confirmation before deletion
+5. Allow specifying a custom directory if needed
+6. Handle permission issues gracefully
+7. Provide detailed feedback on the uninstallation process
+
+### Uninstall Features
+
+- **Automatic Python Detection**: Supports both `python3` and `python` commands
+- **Comprehensive Directory Search**: Searches both system and user site-packages directories
+- **Safe Deletion**: Prompts for confirmation before deleting files
+- **Permission Handling**: Warns about permission issues and suggests using sudo if needed
+- **Error Recovery**: Continues processing even if some directories are not accessible
+- **Detailed Feedback**: Shows exactly which files were found and deleted
+
+### Troubleshooting
+
+If you encounter permission issues during uninstallation:
+
+1. **Permission Denied**: Run the script with sudo:
+   ```bash
+   sudo ./delete.sh
+   ```
+
+2. **Python Not Found**: Ensure Python is installed and accessible in your PATH
+
+3. **Manual Uninstall**: If the automatic detection fails, you can specify the target directory manually when prompted
 
 ## Demo
 
