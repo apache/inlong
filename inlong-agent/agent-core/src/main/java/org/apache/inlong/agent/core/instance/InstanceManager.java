@@ -231,7 +231,7 @@ public class InstanceManager extends AbstractDaemon {
                     break;
                 }
                 case FINISHED:
-                    DELETE: {
+                case DELETE: {
                         if (instance != null) {
                             LOGGER.info("traverseStoreTasksToMemory delete instance from mem taskId {} instanceId {}",
                                     profileFromStore.getTaskId(), profileFromStore.getInstanceId());
