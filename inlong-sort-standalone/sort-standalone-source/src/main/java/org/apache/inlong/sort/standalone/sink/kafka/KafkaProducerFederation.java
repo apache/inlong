@@ -24,7 +24,6 @@ import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
-import org.apache.flume.Transaction;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -103,8 +102,8 @@ public class KafkaProducerFederation implements Runnable {
                 return;
             }
             this.cacheClusterConfig = context.getCacheClusterConfig();
-            KafkaProducerCluster updateCluster =
-                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            KafkaProducerCluster updateCluster = new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig,
+                    context);
             updateCluster.start();
             this.deleteCluster = cluster;
             this.cluster = updateCluster;
@@ -120,8 +119,8 @@ public class KafkaProducerFederation implements Runnable {
                 return;
             }
             this.nodeConfig = context.getNodeConfig();
-            KafkaProducerCluster updateCluster =
-                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            KafkaProducerCluster updateCluster = new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig,
+                    context);
             updateCluster.start();
             this.deleteCluster = cluster;
             this.cluster = updateCluster;
@@ -130,8 +129,8 @@ public class KafkaProducerFederation implements Runnable {
         }
     }
 
-    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        return cluster.send(profileEvent, tx);
+    public boolean send(KafkaTransaction ktx, ProfileEvent profileEvent, KafkaIdConfig idConfig) throws IOException {
+        return cluster.send(ktx, profileEvent, idConfig);
     }
 
     /** Init ScheduledExecutorService with fix reload rate {@link #reloadInterval}. */

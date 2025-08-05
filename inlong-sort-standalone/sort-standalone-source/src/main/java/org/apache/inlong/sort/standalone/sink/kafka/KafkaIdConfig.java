@@ -52,6 +52,7 @@ public class KafkaIdConfig extends IdConfig {
     private String topic;
     private DataTypeEnum dataType;
     private DataFlowConfig dataFlowConfig;
+    private String dataFlowId;
 
     public KafkaIdConfig(Map<String, String> idParam) {
         this.inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
@@ -61,6 +62,7 @@ public class KafkaIdConfig extends IdConfig {
         this.topic = idParam.getOrDefault(Constants.TOPIC, uid);
         this.dataType = DataTypeEnum
                 .convert(idParam.getOrDefault(KafkaIdConfig.KEY_DATA_TYPE, DataTypeEnum.TEXT.getType()));
+        this.dataFlowId = this.uid;
     }
 
     public static KafkaIdConfig create(DataFlowConfig dataFlowConfig) {
@@ -86,6 +88,7 @@ public class KafkaIdConfig extends IdConfig {
                 .dataType(dataType)
                 .separator(separator)
                 .dataFlowConfig(dataFlowConfig)
+                .dataFlowId(dataFlowConfig.getDataflowId())
                 .build();
     }
 
