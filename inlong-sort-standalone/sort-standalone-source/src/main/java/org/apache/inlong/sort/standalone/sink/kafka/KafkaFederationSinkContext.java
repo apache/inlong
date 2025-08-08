@@ -299,6 +299,9 @@ public class KafkaFederationSinkContext extends SinkContext {
                 .map(ClusterTagConfig::getDataFlowConfigs)
                 .flatMap(Collection::stream)
                 .forEach(flow -> {
+                    if (StringUtils.isEmpty(flow.getTransformSql())) {
+                        return;
+                    }
                     TransformProcessor<String, ?> transformProcessor = createTransform(flow);
                     if (transformProcessor == null) {
                         return;
@@ -319,7 +322,7 @@ public class KafkaFederationSinkContext extends SinkContext {
                     createSinkEncoder(dataFlowConfig.getSinkConfig()));
         } catch (Exception e) {
             LOG.error("failed to reload transform of dataflow={}, ex={}", dataFlowConfig.getDataflowId(),
-                    e.getMessage());
+                    e.getMessage(), e);
             return null;
         }
     }
