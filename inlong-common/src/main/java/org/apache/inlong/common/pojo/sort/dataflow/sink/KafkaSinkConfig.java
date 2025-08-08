@@ -24,5 +24,16 @@ import lombok.EqualsAndHashCode;
 @Data
 public class KafkaSinkConfig extends SinkConfig {
 
+    public static final String MESSAGE_TYPE_CSV = "csv";
+    public static final Character CSV_DEFAULT_DELIMITER = '|';
+    public static final String MESSAGE_TYPE_KV = "kv";
+    public static final Character KV_DEFAULT_ENTRYSPLITTER = '&';
+    public static final Character KV_DEFAULT_KVSPLITTER = '=';
+    public static final String MESSAGE_TYPE_JSON = "json";
     private String topicName;
+    private String messageType;
+    private Character delimiter;
+    private Character escapeChar;
+    private Character entrySplitter;
+    private Character kvSplitter;
 }

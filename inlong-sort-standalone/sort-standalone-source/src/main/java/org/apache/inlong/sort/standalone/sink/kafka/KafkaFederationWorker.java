@@ -30,6 +30,9 @@ import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,8 +60,7 @@ public class KafkaFederationWorker extends Thread {
         super();
         this.workerName = sinkName + "-" + workerIndex;
         this.context = Preconditions.checkNotNull(context);
-        this.producerFederation =
-                new KafkaProducerFederation(String.valueOf(workerIndex), this.context);
+        this.producerFederation = new KafkaProducerFederation(String.valueOf(workerIndex), this.context);
         this.status = LifecycleState.IDLE;
         this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
         this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
@@ -86,52 +88,73 @@ public class KafkaFederationWorker extends Thread {
     public void run() {
         LOG.info("worker {} start to run, the state is {}", this.workerName, status.name());
         while (status != LifecycleState.STOP) {
-            Transaction tx = null;
+            KafkaTransaction ktx = KafkaTransaction.builder().dataFlowIds(new HashSet<>()).build();
             try {
                 Channel channel = context.getChannel();
-                tx = channel.getTransaction();
+                Transaction tx = channel.getTransaction();
                 tx.begin();
+                ktx.setTx(tx);
                 Event rowEvent = channel.take();
 
                 // if event is null, close tx and sleep for a while.
                 if (rowEvent == null) {
-                    tx.commit();
-                    tx.close();
+                    ktx.negativeAck();
                     sleepOneInterval();
                     continue;
                 }
+                // if event is not ProfileEvent
                 if (!(rowEvent instanceof ProfileEvent)) {
-                    tx.commit();
-                    tx.close();
+                    ktx.negativeAck();
                     LOG.error("The type of row event is not compatible with ProfileEvent");
                     continue;
                 }
 
                 ProfileEvent profileEvent = (ProfileEvent) rowEvent;
-                String topic = this.context.getTopic(profileEvent.getUid());
-                if (StringUtils.isBlank(topic)) {
+                ktx.setProfileEvent(profileEvent);
+                // if there is not config
+                List<KafkaIdConfig> idConfigs = this.context.getIdConfig(profileEvent.getUid());
+                if (idConfigs == null) {
                     this.context.addSendResultMetric(profileEvent, profileEvent.getUid(),
                             false, System.currentTimeMillis());
-                    profileEvent.ack();
-                    tx.commit();
-                    tx.close();
+                    ktx.negativeAck();
+                    continue;
                 }
-                profileEvent.getHeaders().put(Constants.TOPIC, topic);
-                this.context.addSendMetric(profileEvent, topic);
-                this.producerFederation.send(profileEvent, tx);
+                // if there is multi-output
+                idConfigs.forEach(v -> ktx.getDataFlowIds().add(v.getDataFlowId()));
+                this.processEvent(ktx, idConfigs, profileEvent);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
-                if (tx != null) {
-                    tx.rollback();
-                    tx.close();
+                if (ktx.getProfileEvent() != null) {
+                    this.context.addSendResultMetric(ktx.getProfileEvent(),
+                            ktx.getProfileEvent().getUid(),
+                            false, System.currentTimeMillis());
+                } else {
+                    SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
+                    metricItem.sendFailCount.incrementAndGet();
                 }
-                // metric
-                SortMetricItem metricItem =
-                        this.context.getMetricItemSet().findMetricItem(dimensions);
-                metricItem.sendFailCount.incrementAndGet();
-                sleepOneInterval();
+                ktx.negativeAck();
             }
         }
+    }
+
+    private boolean processEvent(KafkaTransaction ktx, List<KafkaIdConfig> idConfigs, ProfileEvent profileEvent)
+            throws IOException {
+        for (KafkaIdConfig idConfig : idConfigs) {
+            String topic = idConfig.getTopic();
+            if (StringUtils.isBlank(topic)) {
+                LOG.error("can not find the topic,dataFlowId:{},uid:{}", idConfig.getDataFlowId(), idConfig.getUid());
+                this.context.addSendResultMetric(profileEvent, idConfig.getDataFlowId(),
+                        false, System.currentTimeMillis());
+                // ktx.negativeAck();
+                // return false;
+                ktx.ack(idConfig.getDataFlowId());
+            } else {
+                profileEvent.getHeaders().put(Constants.TOPIC, topic);
+                this.context.addSendMetric(profileEvent, idConfig.getDataFlowId());
+                this.producerFederation.send(ktx, profileEvent, idConfig);
+            }
+        }
+        return true;
     }
 
     /** sleepOneInterval */

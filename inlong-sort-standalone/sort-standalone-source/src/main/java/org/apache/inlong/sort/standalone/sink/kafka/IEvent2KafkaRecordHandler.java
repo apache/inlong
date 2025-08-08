@@ -22,6 +22,7 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 
@@ -37,5 +38,6 @@ public interface IEvent2KafkaRecordHandler {
      * @return             ProducerRecord
      * @throws IOException
      */
-    ProducerRecord<String, byte[]> parse(KafkaFederationSinkContext context, ProfileEvent event) throws IOException;
+    List<ProducerRecord<String, byte[]>> parse(KafkaFederationSinkContext context, ProfileEvent event,
+            KafkaIdConfig idConfig) throws IOException;
 }

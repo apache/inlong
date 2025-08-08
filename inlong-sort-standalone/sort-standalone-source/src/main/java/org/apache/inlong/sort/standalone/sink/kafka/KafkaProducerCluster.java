@@ -24,7 +24,6 @@ import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
-import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -35,12 +34,12 @@ import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -202,66 +201,60 @@ public class KafkaProducerCluster implements LifecycleAware {
      * @return boolean
      * @throws IOException
      */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
-        String topic = sinkContext.getTopic(profileEvent.getUid());
-        ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
+    public boolean send(KafkaTransaction ktx, ProfileEvent profileEvent, KafkaIdConfig idConfig) throws IOException {
+        List<ProducerRecord<String, byte[]>> records = handler.parse(sinkContext, profileEvent, idConfig);
         long sendTime = System.currentTimeMillis();
         // check
-        if (record == null || StringUtils.isEmpty(topic)) {
-            tx.commit();
-            profileEvent.ack();
-            tx.close();
-            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
+        if (records == null || records.size() == 0) {
+            sinkContext.addSendFilterMetric(profileEvent, idConfig.getDataFlowId());
+            ktx.ack(idConfig.getDataFlowId());
             return true;
         }
         try {
-            producer.send(record,
-                    (metadata, ex) -> {
-                        if (ex == null) {
-                            tx.commit();
-                            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
-                            profileEvent.ack();
-                        } else {
-
-                            if (ex instanceof RecordTooLargeException) {
-                                // for the message bigger than configuredMaxPayloadSize, just discard it;
-                                // otherwise, retry and wait for the server side changes the limitation
-                                if (record.value().length > configuredMaxPayloadSize) {
-                                    tx.commit();
-                                    profileEvent.ack();
-                                } else {
-                                    this.exceptionProcess(profileEvent, tx);
-                                }
-                            } else if (ex instanceof UnknownTopicOrPartitionException
-                                    || !(ex instanceof RetriableException)) {
-                                // for non-retriable exception, just discard it
-                                tx.commit();
-                                profileEvent.ack();
+            for (ProducerRecord<String, byte[]> record : records) {
+                producer.send(record,
+                        (metadata, ex) -> {
+                            if (ex == null) {
+                                sinkContext.addSendResultMetric(profileEvent, idConfig.getDataFlowId(), true, sendTime);
+                                ktx.ack(idConfig.getDataFlowId());
                             } else {
-                                this.exceptionProcess(profileEvent, tx);
+                                LOG.error("send failed, uid:{},dataFlowId:{},topic:{},error:{}",
+                                        idConfig.getUid(),
+                                        idConfig.getDataFlowId(),
+                                        idConfig.getTopic(),
+                                        ex.getMessage(),
+                                        ex);
+                                sinkContext.addSendResultMetric(profileEvent, idConfig.getDataFlowId(), false,
+                                        sendTime);
+                                if (ex instanceof RecordTooLargeException) {
+                                    // for the message bigger than configuredMaxPayloadSize, just discard it;
+                                    // otherwise, retry and wait for the server side changes the limitation
+                                    if (record.value().length > configuredMaxPayloadSize) {
+                                        ktx.ack(idConfig.getDataFlowId());
+                                    } else {
+                                        ktx.negativeAck();
+                                    }
+                                } else if (ex instanceof UnknownTopicOrPartitionException
+                                        || !(ex instanceof RetriableException)) {
+                                    // for non-retriable exception, just discard it
+                                    ktx.ack(idConfig.getDataFlowId());
+                                } else {
+                                    ktx.negativeAck();
+                                }
                             }
-                            LOG.error(String.format("send failed, topic is %s", topic), ex);
-                            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
-                        }
-                        tx.close();
-                    });
+                        });
+            }
             return true;
         } catch (Exception e) {
-            this.exceptionProcess(profileEvent, tx);
-            tx.close();
-            LOG.error(e.getMessage(), e);
-            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
+            sinkContext.addSendResultMetric(profileEvent, idConfig.getDataFlowId(), false, sendTime);
+            LOG.error("send failed, uid:{},dataFlowId:{},topic:{},error:{}",
+                    idConfig.getUid(),
+                    idConfig.getDataFlowId(),
+                    idConfig.getTopic(),
+                    e.getMessage(),
+                    e);
+            ktx.negativeAck();
             return false;
-        }
-    }
-
-    private void exceptionProcess(ProfileEvent profileEvent, Transaction tx) {
-        profileEvent.incrementSendedTime();
-        if (profileEvent.getSendedTime() <= CommonPropertiesHolder.getMaxSendFailTimes()) {
-            tx.rollback();
-        } else {
-            tx.commit();
-            profileEvent.negativeAck();
         }
     }
 }
