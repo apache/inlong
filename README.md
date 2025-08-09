@@ -107,7 +107,7 @@ You can use InLong in the following ways：
 |              | OceanBase         | >= 1.0                       |
 
 ## Build InLong
-More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
+More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/development/how_to_build) section in the documentation.
 
 Requirements:
 - Java [JDK 8](https://adoptopenjdk.net/?variant=openjdk8)
