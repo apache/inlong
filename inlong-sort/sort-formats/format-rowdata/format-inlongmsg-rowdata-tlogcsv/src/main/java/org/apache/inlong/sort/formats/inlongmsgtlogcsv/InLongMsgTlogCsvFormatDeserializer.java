@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.base.TextFormatBuilder;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
@@ -31,6 +32,8 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +54,8 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TI
  * The deserializer for the records in InLongMsgTlogCsv format.
  */
 public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgFormatDeserializer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InLongMsgTlogCsvFormatDeserializer.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -226,6 +231,10 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         this.isIncludeFirstSegment = isIncludeFirstSegment;
         this.isDeleteHeadDelimiter = isDeleteHeadDelimiter;
         this.isDeleteEscapeChar = isDeleteEscapeChar;
+
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        this.fieldNameSize = (fieldNames == null ? 0 : fieldNames.length);
+
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
@@ -254,6 +263,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
 
     @Override
     protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
+        List<String> predefinedFields = head.getPredefinedFields();
+        List<String> fields = body.getFields();
+        int actualNumFields = (predefinedFields == null ? 0 : predefinedFields.size())
+                + (fields == null ? 0 : fields.size());
+        if (needPrint() && actualNumFields != fieldNameSize) {
+            LOG.warn("The number of fields mismatches: " + fieldNameSize +
+                    " expected, but was " + actualNumFields + ".");
+        }
         GenericRowData dataRow =
                 InLongMsgTlogCsvUtils.deserializeRowData(
                         rowFormatInfo,
@@ -270,6 +287,35 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 dataRow);
 
         return Collections.singletonList(InLongMsgUtils.decorateRowWithMetaData(genericRowData, head, metadataKeys));
+    }
+
+    protected List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception {
+        List<String> predefinedFields = head.getPredefinedFields();
+        List<String> fields = body.getFields();
+        int actualNumFields = (predefinedFields == null ? 0 : predefinedFields.size())
+                + (fields == null ? 0 : fields.size());
+
+        if (needPrint() && actualNumFields != fieldNameSize) {
+            LOG.warn("The number of fields mismatches: " + fieldNameSize +
+                    " expected, but was " + actualNumFields + ".");
+        }
+
+        FormatMsg formatMsg =
+                InLongMsgTlogCsvUtils.deserializeFormatMsgData(
+                        rowFormatInfo,
+                        nullLiteral,
+                        head.getPredefinedFields(),
+                        body.getFields(),
+                        converters, failureHandler);
+
+        GenericRowData genericRowData = InLongMsgUtils.decorateRowDataWithNeededHeadFields(
+                timeFieldName,
+                attributesFieldName,
+                head.getTime(),
+                head.getAttributes(),
+                (GenericRowData) formatMsg.getRowData());
+        formatMsg.setRowData(InLongMsgUtils.decorateRowWithMetaData(genericRowData, head, metadataKeys));
+        return Collections.singletonList(formatMsg);
     }
 
     /**

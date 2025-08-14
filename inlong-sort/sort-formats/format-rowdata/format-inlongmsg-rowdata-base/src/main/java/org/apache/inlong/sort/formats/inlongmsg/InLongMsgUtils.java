@@ -19,6 +19,7 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -398,6 +399,17 @@ public class InLongMsgUtils {
         }
 
         return producedRow;
+    }
+
+    public static FormatMsg decorateFormatMsgWithNeededHeadFields(
+            @Nullable String timeFieldName,
+            @Nullable String attributesFieldName,
+            Timestamp time,
+            Map<String, String> attributes,
+            FormatMsg formatMsg) {
+        formatMsg.setRowData(decorateRowDataWithNeededHeadFields(timeFieldName, attributesFieldName, time, attributes,
+                (GenericRowData) formatMsg.getRowData()));
+        return formatMsg;
     }
 
     public static GenericRowData decorateRowDataWithNeededHeadFields(

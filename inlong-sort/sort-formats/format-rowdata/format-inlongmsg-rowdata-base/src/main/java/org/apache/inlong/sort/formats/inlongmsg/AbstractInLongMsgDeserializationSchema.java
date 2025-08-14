@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -78,6 +79,14 @@ public abstract class AbstractInLongMsgDeserializationSchema implements Deserial
         }
     }
 
+    public void deserializeFormatMsg(byte[] message, Collector<FormatMsg> out) {
+        try {
+            formatDeserializer.flatFormatMsgMap(message, out);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<InLongMsgWrap> preParse(byte[] bytes) throws Exception {
         return formatDeserializer.preParse(bytes);
     }
@@ -86,6 +95,11 @@ public abstract class AbstractInLongMsgDeserializationSchema implements Deserial
             InLongMsgWrap inLongMsgWrap,
             Collector<RowData> collector) throws Exception {
         formatDeserializer.parse(inLongMsgWrap, collector);
+    }
+
+    public void parseFormatMsg(InLongMsgWrap inLongMsgWrap,
+            Collector<FormatMsg> collector) throws Exception {
+        formatDeserializer.parseFormatMsg(inLongMsgWrap, collector);
     }
 
     @Override

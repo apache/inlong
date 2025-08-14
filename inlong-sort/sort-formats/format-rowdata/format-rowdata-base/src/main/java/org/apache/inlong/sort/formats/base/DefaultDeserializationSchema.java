@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
@@ -41,6 +42,10 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDeserializationSchema.class);
+
+    protected long lastPrintTimestamp = 0L;
+    protected long PRINT_TIMESTAMP_INTERVAL = 60 * 1000L;
+    protected int fieldNameSize = 0;
 
     protected FailureHandler failureHandler;
 
@@ -107,7 +112,18 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         }
     }
 
+    protected boolean needPrint() {
+        long now = Instant.now().toEpochMilli();
+        if (now - lastPrintTimestamp > PRINT_TIMESTAMP_INTERVAL) {
+            lastPrintTimestamp = now;
+            return true;
+        }
+        return false;
+    }
+
     protected abstract T deserializeInternal(byte[] bytes) throws Exception;
+
+    public abstract FormatMsg deserializeFormatMsg(byte[] bytes) throws Exception;
 
     @Override
     public boolean equals(Object object) {

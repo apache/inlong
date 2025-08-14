@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 
@@ -48,6 +49,7 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_E
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_NULL_LITERAL;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_QUOTE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getFormatValueLength;
 import static org.apache.inlong.sort.formats.util.StringUtils.splitCsv;
 
 /**
@@ -127,6 +129,9 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
 
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        this.fieldNameSize = (fieldNames == null ? 0 : fieldNames.length);
+
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
@@ -150,6 +155,9 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
+
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        this.fieldNameSize = (fieldNames == null ? 0 : fieldNames.length);
 
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
@@ -246,10 +254,12 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
             FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
             String[] fieldTexts = splitCsv(text, delimiter, escapeChar, quoteChar);
-            if (fieldTexts.length != fieldNames.length) {
+
+            if (needPrint() && fieldTexts.length != fieldNameSize) {
                 LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. Text=[{}].",
                         fieldNames.length, fieldTexts.length, text);
             }
+
             GenericRowData rowData = new GenericRowData(fieldNames.length);
 
             for (int i = 0; i < fieldNames.length; ++i) {
@@ -267,6 +277,49 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
                 }
             }
             return rowData;
+        } catch (Throwable t) {
+            failureHandler.onParsingMsgFailure(text, new RuntimeException(
+                    String.format("Could not properly deserialize csv. Text=[{}].", text), t));
+        }
+        return null;
+    }
+
+    @Override
+    public FormatMsg deserializeFormatMsg(byte[] message) throws Exception {
+        if (message == null) {
+            return null;
+        }
+        String text = new String(message, Charset.forName(charset));
+        long rowDataLength = 0L;
+        try {
+            String[] fieldNames = rowFormatInfo.getFieldNames();
+            FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+
+            String[] fieldTexts = splitCsv(text, delimiter, escapeChar, quoteChar);
+
+            if (needPrint() && fieldTexts.length != fieldNameSize) {
+                LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. Text=[{}].",
+                        fieldNames.length, fieldTexts.length, text);
+            }
+
+            GenericRowData rowData = new GenericRowData(fieldNames.length);
+
+            for (int i = 0; i < fieldNames.length; ++i) {
+                if (i >= fieldTexts.length) {
+                    rowData.setField(i, null);
+                } else {
+                    Object field =
+                            TableFormatUtils.deserializeBasicField(
+                                    fieldNames[i],
+                                    fieldFormatInfos[i],
+                                    fieldTexts[i],
+                                    nullLiteral, failureHandler);
+
+                    rowData.setField(i, converters[i].convert(field));
+                    rowDataLength += getFormatValueLength(fieldFormatInfos[i], fieldTexts[i]);
+                }
+            }
+            return new FormatMsg(rowData, rowDataLength);
         } catch (Throwable t) {
             failureHandler.onParsingMsgFailure(text, new RuntimeException(
                     String.format("Could not properly deserialize csv. Text=[{}].", text), t));

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.json;
 
 import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TextFormatOptions.TimestampFormat;
 import org.apache.inlong.sort.formats.json.FieldToRowDataConverters.FieldToRowDataConverter;
 
@@ -117,6 +118,23 @@ public class JsonRowDataDeserializationSchema extends DefaultDeserializationSche
                     String.format("Could not properly deserialize json. Text=[%s].", jsonStr), t));
         }
         return rowData;
+    }
+
+    @Override
+    public FormatMsg deserializeFormatMsg(byte[] message) throws Exception {
+        if (message == null) {
+            return null;
+        }
+
+        String jsonStr = new String(message, charset);
+        RowData rowData = null;
+        try {
+            rowData = (RowData) runtimeConverter.convert(jsonStr);
+        } catch (Throwable t) {
+            failureHandler.onParsingMsgFailure(jsonStr, new RuntimeException(
+                    String.format("Could not properly deserialize json. Text=[%s].", jsonStr), t));
+        }
+        return new FormatMsg(rowData, message.length);
     }
 
     @Override

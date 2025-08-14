@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
@@ -144,6 +145,19 @@ public final class InLongMsgBinlogFormatDeserializer extends AbstractInLongMsgFo
     @Override
     protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
         return InLongMsgBinlogUtils.getRowData(
+                rowFormatInfo,
+                timeFieldName,
+                attributesFieldName,
+                metadataFieldName,
+                head.getAttributes(),
+                body.getData(),
+                includeUpdateBefore,
+                failureHandler);
+    }
+
+    @Override
+    protected List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception {
+        return InLongMsgBinlogUtils.getFormatMsgData(
                 rowFormatInfo,
                 timeFieldName,
                 attributesFieldName,

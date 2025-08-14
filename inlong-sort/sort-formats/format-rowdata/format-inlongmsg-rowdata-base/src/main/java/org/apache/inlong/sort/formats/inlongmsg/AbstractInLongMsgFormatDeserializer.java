@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,7 @@ import javax.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,10 @@ import java.util.Set;
 public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQueryable<RowData>, Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractInLongMsgFormatDeserializer.class);
+
+    protected long lastPrintTimestamp = 0L;
+    protected long PRINT_TIMESTAMP_INTERVAL = 60 * 1000L;
+    protected int fieldNameSize = 0;
 
     protected FailureHandler failureHandler;
 
@@ -76,11 +82,30 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
      */
     protected abstract List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception;
 
+    protected abstract List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception;
+
+    protected boolean needPrint() {
+        long now = Instant.now().toEpochMilli();
+        if (now - lastPrintTimestamp > PRINT_TIMESTAMP_INTERVAL) {
+            lastPrintTimestamp = now;
+            return true;
+        }
+        return false;
+    }
+
     public void flatMap(
             byte[] bytes,
             Collector<RowData> collector) throws Exception {
         for (InLongMsgWrap inLongMsgWrap : preParse(bytes)) {
             parse(inLongMsgWrap, collector);
+        }
+    }
+
+    public void flatFormatMsgMap(
+            byte[] bytes,
+            Collector<FormatMsg> collector) throws Exception {
+        for (InLongMsgWrap inLongMsgWrap : preParse(bytes)) {
+            parseFormatMsg(inLongMsgWrap, collector);
         }
     }
 
@@ -156,6 +181,26 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
             }
             for (RowData rowData : rowDataList) {
                 collector.collect(rowData);
+            }
+        }
+    }
+
+    public void parseFormatMsg(InLongMsgWrap inLongMsgWrap, Collector<FormatMsg> collector) throws Exception {
+        InLongMsgHead inLongMsgHead = inLongMsgWrap.getInLongMsgHead();
+
+        for (InLongMsgBody inLongMsgBody : inLongMsgWrap.getInLongMsgBodyList()) {
+            List<FormatMsg> formatMsgList;
+            try {
+                formatMsgList = convertFormatMsgList(inLongMsgHead, inLongMsgBody);
+            } catch (Exception e) {
+                reportDeSerializeErrorMetrics();
+                failureHandler.onConvertingRowFailure(inLongMsgHead, inLongMsgBody, e);
+                continue;
+            }
+            if (formatMsgList != null) {
+                for (FormatMsg formatMsg : formatMsgList) {
+                    collector.collect(formatMsg);
+                }
             }
         }
     }

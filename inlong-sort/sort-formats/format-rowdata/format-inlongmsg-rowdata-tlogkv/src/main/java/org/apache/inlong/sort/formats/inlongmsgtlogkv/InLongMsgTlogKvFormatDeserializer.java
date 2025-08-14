@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.base.TextFormatBuilder;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
@@ -189,6 +190,9 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
         this.nullLiteral = nullLiteral;
         this.isDeleteEscapeChar = isDeleteEscapeChar;
 
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        this.fieldNameSize = (fieldNames == null ? 0 : fieldNames.length);
+
         this.converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
@@ -235,6 +239,26 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                 genericRowData);
 
         return Collections.singletonList(rowData);
+    }
+
+    @Override
+    protected List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception {
+        FormatMsg formatMsg =
+                InLongMsgTlogKvUtils.deserializeFormatMsgData(
+                        rowFormatInfo,
+                        nullLiteral,
+                        head.getPredefinedFields(),
+                        body.getEntries(), converters, failureHandler);
+
+        RowData rowData = InLongMsgUtils.decorateRowWithNeededHeadFields(
+                timeFieldName,
+                attributesFieldName,
+                head.getTime(),
+                head.getAttributes(),
+                (GenericRowData) formatMsg.getRowData());
+        formatMsg.setRowData(rowData);
+
+        return Collections.singletonList(formatMsg);
     }
 
     /**

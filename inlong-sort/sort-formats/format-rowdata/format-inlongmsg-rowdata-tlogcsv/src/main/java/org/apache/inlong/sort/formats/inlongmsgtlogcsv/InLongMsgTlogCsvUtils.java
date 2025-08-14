@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getFormatValueLength;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
@@ -132,12 +134,6 @@ public class InLongMsgTlogCsvUtils {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
-        int actualNumFields = predefinedFields.size() + fields.size();
-        if (actualNumFields != fieldNames.length) {
-            LOG.warn("The number of fields mismatches: " + fieldNames.length +
-                    " expected, but was " + actualNumFields + ".");
-        }
-
         GenericRowData rowData = new GenericRowData(fieldNames.length);
 
         for (int i = 0; i < predefinedFields.size(); ++i) {
@@ -185,5 +181,66 @@ public class InLongMsgTlogCsvUtils {
         }
 
         return rowData;
+    }
+
+    public static FormatMsg deserializeFormatMsgData(RowFormatInfo rowFormatInfo,
+            String nullLiteral,
+            List<String> predefinedFields,
+            List<String> fields,
+            FieldToRowDataConverters.FieldToRowDataConverter[] converters,
+            FailureHandler failureHandler) throws Exception {
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+
+        GenericRowData rowData = new GenericRowData(fieldNames.length);
+        long rowDataLength = 0L;
+
+        for (int i = 0; i < predefinedFields.size(); ++i) {
+
+            if (i >= fieldNames.length) {
+                break;
+            }
+
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+
+            String fieldText = predefinedFields.get(i);
+
+            Object field =
+                    converters[i].convert(deserializeBasicField(
+                            fieldName,
+                            fieldFormatInfo,
+                            fieldText,
+                            nullLiteral, failureHandler));
+            rowData.setField(i, field);
+            rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
+        }
+
+        for (int i = 0; i < fields.size(); ++i) {
+
+            if (i + predefinedFields.size() >= fieldNames.length) {
+                break;
+            }
+
+            String fieldName = fieldNames[i + predefinedFields.size()];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i + predefinedFields.size()];
+
+            String fieldText = fields.get(i);
+
+            Object field =
+                    converters[i + predefinedFields.size()].convert(deserializeBasicField(
+                            fieldName,
+                            fieldFormatInfo,
+                            fieldText,
+                            nullLiteral, failureHandler));
+            rowData.setField(i + predefinedFields.size(), field);
+            rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
+        }
+
+        for (int i = predefinedFields.size() + fields.size(); i < fieldNames.length; ++i) {
+            rowData.setField(i, null);
+        }
+
+        return new FormatMsg(rowData, rowDataLength);
     }
 }
