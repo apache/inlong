@@ -24,6 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.inlong.sdk.transform.encode.EscapeUtils;
+import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.common.ProxyClientConfigHolder;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * HTTP Event Information class
@@ -59,11 +64,17 @@ public class HttpEventInfo extends EventInfo<String> {
     @Override
     protected void setBodyList(boolean isSingle, List<String> bodyList) throws ProxyEventException {
         String tmpValue;
+        ProxyClientConfig config = ProxyClientConfigHolder.getConfig();
+        boolean autoEscape = config != null && config.isAutoEscape();
+        List<String> escapeFields = config != null ? config.getAutoEscapeFields() : null;
         if (isSingle) {
             if (StringUtils.isBlank(bodyList.get(0))) {
                 throw new ProxyEventException("body is null or empty!");
             }
             tmpValue = bodyList.get(0).trim();
+            if (autoEscape) {
+                tmpValue = escapeBody(tmpValue, escapeFields);
+            }
             this.bodyList.add(tmpValue);
             this.bodySize = tmpValue.length();
             this.msgCnt = 1;
@@ -76,7 +87,10 @@ public class HttpEventInfo extends EventInfo<String> {
                     continue;
                 }
                 tmpValue = body.trim();
-                this.bodyList.add(tmpValue.trim());
+                if (autoEscape) {
+                    tmpValue = escapeBody(tmpValue, escapeFields);
+                }
+                this.bodyList.add(tmpValue);
                 this.bodySize += tmpValue.length();
                 this.msgCnt++;
             }
@@ -84,5 +98,30 @@ public class HttpEventInfo extends EventInfo<String> {
                 throw new ProxyEventException("bodyList no valid content!");
             }
         }
+    }
+
+    /**
+     * 按字段名或整体进行转义
+     */
+    private String escapeBody(String body, List<String> escapeFields) {
+        // 尝试解析为JSON，若成功则按字段名转义，否则整体转义
+        try {
+            JSONObject json = JSON.parseObject(body);
+            if (escapeFields != null && !escapeFields.isEmpty()) {
+                for (String field : escapeFields) {
+                    if (json.containsKey(field)) {
+                        String val = json.getString(field);
+                        if (val != null) {
+                            json.put(field, EscapeUtils.escapeStringSeparator(val, '|'));
+                        }
+                    }
+                }
+                return json.toJSONString();
+            }
+        } catch (Exception e) {
+            // 非JSON结构，忽略
+        }
+        // 非结构化或未指定字段，整体转义
+        return EscapeUtils.escapeStringSeparator(body, '|');
     }
 }
