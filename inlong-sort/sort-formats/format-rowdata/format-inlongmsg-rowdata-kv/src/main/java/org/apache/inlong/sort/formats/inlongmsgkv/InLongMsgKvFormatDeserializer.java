@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgkv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.base.TextFormatBuilder;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
@@ -211,6 +212,9 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
         this.nullLiteral = nullLiteral;
         this.isDeleteEscapeChar = isDeleteEscapeChar;
 
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        this.fieldNameSize = (fieldNames == null ? 0 : fieldNames.length);
+
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
@@ -262,6 +266,25 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
                 head.getTime(),
                 head.getAttributes(),
                 genericRowData));
+    }
+
+    protected List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception {
+        FormatMsg formatMsg = InLongMsgKvUtils.deserializeFormatMsgData(
+                rowFormatInfo,
+                nullLiteral,
+                retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList(),
+                body.getEntries(),
+                converters,
+                failureHandler);
+
+        // Decorate result with time and attributes fields if needed
+        formatMsg.setRowData(InLongMsgUtils.decorateRowDataWithNeededHeadFields(
+                timeFieldName,
+                attributesFieldName,
+                head.getTime(),
+                head.getAttributes(),
+                (GenericRowData) formatMsg.getRowData()));
+        return Collections.singletonList(formatMsg);
     }
 
     /**

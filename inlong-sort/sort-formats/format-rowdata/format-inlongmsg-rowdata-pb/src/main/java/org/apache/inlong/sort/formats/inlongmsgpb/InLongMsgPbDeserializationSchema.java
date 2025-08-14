@@ -20,6 +20,8 @@ package org.apache.inlong.sort.formats.inlongmsgpb;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
+import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 
 import com.google.common.base.Objects;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -82,7 +84,39 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
         List<MessageObj> msgList = msgObjs.getMsgsList();
         for (MessageObj msg : msgList) {
             RowData row = deserializationSchema.deserialize(msg.getBody().toByteArray());
-            this.emitRow(msg, (GenericRowData) row, out);
+            RowData newRow = emitRow(msg, (GenericRowData) row);
+            if (newRow == null) {
+                out.collect(row);
+                continue;
+            }
+            out.collect(newRow);
+        }
+    }
+
+    public void deserializeFormatMsg(byte[] message, Collector<FormatMsg> out) throws Exception {
+        byte[] decompressed = decompressor.decompress(message);
+        MessageObjs msgObjs = MessageObjs.parseFrom(decompressed);
+        List<MessageObj> msgList = msgObjs.getMsgsList();
+        for (MessageObj msg : msgList) {
+            byte[] body = msg.getBody().toByteArray();
+            if (deserializationSchema instanceof DeserializationSchema) {
+                FormatMsg formatMsg = ((DefaultDeserializationSchema) deserializationSchema)
+                        .deserializeFormatMsg(body);
+                RowData newRow = emitRow(msg, (GenericRowData) formatMsg.getRowData());
+                if (newRow != null) {
+                    formatMsg.setRowData(newRow);
+                }
+                out.collect(formatMsg);
+            } else {
+                RowData row = deserializationSchema.deserialize(msg.getBody().toByteArray());
+                RowData newRow = emitRow(msg, (GenericRowData) row);
+                long bodyLength = (body == null ? 0 : body.length);
+                if (newRow == null) {
+                    out.collect(new FormatMsg(row, bodyLength));
+                    continue;
+                }
+                out.collect(new FormatMsg(newRow, bodyLength));
+            }
         }
     }
 
@@ -130,10 +164,9 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
     }
 
     /** add metadata column */
-    private void emitRow(MessageObj message, GenericRowData physicalRow, Collector<RowData> out) {
+    private RowData emitRow(MessageObj message, GenericRowData physicalRow) {
         if (metadataConverters.length == 0) {
-            out.collect(physicalRow);
-            return;
+            return null;
         }
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
@@ -146,6 +179,6 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
             producedRow.setField(
                     physicalArity + metadataPos, metadataConverters[metadataPos].read(message));
         }
-        out.collect(producedRow);
+        return producedRow;
     }
 }

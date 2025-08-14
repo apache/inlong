@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getFormatValueLength;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
@@ -157,6 +159,64 @@ public class InLongMsgTlogKvUtils {
         }
 
         return rowData;
+    }
+
+    /**
+     * Deserializes the row from the given entries.
+     *
+     * @param rowFormatInfo The format information of the row.
+     * @param nullLiteral The literal for null values.
+     * @param predefinedFields The predefined fields.
+     * @param entries The entries.
+     * @return The row FormatMsg from the given entries.
+     */
+    public static FormatMsg deserializeFormatMsgData(
+            RowFormatInfo rowFormatInfo,
+            String nullLiteral,
+            List<String> predefinedFields,
+            Map<String, String> entries,
+            FieldToRowDataConverter[] converters,
+            FailureHandler failureHandler) throws Exception {
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+
+        GenericRowData rowData = new GenericRowData(fieldNames.length);
+        long rowDataLength = 0L;
+        for (int i = 0; i < predefinedFields.size(); ++i) {
+
+            if (i >= fieldNames.length) {
+                break;
+            }
+
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+            String fieldText = predefinedFields.get(i);
+            FieldToRowDataConverter converter = converters[i];
+            Object field = converter.convert(
+                    deserializeBasicField(
+                            fieldName,
+                            fieldFormatInfo,
+                            fieldText,
+                            nullLiteral, failureHandler));
+            rowData.setField(i, field);
+            rowDataLength += getFormatValueLength(fieldFormatInfos[i], fieldText);
+        }
+
+        for (int i = predefinedFields.size(); i < fieldNames.length; ++i) {
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+            String fieldText = entries.get(fieldName);
+            FieldToRowDataConverter converter = converters[i];
+            Object field = converter.convert(deserializeBasicField(
+                    fieldName,
+                    fieldFormatInfo,
+                    fieldText,
+                    nullLiteral, failureHandler));
+            rowData.setField(i, field);
+            rowDataLength += getFormatValueLength(fieldFormatInfos[i], fieldText);
+        }
+
+        return new FormatMsg(rowData, rowDataLength);
     }
 
 }

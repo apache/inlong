@@ -19,6 +19,7 @@ package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.sort.formats.base.FormatMsg;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.binlog.InLongBinlog;
 import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getFormatValueLength;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_TID;
@@ -280,5 +282,150 @@ public class InLongMsgBinlogUtils {
         }
 
         return row;
+    }
+
+    public static List<FormatMsg> getFormatMsgData(
+            RowFormatInfo rowFormatInfo,
+            String timeFieldName,
+            String attributesFieldName,
+            String metadataFieldName,
+            Map<String, String> attributes,
+            byte[] bytes,
+            boolean includeUpdateBefore, FailureHandler failureHandler) throws Exception {
+
+        InLongBinlog.RowData rowData = InLongBinlog.RowData.parseFrom(bytes);
+
+        List<FormatMsg> rows = new ArrayList<>();
+
+        switch (rowData.getEventType()) {
+            case INSERT:
+                rows.add(
+                        constructFormatMsgData(
+                                rowFormatInfo,
+                                timeFieldName,
+                                attributesFieldName,
+                                metadataFieldName,
+                                attributes,
+                                rowData,
+                                DBSYNC_OPERATION_INERT,
+                                rowData.getAfterColumnsList(),
+                                failureHandler));
+                break;
+            case UPDATE:
+                if (includeUpdateBefore) {
+                    rows.add(
+                            constructFormatMsgData(
+                                    rowFormatInfo,
+                                    timeFieldName,
+                                    attributesFieldName,
+                                    metadataFieldName,
+                                    attributes,
+                                    rowData,
+                                    DBSYNC_OPERATION_UPDATE_BEFORE,
+                                    rowData.getBeforeColumnsList(),
+                                    failureHandler));
+                }
+                rows.add(
+                        constructFormatMsgData(
+                                rowFormatInfo,
+                                timeFieldName,
+                                attributesFieldName,
+                                metadataFieldName,
+                                attributes,
+                                rowData,
+                                DBSYNC_OPERATION_UPDATE,
+                                rowData.getAfterColumnsList(),
+                                failureHandler));
+                break;
+            case DELETE:
+                rows.add(
+                        constructFormatMsgData(
+                                rowFormatInfo,
+                                timeFieldName,
+                                attributesFieldName,
+                                metadataFieldName,
+                                attributes,
+                                rowData,
+                                DBSYNC_OPERATION_DELETE,
+                                rowData.getBeforeColumnsList(),
+                                failureHandler));
+                break;
+            default:
+                return null;
+        }
+
+        return rows;
+    }
+
+    private static FormatMsg constructFormatMsgData(
+            RowFormatInfo rowFormatInfo,
+            String timeFieldName,
+            String attributesFieldName,
+            String metadataFieldName,
+            Map<String, String> attributes,
+            InLongBinlog.RowData rowData,
+            String operation,
+            List<InLongBinlog.Column> columns, FailureHandler failureHandler) throws Exception {
+        List<Object> headFields = new ArrayList<>();
+        long rowDataLength = 0L;
+        if (timeFieldName != null) {
+            headFields.add(new Timestamp(rowData.getExecuteTime()));
+        }
+
+        if (attributesFieldName != null) {
+            headFields.add(attributes);
+        }
+
+        if (metadataFieldName != null) {
+            Map<String, String> metadata = new HashMap<>();
+
+            metadata.put(METADATA_INSTANCE_NAME, rowData.getInstanceName());
+            metadata.put(METADATA_SCHEMA_NAME, rowData.getSchemaName());
+            metadata.put(METADATA_TABLE_NAME, rowData.getTableName());
+            metadata.put(METADATA_OPERATION_TYPE, operation);
+            metadata.put(METADATA_EXECUTE_TIME, Long.toString(rowData.getExecuteTime()));
+            metadata.put(METADATA_EXECUTE_ORDER, Long.toString(rowData.getExecuteOrder()));
+            metadata.put(METADATA_TRANSFER_IP, rowData.getTransferIp());
+
+            headFields.add(metadata);
+        }
+
+        String[] dataFieldNames = rowFormatInfo.getFieldNames();
+        FormatInfo[] dataFieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+
+        GenericRowData row = new GenericRowData(dataFieldNames.length + headFields.size());
+
+        for (int i = 0; i < headFields.size(); ++i) {
+            row.setField(i, headFields.get(i));
+        }
+
+        Map<String, String> columnMap = new HashMap<>(columns.size());
+        for (InLongBinlog.Column column : columns) {
+            if (column.getIsNull()) {
+                columnMap.put(column.getName(), null);
+            } else {
+                columnMap.put(column.getName(), column.getValue());
+            }
+        }
+
+        for (int i = 0; i < dataFieldNames.length; ++i) {
+            String fieldName = dataFieldNames[i];
+            String fieldText = columnMap.get(fieldName);
+
+            if (fieldText == null) {
+                row.setField(i + headFields.size(), null);
+            } else {
+                Object field =
+                        deserializeBasicField(
+                                fieldName,
+                                dataFieldFormatInfos[i],
+                                fieldText,
+                                null, failureHandler);
+                row.setField(i + headFields.size(), field);
+                rowDataLength += getFormatValueLength(dataFieldFormatInfos[i], fieldText);
+            }
+        }
+
+        return new FormatMsg(row, rowDataLength);
     }
 }
