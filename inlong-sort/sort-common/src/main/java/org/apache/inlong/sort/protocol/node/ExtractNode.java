@@ -19,20 +19,6 @@ package org.apache.inlong.sort.protocol.node;
 
 import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.IcebergExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.OceanBaseExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -69,6 +55,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
         @JsonSubTypes.Type(value = IcebergExtractNode.class, name = "icebergExtract"),
         @JsonSubTypes.Type(value = OceanBaseExtractNode.class, name = "oceanbaseExtract"),
+        @JsonSubTypes.Type(value = ClickHouseExtractNode.class, name = "clickHouseExtract"),
 })
 @Data
 @NoArgsConstructor
