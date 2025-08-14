@@ -42,6 +42,7 @@ class ApiImp {
   int32_t CloseApi(int32_t max_waitms);
 
   int32_t AddInLongGroupId(const std::vector<std::string> &group_ids);
+  int32_t SendHttp(const char *url, const char *body, int timeout = 5);
 
  private:
   int32_t DoInit();

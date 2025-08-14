@@ -62,5 +62,5 @@ add_library(dataproxy_sdk STATIC ${UTILS} ${CONFIGS} ${CORE} ${MANAGER} ${GROUP}
 
 set_target_properties(dataproxy_sdk PROPERTIES OUTPUT_NAME "dataproxy_sdk" PREFIX "")
 
-target_link_libraries(dataproxy_sdk liblog4cplusS.a libsnappy.a libcurl.a libssl.a libcrypto.a)
+target_link_libraries(dataproxy_sdk liblog4cplusS.a libsnappy.a libcurl.a libssl.a libcrypto.a libzstd.a -lbrotlidec -lbrotlicommon)
 
