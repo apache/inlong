@@ -226,6 +226,26 @@ const tdsqlPgFieldTypes = [
   value: item,
 }));
 
+const paimonFieldTypes = [
+  'int',
+  'long',
+  'string',
+  'float',
+  'double',
+  'date',
+  'timestamp',
+  'time',
+  'boolean',
+  'decimal',
+  'timestamptz',
+  'binary',
+  'fixed',
+  'uuid',
+].map(item => ({
+  label: item,
+  value: item,
+}));
+
 const greenplumTypesConf = {
   smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
   int2: () => '',
@@ -426,4 +446,5 @@ export const fieldAllTypes = {
   TDSQLPOSTGRESQL: tdsqlPgFieldTypes,
   REDIS: redisFieldTypes,
   KUDU: kuduFieldTypes,
+  PAIMON: paimonFieldTypes,
 };
