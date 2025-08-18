@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.audit.AuditReporterImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,9 @@ public class CdcExactlyMetric implements Serializable, SourceMetricsReporter {
 
     @Override
     public void outputMetricsWithEstimate(Object data, long dataTime) {
+        if (MapUtils.isEmpty(auditKeyMap)) {
+            return;
+        }
         long size = getDataSize(data);
         if (data instanceof RowData) {
             RowData rowData = (RowData) data;
