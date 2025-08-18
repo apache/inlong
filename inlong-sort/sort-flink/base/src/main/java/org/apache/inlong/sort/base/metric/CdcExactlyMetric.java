@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.audit.AuditReporterImpl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 
