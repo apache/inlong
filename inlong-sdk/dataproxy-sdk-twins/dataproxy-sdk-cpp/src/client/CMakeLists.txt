@@ -21,4 +21,4 @@ cmake_minimum_required(VERSION 3.1)
 
 aux_source_directory(. CLIENT_SRCS)
 
-add_library(inlong_client STATIC ${CLIENT_SRCS})
+add_library(client_objs OBJECT tcp_client.cc http_sender.cc)
