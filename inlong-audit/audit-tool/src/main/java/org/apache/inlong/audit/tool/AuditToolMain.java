@@ -8,7 +8,7 @@ import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
 import org.apache.inlong.audit.tool.task.AuditCheckTask;
 
 public class AuditToolMain {
-
+    private static final long DEFAULT_INTERVAL = 30000; // 30秒
     public static void main(String[] args) {
         // Load application configuration
         AppConfig appConfig = AppConfig.load();
@@ -24,8 +24,8 @@ public class AuditToolMain {
         OpenTelemetryReporter openTelemetryReporter = new OpenTelemetryReporter(appConfig.getOpenTelemetryConfig());
 
         // Schedule the audit check task
-        AuditCheckTask auditCheckTask = new AuditCheckTask(alertEvaluator, prometheusReporter, openTelemetryReporter);
-        auditCheckTask.start();
+        AuditCheckTask auditCheckTask = new AuditCheckTask(appConfig);
+        auditCheckTask.start(DEFAULT_INTERVAL);
 
         // Keep the application running
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
