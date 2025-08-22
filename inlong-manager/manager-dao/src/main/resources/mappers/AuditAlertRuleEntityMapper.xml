@@ -1,0 +1,18 @@
+<!-- manager-dao/src/main/resources/mapper/AuditAlertRuleEntityMapper.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper">
+
+    <!-- 其他SQL... -->
+
+    <select id="selectByGroupAndStream" resultType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        SELECT * FROM audit_alert_rule
+        <where>
+            <if test="inlongGroupId != null">AND inlong_group_id = #{inlongGroupId}</if>
+            <if test="inlongStreamId != null">AND inlong_stream_id = #{inlongStreamId}</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+</mapper>
