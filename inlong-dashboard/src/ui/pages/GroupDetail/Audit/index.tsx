@@ -31,10 +31,9 @@ import {
   getTableColumns,
   timeStaticsDimList,
 } from './config';
-import { Table, Radio, Tabs, TabsProps } from 'antd';
+import { Table, Radio, Spin } from 'antd';
 import i18n from '@/i18n';
 import './index.less';
-import { startCase } from 'lodash';
 type Props = CommonInterface;
 const initialQuery = {
   inlongStreamId: null,
@@ -43,6 +42,7 @@ const initialQuery = {
   timeStaticsDim: timeStaticsDimList[0].value,
   sinkId: null,
   sinkType: null,
+  auditIds: [],
 };
 const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const [form] = useForm();
@@ -81,7 +81,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
   );
 
-  const { data: sourceData = [], run } = useRequest(
+  const {
+    data: sourceData = [],
+    loading,
+    run,
+  } = useRequest(
     {
       url: '/audit/list',
       method: 'POST',
@@ -90,7 +94,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
         endDate: timestampFormat(query.endDate, 'yyyy-MM-dd'),
         inlongGroupId,
-        inlongStreamId: inlongStreamID,
+        ...(subTab === 'stream' && { inlongStreamId: inlongStreamID }),
       },
     },
     {
@@ -101,7 +105,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         query.endDate,
         query.startDate,
         query.timeStaticsDim,
+        query.auditIds,
         inlongStreamID,
+        subTab,
       ],
       formatResult: result => result.sort((a, b) => (a.auditId - b.auditId > 0 ? 1 : -1)),
     },
@@ -149,12 +155,16 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       }, {});
     }
     return output;
-  }, [sourceData, query.timeStaticsDim, type]);
+  }, [sourceData, type]);
 
   const onSearch = async () => {
     let values = await form.validateFields();
     if (values.timeStaticsDim == 'MINUTE') {
-      setQuery(prev => ({ ...prev, endDate: prev.startDate }));
+      if (subTab === 'group') {
+        setQuery(prev => ({ ...prev, endDate: prev.startDate, inlongStreamId: null }));
+      } else {
+        setQuery(prev => ({ ...prev, endDate: prev.startDate }));
+      }
     } else {
       setQuery(values);
     }
@@ -202,20 +212,21 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   }, [inlongGroupId, inlongStreamID]);
 
   const onChange = e => {
+    const newTab = e.target.value;
     const tmp = { ...query };
-    if (e.target.value === 'group') {
+    if (newTab === 'group') {
       tmp.inlongStreamId = null;
       tmp.sinkId = null;
-      setInlongStreamID(undefined);
+      tmp.sinkType = null;
+      setInlongStreamID(null);
     } else {
       tmp.sinkType = null;
       tmp.inlongStreamId = streamList?.[0]?.value;
       setInlongStreamID(streamList?.[0]?.value);
     }
     setQuery(tmp);
-    setSubTab(e.target.value);
+    setSubTab(newTab);
   };
-
   return (
     <>
       <div style={{ marginBottom: 20 }}>
@@ -241,13 +252,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             subTab,
           )}
           style={{ marginBottom: 30, gap: 10 }}
-          onFilter={allValues =>
+          onFilter={allValues => {
+            console.log('onFilter:', allValues);
             setQuery({
               ...allValues,
               startDate: +allValues.startDate.$d,
               endDate: +allValues.endDate.$d,
-            })
-          }
+            });
+          }}
         />
       </div>
       <div className="audit-container">
@@ -262,7 +274,24 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
           </Radio.Group>
         </div>
         <div className="chart-container">
-          <Charts height={400} option={toChartData(sourceData, sourceDataMap)} forceUpdate={true} />
+          {loading ? (
+            <div
+              style={{
+                height: 400,
+                display: 'flex',
+                alignContent: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Spin />
+            </div>
+          ) : (
+            <Charts
+              height={400}
+              option={toChartData(sourceData, sourceDataMap)}
+              forceUpdate={true}
+            />
+          )}
         </div>
         <div className="table-container">
           <HighTable
@@ -273,6 +302,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
               pagination: {
                 pageSizeOptions: ['10', '20', '50', '60', '100', '120'],
               },
+              loading,
               summary: () => (
                 <Table.Summary fixed>
                   <Table.Summary.Row>
