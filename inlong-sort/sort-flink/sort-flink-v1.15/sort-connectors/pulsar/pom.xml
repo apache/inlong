@@ -31,7 +31,7 @@
     <name>Apache InLong - Sort-connector-pulsar</name>
 
     <properties>
-        <pulsar.version>2.10.2</pulsar.version>
+        <pulsar.version>4.0.3</pulsar.version>
         <flink.connector.pulsar.version>3.0.1-1.16</flink.connector.pulsar.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
