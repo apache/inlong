@@ -35,8 +35,16 @@ public class AlertEvaluator {
 
 
     public boolean shouldTriggerAlert(AuditData auditData, AlertPolicy policy) {
-        // 写一个switch选择语句，根据不同的策略把不同的指标加入运算，看是否超过阈值
-        return false;
+        switch (policy.getAlertType()) {
+            case "THRESHOLD":
+                return evaluateThreshold(result, rule);
+            case "CHANGE_RATE":
+                return evaluateChangeRate(result, rule);
+            case "DATA_LOSS":
+                return evaluateDataLoss(result, rule);
+            default:
+                return false;
+        }
     }
 
     public void triggerAlert(AuditData auditData, AlertPolicy policy) {

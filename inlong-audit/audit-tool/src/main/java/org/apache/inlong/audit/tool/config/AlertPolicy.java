@@ -1,5 +1,8 @@
 package org.apache.inlong.audit.tool.config;
 
+import lombok.Data;
+
+@Data
 public class AlertPolicy {
     private String name;
     private String description;
