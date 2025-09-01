@@ -63,7 +63,7 @@ var (
 	errConnReadFailed   = &errNo{code: 10008, strCode: "10008", message: "conn read failed"}
 	errLogTooLong       = &errNo{code: 10009, strCode: "10009", message: "input log is too long"} //nolint:unused
 	errBadLog           = &errNo{code: 10010, strCode: "10010", message: "input log is invalid"}
-	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error"}
+	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error"} //nolint:unused
 	errServerPanic      = &errNo{code: 10012, strCode: "10012", message: "server panic"}
 	workerBusy          = &errNo{code: 10013, strCode: "10013", message: "worker is busy"}
 	errNoMatchReq4Rsp   = &errNo{code: 10014, strCode: "10014", message: "no match unacknowledged request for response"}
@@ -622,7 +622,16 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 	// call batch.done to release the resources it holds
 	var err = error(nil)
 	if rsp.errCode != 0 {
-		err = errServerError
+		err = &errNo{
+			code:    10011,
+			strCode: "10011",
+			message: "server error: errCode=" + strconv.Itoa(rsp.errCode) +
+				", workerID=" + rsp.workerID +
+				", batchID=" + rsp.batchID +
+				", groupID=" + rsp.groupID +
+				", streamID=" + rsp.streamID +
+				", dt=" + rsp.dt,
+		}
 		w.log.Error("send succeed but got error code:", rsp.errCode)
 	}
 	batch.done(err)
