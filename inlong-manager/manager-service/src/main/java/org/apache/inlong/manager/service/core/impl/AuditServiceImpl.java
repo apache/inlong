@@ -335,9 +335,7 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId) {
-        // 调用Mapper查询符合条件的实体
         List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByGroupAndStream(inlongGroupId, inlongStreamId);
-        // 转换为POJO并返回
         return entities.stream()
                 .map(entity -> CommonBeanUtils.copyProperties(entity, AuditAlertRule::new))
                 .collect(Collectors.toList());

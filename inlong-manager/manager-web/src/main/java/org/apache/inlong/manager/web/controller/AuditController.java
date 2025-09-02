@@ -84,54 +84,46 @@ public class AuditController {
         return Response.success(auditService.getAuditProxy(component));
     }
 
-    // 现有接口：创建告警策略
     @PostMapping(value = "/audit/alert/rule")
-    @ApiOperation("创建Audit告警策略")
+    @ApiOperation(value = "Create an Audit alarm policy")
     public Response<AuditAlertRule> createAlertRule(@Valid @RequestBody AuditAlertRule rule) {
         String operator = LoginUserUtils.getLoginUser().getUsername();
         return Response.success(auditService.createAlertRule(rule, operator));
     }
 
-    // 现有接口：查询单个告警策略
     @GetMapping(value = "/audit/alert/rule/{id}")
-    @ApiOperation("查询告警策略详情")
+    @ApiOperation(value = "Query the details of the alarm policy")
     public Response<AuditAlertRule> getAlertRule(@PathVariable Integer id) {
         return Response.success(auditService.getAlertRule(id));
     }
 
-    // 新增接口：查询所有启用的告警策略（供Audit Tool拉取）
     @GetMapping(value = "/audit/alert/rule/enabled")
-    @ApiOperation("查询所有启用的告警策略")
+    @ApiOperation(value = "Query all enabled alarm policies")
     public Response<List<AuditAlertRule>> listEnabledAlertRules() {
-        // 1. 查询所有告警策略（不限制group和stream）
         List<AuditAlertRule> allRules = auditService.listAlertRules(null, null);
-        // 2. 过滤出启用的策略
         List<AuditAlertRule> enabledRules = allRules.stream()
-                .filter(AuditAlertRule::getEnabled) // 过滤条件：enabled=true
+                .filter(AuditAlertRule::getEnabled) 
                 .collect(Collectors.toList());
         return Response.success(enabledRules);
     }
 
-    // 新增接口：批量查询告警策略（支持按group和stream筛选）
     @GetMapping(value = "/audit/alert/rule/list")
-    @ApiOperation("批量查询告警策略")
+    @ApiOperation(value = "Batch query alarm policies")
     public Response<List<AuditAlertRule>> listAlertRules(
             @RequestParam(required = false) String inlongGroupId,
             @RequestParam(required = false) String inlongStreamId) {
         return Response.success(auditService.listAlertRules(inlongGroupId, inlongStreamId));
     }
 
-    // 新增接口：更新告警策略
     @PutMapping(value = "/audit/alert/rule")
-    @ApiOperation("更新Audit告警策略")
+    @ApiOperation(value = "Update the Audit alarm policy")
     public Response<AuditAlertRule> updateAlertRule(@Valid @RequestBody AuditAlertRule rule) {
         String operator = LoginUserUtils.getLoginUser().getUsername();
         return Response.success(auditService.updateAlertRule(rule, operator));
     }
 
-    // 新增接口：删除告警策略
     @DeleteMapping(value = "/audit/alert/rule/{id}")
-    @ApiOperation("删除Audit告警策略")
+    @ApiOperation(value = "Delete the Audit alarm policy")
     public Response<Boolean> deleteAlertRule(@PathVariable Integer id) {
         return Response.success(auditService.deleteAlertRule(id));
     }

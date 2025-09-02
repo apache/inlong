@@ -74,30 +74,30 @@ public interface AuditService {
     List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType);
 
     /**
-     * 批量查询告警策略
-     * @param inlongGroupId 可选，InLong组ID
-     * @param inlongStreamId 可选，InLong流ID
-     * @return 告警策略列表
+     * Batch Query of Alarm Policies
+     * @param inlongGroupId InLong group ID
+     * @param inlongStreamId InLong group ID
+     * @return Alarm policy list
      */
     List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId);
 
     /**
-     * 创建告警策略
+     * Create an alarm policy
      */
     AuditAlertRule createAlertRule(AuditAlertRule rule, String operator);
 
     /**
-     * 查询单个告警策略
+     * Query a single alarm policy
      */
     AuditAlertRule getAlertRule(Integer id);
 
     /**
-     * 更新告警策略
+     * Update the alarm policy
      */
     AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator);
 
     /**
-     * 删除告警策略
+     * Delete the alarm policy
      */
     Boolean deleteAlertRule(Integer id);
 }
