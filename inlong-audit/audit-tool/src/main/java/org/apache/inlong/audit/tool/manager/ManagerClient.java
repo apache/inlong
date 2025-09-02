@@ -5,8 +5,16 @@ import org.apache.inlong.audit.tool.config.AlertPolicy;
 import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
 import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
 import org.apache.inlong.audit.tool.metric.AuditData;
+import org.apache.inlong.manager.pojo.audit.AuditRequest;
 
 import java.util.List;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ManagerClient {
 
