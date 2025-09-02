@@ -53,6 +53,9 @@ public class MetricData {
      */
     private AlertInfo alertInfo;
 
+    public MetricData(Object groupId, Object streamId, Object dataLossRate, Object dataLossCount, Object auditCount, Object expectedCount, Object receivedCount) {
+    }
+
     /**
      * A nested static class to hold details about a specific alert.
      */

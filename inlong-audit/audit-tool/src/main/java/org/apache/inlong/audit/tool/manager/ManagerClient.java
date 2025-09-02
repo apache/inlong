@@ -4,7 +4,7 @@ import org.apache.inlong.audit.tool.config.AppConfig;
 import org.apache.inlong.audit.tool.config.AlertPolicy;
 import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
 import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
-import org.apache.inlong.audit.tool.config.AuditData;
+import org.apache.inlong.audit.tool.metric.AuditData;
 
 import java.util.List;
 
@@ -20,17 +20,15 @@ public class ManagerClient {
         this.openTelemetryReporter = new OpenTelemetryReporter(appConfig.getOpenTelemetryConfig());
     }
 
-    public List<AlertPolicy> fetchAlertPolicies() {
+    public static List<AlertPolicy> fetchAlertPolicies() {
         // Logic to interact with the manager service and fetch alert policies
         // This could involve making an HTTP request to the manager's API
         return null; // Replace with actual implementation
     }
 
-    public void updateAlertPolicy(AlertPolicy policy) {
 
-    }
 
-    public AuditData fetchAuditData() {
+    public static AuditData fetchAuditData() {
         // 根据配置获取audit_data表数据
         // 这里需要根据appConfig中的数据源配置来获取数据
         // 例如从数据库、文件或其他来源获取审计数据
