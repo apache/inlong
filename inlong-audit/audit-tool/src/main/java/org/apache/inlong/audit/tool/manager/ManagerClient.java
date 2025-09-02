@@ -6,6 +6,7 @@ import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
 import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
 import org.apache.inlong.audit.tool.metric.AuditData;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.audit.tool.response.Response;
 
 import java.util.List;
 import java.net.URI;
