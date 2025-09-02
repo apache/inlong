@@ -50,7 +50,7 @@ public class ManagerClient {
         if (response.statusCode() != 200) {
             return mapper.readValue(response.getData(), new TypeReference<List<AlertPolicy>>() {});
         } else {
-            LOGGER.error("fetchAlertPolicies fail " + response.statusCode() + ": " + response.getData());
+            LOGGER.error("fetchAlertPolicies fail "  + ": " + response.getData());
             return null;
         }
     }
@@ -89,7 +89,7 @@ public class ManagerClient {
             if (response.statusCode() != 200) {
                 auditDataList.add(mapper.readValue(response.getData(), new TypeReference<List<AuditData>>() {}));
             } else {
-                LOGGER.error("fetchAlertPolicies fail " + response.statusCode() + ": " + response.getData());
+                LOGGER.error("fetchAlertPolicies fail " + ": " + response.getData());
             }
         }
         return auditDataList;
