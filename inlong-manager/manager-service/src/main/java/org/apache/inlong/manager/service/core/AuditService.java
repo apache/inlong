@@ -22,6 +22,7 @@ import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.alert.AuditAlertRule;
 
 import java.util.List;
 
@@ -73,4 +74,31 @@ public interface AuditService {
 
     List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType);
 
+    /**
+     * Batch Query of Alarm Policies
+     * @param inlongGroupId InLong group ID
+     * @param inlongStreamId InLong group ID
+     * @return Alarm policy list
+     */
+    List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId);
+
+    /**
+     * Create an alarm policy
+     */
+    AuditAlertRule createAlertRule(AuditAlertRule rule, String operator);
+
+    /**
+     * Query a single alarm policy
+     */
+    AuditAlertRule getAlertRule(Integer id);
+
+    /**
+     * Update the alarm policy
+     */
+    AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator);
+
+    /**
+     * Delete the alarm policy
+     */
+    Boolean deleteAlertRule(Integer id);
 }
