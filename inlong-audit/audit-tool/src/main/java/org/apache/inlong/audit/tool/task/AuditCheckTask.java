@@ -2,7 +2,7 @@ package org.apache.inlong.audit.tool.task;
 
 import org.apache.inlong.audit.tool.config.AlertPolicy;
 import org.apache.inlong.audit.tool.config.AppConfig;
-import org.apache.inlong.audit.tool.config.AuditData;
+import org.apache.inlong.audit.tool.metric.AuditData;
 import org.apache.inlong.audit.tool.evaluator.AlertEvaluator;
 import org.apache.inlong.audit.tool.manager.ManagerClient;
 

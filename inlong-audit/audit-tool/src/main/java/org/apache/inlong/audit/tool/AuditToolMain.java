@@ -14,10 +14,10 @@ public class AuditToolMain {
         AppConfig appConfig = AppConfig.load();
 
         // Initialize manager client
-        ManagerClient managerClient = new ManagerClient(appConfig.getManagerUrl());
+        ManagerClient managerClient = new ManagerClient(appConfig);
 
         // Initialize alert evaluator
-        AlertEvaluator alertEvaluator = new AlertEvaluator(managerClient);
+        AlertEvaluator alertEvaluator = new AlertEvaluator(new PrometheusReporter(), new OpenTelemetryReporter());
 
         // Initialize reporters
         PrometheusReporter prometheusReporter = new PrometheusReporter(appConfig.getPrometheusConfig());
