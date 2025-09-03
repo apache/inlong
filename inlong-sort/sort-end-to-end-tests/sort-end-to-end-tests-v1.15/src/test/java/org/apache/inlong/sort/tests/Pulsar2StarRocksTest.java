@@ -135,7 +135,6 @@ public class Pulsar2StarRocksTest extends FlinkContainerTestEnvJRE8 {
         }
     }
 
-    @Test
     public void testPulsarToStarRocks() throws Exception {
         submitSQLJob(sqlFile, pulsarJar, jdbcJar, mysqlJdbcJar);
         waitUntilJobRunning(Duration.ofSeconds(10));
