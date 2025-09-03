@@ -21,44 +21,54 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 
 @Data
-@ApiModel("Audit告警策略配置")
+@ApiModel("Audit Alert Rule Configuration")
 public class AuditAlertRule {
-    @ApiModelProperty("策略ID")
+    @ApiModelProperty("Rule ID")
     private Integer id;
 
-    @ApiModelProperty("关联的InLong Group ID")
+    @ApiModelProperty(value = "Associated InLong Group ID", required = true)
+    @NotBlank(message = "InLong Group ID cannot be blank")
     private String inlongGroupId;
 
-    @ApiModelProperty("关联的InLong Stream ID")
+    @ApiModelProperty("Associated InLong Stream ID")
     private String inlongStreamId;
 
-    @ApiModelProperty("审计ID（关联具体审计指标，如发送成功数、延迟等）")
+    @ApiModelProperty(value = "Audit ID (associated with specific audit metrics, such as send success count, delay, etc.)", required = true)
+    @NotBlank(message = "Audit ID cannot be blank")
     private String auditId;
 
-    @ApiModelProperty("告警名称")
+    @ApiModelProperty(value = "Alert name", required = true)
+    @NotBlank(message = "Alert name cannot be blank")
     private String alertName;
 
-    @ApiModelProperty("触发条件（如count>10000、delay>60000）")
-    private String condition; // 可使用表达式，如"count > 10000 && delay > 60000"
+    @ApiModelProperty(value = "Trigger condition (e.g., count>10000, delay>60000)", required = true)
+    @NotBlank(message = "Trigger condition cannot be blank")
+    private String condition; // Can use expressions like "count > 10000 && delay > 60000"
 
-    @ApiModelProperty("告警级别（INFO/WARN/ERROR）")
+    @ApiModelProperty("Alert level (INFO/WARN/ERROR/CRITICAL)")
+    @Pattern(regexp = "^(INFO|WARN|ERROR|CRITICAL)$", message = "Alert level must be one of INFO, WARN, ERROR, or CRITICAL")
     private String level;
 
-    @ApiModelProperty("通知方式（EMAIL/SMS/HTTP）")
+    @ApiModelProperty("Notification type (EMAIL/SMS/HTTP)")
+    @Pattern(regexp = "^(EMAIL|SMS|HTTP)$", message = "Notification type must be one of EMAIL, SMS, or HTTP")
     private String notifyType;
 
-    @ApiModelProperty("通知接收者（多个用逗号分隔）")
+    @ApiModelProperty("Notification recipients (separated by commas for multiple recipients)")
     private String receivers;
 
-    @ApiModelProperty("是否启用")
+    @ApiModelProperty(value = "Whether enabled", required = true)
+    @NotNull(message = "Enabled status cannot be null")
     private Boolean enabled;
 
-    @ApiModelProperty("创建时间")
+    @ApiModelProperty("Create time")
     private Date createTime;
 
-    @ApiModelProperty("更新时间")
+    @ApiModelProperty("Update time")
     private Date updateTime;
 }

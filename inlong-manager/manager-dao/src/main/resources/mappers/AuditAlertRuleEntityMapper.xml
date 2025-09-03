@@ -23,14 +23,80 @@
 
 <mapper namespace="org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper">
 
-    <!-- 其他SQL... -->
+    <resultMap id="AuditAlertRuleEntityMap" type="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        <id column="id" property="id"/>
+        <result column="inlong_group_id" property="inlongGroupId"/>
+        <result column="inlong_stream_id" property="inlongStreamId"/>
+        <result column="audit_id" property="auditId"/>
+        <result column="alert_name" property="alertName"/>
+        <result column="condition" property="condition"/>
+        <result column="level" property="level"/>
+        <result column="notify_type" property="notifyType"/>
+        <result column="receivers" property="receivers"/>
+        <result column="enabled" property="enabled"/>
+        <result column="creator" property="creator"/>
+        <result column="modifier" property="modifier"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
 
-    <select id="selectByGroupAndStream" resultType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
-        SELECT * FROM audit_alert_rule
+    <sql id="Base_Column_List">
+        id, inlong_group_id, inlong_stream_id, audit_id, alert_name, `condition`, `level`, 
+        notify_type, receivers, enabled, creator, modifier, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        INSERT INTO audit_alert_rule (
+            inlong_group_id, inlong_stream_id, audit_id, alert_name, `condition`, `level`,
+            notify_type, receivers, enabled, creator, modifier, create_time, update_time
+        ) VALUES (
+            #{inlongGroupId}, #{inlongStreamId}, #{auditId}, #{alertName}, #{condition}, #{level},
+            #{notifyType}, #{receivers}, #{enabled}, #{creator}, #{modifier}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        UPDATE audit_alert_rule
+        <set>
+            <if test="inlongGroupId != null">inlong_group_id = #{inlongGroupId},</if>
+            <if test="inlongStreamId != null">inlong_stream_id = #{inlongStreamId},</if>
+            <if test="auditId != null">audit_id = #{auditId},</if>
+            <if test="alertName != null">alert_name = #{alertName},</if>
+            <if test="condition != null">`condition` = #{condition},</if>
+            <if test="level != null">`level` = #{level},</if>
+            <if test="notifyType != null">notify_type = #{notifyType},</if>
+            <if test="receivers != null">receivers = #{receivers},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="modifier != null">modifier = #{modifier},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM audit_alert_rule WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="AuditAlertRuleEntityMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM audit_alert_rule
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByGroupAndStream" resultMap="AuditAlertRuleEntityMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM audit_alert_rule
         <where>
-            <if test="inlongGroupId != null">AND inlong_group_id = #{inlongGroupId}</if>
-            <if test="inlongStreamId != null">AND inlong_stream_id = #{inlongStreamId}</if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">AND inlong_group_id = #{inlongGroupId}</if>
+            <if test="inlongStreamId != null and inlongStreamId != ''">AND inlong_stream_id = #{inlongStreamId}</if>
         </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectEnabledRules" resultMap="AuditAlertRuleEntityMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM audit_alert_rule
+        WHERE enabled = 1
         ORDER BY create_time DESC
     </select>
 </mapper>
