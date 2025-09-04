@@ -19,9 +19,9 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.alert.AuditAlertRule;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.core.AuditService;
@@ -108,7 +108,7 @@ public class AuditController {
     public Response<List<AuditAlertRule>> listEnabledAlertRules() {
         List<AuditAlertRule> allRules = auditService.listAlertRules(null, null);
         List<AuditAlertRule> enabledRules = allRules.stream()
-                .filter(AuditAlertRule::getEnabled) 
+                .filter(AuditAlertRule::getEnabled)
                 .collect(Collectors.toList());
         return Response.success(enabledRules);
     }
@@ -133,6 +133,5 @@ public class AuditController {
     public Response<Boolean> deleteAlertRule(@PathVariable Integer id) {
         return Response.success(auditService.deleteAlertRule(id));
     }
-
 
 }

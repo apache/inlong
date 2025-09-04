@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.audit.alert;
+package org.apache.inlong.manager.pojo.audit;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,11 +24,13 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import java.util.Date;
 
 @Data
 @ApiModel("Audit Alert Rule Configuration")
 public class AuditAlertRule {
+
     @ApiModelProperty("Rule ID")
     private Integer id;
 

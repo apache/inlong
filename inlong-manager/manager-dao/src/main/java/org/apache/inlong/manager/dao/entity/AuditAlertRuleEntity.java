@@ -23,6 +23,7 @@ import java.util.Date;
 
 @Data
 public class AuditAlertRuleEntity {
+
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;

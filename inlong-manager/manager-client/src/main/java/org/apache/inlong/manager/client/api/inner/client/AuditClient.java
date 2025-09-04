@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.service.AuditApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -80,6 +81,94 @@ public class AuditClient {
      */
     public Boolean refreshCache(AuditRequest request) {
         Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.refreshCache());
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    // Audit Alert Rule methods
+
+    /**
+     * Create an audit alert rule
+     *
+     * @param rule The audit alert rule to create
+     * @return The created audit alert rule
+     */
+    public AuditAlertRule createAlertRule(AuditAlertRule rule) {
+        Preconditions.expectNotNull(rule, "audit alert rule cannot be null");
+        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong group id cannot be empty");
+        Preconditions.expectNotBlank(rule.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "audit id cannot be empty");
+        Preconditions.expectNotBlank(rule.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "alert name cannot be empty");
+        Preconditions.expectNotBlank(rule.getCondition(), ErrorCodeEnum.INVALID_PARAMETER,
+                "condition cannot be empty");
+        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.createAlertRule(rule));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Get an audit alert rule by ID
+     *
+     * @param id The rule ID
+     * @return The audit alert rule
+     */
+    public AuditAlertRule getAlertRule(Integer id) {
+        Preconditions.expectNotNull(id, "rule id cannot be null");
+        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.getAlertRule(id));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * List all enabled audit alert rules
+     *
+     * @return List of enabled audit alert rules
+     */
+    public List<AuditAlertRule> listEnabledAlertRules() {
+        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(auditApi.listEnabledAlertRules());
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * List audit alert rules by conditions
+     *
+     * @param inlongGroupId The inlong group ID (optional)
+     * @param inlongStreamId The inlong stream ID (optional)
+     * @return List of audit alert rules
+     */
+    public List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId) {
+        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(
+                auditApi.listAlertRules(inlongGroupId, inlongStreamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Update an audit alert rule
+     *
+     * @param rule The audit alert rule to update
+     * @return The updated audit alert rule
+     */
+    public AuditAlertRule updateAlertRule(AuditAlertRule rule) {
+        Preconditions.expectNotNull(rule, "audit alert rule cannot be null");
+        Preconditions.expectNotNull(rule.getId(), "rule id cannot be null");
+        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.updateAlertRule(rule));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Delete an audit alert rule by ID
+     *
+     * @param id The rule ID
+     * @return true if deletion was successful
+     */
+    public Boolean deleteAlertRule(Integer id) {
+        Preconditions.expectNotNull(id, "rule id cannot be null");
+        Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.deleteAlertRule(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
