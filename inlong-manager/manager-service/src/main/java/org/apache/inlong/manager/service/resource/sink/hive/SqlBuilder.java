@@ -50,7 +50,7 @@ public class SqlBuilder {
     public static String buildCreateTableSql(HiveTableInfo table) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
-        String dbTableName = "`" + table.getDbName() + "." + table.getTableName() + "`";
+        String dbTableName = "`" + table.getDbName() + "`.`" + table.getTableName() + "`";
         sql.append("CREATE TABLE ").append(dbTableName);
 
         // Construct columns and partition columns
