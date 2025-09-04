@@ -38,10 +38,10 @@ import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditProxyResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.alert.AuditAlertRule;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.audit.AuditRunnable;
@@ -350,18 +350,19 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public AuditAlertRule createAlertRule(AuditAlertRule rule, String operator) {
         LOGGER.info("Create audit alert rule, rule={}, operator={}", rule, operator);
-        
+
         // Validate input
-        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be blank");
+        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlongGroupId cannot be blank");
         Preconditions.expectNotBlank(rule.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER, "auditId cannot be blank");
         Preconditions.expectNotBlank(rule.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER, "alertName cannot be blank");
         Preconditions.expectNotBlank(rule.getCondition(), ErrorCodeEnum.INVALID_PARAMETER, "condition cannot be blank");
-        
+
         // Convert to entity
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        
+
         // Set default values if needed
         if (entity.getEnabled() == null) {
             entity.setEnabled(true);
@@ -372,53 +373,54 @@ public class AuditServiceImpl implements AuditService {
         if (StringUtils.isBlank(entity.getNotifyType())) {
             entity.setNotifyType("EMAIL");
         }
-        
+
         // Insert into database
         int result = alertRuleMapper.insert(entity);
         if (result <= 0) {
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
-        
+
         return CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
     }
 
     @Override
     public AuditAlertRule getAlertRule(Integer id) {
         LOGGER.info("Get audit alert rule by id={}", id);
-        
+
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
-        
+
         AuditAlertRuleEntity entity = alertRuleMapper.selectById(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
         }
-        
+
         return CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
     }
 
     @Override
     public AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator) {
         LOGGER.info("Update audit alert rule, rule={}, operator={}", rule, operator);
-        
+
         // Validate input
         Preconditions.expectNotNull(rule.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
-        
+
         // Check if exists
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(rule.getId());
         if (existingEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + rule.getId());
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    "Audit alert rule not found with id: " + rule.getId());
         }
-        
+
         // Convert to entity and set modifier
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setModifier(operator);
-        
+
         // Update in database
         int result = alertRuleMapper.updateById(entity);
         if (result <= 0) {
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to update audit alert rule");
         }
-        
+
         // Return updated entity
         AuditAlertRuleEntity updatedEntity = alertRuleMapper.selectById(rule.getId());
         return CommonBeanUtils.copyProperties(updatedEntity, AuditAlertRule::new);
@@ -427,21 +429,21 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public Boolean deleteAlertRule(Integer id) {
         LOGGER.info("Delete audit alert rule by id={}", id);
-        
+
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
-        
+
         // Check if exists
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(id);
         if (existingEntity == null) {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
         }
-        
+
         // Delete from database
         int result = alertRuleMapper.deleteById(id);
         if (result <= 0) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, "Failed to delete audit alert rule");
         }
-        
+
         return true;
     }
 }
