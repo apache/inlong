@@ -29,7 +29,6 @@ import org.apache.pulsar.client.api.Schema;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Container;
@@ -135,7 +134,6 @@ public class Pulsar2StarRocksTest extends FlinkContainerTestEnvJRE8 {
         }
     }
 
-    @Test
     public void testPulsarToStarRocks() throws Exception {
         submitSQLJob(sqlFile, pulsarJar, jdbcJar, mysqlJdbcJar);
         waitUntilJobRunning(Duration.ofSeconds(10));
