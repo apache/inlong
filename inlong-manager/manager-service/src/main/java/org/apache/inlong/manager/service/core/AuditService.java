@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.enums.IndicatorType;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.alert.AuditAlertRule;
 
 import java.util.List;
 

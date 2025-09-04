@@ -1033,5 +1033,28 @@ CREATE TABLE IF NOT EXISTS `dirty_query_log`
 );
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for audit_alert_rule
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_alert_rule` 
+(
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key ID',
+    `inlong_group_id` varchar(256) NOT NULL COMMENT 'InLong Group ID',
+    `inlong_stream_id` varchar(256) DEFAULT NULL COMMENT 'InLong Stream ID',
+    `audit_id` varchar(256) NOT NULL COMMENT 'Audit item ID, e.g., 3, 4, 5, 6',
+    `alert_name` varchar(256) NOT NULL COMMENT 'Alert Name',
+    `condition` text NOT NULL COMMENT 'Alert condition (JSON format), e.g., {"type": "data_loss", "operator": ">", "value": 5}',
+    `level` varchar(50) NOT NULL COMMENT 'Alert level, e.g., HIGH, MEDIUM, LOW',
+    `notify_type` varchar(50) NOT NULL COMMENT 'Notification type, e.g., EMAIL, SMS',
+    `receivers` text NOT NULL COMMENT 'List of receivers, comma-separated',
+    `enabled` tinyint(1) DEFAULT '1' COMMENT 'Whether to enable, 1-enabled, 0-disabled',
+    `creator` varchar(256) DEFAULT NULL COMMENT 'Creator',
+    `modifier` varchar(256) DEFAULT NULL COMMENT 'Modifier',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
+    PRIMARY KEY (`id`)
+);
+
+CREATE INDEX IF NOT EXISTS `idx_group_stream` ON `audit_alert_rule` (`inlong_group_id`, `inlong_stream_id`);
 
 SET FOREIGN_KEY_CHECKS = 1;

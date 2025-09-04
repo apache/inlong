@@ -29,9 +29,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @SpringBootApplication(exclude = {WebMvcAutoConfiguration.class})
 @ComponentScan(basePackages = {
-    "org.apache.inlong.manager.service",
-    "org.apache.inlong.manager.dao",
-    "org.apache.inlong.manager.common"
+        "org.apache.inlong.manager.service",
+        "org.apache.inlong.manager.dao",
+        "org.apache.inlong.manager.common"
 })
 @EnableTransactionManagement
 public class TestApplication {
