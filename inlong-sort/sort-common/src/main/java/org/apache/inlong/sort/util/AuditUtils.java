@@ -19,6 +19,8 @@ package org.apache.inlong.sort.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.types.RowKind;
 
 import java.util.Arrays;
@@ -56,6 +58,9 @@ public class AuditUtils {
     }
 
     public static Map<RowKind, Integer> extractChangelogAuditKeyMap(String changelogAuditKeys) {
+        if (StringUtils.isBlank(changelogAuditKeys)) {
+            return ImmutableMap.of();
+        }
         return Splitter.on("&").withKeyValueSeparator("=").split(changelogAuditKeys)
                 .entrySet()
                 .stream()
