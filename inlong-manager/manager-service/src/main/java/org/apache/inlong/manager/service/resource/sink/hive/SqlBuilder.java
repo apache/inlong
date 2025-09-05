@@ -50,7 +50,7 @@ public class SqlBuilder {
     public static String buildCreateTableSql(HiveTableInfo table) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
-        String dbTableName = "`" + table.getDbName() + "." + table.getTableName() + "`";
+        String dbTableName = "`" + table.getDbName() + "`.`" + table.getTableName() + "`";
         sql.append("CREATE TABLE ").append(dbTableName);
 
         // Construct columns and partition columns
@@ -68,7 +68,7 @@ public class SqlBuilder {
      */
     public static String buildDescTableSql(String dbName, String tableName) {
         StringBuilder sql = new StringBuilder();
-        String fullTableName = "`" + dbName + "." + tableName + "`";
+        String fullTableName = "`" + dbName + "`.`" + tableName + "`";
         sql.append("DESC ").append(fullTableName);
 
         LOGGER.info("desc table sql={}", sql);
@@ -81,7 +81,7 @@ public class SqlBuilder {
     public static String buildAddColumnSql(String dbName, String tableName, List<HiveColumnInfo> columnList) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
-        String dbTableName = "`" + dbName + "." + tableName + "`";
+        String dbTableName = "`" + dbName + "`.`" + tableName + "`";
         sql.append("ALTER TABLE ").append(dbTableName);
 
         // add columns
