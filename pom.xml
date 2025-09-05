@@ -49,6 +49,7 @@
         <module>inlong-manager</module>
         <module>inlong-dashboard</module>
         <module>inlong-distribution</module>
+        <module>inlong-sort/sort-flink/sort-flink-v1.18/sort-connectors/clickhouse</module>
     </modules>
 
     <properties>
