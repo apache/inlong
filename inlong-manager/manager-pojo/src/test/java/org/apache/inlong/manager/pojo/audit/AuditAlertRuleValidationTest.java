@@ -151,16 +151,40 @@ public class AuditAlertRuleValidationTest {
     void testConditionNotBlank() {
         // Create AuditAlertRule with empty condition
         AuditAlertRule rule = createValidAuditAlertRule();
-        rule.setCondition("");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("");
+        condition.setOperator("");
+        condition.setValue(null); // Changed from "" to null to trigger @NotNull validation
+        rule.setCondition(condition);
 
         // Validate
         Set<ConstraintViolation<AuditAlertRule>> violations = validator.validate(rule);
 
-        // Assert validation error
-        Assertions.assertEquals(1, violations.size());
-        ConstraintViolation<AuditAlertRule> violation = violations.iterator().next();
-        Assertions.assertEquals("Trigger condition cannot be blank", violation.getMessage());
-        Assertions.assertEquals("condition", violation.getPropertyPath().toString());
+        // Assert validation errors for condition fields (3 errors for type, operator, value)
+        Assertions.assertEquals(3, violations.size());
+
+        // Check that we have violations for each field
+        boolean hasTypeViolation = false;
+        boolean hasOperatorViolation = false;
+        boolean hasValueViolation = false;
+
+        for (ConstraintViolation<AuditAlertRule> violation : violations) {
+            String message = violation.getMessage();
+            String propertyPath = violation.getPropertyPath().toString();
+
+            if ("Condition type cannot be blank".equals(message) && "condition.type".equals(propertyPath)) {
+                hasTypeViolation = true;
+            } else if ("Operator cannot be blank".equals(message) && "condition.operator".equals(propertyPath)) {
+                hasOperatorViolation = true;
+            } else if ("Value cannot be null".equals(message) && "condition.value".equals(propertyPath)) {
+                hasValueViolation = true;
+            }
+        }
+
+        Assertions.assertTrue(hasTypeViolation);
+        Assertions.assertTrue(hasOperatorViolation);
+        Assertions.assertTrue(hasValueViolation);
     }
 
     @Test
@@ -175,7 +199,7 @@ public class AuditAlertRuleValidationTest {
         // Assert validation error
         Assertions.assertEquals(1, violations.size());
         ConstraintViolation<AuditAlertRule> violation = violations.iterator().next();
-        Assertions.assertEquals("Trigger condition cannot be blank", violation.getMessage());
+        Assertions.assertEquals("Trigger condition cannot be null", violation.getMessage());
     }
 
     @Test
@@ -280,7 +304,7 @@ public class AuditAlertRuleValidationTest {
         rule.setNotifyType(null); // 可选字段
         rule.setReceivers(null); // 可选字段
         rule.setCreateTime(null); // 可选字段
-        rule.setUpdateTime(null); // 可选字段
+        rule.setModifyTime(null); // 可选字段
 
         // Validate
         Set<ConstraintViolation<AuditAlertRule>> violations = validator.validate(rule);
@@ -300,13 +324,22 @@ public class AuditAlertRuleValidationTest {
         rule.setInlongStreamId("test_stream");
         rule.setAuditId("3");
         rule.setAlertName("Test Alert");
-        rule.setCondition("count > 1000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("count");
+        condition.setOperator(">");
+        condition.setValue(1000);
+        rule.setCondition(condition);
         rule.setLevel("ERROR");
         rule.setNotifyType("EMAIL");
         rule.setReceivers("admin@test.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Test isDeleted field
+        rule.setCreator("test_user");
+        rule.setModifier("test_user");
         rule.setCreateTime(now);
-        rule.setUpdateTime(now);
+        rule.setModifyTime(now);
+        rule.setVersion(1); // Test version field
 
         // Assert all properties are set correctly
         Assertions.assertEquals(1, rule.getId());
@@ -314,13 +347,17 @@ public class AuditAlertRuleValidationTest {
         Assertions.assertEquals("test_stream", rule.getInlongStreamId());
         Assertions.assertEquals("3", rule.getAuditId());
         Assertions.assertEquals("Test Alert", rule.getAlertName());
-        Assertions.assertEquals("count > 1000", rule.getCondition());
+        Assertions.assertEquals(condition, rule.getCondition());
         Assertions.assertEquals("ERROR", rule.getLevel());
         Assertions.assertEquals("EMAIL", rule.getNotifyType());
         Assertions.assertEquals("admin@test.com", rule.getReceivers());
         Assertions.assertTrue(rule.getEnabled());
+        Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
+        Assertions.assertEquals("test_user", rule.getCreator());
+        Assertions.assertEquals("test_user", rule.getModifier());
         Assertions.assertEquals(now, rule.getCreateTime());
-        Assertions.assertEquals(now, rule.getUpdateTime());
+        Assertions.assertEquals(now, rule.getModifyTime());
+        Assertions.assertEquals(1, rule.getVersion().intValue()); // Verify version
     }
 
     @Test
@@ -368,11 +405,20 @@ public class AuditAlertRuleValidationTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert");
-        rule.setCondition("count < 1000 OR delay > 60000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator("<");
+        condition.setValue(1000);
+        rule.setCondition(condition);
         rule.setLevel("ERROR");
         rule.setNotifyType("EMAIL");
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set isDeleted to 0 by default
+        rule.setCreator("test_user");
+        rule.setModifier("test_user");
+        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 }

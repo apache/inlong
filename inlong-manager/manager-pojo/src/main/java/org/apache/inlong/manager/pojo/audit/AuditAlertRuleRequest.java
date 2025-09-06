@@ -21,19 +21,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import java.util.Date;
-
 @Data
-@ApiModel("Audit Alert Rule Configuration")
-public class AuditAlertRule {
-
-    @ApiModelProperty("Rule ID")
-    private Integer id;
+@ApiModel("Audit Alert Rule Request")
+public class AuditAlertRuleRequest {
 
     @ApiModelProperty(value = "Associated InLong Group ID", required = true)
     @NotBlank(message = "InLong Group ID cannot be blank")
@@ -52,7 +46,6 @@ public class AuditAlertRule {
 
     @ApiModelProperty(value = "Trigger condition", required = true)
     @NotNull(message = "Trigger condition cannot be null")
-    @Valid
     private Condition condition;
 
     @ApiModelProperty("Alert level (INFO/WARN/ERROR/CRITICAL)")
@@ -69,22 +62,4 @@ public class AuditAlertRule {
     @ApiModelProperty(value = "Whether enabled", required = true)
     @NotNull(message = "Enabled status cannot be null")
     private Boolean enabled;
-
-    @ApiModelProperty("Whether deleted")
-    private Integer isDeleted; // Use Integer to match database int(11) type
-
-    @ApiModelProperty("Creator name")
-    private String creator;
-
-    @ApiModelProperty("Modifier name")
-    private String modifier;
-
-    @ApiModelProperty("Create time")
-    private Date createTime;
-
-    @ApiModelProperty("Modify time")
-    private Date modifyTime;
-
-    @ApiModelProperty("Version number")
-    private Integer version; // Add version field
 }

@@ -20,6 +20,8 @@ package org.apache.inlong.manager.web.controller;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -92,9 +94,20 @@ public class AuditController {
 
     @PostMapping(value = "/audit/alert/rule")
     @ApiOperation(value = "Create an Audit alarm policy")
-    public Response<AuditAlertRule> createAlertRule(@Valid @RequestBody AuditAlertRule rule) {
+    public Response<Integer> createAlertRule(@Valid @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(auditService.createAlertRule(rule, operator));
+        AuditAlertRule rule = new AuditAlertRule();
+        rule.setInlongGroupId(request.getInlongGroupId());
+        rule.setInlongStreamId(request.getInlongStreamId());
+        rule.setAuditId(request.getAuditId());
+        rule.setAlertName(request.getAlertName());
+        rule.setCondition(request.getCondition());
+        rule.setLevel(request.getLevel());
+        rule.setNotifyType(request.getNotifyType());
+        rule.setReceivers(request.getReceivers());
+        rule.setEnabled(request.getEnabled());
+        AuditAlertRule savedRule = auditService.createAlertRule(rule, operator);
+        return Response.success(savedRule.getId());
     }
 
     @GetMapping(value = "/audit/alert/rule/{id}")
@@ -123,8 +136,15 @@ public class AuditController {
 
     @PutMapping(value = "/audit/alert/rule")
     @ApiOperation(value = "Update the Audit alarm policy")
-    public Response<AuditAlertRule> updateAlertRule(@Valid @RequestBody AuditAlertRule rule) {
+    public Response<AuditAlertRule> updateAlertRule(@Valid @RequestBody AuditAlertRuleUpdateRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
+        AuditAlertRule rule = new AuditAlertRule();
+        rule.setId(request.getId());
+        rule.setLevel(request.getLevel());
+        rule.setNotifyType(request.getNotifyType());
+        rule.setReceivers(request.getReceivers());
+        rule.setEnabled(request.getEnabled());
+        rule.setVersion(request.getVersion());
         return Response.success(auditService.updateAlertRule(rule, operator));
     }
 

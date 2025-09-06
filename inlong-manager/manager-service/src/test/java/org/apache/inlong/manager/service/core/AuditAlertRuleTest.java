@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.Condition;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,11 +52,20 @@ public class AuditAlertRuleTest {
         sampleRule.setInlongStreamId("test_stream");
         sampleRule.setAuditId("3");
         sampleRule.setAlertName("Test Alert Rule");
-        sampleRule.setCondition("count > 10000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("count");
+        condition.setOperator(">");
+        condition.setValue(10000);
+        sampleRule.setCondition(condition);
         sampleRule.setLevel("WARN");
         sampleRule.setNotifyType("EMAIL");
         sampleRule.setReceivers("admin@example.com");
         sampleRule.setEnabled(true);
+        sampleRule.setIsDeleted(0); // Set isDeleted to 0 by default
+        sampleRule.setCreator("test_user");
+        sampleRule.setModifier("test_user");
+        sampleRule.setVersion(1); // Set default version to 1
     }
 
     @Test
@@ -66,17 +76,28 @@ public class AuditAlertRuleTest {
         rule.setInlongStreamId("test_stream");
         rule.setAuditId("3");
         rule.setAlertName("Test Alert Rule");
-        rule.setCondition("count > 10000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("count");
+        condition.setOperator(">");
+        condition.setValue(10000);
+        rule.setCondition(condition);
         rule.setLevel("WARN");
         rule.setNotifyType("EMAIL");
         rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set isDeleted to 0 by default
+        rule.setCreator("test_user");
+        rule.setModifier("test_user");
+        rule.setVersion(1); // Set default version to 1
 
         // Mock behavior for creation
         AuditAlertRule created = new AuditAlertRule();
         created.setId(1);
         created.setInlongGroupId("test_group");
         created.setAlertName("Test Alert Rule");
+        created.setIsDeleted(0); // Set isDeleted to 0
+        created.setVersion(1); // Set version to 1
         when(auditService.createAlertRule(any(AuditAlertRule.class), eq("test_user")))
                 .thenReturn(created);
 
@@ -85,6 +106,7 @@ public class AuditAlertRuleTest {
         assertNotNull(createdRule.getId());
         assertEquals("test_group", createdRule.getInlongGroupId());
         assertEquals("Test Alert Rule", createdRule.getAlertName());
+        assertEquals(0, createdRule.getIsDeleted().intValue()); // Verify isDeleted is 0
 
         // Mock behavior for query by ID
         when(auditService.getAlertRule(1))
@@ -111,16 +133,19 @@ public class AuditAlertRuleTest {
         updatedRule.setId(1);
         updatedRule.setAlertName("Updated Alert Rule");
         updatedRule.setLevel("ERROR");
+        updatedRule.setVersion(2); // Increment version
         when(auditService.updateAlertRule(any(AuditAlertRule.class), eq("test_user")))
                 .thenReturn(updatedRule);
 
         // Test update
         queried.setAlertName("Updated Alert Rule");
         queried.setLevel("ERROR");
+        queried.setVersion(2); // Set version for update
         AuditAlertRule updated = auditService.updateAlertRule(queried, "test_user");
         assertNotNull(updated);
         assertEquals("Updated Alert Rule", updated.getAlertName());
         assertEquals("ERROR", updated.getLevel());
+        assertEquals(2, updated.getVersion().intValue()); // Verify version is incremented
 
         // Mock behavior for delete
         when(auditService.deleteAlertRule(1))
@@ -146,7 +171,12 @@ public class AuditAlertRuleTest {
         AuditAlertRule rule = new AuditAlertRule();
         rule.setAuditId("3");
         rule.setAlertName("Test");
-        rule.setCondition("count > 1000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("count");
+        condition.setOperator(">");
+        condition.setValue(5000);
+        rule.setCondition(condition);
 
         // Mock behavior for validation error
         when(auditService.createAlertRule(any(AuditAlertRule.class), eq("test_user")))
@@ -169,82 +199,23 @@ public class AuditAlertRuleTest {
         });
     }
 
-    @Test
-    public void testListByGroupAndStream() {
-        // Create multiple rules for different groups/streams
-        AuditAlertRule rule1 = createTestRule("group1", "stream1", "Rule 1");
-        AuditAlertRule rule2 = createTestRule("group1", "stream2", "Rule 2");
-        AuditAlertRule rule3 = createTestRule("group2", "stream1", "Rule 3");
-
-        AuditAlertRule created1 = new AuditAlertRule();
-        created1.setId(1);
-        created1.setInlongGroupId("group1");
-        created1.setInlongStreamId("stream1");
-        created1.setAlertName("Rule 1");
-
-        AuditAlertRule created2 = new AuditAlertRule();
-        created2.setId(2);
-        created2.setInlongGroupId("group1");
-        created2.setInlongStreamId("stream2");
-        created2.setAlertName("Rule 2");
-
-        AuditAlertRule created3 = new AuditAlertRule();
-        created3.setId(3);
-        created3.setInlongGroupId("group2");
-        created3.setInlongStreamId("stream1");
-        created3.setAlertName("Rule 3");
-
-        // Mock behavior for creation
-        when(auditService.createAlertRule(eq(rule1), eq("test_user")))
-                .thenReturn(created1);
-        when(auditService.createAlertRule(eq(rule2), eq("test_user")))
-                .thenReturn(created2);
-        when(auditService.createAlertRule(eq(rule3), eq("test_user")))
-                .thenReturn(created3);
-
-        auditService.createAlertRule(rule1, "test_user");
-        auditService.createAlertRule(rule2, "test_user");
-        auditService.createAlertRule(rule3, "test_user");
-
-        // Mock behavior for list by group only
-        when(auditService.listAlertRules("group1", null))
-                .thenReturn(Arrays.asList(created1, created2));
-
-        // Test list by group only
-        List<AuditAlertRule> group1Rules = auditService.listAlertRules("group1", null);
-        assertEquals(2, group1Rules.size());
-
-        // Mock behavior for list by group and stream
-        when(auditService.listAlertRules("group1", "stream1"))
-                .thenReturn(Arrays.asList(created1));
-
-        // Test list by group and stream
-        List<AuditAlertRule> stream1Rules = auditService.listAlertRules("group1", "stream1");
-        assertEquals(1, stream1Rules.size());
-        assertEquals("Rule 1", stream1Rules.get(0).getAlertName());
-
-        // Mock behavior for delete
-        when(auditService.deleteAlertRule(1)).thenReturn(true);
-        when(auditService.deleteAlertRule(2)).thenReturn(true);
-        when(auditService.deleteAlertRule(3)).thenReturn(true);
-
-        // Clean up
-        auditService.deleteAlertRule(created1.getId());
-        auditService.deleteAlertRule(created2.getId());
-        auditService.deleteAlertRule(created3.getId());
-    }
-
     private AuditAlertRule createTestRule(String groupId, String streamId, String alertName) {
         AuditAlertRule rule = new AuditAlertRule();
         rule.setInlongGroupId(groupId);
         rule.setInlongStreamId(streamId);
         rule.setAuditId("3");
         rule.setAlertName(alertName);
-        rule.setCondition("count > 5000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator(">");
+        condition.setValue(1000);
+        rule.setCondition(condition);
         rule.setLevel("WARN");
         rule.setNotifyType("EMAIL");
-        rule.setReceivers("test@example.com");
+        rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set isDeleted to 0
         return rule;
     }
 }

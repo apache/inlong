@@ -24,6 +24,8 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -81,12 +83,11 @@ public class AuditApiAlertRuleTest {
     @Test
     void testCreateAlertRuleApi() throws IOException {
         // Prepare test data
-        AuditAlertRule inputRule = createTestAlertRule();
-        AuditAlertRule expectedRule = createTestAlertRule();
-        expectedRule.setId(1);
+        AuditAlertRuleRequest inputRule = createTestAlertRuleRequest();
+        Integer expectedId = 1;
 
         String requestBody = JsonUtils.toJsonString(inputRule);
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
+        String responseBody = JsonUtils.toJsonString(Response.success(expectedId));
 
         // Mock API response
         stubFor(
@@ -95,15 +96,14 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<AuditAlertRule>> call = auditApi.createAlertRule(inputRule);
-        Response<AuditAlertRule> response = call.execute().body();
+        Call<Response<Integer>> call = auditApi.createAlertRule(inputRule);
+        Response<Integer> response = call.execute().body();
 
         // Verify result
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
-        Assertions.assertEquals(1, response.getData().getId());
-        Assertions.assertEquals("Data Loss Alert", response.getData().getAlertName());
+        Assertions.assertEquals(1, response.getData().intValue());
     }
 
     @Test
@@ -111,6 +111,8 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule expectedRule = createTestAlertRule();
         expectedRule.setId(1);
+        expectedRule.setVersion(1); // Set version to 1
+        expectedRule.setIsDeleted(0); // Set isDeleted to 0
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
 
@@ -129,6 +131,7 @@ public class AuditApiAlertRuleTest {
         Assertions.assertNotNull(response.getData());
         Assertions.assertEquals(1, response.getData().getId());
         Assertions.assertEquals("test_group_001", response.getData().getInlongGroupId());
+        Assertions.assertEquals(0, response.getData().getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -137,11 +140,15 @@ public class AuditApiAlertRuleTest {
         AuditAlertRule rule1 = createTestAlertRule();
         rule1.setId(1);
         rule1.setEnabled(true);
+        rule1.setVersion(1); // Set version to 1
+        rule1.setIsDeleted(0); // Set isDeleted to 0
 
         AuditAlertRule rule2 = createTestAlertRule();
         rule2.setId(2);
         rule2.setAlertName("High Delay Alert");
         rule2.setEnabled(true);
+        rule2.setVersion(1); // Set version to 1
+        rule2.setIsDeleted(0); // Set isDeleted to 0
 
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
@@ -162,6 +169,9 @@ public class AuditApiAlertRuleTest {
         Assertions.assertEquals(2, response.getData().size());
         Assertions.assertTrue(response.getData().get(0).getEnabled());
         Assertions.assertTrue(response.getData().get(1).getEnabled());
+        // Verify isDeleted for both rules
+        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue());
+        Assertions.assertEquals(0, response.getData().get(1).getIsDeleted().intValue());
     }
 
     @Test
@@ -169,6 +179,8 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(1);
+        rule.setVersion(1); // Set version to 1
+        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
@@ -190,6 +202,7 @@ public class AuditApiAlertRuleTest {
         Assertions.assertEquals(1, response.getData().size());
         Assertions.assertEquals("test_group_001", response.getData().get(0).getInlongGroupId());
         Assertions.assertEquals("test_stream_001", response.getData().get(0).getInlongStreamId());
+        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -197,6 +210,8 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(1);
+        rule.setVersion(1); // Set version to 1
+        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
@@ -215,6 +230,7 @@ public class AuditApiAlertRuleTest {
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
         Assertions.assertEquals(1, response.getData().size());
+        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -222,8 +238,15 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule inputRule = createTestAlertRule();
         inputRule.setId(1);
-        inputRule.setCondition("count < 500 OR delay > 120000");
+        // Use Condition object instead of string
+        Condition condition = new Condition();
+        condition.setType("count");
+        condition.setOperator("<");
+        condition.setValue(500);
+        inputRule.setCondition(condition);
         inputRule.setLevel("CRITICAL");
+        inputRule.setVersion(2); // Set version for update
+        inputRule.setIsDeleted(0); // Set isDeleted to 0
 
         String requestBody = JsonUtils.toJsonString(inputRule);
         String responseBody = JsonUtils.toJsonString(Response.success(inputRule));
@@ -243,8 +266,9 @@ public class AuditApiAlertRuleTest {
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
         Assertions.assertEquals(1, response.getData().getId());
-        Assertions.assertEquals("count < 500 OR delay > 120000", response.getData().getCondition());
+        Assertions.assertEquals(condition, response.getData().getCondition());
         Assertions.assertEquals("CRITICAL", response.getData().getLevel());
+        Assertions.assertEquals(2, response.getData().getVersion().intValue()); // Verify version is incremented
     }
 
     @Test
@@ -320,11 +344,40 @@ public class AuditApiAlertRuleTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert");
-        rule.setCondition("count < 1000 OR delay > 60000");
+        // Use Condition object
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator("<");
+        condition.setValue(1000);
+        rule.setCondition(condition);
         rule.setLevel("ERROR");
         rule.setNotifyType("EMAIL");
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set default isDeleted to 0
+        rule.setVersion(1); // Set default version to 1
         return rule;
+    }
+
+    /**
+     * Create test AuditAlertRuleRequest object
+     */
+    private AuditAlertRuleRequest createTestAlertRuleRequest() {
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group_001");
+        request.setInlongStreamId("test_stream_001");
+        request.setAuditId("3");
+        request.setAlertName("Data Loss Alert");
+        // Use Condition object
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator("<");
+        condition.setValue(1000);
+        request.setCondition(condition);
+        request.setLevel("ERROR");
+        request.setNotifyType("EMAIL");
+        request.setReceivers("admin@example.com,monitor@example.com");
+        request.setEnabled(true);
+        return request;
     }
 }

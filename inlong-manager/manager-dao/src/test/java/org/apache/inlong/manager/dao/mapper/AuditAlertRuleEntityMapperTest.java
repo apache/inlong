@@ -19,7 +19,10 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
+import org.apache.inlong.manager.pojo.audit.Condition;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +38,34 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
     @Autowired
     private AuditAlertRuleEntityMapper auditAlertRuleMapper;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private AuditAlertRuleEntity createTestEntity() {
         AuditAlertRuleEntity entity = new AuditAlertRuleEntity();
         entity.setInlongGroupId("test_group_mapper");
         entity.setInlongStreamId("test_stream_mapper");
         entity.setAuditId("3");
         entity.setAlertName("Mapper Test Alert");
-        entity.setCondition("{\"type\": \"data_loss\", \"operator\": \">\", \"value\": 10}");
+        // Convert Condition object to JSON string for entity
+        try {
+            Condition condition = new Condition();
+            condition.setType("data_loss");
+            condition.setOperator(">");
+            condition.setValue(10);
+            entity.setCondition(objectMapper.writeValueAsString(condition));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize condition", e);
+        }
         entity.setLevel("WARN");
         entity.setNotifyType("EMAIL");
         entity.setReceivers("mapper@test.com");
         entity.setEnabled(true);
+        entity.setIsDeleted(0); // Set isDeleted to 0 by default
         entity.setCreator(ADMIN);
         entity.setModifier(ADMIN);
         entity.setCreateTime(new Date());
-        entity.setUpdateTime(new Date());
+        entity.setModifyTime(new Date());
+        entity.setVersion(1); // Set default version to 1
         return entity;
     }
 
@@ -63,6 +79,8 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         Assertions.assertEquals(1, result);
         Assertions.assertNotNull(entity.getId());
         Assertions.assertTrue(entity.getId() > 0);
+        // Verify isDeleted is properly set
+        Assertions.assertEquals(0, entity.getIsDeleted().intValue());
     }
 
     @Test
@@ -188,25 +206,35 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         AuditAlertRuleEntity entity = createTestEntity();
         auditAlertRuleMapper.insert(entity);
 
-        // Update entity
-        entity.setAlertName("Updated Alert Name");
-        entity.setLevel("ERROR");
-        entity.setEnabled(false);
-        entity.setReceivers("updated@test.com");
-        entity.setModifier("updated_user");
+        // Retrieve the entity to get the current version
+        AuditAlertRuleEntity retrieved = auditAlertRuleMapper.selectById(entity.getId());
 
-        int result = auditAlertRuleMapper.updateById(entity);
+        // Store the original version
+        Integer originalVersion = retrieved.getVersion();
+
+        // Update entity
+        retrieved.setAlertName("Updated Alert Name");
+        retrieved.setLevel("ERROR");
+        retrieved.setEnabled(false);
+        retrieved.setReceivers("updated@test.com");
+        retrieved.setModifier("updated_user");
+        // Increment version for optimistic locking
+        retrieved.setVersion(originalVersion + 1);
+
+        int result = auditAlertRuleMapper.updateById(retrieved);
 
         Assertions.assertEquals(1, result);
 
         // Verify update
-        AuditAlertRuleEntity updated = auditAlertRuleMapper.selectById(entity.getId());
+        AuditAlertRuleEntity updated = auditAlertRuleMapper.selectById(retrieved.getId());
         Assertions.assertNotNull(updated);
         Assertions.assertEquals("Updated Alert Name", updated.getAlertName());
         Assertions.assertEquals("ERROR", updated.getLevel());
         Assertions.assertFalse(updated.getEnabled());
         Assertions.assertEquals("updated@test.com", updated.getReceivers());
         Assertions.assertEquals("updated_user", updated.getModifier());
+        // Verify version is incremented
+        Assertions.assertEquals(originalVersion + 1, updated.getVersion().intValue());
     }
 
     @Test
@@ -227,16 +255,22 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity);
         Integer entityId = entity.getId();
 
-        // Verify entity exists
-        Assertions.assertNotNull(auditAlertRuleMapper.selectById(entityId));
+        // Verify entity exists and is not marked as deleted
+        AuditAlertRuleEntity retrieved = auditAlertRuleMapper.selectById(entityId);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
 
-        // Delete entity
+        // Delete entity (soft delete)
         int result = auditAlertRuleMapper.deleteById(entityId);
 
         Assertions.assertEquals(1, result);
 
-        // Verify entity is deleted
-        Assertions.assertNull(auditAlertRuleMapper.selectById(entityId));
+        // Verify entity is marked as deleted and not returned by selectById
+        AuditAlertRuleEntity deleted = auditAlertRuleMapper.selectById(entityId);
+        Assertions.assertNull(deleted);
+
+        // But it still exists in database with is_deleted = 1
+        // We would need a special method to retrieve deleted entities for full verification
     }
 
     @Test
@@ -245,6 +279,33 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         int result = auditAlertRuleMapper.deleteById(99999);
 
         Assertions.assertEquals(0, result);
+    }
+
+    @Test
+    public void testSoftDeleteBehavior() {
+        // Insert test data
+        AuditAlertRuleEntity entity = createTestEntity();
+        auditAlertRuleMapper.insert(entity);
+        Integer entityId = entity.getId();
+
+        // Verify entity exists and is not marked as deleted
+        AuditAlertRuleEntity retrieved = auditAlertRuleMapper.selectById(entityId);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
+
+        // Delete entity (soft delete)
+        int result = auditAlertRuleMapper.deleteById(entityId);
+        Assertions.assertEquals(1, result);
+
+        // Verify entity is marked as deleted and not returned by selectById
+        AuditAlertRuleEntity deleted = auditAlertRuleMapper.selectById(entityId);
+        Assertions.assertNull(deleted);
+
+        // Test that deleted entities are not returned by selectByGroupAndStream
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByGroupAndStream("test_group_mapper", null);
+        Assertions.assertNotNull(results);
+        boolean foundDeleted = results.stream().anyMatch(e -> e.getId().equals(entityId));
+        Assertions.assertFalse(foundDeleted, "Deleted entity should not appear in selectByGroupAndStream results");
     }
 
     @Test

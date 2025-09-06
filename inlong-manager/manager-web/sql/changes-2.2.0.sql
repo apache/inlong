@@ -33,8 +33,12 @@ CREATE TABLE `audit_alert_rule` (
   `notify_type` varchar(50) NOT NULL COMMENT 'Notification type, e.g., EMAIL, SMS',
   `receivers` text NOT NULL COMMENT 'List of receivers, comma-separated',
   `enabled` tinyint(1) DEFAULT '1' COMMENT 'Whether to enable, 1-enabled, 0-disabled',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `is_deleted` int(11) DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+  `creator` varchar(64) DEFAULT NULL COMMENT 'Creator name',
+  `modifier` varchar(64) DEFAULT NULL COMMENT 'Modifier name',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+  `modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+  `version` int(11) NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
   PRIMARY KEY (`id`),
   KEY `idx_group_stream` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Audit Alert Rule Table';

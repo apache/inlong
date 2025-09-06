@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -46,7 +47,7 @@ public interface AuditApi {
 
     // Audit Alert Rule APIs
     @POST("audit/alert/rule")
-    Call<Response<AuditAlertRule>> createAlertRule(@Body AuditAlertRule rule);
+    Call<Response<Integer>> createAlertRule(@Body AuditAlertRuleRequest request);
 
     @GET("audit/alert/rule/{id}")
     Call<Response<AuditAlertRule>> getAlertRule(@Path("id") Integer id);

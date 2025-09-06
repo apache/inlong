@@ -20,6 +20,9 @@ package org.apache.inlong.manager.web.controller;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
+import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.web.WebBaseTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,11 +51,20 @@ class AuditControllerTest extends WebBaseTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert Test");
-        rule.setCondition("{\"type\": \"data_loss\", \"operator\": \">\", \"value\": 5}");
+        // Use Condition object instead of JSON string
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator(">");
+        condition.setValue(5);
+        rule.setCondition(condition);
         rule.setLevel("WARN");
         rule.setNotifyType("EMAIL");
         rule.setReceivers("admin@example.com,operator@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set isDeleted to 0 by default
+        rule.setCreator("test_user");
+        rule.setModifier("test_user");
+        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 
@@ -62,15 +74,18 @@ class AuditControllerTest extends WebBaseTest {
         entity.setInlongStreamId("test_stream_002");
         entity.setAuditId("4");
         entity.setAlertName("High Delay Alert Test");
-        entity.setCondition("{\"type\": \"delay\", \"operator\": \">\", \"value\": 1000}");
+        entity.setCondition("{\"type\": \"delay\", \"operator\": \">\", \"value\": 1000}"); // Keep as JSON string for
+                                                                                            // entity
         entity.setLevel("ERROR");
         entity.setNotifyType("SMS");
         entity.setReceivers("admin@example.com");
         entity.setEnabled(true);
+        entity.setIsDeleted(0); // Set isDeleted to 0
         entity.setCreator("test_user");
         entity.setModifier("test_user");
         entity.setCreateTime(new Date());
-        entity.setUpdateTime(new Date());
+        entity.setModifyTime(new Date());
+        entity.setVersion(1); // Set default version to 1
 
         auditAlertRuleMapper.insert(entity);
         return entity;
@@ -78,26 +93,35 @@ class AuditControllerTest extends WebBaseTest {
 
     @Test
     void testCreateAlertRule() throws Exception {
-        // Create test alert rule
-        AuditAlertRule rule = createTestAlertRule();
+        // Create test alert rule request
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group_001");
+        request.setInlongStreamId("test_stream_001");
+        request.setAuditId("3");
+        request.setAlertName("Data Loss Alert Test");
+        // Use Condition object
+        Condition condition = new Condition();
+        condition.setType("data_loss");
+        condition.setOperator(">");
+        condition.setValue(5);
+        request.setCondition(condition);
+        request.setLevel("WARN");
+        request.setNotifyType("EMAIL");
+        request.setReceivers("admin@example.com,operator@example.com");
+        request.setEnabled(true);
 
         // Execute create request
-        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule", rule);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule", request);
 
         // Verify response
-        AuditAlertRule createdRule = getResBodyObj(mvcResult, AuditAlertRule.class);
-        Assertions.assertNotNull(createdRule);
-        Assertions.assertNotNull(createdRule.getId());
-        Assertions.assertEquals("test_group_001", createdRule.getInlongGroupId());
-        Assertions.assertEquals("test_stream_001", createdRule.getInlongStreamId());
-        Assertions.assertEquals("Data Loss Alert Test", createdRule.getAlertName());
-        Assertions.assertEquals("WARN", createdRule.getLevel());
-        Assertions.assertTrue(createdRule.getEnabled());
+        Integer createdRuleId = getResBodyObj(mvcResult, Integer.class);
+        Assertions.assertNotNull(createdRuleId);
 
         // Verify database entry
-        AuditAlertRuleEntity entity = auditAlertRuleMapper.selectById(createdRule.getId());
+        AuditAlertRuleEntity entity = auditAlertRuleMapper.selectById(createdRuleId);
         Assertions.assertNotNull(entity);
         Assertions.assertEquals("test_group_001", entity.getInlongGroupId());
+        Assertions.assertEquals(0, entity.getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -115,6 +139,7 @@ class AuditControllerTest extends WebBaseTest {
         Assertions.assertEquals("test_group_002", rule.getInlongGroupId());
         Assertions.assertEquals("High Delay Alert Test", rule.getAlertName());
         Assertions.assertEquals("ERROR", rule.getLevel());
+        Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -132,10 +157,12 @@ class AuditControllerTest extends WebBaseTest {
         entity2.setNotifyType("EMAIL");
         entity2.setReceivers("test@example.com");
         entity2.setEnabled(false); // Disabled
+        entity2.setIsDeleted(0); // Set isDeleted to 0
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setCreateTime(new Date());
-        entity2.setUpdateTime(new Date());
+        entity2.setModifyTime(new Date());
+        entity2.setVersion(1); // Set default version to 1
         auditAlertRuleMapper.insert(entity2);
 
         // Execute list enabled rules request
@@ -169,6 +196,7 @@ class AuditControllerTest extends WebBaseTest {
         if (!rules.isEmpty()) {
             for (AuditAlertRule rule : rules) {
                 Assertions.assertTrue(rule.getEnabled());
+                Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
             }
         }
     }
@@ -217,6 +245,7 @@ class AuditControllerTest extends WebBaseTest {
             for (AuditAlertRule rule : rules) {
                 Assertions.assertEquals("test_group_002", rule.getInlongGroupId());
                 Assertions.assertEquals("test_stream_002", rule.getInlongStreamId());
+                Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
             }
         }
     }
@@ -257,6 +286,13 @@ class AuditControllerTest extends WebBaseTest {
                 .anyMatch(rule -> rule.getId().equals(entity.getId()));
         Assertions.assertTrue(rules.isEmpty() || foundRule,
                 "If rules list is not empty, it should contain our inserted rule");
+
+        // Verify isDeleted field
+        if (!rules.isEmpty()) {
+            for (AuditAlertRule rule : rules) {
+                Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
+            }
+        }
     }
 
     @Test
@@ -264,22 +300,33 @@ class AuditControllerTest extends WebBaseTest {
         // Insert test data
         AuditAlertRuleEntity entity = insertTestEntity();
 
+        // Print entity info for debugging
+        System.out.println("Inserted entity ID: " + entity.getId() + ", Version: " + entity.getVersion());
+
+        // After inserting, we need to query the entity again to get the actual version from database
+        // The version might be set by database triggers or other mechanisms
+        AuditAlertRuleEntity freshEntity = auditAlertRuleMapper.selectById(entity.getId());
+
+        // Print fresh entity info for debugging
+        System.out.println("Fresh entity ID: " + freshEntity.getId() + ", Version: " + freshEntity.getVersion());
+        System.out.println("Fresh entity condition: " + freshEntity.getCondition());
+
         // Create update request
-        AuditAlertRule updateRule = new AuditAlertRule();
-        updateRule.setId(entity.getId());
-        updateRule.setInlongGroupId("test_group_002");
-        updateRule.setInlongStreamId("test_stream_002");
-        updateRule.setAuditId("4");
-        updateRule.setAlertName("Updated Alert Name");
-        updateRule.setCondition("{\"type\": \"delay\", \"operator\": \">\", \"value\": 2000}");
-        updateRule.setLevel("CRITICAL");
-        updateRule.setNotifyType("EMAIL");
-        updateRule.setReceivers("updated@example.com");
-        updateRule.setEnabled(false);
+        AuditAlertRuleUpdateRequest updateRequest = new AuditAlertRuleUpdateRequest();
+        updateRequest.setId(freshEntity.getId());
+        updateRequest.setLevel("CRITICAL");
+        updateRequest.setNotifyType("EMAIL");
+        updateRequest.setReceivers("updated@example.com");
+        updateRequest.setEnabled(false);
+        // 传递数据库中的当前版本号，服务端会自动将其增加1
+        updateRequest.setVersion(freshEntity.getVersion());
+
+        // Print update request info for debugging
+        System.out.println("Update request ID: " + updateRequest.getId() + ", Version: " + updateRequest.getVersion());
 
         MvcResult mvcResult = mockMvc.perform(
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/audit/alert/rule")
-                        .content(org.apache.inlong.manager.common.util.JsonUtils.toJsonString(updateRule))
+                        .content(org.apache.inlong.manager.common.util.JsonUtils.toJsonString(updateRequest))
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
@@ -294,25 +341,32 @@ class AuditControllerTest extends WebBaseTest {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseContent);
         boolean isSuccess = jsonNode.get("success").asBoolean();
+        System.out.println("isSuccess: " + isSuccess);
 
         if (isSuccess) {
             // If successful, get the data
             AuditAlertRule updatedRule = getResBodyObj(mvcResult, AuditAlertRule.class);
             Assertions.assertNotNull(updatedRule);
-            Assertions.assertEquals("Updated Alert Name", updatedRule.getAlertName());
             Assertions.assertEquals("CRITICAL", updatedRule.getLevel());
             Assertions.assertFalse(updatedRule.getEnabled());
             Assertions.assertEquals("updated@example.com", updatedRule.getReceivers());
+            // After a successful update, the version should be incremented by 1
+            Assertions.assertEquals(freshEntity.getVersion() + 1, updatedRule.getVersion().intValue());
 
             // Verify database update
-            AuditAlertRuleEntity updatedEntity = auditAlertRuleMapper.selectById(entity.getId());
+            AuditAlertRuleEntity updatedEntity = auditAlertRuleMapper.selectById(freshEntity.getId());
             Assertions.assertNotNull(updatedEntity);
-            Assertions.assertEquals("Updated Alert Name", updatedEntity.getAlertName());
             Assertions.assertEquals("CRITICAL", updatedEntity.getLevel());
             Assertions.assertFalse(updatedEntity.getEnabled());
+            Assertions.assertEquals("updated@example.com", updatedEntity.getReceivers());
+            // After a successful update, the version should be incremented by 1
+            Assertions.assertEquals(freshEntity.getVersion() + 1, updatedEntity.getVersion().intValue());
+            Assertions.assertEquals(0, updatedEntity.getIsDeleted().intValue()); // Verify isDeleted
+            System.out.println("Update successful!");
         } else {
             // If not successful, get the error message
             String errMsg = jsonNode.has("errMsg") ? jsonNode.get("errMsg").asText() : "Unknown error";
+            System.out.println("Update failed with error: " + errMsg);
             Assertions.fail("Update failed with error: " + errMsg);
         }
     }
@@ -323,6 +377,11 @@ class AuditControllerTest extends WebBaseTest {
         AuditAlertRuleEntity entity = insertTestEntity();
         Integer ruleId = entity.getId();
 
+        // Verify entity exists and is not marked as deleted
+        AuditAlertRuleEntity retrieved = auditAlertRuleMapper.selectById(ruleId);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
+
         // Execute delete request
         MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/alert/rule/{id}", ruleId);
 
@@ -330,9 +389,12 @@ class AuditControllerTest extends WebBaseTest {
         Boolean deleted = getResBodyObj(mvcResult, Boolean.class);
         Assertions.assertTrue(deleted);
 
-        // Verify database deletion
+        // Verify soft deletion - entity should not be returned by selectById
         AuditAlertRuleEntity deletedEntity = auditAlertRuleMapper.selectById(ruleId);
         Assertions.assertNull(deletedEntity);
+
+        // But it still exists in database with is_deleted = 1
+        // We would need a special method to retrieve deleted entities for full verification
     }
 
     @Test
@@ -397,5 +459,47 @@ class AuditControllerTest extends WebBaseTest {
         org.apache.inlong.manager.pojo.common.Response<Boolean> response = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(response.isSuccess());
         Assertions.assertNotNull(response.getErrMsg());
+    }
+
+    @Test
+    void testSoftDeleteBehavior() throws Exception {
+        // Insert test data
+        AuditAlertRuleEntity entity = insertTestEntity();
+        Integer ruleId = entity.getId();
+
+        // Verify entity exists and is not marked as deleted
+        AuditAlertRuleEntity retrieved = auditAlertRuleMapper.selectById(ruleId);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
+
+        // Execute delete request (soft delete)
+        MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/alert/rule/{id}", ruleId);
+
+        // Verify response
+        Boolean deleted = getResBodyObj(mvcResult, Boolean.class);
+        Assertions.assertTrue(deleted);
+
+        // Verify soft deletion - entity should not be returned by selectById
+        AuditAlertRuleEntity deletedEntity = auditAlertRuleMapper.selectById(ruleId);
+        Assertions.assertNull(deletedEntity);
+
+        // Test that deleted entities are not returned by list endpoints
+        MvcResult listResult = mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/audit/alert/rule/list?inlongGroupId=test_group_002")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        // Parse list response
+        List<AuditAlertRule> rules = getResBodyList(listResult, AuditAlertRule.class);
+        if (rules == null) {
+            rules = new ArrayList<>();
+        }
+
+        // Verify deleted entity is not in the list
+        boolean foundDeleted = rules.stream().anyMatch(rule -> rule.getId().equals(ruleId));
+        Assertions.assertFalse(foundDeleted, "Deleted entity should not appear in list results");
     }
 }

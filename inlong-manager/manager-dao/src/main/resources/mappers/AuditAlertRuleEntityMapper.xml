@@ -36,24 +36,27 @@
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
-        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, audit_id, alert_name, `condition`, `level`, 
-        notify_type, receivers, enabled, creator, modifier, create_time, update_time
+        notify_type, receivers, enabled, creator, modifier, create_time, modify_time, version, is_deleted
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
         insert into audit_alert_rule (inlong_group_id, inlong_stream_id, audit_id, alert_name,
                                       `condition`, `level`, notify_type, receivers,
-                                      enabled, creator, modifier)
+                                      enabled, creator, modifier, version, is_deleted)
         values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{auditId,jdbcType=VARCHAR}, #{alertName,jdbcType=VARCHAR},
                 #{condition,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR},
                 #{notifyType,jdbcType=VARCHAR}, #{receivers,jdbcType=VARCHAR},
-                #{enabled,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{enabled,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{version,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER})
     </insert>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
@@ -89,8 +92,15 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
+            <if test="version != null">
+                version = #{version,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            modify_time = NOW(),
         </set>
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER} and version = #{versionForUpdate,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
@@ -102,7 +112,7 @@
         select
         <include refid="Base_Column_List"/>
         from audit_alert_rule
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER} and is_deleted = 0
     </select>
 
     <select id="selectByGroupAndStream" resultMap="BaseResultMap">
@@ -110,6 +120,7 @@
         <include refid="Base_Column_List"/>
         from audit_alert_rule
         <where>
+            is_deleted = 0
             <if test="inlongGroupId != null and inlongGroupId != ''">
                 and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
             </if>
@@ -124,7 +135,7 @@
         select
         <include refid="Base_Column_List"/>
         from audit_alert_rule
-        where enabled = 1
+        where enabled = 1 and is_deleted = 0
         order by create_time desc
     </select>
 </mapper>
