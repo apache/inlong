@@ -27,22 +27,29 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditProxyResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.audit.AuditRunnable;
 import org.apache.inlong.manager.service.core.AuditService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -77,6 +84,7 @@ import java.util.stream.Collectors;
 public class AuditServiceImpl implements AuditService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditServiceImpl.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
     private final Map<String, Map<Integer, AuditInformation>> auditIndicatorMap = new ConcurrentHashMap<>();
@@ -97,6 +105,8 @@ public class AuditServiceImpl implements AuditService {
     private StreamSourceEntityMapper sourceEntityMapper;
     @Autowired
     private InlongGroupEntityMapper inlongGroupMapper;
+    @Autowired
+    private AuditAlertRuleEntityMapper alertRuleMapper;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -331,5 +341,210 @@ public class AuditServiceImpl implements AuditService {
         Preconditions.expectNotNull(cdcAuditInfo, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
         return cdcAuditInfo;
+    }
+
+    @Override
+    public List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId) {
+        List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByGroupAndStream(inlongGroupId, inlongStreamId);
+        return entities.stream()
+                .map(entity -> {
+                    AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
+                    // Convert condition JSON string to Condition object
+                    if (StringUtils.isNotBlank(entity.getCondition())) {
+                        try {
+                            Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                            rule.setCondition(condition);
+                        } catch (JsonProcessingException e) {
+                            LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
+                            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+                        }
+                    }
+                    return rule;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AuditAlertRule createAlertRule(AuditAlertRule rule, String operator) {
+        LOGGER.info("Create audit alert rule, rule={}, operator={}", rule, operator);
+
+        // Validate input
+        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlongGroupId cannot be blank");
+        Preconditions.expectNotBlank(rule.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER, "auditId cannot be blank");
+        Preconditions.expectNotBlank(rule.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER, "alertName cannot be blank");
+        Preconditions.expectNotNull(rule.getCondition(), ErrorCodeEnum.INVALID_PARAMETER, "condition cannot be null");
+
+        // Convert to entity
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        // Set isDeleted to 0 by default
+        if (entity.getIsDeleted() == null) {
+            entity.setIsDeleted(0);
+        }
+
+        // Convert Condition object to JSON string for database storage
+        if (rule.getCondition() != null) {
+            try {
+                String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
+                entity.setCondition(conditionJson);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to serialize condition to JSON: {}", rule.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+
+        // Set default values if needed
+        if (entity.getEnabled() == null) {
+            entity.setEnabled(true);
+        }
+        if (StringUtils.isBlank(entity.getLevel())) {
+            entity.setLevel("WARN");
+        }
+        if (StringUtils.isBlank(entity.getNotifyType())) {
+            entity.setNotifyType("EMAIL");
+        }
+
+        // Set default version to 1
+        if (entity.getVersion() == null) {
+            entity.setVersion(1);
+        }
+
+        // Insert into database
+        int result = alertRuleMapper.insert(entity);
+        if (result <= 0) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
+        }
+
+        // Convert back to POJO with Condition object
+        AuditAlertRule resultRule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
+        if (StringUtils.isNotBlank(entity.getCondition())) {
+            try {
+                Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                resultRule.setCondition(condition);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+        return resultRule;
+    }
+
+    @Override
+    public AuditAlertRule getAlertRule(Integer id) {
+        LOGGER.info("Get audit alert rule by id={}", id);
+
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+
+        AuditAlertRuleEntity entity = alertRuleMapper.selectById(id);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
+        }
+
+        AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
+        // Convert condition JSON string to Condition object
+        if (StringUtils.isNotBlank(entity.getCondition())) {
+            try {
+                Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                rule.setCondition(condition);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+        return rule;
+    }
+
+    @Override
+    public AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator) {
+        LOGGER.info("Update audit alert rule, rule={}, operator={}", rule, operator);
+
+        // Validate input
+        Preconditions.expectNotNull(rule.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+
+        // Check if exists
+        AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(rule.getId());
+        if (existingEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    "Audit alert rule not found with id: " + rule.getId());
+        }
+
+        LOGGER.info("Existing entity version: {}, Incoming rule version: {}", existingEntity.getVersion(),
+                rule.getVersion());
+
+        // Version check for optimistic locking
+        // The version passed in should be the current version in database
+        // DAO layer will check version = #{version} - 1
+        if (rule.getVersion() == null || !rule.getVersion().equals(existingEntity.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    "Audit alert rule config has been modified, please refresh and try again. Existing version: "
+                            + existingEntity.getVersion() + ", Incoming version: " + rule.getVersion());
+        }
+
+        // Convert to entity and set modifier
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
+        entity.setModifier(operator);
+        // Increment version
+        entity.setVersion(existingEntity.getVersion() + 1);
+
+        LOGGER.info("Updating entity with version: {}", entity.getVersion());
+
+        // Convert Condition object to JSON string for database storage
+        if (rule.getCondition() != null) {
+            try {
+                String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
+                entity.setCondition(conditionJson);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to serialize condition to JSON: {}", rule.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+
+        // Update in database
+        int result = alertRuleMapper.updateById(entity);
+        LOGGER.info("Update result: {} rows affected", result);
+        if (result <= 0) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to update audit alert rule");
+        }
+
+        // Return updated entity
+        AuditAlertRuleEntity updatedEntity = alertRuleMapper.selectById(rule.getId());
+        AuditAlertRule resultRule = CommonBeanUtils.copyProperties(updatedEntity, AuditAlertRule::new);
+        // Convert condition JSON string to Condition object
+        if (StringUtils.isNotBlank(updatedEntity.getCondition())) {
+            try {
+                Condition condition = objectMapper.readValue(updatedEntity.getCondition(), Condition.class);
+                resultRule.setCondition(condition);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to parse condition JSON: {}", updatedEntity.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+        return resultRule;
+    }
+
+    @Override
+    public Boolean deleteAlertRule(Integer id) {
+        LOGGER.info("Delete audit alert rule by id={}", id);
+
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+
+        // Check if exists
+        AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(id);
+        if (existingEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
+        }
+
+        // Soft delete - set is_deleted to 1 instead of physical deletion
+        existingEntity.setIsDeleted(1);
+        // Increment version for optimistic locking
+        existingEntity.setVersion(existingEntity.getVersion() + 1);
+        int result = alertRuleMapper.updateById(existingEntity);
+        if (result <= 0) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, "Failed to delete audit alert rule");
+        }
+
+        return true;
     }
 }
