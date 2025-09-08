@@ -98,9 +98,9 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
             </if>
-            modify_time = NOW(),
         </set>
-        where id = #{id,jdbcType=INTEGER} and version = #{versionForUpdate,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER} 
+        and version = #{versionForUpdate,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

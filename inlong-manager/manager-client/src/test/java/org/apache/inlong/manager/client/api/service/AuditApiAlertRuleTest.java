@@ -23,9 +23,9 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -238,8 +238,7 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule inputRule = createTestAlertRule();
         inputRule.setId(1);
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator("<");
         condition.setValue(500);
@@ -344,8 +343,7 @@ public class AuditApiAlertRuleTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert");
-        // Use Condition object
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
         condition.setValue(1000);
@@ -368,8 +366,7 @@ public class AuditApiAlertRuleTest {
         request.setInlongStreamId("test_stream_001");
         request.setAuditId("3");
         request.setAlertName("Data Loss Alert");
-        // Use Condition object
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
         condition.setValue(1000);

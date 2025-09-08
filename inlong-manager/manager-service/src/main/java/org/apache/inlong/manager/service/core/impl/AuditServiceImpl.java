@@ -39,10 +39,12 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.pojo.audit.AuditProxyResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.Condition;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.audit.AuditRunnable;
@@ -148,13 +150,17 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public String getAuditId(String type, IndicatorType indicatorType) {
+        LOGGER.debug("begin to get audit id by type={} and indicatorType={}", type, indicatorType);
         if (StringUtils.isBlank(type)) {
+            LOGGER.warn("type is blank when getting audit id");
             return null;
         }
         Map<Integer, AuditInformation> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
         AuditInformation auditInformation = itemMap.get(indicatorType.getCode());
         if (auditInformation != null) {
-            return String.valueOf(auditInformation.getAuditId());
+            String auditId = String.valueOf(auditInformation.getAuditId());
+            LOGGER.debug("success to get audit id={} by type={} and indicatorType={}", auditId, type, indicatorType);
+            return auditId;
         }
         FlowType flowType = indicatorType.getCode() % 2 == 0 ? FlowType.INPUT : FlowType.OUTPUT;
         auditInformation = AuditOperator.getInstance().buildAuditInformation(type, flowType,
@@ -165,12 +171,15 @@ public class AuditServiceImpl implements AuditService {
         Preconditions.expectNotNull(auditInformation, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
         itemMap.put(indicatorType.getCode(), auditInformation);
-        return String.valueOf(auditInformation.getAuditId());
+        String auditId = String.valueOf(auditInformation.getAuditId());
+        LOGGER.debug("success to build and get audit id={} by type={} and indicatorType={}", auditId, type,
+                indicatorType);
+        return auditId;
     }
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
-        LOGGER.info("begin query audit list request={}", request);
+        LOGGER.info("begin to query audit list by condition, request={}", request);
         Preconditions.expectNotNull(request, "request is null");
 
         String groupId = request.getInlongGroupId();
@@ -240,12 +249,13 @@ public class AuditServiceImpl implements AuditService {
                     auditQueryUrl, auditIdMap, false));
         }
         latch.await(30, TimeUnit.SECONDS);
-        LOGGER.info("success to query audit list for request={}", request);
+        LOGGER.info("success to query audit list by condition, request={}", request);
         return result;
     }
 
     @Override
     public List<AuditVO> listAll(AuditRequest request) throws Exception {
+        LOGGER.info("begin to list all audit data, request={}", request);
         List<AuditVO> result = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
@@ -254,18 +264,13 @@ public class AuditServiceImpl implements AuditService {
                     auditQueryUrl, null, true));
         }
         latch.await(30, TimeUnit.SECONDS);
+        LOGGER.info("success to list all audit data, request={}", request);
         return result;
     }
 
-    @Override
-    public List<AuditInformation> getAuditBases(Boolean isMetric) {
-        if (isMetric) {
-            return AuditOperator.getInstance().getAllMetricInformation();
-        }
-        return AuditOperator.getInstance().getAllAuditInformation();
-    }
-
     private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
+        LOGGER.debug("begin to get audit ids, groupId={}, streamId={}, sourceNodeType={}, sinkNodeType={}",
+                groupId, streamId, sourceNodeType, sinkNodeType);
         Set<String> auditSet = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.TENANT_ADMIN)
                 ? new HashSet<>(auditIdListForAdmin)
                 : new HashSet<>(auditIdListForUser);
@@ -303,11 +308,14 @@ public class AuditServiceImpl implements AuditService {
             }
         }
 
-        return new ArrayList<>(auditSet);
+        List<String> result = new ArrayList<>(auditSet);
+        LOGGER.debug("success to get audit ids, result size={}", result.size());
+        return result;
     }
 
     @Override
     public List<AuditProxy> getAuditProxy(String component) throws Exception {
+        LOGGER.info("begin to get audit proxy by component={}", component);
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(auditQueryUrl)
@@ -315,24 +323,39 @@ public class AuditServiceImpl implements AuditService {
                     .append("component=")
                     .append(component);
             String url = builder.toString();
-            LOGGER.info("query audit url ={}", url);
+            LOGGER.debug("query audit url ={}", url);
             AuditProxyResponse result = HttpUtils.request(restTemplate,
                     url,
                     HttpMethod.GET, null,
                     null,
                     AuditProxyResponse.class);
-            LOGGER.info("success to query audit proxy url list for request url ={}", url);
+            LOGGER.info("success to get audit proxy by component={}", component);
             return result.getData();
         } catch (Exception e) {
             String errMsg = String.format("get audit proxy url failed for %s", component);
-            LOGGER.info(errMsg, e);
+            LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
     }
 
     @Override
+    public List<AuditInformation> getAuditBases(Boolean isMetric) {
+        LOGGER.debug("begin to list audit bases, isMetric={}", isMetric);
+        List<AuditInformation> result;
+        if (isMetric) {
+            result = AuditOperator.getInstance().getAllMetricInformation();
+        } else {
+            result = AuditOperator.getInstance().getAllAuditInformation();
+        }
+        LOGGER.debug("success to list audit bases, isMetric={}, result size={}", isMetric, result.size());
+        return result;
+    }
+
+    @Override
     public List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType) {
+        LOGGER.debug("begin to list cdc audit info, type={}, indicatorType={}", type, indicatorType);
         if (StringUtils.isBlank(type)) {
+            LOGGER.warn("type is blank when listing cdc audit info");
             return null;
         }
 
@@ -340,19 +363,23 @@ public class AuditServiceImpl implements AuditService {
         List<AuditInformation> cdcAuditInfo = AuditOperator.getInstance().getAllCdcIdInformation(type, flowType);
         Preconditions.expectNotNull(cdcAuditInfo, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
+        LOGGER.debug("success to list cdc audit info, type={}, indicatorType={}, result size={}",
+                type, indicatorType, cdcAuditInfo.size());
         return cdcAuditInfo;
     }
 
     @Override
     public List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId) {
+        LOGGER.info("begin to list audit alert rules, inlongGroupId={}, inlongStreamId={}", inlongGroupId,
+                inlongStreamId);
         List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByGroupAndStream(inlongGroupId, inlongStreamId);
-        return entities.stream()
+        List<AuditAlertRule> result = entities.stream()
                 .map(entity -> {
                     AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
                     // Convert condition JSON string to Condition object
                     if (StringUtils.isNotBlank(entity.getCondition())) {
                         try {
-                            Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                            AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                             rule.setCondition(condition);
                         } catch (JsonProcessingException e) {
                             LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
@@ -362,11 +389,14 @@ public class AuditServiceImpl implements AuditService {
                     return rule;
                 })
                 .collect(Collectors.toList());
+        LOGGER.info("success to list audit alert rules, inlongGroupId={}, inlongStreamId={}, result size={}",
+                inlongGroupId, inlongStreamId, result.size());
+        return result;
     }
 
     @Override
     public AuditAlertRule createAlertRule(AuditAlertRule rule, String operator) {
-        LOGGER.info("Create audit alert rule, rule={}, operator={}", rule, operator);
+        LOGGER.info("begin to create audit alert rule, rule={}, operator={}", rule, operator);
 
         // Validate input
         Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
@@ -414,6 +444,7 @@ public class AuditServiceImpl implements AuditService {
         // Insert into database
         int result = alertRuleMapper.insert(entity);
         if (result <= 0) {
+            LOGGER.error("Failed to create audit alert rule, rule={}", rule);
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
 
@@ -421,24 +452,61 @@ public class AuditServiceImpl implements AuditService {
         AuditAlertRule resultRule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
         if (StringUtils.isNotBlank(entity.getCondition())) {
             try {
-                Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                 resultRule.setCondition(condition);
             } catch (JsonProcessingException e) {
                 LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
             }
         }
+        LOGGER.info("success to create audit alert rule, rule={}, operator={}", rule, operator);
         return resultRule;
     }
 
     @Override
+    public Integer createAlertRule(AuditAlertRuleRequest request, String operator) {
+        LOGGER.info("begin to create audit alert rule from request, request={}, operator={}", request, operator);
+
+        // Validate input
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlongGroupId cannot be blank");
+        Preconditions.expectNotBlank(request.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER, "auditId cannot be blank");
+        Preconditions.expectNotBlank(request.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "alertName cannot be blank");
+        Preconditions.expectNotNull(request.getCondition(), ErrorCodeEnum.INVALID_PARAMETER,
+                "condition cannot be null");
+
+        // Convert request to rule
+        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
+
+        // Set default values if needed
+        if (rule.getEnabled() == null) {
+            rule.setEnabled(true);
+        }
+        if (StringUtils.isBlank(rule.getLevel())) {
+            rule.setLevel("WARN");
+        }
+        if (StringUtils.isBlank(rule.getNotifyType())) {
+            rule.setNotifyType("EMAIL");
+        }
+
+        // Create the rule using existing method
+        AuditAlertRule savedRule = createAlertRule(rule, operator);
+        LOGGER.info("success to create audit alert rule from request, request={}, operator={}, ruleId={}",
+                request, operator, savedRule.getId());
+        return savedRule.getId();
+    }
+
+    @Override
     public AuditAlertRule getAlertRule(Integer id) {
-        LOGGER.info("Get audit alert rule by id={}", id);
+        LOGGER.info("begin to get audit alert rule by id={}", id);
 
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
 
         AuditAlertRuleEntity entity = alertRuleMapper.selectById(id);
         if (entity == null) {
+            LOGGER.warn("Audit alert rule not found with id: {}", id);
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
         }
 
@@ -446,19 +514,20 @@ public class AuditServiceImpl implements AuditService {
         // Convert condition JSON string to Condition object
         if (StringUtils.isNotBlank(entity.getCondition())) {
             try {
-                Condition condition = objectMapper.readValue(entity.getCondition(), Condition.class);
+                AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                 rule.setCondition(condition);
             } catch (JsonProcessingException e) {
                 LOGGER.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
             }
         }
+        LOGGER.info("success to get audit alert rule by id={}", id);
         return rule;
     }
 
     @Override
     public AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator) {
-        LOGGER.info("Update audit alert rule, rule={}, operator={}", rule, operator);
+        LOGGER.info("begin to update audit alert rule, rule={}, operator={}", rule, operator);
 
         // Validate input
         Preconditions.expectNotNull(rule.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
@@ -466,17 +535,21 @@ public class AuditServiceImpl implements AuditService {
         // Check if exists
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(rule.getId());
         if (existingEntity == null) {
+            LOGGER.warn("Audit alert rule not found with id: {}", rule.getId());
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     "Audit alert rule not found with id: " + rule.getId());
         }
 
-        LOGGER.info("Existing entity version: {}, Incoming rule version: {}", existingEntity.getVersion(),
+        LOGGER.debug("Existing entity version: {}, Incoming rule version: {}", existingEntity.getVersion(),
                 rule.getVersion());
 
         // Version check for optimistic locking
         // The version passed in should be the current version in database
         // DAO layer will check version = #{version} - 1
         if (rule.getVersion() == null || !rule.getVersion().equals(existingEntity.getVersion())) {
+            LOGGER.warn(
+                    "Audit alert rule config has been modified, please refresh and try again. Existing version: {}, Incoming version: {}",
+                    existingEntity.getVersion(), rule.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
                     "Audit alert rule config has been modified, please refresh and try again. Existing version: "
                             + existingEntity.getVersion() + ", Incoming version: " + rule.getVersion());
@@ -488,7 +561,7 @@ public class AuditServiceImpl implements AuditService {
         // Increment version
         entity.setVersion(existingEntity.getVersion() + 1);
 
-        LOGGER.info("Updating entity with version: {}", entity.getVersion());
+        LOGGER.debug("Updating entity with version: {}", entity.getVersion());
 
         // Convert Condition object to JSON string for database storage
         if (rule.getCondition() != null) {
@@ -503,8 +576,9 @@ public class AuditServiceImpl implements AuditService {
 
         // Update in database
         int result = alertRuleMapper.updateById(entity);
-        LOGGER.info("Update result: {} rows affected", result);
+        LOGGER.debug("Update result: {} rows affected", result);
         if (result <= 0) {
+            LOGGER.error("Failed to update audit alert rule, rule={}", rule);
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to update audit alert rule");
         }
 
@@ -514,25 +588,44 @@ public class AuditServiceImpl implements AuditService {
         // Convert condition JSON string to Condition object
         if (StringUtils.isNotBlank(updatedEntity.getCondition())) {
             try {
-                Condition condition = objectMapper.readValue(updatedEntity.getCondition(), Condition.class);
+                AuditAlertCondition condition = objectMapper.readValue(updatedEntity.getCondition(), AuditAlertCondition.class);
                 resultRule.setCondition(condition);
             } catch (JsonProcessingException e) {
                 LOGGER.error("Failed to parse condition JSON: {}", updatedEntity.getCondition(), e);
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
             }
         }
+        LOGGER.info("success to update audit alert rule, rule={}, operator={}", rule, operator);
         return resultRule;
     }
 
     @Override
+    public AuditAlertRule updateAlertRule(AuditAlertRuleUpdateRequest request, String operator) {
+        LOGGER.info("begin to update audit alert rule from request, request={}, operator={}", request, operator);
+
+        // Validate input
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(request.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+
+        // Convert request to rule
+        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
+
+        // Update the rule using existing method
+        AuditAlertRule result = updateAlertRule(rule, operator);
+        LOGGER.info("success to update audit alert rule from request, request={}, operator={}", request, operator);
+        return result;
+    }
+
+    @Override
     public Boolean deleteAlertRule(Integer id) {
-        LOGGER.info("Delete audit alert rule by id={}", id);
+        LOGGER.info("begin to delete audit alert rule by id={}", id);
 
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
 
         // Check if exists
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(id);
         if (existingEntity == null) {
+            LOGGER.warn("Audit alert rule not found with id: {}", id);
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
         }
 
@@ -542,9 +635,22 @@ public class AuditServiceImpl implements AuditService {
         existingEntity.setVersion(existingEntity.getVersion() + 1);
         int result = alertRuleMapper.updateById(existingEntity);
         if (result <= 0) {
+            LOGGER.error("Failed to delete audit alert rule by id={}", id);
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, "Failed to delete audit alert rule");
         }
 
+        LOGGER.info("success to delete audit alert rule by id={}", id);
         return true;
+    }
+
+    @Override
+    public List<AuditAlertRule> listEnabledAlertRules() {
+        LOGGER.info("begin to list enabled audit alert rules");
+        List<AuditAlertRule> allRules = listAlertRules(null, null);
+        List<AuditAlertRule> result = allRules.stream()
+                .filter(AuditAlertRule::getEnabled)
+                .collect(Collectors.toList());
+        LOGGER.info("success to list enabled audit alert rules, result size={}", result.size());
+        return result;
     }
 }

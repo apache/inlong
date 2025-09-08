@@ -19,7 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
-import org.apache.inlong.manager.pojo.audit.Condition;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,9 +46,9 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         entity.setInlongStreamId("test_stream_mapper");
         entity.setAuditId("3");
         entity.setAlertName("Mapper Test Alert");
-        // Convert Condition object to JSON string for entity
+        // Convert AuditAlertCondition object to JSON string for entity
         try {
-            Condition condition = new Condition();
+            AuditAlertCondition condition = new AuditAlertCondition();
             condition.setType("data_loss");
             condition.setOperator(">");
             condition.setValue(10);

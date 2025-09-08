@@ -53,7 +53,7 @@ public class AuditAlertRule {
     @ApiModelProperty(value = "Trigger condition", required = true)
     @NotNull(message = "Trigger condition cannot be null")
     @Valid
-    private Condition condition;
+    private AuditAlertCondition condition;
 
     @ApiModelProperty("Alert level (INFO/WARN/ERROR/CRITICAL)")
     @Pattern(regexp = "^(INFO|WARN|ERROR|CRITICAL)$", message = "Alert level must be one of INFO, WARN, ERROR, or CRITICAL")

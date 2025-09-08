@@ -1110,17 +1110,6 @@ CREATE TABLE IF NOT EXISTS `audit_alert_rule`
     PRIMARY KEY (`id`),
     KEY `idx_group_stream` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Audit Alert Rule Table';
-
--- ----------------------------
--- Init data for audit_alert_rule
--- ----------------------------
-INSERT IGNORE INTO `audit_alert_rule` 
-(`id`, `inlong_group_id`, `inlong_stream_id`, `audit_id`, `alert_name`, `condition`, `level`, `notify_type`, `receivers`, `enabled`, `creator`, `modifier`)
-VALUES 
-(1, 'demo_group', 'demo_stream_001', '3', 'Data Send Failure Alert', 'count < 1000', 'ERROR', 'EMAIL', 'admin@example.com', 1, 'system', 'system'),
-(2, 'demo_group', 'demo_stream_002', '4', 'Data Receive Delay Alert', 'delay > 60000', 'WARN', 'SMS', 'ops@example.com', 1, 'system', 'system'),
-(3, 'prod_group', 'prod_stream_001', '5', 'Production Data Loss Alert', 'count == 0', 'CRITICAL', 'EMAIL', 'admin@example.com,ops@example.com', 1, 'system', 'system'),
-(4, 'test_group', 'test_stream_001', '6', 'Test Environment Data Quality Alert', 'count > 100000', 'INFO', 'HTTP', 'http://webhook.example.com/alert', 0, 'system', 'system');
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

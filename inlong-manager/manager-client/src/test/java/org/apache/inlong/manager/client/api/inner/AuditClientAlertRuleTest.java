@@ -20,9 +20,9 @@ package org.apache.inlong.manager.client.api.inner;
 import org.apache.inlong.manager.client.api.inner.client.AuditClient;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import org.junit.jupiter.api.Assertions;
@@ -60,7 +60,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(expectedId)))));
 
         // Execute test
-        Integer result = AUDIT_CLIENT.createAlertRule(inputRule);
+        Integer result = AUDIT_CLIENT.create(inputRule);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -71,7 +71,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testCreateAlertRuleWithNullInput() {
         // Test null input parameter validation
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            AUDIT_CLIENT.createAlertRule((AuditAlertRuleRequest) null);
+            AUDIT_CLIENT.create((AuditAlertRuleRequest) null);
         });
     }
 
@@ -82,7 +82,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setInlongGroupId("");
 
         Assertions.assertThrows(BusinessException.class, () -> {
-            AUDIT_CLIENT.createAlertRule(rule);
+            AUDIT_CLIENT.create(rule);
         });
     }
 
@@ -93,7 +93,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setAuditId("");
 
         Assertions.assertThrows(BusinessException.class, () -> {
-            AUDIT_CLIENT.createAlertRule(rule);
+            AUDIT_CLIENT.create(rule);
         });
     }
 
@@ -104,7 +104,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setAlertName("");
 
         Assertions.assertThrows(BusinessException.class, () -> {
-            AUDIT_CLIENT.createAlertRule(rule);
+            AUDIT_CLIENT.create(rule);
         });
     }
 
@@ -115,7 +115,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setCondition(null);
 
         Assertions.assertThrows(BusinessException.class, () -> {
-            AUDIT_CLIENT.createAlertRule(rule);
+            AUDIT_CLIENT.create(rule);
         });
     }
 
@@ -133,7 +133,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(expectedRule)))));
 
         // Execute test
-        AuditAlertRule result = AUDIT_CLIENT.getAlertRule(1);
+        AuditAlertRule result = AUDIT_CLIENT.get(1);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -145,7 +145,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testGetAlertRuleWithNullId() {
         // Test null ID parameter validation
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            AUDIT_CLIENT.getAlertRule(null);
+            AUDIT_CLIENT.get(null);
         });
     }
 
@@ -233,8 +233,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         // Prepare test data
         AuditAlertRule inputRule = createTestAlertRule();
         inputRule.setId(1);
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator("<");
         condition.setValue(500);
@@ -328,8 +327,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
         condition.setValue(1000);
@@ -350,8 +348,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         request.setInlongStreamId("test_stream_001");
         request.setAuditId("3");
         request.setAlertName("Data Loss Alert");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
         condition.setValue(1000);

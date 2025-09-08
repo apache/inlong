@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Audit controller.
@@ -96,18 +95,8 @@ public class AuditController {
     @ApiOperation(value = "Create an Audit alarm policy")
     public Response<Integer> createAlertRule(@Valid @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        AuditAlertRule rule = new AuditAlertRule();
-        rule.setInlongGroupId(request.getInlongGroupId());
-        rule.setInlongStreamId(request.getInlongStreamId());
-        rule.setAuditId(request.getAuditId());
-        rule.setAlertName(request.getAlertName());
-        rule.setCondition(request.getCondition());
-        rule.setLevel(request.getLevel());
-        rule.setNotifyType(request.getNotifyType());
-        rule.setReceivers(request.getReceivers());
-        rule.setEnabled(request.getEnabled());
-        AuditAlertRule savedRule = auditService.createAlertRule(rule, operator);
-        return Response.success(savedRule.getId());
+        Integer ruleId = auditService.createAlertRule(request, operator);
+        return Response.success(ruleId);
     }
 
     @GetMapping(value = "/audit/alert/rule/{id}")
@@ -119,11 +108,7 @@ public class AuditController {
     @GetMapping(value = "/audit/alert/rule/enabled")
     @ApiOperation(value = "Query all enabled alarm policies")
     public Response<List<AuditAlertRule>> listEnabledAlertRules() {
-        List<AuditAlertRule> allRules = auditService.listAlertRules(null, null);
-        List<AuditAlertRule> enabledRules = allRules.stream()
-                .filter(AuditAlertRule::getEnabled)
-                .collect(Collectors.toList());
-        return Response.success(enabledRules);
+        return Response.success(auditService.listEnabledAlertRules());
     }
 
     @GetMapping(value = "/audit/alert/rule/list")
@@ -138,14 +123,8 @@ public class AuditController {
     @ApiOperation(value = "Update the Audit alarm policy")
     public Response<AuditAlertRule> updateAlertRule(@Valid @RequestBody AuditAlertRuleUpdateRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        AuditAlertRule rule = new AuditAlertRule();
-        rule.setId(request.getId());
-        rule.setLevel(request.getLevel());
-        rule.setNotifyType(request.getNotifyType());
-        rule.setReceivers(request.getReceivers());
-        rule.setEnabled(request.getEnabled());
-        rule.setVersion(request.getVersion());
-        return Response.success(auditService.updateAlertRule(rule, operator));
+        AuditAlertRule rule = auditService.updateAlertRule(request, operator);
+        return Response.success(rule);
     }
 
     @DeleteMapping(value = "/audit/alert/rule/{id}")

@@ -151,8 +151,7 @@ public class AuditAlertRuleValidationTest {
     void testConditionNotBlank() {
         // Create AuditAlertRule with empty condition
         AuditAlertRule rule = createValidAuditAlertRule();
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("");
         condition.setOperator("");
         condition.setValue(null); // Changed from "" to null to trigger @NotNull validation
@@ -324,8 +323,7 @@ public class AuditAlertRuleValidationTest {
         rule.setInlongStreamId("test_stream");
         rule.setAuditId("3");
         rule.setAlertName("Test Alert");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator(">");
         condition.setValue(1000);
@@ -405,8 +403,7 @@ public class AuditAlertRuleValidationTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
         condition.setValue(1000);

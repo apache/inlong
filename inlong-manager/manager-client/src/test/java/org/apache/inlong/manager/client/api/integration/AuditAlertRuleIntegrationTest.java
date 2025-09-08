@@ -24,9 +24,9 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.Condition;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -76,7 +76,7 @@ public class AuditAlertRuleIntegrationTest {
     private static final String TEST_STREAM_ID = "integration_test_stream";
     private static final String TEST_AUDIT_ID = "3";
     private static final String TEST_ALERT_NAME = "Integration Test Alert";
-    private static final Condition TEST_CONDITION = new Condition("count", "<", 1000);
+    private static final AuditAlertCondition TEST_CONDITION = createTestCondition();
     private static final String TEST_LEVEL = "ERROR";
     private static final String TEST_NOTIFY_TYPE = "EMAIL";
     private static final String TEST_RECEIVERS = "integration@test.com";
@@ -153,7 +153,7 @@ public class AuditAlertRuleIntegrationTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        AuditAlertRule result = auditClient.getAlertRule(createdRuleId);
+        AuditAlertRule result = auditClient.get(createdRuleId);
 
         // Verify result
         Assertions.assertNotNull(result, "Queried alert rule should not be null");
@@ -274,7 +274,7 @@ public class AuditAlertRuleIntegrationTest {
         AuditAlertRule inputRule = createTestAlertRule();
         inputRule.setId(createdRuleId);
         // Update condition
-        Condition updatedCondition = new Condition();
+        AuditAlertCondition updatedCondition = new AuditAlertCondition();
         updatedCondition.setType("count");
         updatedCondition.setOperator("<");
         updatedCondition.setValue(500);
@@ -358,7 +358,7 @@ public class AuditAlertRuleIntegrationTest {
                 get(urlMatching("/inlong/manager/api/audit/alert/rule/100.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(createdRule)))));
 
-        AuditAlertRule queriedRule = auditClient.getAlertRule(100);
+        AuditAlertRule queriedRule = auditClient.get(100);
         Assertions.assertNotNull(queriedRule);
         Assertions.assertEquals("Workflow Test Alert", queriedRule.getAlertName());
         Assertions.assertEquals(0, queriedRule.getIsDeleted().intValue(), "Rule should not be deleted");
@@ -406,7 +406,7 @@ public class AuditAlertRuleIntegrationTest {
                                 .withBody(JsonUtils.toJsonString(Response.fail("Rule not found")))));
 
         try {
-            auditClient.getAlertRule(999);
+            auditClient.get(999);
             Assertions.fail("Exception should be thrown");
         } catch (Exception e) {
             System.out.println("✓ Correctly handled non-existent rule query error");
@@ -448,7 +448,7 @@ public class AuditAlertRuleIntegrationTest {
             final int index = i;
             threads[i] = new Thread(() -> {
                 try {
-                    AuditAlertRule result = auditClient.getAlertRule(201 + index);
+                    AuditAlertRule result = auditClient.get(201 + index);
                     results[index] = result != null && result.getAlertName().contains("Concurrent Test Alert");
                     // Verify isDeleted
                     if (result != null) {
@@ -508,5 +508,16 @@ public class AuditAlertRuleIntegrationTest {
         request.setReceivers(TEST_RECEIVERS);
         request.setEnabled(true);
         return request;
+    }
+
+    /**
+     * Create test AuditAlertCondition object
+     */
+    private static AuditAlertCondition createTestCondition() {
+        AuditAlertCondition condition = new AuditAlertCondition();
+        condition.setType("count");
+        condition.setOperator("<");
+        condition.setValue(1000);
+        return condition;
     }
 }

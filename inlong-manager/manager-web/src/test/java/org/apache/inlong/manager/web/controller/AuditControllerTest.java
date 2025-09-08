@@ -22,7 +22,7 @@ import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
-import org.apache.inlong.manager.pojo.audit.Condition;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.web.WebBaseTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,8 +51,7 @@ class AuditControllerTest extends WebBaseTest {
         rule.setInlongStreamId("test_stream_001");
         rule.setAuditId("3");
         rule.setAlertName("Data Loss Alert Test");
-        // Use Condition object instead of JSON string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator(">");
         condition.setValue(5);
@@ -99,8 +98,7 @@ class AuditControllerTest extends WebBaseTest {
         request.setInlongStreamId("test_stream_001");
         request.setAuditId("3");
         request.setAlertName("Data Loss Alert Test");
-        // Use Condition object
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator(">");
         condition.setValue(5);

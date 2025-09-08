@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
-import org.apache.inlong.manager.pojo.audit.Condition;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +54,7 @@ public class AuditAlertRuleTest {
         sampleRule.setInlongStreamId("test_stream");
         sampleRule.setAuditId("3");
         sampleRule.setAlertName("Test Alert Rule");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator(">");
         condition.setValue(10000);
@@ -76,8 +77,7 @@ public class AuditAlertRuleTest {
         rule.setInlongStreamId("test_stream");
         rule.setAuditId("3");
         rule.setAlertName("Test Alert Rule");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator(">");
         condition.setValue(10000);
@@ -166,13 +166,105 @@ public class AuditAlertRuleTest {
     }
 
     @Test
+    public void testCreateAndUpdateAlertRuleWithRequest() {
+        // Test creation with request
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group");
+        request.setInlongStreamId("test_stream");
+        request.setAuditId("3");
+        request.setAlertName("Test Alert Rule");
+        AuditAlertCondition condition = new AuditAlertCondition();
+        condition.setType("count");
+        condition.setOperator(">");
+        condition.setValue(10000);
+        request.setCondition(condition);
+        request.setLevel("WARN");
+        request.setNotifyType("EMAIL");
+        request.setReceivers("admin@example.com");
+        request.setEnabled(true);
+
+        // Mock behavior for creation with request
+        AuditAlertRule created = new AuditAlertRule();
+        created.setId(1);
+        created.setInlongGroupId("test_group");
+        created.setAlertName("Test Alert Rule");
+        created.setIsDeleted(0); // Set isDeleted to 0
+        created.setVersion(1); // Set version to 1
+        when(auditService.createAlertRule(any(AuditAlertRuleRequest.class), eq("test_user")))
+                .thenReturn(created.getId());
+
+        Integer createdRuleId = auditService.createAlertRule(request, "test_user");
+        assertNotNull(createdRuleId);
+        assertEquals(created.getId(), createdRuleId);
+
+        // Test update with request
+        AuditAlertRuleUpdateRequest updateRequest = new AuditAlertRuleUpdateRequest();
+        updateRequest.setId(1);
+        updateRequest.setLevel("ERROR");
+        updateRequest.setNotifyType("SMS");
+        updateRequest.setReceivers("updated@example.com");
+        updateRequest.setEnabled(false);
+        updateRequest.setVersion(1);
+
+        // Mock behavior for update with request
+        AuditAlertRule updatedRule = new AuditAlertRule();
+        updatedRule.setId(1);
+        updatedRule.setAlertName("Test Alert Rule");
+        updatedRule.setLevel("ERROR");
+        updatedRule.setNotifyType("SMS");
+        updatedRule.setReceivers("updated@example.com");
+        updatedRule.setEnabled(false);
+        updatedRule.setVersion(2); // Increment version
+        when(auditService.updateAlertRule(any(AuditAlertRuleUpdateRequest.class), eq("test_user")))
+                .thenReturn(updatedRule);
+
+        AuditAlertRule updated = auditService.updateAlertRule(updateRequest, "test_user");
+        assertNotNull(updated);
+        assertEquals("ERROR", updated.getLevel());
+        assertEquals("SMS", updated.getNotifyType());
+        assertEquals("updated@example.com", updated.getReceivers());
+        assertFalse(updated.getEnabled());
+        assertEquals(2, updated.getVersion().intValue()); // Verify version is incremented
+    }
+
+    @Test
+    public void testListEnabledAlertRules() {
+        // Test list enabled alert rules
+        AuditAlertRule rule1 = new AuditAlertRule();
+        rule1.setId(1);
+        rule1.setAlertName("Enabled Rule 1");
+        rule1.setEnabled(true);
+        rule1.setIsDeleted(0);
+
+        AuditAlertRule rule2 = new AuditAlertRule();
+        rule2.setId(2);
+        rule2.setAlertName("Enabled Rule 2");
+        rule2.setEnabled(true);
+        rule2.setIsDeleted(0);
+
+        AuditAlertRule rule3 = new AuditAlertRule();
+        rule3.setId(3);
+        rule3.setAlertName("Disabled Rule");
+        rule3.setEnabled(false);
+        rule3.setIsDeleted(0);
+
+        List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2, rule3);
+        when(auditService.listEnabledAlertRules())
+                .thenReturn(Arrays.asList(rule1, rule2));
+
+        List<AuditAlertRule> enabledRules = auditService.listEnabledAlertRules();
+        assertNotNull(enabledRules);
+        assertEquals(2, enabledRules.size());
+        assertTrue(enabledRules.stream().allMatch(AuditAlertRule::getEnabled));
+    }
+
+    @Test
     public void testValidation() {
         // Test null group ID
         AuditAlertRule rule = new AuditAlertRule();
         rule.setAuditId("3");
         rule.setAlertName("Test");
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator(">");
         condition.setValue(5000);
@@ -205,8 +297,7 @@ public class AuditAlertRuleTest {
         rule.setInlongStreamId(streamId);
         rule.setAuditId("3");
         rule.setAlertName(alertName);
-        // Use Condition object instead of string
-        Condition condition = new Condition();
+        AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator(">");
         condition.setValue(1000);

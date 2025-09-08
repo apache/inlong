@@ -94,7 +94,7 @@ public class AuditClient {
      * @param request The audit alert rule to create
      * @return The created audit alert rule ID
      */
-    public Integer createAlertRule(AuditAlertRuleRequest request) {
+    public Integer create(AuditAlertRuleRequest request) {
         Preconditions.expectNotNull(request, "audit alert rule request cannot be null");
         Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
                 "inlong group id cannot be empty");
@@ -115,7 +115,7 @@ public class AuditClient {
      * @param id The rule ID
      * @return The audit alert rule
      */
-    public AuditAlertRule getAlertRule(Integer id) {
+    public AuditAlertRule get(Integer id) {
         Preconditions.expectNotNull(id, "rule id cannot be null");
         Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.getAlertRule(id));
         ClientUtils.assertRespSuccess(response);

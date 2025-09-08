@@ -21,6 +21,8 @@ import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 
@@ -88,6 +90,11 @@ public interface AuditService {
     AuditAlertRule createAlertRule(AuditAlertRule rule, String operator);
 
     /**
+     * Create an alarm policy from request
+     */
+    Integer createAlertRule(AuditAlertRuleRequest request, String operator);
+
+    /**
      * Query a single alarm policy
      */
     AuditAlertRule getAlertRule(Integer id);
@@ -98,7 +105,17 @@ public interface AuditService {
     AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator);
 
     /**
+     * Update the alarm policy from request
+     */
+    AuditAlertRule updateAlertRule(AuditAlertRuleUpdateRequest request, String operator);
+
+    /**
      * Delete the alarm policy
      */
     Boolean deleteAlertRule(Integer id);
+
+    /**
+     * Query all enabled alarm policies
+     */
+    List<AuditAlertRule> listEnabledAlertRules();
 }

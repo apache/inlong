@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel("Audit Alert Condition")
-public class Condition {
+public class AuditAlertCondition {
 
     @ApiModelProperty(value = "Condition type (e.g., data_loss, delay, count)", required = true)
     @NotBlank(message = "Condition type cannot be blank")
@@ -40,21 +40,7 @@ public class Condition {
     @NotNull(message = "Value cannot be null")
     private Object value;
 
-    public Condition() {
+    public AuditAlertCondition() {
     }
 
-    public Condition(String type, String operator, Object value) {
-        this.type = type;
-        this.operator = operator;
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return "Condition{" +
-                "type='" + type + '\'' +
-                ", operator='" + operator + '\'' +
-                ", value=" + value +
-                '}';
-    }
 }
