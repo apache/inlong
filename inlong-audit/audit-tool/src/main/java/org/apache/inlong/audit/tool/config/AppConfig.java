@@ -16,7 +16,6 @@ public class AppConfig {
     public AppConfig() {
         properties = new Properties();
         loadProperties();
-        //managerClient = new ManagerClient(properties.getProperty("manager.url"));
     }
 
     private void loadProperties() {
@@ -25,18 +24,6 @@ public class AppConfig {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load application properties", e);
         }
-    }
-
-    public String getManagerUrl() {
-        return properties.getProperty("manager.url");
-    }
-
-    public String getAlertPolicyConfig() {
-        return properties.getProperty("alert.policy.config");
-    }
-
-    public ManagerClient getManagerClient() {
-        return managerClient;
     }
 
     public Map<String, Object> getPrometheusConfig() {

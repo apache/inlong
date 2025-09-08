@@ -12,7 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 审计检查任务类，定期获取审计数据并评估告警
+ * Audit inspection tasks, regularly obtaining audit data and evaluating alerts
  */
 public class AuditCheckTask {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -43,18 +43,6 @@ public class AuditCheckTask {
      */
     private void checkAuditData() {
         try {
-//            // Obtain audit data
-//            AuditData auditData = managerClient.fetchAuditData();
-//
-//            // Obtain alarm strategy
-//            List<AlertPolicy> policies = managerClient.fetchAlertPolicies();
-//
-//            // Evaluate each strategy
-//            for (AlertPolicy policy : policies) {
-//                if (alertEvaluator.shouldTriggerAlert(auditData, policy)) {
-//                    alertEvaluator.triggerAlert(auditData, policy);
-//                }
-//            }
             try {
                 baseMetricReporter.reportBaseMetric(false);
             }catch (Exception e){

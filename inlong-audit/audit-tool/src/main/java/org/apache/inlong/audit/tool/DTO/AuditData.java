@@ -43,7 +43,6 @@ public class AuditData {
     }
 
     public long getDataLossCount() {
-        // 示例实现，具体逻辑可能需要根据业务需求调整
         return count - size;
     }
 
@@ -52,12 +51,10 @@ public class AuditData {
     }
 
     public long getExpectedCount() {
-        // 示例实现，具体逻辑可能需要根据业务需求调整
         return count;
     }
 
     public long getReceivedCount() {
-        // 示例实现，具体逻辑可能需要根据业务需求调整
         return size;
     }
 }

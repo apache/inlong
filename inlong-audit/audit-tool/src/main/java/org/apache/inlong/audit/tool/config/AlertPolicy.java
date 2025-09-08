@@ -1,8 +1,5 @@
 package org.apache.inlong.audit.tool.config;
 
-import lombok.Data;
-import org.apache.inlong.common.monitor.CounterGroup;
-
 import java.util.List;
 
 
@@ -19,18 +16,6 @@ public class AlertPolicy {
         this.threshold = threshold;
         this.comparisonOperator = comparisonOperator;
         this.alertType = alertType;
-    }
-
-    public AlertPolicy() {
-
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public double getThreshold() {
@@ -57,10 +42,6 @@ public class AlertPolicy {
     }
 
     public List<String> getTargets() {
-        return null;
-    }
-
-    public CounterGroup getThresholds() {
         return null;
     }
 }

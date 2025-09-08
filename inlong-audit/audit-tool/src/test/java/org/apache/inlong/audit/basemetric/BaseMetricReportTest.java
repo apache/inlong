@@ -40,7 +40,7 @@ public class BaseMetricReportTest {
             }else{
                 // Initialize database query tool
                 AuditSQLUtil.initialize(appConfig.getProperties());
-                baseMetricReporter.reportBaseMetric(false);
+                baseMetricReporter.reportBaseMetric(true);
             }
             if (i < executionCount - 1) {
                 Thread.sleep(10000);

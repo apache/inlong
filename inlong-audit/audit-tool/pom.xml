@@ -138,6 +138,37 @@
         </resources>
         <pluginManagement>
             <plugins>
+                <!-- 保持 Apache License 2.0 头 -->
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>4.3</version>
+                    <configuration>
+                        <header>../header.txt</header>  <!-- 用 InLong 现成的头模板 -->
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                            <include>src/main/resources/**/*.properties</include>
+                            <include>src/main/resources/**/*.yml</include>
+                            <include>src/main/resources/**/*.yaml</include>
+                        </includes>
+                        <mapping>
+                            <java>SLASHSTAR_STYLE</java>
+                            <properties>SCRIPT_STYLE</properties>
+                            <yml>SCRIPT_STYLE</yml>
+                            <yaml>SCRIPT_STYLE</yaml>
+                        </mapping>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>format-header</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>format</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <artifactId>kotlin-maven-plugin</artifactId>

@@ -21,8 +21,6 @@ public class AlertEvaluator {
     public AlertEvaluator(PrometheusReporter prometheusReporter, OpenTelemetryReporter openTelemetryReporter, AppConfig appConfig) {
         this.prometheusReporter = prometheusReporter;
         this.openTelemetryReporter = openTelemetryReporter;
-        // 需要创建ManagerClient实例
-        //this.managerClient = new ManagerClient(appConfig); // 实际使用时应传入正确的AppConfig
     }
 
     private MetricData calculateMetricData(AuditData auditData) {
@@ -49,14 +47,11 @@ public class AlertEvaluator {
     public boolean shouldTriggerAlert(AuditData auditData, AlertPolicy policy) {
         this.auditData = auditData;
         this.policy = policy;
-        // 实现具体的告警判断逻辑
         double dataLossRate = auditData.getDataLossRate();
-        
-        // 获取阈值
+
         double threshold = policy.getThreshold();
         String comparisonOperator = policy.getComparisonOperator();
-        
-        // 根据比较操作符判断是否触发告警
+
         switch (comparisonOperator) {
             case ">":
                 return dataLossRate > threshold;
@@ -80,10 +75,8 @@ public class AlertEvaluator {
         this.policy = policy;
         List<String> enabledPlatforms = getEnabledPlatforms(policy);
 
-        // 假设 metricData 是从 auditData 中提取的某种指标数据
         MetricData metricData = calculateMetricData(auditData);
-        
-        // 添加告警信息
+
         if (metricData.getAlertInfo() == null) {
             metricData.setAlertInfo(new MetricData.AlertInfo(policy.getAlertType()));
         }
@@ -97,7 +90,6 @@ public class AlertEvaluator {
                     openTelemetryReporter.report(metricData);
                     break;
                 default:
-                    // 可添加日志记录
                     System.out.println("Invalid platform: " + platform);
                     break;
             }

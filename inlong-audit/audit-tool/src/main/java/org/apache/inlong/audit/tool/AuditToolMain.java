@@ -8,19 +8,8 @@ import org.apache.inlong.audit.tool.task.AuditCheckTask;
 import java.util.Map;
 
 public class AuditToolMain {
-    private static final long DEFAULT_INTERVAL = 30000; // 30秒
+    private static final long DEFAULT_INTERVAL = 30000;
     public static void main(String[] args) {
-        // Load application configuration
-//        AppConfig appConfig = AppConfig.load();
-//
-//        // Initialize manager client
-//        ManagerClient managerClient = new ManagerClient(appConfig);
-
-        // Initialize alert evaluator
-        // Initialize reporters
-//        PrometheusReporter prometheusReporter = new PrometheusReporter(appConfig.getPrometheusConfig());
-//        OpenTelemetryReporter openTelemetryReporter = new OpenTelemetryReporter(appConfig.getOpenTelemetryConfig());
-
         AppConfig appConfig=new AppConfig();
         PrometheusReporter prometheusReporter = new PrometheusReporter();
         Map<String, Object> prometheusConfig = appConfig.getPrometheusConfig();
