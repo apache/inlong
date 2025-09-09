@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -198,7 +197,7 @@ public class AuditAlertRuleTest {
         assertEquals(created.getId(), createdRuleId);
 
         // Test update with request
-        AuditAlertRuleUpdateRequest updateRequest = new AuditAlertRuleUpdateRequest();
+        AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(1);
         updateRequest.setLevel("ERROR");
         updateRequest.setNotifyType("SMS");
@@ -215,7 +214,7 @@ public class AuditAlertRuleTest {
         updatedRule.setReceivers("updated@example.com");
         updatedRule.setEnabled(false);
         updatedRule.setVersion(2); // Increment version
-        when(auditService.update(any(AuditAlertRuleUpdateRequest.class), eq("test_user")))
+        when(auditService.update(any(AuditAlertRuleRequest.class), eq("test_user")))
                 .thenReturn(updatedRule);
 
         AuditAlertRule updated = auditService.update(updateRequest, "test_user");

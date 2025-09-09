@@ -22,7 +22,6 @@ import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -310,7 +309,7 @@ class AuditControllerTest extends WebBaseTest {
         System.out.println("Fresh entity condition: " + freshEntity.getCondition());
 
         // Create update request
-        AuditAlertRuleUpdateRequest updateRequest = new AuditAlertRuleUpdateRequest();
+        AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(freshEntity.getId());
         updateRequest.setLevel("CRITICAL");
         updateRequest.setNotifyType("EMAIL");

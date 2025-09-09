@@ -92,15 +92,13 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER},
-            </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
             </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER} 
-        and version = #{version,jdbcType=INTEGER} - 1
+        and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

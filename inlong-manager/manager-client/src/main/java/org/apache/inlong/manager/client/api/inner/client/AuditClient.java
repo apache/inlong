@@ -145,7 +145,6 @@ public class AuditClient {
         return response.getData();
     }
 
-
     /**
      * Update an audit alert rule
      *

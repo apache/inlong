@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -28,6 +30,10 @@ import javax.validation.constraints.Pattern;
 @Data
 @ApiModel("Audit Alert Rule Request")
 public class AuditAlertRuleRequest {
+
+    @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateValidation.class, message = "Rule ID cannot be null for update")
+    private Integer id;
 
     @ApiModelProperty(value = "Associated InLong Group ID", required = true)
     @NotBlank(message = "InLong Group ID cannot be blank")
@@ -62,4 +68,9 @@ public class AuditAlertRuleRequest {
     @ApiModelProperty(value = "Whether enabled", required = true)
     @NotNull(message = "Enabled status cannot be null")
     private Boolean enabled;
+
+    @ApiModelProperty(value = "Version number")
+    @NotNull(groups = UpdateValidation.class, message = "Version cannot be null for update")
+    private Integer version;
+    
 }

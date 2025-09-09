@@ -22,7 +22,6 @@ import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -149,7 +148,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         AuditAlertRuleEntity freshEntity = auditAlertRuleMapper.selectById(entity.getId());
 
         // Create update request
-        AuditAlertRuleUpdateRequest updateRequest = new AuditAlertRuleUpdateRequest();
+        AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(freshEntity.getId());
         updateRequest.setLevel("CRITICAL");
         updateRequest.setNotifyType("SMS");

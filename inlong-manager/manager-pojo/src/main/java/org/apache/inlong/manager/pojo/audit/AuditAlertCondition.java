@@ -40,7 +40,4 @@ public class AuditAlertCondition {
     @NotNull(message = "Value cannot be null")
     private Object value;
 
-    public AuditAlertCondition() {
-    }
-
 }

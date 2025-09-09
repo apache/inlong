@@ -20,9 +20,6 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.enums.IndicatorType;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 
@@ -76,46 +73,4 @@ public interface AuditService {
 
     List<AuditInformation> getCdcAuditInfoList(String type, IndicatorType indicatorType);
 
-    /**
-     * Batch Query of Alarm Policies
-     * @param inlongGroupId InLong group ID
-     * @param inlongStreamId InLong group ID
-     * @return Alarm policy list
-     */
-    List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId);
-
-    /**
-     * Create an alarm policy
-     */
-    AuditAlertRule create(AuditAlertRule rule, String operator);
-
-    /**
-     * Create an alarm policy from request
-     */
-    Integer create(AuditAlertRuleRequest request, String operator);
-
-    /**
-     * Query a single alarm policy
-     */
-    AuditAlertRule get(Integer id);
-
-    /**
-     * Update the alarm policy
-     */
-    AuditAlertRule update(AuditAlertRule rule, String operator);
-
-    /**
-     * Update the alarm policy from request
-     */
-    AuditAlertRule update(AuditAlertRuleUpdateRequest request, String operator);
-
-    /**
-     * Delete the alarm policy
-     */
-    Boolean delete(Integer id);
-
-    /**
-     * Query all enabled alarm policies
-     */
-    List<AuditAlertRule> listEnabled();
 }

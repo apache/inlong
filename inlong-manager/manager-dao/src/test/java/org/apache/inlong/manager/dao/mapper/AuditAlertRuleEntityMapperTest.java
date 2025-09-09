@@ -218,8 +218,7 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         retrieved.setEnabled(false);
         retrieved.setReceivers("updated@test.com");
         retrieved.setModifier("updated_user");
-        // Increment version for optimistic locking
-        retrieved.setVersion(originalVersion + 1);
+        // Version will be automatically incremented by the mapper
 
         int result = auditAlertRuleMapper.updateById(retrieved);
 
