@@ -96,5 +96,3 @@ public class AuditAlertRuleController {
         return Response.success(auditService.delete(id));
     }
 }
-
-

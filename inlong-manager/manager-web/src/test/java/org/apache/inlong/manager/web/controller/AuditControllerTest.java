@@ -19,10 +19,10 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.web.WebBaseTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
