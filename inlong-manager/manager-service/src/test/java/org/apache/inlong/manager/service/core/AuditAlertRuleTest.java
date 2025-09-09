@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
 public class AuditAlertRuleTest {
 
     @Mock
-    private AuditService auditService;
+    private AuditAlertRuleService auditAlertRuleService;
 
     private AuditAlertRule sampleRule;
 
@@ -97,10 +97,10 @@ public class AuditAlertRuleTest {
         created.setAlertName("Test Alert Rule");
         created.setIsDeleted(0); // Set isDeleted to 0
         created.setVersion(1); // Set version to 1
-        when(auditService.create(any(AuditAlertRule.class), eq("test_user")))
+        when(auditAlertRuleService.create(any(AuditAlertRule.class), eq("test_user")))
                 .thenReturn(created);
 
-        AuditAlertRule createdRule = auditService.create(rule, "test_user");
+        AuditAlertRule createdRule = auditAlertRuleService.create(rule, "test_user");
         assertNotNull(createdRule);
         assertNotNull(createdRule.getId());
         assertEquals("test_group", createdRule.getInlongGroupId());
@@ -108,21 +108,21 @@ public class AuditAlertRuleTest {
         assertEquals(0, createdRule.getIsDeleted().intValue()); // Verify isDeleted is 0
 
         // Mock behavior for query by ID
-        when(auditService.get(1))
+        when(auditAlertRuleService.get(1))
                 .thenReturn(created);
 
         // Test query by ID
-        AuditAlertRule queried = auditService.get(created.getId());
+        AuditAlertRule queried = auditAlertRuleService.get(created.getId());
         assertNotNull(queried);
         assertEquals(created.getId(), queried.getId());
         assertEquals("test_group", queried.getInlongGroupId());
 
         // Mock behavior for list rules
-        when(auditService.listRules("test_group", "test_stream"))
+        when(auditAlertRuleService.listRules("test_group", "test_stream"))
                 .thenReturn(Arrays.asList(created));
 
         // Test list rules
-        List<AuditAlertRule> rules = auditService.listRules("test_group", "test_stream");
+        List<AuditAlertRule> rules = auditAlertRuleService.listRules("test_group", "test_stream");
         assertNotNull(rules);
         assertTrue(rules.size() > 0);
         assertTrue(rules.stream().anyMatch(r -> r.getId().equals(created.getId())));
@@ -133,34 +133,34 @@ public class AuditAlertRuleTest {
         updatedRule.setAlertName("Updated Alert Rule");
         updatedRule.setLevel("ERROR");
         updatedRule.setVersion(2); // Increment version
-        when(auditService.update(any(AuditAlertRule.class), eq("test_user")))
+        when(auditAlertRuleService.update(any(AuditAlertRule.class), eq("test_user")))
                 .thenReturn(updatedRule);
 
         // Test update
         queried.setAlertName("Updated Alert Rule");
         queried.setLevel("ERROR");
         queried.setVersion(2); // Set version for update
-        AuditAlertRule updated = auditService.update(queried, "test_user");
+        AuditAlertRule updated = auditAlertRuleService.update(queried, "test_user");
         assertNotNull(updated);
         assertEquals("Updated Alert Rule", updated.getAlertName());
         assertEquals("ERROR", updated.getLevel());
         assertEquals(2, updated.getVersion().intValue()); // Verify version is incremented
 
         // Mock behavior for delete
-        when(auditService.delete(1))
+        when(auditAlertRuleService.delete(1))
                 .thenReturn(true);
 
         // Test delete
-        Boolean deleted = auditService.delete(created.getId());
+        Boolean deleted = auditAlertRuleService.delete(created.getId());
         assertTrue(deleted);
 
         // Mock behavior for get after delete (should throw exception)
-        when(auditService.get(1))
+        when(auditAlertRuleService.get(1))
                 .thenThrow(new RuntimeException("Alert rule not found"));
 
         // Verify deletion
         assertThrows(Exception.class, () -> {
-            auditService.get(created.getId());
+            auditAlertRuleService.get(created.getId());
         });
     }
 
@@ -189,10 +189,10 @@ public class AuditAlertRuleTest {
         created.setAlertName("Test Alert Rule");
         created.setIsDeleted(0); // Set isDeleted to 0
         created.setVersion(1); // Set version to 1
-        when(auditService.create(any(AuditAlertRuleRequest.class), eq("test_user")))
+        when(auditAlertRuleService.create(any(AuditAlertRuleRequest.class), eq("test_user")))
                 .thenReturn(created.getId());
 
-        Integer createdRuleId = auditService.create(request, "test_user");
+        Integer createdRuleId = auditAlertRuleService.create(request, "test_user");
         assertNotNull(createdRuleId);
         assertEquals(created.getId(), createdRuleId);
 
@@ -214,10 +214,10 @@ public class AuditAlertRuleTest {
         updatedRule.setReceivers("updated@example.com");
         updatedRule.setEnabled(false);
         updatedRule.setVersion(2); // Increment version
-        when(auditService.update(any(AuditAlertRuleRequest.class), eq("test_user")))
+        when(auditAlertRuleService.update(any(AuditAlertRuleRequest.class), eq("test_user")))
                 .thenReturn(updatedRule);
 
-        AuditAlertRule updated = auditService.update(updateRequest, "test_user");
+        AuditAlertRule updated = auditAlertRuleService.update(updateRequest, "test_user");
         assertNotNull(updated);
         assertEquals("ERROR", updated.getLevel());
         assertEquals("SMS", updated.getNotifyType());
@@ -248,10 +248,10 @@ public class AuditAlertRuleTest {
         rule3.setIsDeleted(0);
 
         List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2, rule3);
-        when(auditService.listEnabled())
+        when(auditAlertRuleService.listEnabled())
                 .thenReturn(Arrays.asList(rule1, rule2));
 
-        List<AuditAlertRule> enabledRules = auditService.listEnabled();
+        List<AuditAlertRule> enabledRules = auditAlertRuleService.listEnabled();
         assertNotNull(enabledRules);
         assertEquals(2, enabledRules.size());
         assertTrue(enabledRules.stream().allMatch(AuditAlertRule::getEnabled));
@@ -270,11 +270,11 @@ public class AuditAlertRuleTest {
         rule.setCondition(condition);
 
         // Mock behavior for validation error
-        when(auditService.create(any(AuditAlertRule.class), eq("test_user")))
+        when(auditAlertRuleService.create(any(AuditAlertRule.class), eq("test_user")))
                 .thenThrow(new IllegalArgumentException("Group ID cannot be null"));
 
         assertThrows(Exception.class, () -> {
-            auditService.create(rule, "test_user");
+            auditAlertRuleService.create(rule, "test_user");
         });
 
         // Test null audit ID
@@ -282,11 +282,11 @@ public class AuditAlertRuleTest {
         rule.setAuditId(null);
 
         // Mock behavior for validation error
-        when(auditService.create(any(AuditAlertRule.class), eq("test_user")))
+        when(auditAlertRuleService.create(any(AuditAlertRule.class), eq("test_user")))
                 .thenThrow(new IllegalArgumentException("Audit ID cannot be null"));
 
         assertThrows(Exception.class, () -> {
-            auditService.create(rule, "test_user");
+            auditAlertRuleService.create(rule, "test_user");
         });
     }
 

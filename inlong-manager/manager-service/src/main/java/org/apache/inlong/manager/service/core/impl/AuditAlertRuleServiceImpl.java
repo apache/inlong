@@ -54,19 +54,6 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     public AuditAlertRule create(AuditAlertRule rule, String operator) {
         log.info("begin to create audit alert rule, rule={}, operator={}", rule, operator);
 
-        // Validate input
-        // Note: Validation is partially handled by javax.validation annotations in AuditAlertRule
-        // The manual validation can be replaced by annotation-based validation
-        /*
-        Preconditions.expectNotNull(rule, ErrorCodeEnum.INVALID_PARAMETER, "rule cannot be null");
-        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
-                "inlongGroupId cannot be blank");
-        Preconditions.expectNotBlank(rule.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER, "auditId cannot be blank");
-        Preconditions.expectNotBlank(rule.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER, "alertName cannot be blank");
-        Preconditions.expectNotNull(rule.getCondition(), ErrorCodeEnum.INVALID_PARAMETER, "condition cannot be null");
-        Preconditions.expectNotNull(rule.getEnabled(), ErrorCodeEnum.INVALID_PARAMETER, "enabled cannot be null");
-        */
-
         // Convert to entity
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
