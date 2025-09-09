@@ -47,23 +47,23 @@ public interface AuditApi {
 
     // Audit Alert Rule APIs
     @POST("audit/alert/rule")
-    Call<Response<Integer>> createAlertRule(@Body AuditAlertRuleRequest request);
+    Call<Response<Integer>> create(@Body AuditAlertRuleRequest request);
 
     @GET("audit/alert/rule/{id}")
-    Call<Response<AuditAlertRule>> getAlertRule(@Path("id") Integer id);
+    Call<Response<AuditAlertRule>> get(@Path("id") Integer id);
 
     @GET("audit/alert/rule/enabled")
-    Call<Response<List<AuditAlertRule>>> listEnabledAlertRules();
+    Call<Response<List<AuditAlertRule>>> listEnabled();
 
     @GET("audit/alert/rule/list")
-    Call<Response<List<AuditAlertRule>>> listAlertRules(
+    Call<Response<List<AuditAlertRule>>> listRules(
             @Query("inlongGroupId") String inlongGroupId,
             @Query("inlongStreamId") String inlongStreamId);
 
     @PUT("audit/alert/rule")
-    Call<Response<AuditAlertRule>> updateAlertRule(@Body AuditAlertRule rule);
+    Call<Response<AuditAlertRule>> update(@Body AuditAlertRule rule);
 
     @DELETE("audit/alert/rule/{id}")
-    Call<Response<Boolean>> deleteAlertRule(@Path("id") Integer id);
+    Call<Response<Boolean>> delete(@Path("id") Integer id);
 
 }

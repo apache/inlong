@@ -126,8 +126,8 @@ public class AuditAlertRuleIntegrationTest {
                         .withRequestBody(equalToJson(requestBody))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test
-        Integer result = auditClient.createAlertRule(inputRule);
+        // Execute test - Fix: use auditClient.create() instead of auditClient.createAlertRule()
+        Integer result = auditClient.create(inputRule);
 
         // Verify result
         Assertions.assertNotNull(result, "Created alert rule ID should not be null");
@@ -191,7 +191,7 @@ public class AuditAlertRuleIntegrationTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        List<AuditAlertRule> result = auditClient.listEnabledAlertRules();
+        List<AuditAlertRule> result = auditClient.listEnabled();
 
         // Verify result
         Assertions.assertNotNull(result, "Enabled alert rules list should not be null");
@@ -223,7 +223,7 @@ public class AuditAlertRuleIntegrationTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        List<AuditAlertRule> result = auditClient.listAlertRules(TEST_GROUP_ID, null);
+        List<AuditAlertRule> result = auditClient.listRules(TEST_GROUP_ID, null);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group should not be null");
@@ -254,7 +254,7 @@ public class AuditAlertRuleIntegrationTest {
                                 .willReturn(okJson(responseBody)));
 
         // Execute test
-        List<AuditAlertRule> result = auditClient.listAlertRules(TEST_GROUP_ID, TEST_STREAM_ID);
+        List<AuditAlertRule> result = auditClient.listRules(TEST_GROUP_ID, TEST_STREAM_ID);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group and stream should not be null");
@@ -294,7 +294,7 @@ public class AuditAlertRuleIntegrationTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        AuditAlertRule result = auditClient.updateAlertRule(inputRule);
+        AuditAlertRule result = auditClient.update(inputRule);
 
         // Verify result
         Assertions.assertNotNull(result, "Updated alert rule should not be null");
@@ -322,7 +322,7 @@ public class AuditAlertRuleIntegrationTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Boolean result = auditClient.deleteAlertRule(createdRuleId);
+        Boolean result = auditClient.delete(createdRuleId);
 
         // Verify result
         Assertions.assertNotNull(result, "Delete result should not be null");
@@ -350,7 +350,8 @@ public class AuditAlertRuleIntegrationTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(100)))));
 
-        Integer createdId = auditClient.createAlertRule(createRuleRequest);
+        // Fix: use auditClient.create() instead of auditClient.createAlertRule()
+        Integer createdId = auditClient.create(createRuleRequest);
         Assertions.assertEquals(100, createdId.intValue());
 
         // 2. Query rule
@@ -375,7 +376,7 @@ public class AuditAlertRuleIntegrationTest {
                 put(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(updateRule)))));
 
-        AuditAlertRule updatedRule = auditClient.updateAlertRule(updateRule);
+        AuditAlertRule updatedRule = auditClient.update(updateRule);
         Assertions.assertNotNull(updatedRule);
         Assertions.assertEquals("Updated Workflow Test Alert", updatedRule.getAlertName());
         Assertions.assertEquals("CRITICAL", updatedRule.getLevel());
@@ -386,7 +387,7 @@ public class AuditAlertRuleIntegrationTest {
                 delete(urlMatching("/inlong/manager/api/audit/alert/rule/100.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(true)))));
 
-        Boolean deleteResult = auditClient.deleteAlertRule(100);
+        Boolean deleteResult = auditClient.delete(100);
         Assertions.assertTrue(deleteResult);
 
         System.out.println("✓ Complete workflow test successful");
@@ -417,7 +418,7 @@ public class AuditAlertRuleIntegrationTest {
                 delete(urlMatching("/inlong/manager/api/audit/alert/rule/999.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(false)))));
 
-        Boolean deleteResult = auditClient.deleteAlertRule(999);
+        Boolean deleteResult = auditClient.delete(999);
         Assertions.assertFalse(deleteResult);
         System.out.println("✓ Correctly handled non-existent rule delete");
     }

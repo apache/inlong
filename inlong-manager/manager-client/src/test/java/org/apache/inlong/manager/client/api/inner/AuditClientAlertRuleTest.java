@@ -171,7 +171,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(expectedRules)))));
 
         // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listEnabledAlertRules();
+        List<AuditAlertRule> result = AUDIT_CLIENT.listEnabled();
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -195,7 +195,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(expectedRules)))));
 
         // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listAlertRules("test_group_001", null);
+        List<AuditAlertRule> result = AUDIT_CLIENT.listRules("test_group_001", null);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -219,7 +219,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                                 Response.success(expectedRules)))));
 
         // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listAlertRules("test_group_001", "test_stream_001");
+        List<AuditAlertRule> result = AUDIT_CLIENT.listRules("test_group_001", "test_stream_001");
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -248,7 +248,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(inputRule)))));
 
         // Execute test
-        AuditAlertRule result = AUDIT_CLIENT.updateAlertRule(inputRule);
+        AuditAlertRule result = AUDIT_CLIENT.update(inputRule);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -261,7 +261,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testUpdateAlertRuleWithNullInput() {
         // Test null input parameter validation
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            AUDIT_CLIENT.updateAlertRule(null);
+            AUDIT_CLIENT.update(null);
         });
     }
 
@@ -272,7 +272,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule.setId(null);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            AUDIT_CLIENT.updateAlertRule(rule);
+            AUDIT_CLIENT.update(rule);
         });
     }
 
@@ -286,7 +286,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(true)))));
 
         // Execute test
-        Boolean result = AUDIT_CLIENT.deleteAlertRule(1);
+        Boolean result = AUDIT_CLIENT.delete(1);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -297,7 +297,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testDeleteAlertRuleWithNullId() {
         // Test null ID parameter validation
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            AUDIT_CLIENT.deleteAlertRule(null);
+            AUDIT_CLIENT.delete(null);
         });
     }
 
@@ -311,7 +311,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(false)))));
 
         // Execute test
-        Boolean result = AUDIT_CLIENT.deleteAlertRule(999);
+        Boolean result = AUDIT_CLIENT.delete(999);
 
         // Verify result
         Assertions.assertNotNull(result);

@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
+import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleUpdateRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -83,7 +83,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         rule.setVersion(freshEntity.getVersion());
 
         // Update the rule
-        AuditAlertRule updatedRule = auditService.updateAlertRule(rule, "test_user");
+        AuditAlertRule updatedRule = auditService.update(rule, "test_user");
 
         // Verify the update
         Assertions.assertNotNull(updatedRule);
@@ -122,7 +122,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         request.setEnabled(true);
 
         // Create the rule
-        Integer ruleId = auditService.createAlertRule(request, "test_user");
+        Integer ruleId = auditService.create(request, "test_user");
 
         // Verify the creation
         Assertions.assertNotNull(ruleId);
@@ -158,7 +158,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         updateRequest.setVersion(freshEntity.getVersion());
 
         // Update the rule
-        AuditAlertRule updatedRule = auditService.updateAlertRule(updateRequest, "test_user");
+        AuditAlertRule updatedRule = auditService.update(updateRequest, "test_user");
 
         // Verify the update
         Assertions.assertNotNull(updatedRule);
@@ -220,7 +220,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // List enabled rules
-        List<AuditAlertRule> enabledRules = auditService.listEnabledAlertRules();
+        List<AuditAlertRule> enabledRules = auditService.listEnabled();
 
         // Verify the result
         Assertions.assertNotNull(enabledRules);

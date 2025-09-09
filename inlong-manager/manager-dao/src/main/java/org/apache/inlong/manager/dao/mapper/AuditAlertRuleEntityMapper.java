@@ -28,10 +28,15 @@ import java.util.List;
 public interface AuditAlertRuleEntityMapper {
 
     int insert(AuditAlertRuleEntity entity);
+
     int updateById(AuditAlertRuleEntity entity);
+
     int deleteById(Integer id);
+
     AuditAlertRuleEntity selectById(Integer id);
+
     List<AuditAlertRuleEntity> selectByGroupAndStream(@Param("inlongGroupId") String inlongGroupId,
             @Param("inlongStreamId") String inlongStreamId);
+
     List<AuditAlertRuleEntity> selectEnabledRules();
 }

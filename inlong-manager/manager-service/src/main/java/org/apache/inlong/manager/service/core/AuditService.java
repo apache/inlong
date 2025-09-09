@@ -82,40 +82,40 @@ public interface AuditService {
      * @param inlongStreamId InLong group ID
      * @return Alarm policy list
      */
-    List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId);
+    List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId);
 
     /**
      * Create an alarm policy
      */
-    AuditAlertRule createAlertRule(AuditAlertRule rule, String operator);
+    AuditAlertRule create(AuditAlertRule rule, String operator);
 
     /**
      * Create an alarm policy from request
      */
-    Integer createAlertRule(AuditAlertRuleRequest request, String operator);
+    Integer create(AuditAlertRuleRequest request, String operator);
 
     /**
      * Query a single alarm policy
      */
-    AuditAlertRule getAlertRule(Integer id);
+    AuditAlertRule get(Integer id);
 
     /**
      * Update the alarm policy
      */
-    AuditAlertRule updateAlertRule(AuditAlertRule rule, String operator);
+    AuditAlertRule update(AuditAlertRule rule, String operator);
 
     /**
      * Update the alarm policy from request
      */
-    AuditAlertRule updateAlertRule(AuditAlertRuleUpdateRequest request, String operator);
+    AuditAlertRule update(AuditAlertRuleUpdateRequest request, String operator);
 
     /**
      * Delete the alarm policy
      */
-    Boolean deleteAlertRule(Integer id);
+    Boolean delete(Integer id);
 
     /**
      * Query all enabled alarm policies
      */
-    List<AuditAlertRule> listEnabledAlertRules();
+    List<AuditAlertRule> listEnabled();
 }

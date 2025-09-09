@@ -100,7 +100,7 @@
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER} 
-        and version = #{versionForUpdate,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER} - 1
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

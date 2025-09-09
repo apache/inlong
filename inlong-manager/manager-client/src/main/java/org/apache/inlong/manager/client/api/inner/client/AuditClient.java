@@ -104,7 +104,7 @@ public class AuditClient {
                 "alert name cannot be empty");
         Preconditions.expectNotNull(request.getCondition(), ErrorCodeEnum.INVALID_PARAMETER,
                 "condition cannot be null");
-        Response<Integer> response = ClientUtils.executeHttpCall(auditApi.createAlertRule(request));
+        Response<Integer> response = ClientUtils.executeHttpCall(auditApi.create(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -117,7 +117,7 @@ public class AuditClient {
      */
     public AuditAlertRule get(Integer id) {
         Preconditions.expectNotNull(id, "rule id cannot be null");
-        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.getAlertRule(id));
+        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.get(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -127,11 +127,16 @@ public class AuditClient {
      *
      * @return List of enabled audit alert rules
      */
-    public List<AuditAlertRule> listEnabledAlertRules() {
-        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(auditApi.listEnabledAlertRules());
+    public List<AuditAlertRule> listEnabled() {
+        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(auditApi.listEnabled());
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    /**
+     * @deprecated Use {@link #listEnabled()} instead.
+     */
+    @Deprecated
 
     /**
      * List audit alert rules by conditions
@@ -140,12 +145,16 @@ public class AuditClient {
      * @param inlongStreamId The inlong stream ID (optional)
      * @return List of audit alert rules
      */
-    public List<AuditAlertRule> listAlertRules(String inlongGroupId, String inlongStreamId) {
+    public List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId) {
         Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(
-                auditApi.listAlertRules(inlongGroupId, inlongStreamId));
+                auditApi.listRules(inlongGroupId, inlongStreamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    /**
+     * @deprecated Use {@link #listRules(String, String)} instead.
+     */
 
     /**
      * Update an audit alert rule
@@ -153,13 +162,17 @@ public class AuditClient {
      * @param rule The audit alert rule to update
      * @return The updated audit alert rule
      */
-    public AuditAlertRule updateAlertRule(AuditAlertRule rule) {
+    public AuditAlertRule update(AuditAlertRule rule) {
         Preconditions.expectNotNull(rule, "audit alert rule cannot be null");
         Preconditions.expectNotNull(rule.getId(), "rule id cannot be null");
-        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.updateAlertRule(rule));
+        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.update(rule));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    /**
+     * @deprecated Use {@link #update(AuditAlertRule)} instead.
+     */
 
     /**
      * Delete an audit alert rule by ID
@@ -167,10 +180,15 @@ public class AuditClient {
      * @param id The rule ID
      * @return true if deletion was successful
      */
-    public Boolean deleteAlertRule(Integer id) {
+    public Boolean delete(Integer id) {
         Preconditions.expectNotNull(id, "rule id cannot be null");
-        Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.deleteAlertRule(id));
+        Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.delete(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    /**
+     * @deprecated Use {@link #delete(Integer)} instead.
+     */
+
 }

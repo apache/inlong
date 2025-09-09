@@ -40,9 +40,4 @@ public class AuditAlertRuleEntity {
     private Date createTime;
     private Date modifyTime; // Modify time
     private Integer version; // Add version field
-
-    // Add a helper method to get version - 1 for optimistic locking
-    public Integer getVersionForUpdate() {
-        return version != null ? version - 1 : null;
-    }
 }

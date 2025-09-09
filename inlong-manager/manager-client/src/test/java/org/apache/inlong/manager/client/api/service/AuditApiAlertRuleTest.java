@@ -96,7 +96,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<Integer>> call = auditApi.createAlertRule(inputRule);
+        Call<Response<Integer>> call = auditApi.create(inputRule);
         Response<Integer> response = call.execute().body();
 
         // Verify result
@@ -122,7 +122,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<AuditAlertRule>> call = auditApi.getAlertRule(1);
+        Call<Response<AuditAlertRule>> call = auditApi.get(1);
         Response<AuditAlertRule> response = call.execute().body();
 
         // Verify result
@@ -159,7 +159,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listEnabledAlertRules();
+        Call<Response<List<AuditAlertRule>>> call = auditApi.listEnabled();
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
@@ -192,7 +192,7 @@ public class AuditApiAlertRuleTest {
                                 .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listAlertRules("test_group_001", "test_stream_001");
+        Call<Response<List<AuditAlertRule>>> call = auditApi.listRules("test_group_001", "test_stream_001");
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
@@ -222,7 +222,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listAlertRules(null, null);
+        Call<Response<List<AuditAlertRule>>> call = auditApi.listRules(null, null);
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
@@ -257,7 +257,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<AuditAlertRule>> call = auditApi.updateAlertRule(inputRule);
+        Call<Response<AuditAlertRule>> call = auditApi.update(inputRule);
         Response<AuditAlertRule> response = call.execute().body();
 
         // Verify result
@@ -281,7 +281,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<Boolean>> call = auditApi.deleteAlertRule(1);
+        Call<Response<Boolean>> call = auditApi.delete(1);
         Response<Boolean> response = call.execute().body();
 
         // Verify result
@@ -302,7 +302,7 @@ public class AuditApiAlertRuleTest {
                         .willReturn(okJson(responseBody)));
 
         // Execute test
-        Call<Response<Boolean>> call = auditApi.deleteAlertRule(999);
+        Call<Response<Boolean>> call = auditApi.delete(999);
         Response<Boolean> response = call.execute().body();
 
         // Verify result
@@ -323,7 +323,7 @@ public class AuditApiAlertRuleTest {
                                 .withBody(JsonUtils.toJsonString(Response.fail("Internal Server Error")))));
 
         // Execute test
-        Call<Response<AuditAlertRule>> call = auditApi.getAlertRule(1);
+        Call<Response<AuditAlertRule>> call = auditApi.get(1);
         retrofit2.Response<Response<AuditAlertRule>> response = call.execute();
 
         // Verify error handling
