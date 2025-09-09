@@ -112,7 +112,8 @@
         select
         <include refid="Base_Column_List"/>
         from audit_alert_rule
-        where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+        where id = #{id,jdbcType=INTEGER} 
+        and is_deleted = 0
     </select>
 
     <select id="selectByGroupAndStream" resultMap="BaseResultMap">
@@ -135,7 +136,48 @@
         select
         <include refid="Base_Column_List"/>
         from audit_alert_rule
-        where enabled = 1 and is_deleted = 0
+        where enabled = 1 
+        and is_deleted = 0
+        order by create_time desc
+    </select>
+
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from audit_alert_rule
+        <where>
+            is_deleted = 0
+            <if test="id != null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+            </if>
+            <if test="inlongStreamId != null and inlongStreamId != ''">
+                and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
+            </if>
+            <if test="auditId != null and auditId != ''">
+                and audit_id = #{auditId,jdbcType=VARCHAR}
+            </if>
+            <if test="alertName != null and alertName != ''">
+                and alert_name like concat('%', #{alertName,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="level != null and level != ''">
+                and `level` = #{level,jdbcType=VARCHAR}
+            </if>
+            <if test="notifyType != null and notifyType != ''">
+                and notify_type = #{notifyType,jdbcType=VARCHAR}
+            </if>
+            <if test="enabled != null">
+                and enabled = #{enabled,jdbcType=INTEGER}
+            </if>
+            <if test="creator != null and creator != ''">
+                and creator = #{creator,jdbcType=VARCHAR}
+            </if>
+            <if test="modifier != null and modifier != ''">
+                and modifier = #{modifier,jdbcType=VARCHAR}
+            </if>
+        </where>
         order by create_time desc
     </select>
 </mapper>

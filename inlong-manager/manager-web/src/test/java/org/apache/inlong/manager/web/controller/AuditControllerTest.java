@@ -316,7 +316,6 @@ class AuditControllerTest extends WebBaseTest {
         updateRequest.setNotifyType("EMAIL");
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
-        // 传递数据库中的当前版本号，服务端会自动将其增加1
         updateRequest.setVersion(freshEntity.getVersion());
 
         // Print update request info for debugging

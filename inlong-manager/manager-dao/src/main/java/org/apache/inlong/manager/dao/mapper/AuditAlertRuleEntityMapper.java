@@ -39,4 +39,6 @@ public interface AuditAlertRuleEntityMapper {
             @Param("inlongStreamId") String inlongStreamId);
 
     List<AuditAlertRuleEntity> selectEnabledRules();
+
+    List<AuditAlertRuleEntity> selectByCondition(AuditAlertRuleEntity condition);
 }

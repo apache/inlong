@@ -86,8 +86,6 @@ public class AuditClient {
         return response.getData();
     }
 
-    // Audit Alert Rule methods
-
     /**
      * Create an audit alert rule
      *
@@ -134,11 +132,6 @@ public class AuditClient {
     }
 
     /**
-     * @deprecated Use {@link #listEnabled()} instead.
-     */
-    @Deprecated
-
-    /**
      * List audit alert rules by conditions
      *
      * @param inlongGroupId The inlong group ID (optional)
@@ -152,9 +145,6 @@ public class AuditClient {
         return response.getData();
     }
 
-    /**
-     * @deprecated Use {@link #listRules(String, String)} instead.
-     */
 
     /**
      * Update an audit alert rule
@@ -171,10 +161,6 @@ public class AuditClient {
     }
 
     /**
-     * @deprecated Use {@link #update(AuditAlertRule)} instead.
-     */
-
-    /**
      * Delete an audit alert rule by ID
      *
      * @param id The rule ID
@@ -186,9 +172,4 @@ public class AuditClient {
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
-
-    /**
-     * @deprecated Use {@link #delete(Integer)} instead.
-     */
-
 }
