@@ -1,0 +1,57 @@
+package org.apache.inlong.audit.tool;
+
+import org.apache.inlong.audit.tool.evaluator.AlertEvaluator;
+import org.apache.inlong.audit.tool.manager.ManagerClient;
+import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
+import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
+import org.apache.inlong.audit.tool.config.AppConfig;
+import org.apache.inlong.audit.tool.task.AuditCheckTask;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.mockito.Mockito.*;
+
+public class AuditToolMainTest {
+
+    private AuditToolMain auditToolMain;
+    private ManagerClient managerClient;
+    private AlertEvaluator alertEvaluator;
+    private PrometheusReporter prometheusReporter;
+    private OpenTelemetryReporter openTelemetryReporter;
+    private AppConfig appConfig;
+
+    @BeforeEach
+    public void setUp() {
+        managerClient = mock(ManagerClient.class);
+        alertEvaluator = mock(AlertEvaluator.class);
+        prometheusReporter = mock(PrometheusReporter.class);
+        openTelemetryReporter = mock(OpenTelemetryReporter.class);
+        appConfig = mock(AppConfig.class);
+        
+        auditToolMain = new AuditToolMain(managerClient, alertEvaluator, prometheusReporter, openTelemetryReporter, appConfig);
+    }
+
+    @Test
+    public void testMain() {
+        // Test the main method functionality
+        auditToolMain.main(new String[]{});
+        verify(managerClient, times(1)).initialize();
+        verify(alertEvaluator, times(1)).loadPolicies();
+        verify(prometheusReporter, times(1)).initialize();
+        verify(openTelemetryReporter, times(1)).initialize();
+    }
+
+    @Test
+    public void testRunAuditCheckTask() {
+        // Test the audit check task execution
+        AuditCheckTask task = mock(AuditCheckTask.class);
+        when(task.execute()).thenReturn(true);
+        
+        auditToolMain.runAuditCheckTask(task);
+        
+        verify(task, times(1)).execute();
+        verify(prometheusReporter, times(1)).report(any());
+        verify(openTelemetryReporter, times(1)).report(any());
+    }
+}
