@@ -72,5 +72,5 @@ public class AuditAlertRuleRequest {
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "Version cannot be null for update")
     private Integer version;
-    
+
 }

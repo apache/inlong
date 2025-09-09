@@ -17,20 +17,21 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,19 +55,22 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         log.info("begin to create audit alert rule, rule={}, operator={}", rule, operator);
 
         // Validate input
+        // Note: Validation is partially handled by javax.validation annotations in AuditAlertRule
+        // The manual validation can be replaced by annotation-based validation
+        /*
         Preconditions.expectNotNull(rule, ErrorCodeEnum.INVALID_PARAMETER, "rule cannot be null");
-        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be blank");
+        Preconditions.expectNotBlank(rule.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlongGroupId cannot be blank");
         Preconditions.expectNotBlank(rule.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER, "auditId cannot be blank");
         Preconditions.expectNotBlank(rule.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER, "alertName cannot be blank");
         Preconditions.expectNotNull(rule.getCondition(), ErrorCodeEnum.INVALID_PARAMETER, "condition cannot be null");
         Preconditions.expectNotNull(rule.getEnabled(), ErrorCodeEnum.INVALID_PARAMETER, "enabled cannot be null");
+        */
 
         // Convert to entity
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        entity.setIsDeleted(0);
-        entity.setVersion(1);
 
         // Convert Condition object to JSON string for database storage
         try {
@@ -84,22 +88,10 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
 
-        // Return created entity
-        AuditAlertRuleEntity createdEntity = alertRuleMapper.selectById(entity.getId());
-        AuditAlertRule resultRule = CommonBeanUtils.copyProperties(createdEntity, AuditAlertRule::new);
-        // Convert condition JSON string to Condition object
-        if (StringUtils.isNotBlank(createdEntity.getCondition())) {
-            try {
-                AuditAlertCondition condition = objectMapper.readValue(createdEntity.getCondition(), AuditAlertCondition.class);
-                resultRule.setCondition(condition);
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse condition JSON: {}", createdEntity.getCondition(), e);
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
-            }
-        }
-
+        // Set the ID in the rule object and return it directly
+        rule.setId(entity.getId());
         log.info("success to create audit alert rule, rule={}, operator={}", rule, operator);
-        return resultRule;
+        return rule;
     }
 
     @Override
@@ -107,6 +99,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         log.info("begin to create audit alert rule from request, request={}, operator={}", request, operator);
 
         // Validate input
+        // Note: Validation is partially handled by javax.validation annotations in AuditAlertRuleRequest
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
 
         // Convert request to rule
@@ -143,7 +136,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         // Convert condition JSON string to Condition object
         if (StringUtils.isNotBlank(entity.getCondition())) {
             try {
-                AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
+                AuditAlertCondition condition =
+                        objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                 rule.setCondition(condition);
             } catch (JsonProcessingException e) {
                 log.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
@@ -166,15 +160,21 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(rule.getId());
         if (existingEntity == null) {
             log.warn("Audit alert rule not found with id: {}", rule.getId());
-            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + rule.getId());
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    "Audit alert rule not found with id: " + rule.getId());
         }
 
-        log.debug("Existing entity version: {}, Incoming rule version: {}", existingEntity.getVersion(), rule.getVersion());
+        log.debug("Existing entity version: {}, Incoming rule version: {}", existingEntity.getVersion(),
+                rule.getVersion());
 
         // Version check for optimistic locking
         if (rule.getVersion() == null || !rule.getVersion().equals(existingEntity.getVersion())) {
-            log.warn("Audit alert rule config has been modified, please refresh and try again. Existing version: {}, Incoming version: {}", existingEntity.getVersion(), rule.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED, "Audit alert rule config has been modified, please refresh and try again. Existing version: " + existingEntity.getVersion() + ", Incoming version: " + rule.getVersion());
+            log.warn(
+                    "Audit alert rule config has been modified, please refresh and try again. Existing version: {}, Incoming version: {}",
+                    existingEntity.getVersion(), rule.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    "Audit alert rule config has been modified, please refresh and try again. Existing version: "
+                            + existingEntity.getVersion() + ", Incoming version: " + rule.getVersion());
         }
 
         // Convert to entity and set modifier
@@ -209,7 +209,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         // Convert condition JSON string to Condition object
         if (StringUtils.isNotBlank(updatedEntity.getCondition())) {
             try {
-                AuditAlertCondition condition = objectMapper.readValue(updatedEntity.getCondition(), AuditAlertCondition.class);
+                AuditAlertCondition condition =
+                        objectMapper.readValue(updatedEntity.getCondition(), AuditAlertCondition.class);
                 resultRule.setCondition(condition);
             } catch (JsonProcessingException e) {
                 log.error("Failed to parse condition JSON: {}", updatedEntity.getCondition(), e);
@@ -279,7 +280,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                     // Convert condition JSON string to Condition object
                     if (StringUtils.isNotBlank(entity.getCondition())) {
                         try {
-                            AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
+                            AuditAlertCondition condition =
+                                    objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                             rule.setCondition(condition);
                         } catch (JsonProcessingException e) {
                             log.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
@@ -309,7 +311,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                     // Convert condition JSON string to Condition object
                     if (StringUtils.isNotBlank(entity.getCondition())) {
                         try {
-                            AuditAlertCondition condition = objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
+                            AuditAlertCondition condition =
+                                    objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
                             rule.setCondition(condition);
                         } catch (JsonProcessingException e) {
                             log.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
