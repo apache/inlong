@@ -172,7 +172,6 @@ class AuditControllerTest extends WebBaseTest {
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
-            System.out.println("Raw response for list enabled rules: " + responseContent);
             throw e;
         }
 
@@ -219,7 +218,6 @@ class AuditControllerTest extends WebBaseTest {
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
-            System.out.println("Raw response for list with parameters: " + responseContent);
             throw e;
         }
 
@@ -268,7 +266,6 @@ class AuditControllerTest extends WebBaseTest {
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
-            System.out.println("Raw response for list without parameters: " + responseContent);
             throw e;
         }
 
@@ -297,16 +294,9 @@ class AuditControllerTest extends WebBaseTest {
         // Insert test data
         AuditAlertRuleEntity entity = insertTestEntity();
 
-        // Print entity info for debugging
-        System.out.println("Inserted entity ID: " + entity.getId() + ", Version: " + entity.getVersion());
-
         // After inserting, we need to query the entity again to get the actual version from database
         // The version might be set by database triggers or other mechanisms
         AuditAlertRuleEntity freshEntity = auditAlertRuleMapper.selectById(entity.getId());
-
-        // Print fresh entity info for debugging
-        System.out.println("Fresh entity ID: " + freshEntity.getId() + ", Version: " + freshEntity.getVersion());
-        System.out.println("Fresh entity condition: " + freshEntity.getCondition());
 
         // Create update request
         AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
@@ -316,9 +306,6 @@ class AuditControllerTest extends WebBaseTest {
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
         updateRequest.setVersion(freshEntity.getVersion());
-
-        // Print update request info for debugging
-        System.out.println("Update request ID: " + updateRequest.getId() + ", Version: " + updateRequest.getVersion());
 
         MvcResult mvcResult = mockMvc.perform(
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/audit/alert/rule")
@@ -331,13 +318,11 @@ class AuditControllerTest extends WebBaseTest {
         // Instead of directly calling getResBodyObj which might fail,
         // first get the raw response and check if it's successful
         String responseContent = mvcResult.getResponse().getContentAsString();
-        System.out.println("Raw response for update: " + responseContent);
 
         // Parse the response manually
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseContent);
         boolean isSuccess = jsonNode.get("success").asBoolean();
-        System.out.println("isSuccess: " + isSuccess);
 
         if (isSuccess) {
             // If successful, get the data
@@ -358,11 +343,9 @@ class AuditControllerTest extends WebBaseTest {
             // After a successful update, the version should be incremented by 1
             Assertions.assertEquals(freshEntity.getVersion() + 1, updatedEntity.getVersion().intValue());
             Assertions.assertEquals(0, updatedEntity.getIsDeleted().intValue()); // Verify isDeleted
-            System.out.println("Update successful!");
         } else {
             // If not successful, get the error message
             String errMsg = jsonNode.has("errMsg") ? jsonNode.get("errMsg").asText() : "Unknown error";
-            System.out.println("Update failed with error: " + errMsg);
             Assertions.fail("Update failed with error: " + errMsg);
         }
     }

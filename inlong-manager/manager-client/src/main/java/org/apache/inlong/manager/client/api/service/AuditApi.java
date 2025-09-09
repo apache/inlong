@@ -63,7 +63,7 @@ public interface AuditApi {
     @PUT("audit/alert/rule")
     Call<Response<AuditAlertRule>> update(@Body AuditAlertRule rule);
 
-    @DELETE("audit/alert/rule/{id}")
+    @DELETE("audit/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
 }

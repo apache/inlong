@@ -48,7 +48,7 @@ import java.util.List;
  * Audit alert rule controller.
  */
 @RestController
-@RequestMapping("/api/audit/alert/rule")
+@RequestMapping("/api")
 @Api(tags = "Audit-Alert-Rule-API")
 public class AuditAlertRuleController {
 
@@ -56,7 +56,7 @@ public class AuditAlertRuleController {
     @Autowired
     private AuditAlertRuleService auditAlertRuleService;
 
-    @PostMapping
+    @PostMapping(value = "/audit/alert/rule/save")
     @ApiOperation(value = "Create an Audit alarm policy")
     public Response<Integer> create(@Valid @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -64,19 +64,19 @@ public class AuditAlertRuleController {
         return Response.success(ruleId);
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/audit/alert/rule/get/{id}")
     @ApiOperation(value = "Query the details of the alarm policy")
     public Response<AuditAlertRule> get(@PathVariable Integer id) {
         return Response.success(auditAlertRuleService.get(id));
     }
 
-    @GetMapping(value = "/enabled")
+    @GetMapping(value = "/audit/alert/rule/listEnabled")
     @ApiOperation(value = "Query all enabled alarm policies")
     public Response<List<AuditAlertRule>> listEnabled() {
         return Response.success(auditAlertRuleService.listEnabled());
     }
 
-    @GetMapping(value = "/list")
+    @GetMapping(value = "/audit/alert/rule/list")
     @ApiOperation(value = "Batch query alarm policies")
     public Response<List<AuditAlertRule>> listRules(
             @RequestParam(required = false) String inlongGroupId,
@@ -84,7 +84,7 @@ public class AuditAlertRuleController {
         return Response.success(auditAlertRuleService.listRules(inlongGroupId, inlongStreamId));
     }
 
-    @PutMapping
+    @PutMapping(value = "/audit/alert/rule/update")
     @ApiOperation(value = "Update the Audit alarm policy")
     public Response<AuditAlertRule> update(@Validated(UpdateValidation.class) @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -92,7 +92,7 @@ public class AuditAlertRuleController {
         return Response.success(rule);
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "/audit/delete/{id}")
     @ApiOperation(value = "Delete the Audit alarm policy")
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(auditAlertRuleService.delete(id));
