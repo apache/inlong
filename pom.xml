@@ -136,8 +136,8 @@
         <opencsv.version>5.4</opencsv.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
         <gson.version>2.8.9</gson.version>
-        <jackson.version>2.13.2</jackson.version>
-        <jackson.databind.version>2.13.4.2</jackson.databind.version>
+        <jackson.version>2.17.2</jackson.version>
+        <jackson.databind.version>2.17.2</jackson.databind.version>
         <fastjson.version>1.2.83</fastjson.version>
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
@@ -200,9 +200,12 @@
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
-        <otel.version>1.28.0</otel.version>
+        <otel.version>1.45.0</otel.version>
         <otel.alpha.version>1.28.0-alpha</otel.alpha.version>
         <tencentcloud-api.version>3.1.830</tencentcloud-api.version>
+        <otel.java.agent.version>1.28.0</otel.java.agent.version>
+        <tencentcloud-cls.api.version>3.1.830</tencentcloud-cls.api.version>
+        <tencentcloud-ckafka.api.version>3.1.830</tencentcloud-ckafka.api.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
         <libfb303.version>0.9.3</libfb303.version>
         <apache.thrift.version>0.14.1</apache.thrift.version>
@@ -1289,7 +1292,7 @@
         <dependency>
             <groupId>io.opentelemetry.javaagent</groupId>
             <artifactId>opentelemetry-javaagent</artifactId>
-            <version>${otel.version}</version>
+            <version>${otel.java.agent.version}</version>
         </dependency>
     </dependencies>
     <build>

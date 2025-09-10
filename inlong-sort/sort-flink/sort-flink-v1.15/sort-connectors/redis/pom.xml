@@ -168,6 +168,12 @@
                                         <include>META-INF/services/org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler</include>
                                     </includes>
                                 </filter>
+                                <filter>
+                                    <artifact>com.fasterxml.jackson.core:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/versions/**</exclude>
+                                    </excludes>
+                                </filter>
                             </filters>
                             <relocations>
                                 <relocation>

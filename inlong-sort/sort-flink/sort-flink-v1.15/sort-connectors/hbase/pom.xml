@@ -171,6 +171,7 @@
                                         <exclude>META-INF/services/com.fasterxml.**</exclude>
                                         <exclude>META-INF/services/org.apache.hadoop.**</exclude>
                                         <exclude>META-INF/services/javax.**</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                         <exclude>digesterRules.xml</exclude>
                                         <exclude>properties.dtd</exclude>
                                         <exclude>PropertyList-1.0.dtd</exclude>

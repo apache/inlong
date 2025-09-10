@@ -218,6 +218,7 @@
                                         <exclude>META-INF/services/org.apache.lucene.**</exclude>
                                         <exclude>META-INF/services/org.elasticsearch.**</exclude>
                                         <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
