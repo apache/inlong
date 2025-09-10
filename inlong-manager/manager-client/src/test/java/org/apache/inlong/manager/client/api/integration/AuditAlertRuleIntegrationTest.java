@@ -311,7 +311,7 @@ public class AuditAlertRuleIntegrationTest {
 
         // Mock API response
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/" + createdRuleId + ".*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/" + createdRuleId + ".*"))
                         .willReturn(okJson(responseBody)));
 
         // Execute test
@@ -376,7 +376,7 @@ public class AuditAlertRuleIntegrationTest {
 
         // 4. Delete rule
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/100.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/100.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(true)))));
 
         Boolean deleteResult = auditClient.delete(100);
@@ -405,7 +405,7 @@ public class AuditAlertRuleIntegrationTest {
 
         // 2. Test deleting non-existent rule
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/999.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/999.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         Boolean deleteResult = auditClient.delete(999);

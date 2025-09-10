@@ -91,9 +91,16 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
 
         // Convert request to rule
         AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
+        rule.setCreator(operator);
+        rule.setModifier(operator);
 
         // Create the rule using existing method
         AuditAlertRule result = this.create(rule, operator);
+        if (result == null || result.getId() == null) {
+            log.error("Failed to create audit alert rule from request, request={}", request);
+            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
+        }
+
         log.info("success to create audit alert rule from request, request={}, operator={}", request, operator);
         return result.getId();
     }

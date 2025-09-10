@@ -277,7 +277,7 @@ public class AuditApiAlertRuleTest {
 
         // Mock API response
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/1.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/1.*"))
                         .willReturn(okJson(responseBody)));
 
         // Execute test
@@ -298,7 +298,7 @@ public class AuditApiAlertRuleTest {
 
         // Mock API response
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/999.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/999.*"))
                         .willReturn(okJson(responseBody)));
 
         // Execute test

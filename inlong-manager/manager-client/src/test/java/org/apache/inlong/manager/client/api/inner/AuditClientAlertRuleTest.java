@@ -280,7 +280,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testDeleteAlertRule() {
         // Mock API response
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/1.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(true)))));
@@ -305,7 +305,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
     void testDeleteAlertRuleNotFound() {
         // Mock API response - delete non-existent rule
         stubFor(
-                delete(urlMatching("/inlong/manager/api/audit/alert/rule/999.*"))
+                delete(urlMatching("/inlong/manager/api/audit/delete/999.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(false)))));
