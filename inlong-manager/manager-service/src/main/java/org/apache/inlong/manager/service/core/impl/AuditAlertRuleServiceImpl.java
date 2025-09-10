@@ -58,7 +58,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-
+        
         // Convert Condition object to JSON string for database storage
         try {
             String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
