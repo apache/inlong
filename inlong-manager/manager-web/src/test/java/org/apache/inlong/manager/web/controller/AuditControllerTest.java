@@ -301,6 +301,22 @@ class AuditControllerTest extends WebBaseTest {
         // Create update request
         AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(freshEntity.getId());
+        updateRequest.setInlongGroupId(freshEntity.getInlongGroupId());
+        updateRequest.setInlongStreamId(freshEntity.getInlongStreamId());
+        updateRequest.setAuditId(freshEntity.getAuditId());
+        updateRequest.setAlertName(freshEntity.getAlertName());
+        // Parse condition from JSON string to AuditAlertCondition object
+        AuditAlertCondition condition = null;
+        try {
+            condition = org.apache.inlong.manager.common.util.JsonUtils.parseObject(freshEntity.getCondition(),
+                    AuditAlertCondition.class);
+        } catch (Exception e) {
+            condition = new AuditAlertCondition();
+            condition.setType("delay");
+            condition.setOperator(">=");
+            condition.setValue(1000);
+        }
+        updateRequest.setCondition(condition);
         updateRequest.setLevel("CRITICAL");
         updateRequest.setNotifyType("EMAIL");
         updateRequest.setReceivers("updated@example.com");
