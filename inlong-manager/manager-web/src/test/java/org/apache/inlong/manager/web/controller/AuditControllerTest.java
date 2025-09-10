@@ -108,7 +108,7 @@ class AuditControllerTest extends WebBaseTest {
         request.setEnabled(true);
 
         // Execute create request
-        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule", request);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule/save", request);
 
         // Verify response
         Integer createdRuleId = getResBodyObj(mvcResult, Integer.class);
@@ -127,7 +127,7 @@ class AuditControllerTest extends WebBaseTest {
         AuditAlertRuleEntity entity = insertTestEntity();
 
         // Execute get request
-        MvcResult mvcResult = getForSuccessMvcResult("/api/audit/alert/rule/{id}", entity.getId());
+        MvcResult mvcResult = getForSuccessMvcResult("/api/audit/alert/rule/get/{id}", entity.getId());
 
         // Verify response
         AuditAlertRule rule = getResBodyObj(mvcResult, AuditAlertRule.class);
@@ -163,7 +163,7 @@ class AuditControllerTest extends WebBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Execute list enabled rules request
-        MvcResult mvcResult = getForSuccessMvcResult("/api/audit/alert/rule/enabled");
+        MvcResult mvcResult = getForSuccessMvcResult("/api/audit/alert/rule/listEnabled");
 
         // Verify response - handle possible null return
         List<AuditAlertRule> rules = null;
@@ -308,7 +308,7 @@ class AuditControllerTest extends WebBaseTest {
         updateRequest.setVersion(freshEntity.getVersion());
 
         MvcResult mvcResult = mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/audit/alert/rule")
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/audit/alert/rule/update")
                         .content(org.apache.inlong.manager.common.util.JsonUtils.toJsonString(updateRequest))
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
@@ -362,7 +362,7 @@ class AuditControllerTest extends WebBaseTest {
         Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
 
         // Execute delete request
-        MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/alert/rule/{id}", ruleId);
+        MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/delete/{id}", ruleId);
 
         // Verify response
         Boolean deleted = getResBodyObj(mvcResult, Boolean.class);
@@ -385,7 +385,7 @@ class AuditControllerTest extends WebBaseTest {
 
         // Execute create request and expect validation error
         MvcResult mvcResult = mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/audit/alert/rule")
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/audit/alert/rule/save")
                         .content(org.apache.inlong.manager.common.util.JsonUtils.toJsonString(invalidRule))
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
@@ -407,7 +407,7 @@ class AuditControllerTest extends WebBaseTest {
         // Execute get request for non-existent rule
         MvcResult mvcResult = mockMvc.perform(
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .get("/api/audit/alert/rule/{id}", nonExistentId)
+                        .get("/api/audit/alert/rule/get/{id}", nonExistentId)
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
@@ -428,7 +428,7 @@ class AuditControllerTest extends WebBaseTest {
         // Execute delete request for non-existent rule
         MvcResult mvcResult = mockMvc.perform(
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/audit/alert/rule/{id}", nonExistentId)
+                        .delete("/api/audit/delete/{id}", nonExistentId)
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
@@ -452,7 +452,7 @@ class AuditControllerTest extends WebBaseTest {
         Assertions.assertEquals(0, retrieved.getIsDeleted().intValue());
 
         // Execute delete request (soft delete)
-        MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/alert/rule/{id}", ruleId);
+        MvcResult mvcResult = deleteForSuccessMvcResult("/api/audit/delete/{id}", ruleId);
 
         // Verify response
         Boolean deleted = getResBodyObj(mvcResult, Boolean.class);

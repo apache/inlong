@@ -58,6 +58,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
+        entity.setIsDeleted(0);
+        entity.setVersion(1);
 
         // Convert Condition object to JSON string for database storage
         try {
@@ -75,10 +77,24 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
 
-        // Set the ID in the rule object and return it directly
-        rule.setId(entity.getId());
+        // Get the created entity from database to ensure all fields are populated
+        AuditAlertRuleEntity createdEntity = alertRuleMapper.selectById(entity.getId());
+        AuditAlertRule createdRule = CommonBeanUtils.copyProperties(createdEntity, AuditAlertRule::new);
+
+        // Convert condition JSON string back to Condition object
+        if (StringUtils.isNotBlank(createdEntity.getCondition())) {
+            try {
+                AuditAlertCondition condition =
+                        objectMapper.readValue(createdEntity.getCondition(), AuditAlertCondition.class);
+                createdRule.setCondition(condition);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to parse condition JSON: {}", createdEntity.getCondition(), e);
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
+            }
+        }
+
         log.info("success to create audit alert rule, rule={}, operator={}", rule, operator);
-        return rule;
+        return createdRule;
     }
 
     @Override
