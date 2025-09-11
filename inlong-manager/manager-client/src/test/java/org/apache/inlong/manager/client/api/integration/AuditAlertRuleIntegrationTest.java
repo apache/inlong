@@ -146,9 +146,9 @@ public class AuditAlertRuleIntegrationTest {
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
 
-        // Mock API response
+        // Mock API response - 修复路径匹配
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/" + createdRuleId + ".*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/" + createdRuleId + ".*"))
                         .willReturn(okJson(responseBody)));
 
         // Execute test
@@ -286,9 +286,9 @@ public class AuditAlertRuleIntegrationTest {
         String requestBody = JsonUtils.toJsonString(inputRule);
         String responseBody = JsonUtils.toJsonString(Response.success(inputRule));
 
-        // Mock API response
+        // Mock API response - 修复update路径
         stubFor(
-                put(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
+                put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .withRequestBody(equalToJson(requestBody))
                         .willReturn(okJson(responseBody)));
 
@@ -353,7 +353,7 @@ public class AuditAlertRuleIntegrationTest {
 
         // 2. Query rule
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/100.*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/100.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(createdRule)))));
 
         AuditAlertRule queriedRule = auditClient.get(100);
@@ -370,7 +370,7 @@ public class AuditAlertRuleIntegrationTest {
         updateRule.setIsDeleted(0); // Set isDeleted to 0
 
         stubFor(
-                put(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
+                put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .willReturn(okJson(JsonUtils.toJsonString(Response.success(updateRule)))));
 
         AuditAlertRule updatedRule = auditClient.update(updateRule);
@@ -396,7 +396,7 @@ public class AuditAlertRuleIntegrationTest {
 
         // 1. Test querying non-existent rule
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/999.*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/999.*"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(404)
                                 .withHeader("Content-Type", "application/json")
@@ -431,7 +431,7 @@ public class AuditAlertRuleIntegrationTest {
             rule.setIsDeleted(0); // Set isDeleted to 0
 
             stubFor(
-                    get(urlMatching("/inlong/manager/api/audit/alert/rule/" + (200 + i) + ".*"))
+                    get(urlMatching("/inlong/manager/api/audit/alert/rule/get/" + (200 + i) + ".*"))
                             .willReturn(okJson(JsonUtils.toJsonString(Response.success(rule)))));
         }
 

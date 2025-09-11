@@ -125,9 +125,9 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         AuditAlertRule expectedRule = createTestAlertRule();
         expectedRule.setId(1);
 
-        // Mock API response
+        // Mock API response - 修复路径匹配
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/1.*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(expectedRule)))));
@@ -245,9 +245,9 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         inputRule.setCondition(condition);
         inputRule.setLevel("CRITICAL");
 
-        // Mock API response
+        // Mock API response - 修复update路径
         stubFor(
-                put(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
+                put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(inputRule)))));

@@ -116,9 +116,9 @@ public class AuditApiAlertRuleTest {
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
 
-        // Mock API response
+        // Mock API response - 修复路径匹配
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/1.*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/1.*"))
                         .willReturn(okJson(responseBody)));
 
         // Execute test
@@ -256,9 +256,9 @@ public class AuditApiAlertRuleTest {
         String requestBody = JsonUtils.toJsonString(inputRule);
         String responseBody = JsonUtils.toJsonString(Response.success(inputRule));
 
-        // Mock API response
+        // Mock API response - 修复update路径
         stubFor(
-                put(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
+                put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .withRequestBody(equalToJson(requestBody))
                         .willReturn(okJson(responseBody)));
 
@@ -322,7 +322,7 @@ public class AuditApiAlertRuleTest {
     void testApiErrorHandling() throws IOException {
         // Mock API error response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/1.*"))
+                get(urlMatching("/inlong/manager/api/audit/alert/rule/get/1.*"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(500)
                                 .withHeader("Content-Type", "application/json")
