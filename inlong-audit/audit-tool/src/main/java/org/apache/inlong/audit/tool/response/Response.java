@@ -16,6 +16,10 @@
  */
 
 package org.apache.inlong.audit.tool.response;
+
+/**
+ * The response info of API
+ */
 public class Response<T> {
 
     private boolean success;

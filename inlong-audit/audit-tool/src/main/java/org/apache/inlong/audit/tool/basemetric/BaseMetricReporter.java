@@ -26,7 +26,10 @@ import org.apache.inlong.audit.tool.basemetric.manager.InlongDataproxyMetricsMan
 import org.apache.inlong.audit.tool.basemetric.mapper.AuditMapper;
 import org.apache.inlong.audit.tool.basemetric.util.AuditSQLUtil;
 import org.apache.inlong.audit.tool.basemetric.vo.AuditDataVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,20 +38,31 @@ import java.util.Random;
 
 public class BaseMetricReporter {
     private Integer reportIntervalSeconds;
+    private Boolean useFakeData;
     private InlongAuditMetricsManager inlongAuditMetricsManager;
     private InlongApiMetricsManager inlongApiMetricsManager;
     private InlongAgentMetricsManager inlongAgentMetricsManager;
     private InlongDataproxyMetricsManager inlongDataproxyMetricsManager;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseMetricReporter.class);
 
-    public BaseMetricReporter(Properties properties, CollectorRegistry registry) {
-        this.reportIntervalSeconds=Integer.parseInt(properties.getProperty("alert.policy.check.interval", "30"));
+    public BaseMetricReporter(CollectorRegistry registry) {
+        Properties properties=new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("application.properties"));
+            this.reportIntervalSeconds=Integer.parseInt(properties.getProperty("alert.policy.check.interval", "30"));
+            this.useFakeData=Boolean.parseBoolean(properties.getProperty("audit.data.use.fake.data", "true"));
+        }catch (IOException e){
+            this.reportIntervalSeconds=30;
+            this.useFakeData=true;
+            LOGGER.error("Failed to obtain report data interval time, default interval is 30s");
+        }
         this.inlongAuditMetricsManager = new InlongAuditMetricsManager(registry);
         this.inlongApiMetricsManager=new InlongApiMetricsManager(registry,reportIntervalSeconds);
         this.inlongAgentMetricsManager=new InlongAgentMetricsManager(registry,reportIntervalSeconds);
         this.inlongDataproxyMetricsManager=new InlongDataproxyMetricsManager(registry,reportIntervalSeconds);
     }
 
-    public void reportBaseMetric(Boolean useFakeData) {
+    public void reportBaseMetric() {
         List<AuditDataVo> auditDataVos=null;
         // Whether to use simulated fake data
         if(!useFakeData){

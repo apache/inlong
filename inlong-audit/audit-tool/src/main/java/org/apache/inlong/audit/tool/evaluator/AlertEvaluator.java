@@ -17,27 +17,34 @@
 
 package org.apache.inlong.audit.tool.evaluator;
 
-import org.apache.inlong.audit.tool.config.AlertPolicy;
-import org.apache.inlong.audit.tool.config.AppConfig;
-import org.apache.inlong.audit.tool.manager.ManagerClient;
+import org.apache.inlong.audit.tool.DTO.AlertPolicy;
 import org.apache.inlong.audit.tool.DTO.AuditData;
 import org.apache.inlong.audit.tool.DTO.MetricData;
-import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
+import org.apache.inlong.audit.tool.manager.ManagerClient;
 import org.apache.inlong.audit.tool.reporter.OpenTelemetryReporter;
+import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
+
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AlertEvaluator {
+
     private final PrometheusReporter prometheusReporter;
     private final OpenTelemetryReporter openTelemetryReporter;
+    @Getter
+    private final ManagerClient managerClient;
+    @Getter
     private AuditData auditData;
-    private AlertPolicy policy;
-    private ManagerClient managerClient;
+    @Getter
+    private AlertPolicy alertpolicy;
 
-    public AlertEvaluator(PrometheusReporter prometheusReporter, OpenTelemetryReporter openTelemetryReporter, AppConfig appConfig) {
+    public AlertEvaluator(PrometheusReporter prometheusReporter, OpenTelemetryReporter openTelemetryReporter,
+            ManagerClient managerClient) {
         this.prometheusReporter = prometheusReporter;
         this.openTelemetryReporter = openTelemetryReporter;
+        this.managerClient = managerClient;
     }
 
     private MetricData calculateMetricData(AuditData auditData) {
@@ -45,29 +52,36 @@ public class AlertEvaluator {
                 auditData.getDataLossCount(), auditData.getAuditCount(), auditData.getExpectedCount(),
                 auditData.getReceivedCount());
     }
-    
-    public List<String> getEnabledPlatforms(AlertPolicy policy) {
+
+    public List<String> getEnabledPlatforms(AlertPolicy alertPolicy) {
         List<String> enabledPlatforms = new ArrayList<>();
-        List<String> targets = policy.getTargets();
+        List<String> targets = alertPolicy.getTargets();
         if (targets != null) {
             for (String target : targets) {
-                if ("prometheus".equalsIgnoreCase(target)) {
-                    enabledPlatforms.add("prometheus");
-                } else if ("opentelemetry".equalsIgnoreCase(target)) {
-                    enabledPlatforms.add("opentelemetry");
+                switch (target.toLowerCase()) {
+                    case "prometheus":
+                        enabledPlatforms.add("prometheus");
+                        break;
+                    case "opentelemetry":
+                        enabledPlatforms.add("opentelemetry");
+                        break;
+                    default:
+                        System.out.println("Invalid platform");
+                        break;
                 }
             }
         }
         return enabledPlatforms;
     }
 
-    public boolean shouldTriggerAlert(AuditData auditData, AlertPolicy policy) {
+    public boolean shouldTriggerAlert(AuditData auditData, AlertPolicy alertPolicy) {
         this.auditData = auditData;
-        this.policy = policy;
+        this.alertpolicy = alertPolicy;
+
         double dataLossRate = auditData.getDataLossRate();
 
-        double threshold = policy.getThreshold();
-        String comparisonOperator = policy.getComparisonOperator();
+        double threshold = alertPolicy.getThreshold();
+        String comparisonOperator = alertPolicy.getComparisonOperator();
 
         switch (comparisonOperator) {
             case ">":
@@ -88,12 +102,8 @@ public class AlertEvaluator {
     }
 
     public void triggerAlert(AuditData auditData, AlertPolicy policy) {
-        this.auditData = auditData;
-        this.policy = policy;
         List<String> enabledPlatforms = getEnabledPlatforms(policy);
-
         MetricData metricData = calculateMetricData(auditData);
-
         if (metricData.getAlertInfo() == null) {
             metricData.setAlertInfo(new MetricData.AlertInfo(policy.getAlertType()));
         }

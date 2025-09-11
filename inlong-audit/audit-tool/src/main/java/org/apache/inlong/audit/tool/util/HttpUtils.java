@@ -17,13 +17,29 @@
 
 package org.apache.inlong.audit.tool.util;
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -79,7 +95,7 @@ public class HttpUtils {
      * Send an HTTP request by the given rest template.
      */
     public static <T> T request(RestTemplate restTemplate, String url, HttpMethod method,
-                                String param, HttpHeaders header, Class<T> cls) throws Exception {
+            String param, HttpHeaders header, Class<T> cls) throws Exception {
         ResponseEntity<String> exchange;
         try {
             HttpEntity<String> request = new HttpEntity<>(param, header);
@@ -103,7 +119,7 @@ public class HttpUtils {
      * Send an HTTP request by the given rest template.
      */
     public static <T> T request(RestTemplate restTemplate, String[] urls, HttpMethod method,
-                                String param, HttpHeaders header, Class<T> cls) throws Exception {
+            String param, HttpHeaders header, Class<T> cls) throws Exception {
         ResponseEntity<String> exchange;
         Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
         for (int i = 0; i < urls.length; i++) {
@@ -134,7 +150,7 @@ public class HttpUtils {
      * Send an HTTP request
      */
     public static <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
-                                HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
+            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
         if (log.isDebugEnabled()) {
             log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         }
@@ -151,7 +167,7 @@ public class HttpUtils {
      * Send an void HTTP request
      */
     public static void request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
-                               HttpHeaders header) {
+            HttpHeaders header) {
         log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
@@ -164,7 +180,7 @@ public class HttpUtils {
      * Send an void HTTP request
      */
     public static void request(RestTemplate restTemplate, String[] urls, HttpMethod httpMethod, Object requestBody,
-                               HttpHeaders header) {
+            HttpHeaders header) {
         Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
         for (int i = 0; i < urls.length; i++) {
             try {
@@ -191,7 +207,7 @@ public class HttpUtils {
      * Send HEAD request to the specified URL.
      */
     public static boolean headRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
-                                      HttpHeaders header) {
+            HttpHeaders header) {
         ResponseEntity<String> exchange;
         boolean result = false;
         HttpEntity<String> request = new HttpEntity(params, header);
@@ -209,7 +225,7 @@ public class HttpUtils {
      * Send GET request to the specified URL.
      */
     public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
-                                   HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
+            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
     }
 
@@ -217,7 +233,7 @@ public class HttpUtils {
      * Send PUT request to the specified URL.
      */
     public static <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
-                                   ParameterizedTypeReference<T> typeReference) {
+            ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.PUT, params, header, typeReference);
     }
 
@@ -225,7 +241,7 @@ public class HttpUtils {
      * Send POST request to the specified URL.
      */
     public static <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
-                                    ParameterizedTypeReference<T> typeReference) {
+            ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
     }
 

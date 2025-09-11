@@ -43,7 +43,7 @@ public class BaseMetricReportTest {
         CollectorRegistry registry = prometheusReporter.getRegistry();
 
         // Register basic indicators
-        BaseMetricReporter baseMetricReporter = new BaseMetricReporter(appConfig.getProperties(),registry);
+        BaseMetricReporter baseMetricReporter = new BaseMetricReporter(registry);
 
         // If you want to test real data, set useFakeData to false
         // If you want to use simulated fake data, set userFakeData to true
@@ -52,13 +52,8 @@ public class BaseMetricReportTest {
         // Simulate timed reporting of basic indicator data: report every 10 seconds, for a total of 1000 reports
         int executionCount = 1000;
         for (int i = 0; i < executionCount; i++) {
-            if(useFakeData){
-                baseMetricReporter.reportBaseMetric(true);
-            }else{
-                // Initialize database query tool
-                AuditSQLUtil.initialize(appConfig.getProperties());
-                baseMetricReporter.reportBaseMetric(true);
-            }
+            AuditSQLUtil.initialize(appConfig.getProperties());
+            baseMetricReporter.reportBaseMetric();
             if (i < executionCount - 1) {
                 Thread.sleep(10000);
             }

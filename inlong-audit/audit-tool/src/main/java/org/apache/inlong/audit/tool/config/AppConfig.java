@@ -17,8 +17,6 @@
 
 package org.apache.inlong.audit.tool.config;
 
-import org.apache.inlong.audit.tool.manager.ManagerClient;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -26,13 +24,17 @@ import java.util.Properties;
 import static org.apache.inlong.audit.tool.config.ConfigConstants.DEFAULT_PROMETHEUS_PORT;
 import static org.apache.inlong.audit.tool.config.ConfigConstants.KEY_PROMETHEUS_PORT;
 
+/**
+ * App Config
+ */
 public class AppConfig {
+
     private Properties properties;
-    private ManagerClient managerClient;
 
     public AppConfig() {
         properties = new Properties();
         loadProperties();
+
     }
 
     private void loadProperties() {
@@ -41,6 +43,14 @@ public class AppConfig {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load application properties", e);
         }
+    }
+
+    public String getManagerUrl() {
+        return properties.getProperty("manager.url");
+    }
+
+    public String getAlertPolicyConfig() {
+        return properties.getProperty("alert.policy.config");
     }
 
     public Map<String, Object> getPrometheusConfig() {
@@ -55,4 +65,5 @@ public class AppConfig {
     public Properties getProperties(){
         return properties;
     }
+
 }

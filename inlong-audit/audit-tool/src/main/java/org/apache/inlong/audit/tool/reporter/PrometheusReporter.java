@@ -71,10 +71,10 @@ public class PrometheusReporter implements MetricReporter {
         // It's better to get configuration from the passed map than a global singleton.
         int port = (int) config.getOrDefault(KEY_PROMETHEUS_PORT, DEFAULT_PROMETHEUS_PORT);
         try {
-            // Start the Prometheus HTTP server on the configured port.
+            // Start the Prometheus HTTP server on the configured port with our registry.
             server = new HTTPServer.Builder()
                     .withPort(port)
-                    .withRegistry(registry)  // 使用自定义 registry
+                    .withRegistry(registry)
                     .build();
             LOGGER.info("Prometheus server started on port {}", port);
 
@@ -154,7 +154,7 @@ public class PrometheusReporter implements MetricReporter {
         }
     }
 
-    public CollectorRegistry getRegistry() {
-        return registry;
+    public CollectorRegistry getRegistry(){
+        return this.registry;
     }
 }

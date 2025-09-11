@@ -17,8 +17,8 @@
 
 package org.apache.inlong.audit.tool.basemetric.manager;
 
-import io.prometheus.client.Gauge;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
 
 public class InlongAuditMetricsManager {
 
