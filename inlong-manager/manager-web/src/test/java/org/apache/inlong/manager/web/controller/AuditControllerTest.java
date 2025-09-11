@@ -162,8 +162,10 @@ class AuditControllerTest extends WebBaseTest {
         entity2.setVersion(1); // Set default version to 1
         auditAlertRuleMapper.insert(entity2);
 
-        // Execute list enabled rules request
-        MvcResult mvcResult = getForSuccessMvcResult("/api/audit/alert/rule/listEnabled");
+        // Execute selectByCondition request for enabled rules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule/list", request);
 
         // Verify response - handle possible null return
         List<AuditAlertRule> rules = null;
