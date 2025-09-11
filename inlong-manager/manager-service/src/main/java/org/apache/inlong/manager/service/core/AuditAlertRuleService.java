@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 
 import java.util.List;
 
@@ -48,7 +50,7 @@ public interface AuditAlertRuleService {
     Boolean delete(Integer id);
 
     /**
-     * Select audit alert rules by condition
+     * Select audit alert rules by condition with pagination
      */
-    List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request);
+    PageResult<AuditAlertRule> selectByCondition(AuditAlertRulePageRequest request);
 }

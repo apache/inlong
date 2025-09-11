@@ -25,11 +25,15 @@ import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,17 +249,21 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     }
 
     @Override
-    public List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request) {
-        log.info("begin to select audit alert rules by condition, request={}", request);
+    public PageResult<AuditAlertRule> selectByCondition(AuditAlertRulePageRequest request) {
+        log.info("begin to select audit alert rules by condition with pagination, request={}", request);
+
+        // Start pagination
+        PageHelper.startPage(request.getPageNum(), request.getPageSize(), 
+                String.format("%s %s", request.getOrderField(), request.getOrderType()));
 
         // Convert request to entity for database query
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(request, AuditAlertRuleEntity::new);
 
         // Get from database
-        List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByCondition(entity);
+        Page<AuditAlertRuleEntity> entityPage = (Page<AuditAlertRuleEntity>) alertRuleMapper.selectByCondition(entity);
 
         // Convert to rules and filter out soft-deleted records
-        List<AuditAlertRule> rules = entities.stream()
+        List<AuditAlertRule> rules = entityPage.stream()
                 .filter(e -> e.getIsDeleted() == null || e.getIsDeleted() == 0)
                 .map(e -> {
                     AuditAlertRule rule = CommonBeanUtils.copyProperties(e, AuditAlertRule::new);
@@ -275,7 +283,11 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 })
                 .collect(Collectors.toList());
 
-        log.info("success to select audit alert rules by condition, count={}", rules.size());
-        return rules;
+        // Create page result
+        PageResult<AuditAlertRule> pageResult = PageResult.fromPage(entityPage);
+        pageResult.setList(rules);
+
+        log.info("success to select audit alert rules by condition with pagination, count={}", pageResult.getList().size());
+        return pageResult;
     }
 }

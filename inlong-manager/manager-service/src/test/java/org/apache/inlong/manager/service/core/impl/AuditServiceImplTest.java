@@ -221,9 +221,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by condition for enabled rules (replacing listEnabled)
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
-        List<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
+        PageResult<AuditAlertRule> pageResult = auditAlertRuleService.selectByCondition(request);
+        List<AuditAlertRule> enabledRules = pageResult.getList();
 
         // Verify the result
         Assertions.assertNotNull(enabledRules);
@@ -264,26 +265,29 @@ class AuditServiceImplTest extends ServiceBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Test select by condition - filter by group ID
-        AuditAlertRuleRequest request1 = new AuditAlertRuleRequest();
+        AuditAlertRulePageRequest request1 = new AuditAlertRulePageRequest();
         request1.setInlongGroupId("test_group_service_select");
-        List<AuditAlertRule> rules1 = auditAlertRuleService.selectByCondition(request1);
+        PageResult<AuditAlertRule> pageResult1 = auditAlertRuleService.selectByCondition(request1);
+        List<AuditAlertRule> rules1 = pageResult1.getList();
         Assertions.assertNotNull(rules1);
         Assertions.assertEquals(1, rules1.size());
         Assertions.assertEquals("test_group_service_select", rules1.get(0).getInlongGroupId());
         Assertions.assertEquals("Select Test Rule", rules1.get(0).getAlertName());
 
         // Test select by condition - filter by alert name
-        AuditAlertRuleRequest request2 = new AuditAlertRuleRequest();
+        AuditAlertRulePageRequest request2 = new AuditAlertRulePageRequest();
         request2.setAlertName("Service Test Alert");
-        List<AuditAlertRule> rules2 = auditAlertRuleService.selectByCondition(request2);
+        PageResult<AuditAlertRule> pageResult2 = auditAlertRuleService.selectByCondition(request2);
+        List<AuditAlertRule> rules2 = pageResult2.getList();
         Assertions.assertNotNull(rules2);
         Assertions.assertEquals(1, rules2.size());
         Assertions.assertEquals("test_group_service", rules2.get(0).getInlongGroupId());
         Assertions.assertEquals("Service Test Alert", rules2.get(0).getAlertName());
 
         // Test select by condition - no filter (should return all non-deleted rules)
-        AuditAlertRuleRequest request3 = new AuditAlertRuleRequest();
-        List<AuditAlertRule> rules3 = auditAlertRuleService.selectByCondition(request3);
+        AuditAlertRulePageRequest request3 = new AuditAlertRulePageRequest();
+        PageResult<AuditAlertRule> pageResult3 = auditAlertRuleService.selectByCondition(request3);
+        List<AuditAlertRule> rules3 = pageResult3.getList();
         Assertions.assertNotNull(rules3);
         // Should have at least the two rules we inserted
         Assertions.assertTrue(rules3.size() >= 2);

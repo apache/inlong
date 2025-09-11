@@ -151,29 +151,30 @@ public class AuditApiAlertRuleTest {
         rule2.setIsDeleted(0); // Set isDeleted to 0
 
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listEnabled
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
-        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
-        Response<List<AuditAlertRule>> response = call.execute().body();
+        Call<Response<PageResult<AuditAlertRule>>> call = auditApi.listByCondition(request);
+        Response<PageResult<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
-        Assertions.assertEquals(2, response.getData().size());
-        Assertions.assertTrue(response.getData().get(0).getEnabled());
-        Assertions.assertTrue(response.getData().get(1).getEnabled());
+        Assertions.assertEquals(2, response.getData().getList().size());
+        Assertions.assertTrue(response.getData().getList().get(0).getEnabled());
+        Assertions.assertTrue(response.getData().getList().get(1).getEnabled());
         // Verify isDeleted for both rules
-        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue());
-        Assertions.assertEquals(0, response.getData().get(1).getIsDeleted().intValue());
+        Assertions.assertEquals(0, response.getData().getList().get(0).getIsDeleted().intValue());
+        Assertions.assertEquals(0, response.getData().getList().get(1).getIsDeleted().intValue());
     }
 
     @Test
@@ -184,29 +185,30 @@ public class AuditApiAlertRuleTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
         request.setInlongStreamId("test_stream_001");
-        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
-        Response<List<AuditAlertRule>> response = call.execute().body();
+        Call<Response<PageResult<AuditAlertRule>>> call = auditApi.listByCondition(request);
+        Response<PageResult<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
-        Assertions.assertEquals(1, response.getData().size());
-        Assertions.assertEquals("test_group_001", response.getData().get(0).getInlongGroupId());
-        Assertions.assertEquals("test_stream_001", response.getData().get(0).getInlongStreamId());
-        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue()); // Verify isDeleted
+        Assertions.assertEquals(1, response.getData().getList().size());
+        Assertions.assertEquals("test_group_001", response.getData().getList().get(0).getInlongGroupId());
+        Assertions.assertEquals("test_stream_001", response.getData().getList().get(0).getInlongStreamId());
+        Assertions.assertEquals(0, response.getData().getList().get(0).getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test
@@ -217,26 +219,27 @@ public class AuditApiAlertRuleTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response - test null parameters case
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         // 不设置参数，相当于查询所有
-        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
-        Response<List<AuditAlertRule>> response = call.execute().body();
+        Call<Response<PageResult<AuditAlertRule>>> call = auditApi.listByCondition(request);
+        Response<PageResult<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertNotNull(response.getData());
-        Assertions.assertEquals(1, response.getData().size());
-        Assertions.assertEquals(0, response.getData().get(0).getIsDeleted().intValue()); // Verify isDeleted
+        Assertions.assertEquals(1, response.getData().getList().size());
+        Assertions.assertEquals(0, response.getData().getList().get(0).getIsDeleted().intValue()); // Verify isDeleted
     }
 
     @Test

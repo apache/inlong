@@ -19,7 +19,9 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
@@ -70,7 +72,7 @@ public class AuditAlertRuleController {
 
     @PostMapping(value = "/audit/alert/rule/list")
     @ApiOperation(value = "Batch query alarm policies")
-    public Response<List<AuditAlertRule>> selectByCondition(@RequestBody AuditAlertRuleRequest request) {
+    public Response<PageResult<AuditAlertRule>> selectByCondition(@RequestBody AuditAlertRulePageRequest request) {
         return Response.success(auditAlertRuleService.selectByCondition(request));
     }
 

@@ -23,9 +23,11 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import java.util.List;
@@ -121,14 +123,14 @@ public class AuditClient {
     }
 
     /**
-     * Select audit alert rules by condition
+     * Select audit alert rules by condition with pagination
      *
      * @param request The condition to filter audit alert rules
-     * @return List of audit alert rules
+     * @return Page result of audit alert rules
      */
-    public List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request) {
-        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(
-                auditApi.selectByCondition(request));
+    public PageResult<AuditAlertRule> listByCondition(AuditAlertRulePageRequest request) {
+        Response<PageResult<AuditAlertRule>> response = ClientUtils.executeHttpCall(
+                auditApi.listByCondition(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

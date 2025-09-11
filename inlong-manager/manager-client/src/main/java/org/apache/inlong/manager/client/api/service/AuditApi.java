@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import retrofit2.Call;
@@ -51,7 +53,7 @@ public interface AuditApi {
     Call<Response<AuditAlertRule>> get(@Path("id") Integer id);
 
     @POST("audit/alert/rule/list")
-    Call<Response<List<AuditAlertRule>>> selectByCondition(@Body AuditAlertRuleRequest request);
+    Call<Response<PageResult<AuditAlertRule>>> listByCondition(@Body AuditAlertRulePageRequest request);
 
     @PUT("audit/alert/rule/update")
     Call<Response<AuditAlertRule>> update(@Body AuditAlertRule rule);

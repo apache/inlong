@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -181,26 +182,27 @@ public class AuditAlertRuleIntegrationTest {
         rule2.setIsDeleted(0); // Set isDeleted to 0
 
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listEnabled
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
-        List<AuditAlertRule> result = auditClient.selectByCondition(request);
+        PageResult<AuditAlertRule> result = auditClient.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Enabled alert rules list should not be null");
-        Assertions.assertEquals(2, result.size(), "Should return 2 enabled rules");
-        Assertions.assertTrue(result.get(0).getEnabled(), "First rule should be enabled");
-        Assertions.assertTrue(result.get(1).getEnabled(), "Second rule should be enabled");
+        Assertions.assertEquals(2, result.getList().size(), "Should return 2 enabled rules");
+        Assertions.assertTrue(result.getList().get(0).getEnabled(), "First rule should be enabled");
+        Assertions.assertTrue(result.getList().get(1).getEnabled(), "Second rule should be enabled");
         // Verify isDeleted for both rules
-        Assertions.assertEquals(0, result.get(0).getIsDeleted().intValue(), "First rule should not be deleted");
-        Assertions.assertEquals(0, result.get(1).getIsDeleted().intValue(), "Second rule should not be deleted");
+        Assertions.assertEquals(0, result.getList().get(0).getIsDeleted().intValue(), "First rule should not be deleted");
+        Assertions.assertEquals(0, result.getList().get(1).getIsDeleted().intValue(), "Second rule should not be deleted");
 
     }
 
@@ -213,24 +215,25 @@ public class AuditAlertRuleIntegrationTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId(TEST_GROUP_ID);
-        List<AuditAlertRule> result = auditClient.selectByCondition(request);
+        PageResult<AuditAlertRule> result = auditClient.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group should not be null");
-        Assertions.assertEquals(1, result.size(), "Should return 1 rule");
-        Assertions.assertEquals(TEST_GROUP_ID, result.get(0).getInlongGroupId(), "Group ID should match");
-        Assertions.assertEquals(0, result.get(0).getIsDeleted().intValue(), "Rule should not be deleted");
+        Assertions.assertEquals(1, result.getList().size(), "Should return 1 rule");
+        Assertions.assertEquals(TEST_GROUP_ID, result.getList().get(0).getInlongGroupId(), "Group ID should match");
+        Assertions.assertEquals(0, result.getList().get(0).getIsDeleted().intValue(), "Rule should not be deleted");
 
     }
 
@@ -243,26 +246,27 @@ public class AuditAlertRuleIntegrationTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-
-        String responseBody = JsonUtils.toJsonString(Response.success(expectedRules));
+        
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
+        String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
         // Mock API response
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId(TEST_GROUP_ID);
         request.setInlongStreamId(TEST_STREAM_ID);
-        List<AuditAlertRule> result = auditClient.selectByCondition(request);
+        PageResult<AuditAlertRule> result = auditClient.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group and stream should not be null");
-        Assertions.assertEquals(1, result.size(), "Should return 1 rule");
-        Assertions.assertEquals(TEST_GROUP_ID, result.get(0).getInlongGroupId(), "Group ID should match");
-        Assertions.assertEquals(TEST_STREAM_ID, result.get(0).getInlongStreamId(), "Stream ID should match");
-        Assertions.assertEquals(0, result.get(0).getIsDeleted().intValue(), "Rule should not be deleted");
+        Assertions.assertEquals(1, result.getList().size(), "Should return 1 rule");
+        Assertions.assertEquals(TEST_GROUP_ID, result.getList().get(0).getInlongGroupId(), "Group ID should match");
+        Assertions.assertEquals(TEST_STREAM_ID, result.getList().get(0).getInlongStreamId(), "Stream ID should match");
+        Assertions.assertEquals(0, result.getList().get(0).getIsDeleted().intValue(), "Rule should not be deleted");
 
     }
 

@@ -90,14 +90,14 @@ public class AuditAlertRuleTest {
         AuditAlertRuleRequest request = new AuditAlertRuleRequest();
         request.setInlongGroupId("test_group");
         request.setInlongStreamId("test_stream");
-        when(auditAlertRuleService.selectByCondition(request))
-                .thenReturn(Arrays.asList(created));
+        when(auditAlertRuleService.selectByCondition(any(AuditAlertRulePageRequest.class)))
+                .thenReturn(new PageResult<>(Arrays.asList(created), 1L));
 
         // Test select by condition
-        List<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(request);
+        PageResult<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(new AuditAlertRulePageRequest());
         assertNotNull(selectedRules);
-        assertTrue(selectedRules.size() > 0);
-        assertTrue(selectedRules.stream().anyMatch(r -> r.getId().equals(created.getId())));
+        assertTrue(selectedRules.getList().size() > 0);
+        assertTrue(selectedRules.getList().stream().anyMatch(r -> r.getId().equals(created.getId())));
 
         // Mock behavior for delete
         when(auditAlertRuleService.delete(1))
@@ -197,15 +197,15 @@ public class AuditAlertRuleTest {
         List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2);
 
         // Mock behavior for selectByCondition with enabled=true
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
         when(auditAlertRuleService.selectByCondition(request))
-                .thenReturn(Arrays.asList(rule1, rule2));
+                .thenReturn(new PageResult<>(allRules, (long) allRules.size()));
 
-        List<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
+        PageResult<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
         assertNotNull(enabledRules);
-        assertEquals(2, enabledRules.size());
-        assertTrue(enabledRules.stream().allMatch(AuditAlertRule::getEnabled));
+        assertEquals(2, enabledRules.getList().size());
+        assertTrue(enabledRules.getList().stream().allMatch(AuditAlertRule::getEnabled));
     }
 
     @Test
@@ -227,19 +227,19 @@ public class AuditAlertRuleTest {
 
         List<AuditAlertRule> rules = Arrays.asList(rule1, rule2);
 
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("group1");
         request.setAlertName("Rule 1");
         request.setEnabled(true);
 
         when(auditAlertRuleService.selectByCondition(request))
-                .thenReturn(Arrays.asList(rule1));
+                .thenReturn(new PageResult<>(Arrays.asList(rule1), 1L));
 
-        List<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(request);
+        PageResult<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(request);
         assertNotNull(selectedRules);
-        assertEquals(1, selectedRules.size());
-        assertEquals("group1", selectedRules.get(0).getInlongGroupId());
-        assertEquals("Rule 1", selectedRules.get(0).getAlertName());
+        assertEquals(1, selectedRules.getList().size());
+        assertEquals("group1", selectedRules.getList().get(0).getInlongGroupId());
+        assertEquals("Rule 1", selectedRules.getList().get(0).getAlertName());
     }
 
     @Test

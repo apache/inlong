@@ -113,31 +113,6 @@
         and is_deleted = 0
     </select>
 
-    <select id="selectByGroupAndStream" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from audit_alert_rule
-        <where>
-            is_deleted = 0
-            <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
-            </if>
-            <if test="inlongStreamId != null and inlongStreamId != ''">
-                and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
-            </if>
-        </where>
-        order by create_time desc
-    </select>
-
-    <select id="selectEnabledRules" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from audit_alert_rule
-        where enabled = 1 
-        and is_deleted = 0
-        order by create_time desc
-    </select>
-
     <select id="selectByCondition" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

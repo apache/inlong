@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import org.junit.jupiter.api.Assertions;
@@ -167,18 +168,18 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(expectedRules)))));
+                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用selectByCondition替代listEnabled
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
-        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
+        PageResult<AuditAlertRule> result = AUDIT_CLIENT.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertTrue(result.get(0).getEnabled());
-        Assertions.assertTrue(result.get(1).getEnabled());
+        Assertions.assertEquals(2, result.getList().size());
+        Assertions.assertTrue(result.getList().get(0).getEnabled());
+        Assertions.assertTrue(result.getList().get(1).getEnabled());
     }
 
     @Test
@@ -193,17 +194,17 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(expectedRules)))));
+                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
-        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
+        PageResult<AuditAlertRule> result = AUDIT_CLIENT.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("test_group_001", result.get(0).getInlongGroupId());
+        Assertions.assertEquals(1, result.getList().size());
+        Assertions.assertEquals("test_group_001", result.getList().get(0).getInlongGroupId());
     }
 
     @Test
@@ -218,19 +219,19 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(expectedRules)))));
+                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用selectByCondition替代listRules
-        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // Execute test - 使用listByCondition替代selectByCondition
+        AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
         request.setInlongStreamId("test_stream_001");
-        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
+        PageResult<AuditAlertRule> result = AUDIT_CLIENT.listByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("test_group_001", result.get(0).getInlongGroupId());
-        Assertions.assertEquals("test_stream_001", result.get(0).getInlongStreamId());
+        Assertions.assertEquals(1, result.getList().size());
+        Assertions.assertEquals("test_group_001", result.getList().get(0).getInlongGroupId());
+        Assertions.assertEquals("test_stream_001", result.getList().get(0).getInlongStreamId());
     }
 
     @Test
