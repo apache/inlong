@@ -38,6 +38,7 @@ public class AuditToolMain {
         // Initialize alert evaluator
         // Initialize reporters
         PrometheusReporter prometheusReporter = new PrometheusReporter();
+        prometheusReporter.init(appConfig.getPrometheusConfig());
         OpenTelemetryReporter openTelemetryReporter = new OpenTelemetryReporter();
 
         //Database query initialization
