@@ -155,11 +155,13 @@ public class AuditApiAlertRuleTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/enabled.*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listEnabled();
+        // Execute test - 使用selectByCondition替代listEnabled
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
@@ -187,12 +189,14 @@ public class AuditApiAlertRuleTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching(
-                        "/inlong/manager/api/audit/alert/rule/list\\?inlongGroupId=test_group_001&inlongStreamId=test_stream_001.*"))
-                                .willReturn(okJson(responseBody)));
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
+                        .willReturn(okJson(responseBody)));
 
-        // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listRules("test_group_001", "test_stream_001");
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group_001");
+        request.setInlongStreamId("test_stream_001");
+        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result
@@ -218,11 +222,13 @@ public class AuditApiAlertRuleTest {
 
         // Mock API response - test null parameters case
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test
-        Call<Response<List<AuditAlertRule>>> call = auditApi.listRules(null, null);
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        // 不设置参数，相当于查询所有
+        Call<Response<List<AuditAlertRule>>> call = auditApi.selectByCondition(request);
         Response<List<AuditAlertRule>> response = call.execute().body();
 
         // Verify result

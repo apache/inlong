@@ -160,18 +160,19 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         rule2.setId(2);
         rule2.setAlertName("High Delay Alert");
         rule2.setEnabled(true);
-
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/enabled.*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(expectedRules)))));
 
-        // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listEnabled();
+        // Execute test - 使用selectByCondition替代listEnabled
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -189,13 +190,15 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/list\\?inlongGroupId=test_group_001.*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(expectedRules)))));
 
-        // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listRules("test_group_001", null);
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group_001");
+        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);
@@ -212,14 +215,16 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching(
-                        "/inlong/manager/api/audit/alert/rule/list\\?inlongGroupId=test_group_001&inlongStreamId=test_stream_001.*"))
-                                .willReturn(
-                                        okJson(JsonUtils.toJsonString(
-                                                Response.success(expectedRules)))));
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(expectedRules)))));
 
-        // Execute test
-        List<AuditAlertRule> result = AUDIT_CLIENT.listRules("test_group_001", "test_stream_001");
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group_001");
+        request.setInlongStreamId("test_stream_001");
+        List<AuditAlertRule> result = AUDIT_CLIENT.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result);

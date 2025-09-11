@@ -185,11 +185,13 @@ public class AuditAlertRuleIntegrationTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/enabled.*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test
-        List<AuditAlertRule> result = auditClient.listEnabled();
+        // Execute test - 使用selectByCondition替代listEnabled
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        List<AuditAlertRule> result = auditClient.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Enabled alert rules list should not be null");
@@ -216,11 +218,13 @@ public class AuditAlertRuleIntegrationTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/list\\?inlongGroupId=" + TEST_GROUP_ID + ".*"))
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test
-        List<AuditAlertRule> result = auditClient.listRules(TEST_GROUP_ID, null);
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId(TEST_GROUP_ID);
+        List<AuditAlertRule> result = auditClient.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group should not be null");
@@ -244,13 +248,14 @@ public class AuditAlertRuleIntegrationTest {
 
         // Mock API response
         stubFor(
-                get(urlMatching("/inlong/manager/api/audit/alert/rule/list\\?inlongGroupId=" + TEST_GROUP_ID
-                        + "&inlongStreamId="
-                        + TEST_STREAM_ID + ".*"))
-                                .willReturn(okJson(responseBody)));
+                post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
+                        .willReturn(okJson(responseBody)));
 
-        // Execute test
-        List<AuditAlertRule> result = auditClient.listRules(TEST_GROUP_ID, TEST_STREAM_ID);
+        // Execute test - 使用selectByCondition替代listRules
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId(TEST_GROUP_ID);
+        request.setInlongStreamId(TEST_STREAM_ID);
+        List<AuditAlertRule> result = auditClient.selectByCondition(request);
 
         // Verify result
         Assertions.assertNotNull(result, "Alert rules list by group and stream should not be null");
