@@ -108,7 +108,7 @@ class AuditControllerTest extends WebBaseTest {
         request.setEnabled(true);
 
         // Execute create request
-        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule/save", request);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/audit/alert/rule", request);
 
         // Verify response
         Integer createdRuleId = getResBodyObj(mvcResult, Integer.class);
@@ -403,7 +403,7 @@ class AuditControllerTest extends WebBaseTest {
 
         // Execute create request and expect validation error
         MvcResult mvcResult = mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/audit/alert/rule/save")
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/audit/alert/rule")
                         .content(org.apache.inlong.manager.common.util.JsonUtils.toJsonString(invalidRule))
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(org.springframework.http.MediaType.APPLICATION_JSON))
