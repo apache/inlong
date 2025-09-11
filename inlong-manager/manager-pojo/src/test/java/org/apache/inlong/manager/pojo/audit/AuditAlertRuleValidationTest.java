@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.apache.inlong.manager.common.enums.NotifyType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

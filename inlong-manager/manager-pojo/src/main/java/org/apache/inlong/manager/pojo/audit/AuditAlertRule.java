@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,8 +29,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import java.util.Date;
-
-import org.apache.inlong.manager.common.enums.NotifyType;
 
 @Data
 @ApiModel("Audit Alert Rule Configuration")

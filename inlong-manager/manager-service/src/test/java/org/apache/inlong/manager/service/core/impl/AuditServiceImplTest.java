@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
@@ -26,7 +27,6 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
-import org.apache.inlong.manager.common.enums.NotifyType;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

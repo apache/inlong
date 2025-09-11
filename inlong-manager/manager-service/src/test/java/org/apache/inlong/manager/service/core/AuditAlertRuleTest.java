@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
-import org.apache.inlong.manager.common.enums.NotifyType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

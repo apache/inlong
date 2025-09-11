@@ -42,8 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import java.util.List;
-
 /**
  * Audit alert rule controller.
  */

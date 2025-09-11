@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
@@ -29,7 +30,6 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.common.enums.NotifyType;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
