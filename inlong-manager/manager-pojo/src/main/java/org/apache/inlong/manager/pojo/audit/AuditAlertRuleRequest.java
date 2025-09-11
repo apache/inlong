@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import io.swagger.annotations.ApiModel;

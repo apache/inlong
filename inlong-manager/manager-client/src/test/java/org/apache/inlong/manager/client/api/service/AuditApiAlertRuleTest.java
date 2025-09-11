@@ -114,12 +114,10 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule expectedRule = createTestAlertRule();
         expectedRule.setId(1);
-        expectedRule.setVersion(1); // Set version to 1
-        expectedRule.setIsDeleted(0); // Set isDeleted to 0
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
 
-        // Mock API response - 修复路径匹配
+        // Mock API response
         stubFor(
                 get(urlMatching("/inlong/manager/api/audit/alert/rule/get/1.*"))
                         .willReturn(okJson(responseBody)));
@@ -143,15 +141,11 @@ public class AuditApiAlertRuleTest {
         AuditAlertRule rule1 = createTestAlertRule();
         rule1.setId(1);
         rule1.setEnabled(true);
-        rule1.setVersion(1); // Set version to 1
-        rule1.setIsDeleted(0); // Set isDeleted to 0
 
         AuditAlertRule rule2 = createTestAlertRule();
         rule2.setId(2);
         rule2.setAlertName("High Delay Alert");
         rule2.setEnabled(true);
-        rule2.setVersion(1); // Set version to 1
-        rule2.setIsDeleted(0); // Set isDeleted to 0
 
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -162,7 +156,7 @@ public class AuditApiAlertRuleTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
         Call<Response<PageResult<AuditAlertRule>>> call = auditApi.listByCondition(request);
@@ -185,8 +179,6 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(1);
-        rule.setVersion(1); // Set version to 1
-        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -197,7 +189,7 @@ public class AuditApiAlertRuleTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
         request.setInlongStreamId("test_stream_001");
@@ -219,8 +211,6 @@ public class AuditApiAlertRuleTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(1);
-        rule.setVersion(1); // Set version to 1
-        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -231,7 +221,7 @@ public class AuditApiAlertRuleTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         // 不设置参数，相当于查询所有
         Call<Response<PageResult<AuditAlertRule>>> call = auditApi.listByCondition(request);
@@ -257,12 +247,11 @@ public class AuditApiAlertRuleTest {
         inputRule.setCondition(condition);
         inputRule.setLevel("CRITICAL");
         inputRule.setVersion(2); // Set version for update
-        inputRule.setIsDeleted(0); // Set isDeleted to 0
 
         String requestBody = JsonUtils.toJsonString(inputRule);
         String responseBody = JsonUtils.toJsonString(Response.success(inputRule));
 
-        // Mock API response - 修复update路径
+        // Mock API response
         stubFor(
                 put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .withRequestBody(equalToJson(requestBody))
@@ -364,8 +353,6 @@ public class AuditApiAlertRuleTest {
         rule.setNotifyType(NotifyType.EMAIL.name());
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
-        rule.setIsDeleted(0); // Set default isDeleted to 0
-        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 

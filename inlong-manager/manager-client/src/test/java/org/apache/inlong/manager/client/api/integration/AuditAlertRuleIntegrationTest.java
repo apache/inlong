@@ -129,7 +129,7 @@ public class AuditAlertRuleIntegrationTest {
                         .withRequestBody(equalToJson(requestBody))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - Fix: use auditClient.create() instead of auditClient.createAlertRule()
+        // Execute test
         Integer result = auditClient.create(inputRule);
 
         // Verify result
@@ -144,12 +144,10 @@ public class AuditAlertRuleIntegrationTest {
         // Prepare test data
         AuditAlertRule expectedRule = createTestAlertRule();
         expectedRule.setId(createdRuleId);
-        expectedRule.setVersion(1); // Set version to 1
-        expectedRule.setIsDeleted(0); // Set isDeleted to 0
 
         String responseBody = JsonUtils.toJsonString(Response.success(expectedRule));
 
-        // Mock API response - 修复路径匹配
+        // Mock API response
         stubFor(
                 get(urlMatching("/inlong/manager/api/audit/alert/rule/get/" + createdRuleId + ".*"))
                         .willReturn(okJson(responseBody)));
@@ -173,15 +171,11 @@ public class AuditAlertRuleIntegrationTest {
         AuditAlertRule rule1 = createTestAlertRule();
         rule1.setId(1);
         rule1.setEnabled(true);
-        rule1.setVersion(1); // Set version to 1
-        rule1.setIsDeleted(0); // Set isDeleted to 0
 
         AuditAlertRule rule2 = createTestAlertRule();
         rule2.setId(2);
         rule2.setAlertName("Second Alert Rule");
         rule2.setEnabled(true);
-        rule2.setVersion(1); // Set version to 1
-        rule2.setIsDeleted(0); // Set isDeleted to 0
 
         List<AuditAlertRule> expectedRules = Arrays.asList(rule1, rule2);
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -192,7 +186,7 @@ public class AuditAlertRuleIntegrationTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
         PageResult<AuditAlertRule> result = auditClient.listByCondition(request);
@@ -216,8 +210,6 @@ public class AuditAlertRuleIntegrationTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(createdRuleId);
-        rule.setVersion(1); // Set version to 1
-        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -247,8 +239,6 @@ public class AuditAlertRuleIntegrationTest {
         // Prepare test data
         AuditAlertRule rule = createTestAlertRule();
         rule.setId(createdRuleId);
-        rule.setVersion(1); // Set version to 1
-        rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
 
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
@@ -259,7 +249,7 @@ public class AuditAlertRuleIntegrationTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(okJson(responseBody)));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId(TEST_GROUP_ID);
         request.setInlongStreamId(TEST_STREAM_ID);
@@ -289,12 +279,11 @@ public class AuditAlertRuleIntegrationTest {
         inputRule.setLevel("CRITICAL");
         inputRule.setAlertName("Updated Integration Test Alert");
         inputRule.setVersion(2); // Set version for update
-        inputRule.setIsDeleted(0); // Set isDeleted to 0
 
         String requestBody = JsonUtils.toJsonString(inputRule);
         String responseBody = JsonUtils.toJsonString(Response.success(inputRule));
 
-        // Mock API response - 修复update路径
+        // Mock API response
         stubFor(
                 put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .withRequestBody(equalToJson(requestBody))
@@ -348,8 +337,6 @@ public class AuditAlertRuleIntegrationTest {
         AuditAlertRule createdRule = createTestAlertRule();
         createdRule.setId(100);
         createdRule.setAlertName("Workflow Test Alert");
-        createdRule.setVersion(1); // Set version to 1
-        createdRule.setIsDeleted(0); // Set isDeleted to 0
 
         stubFor(
                 post(urlMatching("/inlong/manager/api/audit/alert/rule.*"))
@@ -375,7 +362,6 @@ public class AuditAlertRuleIntegrationTest {
         updateRule.setAlertName("Updated Workflow Test Alert");
         updateRule.setLevel("CRITICAL");
         updateRule.setVersion(2); // Set version for update
-        updateRule.setIsDeleted(0); // Set isDeleted to 0
 
         stubFor(
                 put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
@@ -435,8 +421,6 @@ public class AuditAlertRuleIntegrationTest {
             AuditAlertRule rule = createTestAlertRule();
             rule.setId(200 + i);
             rule.setAlertName("Concurrent Test Alert " + i);
-            rule.setVersion(1); // Set version to 1
-            rule.setIsDeleted(0); // Set isDeleted to 0
 
             stubFor(
                     get(urlMatching("/inlong/manager/api/audit/alert/rule/get/" + (200 + i) + ".*"))
@@ -490,8 +474,6 @@ public class AuditAlertRuleIntegrationTest {
         rule.setNotifyType(TEST_NOTIFY_TYPE);
         rule.setReceivers(TEST_RECEIVERS);
         rule.setEnabled(true);
-        rule.setIsDeleted(0); // Set default isDeleted to 0
-        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 

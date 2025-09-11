@@ -331,12 +331,10 @@ public class AuditAlertRuleValidationTest {
         rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@test.com");
         rule.setEnabled(true);
-        rule.setIsDeleted(0); // Test isDeleted field
         rule.setCreator("test_user");
         rule.setModifier("test_user");
         rule.setCreateTime(now);
         rule.setModifyTime(now);
-        rule.setVersion(1); // Test version field
 
         // Assert all properties are set correctly
         Assertions.assertEquals(1, rule.getId());
@@ -411,10 +409,8 @@ public class AuditAlertRuleValidationTest {
         rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
-        rule.setIsDeleted(0); // Set isDeleted to 0 by default
         rule.setCreator("test_user");
         rule.setModifier("test_user");
-        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 }

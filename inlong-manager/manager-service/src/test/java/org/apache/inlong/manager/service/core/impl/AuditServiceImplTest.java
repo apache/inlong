@@ -57,13 +57,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity.setNotifyType(NotifyType.EMAIL.name());
         entity.setReceivers("service@test.com");
         entity.setEnabled(true);
-        entity.setIsDeleted(0);
         entity.setCreator("test_user");
         entity.setModifier("test_user");
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
-        entity.setVersion(1);
-
         auditAlertRuleMapper.insert(entity);
         return entity;
     }
@@ -123,7 +120,6 @@ class AuditServiceImplTest extends ServiceBaseTest {
         request.setNotifyType(NotifyType.EMAIL.name());
         request.setReceivers("service_request@test.com");
         request.setEnabled(true);
-        request.setVersion(1);
 
         // Create the rule
         Integer ruleId = auditAlertRuleService.create(request, "test_user");
@@ -197,12 +193,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity2.setNotifyType(NotifyType.EMAIL.name());
         entity2.setReceivers("enabled@test.com");
         entity2.setEnabled(true); // Enabled
-        entity2.setIsDeleted(0);
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
-        entity2.setVersion(1);
         auditAlertRuleMapper.insert(entity2);
 
         // Create disabled rule
@@ -215,12 +209,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity3.setNotifyType(NotifyType.SMS.name());
         entity3.setReceivers("disabled@test.com");
         entity3.setEnabled(false); // Disabled
-        entity3.setIsDeleted(0);
         entity3.setCreator("test_user");
         entity3.setModifier("test_user");
         entity3.setCreateTime(new Date());
         entity3.setModifyTime(new Date());
-        entity3.setVersion(1);
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by condition for enabled rules (replacing listEnabled)
@@ -259,12 +251,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity2.setNotifyType(NotifyType.EMAIL.name());
         entity2.setReceivers("select@test.com");
         entity2.setEnabled(true);
-        entity2.setIsDeleted(0);
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
-        entity2.setVersion(1);
         auditAlertRuleMapper.insert(entity2);
 
         // Test select by condition - filter by group ID

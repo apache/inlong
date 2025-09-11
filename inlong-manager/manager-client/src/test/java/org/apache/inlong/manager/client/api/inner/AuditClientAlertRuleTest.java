@@ -128,7 +128,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         AuditAlertRule expectedRule = createTestAlertRule();
         expectedRule.setId(1);
 
-        // Mock API response - 修复路径匹配
+        // Mock API response
         stubFor(
                 get(urlMatching("/inlong/manager/api/audit/alert/rule/get/1.*"))
                         .willReturn(
@@ -173,7 +173,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(
                                                 new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setEnabled(true);
         PageResult<AuditAlertRule> result = AUDIT_CLIENT.listByCondition(request);
@@ -200,7 +200,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(
                                                 new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
         PageResult<AuditAlertRule> result = AUDIT_CLIENT.listByCondition(request);
@@ -226,7 +226,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                                         Response.success(
                                                 new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
-        // Execute test - 使用listByCondition替代selectByCondition
+        // Execute test
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
         request.setInlongGroupId("test_group_001");
         request.setInlongStreamId("test_stream_001");
@@ -251,7 +251,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         inputRule.setCondition(condition);
         inputRule.setLevel("CRITICAL");
 
-        // Mock API response - 修复update路径
+        // Mock API response
         stubFor(
                 put(urlMatching("/inlong/manager/api/audit/alert/rule/update.*"))
                         .willReturn(

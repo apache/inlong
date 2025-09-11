@@ -60,10 +60,8 @@ class AuditControllerTest extends WebBaseTest {
         rule.setNotifyType(NotifyType.EMAIL.name());
         rule.setReceivers("admin@example.com,operator@example.com");
         rule.setEnabled(true);
-        rule.setIsDeleted(0); // Set isDeleted to 0 by default
         rule.setCreator("test_user");
         rule.setModifier("test_user");
-        rule.setVersion(1); // Set default version to 1
         return rule;
     }
 
@@ -79,12 +77,10 @@ class AuditControllerTest extends WebBaseTest {
         entity.setNotifyType(NotifyType.SMS.name());
         entity.setReceivers("admin@example.com");
         entity.setEnabled(true);
-        entity.setIsDeleted(0); // Set isDeleted to 0
         entity.setCreator("test_user");
         entity.setModifier("test_user");
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
-        entity.setVersion(1); // Set default version to 1
 
         auditAlertRuleMapper.insert(entity);
         return entity;
@@ -155,12 +151,10 @@ class AuditControllerTest extends WebBaseTest {
         entity2.setNotifyType(NotifyType.EMAIL.name());
         entity2.setReceivers("test@example.com");
         entity2.setEnabled(false); // Disabled
-        entity2.setIsDeleted(0); // Set isDeleted to 0
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
-        entity2.setVersion(1); // Set default version to 1
         auditAlertRuleMapper.insert(entity2);
 
         // Execute selectByCondition request for enabled rules
