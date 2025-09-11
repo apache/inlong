@@ -57,7 +57,7 @@ class AuditControllerTest extends WebBaseTest {
         condition.setValue(5);
         rule.setCondition(condition);
         rule.setLevel("WARN");
-        rule.setNotifyType(NotifyType.EMAIL.name());
+        rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com,operator@example.com");
         rule.setEnabled(true);
         rule.setCreator("test_user");
@@ -100,7 +100,7 @@ class AuditControllerTest extends WebBaseTest {
         condition.setValue(5);
         request.setCondition(condition);
         request.setLevel("WARN");
-        request.setNotifyType(NotifyType.EMAIL.name());
+        request.setNotifyType(NotifyType.EMAIL);
         request.setReceivers("admin@example.com,operator@example.com");
         request.setEnabled(true);
 
@@ -315,7 +315,7 @@ class AuditControllerTest extends WebBaseTest {
         }
         updateRequest.setCondition(condition);
         updateRequest.setLevel("CRITICAL");
-        updateRequest.setNotifyType(NotifyType.EMAIL.name());
+        updateRequest.setNotifyType(NotifyType.EMAIL);
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
         updateRequest.setVersion(freshEntity.getVersion());

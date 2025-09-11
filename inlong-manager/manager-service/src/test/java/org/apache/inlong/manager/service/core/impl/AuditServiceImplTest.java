@@ -77,7 +77,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         AuditAlertRuleRequest request = new AuditAlertRuleRequest();
         request.setId(freshEntity.getId());
         request.setLevel("CRITICAL");
-        request.setNotifyType(NotifyType.SMS.name());
+        request.setNotifyType(NotifyType.SMS);
         request.setReceivers("updated_service@test.com");
         request.setEnabled(false);
         request.setVersion(freshEntity.getVersion());
@@ -117,7 +117,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         condition.setValue(5);
         request.setCondition(condition);
         request.setLevel("WARN");
-        request.setNotifyType(NotifyType.EMAIL.name());
+        request.setNotifyType(NotifyType.EMAIL);
         request.setReceivers("service_request@test.com");
         request.setEnabled(true);
 
@@ -152,7 +152,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(freshEntity.getId());
         updateRequest.setLevel("CRITICAL");
-        updateRequest.setNotifyType(NotifyType.SMS.name());
+        updateRequest.setNotifyType(NotifyType.SMS);
         updateRequest.setReceivers("updated_service_request@test.com");
         updateRequest.setEnabled(false);
         updateRequest.setVersion(freshEntity.getVersion());

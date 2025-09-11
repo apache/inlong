@@ -81,7 +81,7 @@ public class AuditAlertRuleIntegrationTest {
     private static final String TEST_ALERT_NAME = "Integration Test Alert";
     private static final AuditAlertCondition TEST_CONDITION = createTestCondition();
     private static final String TEST_LEVEL = "ERROR";
-    private static final String TEST_NOTIFY_TYPE = NotifyType.EMAIL.name();
+    private static final NotifyType TEST_NOTIFY_TYPE = NotifyType.EMAIL;
     private static final String TEST_RECEIVERS = "integration@test.com";
 
     private static Integer createdRuleId;

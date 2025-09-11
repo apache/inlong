@@ -344,7 +344,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         condition.setValue(1000);
         rule.setCondition(condition);
         rule.setLevel("ERROR");
-        rule.setNotifyType(NotifyType.EMAIL.name());
+        rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
         return rule;
@@ -365,7 +365,7 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
         condition.setValue(1000);
         request.setCondition(condition);
         request.setLevel("ERROR");
-        request.setNotifyType(NotifyType.EMAIL.name());
+        request.setNotifyType(NotifyType.EMAIL);
         request.setReceivers("admin@example.com,monitor@example.com");
         request.setEnabled(true);
         return request;

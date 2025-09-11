@@ -62,7 +62,7 @@ public class AuditAlertRuleTest {
         condition.setValue(10000);
         sampleRule.setCondition(condition);
         sampleRule.setLevel("WARN");
-        sampleRule.setNotifyType(NotifyType.EMAIL.name());
+        sampleRule.setNotifyType(NotifyType.EMAIL);
         sampleRule.setReceivers("admin@example.com");
         sampleRule.setEnabled(true);
         sampleRule.setCreator("test_user");
@@ -131,7 +131,7 @@ public class AuditAlertRuleTest {
         condition.setValue(10000);
         request.setCondition(condition);
         request.setLevel("WARN");
-        request.setNotifyType(NotifyType.EMAIL.name());
+        request.setNotifyType(NotifyType.EMAIL);
         request.setReceivers("admin@example.com");
         request.setEnabled(true);
 
@@ -151,7 +151,7 @@ public class AuditAlertRuleTest {
         AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(1);
         updateRequest.setLevel("ERROR");
-        updateRequest.setNotifyType(NotifyType.SMS.name());
+        updateRequest.setNotifyType(NotifyType.SMS);
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
 
@@ -160,7 +160,7 @@ public class AuditAlertRuleTest {
         updatedRule.setId(1);
         updatedRule.setAlertName("Test Alert Rule");
         updatedRule.setLevel("ERROR");
-        updatedRule.setNotifyType(NotifyType.SMS.name());
+        updatedRule.setNotifyType(NotifyType.SMS);
         updatedRule.setReceivers("updated@example.com");
         updatedRule.setEnabled(false);
         updatedRule.setVersion(2); // Increment version
@@ -280,7 +280,7 @@ public class AuditAlertRuleTest {
         condition.setValue(1000);
         rule.setCondition(condition);
         rule.setLevel("WARN");
-        rule.setNotifyType(NotifyType.EMAIL.name());
+        rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
         return rule;
