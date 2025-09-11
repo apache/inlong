@@ -23,6 +23,7 @@ import org.apache.inlong.manager.client.api.inner.client.AuditClient;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
@@ -80,7 +81,7 @@ public class AuditAlertRuleIntegrationTest {
     private static final String TEST_ALERT_NAME = "Integration Test Alert";
     private static final AuditAlertCondition TEST_CONDITION = createTestCondition();
     private static final String TEST_LEVEL = "ERROR";
-    private static final String TEST_NOTIFY_TYPE = "EMAIL";
+    private static final String TEST_NOTIFY_TYPE = NotifyType.EMAIL.name();
     private static final String TEST_RECEIVERS = "integration@test.com";
 
     private static Integer createdRuleId;

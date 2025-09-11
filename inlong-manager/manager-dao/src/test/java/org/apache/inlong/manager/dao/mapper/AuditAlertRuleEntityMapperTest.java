@@ -20,6 +20,7 @@ package org.apache.inlong.manager.dao.mapper;
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
+import org.apache.inlong.manager.common.enums.NotifyType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,7 +58,7 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
             throw new RuntimeException("Failed to serialize condition", e);
         }
         entity.setLevel("WARN");
-        entity.setNotifyType("EMAIL");
+        entity.setNotifyType(NotifyType.EMAIL.name());
         entity.setReceivers("mapper@test.com");
         entity.setEnabled(true);
         entity.setIsDeleted(0); // Set isDeleted to 0 by default

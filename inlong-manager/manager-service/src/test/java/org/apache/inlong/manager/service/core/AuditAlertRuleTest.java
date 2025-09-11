@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.common.enums.NotifyType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,7 @@ public class AuditAlertRuleTest {
         condition.setValue(10000);
         sampleRule.setCondition(condition);
         sampleRule.setLevel("WARN");
-        sampleRule.setNotifyType("EMAIL");
+        sampleRule.setNotifyType(NotifyType.EMAIL.name());
         sampleRule.setReceivers("admin@example.com");
         sampleRule.setEnabled(true);
         sampleRule.setIsDeleted(0); // Set isDeleted to 0 by default
@@ -134,7 +135,7 @@ public class AuditAlertRuleTest {
         condition.setValue(10000);
         request.setCondition(condition);
         request.setLevel("WARN");
-        request.setNotifyType("EMAIL");
+        request.setNotifyType(NotifyType.EMAIL.name());
         request.setReceivers("admin@example.com");
         request.setEnabled(true);
 
@@ -156,7 +157,7 @@ public class AuditAlertRuleTest {
         AuditAlertRuleRequest updateRequest = new AuditAlertRuleRequest();
         updateRequest.setId(1);
         updateRequest.setLevel("ERROR");
-        updateRequest.setNotifyType("SMS");
+        updateRequest.setNotifyType(NotifyType.SMS.name());
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
         updateRequest.setVersion(1);
@@ -166,7 +167,7 @@ public class AuditAlertRuleTest {
         updatedRule.setId(1);
         updatedRule.setAlertName("Test Alert Rule");
         updatedRule.setLevel("ERROR");
-        updatedRule.setNotifyType("SMS");
+        updatedRule.setNotifyType(NotifyType.SMS.name());
         updatedRule.setReceivers("updated@example.com");
         updatedRule.setEnabled(false);
         updatedRule.setVersion(2); // Increment version
@@ -176,7 +177,7 @@ public class AuditAlertRuleTest {
         AuditAlertRule updated = auditAlertRuleService.update(updateRequest, "test_user");
         assertNotNull(updated);
         assertEquals("ERROR", updated.getLevel());
-        assertEquals("SMS", updated.getNotifyType());
+        assertEquals(NotifyType.SMS.name(), updated.getNotifyType());
         assertEquals("updated@example.com", updated.getReceivers());
         assertFalse(updated.getEnabled());
         assertEquals(2, updated.getVersion().intValue()); // Verify version is incremented
@@ -290,7 +291,7 @@ public class AuditAlertRuleTest {
         condition.setValue(1000);
         rule.setCondition(condition);
         rule.setLevel("WARN");
-        rule.setNotifyType("EMAIL");
+        rule.setNotifyType(NotifyType.EMAIL.name());
         rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
         rule.setIsDeleted(0); // Set isDeleted to 0

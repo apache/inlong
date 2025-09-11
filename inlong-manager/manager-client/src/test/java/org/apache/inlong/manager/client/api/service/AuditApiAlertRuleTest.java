@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.enums.NotifyType;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -360,7 +361,7 @@ public class AuditApiAlertRuleTest {
         condition.setValue(1000);
         rule.setCondition(condition);
         rule.setLevel("ERROR");
-        rule.setNotifyType("EMAIL");
+        rule.setNotifyType(NotifyType.EMAIL.name());
         rule.setReceivers("admin@example.com,monitor@example.com");
         rule.setEnabled(true);
         rule.setIsDeleted(0); // Set default isDeleted to 0
@@ -383,7 +384,7 @@ public class AuditApiAlertRuleTest {
         condition.setValue(1000);
         request.setCondition(condition);
         request.setLevel("ERROR");
-        request.setNotifyType("EMAIL");
+        request.setNotifyType(NotifyType.EMAIL.name());
         request.setReceivers("admin@example.com,monitor@example.com");
         request.setEnabled(true);
         return request;
