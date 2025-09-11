@@ -202,8 +202,10 @@ public class AuditAlertRuleIntegrationTest {
         Assertions.assertTrue(result.getList().get(0).getEnabled(), "First rule should be enabled");
         Assertions.assertTrue(result.getList().get(1).getEnabled(), "Second rule should be enabled");
         // Verify isDeleted for both rules
-        Assertions.assertEquals(0, result.getList().get(0).getIsDeleted().intValue(), "First rule should not be deleted");
-        Assertions.assertEquals(0, result.getList().get(1).getIsDeleted().intValue(), "Second rule should not be deleted");
+        Assertions.assertEquals(0, result.getList().get(0).getIsDeleted().intValue(),
+                "First rule should not be deleted");
+        Assertions.assertEquals(0, result.getList().get(1).getIsDeleted().intValue(),
+                "Second rule should not be deleted");
 
     }
 
@@ -216,7 +218,7 @@ public class AuditAlertRuleIntegrationTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-        
+
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
         String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
@@ -247,7 +249,7 @@ public class AuditAlertRuleIntegrationTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-        
+
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
         String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 

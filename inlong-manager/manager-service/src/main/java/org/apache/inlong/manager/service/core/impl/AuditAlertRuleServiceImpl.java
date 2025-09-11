@@ -253,7 +253,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         log.info("begin to select audit alert rules by condition with pagination, request={}", request);
 
         // Start pagination
-        PageHelper.startPage(request.getPageNum(), request.getPageSize(), 
+        PageHelper.startPage(request.getPageNum(), request.getPageSize(),
                 String.format("%s %s", request.getOrderField(), request.getOrderType()));
 
         // Convert request to entity for database query
@@ -284,10 +284,11 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 .collect(Collectors.toList());
 
         // Create page result
-        PageResult<AuditAlertRule> pageResult = PageResult.fromPage(entityPage);
-        pageResult.setList(rules);
+        PageResult<AuditAlertRule> pageResult = new PageResult<>(rules, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
 
-        log.info("success to select audit alert rules by condition with pagination, count={}", pageResult.getList().size());
+        log.info("success to select audit alert rules by condition with pagination, count={}",
+                pageResult.getList().size());
         return pageResult;
     }
 }

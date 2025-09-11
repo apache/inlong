@@ -187,7 +187,7 @@ public class AuditApiAlertRuleTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-        
+
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
         String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 
@@ -221,7 +221,7 @@ public class AuditApiAlertRuleTest {
         rule.setVersion(1); // Set version to 1
         rule.setIsDeleted(0); // Set isDeleted to 0
         List<AuditAlertRule> expectedRules = Arrays.asList(rule);
-        
+
         PageResult<AuditAlertRule> pageResult = new PageResult<>(expectedRules, (long) expectedRules.size());
         String responseBody = JsonUtils.toJsonString(Response.success(pageResult));
 

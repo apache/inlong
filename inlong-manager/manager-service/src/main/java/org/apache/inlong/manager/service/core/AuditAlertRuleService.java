@@ -22,8 +22,6 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 
-import java.util.List;
-
 /**
  * The service interface for audit alert rule.
  */

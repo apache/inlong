@@ -169,7 +169,8 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
+                                        Response.success(
+                                                new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
         // Execute test - 使用listByCondition替代selectByCondition
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
@@ -195,7 +196,8 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
+                                        Response.success(
+                                                new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
         // Execute test - 使用listByCondition替代selectByCondition
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();
@@ -220,7 +222,8 @@ public class AuditClientAlertRuleTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/audit/alert/rule/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(expectedRules, (long) expectedRules.size()))))));
+                                        Response.success(
+                                                new PageResult<>(expectedRules, (long) expectedRules.size()))))));
 
         // Execute test - 使用listByCondition替代selectByCondition
         AuditAlertRulePageRequest request = new AuditAlertRulePageRequest();

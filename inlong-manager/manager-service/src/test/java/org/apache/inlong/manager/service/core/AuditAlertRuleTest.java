@@ -94,7 +94,8 @@ public class AuditAlertRuleTest {
                 .thenReturn(new PageResult<>(Arrays.asList(created), 1L));
 
         // Test select by condition
-        PageResult<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(new AuditAlertRulePageRequest());
+        PageResult<AuditAlertRule> selectedRules =
+                auditAlertRuleService.selectByCondition(new AuditAlertRulePageRequest());
         assertNotNull(selectedRules);
         assertTrue(selectedRules.getList().size() > 0);
         assertTrue(selectedRules.getList().stream().anyMatch(r -> r.getId().equals(created.getId())));
