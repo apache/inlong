@@ -86,15 +86,18 @@ public class AuditAlertRuleTest {
         assertEquals(1, queried.getId());
         assertEquals("test_group", queried.getInlongGroupId());
 
-        // Mock behavior for list rules
-        when(auditAlertRuleService.listRules("test_group", "test_stream"))
+        // Mock behavior for select by condition (replacing listRules)
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("test_group");
+        request.setInlongStreamId("test_stream");
+        when(auditAlertRuleService.selectByCondition(request))
                 .thenReturn(Arrays.asList(created));
 
-        // Test list rules
-        List<AuditAlertRule> rules = auditAlertRuleService.listRules("test_group", "test_stream");
-        assertNotNull(rules);
-        assertTrue(rules.size() > 0);
-        assertTrue(rules.stream().anyMatch(r -> r.getId().equals(created.getId())));
+        // Test select by condition
+        List<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(request);
+        assertNotNull(selectedRules);
+        assertTrue(selectedRules.size() > 0);
+        assertTrue(selectedRules.stream().anyMatch(r -> r.getId().equals(created.getId())));
 
         // Mock behavior for delete
         when(auditAlertRuleService.delete(1))
@@ -178,7 +181,7 @@ public class AuditAlertRuleTest {
 
     @Test
     public void testListEnabledAlertRules() {
-        // Test list enabled alert rules
+        // Test select by condition for enabled rules (replacing listEnabled)
         AuditAlertRule rule1 = new AuditAlertRule();
         rule1.setId(1);
         rule1.setAlertName("Enabled Rule 1");
@@ -191,20 +194,52 @@ public class AuditAlertRuleTest {
         rule2.setEnabled(true);
         rule2.setIsDeleted(0);
 
-        AuditAlertRule rule3 = new AuditAlertRule();
-        rule3.setId(3);
-        rule3.setAlertName("Disabled Rule");
-        rule3.setEnabled(false);
-        rule3.setIsDeleted(0);
+        List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2);
 
-        List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2, rule3);
-        when(auditAlertRuleService.listEnabled())
+        // Mock behavior for selectByCondition with enabled=true
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        when(auditAlertRuleService.selectByCondition(request))
                 .thenReturn(Arrays.asList(rule1, rule2));
 
-        List<AuditAlertRule> enabledRules = auditAlertRuleService.listEnabled();
+        List<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
         assertNotNull(enabledRules);
         assertEquals(2, enabledRules.size());
         assertTrue(enabledRules.stream().allMatch(AuditAlertRule::getEnabled));
+    }
+
+    @Test
+    public void testSelectByCondition() {
+        // Test select by condition
+        AuditAlertRule rule1 = new AuditAlertRule();
+        rule1.setId(1);
+        rule1.setInlongGroupId("group1");
+        rule1.setAlertName("Rule 1");
+        rule1.setEnabled(true);
+        rule1.setIsDeleted(0);
+
+        AuditAlertRule rule2 = new AuditAlertRule();
+        rule2.setId(2);
+        rule2.setInlongGroupId("group2");
+        rule2.setAlertName("Rule 2");
+        rule2.setEnabled(true);
+        rule2.setIsDeleted(0);
+
+        List<AuditAlertRule> rules = Arrays.asList(rule1, rule2);
+
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setInlongGroupId("group1");
+        request.setAlertName("Rule 1");
+        request.setEnabled(true);
+
+        when(auditAlertRuleService.selectByCondition(request))
+                .thenReturn(Arrays.asList(rule1));
+
+        List<AuditAlertRule> selectedRules = auditAlertRuleService.selectByCondition(request);
+        assertNotNull(selectedRules);
+        assertEquals(1, selectedRules.size());
+        assertEquals("group1", selectedRules.get(0).getInlongGroupId());
+        assertEquals("Rule 1", selectedRules.get(0).getAlertName());
     }
 
     @Test

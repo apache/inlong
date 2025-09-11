@@ -98,8 +98,6 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
             }
         }
 
-        log.info("success to create audit alert rule, rule={}, operator={}", rule, operator);
-
         log.info("success to create audit alert rule from request, request={}, operator={}", request, operator);
         return createdRule.getId();
     }
@@ -247,25 +245,28 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     }
 
     @Override
-    public List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId) {
-        log.info("begin to list audit alert rules, inlongGroupId={}, inlongStreamId={}", inlongGroupId, inlongStreamId);
+    public List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request) {
+        log.info("begin to select audit alert rules by condition, request={}", request);
+
+        // Convert request to entity for database query
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(request, AuditAlertRuleEntity::new);
 
         // Get from database
-        List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByGroupAndStream(inlongGroupId, inlongStreamId);
+        List<AuditAlertRuleEntity> entities = alertRuleMapper.selectByCondition(entity);
 
         // Convert to rules and filter out soft-deleted records
         List<AuditAlertRule> rules = entities.stream()
-                .filter(entity -> entity.getIsDeleted() == null || entity.getIsDeleted() == 0)
-                .map(entity -> {
-                    AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
+                .filter(e -> e.getIsDeleted() == null || e.getIsDeleted() == 0)
+                .map(e -> {
+                    AuditAlertRule rule = CommonBeanUtils.copyProperties(e, AuditAlertRule::new);
                     // Convert condition JSON string to Condition object
-                    if (StringUtils.isNotBlank(entity.getCondition())) {
+                    if (StringUtils.isNotBlank(e.getCondition())) {
                         try {
                             AuditAlertCondition condition =
-                                    objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
+                                    objectMapper.readValue(e.getCondition(), AuditAlertCondition.class);
                             rule.setCondition(condition);
-                        } catch (JsonProcessingException e) {
-                            log.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
+                        } catch (JsonProcessingException ex) {
+                            log.error("Failed to parse condition JSON: {}", e.getCondition(), ex);
                             // Set a default condition to avoid breaking the list
                             rule.setCondition(new AuditAlertCondition());
                         }
@@ -274,38 +275,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 })
                 .collect(Collectors.toList());
 
-        log.info("success to list audit alert rules, count={}", rules.size());
-        return rules;
-    }
-
-    @Override
-    public List<AuditAlertRule> listEnabled() {
-        log.info("begin to list enabled audit alert rules");
-
-        // Get from database
-        List<AuditAlertRuleEntity> entities = alertRuleMapper.selectEnabledRules();
-
-        // Convert to rules
-        List<AuditAlertRule> rules = entities.stream()
-                .map(entity -> {
-                    AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
-                    // Convert condition JSON string to Condition object
-                    if (StringUtils.isNotBlank(entity.getCondition())) {
-                        try {
-                            AuditAlertCondition condition =
-                                    objectMapper.readValue(entity.getCondition(), AuditAlertCondition.class);
-                            rule.setCondition(condition);
-                        } catch (JsonProcessingException e) {
-                            log.error("Failed to parse condition JSON: {}", entity.getCondition(), e);
-                            // Set a default condition to avoid breaking the list
-                            rule.setCondition(new AuditAlertCondition());
-                        }
-                    }
-                    return rule;
-                })
-                .collect(Collectors.toList());
-
-        log.info("success to list enabled audit alert rules, count={}", rules.size());
+        log.info("success to select audit alert rules by condition, count={}", rules.size());
         return rules;
     }
 }

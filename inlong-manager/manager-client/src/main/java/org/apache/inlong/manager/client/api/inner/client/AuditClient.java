@@ -121,26 +121,14 @@ public class AuditClient {
     }
 
     /**
-     * List all enabled audit alert rules
+     * Select audit alert rules by condition
      *
-     * @return List of enabled audit alert rules
-     */
-    public List<AuditAlertRule> listEnabled() {
-        Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(auditApi.listEnabled());
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * List audit alert rules by conditions
-     *
-     * @param inlongGroupId The inlong group ID (optional)
-     * @param inlongStreamId The inlong stream ID (optional)
+     * @param request The condition to filter audit alert rules
      * @return List of audit alert rules
      */
-    public List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId) {
+    public List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request) {
         Response<List<AuditAlertRule>> response = ClientUtils.executeHttpCall(
-                auditApi.listRules(inlongGroupId, inlongStreamId));
+                auditApi.selectByCondition(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -163,7 +151,7 @@ public class AuditClient {
      * Delete an audit alert rule by ID
      *
      * @param id The rule ID
-     * @return true if deletion was successful
+     * @return True if deletion is successful, false otherwise
      */
     public Boolean delete(Integer id) {
         Preconditions.expectNotNull(id, "rule id cannot be null");

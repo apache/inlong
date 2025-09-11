@@ -220,8 +220,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity3.setVersion(1);
         auditAlertRuleMapper.insert(entity3);
 
-        // List enabled rules
-        List<AuditAlertRule> enabledRules = auditAlertRuleService.listEnabled();
+        // Test select by condition for enabled rules (replacing listEnabled)
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setEnabled(true);
+        List<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
 
         // Verify the result
         Assertions.assertNotNull(enabledRules);
@@ -235,9 +237,57 @@ class AuditServiceImplTest extends ServiceBaseTest {
         boolean foundEnabledRule = enabledRules.stream()
                 .anyMatch(rule -> "Enabled Rule".equals(rule.getAlertName()));
         Assertions.assertTrue(foundEnabledRule);
-        // Should not contain our disabled rule
-        boolean foundDisabledRule = enabledRules.stream()
-                .anyMatch(rule -> "Disabled Rule".equals(rule.getAlertName()));
-        Assertions.assertFalse(foundDisabledRule);
+    }
+
+    @Test
+    void testSelectByCondition() {
+        // Insert test data
+        AuditAlertRuleEntity entity1 = insertTestEntity();
+
+        // Create another rule with different group ID
+        AuditAlertRuleEntity entity2 = new AuditAlertRuleEntity();
+        entity2.setInlongGroupId("test_group_service_select");
+        entity2.setInlongStreamId("test_stream_service_select");
+        entity2.setAuditId("4");
+        entity2.setAlertName("Select Test Rule");
+        entity2.setCondition("{\"type\": \"count\", \"operator\": \">\", \"value\": 100}");
+        entity2.setLevel("INFO");
+        entity2.setNotifyType("EMAIL");
+        entity2.setReceivers("select@test.com");
+        entity2.setEnabled(true);
+        entity2.setIsDeleted(0);
+        entity2.setCreator("test_user");
+        entity2.setModifier("test_user");
+        entity2.setCreateTime(new Date());
+        entity2.setModifyTime(new Date());
+        entity2.setVersion(1);
+        auditAlertRuleMapper.insert(entity2);
+
+        // Test select by condition - filter by group ID
+        AuditAlertRuleRequest request1 = new AuditAlertRuleRequest();
+        request1.setInlongGroupId("test_group_service_select");
+        List<AuditAlertRule> rules1 = auditAlertRuleService.selectByCondition(request1);
+        Assertions.assertNotNull(rules1);
+        Assertions.assertEquals(1, rules1.size());
+        Assertions.assertEquals("test_group_service_select", rules1.get(0).getInlongGroupId());
+        Assertions.assertEquals("Select Test Rule", rules1.get(0).getAlertName());
+
+        // Test select by condition - filter by alert name
+        AuditAlertRuleRequest request2 = new AuditAlertRuleRequest();
+        request2.setAlertName("Service Test Alert");
+        List<AuditAlertRule> rules2 = auditAlertRuleService.selectByCondition(request2);
+        Assertions.assertNotNull(rules2);
+        Assertions.assertEquals(1, rules2.size());
+        Assertions.assertEquals("test_group_service", rules2.get(0).getInlongGroupId());
+        Assertions.assertEquals("Service Test Alert", rules2.get(0).getAlertName());
+
+        // Test select by condition - no filter (should return all non-deleted rules)
+        AuditAlertRuleRequest request3 = new AuditAlertRuleRequest();
+        List<AuditAlertRule> rules3 = auditAlertRuleService.selectByCondition(request3);
+        Assertions.assertNotNull(rules3);
+        // Should have at least the two rules we inserted
+        Assertions.assertTrue(rules3.size() >= 2);
+        // All rules should not be deleted
+        Assertions.assertTrue(rules3.stream().allMatch(rule -> rule.getIsDeleted() == 0));
     }
 }

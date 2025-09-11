@@ -43,17 +43,12 @@ public interface AuditAlertRuleService {
     AuditAlertRule update(AuditAlertRuleRequest request, String operator);
 
     /**
-     * Delete the audit alert rule
+     * Delete the audit alert rule 
      */
     Boolean delete(Integer id);
 
     /**
-     * List audit alert rules by condition
+     * Select audit alert rules by condition
      */
-    List<AuditAlertRule> listRules(String inlongGroupId, String inlongStreamId);
-
-    /**
-     * List all enabled audit alert rules
-     */
-    List<AuditAlertRule> listEnabled();
+    List<AuditAlertRule> selectByCondition(AuditAlertRuleRequest request);
 }
