@@ -285,7 +285,7 @@ public class AuditAlertRuleValidationTest {
         rule.setCondition(null); // null
         rule.setEnabled(null); // null
         rule.setLevel("INVALID"); // 无效值
-        rule.setNotifyType(NotifyType.EMAIL); 
+        rule.setNotifyType(NotifyType.EMAIL);
 
         // Validate
         Set<ConstraintViolation<AuditAlertRule>> violations = validator.validate(rule);
@@ -298,12 +298,12 @@ public class AuditAlertRuleValidationTest {
     void testOptionalFieldsCanBeNull() {
         // Create AuditAlertRule with optional fields as null
         AuditAlertRule rule = createValidAuditAlertRule();
-        rule.setInlongStreamId(null); // 可选字段
-        rule.setLevel(null); // 可选字段
-        rule.setNotifyType(null); // 可选字段
-        rule.setReceivers(null); // 可选字段
-        rule.setCreateTime(null); // 可选字段
-        rule.setModifyTime(null); // 可选字段
+        rule.setInlongStreamId(null);
+        rule.setLevel(null);
+        rule.setNotifyType(null);
+        rule.setReceivers(null);
+        rule.setCreateTime(null);
+        rule.setModifyTime(null);
 
         // Validate
         Set<ConstraintViolation<AuditAlertRule>> violations = validator.validate(rule);
