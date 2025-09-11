@@ -20,4 +20,11 @@
 #
 
 # this program kills the audit
+WAIT_TIME=30
+ps -ef | grep "org.apache.inlong.audit.node.Application" | grep "inlong-audit" | grep -v grep |awk '{print $2}' | xargs kill
+
+echo "Stopping Audit Proxy application, please wait for $WAIT_TIME s. "
+
+sleep $WAIT_TIME
+
 ps -ef | grep "org.apache.inlong.audit.node.Application" | grep "inlong-audit" | grep -v grep |awk '{print $2}' | xargs kill -9

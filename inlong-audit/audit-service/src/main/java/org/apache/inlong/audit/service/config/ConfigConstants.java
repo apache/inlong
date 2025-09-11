@@ -113,6 +113,15 @@ public class ConfigConstants {
     public static final String KEY_ENABLE_STAT_AUDIT_DAY = "enable.stat.audit.day";
     public static final boolean DEFAULT_ENABLE_STAT_AUDIT_DAY = true;
 
+    public static final String KEY_ENABLE_STAT_AUDIT_MINUTE_10 = "enable.stat.audit.minute.10";
+    public static final boolean DEFAULT_ENABLE_STAT_AUDIT_MINUTE_10 = true;
+
+    public static final String KEY_ENABLE_STAT_AUDIT_MINUTE_30 = "enable.stat.audit.minute.30";
+    public static final boolean DEFAULT_ENABLE_STAT_AUDIT_MINUTE_30 = true;
+
+    public static final String KEY_ENABLE_STAT_AUDIT_HOUR = "enable.stat.audit.hour";
+    public static final boolean DEFAULT_ENABLE_STAT_AUDIT_HOUR = true;
+
     public static final String KEY_AUDIT_SERVICE_PROMETHEUS_PORT = "audit.service.prometheus.port";
     public static final int DEFAULT_AUDIT_SERVICE_PROMETHEUS_PORT = 10084;
     public static final String KEY_AUDIT_SERVICE_METRIC_CLASSNAME = "audit.service.metric.classname";
