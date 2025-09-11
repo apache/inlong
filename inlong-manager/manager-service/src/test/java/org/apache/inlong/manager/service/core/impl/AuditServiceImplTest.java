@@ -233,7 +233,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         // Should have at least the two enabled rules
         Assertions.assertTrue(enabledRules.size() >= 2);
         // All rules should be enabled
-        Assertions.assertTrue(enabledRules.stream().allMatch(AuditAlertRule::getEnabled));
+        Assertions.assertTrue(enabledRules.stream().allMatch(rule -> rule.getEnabled()));
         // All rules should not be deleted
         Assertions.assertTrue(enabledRules.stream().allMatch(rule -> rule.getIsDeleted() == 0));
         // Should contain our enabled rule
