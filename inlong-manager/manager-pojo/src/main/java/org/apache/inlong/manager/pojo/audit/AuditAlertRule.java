@@ -72,7 +72,7 @@ public class AuditAlertRule {
     private Boolean enabled;
 
     @ApiModelProperty("Whether deleted")
-    private Integer isDeleted; // Use Integer to match database int(11) type
+    private Integer isDeleted = 0; // Use Integer to match database int(11) type
 
     @ApiModelProperty("Creator name")
     private String creator;
@@ -87,7 +87,7 @@ public class AuditAlertRule {
     private Date modifyTime;
 
     @ApiModelProperty("Version number")
-    private Integer version; // Add version field
+    private Integer version = 1; // Add version field
 
     public NotifyType getNotifyType() {
         return notifyType;

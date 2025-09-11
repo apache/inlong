@@ -67,6 +67,9 @@ public class AuditAlertRuleTest {
         sampleRule.setEnabled(true);
         sampleRule.setCreator("test_user");
         sampleRule.setModifier("test_user");
+        sampleRule.setIsDeleted(0);
+        sampleRule.setVersion(1);
+
     }
 
     @Test
@@ -76,6 +79,8 @@ public class AuditAlertRuleTest {
         created.setId(1);
         created.setInlongGroupId("test_group");
         created.setAlertName("Test Alert Rule");
+        created.setIsDeleted(0); // Set isDeleted to 0
+        created.setVersion(1); // Set version to 1
         when(auditAlertRuleService.get(1))
                 .thenReturn(created);
 
@@ -140,6 +145,9 @@ public class AuditAlertRuleTest {
         created.setId(1);
         created.setInlongGroupId("test_group");
         created.setAlertName("Test Alert Rule");
+        created.setIsDeleted(0); // Set isDeleted to 0
+        created.setVersion(1); // Set version to 1
+
         when(auditAlertRuleService.create(any(AuditAlertRuleRequest.class), eq("test_user")))
                 .thenReturn(created.getId());
 
@@ -154,6 +162,7 @@ public class AuditAlertRuleTest {
         updateRequest.setNotifyType(NotifyType.SMS);
         updateRequest.setReceivers("updated@example.com");
         updateRequest.setEnabled(false);
+        updateRequest.setVersion(1);
 
         // Mock behavior for update with request
         AuditAlertRule updatedRule = new AuditAlertRule();
@@ -183,11 +192,13 @@ public class AuditAlertRuleTest {
         rule1.setId(1);
         rule1.setAlertName("Enabled Rule 1");
         rule1.setEnabled(true);
+        rule1.setIsDeleted(0);
 
         AuditAlertRule rule2 = new AuditAlertRule();
         rule2.setId(2);
         rule2.setAlertName("Enabled Rule 2");
         rule2.setEnabled(true);
+        rule2.setIsDeleted(0);
 
         List<AuditAlertRule> allRules = Arrays.asList(rule1, rule2);
 
@@ -211,12 +222,14 @@ public class AuditAlertRuleTest {
         rule1.setInlongGroupId("group1");
         rule1.setAlertName("Rule 1");
         rule1.setEnabled(true);
+        rule1.setIsDeleted(0);
 
         AuditAlertRule rule2 = new AuditAlertRule();
         rule2.setId(2);
         rule2.setInlongGroupId("group2");
         rule2.setAlertName("Rule 2");
         rule2.setEnabled(true);
+        rule1.setIsDeleted(0);
 
         List<AuditAlertRule> rules = Arrays.asList(rule1, rule2);
 
@@ -283,6 +296,7 @@ public class AuditAlertRuleTest {
         rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
+        rule.setIsDeleted(0); // Set isDeleted to 0
         return rule;
     }
 }

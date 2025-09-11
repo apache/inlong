@@ -336,6 +336,8 @@ public class AuditAlertRuleValidationTest {
         rule.setModifier("test_user");
         rule.setCreateTime(now);
         rule.setModifyTime(now);
+        rule.setIsDeleted(0);
+        rule.setVersion(1);
 
         // Assert all properties are set correctly
         Assertions.assertEquals(1, rule.getId());
@@ -412,6 +414,8 @@ public class AuditAlertRuleValidationTest {
         rule.setEnabled(true);
         rule.setCreator("test_user");
         rule.setModifier("test_user");
+        rule.setIsDeleted(0)
+        rule.setVersion(1);
         return rule;
     }
 }
