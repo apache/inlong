@@ -42,11 +42,17 @@ import java.util.List;
 
 import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
 import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_ENABLE_STAT_AUDIT_DAY;
+import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_ENABLE_STAT_AUDIT_HOUR;
+import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_ENABLE_STAT_AUDIT_MINUTE_10;
+import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_ENABLE_STAT_AUDIT_MINUTE_30;
 import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.service.config.ConfigConstants.DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_DATA_QUEUE_SIZE;
 import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_ENABLE_STAT_AUDIT_DAY;
+import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_ENABLE_STAT_AUDIT_HOUR;
+import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_ENABLE_STAT_AUDIT_MINUTE_10;
+import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_ENABLE_STAT_AUDIT_MINUTE_30;
 import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.service.config.ConfigConstants.KEY_SUMMARY_REALTIME_STAT_BACK_TIMES;
@@ -86,9 +92,20 @@ public class EtlService {
         int statBackTimes = configuration.get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
                 DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES);
 
-        startDataFlow(AuditCycle.MINUTE_10, statBackTimes, TenMinutesCache.getInstance().getCache());
-        startDataFlow(AuditCycle.MINUTE_30, statBackTimes, HalfHourCache.getInstance().getCache());
-        startDataFlow(AuditCycle.HOUR, statBackTimes, HourCache.getInstance().getCache());
+        if (configuration.get(KEY_ENABLE_STAT_AUDIT_MINUTE_10, DEFAULT_ENABLE_STAT_AUDIT_MINUTE_10)) {
+            startDataFlow(AuditCycle.MINUTE_10, statBackTimes, TenMinutesCache.getInstance().getCache());
+            LOGGER.info("Start data flow for minute 10");
+        }
+
+        if (configuration.get(KEY_ENABLE_STAT_AUDIT_MINUTE_30, DEFAULT_ENABLE_STAT_AUDIT_MINUTE_30)) {
+            startDataFlow(AuditCycle.MINUTE_30, statBackTimes, HalfHourCache.getInstance().getCache());
+            LOGGER.info("Start data flow for minute 30");
+        }
+
+        if (configuration.get(KEY_ENABLE_STAT_AUDIT_HOUR, DEFAULT_ENABLE_STAT_AUDIT_HOUR)) {
+            startDataFlow(AuditCycle.HOUR, statBackTimes, HourCache.getInstance().getCache());
+            LOGGER.info("Start data flow for hour");
+        }
 
         if (configuration.get(KEY_ENABLE_STAT_AUDIT_DAY, DEFAULT_ENABLE_STAT_AUDIT_DAY)) {
             statBackTimes = configuration.get(KEY_SUMMARY_DAILY_STAT_BACK_TIMES, DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES);
