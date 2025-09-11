@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
+/**
+ * Notification type for audit alert
+ */
+public enum NotifyType {
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+    /**
+     * Email notification
+     */
+    EMAIL,
 
-import java.util.List;
+    /**
+     * SMS notification
+     */
+    SMS,
 
-@Repository
-public interface AuditAlertRuleEntityMapper {
+    /**
+     * HTTP notification
+     */
+    HTTP;
 
-    int insert(AuditAlertRuleEntity entity);
-
-    int updateById(AuditAlertRuleEntity entity);
-
-    int deleteById(Integer id);
-
-    AuditAlertRuleEntity selectById(Integer id);
-
-    List<AuditAlertRuleEntity> selectByCondition(AuditAlertRuleEntity condition);
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }

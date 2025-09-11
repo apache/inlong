@@ -19,7 +19,9 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +208,7 @@ public class AuditAlertRuleTest {
         PageResult<AuditAlertRule> enabledRules = auditAlertRuleService.selectByCondition(request);
         assertNotNull(enabledRules);
         assertEquals(2, enabledRules.getList().size());
-        assertTrue(enabledRules.getList().stream().allMatch(AuditAlertRule::getEnabled));
+        assertTrue(enabledRules.getList().stream().allMatch(rule -> rule.getEnabled()));
     }
 
     @Test

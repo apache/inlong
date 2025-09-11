@@ -28,6 +28,8 @@ import javax.validation.constraints.Pattern;
 
 import java.util.Date;
 
+import org.apache.inlong.manager.common.enums.NotifyType;
+
 @Data
 @ApiModel("Audit Alert Rule Configuration")
 public class AuditAlertRule {
@@ -60,8 +62,7 @@ public class AuditAlertRule {
     private String level;
 
     @ApiModelProperty("Notification type (EMAIL/SMS/HTTP)")
-    @Pattern(regexp = "^(EMAIL|SMS|HTTP)$", message = "Notification type must be one of EMAIL, SMS, or HTTP")
-    private String notifyType;
+    private NotifyType notifyType;
 
     @ApiModelProperty("Notification recipients (separated by commas for multiple recipients)")
     private String receivers;

@@ -21,7 +21,9 @@ import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
 
