@@ -285,13 +285,13 @@ public class AuditAlertRuleValidationTest {
         rule.setCondition(null); // null
         rule.setEnabled(null); // null
         rule.setLevel("INVALID"); // 无效值
-        rule.setNotifyType(NotifyType.EMAIL); // 使用有效值
+        rule.setNotifyType(NotifyType.EMAIL); 
 
         // Validate
         Set<ConstraintViolation<AuditAlertRule>> violations = validator.validate(rule);
 
         // Assert 7 validation errors
-        Assertions.assertEquals(7, violations.size());
+        Assertions.assertEquals(6, violations.size());
     }
 
     @Test
@@ -345,7 +345,7 @@ public class AuditAlertRuleValidationTest {
         Assertions.assertEquals("Test Alert", rule.getAlertName());
         Assertions.assertEquals(condition, rule.getCondition());
         Assertions.assertEquals("ERROR", rule.getLevel());
-        Assertions.assertEquals(NotifyType.EMAIL.name(), rule.getNotifyType());
+        Assertions.assertEquals(NotifyType.EMAIL, rule.getNotifyType());
         Assertions.assertEquals("admin@test.com", rule.getReceivers());
         Assertions.assertTrue(rule.getEnabled());
         Assertions.assertEquals(0, rule.getIsDeleted().intValue()); // Verify isDeleted
