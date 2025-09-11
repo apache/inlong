@@ -28,11 +28,6 @@ import java.util.List;
 public interface AuditAlertRuleService {
 
     /**
-     * Create an audit alert rule
-     */
-    AuditAlertRule create(AuditAlertRule rule, String operator);
-
-    /**
      * Create an audit alert rule from request
      */
     Integer create(AuditAlertRuleRequest request, String operator);
@@ -41,11 +36,6 @@ public interface AuditAlertRuleService {
      * Get audit alert rule by id
      */
     AuditAlertRule get(Integer id);
-
-    /**
-     * Update the audit alert rule
-     */
-    AuditAlertRule update(AuditAlertRule rule, String operator);
 
     /**
      * Update the audit alert rule from request

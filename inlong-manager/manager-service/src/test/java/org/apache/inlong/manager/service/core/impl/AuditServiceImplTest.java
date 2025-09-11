@@ -74,16 +74,16 @@ class AuditServiceImplTest extends ServiceBaseTest {
         AuditAlertRuleEntity freshEntity = auditAlertRuleMapper.selectById(entity.getId());
 
         // Create update request
-        AuditAlertRule rule = new AuditAlertRule();
-        rule.setId(freshEntity.getId());
-        rule.setLevel("CRITICAL");
-        rule.setNotifyType("SMS");
-        rule.setReceivers("updated_service@test.com");
-        rule.setEnabled(false);
-        rule.setVersion(freshEntity.getVersion());
+        AuditAlertRuleRequest request = new AuditAlertRuleRequest();
+        request.setId(freshEntity.getId());
+        request.setLevel("CRITICAL");
+        request.setNotifyType("SMS");
+        request.setReceivers("updated_service@test.com");
+        request.setEnabled(false);
+        request.setVersion(freshEntity.getVersion());
 
         // Update the rule
-        AuditAlertRule updatedRule = auditAlertRuleService.update(rule, "test_user");
+        AuditAlertRule updatedRule = auditAlertRuleService.update(request, "test_user");
 
         // Verify the update
         Assertions.assertNotNull(updatedRule);

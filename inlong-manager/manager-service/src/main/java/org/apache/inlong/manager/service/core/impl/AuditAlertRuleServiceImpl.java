@@ -51,10 +51,17 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     private AuditAlertRuleEntityMapper alertRuleMapper;
 
     @Override
-    public AuditAlertRule create(AuditAlertRule rule, String operator) {
-        log.info("begin to create audit alert rule, rule={}, operator={}", rule, operator);
+    public Integer create(AuditAlertRuleRequest request, String operator) {
+        log.info("begin to create audit alert rule from request, request={}, operator={}", request, operator);
 
-        // Convert to entity
+        // Validate input
+        // Note: Validation is partially handled by javax.validation annotations in AuditAlertRuleRequest
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+
+        // Convert request to rule
+        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
+        rule.setCreator(operator);
+        rule.setModifier(operator);
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -92,31 +99,9 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         }
 
         log.info("success to create audit alert rule, rule={}, operator={}", rule, operator);
-        return createdRule;
-    }
-
-    @Override
-    public Integer create(AuditAlertRuleRequest request, String operator) {
-        log.info("begin to create audit alert rule from request, request={}, operator={}", request, operator);
-
-        // Validate input
-        // Note: Validation is partially handled by javax.validation annotations in AuditAlertRuleRequest
-        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-
-        // Convert request to rule
-        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
-        rule.setCreator(operator);
-        rule.setModifier(operator);
-
-        // Create the rule using existing method
-        AuditAlertRule result = this.create(rule, operator);
-        if (result == null || result.getId() == null) {
-            log.error("Failed to create audit alert rule from request, request={}", request);
-            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
-        }
 
         log.info("success to create audit alert rule from request, request={}, operator={}", request, operator);
-        return result.getId();
+        return createdRule.getId();
     }
 
     @Override
@@ -158,11 +143,16 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     }
 
     @Override
-    public AuditAlertRule update(AuditAlertRule rule, String operator) {
-        log.info("begin to update audit alert rule, rule={}, operator={}", rule, operator);
+    public AuditAlertRule update(AuditAlertRuleRequest request, String operator) {
+        log.info("begin to update audit alert rule from request, request={}, operator={}", request, operator);
 
         // Validate input
-        Preconditions.expectNotNull(rule.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(request.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
+
+        // Convert request to rule
+        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
+        rule.setModifier(operator);
 
         // Check if exists
         AuditAlertRuleEntity existingEntity = alertRuleMapper.selectById(rule.getId());
@@ -225,25 +215,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
             }
         }
-        log.info("success to update audit alert rule, rule={}, operator={}", rule, operator);
-        return resultRule;
-    }
-
-    @Override
-    public AuditAlertRule update(AuditAlertRuleRequest request, String operator) {
-        log.info("begin to update audit alert rule from request, request={}, operator={}", request, operator);
-
-        // Validate input
-        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.expectNotNull(request.getId(), ErrorCodeEnum.INVALID_PARAMETER, "rule id cannot be null");
-
-        // Convert request to rule
-        AuditAlertRule rule = CommonBeanUtils.copyProperties(request, AuditAlertRule::new);
-
-        // Update the rule using existing method
-        AuditAlertRule result = this.update(rule, operator);
         log.info("success to update audit alert rule from request, request={}, operator={}", request, operator);
-        return result;
+        return resultRule;
     }
 
     @Override
