@@ -179,7 +179,7 @@ public class AuditAlertRuleTest {
         AuditAlertRule updated = auditAlertRuleService.update(updateRequest, "test_user");
         assertNotNull(updated);
         assertEquals("ERROR", updated.getLevel());
-        assertEquals(NotifyType.SMS.name(), updated.getNotifyType());
+        assertEquals(NotifyType.SMS, updated.getNotifyType());
         assertEquals("updated@example.com", updated.getReceivers());
         assertFalse(updated.getEnabled());
         assertEquals(2, updated.getVersion().intValue()); // Verify version is incremented

@@ -60,10 +60,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity.setCreator("test_user");
         entity.setModifier("test_user");
         entity.setIsDeleted(0);
+        entity.setVersion(1); // Set version before insert
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
         auditAlertRuleMapper.insert(entity);
-        entity.setVersion(1);
         return entity;
     }
 
@@ -90,7 +90,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         // Verify the update
         Assertions.assertNotNull(updatedRule);
         Assertions.assertEquals("CRITICAL", updatedRule.getLevel());
-        Assertions.assertEquals(NotifyType.SMS.name(), updatedRule.getNotifyType());
+        Assertions.assertEquals(NotifyType.SMS, updatedRule.getNotifyType());
         Assertions.assertEquals("updated_service@test.com", updatedRule.getReceivers());
         Assertions.assertFalse(updatedRule.getEnabled());
         Assertions.assertEquals(freshEntity.getVersion() + 1, updatedRule.getVersion().intValue());
@@ -166,7 +166,7 @@ class AuditServiceImplTest extends ServiceBaseTest {
         // Verify the update
         Assertions.assertNotNull(updatedRule);
         Assertions.assertEquals("CRITICAL", updatedRule.getLevel());
-        Assertions.assertEquals(NotifyType.SMS.name(), updatedRule.getNotifyType());
+        Assertions.assertEquals(NotifyType.SMS, updatedRule.getNotifyType());
         Assertions.assertEquals("updated_service_request@test.com", updatedRule.getReceivers());
         Assertions.assertFalse(updatedRule.getEnabled());
         Assertions.assertEquals(freshEntity.getVersion() + 1, updatedRule.getVersion().intValue());
@@ -199,10 +199,10 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setIsDeleted(0);
+        entity2.setVersion(1); // Set version before insert
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
         auditAlertRuleMapper.insert(entity2);
-        entity2.setVersion(1);
 
         // Create disabled rule
         AuditAlertRuleEntity entity3 = new AuditAlertRuleEntity();
@@ -217,9 +217,9 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity3.setCreator("test_user");
         entity3.setModifier("test_user");
         entity3.setIsDeleted(0);
+        entity3.setVersion(1); // Set version before insert
         entity3.setCreateTime(new Date());
         entity3.setModifyTime(new Date());
-        entity3.setVersion(1);
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by condition for enabled rules (replacing listEnabled)
@@ -261,9 +261,9 @@ class AuditServiceImplTest extends ServiceBaseTest {
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
         entity2.setIsDeleted(0);
+        entity2.setVersion(1); // Set version before insert
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
-        entity2.setVersion(1);
         auditAlertRuleMapper.insert(entity2);
 
         // Test select by condition - filter by group ID
