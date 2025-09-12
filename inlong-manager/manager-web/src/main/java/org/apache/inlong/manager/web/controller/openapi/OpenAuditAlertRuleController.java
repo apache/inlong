@@ -76,11 +76,11 @@ public class OpenAuditAlertRuleController {
 
     @PutMapping(value = "/audit/alert/rule/update")
     @ApiOperation(value = "Update the Audit alarm policy")
-    public Response<AuditAlertRule> update(
+    public Response<Boolean> update(
             @Validated(UpdateValidation.class) @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        AuditAlertRule rule = auditAlertRuleService.update(request, operator);
-        return Response.success(rule);
+        Boolean result = auditAlertRuleService.update(request, operator);
+        return Response.success(result);
     }
 
     @DeleteMapping(value = "/audit/delete/{id}")
