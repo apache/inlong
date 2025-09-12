@@ -170,7 +170,7 @@ class AuditControllerTest extends WebBaseTest {
         // Verify response - handle possible null return
         List<AuditAlertRule> rules = null;
         try {
-            rules = getResBodyList(mvcResult, AuditAlertRule.class);
+            rules = getResBodyPageList(mvcResult, AuditAlertRule.class);  // Changed from getResBodyList to getResBodyPageList
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
@@ -216,7 +216,7 @@ class AuditControllerTest extends WebBaseTest {
         // Verify response - handle possible null return
         List<AuditAlertRule> rules = null;
         try {
-            rules = getResBodyList(mvcResult, AuditAlertRule.class);
+            rules = getResBodyPageList(mvcResult, AuditAlertRule.class);  // Changed from getResBodyList to getResBodyPageList
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
@@ -264,7 +264,7 @@ class AuditControllerTest extends WebBaseTest {
         // Verify response - handle possible null return
         List<AuditAlertRule> rules = null;
         try {
-            rules = getResBodyList(mvcResult, AuditAlertRule.class);
+            rules = getResBodyPageList(mvcResult, AuditAlertRule.class);  // Changed from getResBodyList to getResBodyPageList
         } catch (Exception e) {
             // If there's an exception in parsing, try to get the raw response
             String responseContent = mvcResult.getResponse().getContentAsString();
@@ -490,7 +490,7 @@ class AuditControllerTest extends WebBaseTest {
                 .andReturn();
 
         // Parse list response
-        List<AuditAlertRule> rules = getResBodyList(listResult, AuditAlertRule.class);
+        List<AuditAlertRule> rules = getResBodyPageList(listResult, AuditAlertRule.class);  // Changed from getResBodyList to getResBodyPageList
         if (rules == null) {
             rules = new ArrayList<>();
         }
