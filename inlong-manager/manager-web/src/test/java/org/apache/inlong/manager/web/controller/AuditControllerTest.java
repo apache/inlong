@@ -156,7 +156,7 @@ class AuditControllerTest extends WebBaseTest {
         entity2.setEnabled(false); // Disabled
         entity2.setCreator("test_user");
         entity2.setModifier("test_user");
-        
+        entity2.setIsDeleted(0);
         entity2.setCreateTime(new Date());
         entity2.setModifyTime(new Date());
         auditAlertRuleMapper.insert(entity2);
