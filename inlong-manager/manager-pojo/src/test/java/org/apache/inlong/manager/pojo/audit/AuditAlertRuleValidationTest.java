@@ -414,7 +414,7 @@ public class AuditAlertRuleValidationTest {
         rule.setEnabled(true);
         rule.setCreator("test_user");
         rule.setModifier("test_user");
-        rule.setIsDeleted(0)
+        rule.setIsDeleted(0);
         rule.setVersion(1);
         return rule;
     }

@@ -83,7 +83,7 @@ class AuditControllerTest extends WebBaseTest {
         entity.setIsDeleted(0);
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
-        entity.setVersion(1); 
+        entity.setVersion(1);
 
         auditAlertRuleMapper.insert(entity);
         return entity;
