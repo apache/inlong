@@ -70,6 +70,11 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         entity.setCreator(operator);
         entity.setModifier(operator);
 
+        // Handle notifyType conversion from enum to string
+        if (request.getNotifyType() != null) {
+            entity.setNotifyType(request.getNotifyType().name());
+        }
+
         // Convert Condition object to JSON string for database storage
         try {
             String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
@@ -181,6 +186,11 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(rule, AuditAlertRuleEntity::new);
         entity.setModifier(operator);
         // Version will be automatically incremented by the mapper
+
+        // Handle notifyType conversion from enum to string
+        if (request.getNotifyType() != null) {
+            entity.setNotifyType(request.getNotifyType().name());
+        }
 
         log.debug("Updating entity with current version: {}", existingEntity.getVersion());
 
