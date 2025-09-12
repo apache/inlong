@@ -52,7 +52,7 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
             AuditAlertCondition condition = new AuditAlertCondition();
             condition.setType("data_loss");
             condition.setOperator(">");
-            condition.setValue(10);
+            condition.setValue(10.0);
             entity.setCondition(objectMapper.writeValueAsString(condition));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize condition", e);

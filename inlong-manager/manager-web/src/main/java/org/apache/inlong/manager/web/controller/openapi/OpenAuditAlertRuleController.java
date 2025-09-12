@@ -48,7 +48,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Audit-Alert-Rule-API")
-public class AuditAlertRuleController {
+public class OpenAuditAlertRuleController {
 
     @Lazy
     @Autowired
