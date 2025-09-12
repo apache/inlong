@@ -56,7 +56,7 @@
             #{condition,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR},
             #{notifyType,jdbcType=VARCHAR}, #{receivers,jdbcType=VARCHAR},
             #{enabled,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
-</insert>
+    </insert>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
         update audit_alert_rule

@@ -63,102 +63,30 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         // Note: Validation is partially handled by javax.validation annotations in AuditAlertRuleRequest
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
 
-        // Convert request to rule
-        AuditAlertRule rule = new AuditAlertRule();
-        // Manually copy properties to avoid issues with CommonBeanUtils.copyProperties
-        rule.setInlongGroupId(request.getInlongGroupId());
-        rule.setInlongStreamId(request.getInlongStreamId());
-        rule.setAuditId(request.getAuditId());
-        rule.setAlertName(request.getAlertName());
-        rule.setCondition(request.getCondition());
-        rule.setLevel(request.getLevel());
-        rule.setNotifyType(request.getNotifyType()); // Keep as enum type
-        rule.setReceivers(request.getReceivers());
-        rule.setEnabled(request.getEnabled());
-        rule.setCreator(operator);
-        rule.setModifier(operator);
-        rule.setIsDeleted(0); // Initialize isDeleted
-        rule.setVersion(1); // Initialize version
-
-        AuditAlertRuleEntity entity = new AuditAlertRuleEntity();
-        // Manually copy properties to avoid issues with CommonBeanUtils.copyProperties
-        entity.setInlongGroupId(rule.getInlongGroupId());
-        entity.setInlongStreamId(rule.getInlongStreamId());
-        entity.setAuditId(rule.getAuditId());
-        entity.setAlertName(rule.getAlertName());
-        entity.setLevel(rule.getLevel());
-        entity.setReceivers(rule.getReceivers());
-        entity.setEnabled(rule.getEnabled());
-        entity.setCreator(rule.getCreator());
-        entity.setModifier(rule.getModifier());
-        entity.setIsDeleted(rule.getIsDeleted());
-        entity.setVersion(rule.getVersion());
-
-        // Handle notifyType conversion from enum to string
-        if (request.getNotifyType() != null) {
-            entity.setNotifyType(request.getNotifyType().name());
-        } else {
-            entity.setNotifyType(null); // Explicitly set to null if request notifyType is null
-        }
+        // Convert request to entity using CommonBeanUtils
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyPropertiesWithEnumSupport(request, AuditAlertRuleEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
 
         // Convert Condition object to JSON string for database storage
         try {
-            String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
+            String conditionJson = objectMapper.writeValueAsString(request.getCondition());
             entity.setCondition(conditionJson);
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize condition to JSON: {}", rule.getCondition(), e);
+            log.error("Failed to serialize condition to JSON: {}", request.getCondition(), e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
         }
 
         // Insert into database
         int result = alertRuleMapper.insert(entity);
         if (result <= 0) {
-            log.error("Failed to create audit alert rule, rule={}", rule);
+            log.error("Failed to create audit alert rule, entity={}", entity);
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
 
         // Get the created entity from database to ensure all fields are populated
         AuditAlertRuleEntity createdEntity = alertRuleMapper.selectById(entity.getId());
-        AuditAlertRule createdRule = new AuditAlertRule();
-        // Manually copy properties to avoid issues with CommonBeanUtils.copyProperties
-        createdRule.setId(createdEntity.getId());
-        createdRule.setInlongGroupId(createdEntity.getInlongGroupId());
-        createdRule.setInlongStreamId(createdEntity.getInlongStreamId());
-        createdRule.setAuditId(createdEntity.getAuditId());
-        createdRule.setAlertName(createdEntity.getAlertName());
-        createdRule.setLevel(createdEntity.getLevel());
-        createdRule.setReceivers(createdEntity.getReceivers());
-        createdRule.setEnabled(createdEntity.getEnabled());
-        createdRule.setCreator(createdEntity.getCreator());
-        createdRule.setModifier(createdEntity.getModifier());
-        createdRule.setCreateTime(createdEntity.getCreateTime());
-        createdRule.setModifyTime(createdEntity.getModifyTime());
-        createdRule.setIsDeleted(createdEntity.getIsDeleted());
-        createdRule.setVersion(createdEntity.getVersion());
-
-        // Handle notifyType conversion from string to enum
-        if (createdEntity.getNotifyType() != null) {
-            try {
-                createdRule.setNotifyType(NotifyType.valueOf(createdEntity.getNotifyType()));
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid notifyType value in database: {}", createdEntity.getNotifyType());
-            }
-        }
-
-        // Convert condition JSON string back to Condition object
-        if (StringUtils.isNotBlank(createdEntity.getCondition())) {
-            try {
-                AuditAlertCondition condition =
-                        objectMapper.readValue(createdEntity.getCondition(), AuditAlertCondition.class);
-                createdRule.setCondition(condition);
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse condition JSON: {}", createdEntity.getCondition(), e);
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
-            }
-        }
-
-        log.info("success to create audit alert rule from request, request={}, operator={}", request, operator);
-        return createdRule.getId();
+        return createdEntity.getId();
     }
 
     @Override
@@ -172,12 +100,6 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         AuditAlertRuleEntity entity = alertRuleMapper.selectById(id);
         if (entity == null) {
             log.warn("Audit alert rule not found with id: {}", id);
-            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
-        }
-
-        // Check if the rule is soft-deleted
-        if (entity.getIsDeleted() != null && entity.getIsDeleted() != 0) {
-            log.warn("Audit alert rule has been deleted with id: {}", id);
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND, "Audit alert rule not found with id: " + id);
         }
 
@@ -200,7 +122,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
     }
 
     @Override
-    public AuditAlertRule update(AuditAlertRuleRequest request, String operator) {
+    public Boolean update(AuditAlertRuleRequest request, String operator) {
         log.info("begin to update audit alert rule from request, request={}, operator={}", request, operator);
 
         // Validate input
@@ -228,49 +150,19 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                             + existingEntity.getVersion() + ", Incoming version: " + request.getVersion());
         }
 
-        // Create rule and entity objects manually to avoid issues with CommonBeanUtils.copyProperties
-        AuditAlertRule rule = new AuditAlertRule();
-        rule.setId(request.getId());
-        rule.setInlongGroupId(request.getInlongGroupId());
-        rule.setInlongStreamId(request.getInlongStreamId());
-        rule.setAuditId(request.getAuditId());
-        rule.setAlertName(request.getAlertName());
-        rule.setCondition(request.getCondition());
-        rule.setLevel(request.getLevel());
-        rule.setNotifyType(request.getNotifyType()); // Keep as enum type
-        rule.setReceivers(request.getReceivers());
-        rule.setEnabled(request.getEnabled());
-        rule.setModifier(operator);
-        rule.setVersion(request.getVersion());
-
-        AuditAlertRuleEntity entity = new AuditAlertRuleEntity();
-        entity.setId(rule.getId());
-        entity.setInlongGroupId(rule.getInlongGroupId());
-        entity.setInlongStreamId(rule.getInlongStreamId());
-        entity.setAuditId(rule.getAuditId());
-        entity.setAlertName(rule.getAlertName());
-        entity.setLevel(rule.getLevel());
-        entity.setReceivers(rule.getReceivers());
-        entity.setEnabled(rule.getEnabled());
-        entity.setModifier(rule.getModifier());
-        entity.setVersion(rule.getVersion());
-
-        // Handle notifyType conversion from enum to string
-        if (request.getNotifyType() != null) {
-            entity.setNotifyType(request.getNotifyType().name());
-        } else {
-            entity.setNotifyType(existingEntity.getNotifyType()); // Keep existing value if request notifyType is null
-        }
+        // Convert request to entity using CommonBeanUtils
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyPropertiesWithEnumSupport(request, AuditAlertRuleEntity::new);
+        entity.setModifier(operator);
 
         log.debug("Updating entity with current version: {}", existingEntity.getVersion());
 
         // Convert Condition object to JSON string for database storage
-        if (rule.getCondition() != null) {
+        if (request.getCondition() != null) {
             try {
-                String conditionJson = objectMapper.writeValueAsString(rule.getCondition());
+                String conditionJson = objectMapper.writeValueAsString(request.getCondition());
                 entity.setCondition(conditionJson);
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize condition to JSON: {}", rule.getCondition(), e);
+                log.error("Failed to serialize condition to JSON: {}", request.getCondition(), e);
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
             }
         } else {
@@ -280,53 +172,13 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
 
         // Update in database
         int result = alertRuleMapper.updateById(entity);
-        log.debug("Update result: {} rows affected", result);
         if (result <= 0) {
-            log.error("Failed to update audit alert rule, rule={}", rule);
+            log.error("Failed to update audit alert rule, entity={}", entity);
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to update audit alert rule");
         }
 
-        // Return updated entity
-        AuditAlertRuleEntity updatedEntity = alertRuleMapper.selectById(rule.getId());
-        AuditAlertRule resultRule = new AuditAlertRule();
-        // Manually copy properties to avoid issues with CommonBeanUtils.copyProperties
-        resultRule.setId(updatedEntity.getId());
-        resultRule.setInlongGroupId(updatedEntity.getInlongGroupId());
-        resultRule.setInlongStreamId(updatedEntity.getInlongStreamId());
-        resultRule.setAuditId(updatedEntity.getAuditId());
-        resultRule.setAlertName(updatedEntity.getAlertName());
-        resultRule.setLevel(updatedEntity.getLevel());
-        resultRule.setReceivers(updatedEntity.getReceivers());
-        resultRule.setEnabled(updatedEntity.getEnabled());
-        resultRule.setCreator(updatedEntity.getCreator());
-        resultRule.setModifier(updatedEntity.getModifier());
-        resultRule.setCreateTime(updatedEntity.getCreateTime());
-        resultRule.setModifyTime(updatedEntity.getModifyTime());
-        resultRule.setIsDeleted(updatedEntity.getIsDeleted());
-        resultRule.setVersion(updatedEntity.getVersion());
-
-        // Handle notifyType conversion from string to enum
-        if (updatedEntity.getNotifyType() != null) {
-            try {
-                resultRule.setNotifyType(NotifyType.valueOf(updatedEntity.getNotifyType()));
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid notifyType value in database: {}", updatedEntity.getNotifyType());
-            }
-        }
-
-        // Convert condition JSON string to Condition object
-        if (StringUtils.isNotBlank(updatedEntity.getCondition())) {
-            try {
-                AuditAlertCondition condition =
-                        objectMapper.readValue(updatedEntity.getCondition(), AuditAlertCondition.class);
-                resultRule.setCondition(condition);
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse condition JSON: {}", updatedEntity.getCondition(), e);
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Invalid condition format");
-            }
-        }
         log.info("success to update audit alert rule from request, request={}, operator={}", request, operator);
-        return resultRule;
+        return true;
     }
 
     @Override
@@ -365,7 +217,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 String.format("%s %s", request.getOrderField(), request.getOrderType()));
 
         // Convert request to entity for database query
-        AuditAlertRuleEntity entity = CommonBeanUtils.copyProperties(request, AuditAlertRuleEntity::new);
+        AuditAlertRuleEntity entity = CommonBeanUtils.copyPropertiesWithEnumSupport(request, AuditAlertRuleEntity::new);
 
         // Get from database
         Page<AuditAlertRuleEntity> entityPage = (Page<AuditAlertRuleEntity>) alertRuleMapper.selectByCondition(entity);

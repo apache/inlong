@@ -40,7 +40,7 @@ public interface AuditAlertRuleService {
     /**
      * Update the audit alert rule from request
      */
-    AuditAlertRule update(AuditAlertRuleRequest request, String operator);
+    Boolean update(AuditAlertRuleRequest request, String operator);
 
     /**
      * Delete the audit alert rule 

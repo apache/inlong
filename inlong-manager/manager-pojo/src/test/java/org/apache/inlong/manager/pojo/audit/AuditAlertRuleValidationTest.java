@@ -156,7 +156,7 @@ public class AuditAlertRuleValidationTest {
         AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("");
         condition.setOperator("");
-        condition.setValue(null); // Changed from "" to null to trigger @NotNull validation
+        condition.setValue(null);
         rule.setCondition(condition);
 
         // Validate
@@ -279,12 +279,12 @@ public class AuditAlertRuleValidationTest {
     void testMultipleValidationErrors() {
         // Create AuditAlertRule with multiple validation errors
         AuditAlertRule rule = new AuditAlertRule();
-        rule.setInlongGroupId(""); // 空字符串
-        rule.setAuditId(null); // null
-        rule.setAlertName(""); // 空字符串
-        rule.setCondition(null); // null
-        rule.setEnabled(null); // null
-        rule.setLevel("INVALID"); // 无效值
+        rule.setInlongGroupId("");
+        rule.setAuditId(null);
+        rule.setAlertName("");
+        rule.setCondition(null);
+        rule.setEnabled(null);
+        rule.setLevel("INVALID");
         rule.setNotifyType(NotifyType.EMAIL);
 
         // Validate
@@ -326,7 +326,7 @@ public class AuditAlertRuleValidationTest {
         AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("count");
         condition.setOperator(">");
-        condition.setValue(1000);
+        condition.setValue(1000.0);
         rule.setCondition(condition);
         rule.setLevel("ERROR");
         rule.setNotifyType(NotifyType.EMAIL);
@@ -406,7 +406,7 @@ public class AuditAlertRuleValidationTest {
         AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator("<");
-        condition.setValue(1000);
+        condition.setValue(1000.0);
         rule.setCondition(condition);
         rule.setLevel("ERROR");
         rule.setNotifyType(NotifyType.EMAIL);

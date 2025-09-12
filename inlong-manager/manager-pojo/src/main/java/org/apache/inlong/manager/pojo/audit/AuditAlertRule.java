@@ -89,11 +89,4 @@ public class AuditAlertRule {
     @ApiModelProperty("Version number")
     private Integer version;
 
-    public NotifyType getNotifyType() {
-        return notifyType;
-    }
-
-    public void setNotifyType(NotifyType notifyType) {
-        this.notifyType = notifyType;
-    }
 }

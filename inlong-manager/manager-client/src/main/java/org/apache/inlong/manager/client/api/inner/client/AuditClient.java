@@ -22,12 +22,8 @@ import org.apache.inlong.manager.client.api.service.AuditApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
-import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
 import java.util.List;
@@ -84,80 +80,6 @@ public class AuditClient {
      */
     public Boolean refreshCache(AuditRequest request) {
         Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.refreshCache());
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * Create an audit alert rule
-     *
-     * @param request The audit alert rule to create
-     * @return The created audit alert rule ID
-     */
-    public Integer create(AuditAlertRuleRequest request) {
-        Preconditions.expectNotNull(request, "audit alert rule request cannot be null");
-        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
-                "inlong group id cannot be empty");
-        Preconditions.expectNotBlank(request.getAuditId(), ErrorCodeEnum.INVALID_PARAMETER,
-                "audit id cannot be empty");
-        Preconditions.expectNotBlank(request.getAlertName(), ErrorCodeEnum.INVALID_PARAMETER,
-                "alert name cannot be empty");
-        Preconditions.expectNotNull(request.getCondition(), ErrorCodeEnum.INVALID_PARAMETER,
-                "condition cannot be null");
-        Response<Integer> response = ClientUtils.executeHttpCall(auditApi.create(request));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * Get an audit alert rule by ID
-     *
-     * @param id The rule ID
-     * @return The audit alert rule
-     */
-    public AuditAlertRule get(Integer id) {
-        Preconditions.expectNotNull(id, "rule id cannot be null");
-        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.get(id));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * Select audit alert rules by condition with pagination
-     *
-     * @param request The condition to filter audit alert rules
-     * @return Page result of audit alert rules
-     */
-    public PageResult<AuditAlertRule> listByCondition(AuditAlertRulePageRequest request) {
-        Response<PageResult<AuditAlertRule>> response = ClientUtils.executeHttpCall(
-                auditApi.listByCondition(request));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * Update an audit alert rule
-     *
-     * @param rule The audit alert rule to update
-     * @return The updated audit alert rule
-     */
-    public AuditAlertRule update(AuditAlertRule rule) {
-        Preconditions.expectNotNull(rule, "audit alert rule cannot be null");
-        Preconditions.expectNotNull(rule.getId(), "rule id cannot be null");
-        Response<AuditAlertRule> response = ClientUtils.executeHttpCall(auditApi.update(rule));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    /**
-     * Delete an audit alert rule by ID
-     *
-     * @param id The rule ID
-     * @return True if deletion is successful, false otherwise
-     */
-    public Boolean delete(Integer id) {
-        Preconditions.expectNotNull(id, "rule id cannot be null");
-        Response<Boolean> response = ClientUtils.executeHttpCall(auditApi.delete(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

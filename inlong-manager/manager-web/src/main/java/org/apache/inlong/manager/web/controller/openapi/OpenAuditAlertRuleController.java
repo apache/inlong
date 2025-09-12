@@ -46,7 +46,7 @@ import javax.validation.Valid;
  * Audit alert rule controller.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/openapi")
 @Api(tags = "Audit-Alert-Rule-API")
 public class AuditAlertRuleController {
 
@@ -76,11 +76,11 @@ public class AuditAlertRuleController {
 
     @PutMapping(value = "/audit/alert/rule/update")
     @ApiOperation(value = "Update the Audit alarm policy")
-    public Response<Boolean> update(
+    public Response<AuditAlertRule> update(
             @Validated(UpdateValidation.class) @RequestBody AuditAlertRuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        Boolean result = auditAlertRuleService.update(request, operator);
-        return Response.success(result);
+        AuditAlertRule rule = auditAlertRuleService.update(request, operator);
+        return Response.success(rule);
     }
 
     @DeleteMapping(value = "/audit/delete/{id}")

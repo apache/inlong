@@ -38,6 +38,6 @@ public class AuditAlertCondition {
 
     @ApiModelProperty(value = "Value for comparison", required = true)
     @NotNull(message = "Value cannot be null")
-    private Object value;
+    private Double value;
 
 }
