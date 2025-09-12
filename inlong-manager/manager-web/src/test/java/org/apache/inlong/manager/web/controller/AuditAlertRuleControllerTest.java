@@ -43,7 +43,7 @@ class AuditAlertRuleControllerTest extends WebBaseTest {
         AuditAlertCondition condition = new AuditAlertCondition();
         condition.setType("data_loss");
         condition.setOperator(">");
-        condition.setValue(100);
+        condition.setValue(100.0);
         request.setCondition(condition);
 
         return request;
