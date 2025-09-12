@@ -87,7 +87,7 @@ public class AuditAlertRule {
     private Date modifyTime;
 
     @ApiModelProperty("Version number")
-    private Integer version = 1; // Add version field
+    private Integer version;
 
     public NotifyType getNotifyType() {
         return notifyType;
