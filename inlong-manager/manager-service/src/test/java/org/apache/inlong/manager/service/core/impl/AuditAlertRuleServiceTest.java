@@ -174,12 +174,15 @@ class AuditAlertRuleServiceTest extends BaseTest {
         AuditAlertRuleEntity entity = createTestEntity();
         alertRuleMapper.insert(entity);
 
+        // Get the actual ID of the inserted entity
+        AuditAlertRuleEntity insertedEntity = alertRuleMapper.selectById(entity.getId());
+
         // Execute the method under test
-        AuditAlertRule result = auditAlertRuleService.get(TEST_RULE_ID);
+        AuditAlertRule result = auditAlertRuleService.get(insertedEntity.getId());
 
         // Verify the result
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TEST_RULE_ID, result.getId());
+        Assertions.assertEquals(insertedEntity.getId(), result.getId());
         Assertions.assertEquals(TEST_ALERT_NAME, result.getAlertName());
         Assertions.assertEquals(TEST_LEVEL, result.getLevel());
         Assertions.assertEquals(TEST_RECEIVERS, result.getReceivers());

@@ -104,7 +104,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         }
 
         // Convert to rule
-        AuditAlertRule rule = CommonBeanUtils.copyProperties(entity, AuditAlertRule::new);
+        AuditAlertRule rule = CommonBeanUtils.copyPropertiesWithEnumSupport(entity, AuditAlertRule::new);
         // Convert condition JSON string to Condition object
         if (StringUtils.isNotBlank(entity.getCondition())) {
             try {
