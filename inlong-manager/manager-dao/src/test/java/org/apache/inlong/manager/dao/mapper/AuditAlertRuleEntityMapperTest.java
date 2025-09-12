@@ -61,7 +61,7 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         entity.setNotifyType(NotifyType.EMAIL.name());
         entity.setReceivers("mapper@test.com");
         entity.setEnabled(true);
-        entity.setIsDeleted(0); // Initialize isDeleted field
+        entity.setIsDeleted(0);
         entity.setCreator(ADMIN);
         entity.setModifier(ADMIN);
         entity.setCreateTime(new Date());

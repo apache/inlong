@@ -72,7 +72,7 @@ public class AuditAlertRule {
     private Boolean enabled;
 
     @ApiModelProperty("Whether deleted")
-    private Integer isDeleted = 0; // Use Integer to match database int(11) type
+    private Integer isDeleted;
 
     @ApiModelProperty("Creator name")
     private String creator;
