@@ -112,8 +112,8 @@
         where id = #{id,jdbcType=INTEGER} 
         and is_deleted = 0
     </select>
-
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity" resultMap="BaseResultMap">
+    
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from audit_alert_rule
@@ -150,6 +150,13 @@
                 and modifier = #{modifier,jdbcType=VARCHAR}
             </if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="orderField != null and orderField != '' and orderType != null and orderType != ''">
+                order by ${orderField} ${orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 </mapper>

@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.NotifyType;
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
 import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -210,9 +211,9 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         Assertions.assertNull(deleted);
 
         // Test that deleted entities are not returned by selectByCondition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setInlongGroupId("test_group_mapper");
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setInlongGroupId("test_group_mapper");
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
         Assertions.assertNotNull(results);
         boolean foundDeleted = results.stream().anyMatch(e -> e.getId().equals(entityId));
         Assertions.assertFalse(foundDeleted, "Deleted entity should not appear in selectByCondition results");
@@ -227,10 +228,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity);
 
         // Test select by id condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setId(entity.getId());
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setId(entity.getId());
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.size());
@@ -257,10 +258,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by group id condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setInlongGroupId("condition_group_1");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setInlongGroupId("condition_group_1");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.size());
@@ -283,10 +284,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Test select by stream id condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setInlongStreamId("condition_stream_1");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setInlongStreamId("condition_stream_1");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.size());
@@ -310,10 +311,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by alert name condition (fuzzy match)
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setAlertName("Critical");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setAlertName("Critical");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.size());
@@ -341,10 +342,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by level condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setLevel("ERROR");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setLevel("ERROR");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.size());
@@ -372,10 +373,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select by enabled condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setEnabled(true);
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setEnabled(true);
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         for (AuditAlertRuleEntity result : results) {
@@ -417,12 +418,12 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity3);
 
         // Test select with multiple conditions
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setInlongGroupId("multi_test");
-        condition.setLevel("ERROR");
-        condition.setEnabled(true);
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setInlongGroupId("multi_test");
+        pageRequest.setLevel("ERROR");
+        pageRequest.setEnabled(true);
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.size());
@@ -446,10 +447,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Test select by creator condition
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setCreator("test_user_1");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setCreator("test_user_1");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.size());
@@ -469,9 +470,9 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Test select with empty condition (should return all non-deleted records)
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertTrue(results.size() >= 2);
@@ -495,7 +496,8 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         Integer entityId = entity.getId();
 
         // Verify entity exists
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(new AuditAlertRuleEntity());
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
         boolean foundBeforeDelete = results.stream()
                 .anyMatch(e -> e.getId().equals(entityId));
         Assertions.assertTrue(foundBeforeDelete);
@@ -504,7 +506,7 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.deleteById(entityId);
 
         // Test that deleted entity is not returned by selectByCondition
-        results = auditAlertRuleMapper.selectByCondition(new AuditAlertRuleEntity());
+        results = auditAlertRuleMapper.selectByCondition(pageRequest);
         boolean foundAfterDelete = results.stream()
                 .anyMatch(e -> e.getId().equals(entityId));
         Assertions.assertFalse(foundAfterDelete, "Deleted entity should not appear in selectByCondition results");
@@ -531,10 +533,10 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
         auditAlertRuleMapper.insert(entity2);
 
         // Test ordering (should be desc by create_time)
-        AuditAlertRuleEntity condition = new AuditAlertRuleEntity();
-        condition.setInlongGroupId("order_condition_test");
+        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
+        pageRequest.setInlongGroupId("order_condition_test");
 
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(condition);
+        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
 
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.size());

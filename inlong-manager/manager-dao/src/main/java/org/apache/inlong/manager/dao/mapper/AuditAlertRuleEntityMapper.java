@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,5 +36,5 @@ public interface AuditAlertRuleEntityMapper {
 
     AuditAlertRuleEntity selectById(Integer id);
 
-    List<AuditAlertRuleEntity> selectByCondition(AuditAlertRuleEntity condition);
+    List<AuditAlertRuleEntity> selectByCondition(@Param("request") AuditAlertRulePageRequest request);
 }

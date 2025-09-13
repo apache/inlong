@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -84,9 +85,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
             throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED, "Failed to create audit alert rule");
         }
 
-        // Get the created entity from database to ensure all fields are populated
-        AuditAlertRuleEntity createdEntity = alertRuleMapper.selectById(entity.getId());
-        return createdEntity.getId();
+        return entity.getId();
     }
 
     @Override
@@ -141,7 +140,7 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                 request.getVersion());
 
         // Version check for optimistic locking
-        if (request.getVersion() == null || !request.getVersion().equals(existingEntity.getVersion())) {
+        if (!Objects.equals(request.getVersion(), existingEntity.getVersion())) {
             log.warn(
                     "Audit alert rule config has been modified, please refresh and try again. Existing version: {}, Incoming version: {}",
                     existingEntity.getVersion(), request.getVersion());
@@ -213,18 +212,13 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
         log.info("begin to select audit alert rules by condition with pagination, request={}", request);
 
         // Start pagination
-        PageHelper.startPage(request.getPageNum(), request.getPageSize(),
-                String.format("%s %s", request.getOrderField(), request.getOrderType()));
-
-        // Convert request to entity for database query
-        AuditAlertRuleEntity entity = CommonBeanUtils.copyPropertiesWithEnumSupport(request, AuditAlertRuleEntity::new);
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         // Get from database
-        Page<AuditAlertRuleEntity> entityPage = (Page<AuditAlertRuleEntity>) alertRuleMapper.selectByCondition(entity);
+        Page<AuditAlertRuleEntity> entityPage = (Page<AuditAlertRuleEntity>) alertRuleMapper.selectByCondition(request);
 
-        // Convert to rules and filter out soft-deleted records
+        // Convert to rules
         List<AuditAlertRule> rules = entityPage.stream()
-                .filter(e -> e.getIsDeleted() == null || e.getIsDeleted() == 0)
                 .map(e -> {
                     AuditAlertRule rule = CommonBeanUtils.copyProperties(e, AuditAlertRule::new);
                     // Convert condition JSON string to Condition object
@@ -235,8 +229,6 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
                             rule.setCondition(condition);
                         } catch (JsonProcessingException ex) {
                             log.error("Failed to parse condition JSON: {}", e.getCondition(), ex);
-                            // Set a default condition to avoid breaking the list
-                            rule.setCondition(new AuditAlertCondition());
                         }
                     }
 
