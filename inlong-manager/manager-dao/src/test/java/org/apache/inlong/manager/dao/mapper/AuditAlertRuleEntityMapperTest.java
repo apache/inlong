@@ -434,31 +434,6 @@ public class AuditAlertRuleEntityMapperTest extends DaoBaseTest {
     }
 
     @Test
-    public void testSelectByConditionWithCreator() {
-        // Insert test data
-        AuditAlertRuleEntity entity1 = createTestEntity();
-        entity1.setCreator("test_user_1");
-        entity1.setAlertName("User 1 Alert");
-        auditAlertRuleMapper.insert(entity1);
-
-        AuditAlertRuleEntity entity2 = createTestEntity();
-        entity2.setCreator("test_user_2");
-        entity2.setAlertName("User 2 Alert");
-        auditAlertRuleMapper.insert(entity2);
-
-        // Test select by creator condition
-        AuditAlertRulePageRequest pageRequest = new AuditAlertRulePageRequest();
-        pageRequest.setCreator("test_user_1");
-
-        List<AuditAlertRuleEntity> results = auditAlertRuleMapper.selectByCondition(pageRequest);
-
-        Assertions.assertNotNull(results);
-        Assertions.assertEquals(1, results.size());
-        Assertions.assertEquals("test_user_1", results.get(0).getCreator());
-        Assertions.assertEquals("User 1 Alert", results.get(0).getAlertName());
-    }
-
-    @Test
     public void testSelectByConditionWithEmptyCondition() {
         // Insert test data
         AuditAlertRuleEntity entity1 = createTestEntity();

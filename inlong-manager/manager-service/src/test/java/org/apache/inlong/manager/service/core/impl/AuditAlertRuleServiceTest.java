@@ -292,7 +292,7 @@ public class AuditAlertRuleServiceTest {
         rule.setNotifyType(NotifyType.EMAIL);
         rule.setReceivers("admin@example.com");
         rule.setEnabled(true);
-        rule.setIsDeleted(0); 
+        rule.setIsDeleted(0);
         return rule;
     }
 }
