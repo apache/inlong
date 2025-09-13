@@ -17,13 +17,21 @@
 
 package org.apache.inlong.audit.tool.config;
 
+import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+
+import static org.apache.inlong.audit.tool.config.ConfigConstants.*;
+
 /**
  * App Config
  */
+@Getter
 public class AppConfig {
 
-    private Properties properties;
+    private final Properties properties;
 
     public AppConfig() {
         properties = new Properties();
@@ -43,8 +51,23 @@ public class AppConfig {
         return properties.getProperty("manager.url");
     }
 
-    public String getAlertPolicyConfig() {
-        return properties.getProperty("alert.policy.config");
+    public Map<String, Object> getPrometheusConfig() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(KEY_PROMETHEUS_ENABLED,
+                Boolean.parseBoolean(properties.getProperty(KEY_PROMETHEUS_ENABLED, "false")));
+        config.put(KEY_PROMETHEUS_ENDPOINT,
+                properties.getProperty(KEY_PROMETHEUS_ENDPOINT, "http://localhost:9090/api/v1/write"));
+        config.put(KEY_PROMETHEUS_PORT,
+                Integer.parseInt(properties.getProperty(KEY_PROMETHEUS_PORT,
+                        String.valueOf(DEFAULT_PROMETHEUS_PORT))));
+        return config;
     }
 
+    public String getSecretId() {
+        return properties.getProperty("audit.secretId");
+    }
+
+    public String getSecretKey() {
+        return properties.getProperty("audit.secretKey");
+    }
 }

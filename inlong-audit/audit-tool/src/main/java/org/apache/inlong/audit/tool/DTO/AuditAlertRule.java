@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.tool.DTO;
+package org.apache.inlong.audit.tool.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -49,9 +50,10 @@ public class AuditAlertRule {
     @NotBlank(message = "Alert name cannot be blank")
     private String alertName;
 
-    @ApiModelProperty(value = "Trigger condition (e.g., count>10000, delay>60000)", required = true)
-    @NotBlank(message = "Trigger condition cannot be blank")
-    private String condition; // Can use expressions like "count > 10000 && delay > 60000"
+    @ApiModelProperty(value = "Trigger condition", required = true)
+    @NotNull(message = "Trigger condition cannot be null")
+    @Valid
+    private AuditAlertCondition condition;
 
     @ApiModelProperty("Alert level (INFO/WARN/ERROR/CRITICAL)")
     @Pattern(regexp = "^(INFO|WARN|ERROR|CRITICAL)$", message = "Alert level must be one of INFO, WARN, ERROR, or CRITICAL")
@@ -68,9 +70,21 @@ public class AuditAlertRule {
     @NotNull(message = "Enabled status cannot be null")
     private Boolean enabled;
 
+    @ApiModelProperty("Whether deleted")
+    private Integer isDeleted; // Use Integer to match database int(11) type
+
+    @ApiModelProperty("Creator name")
+    private String creator;
+
+    @ApiModelProperty("Modifier name")
+    private String modifier;
+
     @ApiModelProperty("Create time")
     private Date createTime;
 
-    @ApiModelProperty("Update time")
-    private Date updateTime;
+    @ApiModelProperty("Modify time")
+    private Date modifyTime;
+
+    @ApiModelProperty("Version number")
+    private Integer version; // Add version field
 }

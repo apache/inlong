@@ -15,37 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.tool.VO;
+package org.apache.inlong.audit.tool.dto;
 
-import org.apache.inlong.audit.tool.DTO.AuditInfo;
-
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-/**
- * The VO of audit.
- */
 @Data
-public class AuditVO {
+@ApiModel("Audit Alert Condition")
+public class AuditAlertCondition {
 
-    @ApiModelProperty(value = "Audit id")
-    private String auditId;
-    @ApiModelProperty(value = "Audit name")
-    private String auditName;
-    @ApiModelProperty(value = "Audit set")
-    private List<AuditInfo> auditSet;
-    @ApiModelProperty(value = "Node type")
-    private String nodeType;
+    @ApiModelProperty(value = "Condition type (e.g., data_loss, delay, count)", required = true)
+    @NotBlank(message = "Condition type cannot be blank")
+    private String type;
 
-    public AuditVO() {
-    }
+    @ApiModelProperty(value = "Operator for comparison (e.g., >, <, >=, <=, ==, !=)", required = true)
+    @NotBlank(message = "Operator cannot be blank")
+    private String operator;
 
-    public AuditVO(String auditId, String auditName, List<AuditInfo> auditSet, String nodeType) {
-        this.auditId = auditId;
-        this.auditName = auditName;
-        this.auditSet = auditSet;
-        this.nodeType = nodeType;
-    }
+    @ApiModelProperty(value = "Value for comparison", required = true)
+    @NotNull(message = "Value cannot be null")
+    private Double value;
+
 }

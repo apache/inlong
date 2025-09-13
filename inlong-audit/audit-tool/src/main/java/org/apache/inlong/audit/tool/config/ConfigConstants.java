@@ -26,15 +26,21 @@ public class ConfigConstants {
     public static final String KEY_GROUP_ID = "group_id";
     public static final String KEY_STREAM_ID = "stream_id";
     public static final String KEY_ALERT_TYPE = "alert_type";
-    public static final String KEY_PROMETHEUS_PORT = "audit.store.prometheus.port";
+    public static final String KEY_PROMETHEUS_PORT = "prometheus.port";
     public static final String KEY_PROMETHEUS = "prometheus";
     public static final String KEY_OTEL = "opentelemetry";
     public static final String KEY_OTEL_ENDPOINT = "otel.exporter.endpoint";
-    public static final int DEFAULT_PROMETHEUS_PORT = 10083;
+    public static final int DEFAULT_PROMETHEUS_PORT = 9091;
     public static final String DEFAULT_OTEL_ENDPOINT = "http://localhost:4317";
 
     public static final String AUDIT_TOOL_ALERTS_TOTAL = "audit_tool_alerts_total";
     public static final String DESC_AUDIT_TOOL_ALERTS_TOTAL = "Total number of alerts";
     public static final String AUDIT_TOOL_DATA_LOSS_RATE = "audit_tool_data_loss_rate";
     public static final String DESC_AUDIT_TOOL_DATA_LOSS_RATE = "Data loss rate between Sort and DataProxy";
+    public static final String AUDIT_ALERT_RULE_lIST_PATH = "/api/audit/alert/rule/list";
+    public static final String KEY_DELAY_TIME = "audit.data.time.delay.minute";
+    public static final String KEY_INTERVAL_TIME = "audit.data.time.interval.minute";
+    public static final String KEY_SOURCE_AUDIT_ID = "audit.id.source";
+    public static final String KEY_PROMETHEUS_ENABLED = "prometheus.enabled";
+    public static final String KEY_PROMETHEUS_ENDPOINT = "prometheus.endpoint";
 }

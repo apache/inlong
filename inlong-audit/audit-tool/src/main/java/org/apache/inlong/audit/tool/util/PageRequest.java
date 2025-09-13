@@ -15,45 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.tool.DTO;
+package org.apache.inlong.audit.tool.util;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Audit info, including audit count, audit log timestamp.
+ * Pagination request
  */
 @Data
-public class AuditInfo {
+@ApiModel(value = "Pagination request")
+public class PageRequest {
 
-    @ApiModelProperty(value = "inlong group id")
-    private String inlongGroupId;
+    public static final Integer MAX_PAGE_SIZE = 100;
 
-    @ApiModelProperty(value = "inlong stream id")
-    private String inlongStreamId;
+    @ApiModelProperty(value = "Current page number, default is 1")
+    private int pageNum = 1;
 
-    @ApiModelProperty(value = "ip")
-    private String ip;
+    @ApiModelProperty(value = "Page size, default is 10")
+    private int pageSize = 10;
 
-    @ApiModelProperty(value = "Audit log timestamp")
-    private String logTs;
+    @ApiModelProperty(value = "Order field, support create_time and modify_time, default is create_time")
+    private String orderField = "create_time";
 
-    @ApiModelProperty(value = "Audit count")
-    private long count;
+    @ApiModelProperty(value = "Order type, only support asc and desc, default is desc")
+    private String orderType = "desc";
 
-    @ApiModelProperty(value = "Audit delay")
-    private long delay;
-
-    @ApiModelProperty(value = "Audit size")
-    private long size;
-
-    public AuditInfo() {
-    }
-
-    public AuditInfo(String logTs, long count, long delay, long size) {
-        this.logTs = logTs;
-        this.count = count;
-        this.delay = delay;
-        this.size = size;
-    }
 }

@@ -15,18 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.tool.response;
+package org.apache.inlong.audit.tool.util;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * The response info of API
- */
-@Data
-public class Response<T> {
+import java.io.Serializable;
+import java.util.List;
 
-    private boolean success;
-    private String errMsg;
-    private T data;
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel("Paginated query results")
+public final class PageResult<T> implements Serializable {
+
+    @ApiModelProperty(value = "data record", required = true)
+    private List<T> list;
+
+    @ApiModelProperty(value = "The total number of items matching the filter criteria", required = true)
+    private Long total;
+
+    @ApiModelProperty(value = "pageSize", required = true)
+    private Integer pageSize;
+
+    @ApiModelProperty(value = "pageNum", required = true)
+    private Integer pageNum;
 
 }
