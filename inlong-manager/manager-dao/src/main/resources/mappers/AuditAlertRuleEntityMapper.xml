@@ -119,40 +119,31 @@
         from audit_alert_rule
         <where>
             is_deleted = 0
-            <if test="id != null">
-                and id = #{id,jdbcType=INTEGER}
+            <if test="request.id != null">
+                and id = #{request.id,jdbcType=INTEGER}
             </if>
-            <if test="inlongGroupId != null and inlongGroupId != ''">
-                and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId,jdbcType=VARCHAR}
             </if>
-            <if test="inlongStreamId != null and inlongStreamId != ''">
-                and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId,jdbcType=VARCHAR}
             </if>
-            <if test="auditId != null and auditId != ''">
-                and audit_id = #{auditId,jdbcType=VARCHAR}
+            <if test="request.auditId != null and request.auditId != ''">
+                and audit_id = #{request.auditId,jdbcType=VARCHAR}
             </if>
-            <if test="alertName != null and alertName != ''">
-                and alert_name like concat('%', #{alertName,jdbcType=VARCHAR}, '%')
+            <if test="request.alertName != null and request.alertName != ''">
+                and alert_name like concat('%', #{request.alertName,jdbcType=VARCHAR}, '%')
             </if>
-            <if test="level != null and level != ''">
-                and `level` = #{level,jdbcType=VARCHAR}
+            <if test="request.level != null and request.level != ''">
+                and `level` = #{request.level,jdbcType=VARCHAR}
             </if>
-            <if test="notifyType != null and notifyType != ''">
-                and notify_type = #{notifyType,jdbcType=VARCHAR}
-            </if>
-            <if test="enabled != null">
-                and enabled = #{enabled,jdbcType=INTEGER}
-            </if>
-            <if test="creator != null and creator != ''">
-                and creator = #{creator,jdbcType=VARCHAR}
-            </if>
-            <if test="modifier != null and modifier != ''">
-                and modifier = #{modifier,jdbcType=VARCHAR}
+            <if test="request.enabled != null">
+                and enabled = #{request.enabled,jdbcType=INTEGER}
             </if>
         </where>
         <choose>
-            <when test="orderField != null and orderField != '' and orderType != null and orderType != ''">
-                order by ${orderField} ${orderType}
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
             </when>
             <otherwise>
                 order by create_time desc
