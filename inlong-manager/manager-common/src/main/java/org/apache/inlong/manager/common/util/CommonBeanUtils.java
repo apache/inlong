@@ -20,7 +20,9 @@ package org.apache.inlong.manager.common.util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.PropertyAccessorFactory;
 
+import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -137,6 +139,52 @@ public class CommonBeanUtils extends BeanUtils {
         }
         String[] result = new String[emptyNames.size()];
         return emptyNames.toArray(result);
+    }
+
+    /**
+     * Copy the content of the source instance to the target instance with enum to string conversion support
+     *
+     * @param source source data content
+     * @param target target type supplier
+     * @param ignoreNull Whether to ignore null values
+     * @param <S> source type
+     * @param <T> target type
+     * @return the target type object after copying
+     * @apiNote Automatically converts Enum fields to String using name() method when target field is String.
+     * If ignoreNull = false, non-null attributes in the target instance may be overwritten
+     */
+    public static <S, T> T copyPropertiesWithEnumSupport(S source, Supplier<T> target) {
+        T result = target.get();
+        if (source == null) {
+            return result;
+        }
+
+        BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
+        BeanWrapper targetWrapper = PropertyAccessorFactory.forBeanPropertyAccess(result);
+
+        for (PropertyDescriptor sourcePd : sourceWrapper.getPropertyDescriptors()) {
+            String propertyName = sourcePd.getName();
+            try {
+                PropertyDescriptor targetPd = new PropertyDescriptor(propertyName, target.get().getClass());
+
+                Object sourceValue = sourceWrapper.getPropertyValue(propertyName);
+                if (sourceValue == null) {
+                    continue;
+                }
+
+                Object targetValue = sourceValue;
+                if (sourceValue instanceof Enum && targetPd.getPropertyType() == String.class) {
+                    targetValue = ((Enum<?>) sourceValue).name();
+                }
+
+                targetWrapper.setPropertyValue(propertyName, targetValue);
+
+            } catch (Exception e) {
+                continue;
+            }
+        }
+
+        return result;
     }
 
 }

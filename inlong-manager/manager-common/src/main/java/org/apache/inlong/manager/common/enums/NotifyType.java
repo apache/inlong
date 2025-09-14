@@ -15,26 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.common.Response;
+/**
+ * Notification type for audit alert
+ */
+public enum NotifyType {
 
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+    /**
+     * Email notification
+     */
+    EMAIL,
 
-import java.util.List;
+    /**
+     * SMS notification
+     */
+    SMS,
 
-public interface AuditApi {
+    /**
+     * HTTP notification
+     */
+    HTTP;
 
-    @POST("audit/list")
-    Call<Response<List<AuditVO>>> list(@Body AuditRequest auditRequest);
-
-    @POST("audit/listAll")
-    Call<Response<List<AuditVO>>> listAll(@Body AuditRequest auditRequest);
-
-    @POST("audit/refreshCache")
-    Call<Response<Boolean>> refreshCache();
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }

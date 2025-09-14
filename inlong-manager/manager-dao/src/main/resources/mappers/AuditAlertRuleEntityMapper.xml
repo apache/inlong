@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.apache.inlong.manager.dao.mapper.AuditAlertRuleEntityMapper">
+
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="audit_id" jdbcType="VARCHAR" property="auditId"/>
+        <result column="alert_name" jdbcType="VARCHAR" property="alertName"/>
+        <result column="condition" jdbcType="VARCHAR" property="condition"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="notify_type" jdbcType="VARCHAR" property="notifyType"/>
+        <result column="receivers" jdbcType="VARCHAR" property="receivers"/>
+        <result column="enabled" jdbcType="INTEGER" property="enabled"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, inlong_group_id, inlong_stream_id, audit_id, alert_name, `condition`, `level`, 
+        notify_type, receivers, enabled, creator, modifier, create_time, modify_time, version, is_deleted
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+        parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+    insert into audit_alert_rule (inlong_group_id, inlong_stream_id, audit_id, alert_name,
+                                  `condition`, `level`, notify_type, receivers,
+                                  enabled, creator, modifier)
+    values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+            #{auditId,jdbcType=VARCHAR}, #{alertName,jdbcType=VARCHAR},
+            #{condition,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR},
+            #{notifyType,jdbcType=VARCHAR}, #{receivers,jdbcType=VARCHAR},
+            #{enabled,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity">
+        update audit_alert_rule
+        <set>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="auditId != null">
+                audit_id = #{auditId,jdbcType=VARCHAR},
+            </if>
+            <if test="alertName != null">
+                alert_name = #{alertName,jdbcType=VARCHAR},
+            </if>
+            <if test="condition != null">
+                `condition` = #{condition,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null">
+                `level` = #{level,jdbcType=VARCHAR},
+            </if>
+            <if test="notifyType != null">
+                notify_type = #{notifyType,jdbcType=VARCHAR},
+            </if>
+            <if test="receivers != null">
+                receivers = #{receivers,jdbcType=VARCHAR},
+            </if>
+            <if test="enabled != null">
+                enabled = #{enabled,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            version = #{version,jdbcType=INTEGER} + 1
+        </set>
+        where id = #{id,jdbcType=INTEGER} 
+        and version = #{version,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from audit_alert_rule
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from audit_alert_rule
+        where id = #{id,jdbcType=INTEGER} 
+        and is_deleted = 0
+    </select>
+    
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from audit_alert_rule
+        <where>
+            is_deleted = 0
+            <if test="request.id != null">
+                and id = #{request.id,jdbcType=INTEGER}
+            </if>
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.auditId != null and request.auditId != ''">
+                and audit_id = #{request.auditId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.alertName != null and request.alertName != ''">
+                and alert_name like concat('%', #{request.alertName,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="request.level != null and request.level != ''">
+                and `level` = #{request.level,jdbcType=VARCHAR}
+            </if>
+            <if test="request.enabled != null">
+                and enabled = #{request.enabled,jdbcType=INTEGER}
+            </if>
+        </where>
+        <choose>
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

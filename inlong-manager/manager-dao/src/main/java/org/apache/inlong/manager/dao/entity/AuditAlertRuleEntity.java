@@ -15,26 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.common.Response;
+import lombok.Data;
 
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+import java.util.Date;
 
-import java.util.List;
+@Data
+public class AuditAlertRuleEntity {
 
-public interface AuditApi {
-
-    @POST("audit/list")
-    Call<Response<List<AuditVO>>> list(@Body AuditRequest auditRequest);
-
-    @POST("audit/listAll")
-    Call<Response<List<AuditVO>>> listAll(@Body AuditRequest auditRequest);
-
-    @POST("audit/refreshCache")
-    Call<Response<Boolean>> refreshCache();
+    private Integer id;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private String alertName;
+    private String condition; // Keep as String for database storage (JSON format)
+    private String level;
+    private String notifyType;
+    private String receivers;
+    private Boolean enabled;
+    private Integer isDeleted; // Use Integer to match database int(11) type
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime; // Modify time
+    private Integer version; // Add version field
 }

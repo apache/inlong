@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.dao.entity.AuditAlertRuleEntity;
+import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface AuditApi {
+@Repository
+public interface AuditAlertRuleEntityMapper {
 
-    @POST("audit/list")
-    Call<Response<List<AuditVO>>> list(@Body AuditRequest auditRequest);
+    int insert(AuditAlertRuleEntity entity);
 
-    @POST("audit/listAll")
-    Call<Response<List<AuditVO>>> listAll(@Body AuditRequest auditRequest);
+    int updateById(AuditAlertRuleEntity entity);
 
-    @POST("audit/refreshCache")
-    Call<Response<Boolean>> refreshCache();
+    int deleteById(Integer id);
+
+    AuditAlertRuleEntity selectById(Integer id);
+
+    List<AuditAlertRuleEntity> selectByCondition(@Param("request") AuditAlertRulePageRequest request);
 }
