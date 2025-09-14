@@ -39,8 +39,9 @@ public class AgentConfiguration extends AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentConfiguration.class);
 
-    public static final String DEFAULT_CONFIG_FILE = "agent.properties";
-    public static final String TMP_CONFIG_FILE = ".tmp.agent.properties";
+    private static final String DEFAULT_CONFIG_FILE = "agent.properties";
+    private static final String EXT_CONFIG_FILE = "agent_ext.properties";
+    private static final String TMP_CONFIG_FILE = ".tmp.agent.properties";
 
     private static final ArrayList<String> LOCAL_RESOURCES = new ArrayList<>();
 
@@ -49,6 +50,7 @@ public class AgentConfiguration extends AbstractConfiguration {
 
     static {
         LOCAL_RESOURCES.add(DEFAULT_CONFIG_FILE);
+        LOCAL_RESOURCES.add(EXT_CONFIG_FILE);
     }
 
     /**
@@ -110,6 +112,24 @@ public class AgentConfiguration extends AbstractConfiguration {
         } finally {
             LOCK.writeLock().unlock();
         }
+    }
+
+    /**
+     * check max last modified time from local files.
+     */
+    public long maxLastModifiedTime() {
+        long maxLastModifiedTime = 0;
+        for (String fileName : LOCAL_RESOURCES) {
+            File file = new File(this.getConfigLocation(fileName).getFile());
+            if (!file.exists()) {
+                continue;
+            }
+            long fileLastModified = file.lastModified();
+            if (fileLastModified > maxLastModifiedTime) {
+                maxLastModifiedTime = fileLastModified;
+            }
+        }
+        return maxLastModifiedTime;
     }
 
     /**

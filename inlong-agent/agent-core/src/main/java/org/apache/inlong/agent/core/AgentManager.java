@@ -92,14 +92,10 @@ public class AgentManager extends AbstractDaemon {
                 while (true) {
                     try {
                         Thread.sleep(10 * 1000); // 10s check
-                        File file = new File(
-                                conf.getConfigLocation(AgentConfiguration.DEFAULT_CONFIG_FILE).getFile());
-                        if (!file.exists()) {
-                            continue;
-                        }
-                        if (file.lastModified() > lastModifiedTime) {
+                        long maxLastModifiedTime = conf.maxLastModifiedTime();
+                        if (maxLastModifiedTime > lastModifiedTime) {
                             conf.reloadFromLocalPropertiesFile();
-                            lastModifiedTime = file.lastModified();
+                            lastModifiedTime = maxLastModifiedTime;
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Interrupted when flush agent conf.", e);
