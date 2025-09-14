@@ -59,6 +59,6 @@ public class AuditToolMain {
             LOGGER.error("Audit Tool stopped.");
         }));
 
-        LOGGER.error("Audit Tool started.");
+        LOGGER.info("Audit Tool started.");
     }
 }
