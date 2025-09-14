@@ -20,7 +20,6 @@ package org.apache.inlong.tool.service;
 import org.apache.inlong.audit.tool.config.AppConfig;
 import org.apache.inlong.audit.tool.entity.AuditMetric;
 import org.apache.inlong.audit.tool.service.AuditMetricService;
-import org.apache.inlong.audit.tool.task.AuditCheckTask;
 import org.apache.inlong.audit.tool.util.AuditSQLUtil;
 
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AuditMetricServiceTest {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditMetricServiceTest.class);
 
     @Test
@@ -50,7 +50,8 @@ public class AuditMetricServiceTest {
                 auditMetricService.getStorageAuditMetrics("5", startLogTs, endLogTs);
 
         for (AuditMetric auditMetric : dataproxyAuditMetrics) {
-            LOGGER.error("{} {} {}", auditMetric.getInlongGroupId(), auditMetric.getInlongStreamId(), auditMetric.getCount());
+            LOGGER.error("{} {} {}", auditMetric.getInlongGroupId(), auditMetric.getInlongStreamId(),
+                    auditMetric.getCount());
         }
     }
 }
