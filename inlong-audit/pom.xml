@@ -38,6 +38,7 @@
         <module>audit-sdk</module>
         <module>audit-release</module>
         <module>audit-docker</module>
+        <module>audit-tool</module>
     </modules>
 
     <properties>
