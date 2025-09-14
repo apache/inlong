@@ -17,9 +17,48 @@
 
 package org.apache.inlong.audit.tool;
 
+import org.apache.inlong.audit.tool.config.AppConfig;
+import org.apache.inlong.audit.tool.evaluator.AlertEvaluator;
+import org.apache.inlong.audit.tool.manager.AuditAlertRuleManager;
+import org.apache.inlong.audit.tool.reporter.PrometheusReporter;
+import org.apache.inlong.audit.tool.task.AuditCheckTask;
+import org.apache.inlong.audit.tool.util.AuditSQLUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AuditToolMain {
 
-    public static void main(String[] args) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditAlertRuleManager.class);
 
+    public static void main(String[] args) {
+        // Load application configuration
+        AppConfig appConfig = new AppConfig();
+
+        // Initialize auditAlertRule Manager
+        AuditAlertRuleManager auditAlertRuleManager = AuditAlertRuleManager.getInstance();
+        auditAlertRuleManager.init(appConfig);
+        auditAlertRuleManager.schedule();
+
+        // Initialize reporters
+        PrometheusReporter prometheusReporter = new PrometheusReporter();
+        prometheusReporter.init(appConfig.getPrometheusConfig());
+
+        // Database query initialization
+        AuditSQLUtil.initialize(appConfig.getProperties());
+
+        // Initialize alert evaluator
+        AlertEvaluator alertEvaluator = new AlertEvaluator(prometheusReporter, auditAlertRuleManager);
+        AuditCheckTask auditCheckTask =
+                new AuditCheckTask(auditAlertRuleManager, alertEvaluator, appConfig);
+        auditCheckTask.start();
+
+        // Keep the application running
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            auditCheckTask.stop();
+            LOGGER.error("Audit Tool stopped.");
+        }));
+
+        LOGGER.error("Audit Tool started.");
     }
 }
