@@ -33,7 +33,7 @@ import java.util.Objects;
 public class AlertEvaluator {
 
     private final PrometheusReporter prometheusReporter;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuditAlertRuleManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlertEvaluator.class);
     @Getter
     private final AuditAlertRuleManager auditAlertRuleManager;
 

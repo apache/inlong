@@ -43,13 +43,13 @@ public class AuditCheckTask {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AlertEvaluator alertEvaluator;
     private final AuditAlertRuleManager auditAlertRuleManager;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuditAlertRuleManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditCheckTask.class);
     private final AuditMetricService auditMetricService;
-    private Integer executionIntervalTime;
-    private Integer intervalTimeMinute;
+    private Integer executionIntervalTime = 1;
+    private Integer intervalTimeMinute = 1;
     private final Integer delayTimeMinute;
     private static final DateTimeFormatter LOGS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private String sourceAuditId;
+    private String sourceAuditId = "5";
 
     public AuditCheckTask(
             AuditAlertRuleManager auditAlertRuleManager, AlertEvaluator alertEvaluator, AppConfig appConfig) {
@@ -63,11 +63,8 @@ public class AuditCheckTask {
                     Integer.parseInt(appConfig.getProperties().getProperty(ConfigConstants.KEY_INTERVAL_TIME, "1"));
             this.sourceAuditId = appConfig.getProperties().getProperty(ConfigConstants.KEY_SOURCE_AUDIT_ID, "5");
         } catch (Exception e) {
-            LOGGER.info(
+            LOGGER.error(
                     "Failed to read configuration information, default source AuditId is 5, delay execution time is 1, time interval is 1");
-            this.executionIntervalTime = 1;
-            this.intervalTimeMinute = 1;
-            this.sourceAuditId = "5";
         }
         this.delayTimeMinute = executionIntervalTime;
     }
