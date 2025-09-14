@@ -98,7 +98,7 @@ public class AlertEvaluator {
 
                 if (hit) {
                     LOGGER.error(
-                            "[ALERT] groupId={}, streamId={} | sourceCount={}, sinkCount={} | diff={} {} threshold={}",
+                            "[ALERT] groupId={}, streamId={} | sourceCount={}, sinkCount={} | diff={} operator={} threshold={}",
                             source.getInlongGroupId(), source.getInlongStreamId(),
                             source.getCount(), sink.getCount(), diff, op, threshold);
                     if (prometheusReporter.getAuditMetric() != null) {
