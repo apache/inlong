@@ -19,35 +19,54 @@ package org.apache.inlong.tool.service;
 
 import org.apache.inlong.audit.tool.config.AppConfig;
 import org.apache.inlong.audit.tool.entity.AuditMetric;
+import org.apache.inlong.audit.tool.mapper.AuditMapper;
 import org.apache.inlong.audit.tool.service.AuditMetricService;
 import org.apache.inlong.audit.tool.util.AuditSQLUtil;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditMetricServiceTest {
 
     @Test
-    public void testGetDataProxyAuditMetrics() {
+    public void getStorageAuditMetricsReturnsEmptyListWhenNoDataFound() {
+        AuditMetricService auditMetricService = new AuditMetricService();
+
+        try (MockedStatic<AuditSQLUtil> sqlUtilMockedStatic = Mockito.mockStatic(AuditSQLUtil.class)) {
+            SqlSession sqlSessionMock = Mockito.mock(SqlSession.class);
+            AuditMapper auditMapperMock = Mockito.mock(AuditMapper.class);
+
+            sqlUtilMockedStatic.when(AuditSQLUtil::getSqlSession).thenReturn(sqlSessionMock);
+            Mockito.when(sqlSessionMock.getMapper(AuditMapper.class)).thenReturn(auditMapperMock);
+            Mockito.when(auditMapperMock.getAuditMetrics(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                    .thenReturn(Collections.emptyList());
+
+            List<AuditMetric> result = auditMetricService.getStorageAuditMetrics("nonexistentId", "2023-01-01 00:00:00",
+                    "2023-01-01 01:00:00");
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    @Test
+    public void getStorageAuditMetricsHandlesInvalidTimestampsGracefully() {
         // Query service initialization
         AppConfig appConfig = new AppConfig();
         AuditSQLUtil.initialize(appConfig.getProperties());
         AuditMetricService auditMetricService = new AuditMetricService();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String endLogTs = LocalDateTime.now().minusMinutes(1).format(formatter);
-        String startLogTs = LocalDateTime.now().minusMinutes(5).format(formatter);
+        String invalidStartLogTs = "invalid-timestamp";
+        String invalidEndLogTs = "invalid-timestamp";
 
-        // Search for relevant data
-        List<AuditMetric> dataproxyAuditMetrics =
-                auditMetricService.getStorageAuditMetrics("5", startLogTs, endLogTs);
+        List<AuditMetric> result = auditMetricService.getStorageAuditMetrics("5", invalidStartLogTs, invalidEndLogTs);
 
-        for (AuditMetric auditMetric : dataproxyAuditMetrics) {
-            System.out.println(auditMetric.getInlongGroupId() + " " + auditMetric.getInlongStreamId() + " "
-                    + auditMetric.getCount());
-        }
+        assertTrue(result.isEmpty());
     }
+
 }
