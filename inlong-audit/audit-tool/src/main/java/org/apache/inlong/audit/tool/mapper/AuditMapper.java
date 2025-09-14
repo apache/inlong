@@ -17,10 +17,11 @@
 
 package org.apache.inlong.audit.tool.mapper;
 
+import org.apache.inlong.audit.tool.entity.AuditMetric;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.inlong.audit.tool.entity.AuditMetric;
 
 import java.util.List;
 
@@ -31,5 +32,5 @@ public interface AuditMapper {
             " from audit_data where audit_id = #{audit_id}" +
             " and log_ts between #{startLogTs} and #{endLogTs} group by inlong_group_id,inlong_stream_id")
     List<AuditMetric> getAuditMetrics(@Param("startLogTs") String startLogTs, @Param("endLogTs") String endLogTs,
-                                      @Param("audit_id") String auditId);
+            @Param("audit_id") String auditId);
 }
