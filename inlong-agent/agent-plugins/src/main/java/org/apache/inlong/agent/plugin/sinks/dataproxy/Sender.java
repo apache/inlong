@@ -47,6 +47,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -214,23 +217,33 @@ public class Sender {
         proxyClientConfig.setEnableDataCompress(isCompress);
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());
-        boolean hasError = false;
-        ProcessResult procResult = null;
+        int ioThreadNum = 100;
+        ExecutorService createExecutor = Executors.newFixedThreadPool(ioThreadNum);
+        CountDownLatch latch = new CountDownLatch(maxSenderPerGroup);
         for (int i = 0; i < maxSenderPerGroup; i++) {
-            InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
-            procResult = new ProcessResult();
-            if (!sender.start(procResult)) {
-                hasError = true;
-                break;
-            }
-            senders.add(sender);
-        }
-        if (hasError) {
-            senders.forEach(sender -> {
-                sender.close();
+            createExecutor.execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        InLongTcpMsgSender sender = new InLongTcpMsgSender(proxyClientConfig, SHARED_FACTORY);
+                        ProcessResult procResult = new ProcessResult();
+                        if (!sender.start(procResult)) {
+                            return;
+                        }
+                        synchronized (senders) {
+                            senders.add(sender);
+                        }
+                    } catch (Throwable t) {
+                        LOGGER.error(t.getMessage(), t);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
             });
-            throw new ProxySdkException("Start sender failure, " + procResult);
         }
+        latch.await();
+        createExecutor.shutdown();
     }
 
     public void sendBatch(SenderMessage message) {
@@ -361,6 +374,7 @@ public class Sender {
         private final int retry;
         private final SenderMessage message;
         private final int msgCnt;
+        private final long sendTime = System.currentTimeMillis();
 
         AgentSenderCallback(SenderMessage message, int retry) {
             this.message = message;
@@ -386,7 +400,8 @@ public class Sender {
                 AgentStatusManager.sendDataLen.addAndGet(message.getTotalSize());
             } else {
                 LOGGER.error("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
-                        + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
+                        + "error {},duration:{},msgCnt:{},msgSize:{}", groupId, streamId, taskId, instanceId, dataTime,
+                        retry, result, (System.currentTimeMillis() - sendTime), msgCnt, message.getTotalSize());
                 getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
                 putInResendQueue(new AgentSenderCallback(message, retry));
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED, groupId, streamId,
