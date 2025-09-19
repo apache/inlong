@@ -23,6 +23,11 @@
 
 dataproxy-sdk cpp version, used for sending data to dataproxy
 
+## Features
+
+- **TCP Send**: Traditional TCP-based data transmission to DataProxy
+- **HTTP Send**: Direct HTTP POST requests to DataProxy endpoints
+
 ## Prerequisites
 
 * CMake 3.1+
@@ -31,6 +36,8 @@ dataproxy-sdk cpp version, used for sending data to dataproxy
 * rapidjson
 * asio
 * log4cplus
+* zstd
+* brotli
 
 ## Build
 
@@ -80,21 +87,89 @@ Refer to `release/conf/config_example.json`.
 - A) `int32_t InitApi(const char* config_file)`. Here, `config_file` is the path of your config file, and absolute
   path is recommended. Note that only once called is needed in one process.
 
-2. Then, send
-   data: `int32_t Send(const char* inlong_group_id, const char* inlong_stream_id, const char* msg, int32_t msg_len, UserCallBack call_back = NULL)`.
+2. Then, send data. There are two ways to send data:
+
+### TCP Send
+
+   `int32_t Send(const char* inlong_group_id, const char* inlong_stream_id, const char* msg, int32_t msg_len, UserCallBack call_back = NULL)`.
    If you set `call_back`, it will be callbacked if your data failed to send. See the signature of `UserCallBack`
    in `src/core/sdk_msg.h`.
 
+### HTTP Send
+
+   `int32_t SendHttp(const char* url, const char* body, int timeout = 5)`.
+   This method sends HTTP POST requests directly to the specified URL.
+
+   Parameters:
+
+- `url`: The target HTTP endpoint URL
+- `body`: The HTTP request body (usually JSON format)
+- `timeout`: Request timeout in seconds (default: 5)
+
+   Returns:
+
+- `0`: Success
+- Non-zero: HTTP error code or network error
+
+   Example:
+
+```cpp
+   std::string url = "http://127.0.0.1:8080/inlong/dataproxy/send";
+   std::string body = R"({"groupId":"test_group","streamId":"test_stream","msg":"test message"})";
+   int result = inlong_api.SendHttp(url.c_str(), body.c_str(), 5);
+   if (result == 0) {
+       std::cout << "HTTP send success" << std::endl;
+   } else {
+       std::cout << "HTTP send failed, code=" << result << std::endl;
+   }
+```
+
 3. Finally, close sdk if no more data to be sent: `int32_t CloseApi(int32_t max_waitms)`. Here, `max_waitms` is the
    interval of waiting data in memory to be sent.
-
-4. Note, the above functions return 0 if success, otherwise it m
-
-5. eans failure. As for other return results, please refer
+4. Note, the above functions return 0 if success, otherwise it means failure. As for other return results, please refer
    to `SDKInvalidResult` in `src/core/inlong_api.h`.
 
 ## Demo
 
 1. Refer to `release/demo/send_demo.cc`.
-
 2. Static lib is in `release/lib`. Header file is in `release/lib`.
+
+### TCP Send Demo
+
+The demo shows how to use TCP send functionality:
+
+```cpp
+InLongApi inlong_api;
+// Initialize SDK
+inlong_api.InitApi("config.json");
+
+// Send data via TCP
+std::string msg = "test message";
+inlong_api.Send("test_group", "test_stream", msg.c_str(), msg.length());
+
+// Close SDK
+inlong_api.CloseApi(10000);
+```
+
+### HTTP Send Demo
+
+The demo also includes HTTP send functionality:
+
+```cpp
+InLongApi inlong_api;
+// Initialize SDK
+inlong_api.InitApi("config.json");
+
+// Send data via HTTP
+std::string http_url = "http://127.0.0.1:8080/inlong/dataproxy/send";
+std::string http_body = R"({"groupId":"test_cpp_sdk","streamId":"stream1","msg":"this is a http test"})";
+int http_ret = inlong_api.SendHttp(http_url.c_str(), http_body.c_str(), 5);
+if (http_ret == 0) {
+    std::cout << "HTTP send success" << std::endl;
+} else {
+    std::cout << "HTTP send failed, code=" << http_ret << std::endl;
+}
+
+// Close SDK
+inlong_api.CloseApi(10000);
+```

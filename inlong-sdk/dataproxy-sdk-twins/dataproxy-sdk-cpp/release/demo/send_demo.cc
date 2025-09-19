@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "inlong_api.h"
+#include "../../include/inlong_api.h"
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -72,6 +72,16 @@ int main(int argc, char const *argv[]) {
       cout << "tc_api_send error;"
            << " ";
     }
+  }
+
+  // HTTP report example
+  std::string http_url = "http://127.0.0.1:8080/inlong/dataproxy/send";
+  std::string http_body = R"({\"groupId\":\"test_cpp_sdk\",\"streamId\":\"stream1\",\"msg\":\"this is a http test\"})";
+  int http_ret = inlong_api.SendHttp(http_url.c_str(), http_body.c_str(), 5);
+  if (http_ret == 0) {
+    cout << "HTTP report succeeded" << endl;
+  } else {
+    cout << "HTTP report failed, code=" << http_ret << endl;
   }
 
   // step3. close
