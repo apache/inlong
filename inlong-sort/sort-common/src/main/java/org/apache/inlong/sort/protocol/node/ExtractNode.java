@@ -33,6 +33,7 @@ import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.WeaviateExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -69,6 +70,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
         @JsonSubTypes.Type(value = IcebergExtractNode.class, name = "icebergExtract"),
         @JsonSubTypes.Type(value = OceanBaseExtractNode.class, name = "oceanbaseExtract"),
+        @JsonSubTypes.Type(value = WeaviateExtractNode.class, name = "weaviateExtract"),
 })
 @Data
 @NoArgsConstructor

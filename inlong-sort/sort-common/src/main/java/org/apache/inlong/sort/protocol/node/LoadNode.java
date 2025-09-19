@@ -37,6 +37,7 @@ import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.WeaviateLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -78,6 +79,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = HudiLoadNode.class, name = "hudiLoad"),
         @JsonSubTypes.Type(value = RedisLoadNode.class, name = "redisLoad"),
         @JsonSubTypes.Type(value = OceanBaseLoadNode.class, name = "oceanBaseLoad"),
+        @JsonSubTypes.Type(value = WeaviateLoadNode.class, name = "weaviateLoad"),
 })
 @NoArgsConstructor
 @Data
