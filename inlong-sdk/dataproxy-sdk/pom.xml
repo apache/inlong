@@ -114,6 +114,11 @@
             <artifactId>libthrift</artifactId>
             <version>${apache.thrift.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>transform-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
