@@ -46,6 +46,7 @@ public class PulsarIdConfig extends IdConfig {
     public static final String KEY_DATA_TYPE = "dataType";
     public static final String KEY_SEPARATOR = "separator";
     public static final String DEFAULT_SEPARATOR = "|";
+    public static final String PERSISTENT_KEY = "persistent";
 
     private static final String DEFAULT_INLONG_STREAM = "1";
 
@@ -80,11 +81,19 @@ public class PulsarIdConfig extends IdConfig {
             dataType = DataTypeEnum.PB;
         }
 
+        String rawTopic = sinkConfig.getTopic();
+        if (rawTopic != null) {
+            if (!rawTopic.startsWith(PERSISTENT_KEY)) {
+                String pulsarTenant = sinkConfig.getPulsarTenant();
+                String namespace = sinkConfig.getNamespace();
+                rawTopic = String.format("%s://%s/%s/%s", PERSISTENT_KEY, pulsarTenant, namespace, rawTopic);
+            }
+        }
         return PulsarIdConfig.builder()
                 .inlongGroupId(dataFlowConfig.getInlongGroupId())
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
                 .uid(InlongId.generateUid(dataFlowConfig.getInlongGroupId(), dataFlowConfig.getInlongStreamId()))
-                .topic(sinkConfig.getTopic())
+                .topic(rawTopic)
                 .dataType(dataType)
                 .separator(separator)
                 .dataFlowConfig(dataFlowConfig)
