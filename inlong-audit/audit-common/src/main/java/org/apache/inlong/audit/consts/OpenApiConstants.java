@@ -37,6 +37,8 @@ public class OpenApiConstants {
     public static final String DEFAULT_API_GET_AUDIT_PROXY_PATH = "/audit/query/getAuditProxy";
     public static final String KEY_API_RECONCILIATION_PATH = "api.reconciliation.path";
     public static final String DEFAULT_API_RECONCILIATION_PATH = "/audit/query/reconciliation";
+    public static final String KEY_API_GET_AUDIT_ROUTE_PATH = "api.get.audit.route.path";
+    public static final String DEFAULT_API_GET_AUDIT_ROUTE_PATH = "/audit/query/getAuditRoute";
     public static final String KEY_API_THREAD_POOL_SIZE = "api.thread.pool.size";
     public static final int DEFAULT_API_THREAD_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
@@ -69,4 +71,5 @@ public class OpenApiConstants {
     public static final int DEFAULT_HTTP_SERVER_BIND_PORT = 10080;
     public static final int HTTP_RESPOND_CODE = 200;
     public static final String PARAMS_AUDIT_COMPONENT = "component";
+    public static final String PARAMS_AUDIT_HOST = "host";
 }

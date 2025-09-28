@@ -104,4 +104,45 @@ public class HttpUtils {
         }
         return null;
     }
+
+    public static String httpGet(String url, Map<String, String> queryParams, int timeoutMs) {
+        if (httpClient == null) {
+            LOGGER.error("httpClient is null");
+            return null;
+        }
+
+        try {
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout(timeoutMs)
+                    .setConnectionRequestTimeout(timeoutMs)
+                    .setSocketTimeout(timeoutMs)
+                    .build();
+
+            URIBuilder uriBuilder = new URIBuilder(url);
+
+            if (queryParams != null) {
+                for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                    uriBuilder.addParameter(entry.getKey(), entry.getValue());
+                }
+            }
+
+            String finalUrl = uriBuilder.build().toString();
+            LOGGER.info("Http URL: {}", finalUrl);
+
+            HttpGet request = new HttpGet(finalUrl);
+            request.setConfig(requestConfig);
+
+            try (CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(request)) {
+                String responseStr = EntityUtils.toString(response.getEntity());
+                LOGGER.info("Http response: {}", responseStr);
+                if (responseStr != null && !responseStr.isEmpty()
+                        && response.getStatusLine().getStatusCode() == 200) {
+                    return responseStr;
+                }
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Http request url = {} has exception!", url, e);
+        }
+        return null;
+    }
 }

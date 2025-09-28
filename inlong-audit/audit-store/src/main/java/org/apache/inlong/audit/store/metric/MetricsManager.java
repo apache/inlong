@@ -91,6 +91,10 @@ public class MetricsManager {
         metricItem.getInvalidData().addAndGet(1);
     }
 
+    public void filterSuccess() {
+        metricItem.getFilterSuccess().addAndGet(1);
+    }
+
     public void shutdown() {
         timer.shutdown();
         metric.stop();

@@ -17,21 +17,21 @@
 
 package org.apache.inlong.audit.service.cache;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.inlong.audit.service.config.ConfigConstants;
 import org.apache.inlong.audit.service.config.Configuration;
+import org.apache.inlong.audit.service.datasource.AuditDataSource;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
 import org.apache.inlong.audit.service.entities.StatData;
 import org.apache.inlong.audit.service.except.QueryAuditException;
 import org.apache.inlong.audit.service.node.ConfigService;
 import org.apache.inlong.audit.service.utils.AuditUtils;
 import org.apache.inlong.audit.service.utils.CacheUtils;
-
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.inlong.audit.utils.RouteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -78,13 +78,12 @@ public class RealTimeQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(RealTimeQuery.class);
     private static volatile RealTimeQuery realTimeQuery = null;
 
-    private final List<BasicDataSource> dataSourceList = new LinkedList<>();
+    private final List<AuditDataSource> dataSourceList = new LinkedList<>();
     private final ExecutorService executor =
             Executors.newFixedThreadPool(
                     Configuration.getInstance().get(KEY_API_THREAD_POOL_SIZE, DEFAULT_API_THREAD_POOL_SIZE));
 
     private RealTimeQuery() {
-
         List<JdbcConfig> jdbcConfigList = ConfigService.getInstance().getAllAuditSource();
         for (JdbcConfig jdbcConfig : jdbcConfigList) {
             BasicDataSource dataSource = new BasicDataSource();
@@ -94,22 +93,22 @@ public class RealTimeQuery {
             dataSource.setPassword(jdbcConfig.getPassword());
             dataSource
                     .setInitialSize(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
-                            ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+                                                                    ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
             dataSource
                     .setMaxActive(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS,
-                            ConfigConstants.DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS));
+                                                                  ConfigConstants.DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS));
             dataSource.setMaxIdle(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MAX_IDLE_CONNECTIONS,
-                    ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS));
+                                                                  ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS));
             dataSource.setMinIdle(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
-                    ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+                                                                  ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
             dataSource.setTestOnBorrow(true);
             dataSource.setValidationQuery("SELECT 1");
             dataSource
                     .setTimeBetweenEvictionRunsMillis(
                             Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_DETECT_INTERVAL_MS,
-                                    ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS));
+                                                            ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS));
 
-            dataSourceList.add(dataSource);
+            dataSourceList.add(new AuditDataSource(jdbcConfig.getJdbcUrl(), dataSource));
         }
     }
 
@@ -142,13 +141,16 @@ public class RealTimeQuery {
             return statDataList;
         }
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (DataSource dataSource : dataSourceList) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<StatData> statDataListTemp =
-                        doQueryLogTs(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
-                statDataList.addAll(statDataListTemp);
-            }, executor);
-            futures.add(future);
+        for (AuditDataSource dataSource : dataSourceList) {
+            if (RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
+                                             AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                statDataList =
+                        doQueryLogTs(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
+                                     auditId);
+                if (!statDataList.isEmpty()) {
+                    break;
+                }
+            }
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         LOGGER.info("Query log ts by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,
@@ -279,14 +281,19 @@ public class RealTimeQuery {
      */
     public List<StatData> queryIdsByIp(String startTime, String endTime, String ip, String auditId) {
         List<StatData> statDataList = new LinkedList<>();
-        for (DataSource dataSource : dataSourceList) {
-            statDataList = doQueryIdsByIp(dataSource, startTime, endTime, ip, auditId);
+        for (AuditDataSource dataSource : dataSourceList) {
+            if (!RouteUtils.matchesAuditRoute(auditId, "",
+                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                continue;
+            }
+            statDataList = doQueryIdsByIp(dataSource.getDataSource(), startTime, endTime, ip, auditId);
             if (!statDataList.isEmpty()) {
                 break;
             }
+
         }
         LOGGER.info("Query ids by params:{} {} {} {}, result size:{} ", startTime,
-                endTime, ip, auditId, statDataList.size());
+                    endTime, ip, auditId, statDataList.size());
         return statDataList;
     }
 
@@ -351,14 +358,19 @@ public class RealTimeQuery {
     public List<StatData> queryIpsById(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
         List<StatData> statDataList = new LinkedList<>();
-        for (DataSource dataSource : dataSourceList) {
-            statDataList = doQueryIpsById(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
+        for (AuditDataSource dataSource : dataSourceList) {
+            if (!RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
+                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                continue;
+            }
+            statDataList = doQueryIpsById(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
+                                          auditId);
             if (!statDataList.isEmpty()) {
                 break;
             }
         }
         LOGGER.info("Query ips by params:{} {} {} {} {}, result size:{} ",
-                startTime, endTime, inlongGroupId, inlongStreamId, auditId, statDataList.size());
+                    startTime, endTime, inlongGroupId, inlongStreamId, auditId, statDataList.size());
         return statDataList;
     }
 
@@ -430,16 +442,20 @@ public class RealTimeQuery {
             return null;
         }
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (DataSource dataSource : dataSourceList) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                StatData statDataListTemp =
-                        doQueryAuditData(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId,
-                                auditTag, distinct);
-                if (statDataListTemp != null) {
-                    statDataList.add(statDataListTemp);
-                }
-            }, executor);
-            futures.add(future);
+        for (AuditDataSource dataSource : dataSourceList) {
+            if (!RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
+                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                continue;
+            }
+
+            StatData statDataListTemp =
+                    doQueryAuditData(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
+                                     auditId,
+                                     auditTag, distinct);
+            if (statDataListTemp != null) {
+                statDataList.add(statDataListTemp);
+                break;
+            }
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         LOGGER.info("Query audit data by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,

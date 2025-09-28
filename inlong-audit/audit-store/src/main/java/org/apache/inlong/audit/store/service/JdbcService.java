@@ -21,8 +21,10 @@ import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.store.config.JdbcConfig;
 import org.apache.inlong.audit.store.entities.JdbcDataPo;
 import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.route.AuditRouteManager;
 import org.apache.inlong.audit.store.utils.PulsarUtils;
 import org.apache.inlong.audit.utils.DataUtils;
+import org.apache.inlong.audit.utils.RouteUtils;
 
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
@@ -193,6 +195,16 @@ public class JdbcService implements InsertData, AutoCloseable {
             LOG.error("Invalid audit data: {} ", msgBody);
             return;
         }
+
+        // Filter out audit data that does not match the routing rules
+        if (!RouteUtils.matchesAuditRoute(msgBody.getAuditId(), msgBody.getInlongGroupId(),
+                AuditRouteManager.getInstance().getAuditRoutes())) {
+            MetricsManager.getInstance().filterSuccess();
+            PulsarUtils.acknowledge(consumer, messageId);
+            LOG.warn("The audit data does not match the routing rules and is filtered out: {} ", msgBody);
+            return;
+        }
+
         JdbcDataPo data = new JdbcDataPo();
         data.setConsumer(consumer);
         data.setMessageId(messageId);
