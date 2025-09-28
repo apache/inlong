@@ -65,13 +65,16 @@ PYBIND11_MODULE(inlong_dataproxy, m) {
             return result;
         })
         .def("send", [](inlong::InLongApi& self, const char* groupId, const char* streamId, const char* msg, int32_t msgLen, py::object pyCallback = py::none()) {
+            // Recalculate the message length by C++ rules
+            int32_t sendLen = static_cast<int32_t>(strlen(msg));
+
             if (!pyCallback.is(py::none())) {
                 g_py_callbacks[UserCallBackBridge] = pyCallback.cast<py::function>();
                 py::gil_scoped_release release;
-                int result = self.Send(groupId, streamId, msg, msgLen, UserCallBackBridge);
+                int result = self.Send(groupId, streamId, msg, sendLen, UserCallBackBridge);
                 return result;
             } else {
-                int result = self.Send(groupId, streamId, msg, msgLen, nullptr);
+                int result = self.Send(groupId, streamId, msg, sendLen, nullptr);
                 return result;
             }
         })
