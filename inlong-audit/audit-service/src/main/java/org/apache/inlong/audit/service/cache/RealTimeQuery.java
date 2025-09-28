@@ -17,7 +17,6 @@
 
 package org.apache.inlong.audit.service.cache;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.inlong.audit.service.config.ConfigConstants;
 import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.datasource.AuditDataSource;
@@ -28,10 +27,13 @@ import org.apache.inlong.audit.service.node.ConfigService;
 import org.apache.inlong.audit.service.utils.AuditUtils;
 import org.apache.inlong.audit.service.utils.CacheUtils;
 import org.apache.inlong.audit.utils.RouteUtils;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -93,20 +95,20 @@ public class RealTimeQuery {
             dataSource.setPassword(jdbcConfig.getPassword());
             dataSource
                     .setInitialSize(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
-                                                                    ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+                            ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
             dataSource
                     .setMaxActive(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS,
-                                                                  ConfigConstants.DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS));
+                            ConfigConstants.DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS));
             dataSource.setMaxIdle(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MAX_IDLE_CONNECTIONS,
-                                                                  ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS));
+                    ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS));
             dataSource.setMinIdle(Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
-                                                                  ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+                    ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
             dataSource.setTestOnBorrow(true);
             dataSource.setValidationQuery("SELECT 1");
             dataSource
                     .setTimeBetweenEvictionRunsMillis(
                             Configuration.getInstance().get(ConfigConstants.KEY_DATASOURCE_DETECT_INTERVAL_MS,
-                                                            ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS));
+                                    ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS));
 
             dataSourceList.add(new AuditDataSource(jdbcConfig.getJdbcUrl(), dataSource));
         }
@@ -143,10 +145,10 @@ public class RealTimeQuery {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (AuditDataSource dataSource : dataSourceList) {
             if (RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
-                                             AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                    AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
                 statDataList =
                         doQueryLogTs(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
-                                     auditId);
+                                auditId);
                 if (!statDataList.isEmpty()) {
                     break;
                 }
@@ -283,7 +285,7 @@ public class RealTimeQuery {
         List<StatData> statDataList = new LinkedList<>();
         for (AuditDataSource dataSource : dataSourceList) {
             if (!RouteUtils.matchesAuditRoute(auditId, "",
-                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                    AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
                 continue;
             }
             statDataList = doQueryIdsByIp(dataSource.getDataSource(), startTime, endTime, ip, auditId);
@@ -293,7 +295,7 @@ public class RealTimeQuery {
 
         }
         LOGGER.info("Query ids by params:{} {} {} {}, result size:{} ", startTime,
-                    endTime, ip, auditId, statDataList.size());
+                endTime, ip, auditId, statDataList.size());
         return statDataList;
     }
 
@@ -360,17 +362,17 @@ public class RealTimeQuery {
         List<StatData> statDataList = new LinkedList<>();
         for (AuditDataSource dataSource : dataSourceList) {
             if (!RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
-                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                    AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
                 continue;
             }
             statDataList = doQueryIpsById(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
-                                          auditId);
+                    auditId);
             if (!statDataList.isEmpty()) {
                 break;
             }
         }
         LOGGER.info("Query ips by params:{} {} {} {} {}, result size:{} ",
-                    startTime, endTime, inlongGroupId, inlongStreamId, auditId, statDataList.size());
+                startTime, endTime, inlongGroupId, inlongStreamId, auditId, statDataList.size());
         return statDataList;
     }
 
@@ -444,14 +446,14 @@ public class RealTimeQuery {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (AuditDataSource dataSource : dataSourceList) {
             if (!RouteUtils.matchesAuditRoute(auditId, inlongGroupId,
-                                              AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
+                    AuditRouteCache.getInstance().getData(dataSource.getAddress()))) {
                 continue;
             }
 
             StatData statDataListTemp =
                     doQueryAuditData(dataSource.getDataSource(), startTime, endTime, inlongGroupId, inlongStreamId,
-                                     auditId,
-                                     auditTag, distinct);
+                            auditId,
+                            auditTag, distinct);
             if (statDataListTemp != null) {
                 statDataList.add(statDataListTemp);
                 break;
