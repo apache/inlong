@@ -23,6 +23,7 @@ import org.apache.inlong.audit.store.config.JdbcConfig;
 import org.apache.inlong.audit.store.config.MessageQueueConfig;
 import org.apache.inlong.audit.store.config.StoreConfig;
 import org.apache.inlong.audit.store.metric.MetricsManager;
+import org.apache.inlong.audit.store.route.AuditRouteManager;
 import org.apache.inlong.audit.store.service.consume.BaseConsume;
 import org.apache.inlong.audit.store.service.consume.KafkaConsume;
 import org.apache.inlong.audit.store.service.consume.PulsarConsume;
@@ -74,6 +75,8 @@ public class AuditMsgConsumerServer implements InitializingBean {
      * Initializing bean
      */
     public void afterPropertiesSet() {
+        AuditRouteManager.getInstance().init(jdbcConfig.getUrl());
+
         List<MQInfo> mqInfoList = getClusterFromManager();
         BaseConsume mqConsume = null;
         List<InsertData> insertServiceList = this.getInsertServiceList();
@@ -186,5 +189,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
     @PreDestroy
     public void shutdown() {
         MetricsManager.getInstance().shutdown();
+        AuditRouteManager.getInstance().shutdown();
     }
 }

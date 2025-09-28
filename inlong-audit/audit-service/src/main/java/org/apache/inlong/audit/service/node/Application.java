@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.service.node;
 
+import org.apache.inlong.audit.service.cache.AuditRouteCache;
 import org.apache.inlong.audit.service.config.Configuration;
 import org.apache.inlong.audit.service.entities.JdbcConfig;
 import org.apache.inlong.audit.service.metric.MetricsManager;
@@ -53,6 +54,8 @@ public class Application {
 
             MetricsManager.getInstance().init();
 
+            AuditRouteCache.getInstance().init();
+
             // Etl service aggregate the data from the data source and store the aggregated data to the target storage
             etlService.start();
 
@@ -77,6 +80,7 @@ public class Application {
                 apiService.stop();
                 selector.close();
                 MetricsManager.getInstance().shutdown();
+                AuditRouteCache.getInstance().shutdown();
                 LOGGER.info("Stopping gracefully");
             } catch (Exception ex) {
                 LOGGER.error("Stop error: ", ex);

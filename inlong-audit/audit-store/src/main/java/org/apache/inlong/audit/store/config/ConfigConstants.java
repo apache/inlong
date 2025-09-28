@@ -28,4 +28,11 @@ public class ConfigConstants {
     public static final String KEY_STORE_METRIC_CLASSNAME = "audit.store.metric.classname";
     public static final String DEFAULT_STORE_METRIC_CLASSNAME =
             "org.apache.inlong.audit.store.metric.prometheus.StorePrometheusMetric";
+
+    public static final String KEY_AUDIT_SERVICE_ADDR = "audit.service.addr";
+    public static final String DEFAULT_AUDIT_SERVICE_ADDR = "http://localhost:10080";
+    public static final String KEY_AUDIT_SERVICE_TIMEOUT_MS = "audit.service.timeout.ms";
+    public static final int DEFAULT_AUDIT_SERVICE_TIMEOUT_MS = 30000;
+    public static final String KEY_AUDIT_SERVICE_ROUTE_API = "audit.service.route.api";
+    public static final String DEFAULT_AUDIT_SERVICE_ROUTE_API = "/audit/query/getAuditRoute";
 }

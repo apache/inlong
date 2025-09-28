@@ -252,4 +252,8 @@ public class SqlConstants {
             "GROUP BY\n" +
             "    audit_version";
     public static final String WILDCARD_STREAM_ID = "*";
+
+    public static final String KEY_QUERY_AUDIT_ROUTE_SQL = "audit.query.route.sql";
+    public static final String DEFAULT_QUERY_AUDIT_ROUTE_SQL =
+            "SELECT address, audit_id_include, inlong_group_id_include, inlong_group_id_exclude FROM audit_route_config WHERE status=1";
 }

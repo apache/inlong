@@ -21,5 +21,5 @@ package org.apache.inlong.audit.service.entities;
  * OpenAPI type
  */
 public enum ApiType {
-    MINUTES, HOUR, DAY, GET_IPS, GET_IDS, GET_AUDIT_PROXY, RECONCILIATION;
+    MINUTES, HOUR, DAY, GET_IPS, GET_IDS, GET_AUDIT_PROXY, RECONCILIATION, GET_AUDIT_ROUTE;
 }
