@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.WeaviateExtractNode;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
@@ -51,6 +52,7 @@ import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.WeaviateLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
@@ -83,6 +85,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
         @JsonSubTypes.Type(value = IcebergExtractNode.class, name = "icebergExtract"),
         @JsonSubTypes.Type(value = OceanBaseExtractNode.class, name = "oceanbaseExtract"),
+        @JsonSubTypes.Type(value = WeaviateExtractNode.class, name = "weaviateExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
@@ -105,6 +108,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = RedisLoadNode.class, name = "redisLoad"),
         @JsonSubTypes.Type(value = KuduLoadNode.class, name = "kuduLoad"),
         @JsonSubTypes.Type(value = OceanBaseLoadNode.class, name = "oceanBaseLoad"),
+        @JsonSubTypes.Type(value = WeaviateLoadNode.class, name = "weaviateLoad"),
 })
 public interface Node {
 
