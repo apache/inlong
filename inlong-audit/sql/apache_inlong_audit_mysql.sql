@@ -135,3 +135,19 @@ CREATE TABLE IF NOT EXISTS `audit_source_config`
      PRIMARY KEY (`source_name`, `jdbc_url`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config';
 
+
+-----------------------------
+-- Table structure for audit route config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_route_config` (
+    `id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primary key ID',
+    `source_name` VARCHAR(255) NOT NULL COMMENT 'Source name',
+    `address` VARCHAR(255) NOT NULL COMMENT 'Host address',
+    `audit_id_include` VARCHAR(255) COMMENT 'Included audit IDs',
+    `inlong_group_id_include` VARCHAR(255) COMMENT 'Included Inlong group IDs (regular expression)',
+    `inlong_group_id_exclude` VARCHAR(255) COMMENT 'Excluded Inlong group IDs (regular expression)',
+    `status` TINYINT NOT NULL DEFAULT 1 COMMENT 'Status, 1=active, 0=inactive',
+    `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT='Audit route configuration table';
+

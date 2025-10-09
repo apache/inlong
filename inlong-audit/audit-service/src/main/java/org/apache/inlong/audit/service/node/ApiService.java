@@ -18,8 +18,10 @@
 package org.apache.inlong.audit.service.node;
 
 import org.apache.inlong.audit.entity.AuditProxy;
+import org.apache.inlong.audit.entity.AuditRoute;
 import org.apache.inlong.audit.service.auditor.Audit;
 import org.apache.inlong.audit.service.cache.AuditProxyCache;
+import org.apache.inlong.audit.service.cache.AuditRouteCache;
 import org.apache.inlong.audit.service.cache.DayCache;
 import org.apache.inlong.audit.service.cache.HalfHourCache;
 import org.apache.inlong.audit.service.cache.HourCache;
@@ -57,6 +59,7 @@ import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_DAY_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_AUDIT_PROXY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_AUDIT_ROUTE_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_IDS_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.DEFAULT_API_HOUR_PATH;
@@ -69,6 +72,7 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.HTTP_RESPOND_CODE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_DAY_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_AUDIT_PROXY_PATH;
+import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_AUDIT_ROUTE_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_IDS_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_API_HOUR_PATH;
@@ -83,6 +87,7 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_HEADER_CO
 import static org.apache.inlong.audit.consts.OpenApiConstants.KEY_HTTP_SERVER_BIND_PORT;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_COMPONENT;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_CYCLE;
+import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_HOST;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_ID;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_END_TIME;
@@ -93,6 +98,7 @@ import static org.apache.inlong.audit.consts.OpenApiConstants.PARAMS_START_TIME;
 import static org.apache.inlong.audit.consts.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.service.entities.ApiType.DAY;
 import static org.apache.inlong.audit.service.entities.ApiType.GET_AUDIT_PROXY;
+import static org.apache.inlong.audit.service.entities.ApiType.GET_AUDIT_ROUTE;
 import static org.apache.inlong.audit.service.entities.ApiType.GET_IDS;
 import static org.apache.inlong.audit.service.entities.ApiType.GET_IPS;
 import static org.apache.inlong.audit.service.entities.ApiType.HOUR;
@@ -120,7 +126,8 @@ public class ApiService {
         int bindPort = Configuration.getInstance().get(KEY_HTTP_SERVER_BIND_PORT, DEFAULT_HTTP_SERVER_BIND_PORT);
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(bindPort),
-                    Configuration.getInstance().get(KEY_API_BACKLOG_SIZE, DEFAULT_API_BACKLOG_SIZE));
+                    Configuration.getInstance()
+                            .get(KEY_API_BACKLOG_SIZE, DEFAULT_API_BACKLOG_SIZE));
             server.setExecutor(Executors.newFixedThreadPool(
                     Configuration.getInstance().get(KEY_API_THREAD_POOL_SIZE, DEFAULT_API_THREAD_POOL_SIZE)));
             server.createContext(Configuration.getInstance().get(KEY_API_DAY_PATH, DEFAULT_API_DAY_PATH),
@@ -143,6 +150,10 @@ public class ApiService {
                     Configuration.getInstance().get(KEY_API_RECONCILIATION_PATH,
                             DEFAULT_API_RECONCILIATION_PATH),
                     new AuditHandler(RECONCILIATION));
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_GET_AUDIT_ROUTE_PATH,
+                            DEFAULT_API_GET_AUDIT_ROUTE_PATH),
+                    new AuditHandler(GET_AUDIT_ROUTE));
 
             server.start();
             LOGGER.info("Init http server success. Bind port is: {}", bindPort);
@@ -282,6 +293,8 @@ public class ApiService {
                             && params.containsKey(PARAMS_IP);
                 case GET_AUDIT_PROXY:
                     return params.containsKey(PARAMS_AUDIT_COMPONENT);
+                case GET_AUDIT_ROUTE:
+                    return params.containsKey(PARAMS_AUDIT_HOST);
                 default:
                     return false;
             }
@@ -344,6 +357,11 @@ public class ApiService {
                                 AuditProxyCache.getInstance().getData(params.get(PARAMS_AUDIT_COMPONENT));
                         responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(auditProxy));
                         break;
+                    case GET_AUDIT_ROUTE:
+                        List<AuditRoute> auditRoute =
+                                AuditRouteCache.getInstance().getData(params.get(PARAMS_AUDIT_HOST));
+                        responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(auditRoute));
+                        break;
                     default:
                         LOGGER.error("Unsupported interface type! type is {}", apiType);
                         responseJson.add(KEY_HTTP_BODY_DATA, gson.toJsonTree(new LinkedList<>()));
@@ -369,14 +387,16 @@ public class ApiService {
                     statData = TenMinutesCache.getInstance().getData(params.get(PARAMS_START_TIME),
                             params.get(PARAMS_END_TIME),
                             params.get(PARAMS_INLONG_GROUP_ID),
-                            params.get(PARAMS_INLONG_STREAM_ID), params.get(PARAMS_AUDIT_ID),
+                            params.get(PARAMS_INLONG_STREAM_ID),
+                            params.get(PARAMS_AUDIT_ID),
                             params.get(PARAMS_AUDIT_TAG));
                     break;
                 case MINUTE_30:
                     statData = HalfHourCache.getInstance().getData(params.get(PARAMS_START_TIME),
                             params.get(PARAMS_END_TIME),
                             params.get(PARAMS_INLONG_GROUP_ID),
-                            params.get(PARAMS_INLONG_STREAM_ID), params.get(PARAMS_AUDIT_ID),
+                            params.get(PARAMS_INLONG_STREAM_ID),
+                            params.get(PARAMS_AUDIT_ID),
                             params.get(PARAMS_AUDIT_TAG));
                     break;
                 default:

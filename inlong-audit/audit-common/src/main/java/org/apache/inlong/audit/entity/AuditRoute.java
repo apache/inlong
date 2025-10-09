@@ -15,25 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.store.metric;
+package org.apache.inlong.audit.entity;
 
-public enum MetricDimension {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    RECEIVE_COUNT_SUCCESS("receiveCountSuccess"),
-    RECEIVE_FAILED("receiveFailed"),
-    SEND_COUNT_SUCCESS("sendCountSuccess"),
-    SEND_COUNT_FAILED("sendCountFailed"),
-    SEND_DURATION("sendDuration"),
-    INVALID_DATA("invalidData"),
-    FILTER_SUCCESS("filterSuccess");
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuditRoute {
 
-    private final String key;
-
-    MetricDimension(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
+    private String address;
+    private String auditId;
+    private String inlongGroupIdsInclude;
+    private String inlongGroupIdsExclude;
 }

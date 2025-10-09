@@ -15,25 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.store.metric;
+package org.apache.inlong.audit.service.datasource;
 
-public enum MetricDimension {
+import lombok.Data;
+import lombok.Getter;
 
-    RECEIVE_COUNT_SUCCESS("receiveCountSuccess"),
-    RECEIVE_FAILED("receiveFailed"),
-    SEND_COUNT_SUCCESS("sendCountSuccess"),
-    SEND_COUNT_FAILED("sendCountFailed"),
-    SEND_DURATION("sendDuration"),
-    INVALID_DATA("invalidData"),
-    FILTER_SUCCESS("filterSuccess");
+import javax.sql.DataSource;
 
-    private final String key;
+import static org.apache.inlong.audit.utils.RouteUtils.extractAddress;
 
-    MetricDimension(String key) {
-        this.key = key;
-    }
+@Data
+public class AuditDataSource {
 
-    public String getKey() {
-        return key;
+    private String url;
+    @Getter
+    private String address;
+    @Getter
+    private DataSource dataSource;
+
+    public AuditDataSource(String url, DataSource dataSource) {
+        this.url = url;
+        this.address = extractAddress(url);
+        this.dataSource = dataSource;
     }
 }
