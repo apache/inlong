@@ -38,9 +38,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -102,7 +100,7 @@ public class AuditRouteCache {
     }
 
     private void updateAuditRouteCache(String querySQL) {
-        Map<String, List<AuditRoute>> auditRouteList = new HashMap<>();
+        ConcurrentHashMap<String, List<AuditRoute>> auditRoutes = new ConcurrentHashMap<>();
 
         try (Connection connection = auditDataSource.getDataSource().getConnection();
                 Statement statement = connection.createStatement();
@@ -133,17 +131,17 @@ public class AuditRouteCache {
                 data.setInlongGroupIdsInclude(includeGroupId);
                 data.setInlongGroupIdsExclude(excludeGroupId);
 
-                auditRouteList.computeIfAbsent(address, key -> new ArrayList<>()).add(data);
+                auditRoutes.computeIfAbsent(address, key -> new ArrayList<>()).add(data);
             }
         } catch (SQLException e) {
             LOGGER.error("Failed to update audit route cache", e);
             return;
         }
 
-        if (!auditRouteList.isEmpty()) {
-            auditRouteCache = new ConcurrentHashMap<>(auditRouteList);
+        if (!auditRoutes.isEmpty()) {
+            auditRouteCache = auditRoutes;
             LOGGER.info("AuditRouteCache update success. Cache size={}, Query size={}", auditRouteCache.size(),
-                    auditRouteList.size());
+                    auditRoutes.size());
         } else {
             LOGGER.warn("Audit route list is empty; cache not updated.");
         }
