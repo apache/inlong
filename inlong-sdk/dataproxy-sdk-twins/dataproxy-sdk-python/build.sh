@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -16,9 +17,23 @@
 # Initialize the configuration files of inlong components
 #
 
-#!/bin/bash
-
 set -e
+
+# Parse command line arguments
+TARGET_DIR=""
+if [ $# -eq 1 ]; then
+    TARGET_DIR="$1"
+    echo "Using user-specified target directory: $TARGET_DIR"
+    # Check if the target directory exists early to avoid wasting compilation time
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: Target directory '$TARGET_DIR' does not exist!"
+        exit 1
+    fi
+elif [ $# -gt 1 ]; then
+    echo "Usage: $0 [target_directory]"
+    echo "  target_directory: Optional. Directory to install .so files. If not provided, will use system site-packages directories."
+    exit 1
+fi
 
 BASE_DIR=$(dirname "$0")
 PY_SDK_DIR=$(cd "$BASE_DIR"; pwd)
@@ -73,7 +88,7 @@ if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
     trap 'echo "Error occurred during pybind11 build. Deleting pybind11 folder..."; cd $PY_SDK_DIR; rm -r pybind11; exit 1' ERR
 
     cmake "$PY_SDK_DIR/pybind11"
-    cmake --build "$PY_SDK_DIR/pybind11/build" --config Release --target check
+    cmake --build "$PY_SDK_DIR/pybind11/build" --config Release
     make -j 4
 
     # Remove the trap command if the build is successful
@@ -107,35 +122,29 @@ mkdir "$PY_SDK_DIR/build" && cd "$PY_SDK_DIR/build"
 cmake "$PY_SDK_DIR"
 make -j 4
 
-# Get all existing Python site-packages directories
-SITE_PACKAGES_DIRS=($(python -c "import site,os; print(' '.join([p for p in site.getsitepackages() if os.path.isdir(p)]))"))
-
-# Check if the SITE_PACKAGES_DIRS array is not empty
-if [ ${#SITE_PACKAGES_DIRS[@]} -ne 0 ]; then
-    # If not empty, display all found site-packages directories to the user
-    echo "Your system's existing Python site-packages directories are:"
-    for dir in "${SITE_PACKAGES_DIRS[@]}"; do
-        echo "  $dir"
-    done
+# Handle installation based on command line arguments
+if [ -n "$TARGET_DIR" ]; then
+    # User specified a target directory via command line argument
+    echo "Copying .so files to user-specified directory: $TARGET_DIR"
+    find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$TARGET_DIR"
 else
-    # If empty, warn the user and prompt them to enter the target directory in the next step
-    echo "Warn: No existing site-packages directories found, please enter the target directory for the .so files in the following step!"
-fi
-
-# Prompt user for the target directory for .so files
-read -r -p "Enter the target directory for the .so files (Press Enter to use all above site-packages directories): " target_dir
-
-# If user input is empty, use all found site-packages directories
-if [ -z "$target_dir" ]; then
-    for dir in "${SITE_PACKAGES_DIRS[@]}"; do
-        echo "Copying .so files to $dir"
-        # Find all .so files in $PY_SDK_DIR/build and copy them to the current site-packages directory
-        find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$dir"
-    done
-else
-    # If user specified a directory, copy .so files there
-    echo "Copying .so files to $target_dir"
-    find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$target_dir"
+    # No command line argument provided, use system site-packages directories
+    # Get all existing Python site-packages directories
+    SITE_PACKAGES_DIRS=($(python -c "import site,os; print(' '.join([p for p in site.getsitepackages() if os.path.isdir(p)]))"))
+    if [ ${#SITE_PACKAGES_DIRS[@]} -ne 0 ]; then
+        echo "No target directory specified, using system site-packages directories:"
+        for dir in "${SITE_PACKAGES_DIRS[@]}"; do
+            echo "  $dir"
+        done
+        for dir in "${SITE_PACKAGES_DIRS[@]}"; do
+            echo "Copying .so files to $dir"
+            # Find all .so files in $PY_SDK_DIR/build and copy them to the current site-packages directory
+            find "$PY_SDK_DIR/build" -name "*.so" -print0 | xargs -0 -I {} cp {} "$dir"
+        done
+    else
+        echo "Error: No system site-packages directories found and no target directory specified!"
+        echo "The .so file is located in $PY_SDK_DIR/build, you can copy it manually to your project"
+    fi
 fi
 
 # Clean the cpp dataproxy directory

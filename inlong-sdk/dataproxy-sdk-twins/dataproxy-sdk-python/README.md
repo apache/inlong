@@ -48,16 +48,31 @@ Go to the `dataproxy-sdk-python` root directory, and run the following commands:
 
 ```bash
 chmod +x ./build.sh
-./build.sh
+./build.sh [target_directory]
 ```
-When the .so file is generated, you will see the following message, you can choose to enter the target directory for the .so files. By default, the .so file will be copied to the system python site-packages directory:
 
-```txt
-Your system's Python site-packages directory is: xxx/xxx
-Enter the target directory for the .so files (Press Enter to use the default site-packages directory):
-```
+**Parameters:**
+- `target_directory` (optional): Directory to install .so files. If not provided, the .so files will be copied to the system Python site-packages directories automatically.
+
+**Usage Examples:**
+
+1. **Install to system site-packages (default behavior):**
+   ```bash
+   ./build.sh
+   ```
+   The script will automatically detect and copy .so files to all available Python site-packages directories.
+
+2. **Install to a specific directory:**
+   ```bash
+   ./build.sh /path/to/your/target/directory
+   ```
+   The script will copy .so files to the specified directory. Make sure the target directory exists before running the command.
 
 After the build process finished, you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
+
+**Important Notes:**
+- If you specify a target directory, make sure it exists before running the build script. The script will exit with an error if the specified directory doesn't exist.
+- If no target directory is specified and no system site-packages directories are found, the .so files will remain in the `build` directory and you'll need to copy them manually to your project.
 
 > **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it by the above steps.
 
