@@ -34,13 +34,48 @@ dataproxy-sdk cpp version, used for sending data to dataproxy
 
 ## Build
 
-Go to the dataproxy-sdk-cpp root, and run
+There are two ways to build dataproxy-sdk-cpp:
 
-```
+### Method 1: Native Build
+
+Go to the `dataproxy-sdk-cpp` directory, and run:
+
+```bash
 ./build_third_party.sh
-
 ./build.sh
 ```
+
+### Method 2: Docker Build
+
+**Prerequisites for Docker build:**
+- Docker installed on your system
+
+This method uses a pre-configured Docker environment with all necessary dependencies.
+
+Go to the `dataproxy-sdk-cpp` directory, and run:
+
+1. Build the Docker image:
+```bash
+docker build -f docker/Dockerfile -t inlong/dataproxy-cpp-compile .
+```
+
+2. Run the build:
+```bash
+docker run -v $(pwd):/dataproxy-sdk-cpp inlong/dataproxy-cpp-compile
+```
+
+Alternatively, you can navigate to the docker directory and build from there:
+
+```bash
+cd docker
+docker build -t inlong/dataproxy-cpp-compile .
+cd ..
+docker run -v $(pwd):/dataproxy-sdk-cpp inlong/dataproxy-cpp-compile
+```
+
+Build artifacts will be available in the `build/` and `release/` subdirectories.
+
+For more details about Docker build, see [docker/README-Docker.md](docker/README-Docker.md).
 
 ## Config Parameters
 
