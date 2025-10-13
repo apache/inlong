@@ -89,7 +89,7 @@ if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
 
     cmake "$PY_SDK_DIR/pybind11"
     cmake --build "$PY_SDK_DIR/pybind11/build" --config Release
-    make -j 4
+    make -j"$(nproc)"
 
     # Remove the trap command if the build is successful
     trap - ERR
@@ -120,7 +120,7 @@ if [ -d "$PY_SDK_DIR/build" ]; then
 fi
 mkdir "$PY_SDK_DIR/build" && cd "$PY_SDK_DIR/build"
 cmake "$PY_SDK_DIR"
-make -j 4
+make -j"$(nproc)"
 
 # Handle installation based on command line arguments
 if [ -n "$TARGET_DIR" ]; then
