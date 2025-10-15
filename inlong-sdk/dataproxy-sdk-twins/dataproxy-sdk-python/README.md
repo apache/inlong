@@ -82,14 +82,28 @@ This method uses a pre-configured Docker environment with all necessary dependen
 Go to the `dataproxy-sdk-python` root directory, and run:
 
 1. Build the Docker image:
-```bash
-docker build -f docker/Dockerfile -t inlong/dataproxy-python-compile .
-```
+
+   **Default Python Version (3.8.0):**
+   ```bash
+   docker build -f docker/Dockerfile -t inlong/dataproxy-python-compile .
+   ```
+
+   **Custom Python Version:**
+   You can specify a different Python version (>=3.7) using build arguments:
+   ```bash
+   # For Python 3.9.18
+   docker build -f docker/Dockerfile --build-arg PYTHON_VERSION=3.9.18 -t inlong/dataproxy-python-compile:py39 .
+   ```
 
 2. Run the build:
-```bash
-docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile
-```
+   ```bash
+   docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile
+   ```
+   
+   For custom Python versions, use the corresponding tag:
+   ```bash
+   docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile:py39
+   ```
 
 Alternatively, you can navigate to the docker directory and build from there:
 
