@@ -180,6 +180,7 @@ public class TransformProcessor<I, O> {
                         sinkData.addField(fieldName, "");
                     } else {
                         sinkData.addField(fieldName, fieldValue.toString());
+                        context.put(fieldName, fieldValue);
                     }
                 } catch (Throwable t) {
                     sinkData.addField(fieldName, "");
