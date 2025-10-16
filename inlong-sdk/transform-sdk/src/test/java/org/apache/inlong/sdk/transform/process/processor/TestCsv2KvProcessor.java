@@ -133,14 +133,6 @@ public class TestCsv2KvProcessor extends AbstractProcessorTestBase {
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         String sourceData =
                 "2025-01-01 01:01:01.001|extinfo=127.0.0.1|china|guangdong|unite|unknown|unknown|127.0.0.1 2025-01-01 01:01:01.001|INFO|MNJT|1.2.0.12345|js|1.2.3.4-qqvideo6|PJV110%3BAndroid+15%2Clevel+35||127.0.0.1|127.0.0.1|wifi|dt_imp|true|0|0|A9%3DOPPO%26A89%3D12345678%26A76%3D1.2.3.4%26A58%3DN%26A52%3D480%26A17%3D1080*2244%26A12%3Dzh%26A10%3DPJV110%26A158%3D12345678%26A67%3Dmobileapp%26A159%3DN%26A31%3D%2C%2C%26A160%3Dshenzhen%26ui_vrsn%3DPJV%28CN01%29%26udf_kv%3D%7B%22eid%22%3A%22search%22%2C%22cur_pg%22%3A%7B%7D%7D%26tianshu_id%3D%26red_pot%3D0%26param_patch_version%3D0%26message_box%3D%7B+%09%22message_unread%22%3A+0%2C+%09%22other_unread%22%3A+0%2C+%09%22validation_message_unread%22%3A+0%2C+%09%221%22%3A+0%7D%26dt_wxunionid%3D%26dt_wxopenid%3D%26param_is_gray_version%3Dfalse%26dt_usstmp%3D12345678%26dt_ussn%3D12345678%26dt_tid%3D%26dt_simtype%3D3%26os_vrsn%3DAndroid+15%26dt_seqid%3D1480%26dt_sdkversion%3D2445%26dt_qqopenid%3D%26dt_qq%3D12345678%26dt_usid%3D12345678%26dt_protoversion%3D1%26A99%3DN%26callfrom_type%3D0%26dt_ele_reuse_id%3D%26dt_omgbzid%3D%26dt_ele_scroll_flag%3D0%26dt_element_params%3D%5B%7B%22eid%22%3A%22search%22%7D%5D%26app_bld%3D12345678%26dt_ele_is_first_scroll_imp%3D0%26A88%3D12345678%26A48%3D%26A95%3D1.2.0.12345%26A19%3Dwifi%26A3%3D12345678%26dt_seqtime%3D12345678%26dt_pgid%3Dpg_sgrp_test%26dt_adcode%3D%26dt_oaid%3D%26qq_appid%3D12345678%26dt_starttype%3D1%26A100%3D12345678%26dt_wbopenid%3D%26A23%3D12345678%26A156%3DN%26A72%3D1.2.3.4%26A157%3D1.2.0.12345%26dt_mainlogin%3D%26A34%3D12345678%26A153%3D123456%26dt_coldstart%3D0%26app_vr%3D1.2.3%26A8%3D12345678%26client_page_name%3Dpage%26dt123456%3D0%26dt_mchlid%3D%26client_process_name%3Dcom.tencent.mobileqq%26os%3D1%26dt_accountid%3D12345678%26dt_callfrom%3D0%26dt_eid%3Dsearch%26dt_guid%3D12345678%26A1%3D12345678%26dt_callschema%3D1%26dt_fchlid%3D|2025-01-01 01:01:01.001|2025-08-07 16:39:26";
-        long startTime = System.currentTimeMillis();
-        long times = 10000;
-        for (int i = 0; i < times; i++) {
-            List<String> output1 = processor1.transform(sourceData, new HashMap<>());
-        }
-        long endTime = System.currentTimeMillis();
-        System.out.println("noctx,times:" + times);
-        System.out.println("noctx,duration:" + (endTime - startTime));
         List<String> output1 = processor1.transform(sourceData, new HashMap<>());
         Assert.assertEquals(1, output1.size());
         System.out.println(output1.get(0));
@@ -200,14 +192,6 @@ public class TestCsv2KvProcessor extends AbstractProcessorTestBase {
                         SinkEncoderFactory.createCsvEncoder(csvSink));
         String sourceData =
                 "2025-01-01 01:01:01.001|extinfo=127.0.0.1|china|guangdong|unite|unknown|unknown|127.0.0.1 2025-01-01 01:01:01.001|INFO|MNJT|1.2.0.12345|js|1.2.3.4-qqvideo6|PJV110%3BAndroid+15%2Clevel+35||127.0.0.1|127.0.0.1|wifi|dt_imp|true|0|0|A9%3DOPPO%26A89%3D12345678%26A76%3D1.2.3.4%26A58%3DN%26A52%3D480%26A17%3D1080*2244%26A12%3Dzh%26A10%3DPJV110%26A158%3D12345678%26A67%3Dmobileapp%26A159%3DN%26A31%3D%2C%2C%26A160%3Dshenzhen%26ui_vrsn%3DPJV%28CN01%29%26udf_kv%3D%7B%22eid%22%3A%22search%22%2C%22cur_pg%22%3A%7B%7D%7D%26tianshu_id%3D%26red_pot%3D0%26param_patch_version%3D0%26message_box%3D%7B+%09%22message_unread%22%3A+0%2C+%09%22other_unread%22%3A+0%2C+%09%22validation_message_unread%22%3A+0%2C+%09%221%22%3A+0%7D%26dt_wxunionid%3D%26dt_wxopenid%3D%26param_is_gray_version%3Dfalse%26dt_usstmp%3D12345678%26dt_ussn%3D12345678%26dt_tid%3D%26dt_simtype%3D3%26os_vrsn%3DAndroid+15%26dt_seqid%3D1480%26dt_sdkversion%3D2445%26dt_qqopenid%3D%26dt_qq%3D12345678%26dt_usid%3D12345678%26dt_protoversion%3D1%26A99%3DN%26callfrom_type%3D0%26dt_ele_reuse_id%3D%26dt_omgbzid%3D%26dt_ele_scroll_flag%3D0%26dt_element_params%3D%5B%7B%22eid%22%3A%22search%22%7D%5D%26app_bld%3D12345678%26dt_ele_is_first_scroll_imp%3D0%26A88%3D12345678%26A48%3D%26A95%3D1.2.0.12345%26A19%3Dwifi%26A3%3D12345678%26dt_seqtime%3D12345678%26dt_pgid%3Dpg_sgrp_test%26dt_adcode%3D%26dt_oaid%3D%26qq_appid%3D12345678%26dt_starttype%3D1%26A100%3D12345678%26dt_wbopenid%3D%26A23%3D12345678%26A156%3DN%26A72%3D1.2.3.4%26A157%3D1.2.0.12345%26dt_mainlogin%3D%26A34%3D12345678%26A153%3D123456%26dt_coldstart%3D0%26app_vr%3D1.2.3%26A8%3D12345678%26client_page_name%3Dpage%26dt123456%3D0%26dt_mchlid%3D%26client_process_name%3Dcom.tencent.mobileqq%26os%3D1%26dt_accountid%3D12345678%26dt_callfrom%3D0%26dt_eid%3Dsearch%26dt_guid%3D12345678%26A1%3D12345678%26dt_callschema%3D1%26dt_fchlid%3D|2025-01-01 01:01:01.001|2025-08-07 16:39:26";
-        long startTime = System.currentTimeMillis();
-        long times = 10000;
-        for (int i = 0; i < times; i++) {
-            List<String> output1 = processor1.transform(sourceData, new HashMap<>());
-        }
-        long endTime = System.currentTimeMillis();
-        System.out.println("ctx,times:" + times);
-        System.out.println("ctx,duration:" + (endTime - startTime));
         List<String> output1 = processor1.transform(sourceData, new HashMap<>());
         Assert.assertEquals(1, output1.size());
         System.out.println(output1.get(0));
