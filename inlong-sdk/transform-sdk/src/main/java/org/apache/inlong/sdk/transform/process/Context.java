@@ -89,4 +89,7 @@ public class Context {
         return null;
     }
 
+    public Map<String, Object> getRuntimeParams() {
+        return runtimeParams;
+    }
 }
