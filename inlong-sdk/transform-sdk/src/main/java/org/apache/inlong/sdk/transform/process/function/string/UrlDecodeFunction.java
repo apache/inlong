@@ -30,6 +30,7 @@ import net.sf.jsqlparser.expression.Function;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 /**
  * UrlDecodeFunction  ->  url_decode(str[, charset])
@@ -53,39 +54,54 @@ public class UrlDecodeFunction implements ValueParser {
 
     private final ValueParser stringParser;
     private final ValueParser charsetParser;
+    private final String exprKey;
 
     public UrlDecodeFunction(Function expr) {
         List<Expression> params = expr.getParameters().getExpressions();
         stringParser = OperatorTools.buildParser(params.get(0));
         charsetParser = params.size() > 1 ? OperatorTools.buildParser(params.get(1)) : null;
+        exprKey = expr.toString();
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Map<String, Object> runtimeParams = context.getRuntimeParams();
+        if (runtimeParams.containsKey(exprKey)) {
+            return runtimeParams.get(exprKey);
+        }
         Object stringObj = stringParser.parse(sourceData, rowIndex, context);
         if (stringObj == null) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
         String string = OperatorTools.parseString(stringObj);
         if (string == null) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
 
         try {
             if (charsetParser == null) {
-                return URLDecoder.decode(string, StandardCharsets.UTF_8.toString());
+                String exprValue = URLDecoder.decode(string, StandardCharsets.UTF_8.toString());
+                runtimeParams.put(exprKey, exprValue);
+                return exprValue;
             } else {
                 Object charsetObj = charsetParser.parse(sourceData, rowIndex, context);
                 if (charsetObj == null) {
+                    runtimeParams.put(exprKey, null);
                     return null;
                 }
                 String charset = OperatorTools.parseString(charsetObj);
                 if (charset == null) {
+                    runtimeParams.put(exprKey, null);
                     return null;
                 }
-                return URLDecoder.decode(string, charset);
+                String exprValue = URLDecoder.decode(string, charset);
+                runtimeParams.put(exprKey, exprValue);
+                return exprValue;
             }
         } catch (Exception e) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
     }

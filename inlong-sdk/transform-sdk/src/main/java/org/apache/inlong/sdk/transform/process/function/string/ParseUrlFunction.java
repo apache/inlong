@@ -57,17 +57,24 @@ public class ParseUrlFunction implements ValueParser {
     private ValueParser urlParser;
     private ValueParser partParser;
     private ValueParser keyParser;
+    private final String exprKey;
 
     public ParseUrlFunction(Function expr) {
         List<Expression> params = expr.getParameters().getExpressions();
         urlParser = OperatorTools.buildParser(params.get(0));
         partParser = params.size() > 1 ? OperatorTools.buildParser(params.get(1)) : null;
         keyParser = params.size() > 2 ? OperatorTools.buildParser(params.get(2)) : null;
+        exprKey = expr.toString();
     }
 
     @Override
     public Object parse(SourceData sourceData, int rowIndex, Context context) {
+        Map<String, Object> runtimeParams = context.getRuntimeParams();
+        if (runtimeParams.containsKey(exprKey)) {
+            return runtimeParams.get(exprKey);
+        }
         if (urlParser == null || partParser == null) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
         Object urlObj = urlParser.parse(sourceData, rowIndex, context);
@@ -75,6 +82,7 @@ public class ParseUrlFunction implements ValueParser {
         Object keyObj = keyParser != null ? keyParser.parse(sourceData, rowIndex, context) : null;
 
         if (urlObj == null || partObj == null) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
 
@@ -82,6 +90,7 @@ public class ParseUrlFunction implements ValueParser {
         String part = OperatorTools.parseString(partObj);
         String key = keyObj != null ? OperatorTools.parseString(keyObj) : null;
         if (keyParser != null && key == null) {
+            runtimeParams.put(exprKey, null);
             return null;
         }
 
@@ -95,6 +104,7 @@ public class ParseUrlFunction implements ValueParser {
             }
             Map<String, String> queryPairs = splitQuery(strQuery);
             if (key == null) {
+                runtimeParams.put(exprKey, strQuery);
                 return strQuery;
             }
             return queryPairs.getOrDefault(key, "");
@@ -103,23 +113,39 @@ public class ParseUrlFunction implements ValueParser {
                 URL netUrl = new URL(url);
                 switch (part) {
                     case "HOST":
-                        return netUrl.getHost();
+                        String exprValue = netUrl.getHost();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "PATH":
-                        return netUrl.getPath();
+                        exprValue = netUrl.getPath();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "REF":
-                        return netUrl.getRef();
+                        exprValue = netUrl.getRef();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "PROTOCOL":
-                        return netUrl.getProtocol();
+                        exprValue = netUrl.getProtocol();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "AUTHORITY":
-                        return netUrl.getAuthority();
+                        exprValue = netUrl.getAuthority();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "FILE":
-                        return netUrl.getFile();
+                        exprValue = netUrl.getFile();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     case "USERINFO":
-                        return netUrl.getUserInfo();
+                        exprValue = netUrl.getUserInfo();
+                        runtimeParams.put(exprKey, exprValue);
+                        return exprValue;
                     default:
+                        runtimeParams.put(exprKey, null);
                         return null;
                 }
             } catch (MalformedURLException e) {
+                runtimeParams.put(exprKey, null);
                 return null;
             }
         }
