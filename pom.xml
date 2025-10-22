@@ -109,7 +109,7 @@
         <mybatis.version>3.5.9</mybatis.version>
         <druid.version>1.2.6</druid.version>
         <elasticsearch6.version>6.8.17</elasticsearch6.version>
-        <elasticsearch7.version>7.17.13</elasticsearch7.version>
+        <elasticsearch7.version>7.17.25</elasticsearch7.version>
         <shiro.version>1.13.0</shiro.version>
 
         <snappy.version>1.1.10.4</snappy.version>

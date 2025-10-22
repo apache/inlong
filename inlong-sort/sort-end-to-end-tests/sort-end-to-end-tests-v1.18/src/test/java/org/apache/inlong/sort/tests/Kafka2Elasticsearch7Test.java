@@ -93,7 +93,7 @@ public class Kafka2Elasticsearch7Test extends FlinkContainerTestEnvJRE8 {
 
     @ClassRule
     public static final ElasticsearchContainer ELASTICSEARCH =
-            new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.17.13"))
+            new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.17.25"))
                     .withNetwork(NETWORK)
                     .withNetworkAliases("elasticsearch")
                     .withLogConsumer(new Slf4jLogConsumer(ELASTICSEARCH_LOGGER));
