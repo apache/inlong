@@ -25,12 +25,16 @@ Dataproxy-SDK Python version, used for sending data to InLong dataproxy.
 InLong Dataproxy Python SDK is a wrapper over the existing [C++ SDK](https://github.com/apache/inlong/tree/master/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp) and exposes all of the same features.
 
 ## Prerequisites
-- CMake 3.5+
-- Python 3.6+
+- CMake 3.12+
+- Python 3.7+
 
 ## Build
 
-### Build the C++ SDK
+There are two ways to build dataproxy-sdk-python:
+
+### Method 1: Native Build
+
+#### Step 1: Build the C++ SDK
 
 Go to the `dataproxy-sdk-cpp` root directory, and run the following commands:
 
@@ -42,7 +46,7 @@ chmod +x ./build_third_party.sh && chmod +x ./build.sh
 
 If you have already built the C++ SDK, you can skip this step.
 
-### Build the Python SDK
+#### Step 2: Build the Python SDK
 
 Go to the `dataproxy-sdk-python` root directory, and run the following commands:
 
@@ -68,13 +72,62 @@ chmod +x ./build.sh
    ```
    The script will copy .so files to the specified directory. Make sure the target directory exists before running the command.
 
-After the build process finished, you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
+### Method 2: Docker Build
+
+**Prerequisites for Docker build:**
+- Docker installed on your system
+
+This method uses a pre-configured Docker environment with all necessary dependencies, eliminating the need to manually install CMake, Python development headers, and other build tools.
+
+Go to the `dataproxy-sdk-python` root directory, and run:
+
+1. Build the Docker image:
+
+   **Default Python Version (3.8.0):**
+   ```bash
+   docker build -f docker/Dockerfile -t inlong/dataproxy-python-compile .
+   ```
+
+   **Custom Python Version:**
+   You can specify a different Python version (>=3.7) using build arguments:
+   ```bash
+   # For Python 3.9.18
+   docker build -f docker/Dockerfile --build-arg PYTHON_VERSION=3.9.18 -t inlong/dataproxy-python-compile:py39 .
+   ```
+
+2. Run the build:
+   ```bash
+   docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile
+   ```
+   
+   For custom Python versions, use the corresponding tag:
+   ```bash
+   docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile:py39
+   ```
+
+Alternatively, you can navigate to the docker directory and build from there:
+
+```bash
+cd docker
+docker build -t inlong/dataproxy-python-compile .
+cd ..
+docker run -v $(pwd):/dataproxy-sdk-python inlong/dataproxy-python-compile
+```
+
+Build artifacts will be available in the `build/` directory, and .so files will be automatically copied to the mounted volume.
+
+For more details about Docker build, see [docker/README-Docker.md](docker/README-Docker.md).
+
+### Post-Build Steps
+
+After the build process finished (regardless of the method used), you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
 
 **Important Notes:**
-- If you specify a target directory, make sure it exists before running the build script. The script will exit with an error if the specified directory doesn't exist.
+- If you specify a target directory in native build, make sure it exists before running the build script. The script will exit with an error if the specified directory doesn't exist.
 - If no target directory is specified and no system site-packages directories are found, the .so files will remain in the `build` directory and you'll need to copy them manually to your project.
+- For Docker build, ensure Docker daemon is running and you have sufficient permissions to run Docker commands.
 
-> **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it by the above steps.
+> **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it using either of the above methods (Native Build or Docker Build).
 
 ## Config Parameters
 
