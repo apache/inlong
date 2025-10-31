@@ -22,118 +22,90 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
-# Release InLong 2.2.0 - Released (as of 2025-05-07)
+# Release InLong 2.3.0 - Released (as of 2025-10-31)
 ### Agent
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11815](https://github.com/apache/inlong/issues/11815)|[Improve][Agent] Add a unified reporting point for events|
-|[INLONG-11813](https://github.com/apache/inlong/issues/11813)|[Improve][Agent] Add Dataproxy SDK debug log|
-|[INLONG-11811](https://github.com/apache/inlong/issues/11811)|[Improve][Agent] Increase the retention time of offset, default to 7 days|
-|[INLONG-11778](https://github.com/apache/inlong/issues/11778)|[Improve][Agent] Separate the logs of the DataProxy SDK|
-|[INLONG-11776](https://github.com/apache/inlong/issues/11776)|[Improve][Agent] Optimize the mechanism for controlling the number of instances|
-|[INLONG-11774](https://github.com/apache/inlong/issues/11774)|[Improve][Agent] Modify the lifecycle of the DataProxy SDK object|
-|[INLONG-11762](https://github.com/apache/inlong/issues/11762)|[Improve][Agent] Modify the logic for determining the end of the data source|
-|[INLONG-11760](https://github.com/apache/inlong/issues/11760)|[Improve][Agent] Increase the number of global instances control|
-|[INLONG-11752](https://github.com/apache/inlong/issues/11752)|[Improve][Agent] Modify the default collection range of data|
-|[INLONG-11687](https://github.com/apache/inlong/issues/11687)|[Improve][Agent] Optimize task main thread exception handling to prevent exception exits|
-|[INLONG-11685](https://github.com/apache/inlong/issues/11685)|[Improve][Agent] Agent needs to modify the logic of confirming its own IP address|
-|[INLONG-11681](https://github.com/apache/inlong/issues/11681)|[Bug][Agent] Duplicate file collection|
+|[INLONG-11995](https://github.com/apache/inlong/issues/11995)|[Feature][Agent] The Agent supports parallel creation of Sender connections to the DataProxy, improving creation efficiency|
+|[INLONG-12003](https://github.com/apache/inlong/issues/12003)|[Feature][Agent] Added the agent_ext.properties configuration file loading to prevent personalized configurations from being lost when the agent.properties configuration file is overwritten during upgrades|
 
 ### Dashboard
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11799](https://github.com/apache/inlong/issues/11799)|[Bug][Dashboard] The page will not refresh after the access groupId is switched|
-|[INLONG-11772](https://github.com/apache/inlong/issues/11772)|[Improve][Dashboard] User login verify fail|
+|[INLONG-11972](https://github.com/apache/inlong/issues/11972)|[Bug][Dashboard] Occasional audit queries based on group queries have query conditions including streamid|
+|[INLONG-11897](https://github.com/apache/inlong/issues/11897)|[Bug][Dashboard] Click on the audit page to query multiple calls to the interface|
+|[INLONG-11894](https://github.com/apache/inlong/issues/11894)|[Feature][Dashboard] Added group and stream switching on the audit page|
 
 ### Manager
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11794](https://github.com/apache/inlong/issues/11794)|[Improve][Manager][Sort]Pulsar source supports setting scan.startup.mode to null|
-|[INLONG-11764](https://github.com/apache/inlong/issues/11764)|[Improve][Manager] Support SQL stream source|
-|[INLONG-11751](https://github.com/apache/inlong/issues/11751)|[Bug][Manager] Failed to delete inlong group for groupId|
-|[INLONG-11746](https://github.com/apache/inlong/issues/11746)|[Improve][Manager] When special characters appear in the JDBC URL, sensitive parameter validation can be bypassed|
-|[INLONG-11731](https://github.com/apache/inlong/issues/11731)|[Improve][Manager]Sensitive parameters are bypassed during JDBC verification processing|
-|[INLONG-11722](https://github.com/apache/inlong/issues/11722)|[Improve][Manager] Pulsar source supports Inlong properties field|
+|[INLONG-11997](https://github.com/apache/inlong/issues/11997)|[Feature][Manager] Add comprehensive audit alert rule management API|
+|[INLONG-11984](https://github.com/apache/inlong/issues/11984)|[Bug][Manager] Hive table creation statement error|
+|[INLONG-11969](https://github.com/apache/inlong/issues/11969)|[Bug][Manager] org.apache.flink.client.program.ProgramInvocationException|
+|[INLONG-11891](https://github.com/apache/inlong/issues/11891)|[Improve][Manager]Support querying topic audit information|
+|[INLONG-11881](https://github.com/apache/inlong/issues/11881)|[Feature][Manager] Sink source field supports configuring the fuction function|
+|[INLONG-11879](https://github.com/apache/inlong/issues/11879)|[Improve][Manager] Support parsing transform configuration as transform SQL|
+|[INLONG-11877](https://github.com/apache/inlong/issues/11877)|[Improve][Manager] Support verifying transform SQL|
+|[INLONG-11875](https://github.com/apache/inlong/issues/11875)|[Bug][Manager] InLong standalone mode deployment failed|
 
 ### SDK
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11843](https://github.com/apache/inlong/issues/11843)|[Improve][SDK] Validate the input message of Golang SDK|
-|[INLONG-11830](https://github.com/apache/inlong/issues/11830)|[Bug][SDK] NullPointerException while not configure factory permits|
-|[INLONG-11809](https://github.com/apache/inlong/issues/11809)|[Improve][SDK] Adjust the default value of separateEventByLF to false|
-|[INLONG-11788](https://github.com/apache/inlong/issues/11788)|[Improve][SDK] Add processing logic when DataProxyNodeResponse.nodeList field is null|
-|[INLONG-11787](https://github.com/apache/inlong/issues/11787)|[Bug][SDK] Dataproxy Python SDK lacks mutex header file|
-|[INLONG-11782](https://github.com/apache/inlong/issues/11782)|[Improve][SDK]Adjust the Sender initialization codes in example|
-|[INLONG-11770](https://github.com/apache/inlong/issues/11770)|[Improve][Sort][SDK] Fix potential Null Pointer Exception|
-|[INLONG-11756](https://github.com/apache/inlong/issues/11756)|[Improve][SDK] Add NPE check in MsgSender Factory class|
-|[INLONG-11754](https://github.com/apache/inlong/issues/11754)|[Improve][SDK] Add the total number of in-flight requests and total size limits|
-|[INLONG-11749](https://github.com/apache/inlong/issues/11749)|[Improve][SDK] Clean up unused configuration items and functions|
-|[INLONG-11745](https://github.com/apache/inlong/issues/11745)|[Improve][SDK] Clean up HttpProxySender and related implementations|
-|[INLONG-11743](https://github.com/apache/inlong/issues/11743)|[Improve][SDK] Adjustment of metric statistics|
-|[INLONG-11741](https://github.com/apache/inlong/issues/11741)|[Improve][SDK] Clean up the MessageSender interface and related implementation classes|
-|[INLONG-11738](https://github.com/apache/inlong/issues/11738)|[Improve][SDK] Optimize the metric output when MetricDataHolder exits|
-|[INLONG-11734](https://github.com/apache/inlong/issues/11734)|[Improve][SDK] Optimize SDK stop processing flow|
-|[INLONG-11729](https://github.com/apache/inlong/issues/11729)|[Improve][SDK] Optimize TcpClientExample and HttpClientExample codes|
-|[INLONG-11727](https://github.com/apache/inlong/issues/11727)|[Improve][SDK] Replace the Sender used in the agent-plugins module with TcpMsgSender|
-|[INLONG-11725](https://github.com/apache/inlong/issues/11725)|[Improve][SDK] Replace the Sender used in the agent-core module with TcpMsgSender|
-|[INLONG-11720](https://github.com/apache/inlong/issues/11720)|[Improve][SDK] Optimize MsgSenderSingleFactory implementation|
-|[INLONG-11719](https://github.com/apache/inlong/issues/11719)|[Improve][SDK] Replace the Sender object in the InlongSdkDirtySender class with TcpMsgSender|
-|[INLONG-11717](https://github.com/apache/inlong/issues/11717)|[Improve][SDK] Add out-of-bounds check when  in getClientByRoundRobin()|
-|[INLONG-11715](https://github.com/apache/inlong/issues/11715)|[Improve][SDK] Optimize metric report content|
-|[INLONG-11713](https://github.com/apache/inlong/issues/11713)|[Improve][SDK] Optimize BaseMsgSenderFactory and TimeCostInfo implementation|
-|[INLONG-11711](https://github.com/apache/inlong/issues/11711)|[Improve][SDK] SortSDK shares the same PulsarClient among different SortTasks to avoid performance bottlenecks caused by too many PulsarClients.|
-|[INLONG-11706](https://github.com/apache/inlong/issues/11706)|[Improve][SDK] Optimize HTTP Sender implementation|
-|[INLONG-11702](https://github.com/apache/inlong/issues/11702)|[Improve][SDK] Optimize Sender factory implementation|
-|[INLONG-11700](https://github.com/apache/inlong/issues/11700)|[Improve][SDK] Optimize TCP message reporting Sender implementation|
-|[INLONG-11698](https://github.com/apache/inlong/issues/11698)|[Improve][SDK] Optimize TCP encode and decode implementation|
-|[INLONG-11695](https://github.com/apache/inlong/issues/11695)|[Improve][SDK] MessageSender related interfaces abstraction|
-|[INLONG-11692](https://github.com/apache/inlong/issues/11692)|[Improve][SDK] The metadata update function abstracted to ConfigHolder|
-|[INLONG-11689](https://github.com/apache/inlong/issues/11689)|[Improve][SDK] Optimize user reporting information management|
-|[INLONG-11683](https://github.com/apache/inlong/issues/11683)|[Improve][SDK] Optimize the functions return of the ProxyConfigManager class|
-|[INLONG-11680](https://github.com/apache/inlong/issues/11680)|[Improve][SDK] Optimize metric-related implementation|
-|[INLONG-11678](https://github.com/apache/inlong/issues/11678)|[Improve][SDK] Optimize the ProxyClientConfig class|
-|[INLONG-11675](https://github.com/apache/inlong/issues/11675)|[Improve][SDK] Optimize IpUtils class related implementation|
-|[INLONG-11672](https://github.com/apache/inlong/issues/11672)|[Improve][SDK] Remove the implementation of org.apache.inlong.sdk.dataproxy.pb.*|
-|[INLONG-11670](https://github.com/apache/inlong/issues/11670)|[Improve][SDK] Rename the ProxysdkException class name to ProxySdkException|
-|[INLONG-11668](https://github.com/apache/inlong/issues/11668)|[Feature][SDK] Add max life time support for the connections in conn pool of Golang SDK|
-|[INLONG-11663](https://github.com/apache/inlong/issues/11663)|[Improve][SDK]Increase the conn pool size for Golang SDK|
-|[INLONG-11662](https://github.com/apache/inlong/issues/11662)|[Improve][SDK]Enable TCP keep alive for Golang SDK|
-|[INLONG-11661](https://github.com/apache/inlong/issues/11661)|[Improve][SDK]Do not mark endpoint unavailable when it is the only one in Golang SDK|
-|[INLONG-11660](https://github.com/apache/inlong/issues/11660)|[Improve][SDK]Close exist conns if initConns() failed in Golang SDK|
-|[INLONG-11564](https://github.com/apache/inlong/issues/11564)|[Improve][SDK] DataProxy SDK Implementation Optimization|
-|[INLONG-11228](https://github.com/apache/inlong/issues/11228)|[Bug][SDK]  Limitation of Transform Sql Statement Parser|
-|[INLONG-10465](https://github.com/apache/inlong/issues/10465)|[Improve][SDK] Go SDK pressure test and optimization|
+|[INLONG-12019](https://github.com/apache/inlong/issues/12019)|[Feature][SDK] Transformation supports a caching mechanism for processing identical function parameters within the same SQL statement to reduce redundant computations|
+|[INLONG-12014](https://github.com/apache/inlong/issues/12014)|[Improve][SDK] Add C++ Dataproxy SDK compile Dockerfile|
+|[INLONG-12012](https://github.com/apache/inlong/issues/12012)|[Improve][SDK] Change the Python Dataproxy SDK user-defined installation path configuration method|
+|[INLONG-12010](https://github.com/apache/inlong/issues/12010)|[Bug][SDK] Python DataProxy SDK reported data is truncated|
+|[INLONG-11974](https://github.com/apache/inlong/issues/11974)|[Feature][Sort] Upgrade pulsar sdk version to 4.0.3|
+|[INLONG-11976](https://github.com/apache/inlong/issues/11976)|[Improve][SDK] DataProxy Go SDK support detailed error information in server responses|
+|[INLONG-11961](https://github.com/apache/inlong/issues/11961)|[Feature][SDK] Transform supports array index access, the WHERE clause supports the LIKE operator, and the str_to_json function converts KV-format data into JSON format|
+|[INLONG-11954](https://github.com/apache/inlong/issues/11954)|[Bug][SDK] Potential data race in Golang SDK|
+|[INLONG-11952](https://github.com/apache/inlong/issues/11952)|[Feature][SDK] Transform handles field-level exceptions by nullifying only the affected field while preserving the entire record|
+|[INLONG-11926](https://github.com/apache/inlong/issues/11926)|[Feature][SDK] If SortSDK fails to retrieve GroupId and StreamId from the InLongMsgV0 protocol, it defaults to obtaining them from the unified metadata.|
+|[INLONG-11907](https://github.com/apache/inlong/issues/11907)|[Feature][SDK] Transform support IN operator|
+|[INLONG-11905](https://github.com/apache/inlong/issues/11905)|[Feature][SDK] TransformSDK calls the org.reflections library APIs according to version 0.9.12, not version 0.10.2.|
+|[INLONG-11887](https://github.com/apache/inlong/issues/11887)|[Improve][SDK] Enhance the .so file copy logic of the Python SDK installation script|
+|[INLONG-11873](https://github.com/apache/inlong/issues/11873)|[Feature][SDK] Support parsing field values from extended parameters|
+|[INLONG-11871](https://github.com/apache/inlong/issues/11871)|[Bug] Go programs importing the DataProxy SDK may crash with no way to handle the error|
+|[INLONG-11869](https://github.com/apache/inlong/issues/11869)|[Improve][SDK]Obtain a valid ip during initialization|
+|[INLONG-11865](https://github.com/apache/inlong/issues/11865)|[Improve][SDK]Obtain a valid local IP address|
+|[INLONG-11863](https://github.com/apache/inlong/issues/11863)|[Improve][SDK] Enhance Event Attribute Validation and Decoding Logic in SDK|
+|[INLONG-11861](https://github.com/apache/inlong/issues/11861)|[Bug][CI] Compile dataproxy-sdk fail when there is no .git dictionary in the base path|
 
 ### Sort
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11841](https://github.com/apache/inlong/issues/11841)|[Improve][Sort] When the SortTask is closed, the BufferQueueChannel must be released along with synchronously releasing the GlobalBufferQueue's token|
-|[INLONG-11836](https://github.com/apache/inlong/issues/11836)|[Feature][Sort] Provide SortStandalone flow control to prevent single-task blocking from affecting the normal sorting of other tasks.|
-|[INLONG-11833](https://github.com/apache/inlong/issues/11833)|[Improve][Sort] Appendmode configuration ignores case|
-|[INLONG-11829](https://github.com/apache/inlong/issues/11829)|[Feature][Sort] Optimize MySQL-CDC changelog audit report|
-|[INLONG-11821](https://github.com/apache/inlong/issues/11821)|[Feature][Sort] kv and csv deserialization configuration supports whether to remove and automatically add escape configuration|
-|[INLONG-11819](https://github.com/apache/inlong/issues/11819)|[Feature][Sort] Sort kv/csv format must support keep escape, using line delimiter and call back when parse field has exception.|
-|[INLONG-11807](https://github.com/apache/inlong/issues/11807)|[Feature][Sort] Support exactly metric report in mysql-cdc case|
-|[INLONG-11805](https://github.com/apache/inlong/issues/11805)|[Improve][Sort] Restored Checkpoint Id as part of Tube Connector Session Key|
-|[INLONG-11803](https://github.com/apache/inlong/issues/11803)|[Bug][Sort] When there is an issue with the format of the InLongmsg body, the parsing process will throw a Null Pointer Exception (NPE).|
-|[INLONG-11674](https://github.com/apache/inlong/issues/11674)|[Feature][Sort] Pulsar Source supports InlongMsg metadata|
-|[INLONG-11658](https://github.com/apache/inlong/issues/11658)|[Bug][Sort] Fix the NPE of the Kafka sink error log for some exceptions without metadata information|
-|[INLONG-11543](https://github.com/apache/inlong/issues/11543)|[Improve][Sort] Upgrade pulsar connector to v4.1.0|
-|[INLONG-10875](https://github.com/apache/inlong/issues/10875)|[Feature][Sort]Apache Inlong official demo documentation issue|
-|[INLONG-10466](https://github.com/apache/inlong/issues/10466)|[Feature][Sort] Add Iceberg connector on Flink 1.18|
+|[INLONG-12021](https://github.com/apache/inlong/issues/12021)|[Improve][CVE] Elasticsearch Uncontrolled Resource Consumption Vulnerability|
+|[INLONG-12007](https://github.com/apache/inlong/issues/12007)|[Feature][Sort] SortPulsar supports topic concatenation|
+|[INLONG-11982](https://github.com/apache/inlong/issues/11982)|[Bug][Sort] Null Point Exception when changelogAuditKey is not set|
+|[INLONG-11974](https://github.com/apache/inlong/issues/11974)|[Feature][Sort] Upgrade pulsar sdk version to 4.0.3|
+|[INLONG-11966](https://github.com/apache/inlong/issues/11966)|[Feature][Sort] The deserialization process supports returning the data byte size in one rowdata|
+|[INLONG-11958](https://github.com/apache/inlong/issues/11958)|[Feature][Sort] Allow SortCkafka to filter out data in TransformFunction|
+|[INLONG-11944](https://github.com/apache/inlong/issues/11944)|[Feature][Sort] TransformFunction: parse_url supports parsing URL query strings|
+|[INLONG-11942](https://github.com/apache/inlong/issues/11942)|[Feature][Sort] TransformFunction: url_decode supports specifying character sets|
+|[INLONG-11943](https://github.com/apache/inlong/issues/11943)|[Feature][Sort] TransformFunction: url_encode supports specifying character sets|
+|[INLONG-11939](https://github.com/apache/inlong/issues/11939)|[Feature][Sort] Support that TaskConfig merge issue preventing configuration changes from taking effect|
+|[INLONG-11937](https://github.com/apache/inlong/issues/11937)|[Feature][Sort] Allow SortHttp to filter out data in TransformFunction|
+|[INLONG-11931](https://github.com/apache/inlong/issues/11931)|[Feature][Sort] Optimize Transform's CSV/KV parsing|
+|[INLONG-11926](https://github.com/apache/inlong/issues/11926)|[Feature][SDK] If SortSDK fails to retrieve GroupId and StreamId from the InLongMsgV0 protocol, it defaults to obtaining them from the unified metadata.|
+|[INLONG-11911](https://github.com/apache/inlong/issues/11911)|[Feature][Sort] SortStandalone supports routing PB-format data streams to Kafka and Pulsar|
+|[INLONG-11909](https://github.com/apache/inlong/issues/11909)|[Feature][Sort] Optimize the generation of tube session key|
+|[INLONG-11902](https://github.com/apache/inlong/issues/11902)|[Feature][Sort] Allow SortCls to filter out data in TransformFunction|
+|[INLONG-11892](https://github.com/apache/inlong/issues/11892)|[Feature][Sort] SortStandalone support Negative Acknowledgment mechanism for delivery failures|
+|[INLONG-11888](https://github.com/apache/inlong/issues/11888)|[Feature][Sort] Sort ElasticSearch supports format conversion and data filtering via Key/Value data format|
+|[INLONG-11885](https://github.com/apache/inlong/issues/11885)|[Feature][Sort] Unified Metadata supports delayed and phased decommissioning of metadata configurations.|
+|[INLONG-11883](https://github.com/apache/inlong/issues/11883)|[Feature][Sort] Sort CLS supports format conversion and data filtering via Transform Functions.|
 
 ### Audit
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11831](https://github.com/apache/inlong/issues/11831)|[Improve][Audit] Optimize the packaging of the Audit SDK|
-|[INLONG-11826](https://github.com/apache/inlong/issues/11826)|[Feature][Audit] Add a new Audit item for MQ Pulsar|
-|[INLONG-11823](https://github.com/apache/inlong/issues/11823)|[Improve][Audit] Add CDC audit ID for MySQL Binlog|
-|[INLONG-11817](https://github.com/apache/inlong/issues/11817)|[Feature][Audit] Audit SDK supports CDC scenario audit reconciliation|
+|[INLONG-11999](https://github.com/apache/inlong/issues/11999)|[Feature][Audit] Add alert evaluation and periodic audit check task|
+|[INLONG-11998](https://github.com/apache/inlong/issues/11998)|[Feature][Audit] Implement APIs for Audit Tool to interact with Manager|
+|[INLONG-12000](https://github.com/apache/inlong/issues/12000)|[Feature][Audit] Implement API for obtaining audit data in Audit Tool|
+|[INLONG-11998](https://github.com/apache/inlong/issues/11998)|[Feature][Audit] Implement APIs for Audit Tool to interact with Manager|
+|[INLONG-11993](https://github.com/apache/inlong/issues/11993)|[Improve][Audit] The audit service supports customizing the cache on and off|
+|[INLONG-11900](https://github.com/apache/inlong/issues/11900)|[Improve][Audit] In the case of no data, the Audit OpenAPI defaults to 0|
 
 ### TubeMQ
 |ISSUE|Summary|
 |:--|:--|
-|[INLONG-11386](https://github.com/apache/inlong/issues/11386)|[Improve][TubeMQ] Use local files to save consumer group offset information |
-|[INLONG-11446](https://github.com/apache/inlong/issues/11446)|[Improve][TubeMQ] Remove legacy codes |
-|[INLONG-11583](https://github.com/apache/inlong/issues/11583)|[Bug][TubeMQ] Go SDK load balance logic not perfect, causing consumption to stop suddenly |
-|[INLONG-11587](https://github.com/apache/inlong/issues/11587)|[Bug][TubeMQ] Go SDK change filter order cause inconsistency error when registering to master. |
+|[INLONG-11948](https://github.com/apache/inlong/issues/11948)|[Bug][Docker] TubeMQ image build failed|
