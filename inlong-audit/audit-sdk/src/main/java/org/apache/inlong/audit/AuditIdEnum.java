@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.audit.entity.AuditType.AGENT;
-import static org.apache.inlong.audit.entity.AuditType.BINLOG;
 import static org.apache.inlong.audit.entity.AuditType.BIFANG;
+import static org.apache.inlong.audit.entity.AuditType.BINLOG;
 import static org.apache.inlong.audit.entity.AuditType.CLICKHOUSE;
 import static org.apache.inlong.audit.entity.AuditType.DATAPROXY;
 import static org.apache.inlong.audit.entity.AuditType.DORIS;
