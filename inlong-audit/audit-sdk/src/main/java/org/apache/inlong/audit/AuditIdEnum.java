@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.audit.entity.AuditType.AGENT;
+import static org.apache.inlong.audit.entity.AuditType.BIFANG;
 import static org.apache.inlong.audit.entity.AuditType.BINLOG;
-import static org.apache.inlong.audit.entity.AuditType.BSS;
 import static org.apache.inlong.audit.entity.AuditType.CLICKHOUSE;
 import static org.apache.inlong.audit.entity.AuditType.DATAPROXY;
 import static org.apache.inlong.audit.entity.AuditType.DORIS;
@@ -106,8 +106,8 @@ public enum AuditIdEnum {
     SORT_TDSQL_MYSQL_INPUT(39, INPUT, TDSQL_MYSQL, "Received Audit Metrics for TDSQL MYSQL"),
     SORT_TDSQL_MYSQL_OUTPUT(40, OUTPUT, TDSQL_MYSQL, "Sent Audit Metrics for TDSQL MYSQL"),
 
-    BSS_INPUT(41, INPUT, BSS, "Received Audit Metrics for BSS"),
-    BSS_OUTPUT(42, OUTPUT, BSS, "Sent Audit Metrics for BSS"),
+    BIFANG_INPUT(41, INPUT, BIFANG, "Received Audit Metrics for BIFANG"),
+    BIFANG_OUTPUT(42, OUTPUT, BIFANG, "Sent Audit Metrics for BIFANG"),
 
     ICEBERG_AO_INPUT(43, INPUT, ICEBERG_AO, "Received Audit Metrics for ICEBERG AO"),
     ICEBERG_AO_OUTPUT(44, OUTPUT, ICEBERG_AO, "Sent Audit Metrics for ICEBERG AO");
