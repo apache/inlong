@@ -37,7 +37,7 @@ public enum AuditType {
     MYSQL("MYSQL"),
     HDFS("HDFS"),
     TDSQL_MYSQL("TDSQL_MYSQL"),
-    BSS("BSS"),
+    BIFANG("BIFANG"),
     ICEBERG_AO("ICEBERG_AO");
 
     private final String auditType;
