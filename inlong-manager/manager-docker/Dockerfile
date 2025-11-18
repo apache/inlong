@@ -16,9 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk
+FROM adoptopenjdk/openjdk8
 RUN apt-get update \
-    && apt-get install -y net-tools vim default-mysql-client \
+    && apt-get install -y net-tools vim default-mysql-client wget \
     && rm -rf /var/lib/apt/lists/*
 EXPOSE 8083
 # profile and env virables
