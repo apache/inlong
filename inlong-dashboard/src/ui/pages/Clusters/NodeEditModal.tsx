@@ -244,7 +244,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         name: 'isInstall',
         initialValue: false,
         hidden: type !== 'AGENT',
-        visible: () => form.getFieldValue('type') === 'AGENT',
+        visible: type === 'AGENT',
         rules: [{ required: true }],
         props: {
           onChange: ({ target: { value } }) => {
