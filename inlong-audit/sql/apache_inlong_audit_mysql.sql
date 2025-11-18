@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `audit_source_config`
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config';
 
 
------------------------------
+-- ---------------------------
 -- Table structure for audit route config
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `audit_route_config` (
