@@ -231,14 +231,14 @@ public class InstanceManager extends AbstractDaemon {
                     break;
                 }
                 case FINISHED:
-                    DELETE: {
-                        if (instance != null) {
-                            LOGGER.info("traverseStoreTasksToMemory delete instance from mem taskId {} instanceId {}",
-                                    profileFromStore.getTaskId(), profileFromStore.getInstanceId());
-                            deleteFromMemory(profileFromStore.getInstanceId());
-                        }
-                        break;
+                case DELETE: {
+                    if (instance != null) {
+                        LOGGER.info("traverseStoreTasksToMemory delete instance from mem taskId {} instanceId {}",
+                                profileFromStore.getTaskId(), profileFromStore.getInstanceId());
+                        deleteFromMemory(profileFromStore.getInstanceId());
                     }
+                    break;
+                }
                 default: {
                     LOGGER.error("instance invalid state {} taskId {} instanceId {}", storeState,
                             profileFromStore.getTaskId(),
