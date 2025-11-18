@@ -19,7 +19,7 @@
 FROM adoptopenjdk/openjdk8
 # add tarball from target output
 RUN apt-get update \
-    && apt-get install -y net-tools vim default-mysql-client \
+    && apt-get install -y net-tools vim default-mysql-client wget \
     && rm -rf /var/lib/apt/lists/*
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
