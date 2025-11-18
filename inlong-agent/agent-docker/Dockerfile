@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk
+FROM adoptopenjdk/openjdk8
 RUN apt-get update \
     && apt-get install -y libsnappy-java net-tools vim \
     && rm -rf /var/lib/apt/lists/*

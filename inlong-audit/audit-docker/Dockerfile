@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk
+FROM adoptopenjdk/openjdk8
 # add tarball from target output
 RUN apt-get update \
     && apt-get install -y net-tools vim default-mysql-client \
