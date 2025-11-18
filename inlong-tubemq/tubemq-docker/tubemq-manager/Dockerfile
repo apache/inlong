@@ -16,9 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk
+FROM adoptopenjdk/openjdk8
 RUN apt-get update \
-    && apt-get install -y net-tools vim \
+    && apt-get install -y net-tools vim wget \
     && rm -rf /var/lib/apt/lists/*
 # add tarball from target output
 ARG TUBEMQ_MANAGER_TARBALL
