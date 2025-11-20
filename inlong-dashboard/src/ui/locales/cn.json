@@ -755,6 +755,7 @@
   "pages.GroupDetail.OperationLog.Table.OperationTarget": "操作目标",
   "pages.GroupDetail.OperationLog.Table.Log": "日志",
   "pages.GroupDetail.OperationLog.Table.OperationTime": "操作时间",
+  "pages.GroupDetail.Resource.Collapse": "收起",
   "pages.ApprovalDetail.GroupConfig.DataStorages": "数据存储",
   "pages.ApprovalDetail.GroupConfig.ApprovalInformation": "审批信息",
   "pages.ApprovalDetail.GroupConfig.DataFlowInformation": "数据流信息",
