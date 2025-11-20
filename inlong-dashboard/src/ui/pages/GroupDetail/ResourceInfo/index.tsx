@@ -261,7 +261,6 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
             ]}
             style={{ marginTop: 20 }}
             dataSource={data?.PULSAR}
-            pagination={false}
             rowKey="name"
           ></Table>
         </>
@@ -279,7 +278,6 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
             ]}
             style={{ marginTop: 20, width: 1100 }}
             dataSource={data?.TUBEMQ}
-            pagination={false}
             rowKey="name"
           ></Table>
         </>
