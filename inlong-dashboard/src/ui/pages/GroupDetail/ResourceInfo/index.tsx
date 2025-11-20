@@ -18,13 +18,14 @@
  */
 
 import React, { useEffect, useMemo, forwardRef, useState } from 'react';
-import { Divider, Table } from 'antd';
+import { Divider, Table, Tag, Tooltip } from 'antd';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { CommonInterface } from '../common';
 import { clusters } from '@/plugins/clusters';
 import HighTable from '@/ui/components/HighTable';
+import i18n from '@/i18n';
 
 type Props = CommonInterface;
 
@@ -37,6 +38,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     return !!inlongGroupId;
   }, [inlongGroupId]);
 
+  const [expandedFields, setExpandedFields] = useState<Record<string, boolean>>({});
   const [sortOption, setSortOption] = useState({
     inlongGroupId: inlongGroupId,
     inlongStreamId: '',
@@ -74,12 +76,89 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     let content = [];
     if (data[item].constructor === Object) {
       for (const key in data[item]) {
-        content.push({
-          label: key,
-          name: item + '_' + key,
-          type: 'text',
-          initialValue: data[item][key],
-        });
+        console.log('key:', data, item, key, data[item]);
+        if (data[item][key]?.constructor === Array) {
+          content.push({
+            label: key,
+            name: item + '_' + key,
+            type: () => {
+              const urlList = Array.isArray(data[item][key]) ? data[item][key] : [];
+              if (urlList.length === 0) return null;
+
+              const fieldKey = `${item}_${key}`;
+              const isExpanded = expandedFields[fieldKey] || false;
+              const displayCount = 10;
+              const displayList = isExpanded ? urlList : urlList.slice(0, displayCount);
+              const remainingCount = urlList.length - displayCount;
+
+              return (
+                <div style={{ width: '80vw' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {displayList.map((url, index) => (
+                      <Tooltip key={`url-${index}`} title={url}>
+                        <Tag
+                          style={{
+                            maxWidth: '300px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            cursor: 'default',
+                          }}
+                        >
+                          {url}
+                        </Tag>
+                      </Tooltip>
+                    ))}
+                    {!isExpanded && remainingCount > 0 && (
+                      <Tag
+                        style={{
+                          cursor: 'pointer',
+                          backgroundColor: '#f0f0f0',
+                          borderStyle: 'dashed',
+                        }}
+                        onClick={() => {
+                          setExpandedFields(prev => ({
+                            ...prev,
+                            [fieldKey]: true,
+                          }));
+                        }}
+                      >
+                        +{remainingCount}
+                      </Tag>
+                    )}
+                    {isExpanded && urlList.length > displayCount && (
+                      <Tag
+                        style={{
+                          cursor: 'pointer',
+                          backgroundColor: '#f0f0f0',
+                          borderStyle: 'dashed',
+                        }}
+                        onClick={() => {
+                          setExpandedFields(prev => ({
+                            ...prev,
+                            [fieldKey]: false,
+                          }));
+                        }}
+                      >
+                        {i18n.t('pages.GroupDetail.Resource.Collapse')}
+                      </Tag>
+                    )}
+                  </div>
+                </div>
+              );
+            },
+            initialValue: data[item][key],
+            visible: !!data[item][key],
+          });
+        } else {
+          content.push({
+            label: key,
+            name: item + '_' + key,
+            type: 'text',
+            initialValue: data[item][key],
+            visible: !!data[item][key],
+          });
+        }
       }
       return content;
     }
