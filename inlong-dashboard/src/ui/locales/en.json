@@ -749,6 +749,7 @@
   "pages.GroupDetail.OperationLog.Table.OperationTarget": "Operation target",
   "pages.GroupDetail.OperationLog.Table.Log": "Log",
   "pages.GroupDetail.OperationLog.Table.OperationTime": "Operation time",
+  "pages.GroupDetail.Resource.Collapse": "Collapse",
   "pages.ApprovalDetail.GroupConfig.DataStorages": "Data storages",
   "pages.ApprovalDetail.GroupConfig.ApprovalInformation": "Approval information",
   "pages.ApprovalDetail.GroupConfig.DataFlowInformation": "Data stream information",
