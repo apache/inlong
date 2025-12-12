@@ -80,7 +80,7 @@ if [ ! -d "$PY_SDK_DIR/pybind11/build" ]; then
     if [ -d "$PY_SDK_DIR/pybind11" ]; then
         rm -r "$PY_SDK_DIR/pybind11"
     fi
-    PYBIND11_VERSION="v2.13.0"
+    PYBIND11_VERSION="v2.10.4"
     git clone --branch $PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git "$PY_SDK_DIR/pybind11"
     mkdir "$PY_SDK_DIR/pybind11/build" && cd "$PY_SDK_DIR/pybind11/build"
 

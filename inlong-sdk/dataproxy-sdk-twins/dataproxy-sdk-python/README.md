@@ -25,12 +25,16 @@ Dataproxy-SDK Python version, used for sending data to InLong dataproxy.
 InLong Dataproxy Python SDK is a wrapper over the existing [C++ SDK](https://github.com/apache/inlong/tree/master/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp) and exposes all of the same features.
 
 ## Prerequisites
-- CMake 3.5+
-- Python 3.6+
+- CMake 3.12+
+- Python 3.7+
 
 ## Build
 
-### Build the C++ SDK
+There are two ways to build dataproxy-sdk-python:
+
+### Method 1: Native Build
+
+#### Step 1: Build the C++ SDK
 
 Go to the `dataproxy-sdk-cpp` root directory, and run the following commands:
 
@@ -42,7 +46,7 @@ chmod +x ./build_third_party.sh && chmod +x ./build.sh
 
 If you have already built the C++ SDK, you can skip this step.
 
-### Build the Python SDK
+#### Step 2: Build the Python SDK
 
 Go to the `dataproxy-sdk-python` root directory, and run the following commands:
 
@@ -68,13 +72,19 @@ chmod +x ./build.sh
    ```
    The script will copy .so files to the specified directory. Make sure the target directory exists before running the command.
 
+### Method 2: Docker Build
+
+Use a pre-configured Docker environment with all necessary dependencies.
+
+For detailed instructions on Docker-based builds, see [dataproxy-sdk-docker/README.md](../dataproxy-sdk-docker/README.md).
+
 After the build process finished, you can import the package (`import inlong_dataproxy`) in your python project to use InLong dataproxy.
 
 **Important Notes:**
-- If you specify a target directory, make sure it exists before running the build script. The script will exit with an error if the specified directory doesn't exist.
+- If you specify a target directory in native build, make sure it exists before running the build script. The script will exit with an error if the specified directory doesn't exist.
 - If no target directory is specified and no system site-packages directories are found, the .so files will remain in the `build` directory and you'll need to copy them manually to your project.
 
-> **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it by the above steps.
+> **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it using either of the above methods (Native Build or Docker Build).
 
 ## Config Parameters
 

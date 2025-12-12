@@ -21,6 +21,8 @@ cmake_minimum_required(VERSION 3.5)
 project(dataproxy-sdk-python)
 
 set(CMAKE_CXX_STANDARD 11)
+set(PYBIND11_LTO OFF)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/src/core")
 
