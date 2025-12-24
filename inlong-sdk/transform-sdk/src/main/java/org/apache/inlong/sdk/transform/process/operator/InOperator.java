@@ -39,8 +39,10 @@ public class InOperator implements ExpressionOperator {
 
     private final ValueParser left;
     private final List<ValueParser> right;
+    private final boolean isNot;
 
     public InOperator(InExpression expr) {
+        this.isNot = expr.isNot();
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         ItemsList itemsList = expr.getRightItemsList();
         this.right = new ArrayList<>();
@@ -63,9 +65,17 @@ public class InOperator implements ExpressionOperator {
      * @param rowIndex
      * @return
      */
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean check(SourceData sourceData, int rowIndex, Context context) {
+        if (isNot) {
+            return !this.checkIn(sourceData, rowIndex, context);
+        } else {
+            return this.checkIn(sourceData, rowIndex, context);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private boolean checkIn(SourceData sourceData, int rowIndex, Context context) {
         Comparable leftValue = (Comparable) this.left.parse(sourceData, rowIndex, context);
         for (ValueParser parser : right) {
             Comparable rightValue = (Comparable) parser.parse(sourceData, rowIndex, context);
