@@ -40,9 +40,11 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.inlong.audit.store.config.ConfigConstants.DEFAULT_AUDIT_SERVICE_ADDR;
 import static org.apache.inlong.audit.store.config.ConfigConstants.DEFAULT_AUDIT_SERVICE_ROUTE_API;
 import static org.apache.inlong.audit.store.config.ConfigConstants.DEFAULT_AUDIT_SERVICE_TIMEOUT_MS;
+import static org.apache.inlong.audit.store.config.ConfigConstants.DEFAULT_AUDIT_STORE_ROUTE_ENABLED;
 import static org.apache.inlong.audit.store.config.ConfigConstants.KEY_AUDIT_SERVICE_ADDR;
 import static org.apache.inlong.audit.store.config.ConfigConstants.KEY_AUDIT_SERVICE_ROUTE_API;
 import static org.apache.inlong.audit.store.config.ConfigConstants.KEY_AUDIT_SERVICE_TIMEOUT_MS;
+import static org.apache.inlong.audit.store.config.ConfigConstants.KEY_AUDIT_STORE_ROUTE_ENABLED;
 import static org.apache.inlong.audit.utils.RouteUtils.extractAddress;
 
 public class AuditRouteManager {
@@ -68,6 +70,13 @@ public class AuditRouteManager {
     }
 
     public void init(String jdbcUrl) {
+        boolean routeEnabled =
+                ConfigManager.getInstance().getValue(KEY_AUDIT_STORE_ROUTE_ENABLED, DEFAULT_AUDIT_STORE_ROUTE_ENABLED);
+        if (!routeEnabled) {
+            LOGGER.info("AuditRouteManager is disabled by configuration ({}=false)", KEY_AUDIT_STORE_ROUTE_ENABLED);
+            return;
+        }
+
         String serviceAddr = ConfigManager.getInstance().getValue(KEY_AUDIT_SERVICE_ADDR, DEFAULT_AUDIT_SERVICE_ADDR);
         String routeApi =
                 ConfigManager.getInstance().getValue(KEY_AUDIT_SERVICE_ROUTE_API, DEFAULT_AUDIT_SERVICE_ROUTE_API);

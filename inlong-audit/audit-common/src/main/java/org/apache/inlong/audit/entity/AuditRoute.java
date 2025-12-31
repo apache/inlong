@@ -30,4 +30,5 @@ public class AuditRoute {
     private String auditId;
     private String inlongGroupIdsInclude;
     private String inlongGroupIdsExclude;
+    private int priority;
 }

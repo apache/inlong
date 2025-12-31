@@ -35,4 +35,7 @@ public class ConfigConstants {
     public static final int DEFAULT_AUDIT_SERVICE_TIMEOUT_MS = 30000;
     public static final String KEY_AUDIT_SERVICE_ROUTE_API = "audit.service.route.api";
     public static final String DEFAULT_AUDIT_SERVICE_ROUTE_API = "/audit/query/getAuditRoute";
+
+    public static final String KEY_AUDIT_STORE_ROUTE_ENABLED = "audit.store.route.enabled";
+    public static final boolean DEFAULT_AUDIT_STORE_ROUTE_ENABLED = false;
 }

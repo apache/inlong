@@ -119,6 +119,10 @@ public class ConfigManager {
         return getValue(key, defaultValue, Integer::parseInt);
     }
 
+    public boolean getValue(String key, boolean defaultValue) {
+        return getValue(key, defaultValue, Boolean::parseBoolean);
+    }
+
     private boolean updatePropertiesHolder(Map<String, String> result,
             String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {
