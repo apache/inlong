@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS `audit_route_config` (
     `inlong_group_id_include` VARCHAR(255) COMMENT 'Included Inlong group IDs (regular expression)',
     `inlong_group_id_exclude` VARCHAR(255) COMMENT 'Excluded Inlong group IDs (regular expression)',
     `status` TINYINT NOT NULL DEFAULT 1 COMMENT 'Status, 1=active, 0=inactive',
+    `priority` int(32) NOT NULL DEFAULT 1 COMMENT 'Priority level, default is 1',
     `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT='Audit route configuration table';

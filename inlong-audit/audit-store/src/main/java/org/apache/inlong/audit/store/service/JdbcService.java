@@ -201,7 +201,7 @@ public class JdbcService implements InsertData, AutoCloseable {
                 AuditRouteManager.getInstance().getAuditRoutes())) {
             MetricsManager.getInstance().filterSuccess();
             PulsarUtils.acknowledge(consumer, messageId);
-            LOG.warn("The audit data does not match the routing rules and is filtered out: {} ", msgBody);
+            LOG.debug("The audit data does not match the routing rules and is filtered out: {} ", msgBody);
             return;
         }
 

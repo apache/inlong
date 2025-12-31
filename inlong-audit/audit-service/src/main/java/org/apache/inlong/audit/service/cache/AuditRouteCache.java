@@ -53,6 +53,7 @@ public class AuditRouteCache {
     private static final String AUDIT_ID_INCLUDE = "audit_id_include";
     private static final String GROUP_ID_INCLUDE = "inlong_group_id_include";
     private static final String GROUP_ID_EXCLUDE = "inlong_group_id_exclude";
+    private static final String PRIORITY = "priority";
 
     @Getter
     private static final AuditRouteCache instance = new AuditRouteCache();
@@ -115,6 +116,7 @@ public class AuditRouteCache {
                 String auditId = StringUtils.trimToNull(resultSet.getString(AUDIT_ID_INCLUDE));
                 String includeGroupId = StringUtils.trimToNull(resultSet.getString(GROUP_ID_INCLUDE));
                 String excludeGroupId = StringUtils.trimToNull(resultSet.getString(GROUP_ID_EXCLUDE));
+                int priority = resultSet.getInt(PRIORITY);
 
                 if (!isValidRegexOrLog(auditId)
                         || !isValidRegexOrLog(includeGroupId)
@@ -130,6 +132,7 @@ public class AuditRouteCache {
                 data.setAuditId(auditId);
                 data.setInlongGroupIdsInclude(includeGroupId);
                 data.setInlongGroupIdsExclude(excludeGroupId);
+                data.setPriority(priority);
 
                 auditRoutes.computeIfAbsent(address, key -> new ArrayList<>()).add(data);
             }
@@ -139,6 +142,9 @@ public class AuditRouteCache {
         }
 
         if (!auditRoutes.isEmpty()) {
+            auditRoutes.values()
+                    .forEach(routes -> routes.sort((r1, r2) -> Integer.compare(r2.getPriority(), r1.getPriority())));
+
             auditRouteCache = auditRoutes;
             LOGGER.info("AuditRouteCache update success. Cache size={}, Query size={}", auditRouteCache.size(),
                     auditRoutes.size());
