@@ -68,6 +68,8 @@ type Options struct {
 	WorkerNum               int                   // worker number, default: 8
 	SendTimeout             time.Duration         // send timeout, default: 30000ms
 	MaxRetries              int                   // max retry count, default: 2
+	RetryOnServerError      bool                  // whether to retry on server error, default: false
+	RetryInitialInterval    time.Duration         // initial retry interval for exponential backoff, default: 100ms
 	BatchingMaxPublishDelay time.Duration         // the time period within which the messages sent will be batched, default: 20ms
 	BatchingMaxMessages     int                   // the maximum number of messages permitted in a batch, default: 50
 	BatchingMaxSize         int                   // the maximum number of bytes permitted in a batch, default: 40K
@@ -157,6 +159,10 @@ func (options *Options) ValidateAndSetDefault() error {
 
 	if options.MaxRetries <= 0 {
 		options.MaxRetries = 2
+	}
+
+	if options.RetryInitialInterval <= 0 {
+		options.RetryInitialInterval = 100 * time.Millisecond
 	}
 
 	if options.WriteBufferSize <= 0 {

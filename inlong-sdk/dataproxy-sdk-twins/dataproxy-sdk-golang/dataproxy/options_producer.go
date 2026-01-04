@@ -50,6 +50,23 @@ func WithMaxRetries(n int) Option {
 	}
 }
 
+// WithRetryOnServerError sets RetryOnServerError
+func WithRetryOnServerError(retry bool) Option {
+	return func(o *Options) {
+		o.RetryOnServerError = retry
+	}
+}
+
+// WithRetryInitialInterval sets RetryInitialInterval
+func WithRetryInitialInterval(interval time.Duration) Option {
+	return func(o *Options) {
+		if interval <= 0 {
+			return
+		}
+		o.RetryInitialInterval = interval
+	}
+}
+
 // WithBatchingMaxPublishDelay sets BatchingMaxPublishDelay
 func WithBatchingMaxPublishDelay(t time.Duration) Option {
 	return func(o *Options) {

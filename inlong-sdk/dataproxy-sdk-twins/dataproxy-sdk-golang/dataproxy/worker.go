@@ -41,6 +41,12 @@ const (
 	defaultMapCleanThreshold = 500000
 )
 
+// retryableServerErrorCodes defines which server error codes should trigger retry
+// and whether connection switch is needed.
+var retryableServerErrorCodes = map[int]bool{
+	2: true, // SERVICE_CLOSED
+}
+
 type workerState int32
 
 const (
@@ -52,33 +58,48 @@ const (
 )
 
 var (
-	errOK               = &errNo{code: 0, strCode: "0", message: "OK"}
-	errSendTimeout      = &errNo{code: 10001, strCode: "10001", message: "message send timeout"}
-	errSendFailed       = &errNo{code: 10002, strCode: "10002", message: "message send failed"} //nolint:unused
-	errProducerClosed   = &errNo{code: 10003, strCode: "10003", message: "producer already been closed"}
-	errSendQueueIsFull  = &errNo{code: 10004, strCode: "10004", message: "producer send queue is full"}
-	errContextExpired   = &errNo{code: 10005, strCode: "10005", message: "message context expired"}
-	errNewConnFailed    = &errNo{code: 10006, strCode: "10006", message: "new conn failed"}
-	errConnWriteFailed  = &errNo{code: 10007, strCode: "10007", message: "conn write failed"}
-	errConnReadFailed   = &errNo{code: 10008, strCode: "10008", message: "conn read failed"}
-	errLogTooLong       = &errNo{code: 10009, strCode: "10009", message: "input log is too long"} //nolint:unused
-	errBadLog           = &errNo{code: 10010, strCode: "10010", message: "input log is invalid"}
-	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error"} //nolint:unused
-	errServerPanic      = &errNo{code: 10012, strCode: "10012", message: "server panic"}
-	workerBusy          = &errNo{code: 10013, strCode: "10013", message: "worker is busy"}
-	errNoMatchReq4Rsp   = &errNo{code: 10014, strCode: "10014", message: "no match unacknowledged request for response"}
-	errConnClosedByPeer = &errNo{code: 10015, strCode: "10015", message: "conn closed by peer"}
-	errUnknown          = &errNo{code: 20001, strCode: "20001", message: "unknown"}
+	errOK               = &errNo{code: 0, strCode: "0", message: "OK", serverErrCode: -1}
+	errSendTimeout      = &errNo{code: 10001, strCode: "10001", message: "message send timeout", serverErrCode: -1}
+	errSendFailed       = &errNo{code: 10002, strCode: "10002", message: "message send failed", serverErrCode: -1} //nolint:unused
+	errProducerClosed   = &errNo{code: 10003, strCode: "10003", message: "producer already been closed", serverErrCode: -1}
+	errSendQueueIsFull  = &errNo{code: 10004, strCode: "10004", message: "producer send queue is full", serverErrCode: -1}
+	errContextExpired   = &errNo{code: 10005, strCode: "10005", message: "message context expired", serverErrCode: -1}
+	errNewConnFailed    = &errNo{code: 10006, strCode: "10006", message: "new conn failed", serverErrCode: -1}
+	errConnWriteFailed  = &errNo{code: 10007, strCode: "10007", message: "conn write failed", serverErrCode: -1}
+	errConnReadFailed   = &errNo{code: 10008, strCode: "10008", message: "conn read failed", serverErrCode: -1}
+	errLogTooLong       = &errNo{code: 10009, strCode: "10009", message: "input log is too long", serverErrCode: -1} //nolint:unused
+	errBadLog           = &errNo{code: 10010, strCode: "10010", message: "input log is invalid", serverErrCode: -1}
+	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error", serverErrCode: -1} //nolint:unused
+	errServerPanic      = &errNo{code: 10012, strCode: "10012", message: "server panic", serverErrCode: -1}
+	workerBusy          = &errNo{code: 10013, strCode: "10013", message: "worker is busy", serverErrCode: -1}
+	errNoMatchReq4Rsp   = &errNo{code: 10014, strCode: "10014", message: "no match unacknowledged request for response", serverErrCode: -1}
+	errConnClosedByPeer = &errNo{code: 10015, strCode: "10015", message: "conn closed by peer", serverErrCode: -1}
+	errUnknown          = &errNo{code: 20001, strCode: "20001", message: "unknown", serverErrCode: -1}
 )
 
 type errNo struct {
-	code    int
-	strCode string
-	message string
+	code          int
+	strCode       string
+	message       string
+	serverErrCode int // server error code from server response, -1 means not a server error
 }
 
 func (e *errNo) Error() string {
 	return e.message
+}
+
+// GetServerErrorCode extracts server error code from error.
+func GetServerErrorCode(err error) int {
+	if err == nil {
+		return 0
+	}
+	var t *errNo
+	switch {
+	case errors.As(err, &t):
+		return t.getServerErrCode()
+	default:
+		return -1
+	}
 }
 
 //nolint:unused
@@ -88,6 +109,10 @@ func (e *errNo) getCode() int {
 
 func (e *errNo) getStrCode() string {
 	return e.strCode
+}
+
+func (e *errNo) getServerErrCode() int {
+	return e.serverErrCode
 }
 
 func getErrorCode(err error) string {
@@ -492,7 +517,7 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 
 		// use ExponentialBackoff
 		backoff := util.ExponentialBackoff{
-			InitialInterval: 100 * time.Millisecond,
+			InitialInterval: w.options.RetryInitialInterval,
 			MaxInterval:     10 * time.Second,
 			Multiplier:      2.0,
 			Randomization:   0.2,
@@ -622,6 +647,25 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 	// call batch.done to release the resources it holds
 	var err = error(nil)
 	if rsp.errCode != 0 {
+		// Check if connection switch is needed
+		needSwitchConn, isRetryable := retryableServerErrorCodes[rsp.errCode]
+		if needSwitchConn && w.client != nil {
+			w.log.Warn("server error detected, switching connection, errCode:", rsp.errCode,
+				", batchID:", batch.batchID)
+			w.updateConn(nil, nil)
+		}
+
+		// Check if retry is needed
+		if w.options.RetryOnServerError && isRetryable && batch.retries < w.options.MaxRetries {
+			delete(w.unackedBatches, batchID)
+
+			w.log.Warn("server error, will retry, errCode:", rsp.errCode,
+				", batchID:", batch.batchID, ", retries:", batch.retries)
+
+			w.backoffRetry(context.Background(), batch)
+			return
+		}
+
 		err = &errNo{
 			code:    10011,
 			strCode: "10011",
@@ -631,6 +675,7 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 				", groupID=" + rsp.groupID +
 				", streamID=" + rsp.streamID +
 				", dt=" + rsp.dt,
+			serverErrCode: rsp.errCode,
 		}
 		w.log.Error("send succeed but got error code:", rsp.errCode)
 	}
