@@ -137,6 +137,20 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         return Objects.equals(failureHandler, that.failureHandler);
     }
 
+    protected void checkFieldNameSize(String body, int actualNumFields, int fieldNameSize,
+            FailureHandler failureHandler) {
+        if (actualNumFields != fieldNameSize) {
+            if (failureHandler != null) {
+                failureHandler.onFieldNumError(null, null, body,
+                        actualNumFields, fieldNameSize);
+            } else {
+                LOG.warn("The number of fields mismatches: {}"
+                        + ",expected, but was {}. origin text: {}",
+                        fieldNameSize, actualNumFields, body);
+            }
+        }
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(failureHandler);

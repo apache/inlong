@@ -85,4 +85,34 @@ public interface FailureHandler extends Serializable {
     void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
             Exception exception) throws Exception;
 
+    /**
+     * This method is called when there is a failure occurred while converting any field to row.
+     *
+     * @param fieldName the filed name
+     * @param fieldText the filed test
+     * @param formatInfo the filed target type info
+     * @param exception the thrown exception
+     * @param head the predefined fields
+     * @param inLongMsgBody the fields
+     * @param originBody the origin body
+     * @throws Exception the exception
+     */
+    default void onConvertingFieldFailure(String fieldName, String fieldText, FormatInfo formatInfo,
+            InLongMsgHead head, InLongMsgBody inLongMsgBody, String originBody,
+            Exception exception) throws Exception {
+        onConvertingFieldFailure(fieldName, fieldText, formatInfo, exception);
+    }
+
+    /**
+     * This method is called when there is a failure occurred while field num error.
+     *
+     * @param predefinedFields predefined fields
+     * @param originBodyBytes origin body bytes
+     * @param originBody origin body
+     * @param actualNumFields actual number of fields
+     * @param fieldNameSize expected number of fields
+     */
+    default void onFieldNumError(String predefinedFields, byte[] originBodyBytes, String originBody,
+            int actualNumFields, int fieldNameSize) {
+    }
 }

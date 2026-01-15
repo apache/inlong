@@ -158,7 +158,7 @@ public final class InLongMsgBinlogFormatDeserializer extends AbstractInLongMsgFo
                 attributesFieldName,
                 metadataFieldName,
                 head.getAttributes(),
-                body.getData(),
+                body.getDataBytes(),
                 includeUpdateBefore);
     }
 

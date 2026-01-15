@@ -254,8 +254,9 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
         GenericRowData genericRowData = InLongMsgKvUtils.deserializeRowData(
                 rowFormatInfo,
                 nullLiteral,
-                retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList(),
-                body.getEntries(),
+                retainPredefinedField,
+                head,
+                body,
                 converters,
                 failureHandler);
 
@@ -272,8 +273,9 @@ public final class InLongMsgKvFormatDeserializer extends AbstractInLongMsgFormat
         FormatMsg formatMsg = InLongMsgKvUtils.deserializeFormatMsgData(
                 rowFormatInfo,
                 nullLiteral,
-                retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList(),
-                body.getEntries(),
+                retainPredefinedField,
+                head,
+                body,
                 converters,
                 failureHandler);
 

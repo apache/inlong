@@ -109,7 +109,7 @@ public class InLongMsgTlogCsvUtils {
                 for (int j = startIndex; j < segments[i].length; j++) {
                     fields.add(segments[i][j]);
                 }
-                inLongMsgBodies.add(new InLongMsgBody(null, tid, fields, Collections.emptyMap()));
+                inLongMsgBodies.add(new InLongMsgBody(bytes, text, tid, fields, Collections.emptyMap()));
             }
         }
         return inLongMsgBodies;
@@ -184,13 +184,13 @@ public class InLongMsgTlogCsvUtils {
     }
 
     public static FormatMsg deserializeFormatMsgData(RowFormatInfo rowFormatInfo,
-            String nullLiteral,
-            List<String> predefinedFields,
-            List<String> fields,
+            String nullLiteral, InLongMsgHead head, InLongMsgBody inLongMsgBody,
             FieldToRowDataConverters.FieldToRowDataConverter[] converters,
             FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        List<String> predefinedFields = head.getPredefinedFields();
+        List<String> fields = inLongMsgBody.getFields();
 
         GenericRowData rowData = new GenericRowData(fieldNames.length);
         long rowDataLength = 0L;
@@ -211,7 +211,9 @@ public class InLongMsgTlogCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral, failureHandler));
+                            nullLiteral, head, inLongMsgBody,
+                            inLongMsgBody.getData(),
+                            failureHandler));
             rowData.setField(i, field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
         }
@@ -232,7 +234,8 @@ public class InLongMsgTlogCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral, failureHandler));
+                            nullLiteral, head, inLongMsgBody, inLongMsgBody.getData(),
+                            failureHandler));
             rowData.setField(i + predefinedFields.size(), field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
         }

@@ -267,10 +267,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         List<String> fields = body.getFields();
         int actualNumFields = (predefinedFields == null ? 0 : predefinedFields.size())
                 + (fields == null ? 0 : fields.size());
-        if (needPrint() && actualNumFields != fieldNameSize) {
-            LOG.warn("The number of fields mismatches: " + fieldNameSize +
-                    " expected, but was " + actualNumFields + ".");
-        }
+        checkFieldNameSize(head, body, actualNumFields, fieldNameSize, failureHandler);
         GenericRowData dataRow =
                 InLongMsgTlogCsvUtils.deserializeRowData(
                         rowFormatInfo,
@@ -294,18 +291,13 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         List<String> fields = body.getFields();
         int actualNumFields = (predefinedFields == null ? 0 : predefinedFields.size())
                 + (fields == null ? 0 : fields.size());
-
-        if (needPrint() && actualNumFields != fieldNameSize) {
-            LOG.warn("The number of fields mismatches: " + fieldNameSize +
-                    " expected, but was " + actualNumFields + ".");
-        }
-
+        checkFieldNameSize(head, body, actualNumFields, fieldNameSize, failureHandler);
         FormatMsg formatMsg =
                 InLongMsgTlogCsvUtils.deserializeFormatMsgData(
                         rowFormatInfo,
                         nullLiteral,
-                        head.getPredefinedFields(),
-                        body.getFields(),
+                        head,
+                        body,
                         converters, failureHandler);
 
         GenericRowData genericRowData = InLongMsgUtils.decorateRowDataWithNeededHeadFields(

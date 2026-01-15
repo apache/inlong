@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.Map;
 /**
  * The body deserialized from {@link InLongMsgBody}.
  */
+@Data
 public class InLongMsgBody implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,7 +36,12 @@ public class InLongMsgBody implements Serializable {
     /**
      * The body of the record.
      */
-    private final byte[] data;
+    private final byte[] dataBytes;
+
+    /**
+     * The body of the record.
+     */
+    private final String data;
 
     /**
      * The interface of the record.
@@ -50,30 +59,16 @@ public class InLongMsgBody implements Serializable {
     private final Map<String, String> entries;
 
     public InLongMsgBody(
-            byte[] data,
+            byte[] dataBytes,
+            String data,
             String streamId,
             List<String> fields,
             Map<String, String> entries) {
+        this.dataBytes = dataBytes;
         this.data = data;
         this.streamId = streamId;
         this.fields = fields;
         this.entries = entries;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public String getStreamId() {
-        return streamId;
-    }
-
-    public List<String> getFields() {
-        return fields;
-    }
-
-    public Map<String, String> getEntries() {
-        return entries;
     }
 
     @Override
@@ -87,17 +82,22 @@ public class InLongMsgBody implements Serializable {
         }
 
         InLongMsgBody inLongMsgBody = (InLongMsgBody) o;
-        return Arrays.equals(data, inLongMsgBody.data);
+        return StringUtils.equals(data, inLongMsgBody.data)
+                && Arrays.equals(dataBytes, inLongMsgBody.dataBytes);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(data);
+        if (dataBytes != null) {
+            return Arrays.hashCode(dataBytes);
+        }
+        return data == null ? super.hashCode() : data.hashCode();
     }
 
     @Override
     public String toString() {
-        return "InLongMsgBody{" + "data=" + Arrays.toString(data) + ", streamId='" + streamId + '\''
+        return "InLongMsgBody{" + "data=" + (data == null ? new String(dataBytes) : data)
+                + ", streamId='" + streamId + '\''
                 + ", fields=" + fields + ", entries=" + entries + '}';
     }
 }

@@ -17,28 +17,27 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * The body deserialized from {@link InLongMsgWrap}.
  */
+@Data
 public class InLongMsgWrap implements Serializable {
 
     private final InLongMsgHead inLongMsgHead;
 
     private final List<InLongMsgBody> inLongMsgBodyList;
 
-    public InLongMsgWrap(InLongMsgHead inLongMsgHead, List<InLongMsgBody> inLongMsgBodyList) {
+    private final byte[] originBody;
+
+    public InLongMsgWrap(InLongMsgHead inLongMsgHead,
+            List<InLongMsgBody> inLongMsgBodyList, byte[] originBody) {
         this.inLongMsgHead = inLongMsgHead;
         this.inLongMsgBodyList = inLongMsgBodyList;
-    }
-
-    public InLongMsgHead getInLongMsgHead() {
-        return inLongMsgHead;
-    }
-
-    public List<InLongMsgBody> getInLongMsgBodyList() {
-        return inLongMsgBodyList;
+        this.originBody = originBody;
     }
 }

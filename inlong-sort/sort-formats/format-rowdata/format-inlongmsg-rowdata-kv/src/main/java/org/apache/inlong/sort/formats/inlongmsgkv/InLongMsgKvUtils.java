@@ -110,6 +110,7 @@ public class InLongMsgKvUtils {
 
         return list.stream().map((line) -> new InLongMsgBody(
                 bytes,
+                text,
                 null,
                 Collections.emptyList(),
                 line)).collect(Collectors.toList());
@@ -120,20 +121,24 @@ public class InLongMsgKvUtils {
      *
      * @param rowFormatInfo    The format of the fields.
      * @param nullLiteral      The literal for null values.
-     * @param predefinedFields The predefined fields.
-     * @param entries          The entries.
+     * @param retainPredefinedField Whether to retain predefined fields.
+     * @param head The predefined fields.
+     * @param inLongMsgBody          The entries.
      * @return The row deserialized from the given entries.
      */
     public static GenericRowData deserializeRowData(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
-            List<String> predefinedFields,
-            Map<String, String> entries,
+            boolean retainPredefinedField,
+            InLongMsgHead head,
+            InLongMsgBody inLongMsgBody,
             FieldToRowDataConverter[] converters,
             FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
+        List<String> predefinedFields = retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList();
+        Map<String, String> entries = inLongMsgBody.getEntries();
         GenericRowData row = new GenericRowData(fieldNames.length);
 
         for (int i = 0; i < predefinedFields.size(); ++i) {
@@ -152,7 +157,7 @@ public class InLongMsgKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral, failureHandler));
+                            nullLiteral, head, inLongMsgBody, inLongMsgBody.getData(), failureHandler));
             row.setField(i, field);
         }
 
@@ -168,6 +173,7 @@ public class InLongMsgKvUtils {
                     fieldFormatInfo,
                     fieldText,
                     nullLiteral,
+                    head, inLongMsgBody, inLongMsgBody.getData(),
                     failureHandler));
             row.setField(i, field);
         }
@@ -178,13 +184,16 @@ public class InLongMsgKvUtils {
     public static FormatMsg deserializeFormatMsgData(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
-            List<String> predefinedFields,
-            Map<String, String> entries,
+            boolean retainPredefinedField,
+            InLongMsgHead head,
+            InLongMsgBody inLongMsgBody,
             FieldToRowDataConverter[] converters,
             FailureHandler failureHandler) throws Exception {
-        String[] fieldNames = rowFormatInfo.getFieldNames();
-        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
+        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        List<String> predefinedFields = retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList();
+        Map<String, String> entries = inLongMsgBody.getEntries();
+        String[] fieldNames = rowFormatInfo.getFieldNames();
         GenericRowData row = new GenericRowData(fieldNames.length);
         long rowDataLength = 0L;
         for (int i = 0; i < predefinedFields.size(); ++i) {
@@ -203,7 +212,8 @@ public class InLongMsgKvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral, failureHandler));
+                            nullLiteral, head, inLongMsgBody, inLongMsgBody.getData(),
+                            failureHandler));
             row.setField(i, field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
         }
@@ -220,6 +230,7 @@ public class InLongMsgKvUtils {
                     fieldFormatInfo,
                     fieldText,
                     nullLiteral,
+                    head, inLongMsgBody, inLongMsgBody.getData(),
                     failureHandler));
             row.setField(i, field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);

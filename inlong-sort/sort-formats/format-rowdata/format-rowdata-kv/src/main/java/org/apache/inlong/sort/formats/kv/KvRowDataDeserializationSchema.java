@@ -202,7 +202,7 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                         fieldName,
                         fieldFormatInfo,
                         fieldText,
-                        nullLiteral, failureHandler);
+                        nullLiteral, null, null, text, failureHandler);
                 rowData.setField(i, converters[i].convert(field));
             }
             return rowData;
@@ -237,7 +237,7 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
                         fieldName,
                         fieldFormatInfo,
                         fieldText,
-                        nullLiteral, failureHandler);
+                        nullLiteral, null, null, text, failureHandler);
                 rowData.setField(i, converters[i].convert(field));
                 rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
             }

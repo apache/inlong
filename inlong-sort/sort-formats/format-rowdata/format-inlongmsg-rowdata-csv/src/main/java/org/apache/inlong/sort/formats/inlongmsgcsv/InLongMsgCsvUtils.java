@@ -124,7 +124,8 @@ public class InLongMsgCsvUtils {
                     // Only parsed fields will be used by downstream, so it's safe to leave
                     // the other parameters empty.
                     return new InLongMsgBody(
-                            null,
+                            bytes,
+                            bodyStr,
                             null,
                             Arrays.asList(line),
                             Collections.emptyMap());
@@ -134,13 +135,15 @@ public class InLongMsgCsvUtils {
     public static FormatMsg deserializeFormatMsgData(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
-            List<String> predefinedFields,
-            List<String> fields,
+            boolean retainPredefinedField,
+            InLongMsgHead head,
+            InLongMsgBody body,
             FieldToRowDataConverters.FieldToRowDataConverter[] converters,
             FailureHandler failureHandler) throws Exception {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
-
+        List<String> predefinedFields = retainPredefinedField ? head.getPredefinedFields() : Collections.emptyList();
+        List<String> fields = body.getFields();
         GenericRowData rowData = new GenericRowData(fieldNames.length);
         long rowDataLength = 0L;
         // Deserialize pre-defined fields
@@ -158,7 +161,7 @@ public class InLongMsgCsvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral, failureHandler));
+                    nullLiteral, head, body, body.getData(), failureHandler));
             rowData.setField(i, field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
         }
@@ -179,7 +182,7 @@ public class InLongMsgCsvUtils {
                     fieldName,
                     fieldFormatInfo,
                     fieldText,
-                    nullLiteral, failureHandler));
+                    nullLiteral, head, body, body.getData(), failureHandler));
             rowData.setField(i + predefinedFields.size(), field);
             rowDataLength += getFormatValueLength(fieldFormatInfo, fieldText);
         }

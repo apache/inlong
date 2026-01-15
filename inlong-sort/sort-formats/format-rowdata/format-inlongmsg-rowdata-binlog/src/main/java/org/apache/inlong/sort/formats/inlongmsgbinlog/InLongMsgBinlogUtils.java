@@ -103,6 +103,7 @@ public class InLongMsgBinlogUtils {
         return new InLongMsgBody(
                 bytes,
                 null,
+                null,
                 Collections.emptyList(),
                 Collections.emptyMap());
     }

@@ -116,7 +116,8 @@ public class InLongMsgCsvUtils {
                     // Only parsed fields will be used by downstream, so it's safe to leave
                     // the other parameters empty.
                     return new InLongMsgBody(
-                            null,
+                            bytes,
+                            bodyStr,
                             null,
                             Arrays.asList(line),
                             Collections.emptyMap());

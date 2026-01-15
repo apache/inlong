@@ -94,7 +94,7 @@ public class InLongMsgTlogCsvUtils {
         List<String> fields =
                 Arrays.stream(segments, (isIncludeFirstSegment ? 0 : 1), segments.length).collect(Collectors.toList());
 
-        return new InLongMsgBody(bytes, streamId, fields, Collections.emptyMap());
+        return new InLongMsgBody(bytes, text, streamId, fields, Collections.emptyMap());
     }
 
     /**
