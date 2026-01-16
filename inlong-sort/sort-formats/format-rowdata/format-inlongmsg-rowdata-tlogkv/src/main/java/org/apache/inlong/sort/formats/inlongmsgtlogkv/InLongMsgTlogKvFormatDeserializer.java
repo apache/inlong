@@ -247,8 +247,8 @@ public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFo
                 InLongMsgTlogKvUtils.deserializeFormatMsgData(
                         rowFormatInfo,
                         nullLiteral,
-                        head.getPredefinedFields(),
-                        body.getEntries(), converters, failureHandler);
+                        head,
+                        body, converters, failureHandler);
 
         RowData rowData = InLongMsgUtils.decorateRowWithNeededHeadFields(
                 timeFieldName,

@@ -255,10 +255,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
 
             String[] fieldTexts = splitCsv(text, delimiter, escapeChar, quoteChar);
 
-            if (needPrint() && fieldTexts.length != fieldNameSize) {
-                LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. Text=[{}].",
-                        fieldNames.length, fieldTexts.length, text);
-            }
+            checkFieldNameSize(text, fieldTexts.length, fieldNameSize, failureHandler);
 
             GenericRowData rowData = new GenericRowData(fieldNames.length);
 
@@ -271,7 +268,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
                                     fieldNames[i],
                                     fieldFormatInfos[i],
                                     fieldTexts[i],
-                                    nullLiteral, failureHandler);
+                                    nullLiteral, null, null, text, failureHandler);
 
                     rowData.setField(i, converters[i].convert(field));
                 }
@@ -297,10 +294,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
 
             String[] fieldTexts = splitCsv(text, delimiter, escapeChar, quoteChar);
 
-            if (needPrint() && fieldTexts.length != fieldNameSize) {
-                LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. Text=[{}].",
-                        fieldNames.length, fieldTexts.length, text);
-            }
+            checkFieldNameSize(text, fieldTexts.length, fieldNameSize, failureHandler);
 
             GenericRowData rowData = new GenericRowData(fieldNames.length);
 
@@ -313,7 +307,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
                                     fieldNames[i],
                                     fieldFormatInfos[i],
                                     fieldTexts[i],
-                                    nullLiteral, failureHandler);
+                                    nullLiteral, null, null, text, failureHandler);
 
                     rowData.setField(i, converters[i].convert(field));
                     rowDataLength += getFormatValueLength(fieldFormatInfos[i], fieldTexts[i]);

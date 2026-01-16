@@ -93,7 +93,8 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
         }
     }
 
-    public void deserializeFormatMsg(byte[] message, Collector<FormatMsg> out) throws Exception {
+    public void deserializeFormatMsg(byte[] message, Collector<FormatMsg> out,
+            byte[] originBody) throws Exception {
         byte[] decompressed = decompressor.decompress(message);
         MessageObjs msgObjs = MessageObjs.parseFrom(decompressed);
         List<MessageObj> msgList = msgObjs.getMsgsList();

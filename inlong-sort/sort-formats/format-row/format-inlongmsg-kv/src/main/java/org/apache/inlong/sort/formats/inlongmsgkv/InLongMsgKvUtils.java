@@ -106,6 +106,7 @@ public class InLongMsgKvUtils {
         return list.stream().map((line) -> {
             return new InLongMsgBody(
                     bytes,
+                    text,
                     null,
                     Collections.emptyList(),
                     line);

@@ -94,7 +94,7 @@ public class InLongMsgTlogKvUtils {
             entries = Collections.emptyMap();
         }
 
-        return new InLongMsgBody(bytes, streamId, Collections.emptyList(), entries);
+        return new InLongMsgBody(bytes, text, streamId, Collections.emptyList(), entries);
     }
 
     /**

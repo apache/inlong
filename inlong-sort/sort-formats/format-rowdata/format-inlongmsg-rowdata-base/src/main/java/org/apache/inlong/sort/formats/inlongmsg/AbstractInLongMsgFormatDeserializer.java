@@ -33,7 +33,6 @@ import javax.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,8 +46,6 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractInLongMsgFormatDeserializer.class);
 
-    protected long lastPrintTimestamp = 0L;
-    protected long PRINT_TIMESTAMP_INTERVAL = 60 * 1000L;
     protected int fieldNameSize = 0;
 
     protected FailureHandler failureHandler;
@@ -83,15 +80,6 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
     protected abstract List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception;
 
     protected abstract List<FormatMsg> convertFormatMsgList(InLongMsgHead head, InLongMsgBody body) throws Exception;
-
-    protected boolean needPrint() {
-        long now = Instant.now().toEpochMilli();
-        if (now - lastPrintTimestamp > PRINT_TIMESTAMP_INTERVAL) {
-            lastPrintTimestamp = now;
-            return true;
-        }
-        return false;
-    }
 
     public void flatMap(
             byte[] bytes,
@@ -160,7 +148,7 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
                     continue;
                 }
 
-                result.add(new InLongMsgWrap(head, bodyList));
+                result.add(new InLongMsgWrap(head, bodyList, bodyBytes));
             }
         }
 
@@ -233,5 +221,22 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
 
     public void setFormatMetricGroup(FormatMetricGroup formatMetricGroup) {
         this.formatMetricGroup = formatMetricGroup;
+    }
+
+    protected void checkFieldNameSize(InLongMsgHead head, InLongMsgBody body,
+            int actualNumFields, int fieldNameSize,
+            FailureHandler failureHandler) {
+        if (actualNumFields != fieldNameSize) {
+            if (failureHandler != null) {
+                failureHandler.onFieldNumError(StringUtils.join(head.getPredefinedFields(), ","),
+                        body.getDataBytes(), body.getData(),
+                        actualNumFields, fieldNameSize);
+            } else {
+                LOG.warn("The number of fields mismatches: {}"
+                        + ",expected, but was {}. origin text: {}, PredefinedFields: {}",
+                        fieldNameSize, actualNumFields, body,
+                        StringUtils.join(head.getPredefinedFields(), ","));
+            }
+        }
     }
 }
