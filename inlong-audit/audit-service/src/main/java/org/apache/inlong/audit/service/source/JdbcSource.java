@@ -93,11 +93,15 @@ public class JdbcSource {
         init();
         int statInterval = Configuration.getInstance().get(KEY_SOURCE_DB_STAT_INTERVAL,
                 DEFAULT_SOURCE_DB_STAT_INTERVAL);
-        if (sourceConfig.getAuditCycle() == DAY) {
-            statInterval = HOUR.getValue();
-        }
+
         int offset = Configuration.getInstance().get(KEY_STAT_BACK_INITIAL_OFFSET,
                 DEFAULT_STAT_BACK_INITIAL_OFFSET);
+
+        if (sourceConfig.getAuditCycle() == DAY) {
+            statInterval = HOUR.getValue();
+            offset = 0;
+        }
+
         for (int statBackTime = 0; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
             ScheduledExecutorService timer =
                     statTimers.computeIfAbsent(statBackTime, k -> Executors.newSingleThreadScheduledExecutor());
