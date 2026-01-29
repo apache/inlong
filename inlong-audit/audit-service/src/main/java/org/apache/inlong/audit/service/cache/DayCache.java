@@ -144,6 +144,10 @@ public class DayCache implements AutoCloseable {
             LOGGER.error("Query has exception! ", exception);
         }
 
+        if (result.isEmpty()) {
+            result.add(new StatData(startTime, inlongGroupId, inlongStreamId, auditId));
+        }
+
         return WILDCARD_STREAM_ID.equals(inlongStreamId)
                 ? AuditUtils.aggregateStatData(result, inlongStreamId)
                 : result;
