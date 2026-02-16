@@ -70,27 +70,41 @@ public interface DeserializeOperator {
                 streamInfo.getWrapType()));
     }
 
-    default Boolean checkIfFilter(QueryMessageRequest request, List<FieldInfo> streamFieldList) {
-        if (StringUtils.isBlank(request.getFieldName()) || StringUtils.isBlank(request.getOperationType())
-                || StringUtils.isBlank(request.getTargetValue())) {
+    /**
+     * Check whether the message should be filtered by the filter condition
+     *
+     * @param request query message request
+     * @param streamFieldList stream field list
+     * @return true if the message should be filtered
+     */
+    default boolean checkIfFilter(QueryMessageRequest request, List<FieldInfo> streamFieldList) {
+        String fieldName = request.getFieldName();
+        if (StringUtils.isAnyBlank(fieldName, request.getOperationType())) {
             return false;
         }
-        boolean ifFilter = false;
+
         FieldInfo fieldInfo = streamFieldList.stream()
-                .filter(v -> Objects.equals(v.getFieldName(), request.getFieldName())).findFirst()
+                .filter(field -> fieldName.equals(field.getFieldName()))
+                .findFirst()
                 .orElse(null);
-        if (fieldInfo != null) {
-            switch (request.getOperationType()) {
-                case "=":
-                    ifFilter = !Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
-                    break;
-                case "!=":
-                    ifFilter = Objects.equals(request.getTargetValue(), fieldInfo.getFieldValue());
-                    break;
-                case "like":
-                    ifFilter = fieldInfo.getFieldValue() != null
-                            && !fieldInfo.getFieldValue().contains(request.getTargetValue());
-            }
+        if (fieldInfo == null) {
+            return false;
+        }
+
+        boolean ifFilter = false;
+        String fieldValue = fieldInfo.getFieldValue();
+        // support targetValue == blank string (null or "") or targetValue != blank string
+        String targetValue = request.getTargetValue();
+        switch (request.getOperationType()) {
+            case "=":
+                ifFilter = !Objects.equals(targetValue, fieldValue);
+                break;
+            case "!=":
+                ifFilter = Objects.equals(targetValue, fieldValue);
+                break;
+            case "like":
+                // fieldValue or targetValue is null, like operation is invalid, so this record should be filtered
+                ifFilter = fieldValue == null || targetValue == null || !fieldValue.contains(targetValue);
         }
         return ifFilter;
     }
