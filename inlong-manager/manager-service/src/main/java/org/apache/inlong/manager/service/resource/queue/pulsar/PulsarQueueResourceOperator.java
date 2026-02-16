@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -48,14 +50,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * Operator for create Pulsar Tenant, Namespace, Topic and Subscription
@@ -80,7 +90,62 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
     @Autowired
     private PulsarOperator pulsarOperator;
 
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+    @Value("${pulsar.query.poolSize:10}")
+    private int poolSize;
+
+    @Value("${pulsar.query.keepAliveSeconds:60}")
+    private long keepAliveSeconds;
+
+    @Value("${pulsar.query.queueCapacity:100}")
+    private int queueCapacity;
+
+    @Value("${pulsar.query.queryTimeoutSeconds:10}")
+    private int queryTimeoutSeconds;
+
+    @Value("${pulsar.query.maxQueryClusters:5}")
+    private int maxQueryClusters;
+
+    /**
+     * Thread pool for querying messages from multiple Pulsar clusters concurrently.
+     * Configuration is loaded from application properties with prefix 'pulsar.query'.
+     */
+    private ExecutorService messageQueryExecutor;
+
+    /**
+     * Initialize the executor service after bean creation.
+     */
+    @PostConstruct
+    public void init() {
+        // Initialize the executor service with same core pool size and max core pool size
+        this.messageQueryExecutor = new ThreadPoolExecutor(
+                poolSize,
+                poolSize,
+                keepAliveSeconds,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(queueCapacity),
+                new ThreadFactoryBuilder().setNameFormat("pulsar-message-query-%d").build(),
+                // Use AbortPolicy to throw exception when the queue is full
+                new ThreadPoolExecutor.AbortPolicy());
+        log.info("Init message query executor, poolSize={}, keepAliveSeconds={}, queueCapacity={}, maxQueryClusters={}",
+                poolSize, keepAliveSeconds, queueCapacity, maxQueryClusters);
+    }
+
+    /**
+     * Shutdown the executor service when the bean is destroyed.
+     */
+    @PreDestroy
+    public void shutdown() {
+        log.info("Shutting down pulsar message query executor");
+        messageQueryExecutor.shutdown();
+        try {
+            if (!messageQueryExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                messageQueryExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            messageQueryExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Override
     public boolean accept(String mqType) {
@@ -307,34 +372,150 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      * Query latest message from pulsar
      */
     public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            QueryMessageRequest request) throws Exception {
-        List<ClusterInfo> pulsarClusterList = clusterService.listByTagAndType(groupInfo.getInlongClusterTag(),
-                ClusterType.PULSAR);
-        List<BriefMQMessage> briefMQMessages = Collections.synchronizedList(new ArrayList<>());
-        QueryCountDownLatch queryLatch = new QueryCountDownLatch(request.getMessageCount(), pulsarClusterList.size());
-        InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
-        for (ClusterInfo clusterInfo : pulsarClusterList) {
-            QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(inlongPulsarInfo, streamInfo,
-                    (PulsarClusterInfo) clusterInfo, pulsarOperator, request, briefMQMessages, queryLatch);
-            this.executor.execute(task);
+            QueryMessageRequest request) {
+        String groupId = streamInfo.getInlongGroupId();
+        String clusterTag = groupInfo.getInlongClusterTag();
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        if (CollectionUtils.isEmpty(clusterInfos)) {
+            log.warn("No pulsar cluster found for clusterTag={} for groupId={}", clusterTag, groupId);
+            return Collections.emptyList();
         }
-        queryLatch.await(30, TimeUnit.SECONDS);
-        log.info("success query pulsar message for groupId={}, streamId={}", streamInfo.getInlongGroupId(),
-                streamInfo.getInlongStreamId());
 
-        int finalMsgCount = Math.min(request.getMessageCount(), briefMQMessages.size());
-        if (finalMsgCount > 0) {
-            return new ArrayList<>(briefMQMessages.subList(0, finalMsgCount));
-        } else {
-            return new ArrayList<>();
+        // Select clusters and calculate per-cluster query count
+        Integer requestCount = request.getMessageCount();
+        List<ClusterInfo> selectedClusters = randomSelectQueryClusters(clusterInfos, requestCount);
+        int selectedSize = selectedClusters.size();
+        int perClusterCount = calculatePerClusterCount(requestCount, selectedSize);
+        log.debug("Query pulsar message in selected {} clusters, perClusterCount={}", selectedSize, perClusterCount);
+
+        List<BriefMQMessage> messageResultList = Collections.synchronizedList(new ArrayList<>());
+        QueryCountDownLatch queryLatch = new QueryCountDownLatch(requestCount, selectedSize);
+        InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
+
+        // Extract common parameters
+        String tenant = inlongPulsarInfo.getPulsarTenant();
+        String namespace = inlongPulsarInfo.getMqResource();
+        String topicName = streamInfo.getMqResource();
+        boolean serialQueue = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
+
+        // Submit query tasks to thread pool, each task queries from one cluster
+        // Use submit() instead of execute() to get Future for cancellation support
+        List<Future<?>> submittedTasks = new ArrayList<>();
+        for (ClusterInfo clusterInfo : selectedClusters) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getPulsarTenant();
+            }
+            String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+            // Create a copy of request with adjusted message count for this cluster
+            QueryMessageRequest currentRequest = buildRequestForSingleCluster(request, perClusterCount);
+            QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(pulsarOperator, streamInfo,
+                    pulsarCluster, serialQueue, fullTopicName, currentRequest, messageResultList, queryLatch);
+            try {
+                Future<?> future = this.messageQueryExecutor.submit(task);
+                submittedTasks.add(future);
+            } catch (RejectedExecutionException e) {
+                // Cancel all previously submitted tasks before throwing exception
+                log.error("Failed to submit query task for groupId={}, cancelling {} submitted tasks",
+                        groupId, submittedTasks.size(), e);
+                cancelSubmittedTasks(submittedTasks);
+                throw new BusinessException("Query messages task rejected: too many concurrent requests");
+            }
         }
+
+        // Wait for tasks to complete with a configurable timeout
+        String streamId = streamInfo.getInlongStreamId();
+        try {
+            boolean completed = queryLatch.await(queryTimeoutSeconds, TimeUnit.SECONDS);
+            if (!completed) {
+                log.warn("Query messages timeout for groupId={}, streamId={}, collected {} messages",
+                        groupId, streamId, messageResultList.size());
+            }
+        } catch (InterruptedException e) {
+            throw new BusinessException(String.format("Query messages task interrupted for groupId=%s, streamId=%s",
+                    groupId, streamId));
+        }
+
+        log.info("Success query pulsar message for groupId={}, streamId={}", groupId, streamId);
+        // if query result size is less than request count, return all, otherwise truncate to request count
+        if (messageResultList.isEmpty() || messageResultList.size() <= requestCount) {
+            return messageResultList;
+        }
+
+        return new ArrayList<>(messageResultList.subList(0, requestCount));
+    }
+
+    /**
+     * Select clusters for query based on configuration.
+     * If cluster count exceeds maxQueryClusters, randomly select a subset.
+     */
+    private List<ClusterInfo> randomSelectQueryClusters(List<ClusterInfo> clusterInfos, int requestCount) {
+        int clusterCount = clusterInfos.size();
+        // Determine the max clusters to query: min(maxQueryClusters, requestCount, clusterCount)
+        int effectiveMaxClusters = Math.min(maxQueryClusters, Math.max(requestCount, 1));
+        effectiveMaxClusters = Math.min(effectiveMaxClusters, clusterCount);
+
+        if (clusterCount <= effectiveMaxClusters) {
+            return clusterInfos;
+        }
+
+        // Randomly select clusters
+        log.info("Cluster count {} exceeds effective max {}, randomly selecting clusters",
+                clusterCount, effectiveMaxClusters);
+        List<ClusterInfo> shuffled = new ArrayList<>(clusterInfos);
+        Collections.shuffle(shuffled, new Random());
+        return shuffled.subList(0, effectiveMaxClusters);
+    }
+
+    /**
+     * Calculate the message count each cluster should query.
+     * Formula: ceil(totalCount / clusterCount)
+     */
+    private static int calculatePerClusterCount(int totalCount, int clusterCount) {
+        if (clusterCount <= 0) {
+            return totalCount;
+        }
+        // Use ceiling division to ensure we get enough messages
+        return (int) Math.ceil((double) totalCount / clusterCount);
+    }
+
+    /**
+     * Build a new QueryMessageRequest with adjusted message count for a specific cluster.
+     */
+    private QueryMessageRequest buildRequestForSingleCluster(QueryMessageRequest original, int messageCount) {
+        return QueryMessageRequest.builder()
+                .groupId(original.getGroupId())
+                .streamId(original.getStreamId())
+                .messageCount(messageCount)
+                .fieldName(original.getFieldName())
+                .operationType(original.getOperationType())
+                .targetValue(original.getTargetValue())
+                .build();
+    }
+
+    /**
+     * Cancel all submitted tasks when an error occurs.
+     * This method attempts to cancel tasks with interrupt flag set to true,
+     * allowing running tasks to be interrupted if they check for interruption.
+     *
+     * @param submittedTasks list of Future objects representing submitted tasks
+     */
+    private void cancelSubmittedTasks(List<java.util.concurrent.Future<?>> submittedTasks) {
+        int cancelledCount = 0;
+        for (java.util.concurrent.Future<?> future : submittedTasks) {
+            // mayInterruptIfRunning=true allows interrupting running tasks
+            if (future.cancel(true)) {
+                cancelledCount++;
+            }
+        }
+        log.info("Cancelled {}/{} submitted tasks", cancelledCount, submittedTasks.size());
     }
 
     /**
      * Reset cursor for consumer group
      */
     public void resetCursor(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity, StreamSinkEntity sinkEntity,
-            Long resetTime) throws Exception {
+            Long resetTime) {
         log.info("begin to reset cursor for sinkId={}", sinkEntity.getId());
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(pulsarInfo.getInlongClusterTag(),

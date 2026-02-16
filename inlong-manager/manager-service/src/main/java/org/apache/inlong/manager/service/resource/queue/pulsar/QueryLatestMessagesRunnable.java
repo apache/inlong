@@ -17,63 +17,88 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.QueryMessageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 /**
- * QueryLatestMessagesRunnable
+ * Runnable task for querying latest messages from a Pulsar cluster.
  */
 public class QueryLatestMessagesRunnable implements Runnable {
 
-    private InlongPulsarInfo inlongPulsarInfo;
-    private InlongStreamInfo streamInfo;
-    private PulsarClusterInfo clusterInfo;
-    private PulsarOperator pulsarOperator;
-    private QueryMessageRequest queryMessageRequest;
-    private List<BriefMQMessage> briefMQMessages;
-    private QueryCountDownLatch latch;
+    private static final Logger LOG = LoggerFactory.getLogger(QueryLatestMessagesRunnable.class);
 
-    public QueryLatestMessagesRunnable(InlongPulsarInfo inlongPulsarInfo,
+    private final PulsarOperator pulsarOperator;
+    private final InlongStreamInfo streamInfo;
+    private final PulsarClusterInfo clusterInfo;
+    private final boolean serialQueue;
+    private final String fullTopicName;
+    private final QueryMessageRequest queryMessageRequest;
+    private final List<BriefMQMessage> messageResultList;
+    private final QueryCountDownLatch latch;
+
+    public QueryLatestMessagesRunnable(
+            PulsarOperator pulsarOperator,
             InlongStreamInfo streamInfo,
             PulsarClusterInfo clusterInfo,
-            PulsarOperator pulsarOperator,
+            boolean serialQueue,
+            String fullTopicName,
             QueryMessageRequest queryMessageRequest,
-            List<BriefMQMessage> briefMQMessages,
+            List<BriefMQMessage> messageResultList,
             QueryCountDownLatch latch) {
-        this.inlongPulsarInfo = inlongPulsarInfo;
+        this.pulsarOperator = pulsarOperator;
         this.streamInfo = streamInfo;
         this.clusterInfo = clusterInfo;
-        this.pulsarOperator = pulsarOperator;
+        this.serialQueue = serialQueue;
+        this.fullTopicName = fullTopicName;
         this.queryMessageRequest = queryMessageRequest;
-        this.briefMQMessages = briefMQMessages;
+        this.messageResultList = messageResultList;
         this.latch = latch;
     }
 
     @Override
     public void run() {
-        String tenant = inlongPulsarInfo.getPulsarTenant();
-        if (StringUtils.isBlank(tenant)) {
-            tenant = clusterInfo.getPulsarTenant();
-        }
+        String clusterName = clusterInfo.getName();
+        LOG.debug("Begin to query messages from cluster={}, topic={}", clusterName, fullTopicName);
+        try {
+            // Check for interruption before starting the query
+            if (Thread.currentThread().isInterrupted()) {
+                LOG.info("Task interrupted before query, cluster={}, topic={}", clusterName, fullTopicName);
+                return;
+            }
 
-        String namespace = inlongPulsarInfo.getMqResource();
-        String topicName = streamInfo.getMqResource();
-        String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-        boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
-        List<BriefMQMessage> messages =
-                pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, queryMessageRequest, streamInfo, serial);
-        if (CollectionUtils.isNotEmpty(messages)) {
-            briefMQMessages.addAll(messages);
-            this.latch.countDown(messages.size());
+            List<BriefMQMessage> messages = pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName,
+                    queryMessageRequest, streamInfo, serialQueue);
+
+            // Check for interruption after query completes
+            // (IO operations not support interruption, so we check the flag manually after the blocking call returns)
+            if (Thread.currentThread().isInterrupted()) {
+                LOG.info("Task interrupted after query, discarding results, cluster={}, topic={}",
+                        clusterName, fullTopicName);
+                return;
+            }
+
+            if (CollectionUtils.isNotEmpty(messages)) {
+                messageResultList.addAll(messages);
+                this.latch.dataCountDown(messages.size());
+                LOG.debug("Successfully queried {} messages from cluster={}, topic={}",
+                        messages.size(), clusterName, fullTopicName);
+            } else {
+                LOG.debug("No messages found from cluster={}, topic={}", clusterName, fullTopicName);
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to query messages from cluster={}, groupId={}, streamId={}",
+                    clusterName, queryMessageRequest.getGroupId(), queryMessageRequest.getStreamId(), e);
+        } finally {
+            // Ensure taskCountDown is always called, regardless of success or failure
+            this.latch.taskCountDown();
         }
     }
 }
