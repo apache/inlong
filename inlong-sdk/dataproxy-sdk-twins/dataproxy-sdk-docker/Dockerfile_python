@@ -1,0 +1,51 @@
+# NOTICE: assume this dockerfile is used at inlong-sdk/dataproxy-sdk-twins/ directory of this repo with command `docker build -f dataproxy-sdk-docker/Dockerfile_python .`
+
+FROM quay.io/pypa/manylinux2014_x86_64:latest
+
+ENV CMAKE_POLICY_VERSION_MINIMUM=3.5
+
+
+# build cpp sdk
+
+COPY dataproxy-sdk-cpp /workspace/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp
+WORKDIR /workspace/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp
+
+# NOTICE: can use such cmake commands directly instead of the two build scripts.
+
+# RUN cd third_party && cmake . && make -j $(nproc)
+# RUN mkdir build && cd build && cmake .. && make -j $(nproc)
+
+RUN ./build_third_party.sh
+RUN ./build.sh
+
+
+# prepare python sdk source tree
+
+COPY dataproxy-sdk-python /workspace/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-python
+WORKDIR /workspace/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-python
+
+RUN cp -r ../dataproxy-sdk-cpp ./
+
+
+# NOTICE: do not use legacy build
+
+# RUN git clone --depth 1 https://github.com/pybind/pybind11.git pybind11
+# RUN mkdir pybind11/build && cd pybind11/build && cmake .. && cmake --build . --config Release -- -j $(nproc)
+# RUN mkdir build && cd build && cmake .. && make -j $(nproc)
+
+
+# build python sdk wheels using PEP-517
+
+RUN /opt/python/cp38-cp38/bin/python3 -m build --sdist
+
+RUN /opt/python/cp38-cp38/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp39-cp39/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp310-cp310/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp311-cp311/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp312-cp312/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp313-cp313/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+RUN /opt/python/cp314-cp314/bin/python3 -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz
+
+RUN auditwheel repair dist/*.whl
+
+# now target sdist is in dist/, and target wheels are in wheelhouse/. ignore wheels in dist/.

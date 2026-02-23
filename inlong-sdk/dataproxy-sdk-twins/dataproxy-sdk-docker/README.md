@@ -62,3 +62,10 @@ docker build -t inlong/dataproxy-sdk-build:latest .
 ```bash
 docker build --build-arg PYTHON_VERSION=3.9.18 -t inlong/dataproxy-sdk-build:py39 .
 ```
+
+### Build Python SDK wheels
+
+```bash
+cd inlong-sdk/dataproxy-sdk-twins
+docker build -f dataproxy-sdk-docker/Dockerfile_python .
+```

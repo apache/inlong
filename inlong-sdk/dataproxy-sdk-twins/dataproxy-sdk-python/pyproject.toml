@@ -1,0 +1,54 @@
+[build-system]
+requires = [
+  "scikit-build-core", "pybind11",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "inlong-dataproxy-sdk"
+version = "2.3.0"
+description = "Python bindings for Apache InLong DataProxy SDK"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Apache InLong" },
+]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: C++",
+  "Operating System :: POSIX :: Linux",
+]
+
+[project.urls]
+Homepage = "https://github.com/apache/inlong"
+Source = "https://github.com/apache/inlong/tree/master/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-python"
+
+[tool.scikit-build]
+# Do NOT run CMake when building sdist.
+sdist.cmake = false
+
+# Make sdist minimal via a strict allowlist.
+# Note: `sdist.include` is additive to the default set and does NOT override `sdist.exclude`.
+# If you want a true allowlist, keep everything in ONE ignore list using `**` + `!` rules.
+# Patterns follow .gitignore syntax (order matters; later rules override earlier ones).
+
+sdist.exclude = [
+  "**/*",
+
+  # --- Python binding sources/build config ---
+  "!/pyproject.toml",
+  "!/CMakeLists.txt",
+  "!/inlong_dataproxy.cpp",
+  "!/inlong_dataproxy.pyi",
+  "!/README.md",
+
+  # Headers referenced by current CMake include_directories
+  "!/dataproxy-sdk-cpp/src/core/*.h",
+
+  # Static libraries used by linking
+  "!/dataproxy-sdk-cpp/release/lib/*.a",
+  "!/dataproxy-sdk-cpp/third_party/lib/*.a",
+  "!/dataproxy-sdk-cpp/third_party/lib64/*.a",
+]
