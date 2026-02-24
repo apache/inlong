@@ -37,6 +37,7 @@ import org.mockito.quality.Strictness;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,7 +72,7 @@ public class QueryLatestMessagesRunnableTest {
     private PulsarClusterInfo clusterInfo;
 
     private QueryMessageRequest queryMessageRequest;
-    private List<BriefMQMessage> messageResultList;
+    private ConcurrentLinkedQueue<BriefMQMessage> messageResultQueue;
     private QueryCountDownLatch queryLatch;
 
     private static final String CLUSTER_NAME = "test-cluster";
@@ -89,7 +90,7 @@ public class QueryLatestMessagesRunnableTest {
                 .messageCount(10)
                 .build();
 
-        messageResultList = Collections.synchronizedList(new ArrayList<>());
+        messageResultQueue = new ConcurrentLinkedQueue<>();
         queryLatch = new QueryCountDownLatch(10, 1);
     }
 
@@ -110,7 +111,7 @@ public class QueryLatestMessagesRunnableTest {
 
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         // 同步执行任务
         task.run();
@@ -118,7 +119,7 @@ public class QueryLatestMessagesRunnableTest {
         // 验证：查询被执行
         verify(pulsarOperator, times(1)).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果被添加到列表
-        assertEquals(1, messageResultList.size());
+        assertEquals(1, messageResultQueue.size());
     }
 
     /**
@@ -129,7 +130,7 @@ public class QueryLatestMessagesRunnableTest {
     public void testInterruptionBeforeQuery() throws InterruptedException {
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         // 创建一个在执行任务前就被中断的线程
         Thread testThread = new Thread(() -> {
@@ -144,7 +145,7 @@ public class QueryLatestMessagesRunnableTest {
         // 验证：查询未被执行（因为在查询前就检测到中断）
         verify(pulsarOperator, never()).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果列表为空
-        assertTrue(messageResultList.isEmpty());
+        assertTrue(messageResultQueue.isEmpty());
     }
 
     /**
@@ -174,7 +175,7 @@ public class QueryLatestMessagesRunnableTest {
 
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         // 在线程池中执行任务
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -194,7 +195,7 @@ public class QueryLatestMessagesRunnableTest {
         // 验证：查询被执行
         verify(pulsarOperator, times(1)).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果被丢弃（因为查询后检测到中断标志）
-        assertTrue(messageResultList.isEmpty());
+        assertTrue(messageResultQueue.isEmpty());
 
         executor.shutdownNow();
     }
@@ -210,14 +211,14 @@ public class QueryLatestMessagesRunnableTest {
 
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         task.run();
 
         // 验证：查询被执行
         verify(pulsarOperator, times(1)).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果列表为空
-        assertTrue(messageResultList.isEmpty());
+        assertTrue(messageResultQueue.isEmpty());
     }
 
     /**
@@ -231,14 +232,14 @@ public class QueryLatestMessagesRunnableTest {
 
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         task.run();
 
         // 验证：查询被执行
         verify(pulsarOperator, times(1)).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果列表为空
-        assertTrue(messageResultList.isEmpty());
+        assertTrue(messageResultQueue.isEmpty());
     }
 
     /**
@@ -252,7 +253,7 @@ public class QueryLatestMessagesRunnableTest {
 
         QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
 
         // 不应抛出异常
         task.run();
@@ -260,7 +261,7 @@ public class QueryLatestMessagesRunnableTest {
         // 验证：查询被执行
         verify(pulsarOperator, times(1)).queryLatestMessage(any(), anyString(), any(), any(), anyBoolean());
         // 验证：结果列表为空
-        assertTrue(messageResultList.isEmpty());
+        assertTrue(messageResultQueue.isEmpty());
     }
 
     /**
@@ -270,7 +271,7 @@ public class QueryLatestMessagesRunnableTest {
     @Test
     public void testMultipleTaskCancellation() throws InterruptedException {
         int taskCount = 5;
-        List<BriefMQMessage> sharedResultList = Collections.synchronizedList(new ArrayList<>());
+        ConcurrentLinkedQueue<BriefMQMessage> sharedResultList = new ConcurrentLinkedQueue<>();
         QueryCountDownLatch sharedLatch = new QueryCountDownLatch(50, taskCount);
 
         // 模拟慢查询
@@ -346,15 +347,15 @@ public class QueryLatestMessagesRunnableTest {
         // 场景1: 正常执行（不中断）
         QueryLatestMessagesRunnable normalTask = new QueryLatestMessagesRunnable(
                 pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                queryMessageRequest, messageResultList, queryLatch);
+                queryMessageRequest, messageResultQueue, queryLatch);
         normalTask.run();
 
         assertEquals(1, queryCallCount[0], "Query should be called once in normal execution");
-        assertEquals(1, messageResultList.size(), "Result should be added in normal execution");
+        assertEquals(1, messageResultQueue.size(), "Result should be added in normal execution");
 
         // 重置
         queryCallCount[0] = 0;
-        messageResultList.clear();
+        messageResultQueue.clear();
         queryLatch = new QueryCountDownLatch(10, 1);
 
         // 场景2: 查询前中断
@@ -362,14 +363,14 @@ public class QueryLatestMessagesRunnableTest {
             Thread.currentThread().interrupt();
             QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(
                     pulsarOperator, streamInfo, clusterInfo, false, FULL_TOPIC_NAME,
-                    queryMessageRequest, messageResultList, queryLatch);
+                    queryMessageRequest, messageResultQueue, queryLatch);
             task.run();
         });
         preInterruptThread.start();
         preInterruptThread.join(5000);
 
         assertEquals(0, queryCallCount[0], "Query should not be called when interrupted before");
-        assertTrue(messageResultList.isEmpty(), "Result should not be added when interrupted before");
+        assertTrue(messageResultQueue.isEmpty(), "Result should not be added when interrupted before");
     }
 
     /**

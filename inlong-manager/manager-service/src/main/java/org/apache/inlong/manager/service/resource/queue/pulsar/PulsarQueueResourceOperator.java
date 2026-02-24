@@ -58,6 +58,7 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -382,14 +383,11 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         // Select clusters and calculate per-cluster query count
         Integer requestCount = request.getMessageCount();
         int clusterSize = clusterInfos.size();
-        int perClusterCount = calculatePerClusterCount(requestCount, clusterSize);
-        log.debug("Query pulsar message in {} clusters, perClusterCount={}", clusterSize, perClusterCount);
-
-        List<BriefMQMessage> messageResultList = Collections.synchronizedList(new ArrayList<>());
         QueryCountDownLatch queryLatch = new QueryCountDownLatch(requestCount, clusterSize);
-        InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
+        log.debug("Query pulsar message in {} clusters, each cluster query {} messages", clusterSize, requestCount);
 
         // Extract common parameters
+        InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         String tenant = inlongPulsarInfo.getPulsarTenant();
         String namespace = inlongPulsarInfo.getMqResource();
         String topicName = streamInfo.getMqResource();
@@ -398,6 +396,9 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         // Submit query tasks to thread pool, each task queries from one cluster
         // Use submit() instead of execute() to get Future for cancellation support
         List<Future<?>> submittedTasks = new ArrayList<>();
+        // Use ConcurrentLinkedQueue for thread-safe message collection,
+        // its performance is better than Collections.synchronizedList
+        ConcurrentLinkedQueue<BriefMQMessage> messageResultQueue = new ConcurrentLinkedQueue<>();
         for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             if (StringUtils.isBlank(tenant)) {
@@ -405,9 +406,9 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             }
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
             // Create a copy of request with adjusted message count for this cluster
-            QueryMessageRequest currentRequest = buildRequestForSingleCluster(request, perClusterCount);
+            QueryMessageRequest currentRequest = buildRequestForSingleCluster(request, requestCount);
             QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(pulsarOperator, streamInfo,
-                    pulsarCluster, serialQueue, fullTopicName, currentRequest, messageResultList, queryLatch);
+                    pulsarCluster, serialQueue, fullTopicName, currentRequest, messageResultQueue, queryLatch);
             try {
                 Future<?> future = this.messageQueryExecutor.submit(task);
                 submittedTasks.add(future);
@@ -426,7 +427,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             boolean completed = queryLatch.await(queryTimeoutSeconds, TimeUnit.SECONDS);
             if (!completed) {
                 log.warn("Query messages timeout for groupId={}, streamId={}, collected {} messages",
-                        groupId, streamId, messageResultList.size());
+                        groupId, streamId, messageResultQueue.size());
             }
         } catch (InterruptedException e) {
             throw new BusinessException(String.format("Query messages task interrupted for groupId=%s, streamId=%s",
@@ -434,24 +435,14 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         }
 
         log.info("Success query pulsar message for groupId={}, streamId={}", groupId, streamId);
+        List<BriefMQMessage> messageResultList = new ArrayList<>(messageResultQueue);
+
         // if query result size is less than request count, return all, otherwise truncate to request count
         if (messageResultList.isEmpty() || messageResultList.size() <= requestCount) {
             return messageResultList;
         }
 
         return new ArrayList<>(messageResultList.subList(0, requestCount));
-    }
-
-    /**
-     * Calculate the message count each cluster should query.
-     * Formula: ceil(totalCount / clusterCount)
-     */
-    private static int calculatePerClusterCount(int totalCount, int clusterCount) {
-        if (clusterCount <= 0) {
-            return totalCount;
-        }
-        // Use ceiling division to ensure we get enough messages
-        return (int) Math.ceil((double) totalCount / clusterCount);
     }
 
     /**

@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Runnable task for querying latest messages from a Pulsar cluster.
@@ -41,7 +42,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
     private final boolean serialQueue;
     private final String fullTopicName;
     private final QueryMessageRequest queryMessageRequest;
-    private final List<BriefMQMessage> messageResultList;
+    private final ConcurrentLinkedQueue<BriefMQMessage> messageResultQueue;
     private final QueryCountDownLatch latch;
 
     public QueryLatestMessagesRunnable(
@@ -51,7 +52,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
             boolean serialQueue,
             String fullTopicName,
             QueryMessageRequest queryMessageRequest,
-            List<BriefMQMessage> messageResultList,
+            ConcurrentLinkedQueue<BriefMQMessage> messageResultQueue,
             QueryCountDownLatch latch) {
         this.pulsarOperator = pulsarOperator;
         this.streamInfo = streamInfo;
@@ -59,7 +60,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
         this.serialQueue = serialQueue;
         this.fullTopicName = fullTopicName;
         this.queryMessageRequest = queryMessageRequest;
-        this.messageResultList = messageResultList;
+        this.messageResultQueue = messageResultQueue;
         this.latch = latch;
     }
 
@@ -86,7 +87,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
             }
 
             if (CollectionUtils.isNotEmpty(messages)) {
-                messageResultList.addAll(messages);
+                messageResultQueue.addAll(messages);
                 this.latch.dataCountDown(messages.size());
                 LOG.debug("Successfully queried {} messages from cluster={}, topic={}",
                         messages.size(), clusterName, fullTopicName);
