@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -108,7 +107,6 @@ import org.springframework.validation.annotation.Validated;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -759,7 +757,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
         // check mqType, the mqType must not null in entity
         Preconditions.expectTrue(entity.getMqType().equals(request.getMqType())
-                        || GroupStatus.TO_BE_SUBMIT.getCode().equals(entity.getStatus()),
+                || GroupStatus.TO_BE_SUBMIT.getCode().equals(entity.getStatus()),
                 "mqType not allowed modify");
         // check record version
         Preconditions.expectEquals(entity.getVersion(), request.getVersion(), ErrorCodeEnum.CONFIG_EXPIRED,

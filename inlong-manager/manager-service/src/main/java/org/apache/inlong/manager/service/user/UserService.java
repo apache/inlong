@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.service.user;
 
-import javax.annotation.Nullable;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+
+import javax.annotation.Nullable;
 
 /**
  * User service interface
