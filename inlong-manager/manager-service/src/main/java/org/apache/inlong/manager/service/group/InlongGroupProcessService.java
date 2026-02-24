@@ -274,15 +274,10 @@ public class InlongGroupProcessService {
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
-        // only the person in charges can delete
-        if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+
         // check can be deleted
         InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, opInfo.getName());
+
         // start to delete group process
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
         WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, opInfo.getName(), form);

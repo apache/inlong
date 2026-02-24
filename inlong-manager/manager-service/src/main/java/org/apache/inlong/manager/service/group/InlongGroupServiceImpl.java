@@ -463,12 +463,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
-            // only the person in charges can query
-            if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(opInfo.getName())) {
-                    continue;
-                }
+            // only the person is admin or in charges can query
+            if (!userService.isAdminOrInCharge(opInfo, null, groupEntity.getInCharges())) {
+                continue;
             }
             filterGroupEntities.add(groupEntity);
         }
@@ -635,12 +632,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public InlongGroupInfo doDeleteCheck(String groupId, String operator) {
         InlongGroupInfo groupInfo = this.get(groupId);
-        // only the person in charges can update
-        List<String> inCharges = Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
-        if (!inCharges.contains(operator)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED,
-                    String.format("user [%s] has no privilege for the inlong group", operator));
-        }
+        // only the person is admin or in charges can delete
+        userService.checkUser(groupInfo.getInCharges(), operator,
+                "Current user does not have permission to delete group info");
+
         // determine whether the current status can be deleted
         GroupStatus curState = GroupStatus.forCode(groupInfo.getStatus());
         if (GroupStatus.notAllowedTransition(curState, GroupStatus.CONFIG_DELETING)) {
@@ -783,7 +778,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // check if the group mode is data sync mode
         if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())) {
-            String errMSg = String.format("no need to switch sync mode group = {}", groupId);
+            String errMSg = String.format("no need to switch sync mode group = %s", groupId);
             LOGGER.error(errMSg);
             throw new BusinessException(errMSg);
         }

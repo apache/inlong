@@ -56,7 +56,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -355,13 +355,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void checkUser(String inCharges, String user, String errMsg) {
-        Set<String> userRoles = LoginUserUtils.getLoginUser().getRoles();
-        boolean isAdmin = false;
+        UserInfo loginUser = LoginUserUtils.getLoginUser();
+
+        boolean isAdminOrInCharge = isAdminOrInCharge(loginUser, user, inCharges);
+        Preconditions.expectTrue(isAdminOrInCharge, errMsg);
+    }
+
+    @Override
+    public boolean isAdminOrInCharge(UserInfo userInfo, String username, String inCharges) {
+        // Check accountType first, then
+        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userInfo.getAccountType());
+        if (isAdmin) {
+            return true;
+        }
+
+        // Then check userRoles - accountType and userRoles may be inconsistent
+        Set<String> userRoles = userInfo.getRoles();
         if (CollectionUtils.isNotEmpty(userRoles)) {
             isAdmin = userRoles.contains(UserRoleCode.INLONG_ADMIN) || userRoles.contains(UserRoleCode.TENANT_ADMIN);
+            if (isAdmin) {
+                return true;
+            }
         }
-        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge || isAdmin, errMsg);
+
+        // Not admin, check whether the username is in charge
+        if (StringUtils.isBlank(username)) {
+            username = userInfo.getName();
+        }
+        return Preconditions.inSeparatedString(username, inCharges, InlongConstants.COMMA);
     }
 
     public void removeInChargeForGroup(String user, String operator) {

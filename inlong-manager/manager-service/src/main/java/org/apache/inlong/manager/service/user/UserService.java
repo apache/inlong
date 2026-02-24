@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.user;
 
+import javax.annotation.Nullable;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
@@ -90,5 +91,14 @@ public interface UserService {
      * @param errMsg error message
      */
     void checkUser(String inCharges, String user, String errMsg);
+
+    /**
+     * Check whether the user is admin or in charge.
+     * @param userInfo user info
+     * @param username username, if it is null, will use userInfo.getName()
+     * @param inCharges in charge list, if it is null, will ignore check in charge
+     * @return true if the user is admin or in charge
+     */
+    boolean isAdminOrInCharge(UserInfo userInfo, @Nullable String username, @Nullable String inCharges);
 
 }
