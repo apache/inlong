@@ -251,7 +251,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         OrderTypeEnum.checkOrderType(request);
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
         List<StreamSourceEntity> filteredEntitys = Lists.newArrayList();
-        if (opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
+        if (TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(opInfo.getAccountType())) {
             filteredEntitys.addAll(entityList);
         } else {
             Set<String> totalGroupIds = new HashSet<>();

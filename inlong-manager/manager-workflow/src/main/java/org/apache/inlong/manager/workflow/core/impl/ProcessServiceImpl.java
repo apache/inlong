@@ -129,12 +129,18 @@ public class ProcessServiceImpl implements ProcessService {
         String groupId = context.getProcessForm().getInlongGroupId();
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY,
                 ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+
+        // check user accountType first
         UserEntity userEntity = userMapper.selectByName(user);
+        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType());
+        if (isAdmin) {
+            return;
+        }
+
+        // then query the inlong group, and check in-charges
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         boolean isInCharge = Preconditions.inSeparatedString(user, groupEntity.getInCharges(), InlongConstants.COMMA);
-        Preconditions.expectTrue(
-                isInCharge || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()),
-                errMsg);
+        Preconditions.expectTrue(isInCharge, errMsg);
     }
 
 }

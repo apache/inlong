@@ -757,14 +757,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
-        // check mqType
-        Preconditions.expectTrue(
-                Objects.equals(entity.getMqType(), request.getMqType())
-                        || Objects.equals(entity.getStatus(), GroupStatus.TO_BE_SUBMIT.getCode()),
+        // check mqType, the mqType must not null in entity
+        Preconditions.expectTrue(entity.getMqType().equals(request.getMqType())
+                        || GroupStatus.TO_BE_SUBMIT.getCode().equals(entity.getStatus()),
                 "mqType not allowed modify");
         // check record version
-        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
-                ErrorCodeEnum.CONFIG_EXPIRED,
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(), ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
     }

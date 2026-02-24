@@ -435,17 +435,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             StreamSinkOperator sinkOperator = operatorFactory.getInstance(entry.getKey());
             PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
             for (StreamSink streamSink : pageInfo.getList()) {
-                InlongGroupEntity groupEntity =
-                        groupMapper.selectByGroupId(streamSink.getInlongGroupId());
+                InlongGroupEntity groupEntity = groupMapper.selectByGroupId(streamSink.getInlongGroupId());
                 if (groupEntity == null) {
                     continue;
                 }
-                // only the person in charges can query
-                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                    List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-                    if (!inCharges.contains(opInfo.getName())) {
-                        continue;
-                    }
+                // only the person is admin or in charges can query
+                if (!userService.isAdminOrInCharge(opInfo, null, groupEntity.getInCharges())) {
+                    continue;
                 }
                 filterResult.add(streamSink);
             }
