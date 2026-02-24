@@ -109,6 +109,15 @@ jobs:
         run: |
           sudo sysctl -w vm.max_map_count=262144
           sudo sysctl -w fs.file-max=65536
+          if swapon --show=NAME | grep -q '^/swapfile$'; then
+            echo "Swapfile already active, skipping creation"
+            exit 0
+          fi
+          if [ -f /swapfile ]; then
+            echo "Swapfile exists but not active, recreating"
+            sudo swapoff /swapfile || true
+            sudo rm -f /swapfile
+          fi
           sudo fallocate -l 5G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
