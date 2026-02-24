@@ -58,7 +58,6 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -382,13 +381,12 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
 
         // Select clusters and calculate per-cluster query count
         Integer requestCount = request.getMessageCount();
-        List<ClusterInfo> selectedClusters = randomSelectQueryClusters(clusterInfos, requestCount);
-        int selectedSize = selectedClusters.size();
-        int perClusterCount = calculatePerClusterCount(requestCount, selectedSize);
-        log.debug("Query pulsar message in selected {} clusters, perClusterCount={}", selectedSize, perClusterCount);
+        int clusterSize = clusterInfos.size();
+        int perClusterCount = calculatePerClusterCount(requestCount, clusterSize);
+        log.debug("Query pulsar message in {} clusters, perClusterCount={}", clusterSize, perClusterCount);
 
         List<BriefMQMessage> messageResultList = Collections.synchronizedList(new ArrayList<>());
-        QueryCountDownLatch queryLatch = new QueryCountDownLatch(requestCount, selectedSize);
+        QueryCountDownLatch queryLatch = new QueryCountDownLatch(requestCount, clusterSize);
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
 
         // Extract common parameters
@@ -400,7 +398,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         // Submit query tasks to thread pool, each task queries from one cluster
         // Use submit() instead of execute() to get Future for cancellation support
         List<Future<?>> submittedTasks = new ArrayList<>();
-        for (ClusterInfo clusterInfo : selectedClusters) {
+        for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getPulsarTenant();
@@ -442,28 +440,6 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         }
 
         return new ArrayList<>(messageResultList.subList(0, requestCount));
-    }
-
-    /**
-     * Select clusters for query based on configuration.
-     * If cluster count exceeds maxQueryClusters, randomly select a subset.
-     */
-    private List<ClusterInfo> randomSelectQueryClusters(List<ClusterInfo> clusterInfos, int requestCount) {
-        int clusterCount = clusterInfos.size();
-        // Determine the max clusters to query: min(maxQueryClusters, requestCount, clusterCount)
-        int effectiveMaxClusters = Math.min(maxQueryClusters, Math.max(requestCount, 1));
-        effectiveMaxClusters = Math.min(effectiveMaxClusters, clusterCount);
-
-        if (clusterCount <= effectiveMaxClusters) {
-            return clusterInfos;
-        }
-
-        // Randomly select clusters
-        log.info("Cluster count {} exceeds effective max {}, randomly selecting clusters",
-                clusterCount, effectiveMaxClusters);
-        List<ClusterInfo> shuffled = new ArrayList<>(clusterInfos);
-        Collections.shuffle(shuffled, new Random());
-        return shuffled.subList(0, effectiveMaxClusters);
     }
 
     /**
