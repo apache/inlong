@@ -101,9 +101,6 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
     @Value("${pulsar.query.queryTimeoutSeconds:10}")
     private int queryTimeoutSeconds;
 
-    @Value("${pulsar.query.maxQueryClusters:5}")
-    private int maxQueryClusters;
-
     /**
      * Thread pool for querying messages from multiple Pulsar clusters concurrently.
      * Configuration is loaded from application properties with prefix 'pulsar.query'.
@@ -125,8 +122,8 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
                 new ThreadFactoryBuilder().setNameFormat("pulsar-message-query-%d").build(),
                 // Use AbortPolicy to throw exception when the queue is full
                 new ThreadPoolExecutor.AbortPolicy());
-        log.info("Init message query executor, poolSize={}, keepAliveSeconds={}, queueCapacity={}, maxQueryClusters={}",
-                poolSize, keepAliveSeconds, queueCapacity, maxQueryClusters);
+        log.info("Init message query executor, poolSize={}, keepAliveSeconds={}, queueCapacity={}",
+                poolSize, keepAliveSeconds, queueCapacity);
     }
 
     /**
