@@ -19,6 +19,9 @@ name: InLong Check License Header
 
 on: [ push, pull_request ]
 
+permissions:
+  contents: read
+
 jobs:
   check-license:
     name: Check license header
@@ -28,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check license header
-        uses: apache/skywalking-eyes@v0.3.0
+        uses: apache/skywalking-eyes@v0.6.0
         with:
           log: info
           config: .licenserc.yaml

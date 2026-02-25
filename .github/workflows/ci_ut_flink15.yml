@@ -31,6 +31,9 @@ on:
       - 'inlong-sort/**'
       - '!**.md'
 
+permissions:
+  contents: read
+
 jobs:
   unit-test:
     name: Unit Test

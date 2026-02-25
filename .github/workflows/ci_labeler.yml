@@ -17,18 +17,24 @@
 
 name: InLong Pull Request Labeler
 
-on: pull_request
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   label:
     name: Label
     runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - name: Label the PR
-        uses: actions/labeler@v4
+        uses: actions/labeler@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml

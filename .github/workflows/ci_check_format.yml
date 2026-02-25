@@ -19,6 +19,9 @@ name: InLong Code Format Check
 
 on: [ push, pull_request ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Code Format Check

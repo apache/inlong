@@ -40,6 +40,9 @@ env:
   CT_CONFIG_PATH: '.github/ct.yml'
   KIND_CONFIG_PATH: '.github/kind.yml'
 
+permissions:
+  contents: read
+
 jobs:
   chart-test:
     name: Lint and test charts
@@ -57,12 +60,12 @@ jobs:
           submodules: true
 
       - name: Set up Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v4
         with:
           version: v3.5.0
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.7
 
