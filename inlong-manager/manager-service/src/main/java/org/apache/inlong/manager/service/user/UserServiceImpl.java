@@ -56,7 +56,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectById(userId);
         Preconditions.expectNotNull(entity, "User not exists with id " + userId);
         UserEntity curUser = userMapper.selectByName(currentUser);
-        Preconditions.expectTrue(Objects.equals(TenantUserTypeEnum.TENANT_ADMIN.getCode(), curUser.getAccountType())
+        Preconditions.expectTrue(TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(curUser.getAccountType())
                 || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
@@ -229,7 +229,7 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is a manager
         UserEntity currentUserEntity = userMapper.selectByName(currentUser);
         String updateName = request.getName();
-        boolean isAdmin = Objects.equals(TenantUserTypeEnum.TENANT_ADMIN.getCode(), currentUserEntity.getAccountType());
+        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(currentUserEntity.getAccountType());
         Preconditions.expectTrue(isAdmin || Objects.equals(updateName, currentUser),
                 "You are not a manager and do not have permission to update other users");
 
@@ -292,7 +292,7 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is an administrator
         UserEntity curUser = userMapper.selectByName(currentUser);
         UserEntity entity = userMapper.selectById(userId);
-        Preconditions.expectTrue(curUser.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode()),
+        Preconditions.expectTrue(TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(curUser.getAccountType()),
                 "Current user is not a manager and does not have permission to delete users");
         Preconditions.expectTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
@@ -355,13 +355,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void checkUser(String inCharges, String user, String errMsg) {
-        Set<String> userRoles = LoginUserUtils.getLoginUser().getRoles();
-        boolean isAdmin = false;
+        UserInfo loginUser = LoginUserUtils.getLoginUser();
+
+        boolean isAdminOrInCharge = isAdminOrInCharge(loginUser, user, inCharges);
+        Preconditions.expectTrue(isAdminOrInCharge, errMsg);
+    }
+
+    @Override
+    public boolean isAdminOrInCharge(UserInfo userInfo, String username, String inCharges) {
+        // Check accountType first, then
+        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userInfo.getAccountType());
+        if (isAdmin) {
+            return true;
+        }
+
+        // Then check userRoles - accountType and userRoles may be inconsistent
+        Set<String> userRoles = userInfo.getRoles();
         if (CollectionUtils.isNotEmpty(userRoles)) {
             isAdmin = userRoles.contains(UserRoleCode.INLONG_ADMIN) || userRoles.contains(UserRoleCode.TENANT_ADMIN);
+            if (isAdmin) {
+                return true;
+            }
         }
-        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge || isAdmin, errMsg);
+
+        // Not admin, check whether the username is in charge
+        if (StringUtils.isBlank(username)) {
+            username = userInfo.getName();
+        }
+        return Preconditions.inSeparatedString(username, inCharges, InlongConstants.COMMA);
     }
 
     public void removeInChargeForGroup(String user, String operator) {
@@ -476,26 +497,28 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void removeUserFromSession(Integer userId, String operator) {
+    private void removeUserFromSession(Integer userId, String operator) {
         DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) SecurityUtils.getSecurityManager();
         DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) securityManager.getSessionManager();
         SessionDAO sessionDAO = sessionManager.getSessionDAO();
         Collection<Session> sessions = sessionDAO.getActiveSessions();
-        if (sessions.size() >= 1) {
-            UserInfo user = null;
-            for (Session onlineSession : sessions) {
-                Object attribute = onlineSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
-                if (attribute == null) {
-                    continue;
-                }
-                user = (UserInfo) ((SimplePrincipalCollection) attribute).getPrimaryPrincipal();
-                if (user == null) {
-                    continue;
-                }
-                if (Objects.equals(user.getId(), userId)) {
-                    sessionDAO.delete(onlineSession);
-                    LOGGER.info("success remove user from session by id={}, current user={}", user.getId(), operator);
-                }
+        if (CollectionUtils.isEmpty(sessions)) {
+            return;
+        }
+
+        UserInfo user;
+        for (Session onlineSession : sessions) {
+            Object attribute = onlineSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
+            if (attribute == null) {
+                continue;
+            }
+            user = (UserInfo) ((SimplePrincipalCollection) attribute).getPrimaryPrincipal();
+            if (user == null) {
+                continue;
+            }
+            if (Objects.equals(user.getId(), userId)) {
+                sessionDAO.delete(onlineSession);
+                LOGGER.info("success remove user from session by id={}, current user={}", user.getId(), operator);
             }
         }
     }

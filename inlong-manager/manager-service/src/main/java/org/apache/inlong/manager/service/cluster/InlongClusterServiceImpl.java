@@ -34,7 +34,6 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -85,6 +84,7 @@ import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.user.TenantRoleService;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -167,6 +167,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterNodeEntityMapper clusterNodeMapper;
     @Autowired
     private TenantClusterTagEntityMapper tenantClusterTagMapper;
+    @Autowired
+    private UserService userService;
     @Autowired
     private InlongTenantService tenantService;
     @Autowired
@@ -283,12 +285,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterTagEntity> clusterTagEntities = clusterTagMapper.selectByCondition(request);
         if (CollectionUtils.isNotEmpty(clusterTagEntities)) {
             for (InlongClusterTagEntity tagEntity : clusterTagEntities) {
-                // only the person in charges can query
-                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                    List<String> inCharges = Arrays.asList(tagEntity.getInCharges().split(InlongConstants.COMMA));
-                    if (!inCharges.contains(opInfo.getName())) {
-                        continue;
-                    }
+                // only the person is admin or in charges can query
+                if (!userService.isAdminOrInCharge(opInfo, null, tagEntity.getInCharges())) {
+                    continue;
                 }
                 filterResult.add(tagEntity);
             }
@@ -503,12 +502,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterEntity> clusterEntities = clusterMapper.selectByCondition(request);
         List<InlongClusterEntity> filterResult = new ArrayList<>();
         for (InlongClusterEntity entity : clusterEntities) {
-            // only the person in charges can query
-            if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(opInfo.getName())) {
-                    continue;
-                }
+            // only the person is admin or in charges can query
+            if (!userService.isAdminOrInCharge(opInfo, null, entity.getInCharges())) {
+                continue;
             }
             filterResult.add(entity);
         }
@@ -797,12 +793,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             List<InlongClusterEntity> clusterList =
                     clusterMapper.selectByKey(request.getClusterTag(), request.getName(), request.getType());
             for (InlongClusterEntity cluster : clusterList) {
-                // only the person in charges can query
-                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                    List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
-                    if (!inCharges.contains(opInfo.getName())) {
-                        continue;
-                    }
+                // only the person is admin or in charges can query
+                if (!userService.isAdminOrInCharge(opInfo, null, cluster.getInCharges())) {
+                    continue;
                 }
                 allNodeList.addAll(clusterNodeMapper.selectByParentId(cluster.getId(), null));
             }

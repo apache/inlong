@@ -17,13 +17,11 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.threadPool.VisiableThreadPoolTaskExecutor;
@@ -54,7 +52,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -274,15 +271,10 @@ public class InlongGroupProcessService {
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
-        // only the person in charges can delete
-        if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+
         // check can be deleted
         InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, opInfo.getName());
+
         // start to delete group process
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
         WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, opInfo.getName(), form);

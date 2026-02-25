@@ -25,11 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -197,7 +195,9 @@ public class Preconditions {
         if (StringUtils.isBlank(target) || StringUtils.isBlank(separatedStr)) {
             return false;
         }
-        Set<String> set = new HashSet<>(Arrays.asList(separatedStr.split(separator)));
-        return set.contains(target);
+        // For a single lookup, using a List avoids the extra cost of building a Set;
+        // prefer Set only for repeated lookups.
+        List<String> list = Arrays.asList(separatedStr.split(separator));
+        return list.contains(target);
     }
 }

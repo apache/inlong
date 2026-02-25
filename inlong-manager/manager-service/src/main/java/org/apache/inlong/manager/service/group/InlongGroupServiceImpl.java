@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -108,7 +107,6 @@ import org.springframework.validation.annotation.Validated;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -463,12 +461,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
-            // only the person in charges can query
-            if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-                List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(opInfo.getName())) {
-                    continue;
-                }
+            // only the person is admin or in charges can query
+            if (!userService.isAdminOrInCharge(opInfo, null, groupEntity.getInCharges())) {
+                continue;
             }
             filterGroupEntities.add(groupEntity);
         }
@@ -635,12 +630,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public InlongGroupInfo doDeleteCheck(String groupId, String operator) {
         InlongGroupInfo groupInfo = this.get(groupId);
-        // only the person in charges can update
-        List<String> inCharges = Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
-        if (!inCharges.contains(operator)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED,
-                    String.format("user [%s] has no privilege for the inlong group", operator));
-        }
+        // only the person is admin or in charges can delete
+        userService.checkUser(groupInfo.getInCharges(), operator,
+                "Current user does not have permission to delete group info");
+
         // determine whether the current status can be deleted
         GroupStatus curState = GroupStatus.forCode(groupInfo.getStatus());
         if (GroupStatus.notAllowedTransition(curState, GroupStatus.CONFIG_DELETING)) {
@@ -762,14 +755,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
-        // check mqType
-        Preconditions.expectTrue(
-                Objects.equals(entity.getMqType(), request.getMqType())
-                        || Objects.equals(entity.getStatus(), GroupStatus.TO_BE_SUBMIT.getCode()),
+        // check mqType, the mqType must not null in entity
+        Preconditions.expectTrue(entity.getMqType().equals(request.getMqType())
+                || GroupStatus.TO_BE_SUBMIT.getCode().equals(entity.getStatus()),
                 "mqType not allowed modify");
         // check record version
-        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
-                ErrorCodeEnum.CONFIG_EXPIRED,
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(), ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
     }
@@ -783,7 +774,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // check if the group mode is data sync mode
         if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())) {
-            String errMSg = String.format("no need to switch sync mode group = {}", groupId);
+            String errMSg = String.format("no need to switch sync mode group = %s", groupId);
             LOGGER.error(errMSg);
             throw new BusinessException(errMSg);
         }
