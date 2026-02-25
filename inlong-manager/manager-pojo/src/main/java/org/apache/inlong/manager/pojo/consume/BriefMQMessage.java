@@ -72,7 +72,7 @@ public class BriefMQMessage {
 
         private String fieldName;
 
-        private String FieldValue;
+        private String fieldValue;
 
     }
 

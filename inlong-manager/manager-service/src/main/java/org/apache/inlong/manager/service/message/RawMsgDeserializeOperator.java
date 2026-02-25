@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +64,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
             if (checkIfFilter(request, fieldList)) {
                 return briefMQMessages;
             }
+
             BriefMQMessage briefMQMessage = BriefMQMessage.builder()
                     .id(index)
                     .inlongGroupId(groupId)
@@ -75,12 +75,12 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
                     .body(body)
                     .fieldList(fieldList)
                     .build();
-            briefMQMessages.addAll(Collections.singletonList(briefMQMessage));
+            briefMQMessages.add(briefMQMessage);
             return briefMQMessages;
         } catch (Exception e) {
-            String errMsg = String.format("decode msg failed for groupId=%s, streamId=%s", groupId, streamId);
+            String errMsg = String.format("Failed to decode msg for groupId=%s, streamId=%s", groupId, streamId);
             log.error(errMsg, e);
-            throw new BusinessException(errMsg);
+            throw new BusinessException(errMsg + ", message: " + e.getMessage());
         }
     }
 

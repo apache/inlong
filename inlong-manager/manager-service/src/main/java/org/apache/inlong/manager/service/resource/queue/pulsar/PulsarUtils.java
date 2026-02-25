@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.queue.pulsar;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarBrokerEntryMetadata;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
@@ -30,8 +31,6 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -73,7 +72,6 @@ public class PulsarUtils {
     public static final String LOOKUP_TOPIC_PATH = "/lookup/v2/topic";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(
             ZoneId.systemDefault());
-    private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     private PulsarUtils() {
     }
@@ -174,7 +172,7 @@ public class PulsarUtils {
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = GSON.toJson(tenantInfo);
+        String param = JsonUtils.toJsonString(tenantInfo);
         HttpUtils.request(restTemplate, clusterInfo.getAdminUrls(QUERY_TENANTS_PATH + "/" + tenant), HttpMethod.PUT,
                 param, headers);
     }
@@ -195,7 +193,7 @@ public class PulsarUtils {
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = GSON.toJson(policies);
+        String param = JsonUtils.toJsonString(policies);
         param = param.replaceAll("messageTtlInSeconds", "message_ttl_in_seconds")
                 .replaceAll("retentionPolicies", "retention_policies");
         HttpUtils.request(restTemplate, clusterInfo.getAdminUrls(QUERY_NAMESPACE_PATH + InlongConstants.SLASH + tenant
@@ -534,10 +532,9 @@ public class PulsarUtils {
         throw new Exception(String.format("examine message failed for topic partition=%s", topicPartition));
     }
 
-    public static PulsarMessageInfo getMessageFromHttpResponse(ResponseEntity<byte[]> response, String topic)
-            throws Exception {
+    public static PulsarMessageInfo getMessageFromHttpResponse(ResponseEntity<byte[]> response, String topic) {
         List<PulsarMessageInfo> messages = PulsarUtils.getMessagesFromHttpResponse(response, topic);
-        if (messages.size() > 0) {
+        if (!messages.isEmpty()) {
             return messages.get(0);
         } else {
             return null;
@@ -547,13 +544,11 @@ public class PulsarUtils {
     /**
      * Copy from getMessagesFromHttpResponse method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
      *
-     * @param response
-     * @param topic
-     * @return
-     * @throws Exception
+     * @param response response info
+     * @param topic topic name
+     * @return list of pulsar message info
      */
-    public static List<PulsarMessageInfo> getMessagesFromHttpResponse(ResponseEntity<byte[]> response, String topic)
-            throws Exception {
+    public static List<PulsarMessageInfo> getMessagesFromHttpResponse(ResponseEntity<byte[]> response, String topic) {
         HttpHeaders headers = response.getHeaders();
         String msgId = headers.getFirst("X-Pulsar-Message-ID");
         String brokerEntryTimestamp = headers.getFirst("X-Pulsar-Broker-Entry-METADATA-timestamp");
@@ -564,7 +559,7 @@ public class PulsarUtils {
         } else {
             brokerEntryMetadata = new PulsarBrokerEntryMetadata();
             if (brokerEntryTimestamp != null) {
-                brokerEntryMetadata.setBrokerTimestamp(parse(brokerEntryTimestamp.toString()));
+                brokerEntryMetadata.setBrokerTimestamp(parse(brokerEntryTimestamp));
             }
             if (brokerEntryIndex != null) {
                 brokerEntryMetadata.setIndex(Long.parseLong(brokerEntryIndex));
@@ -574,131 +569,131 @@ public class PulsarUtils {
         PulsarMessageMetadata messageMetadata = new PulsarMessageMetadata();
         Map<String, String> properties = Maps.newTreeMap();
 
-        Object tmp = headers.getFirst("X-Pulsar-publish-time");
+        String tmp = headers.getFirst("X-Pulsar-publish-time");
         if (tmp != null) {
-            messageMetadata.setPublishTime(parse(tmp.toString()));
+            messageMetadata.setPublishTime(parse(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-event-time");
         if (tmp != null) {
-            messageMetadata.setEventTime(parse(tmp.toString()));
+            messageMetadata.setEventTime(parse(tmp));
         }
         tmp = headers.getFirst("X-Pulsar-deliver-at-time");
         if (tmp != null) {
-            messageMetadata.setDeliverAtTime(parse(tmp.toString()));
+            messageMetadata.setDeliverAtTime(parse(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-null-value");
         if (tmp != null) {
-            messageMetadata.setNullValue(Boolean.parseBoolean(tmp.toString()));
+            messageMetadata.setNullValue(Boolean.parseBoolean(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-producer-name");
         if (tmp != null) {
-            messageMetadata.setProducerName(tmp.toString());
+            messageMetadata.setProducerName(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-sequence-id");
         if (tmp != null) {
-            messageMetadata.setSequenceId(Long.parseLong(tmp.toString()));
+            messageMetadata.setSequenceId(Long.parseLong(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-replicated-from");
         if (tmp != null) {
-            messageMetadata.setReplicatedFrom(tmp.toString());
+            messageMetadata.setReplicatedFrom(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-partition-key");
         if (tmp != null) {
-            messageMetadata.setPartitionKey(tmp.toString());
+            messageMetadata.setPartitionKey(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-compression");
         if (tmp != null) {
-            messageMetadata.setCompression(tmp.toString());
+            messageMetadata.setCompression(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-uncompressed-size");
         if (tmp != null) {
-            messageMetadata.setUncompressedSize(Integer.parseInt(tmp.toString()));
+            messageMetadata.setUncompressedSize(Integer.parseInt(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-encryption-algo");
         if (tmp != null) {
-            messageMetadata.setEncryptionAlgo(tmp.toString());
+            messageMetadata.setEncryptionAlgo(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-partition-key-b64-encoded");
         if (tmp != null) {
-            messageMetadata.setPartitionKeyB64Encoded(Boolean.parseBoolean(tmp.toString()));
+            messageMetadata.setPartitionKeyB64Encoded(Boolean.parseBoolean(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-marker-type");
         if (tmp != null) {
-            messageMetadata.setMarkerType(Integer.parseInt(tmp.toString()));
+            messageMetadata.setMarkerType(Integer.parseInt(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-txnid-least-bits");
         if (tmp != null) {
-            messageMetadata.setTxnidLeastBits(Long.parseLong(tmp.toString()));
+            messageMetadata.setTxnidLeastBits(Long.parseLong(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-txnid-most-bits");
         if (tmp != null) {
-            messageMetadata.setTxnidMostBits(Long.parseLong(tmp.toString()));
+            messageMetadata.setTxnidMostBits(Long.parseLong(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-highest-sequence-id");
         if (tmp != null) {
-            messageMetadata.setHighestSequenceId(Long.parseLong(tmp.toString()));
+            messageMetadata.setHighestSequenceId(Long.parseLong(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-uuid");
         if (tmp != null) {
-            messageMetadata.setUuid(tmp.toString());
+            messageMetadata.setUuid(tmp);
         }
 
         tmp = headers.getFirst("X-Pulsar-num-chunks-from-msg");
         if (tmp != null) {
-            messageMetadata.setNumChunksFromMsg(Integer.parseInt(tmp.toString()));
+            messageMetadata.setNumChunksFromMsg(Integer.parseInt(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-total-chunk-msg-size");
         if (tmp != null) {
-            messageMetadata.setTotalChunkMsgSize(Integer.parseInt(tmp.toString()));
+            messageMetadata.setTotalChunkMsgSize(Integer.parseInt(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-chunk-id");
         if (tmp != null) {
-            messageMetadata.setChunkId(Integer.parseInt(tmp.toString()));
+            messageMetadata.setChunkId(Integer.parseInt(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-null-partition-key");
         if (tmp != null) {
-            messageMetadata.setNullPartitionKey(Boolean.parseBoolean(tmp.toString()));
+            messageMetadata.setNullPartitionKey(Boolean.parseBoolean(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-Base64-encryption-param");
         if (tmp != null) {
-            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp.toString()));
+            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-Base64-ordering-key");
         if (tmp != null) {
-            messageMetadata.setOrderingKey(Base64.getDecoder().decode(tmp.toString()));
+            messageMetadata.setOrderingKey(Base64.getDecoder().decode(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-Base64-schema-version-b64encoded");
         if (tmp != null) {
-            messageMetadata.setSchemaVersion(Base64.getDecoder().decode(tmp.toString()));
+            messageMetadata.setSchemaVersion(Base64.getDecoder().decode(tmp));
         }
 
         tmp = headers.getFirst("X-Pulsar-Base64-encryption-param");
         if (tmp != null) {
-            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp.toString()));
+            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp));
         }
 
-        List<String> tmpList = (List) headers.get("X-Pulsar-replicated-to");
+        List<String> tmpList = headers.get("X-Pulsar-replicated-to");
         if (ObjectUtils.isNotEmpty(tmpList)) {
             if (ObjectUtils.isEmpty(messageMetadata.getReplicateTos())) {
                 messageMetadata.setReplicateTos(Lists.newArrayList(tmpList));
@@ -715,7 +710,7 @@ public class PulsarUtils {
         for (Entry<String, List<String>> entry : headers.entrySet()) {
             if (entry.getKey().contains("X-Pulsar-PROPERTY-")) {
                 String keyName = entry.getKey().substring("X-Pulsar-PROPERTY-".length());
-                properties.put(keyName, (String) ((List) entry.getValue()).get(0));
+                properties.put(keyName, (String) ((List<?>) entry.getValue()).get(0));
             }
         }
 
@@ -726,7 +721,7 @@ public class PulsarUtils {
         boolean isEncrypted = false;
         tmp = headers.getFirst("X-Pulsar-Is-Encrypted");
         if (tmp != null) {
-            isEncrypted = Boolean.parseBoolean(tmp.toString());
+            isEncrypted = Boolean.parseBoolean(tmp);
         }
 
         if (!isEncrypted && headers.get("X-Pulsar-num-batch-message") != null) {
@@ -754,13 +749,13 @@ public class PulsarUtils {
     /**
      * Copy from getIndividualMsgsFromBatch method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
      *
-     * @param topic
-     * @param msgId
-     * @param data
-     * @param properties
-     * @param metadata
-     * @param brokerMetadata
-     * @return
+     * @param topic topic name
+     * @param msgId message id
+     * @param data batch message data
+     * @param properties message properties
+     * @param metadata message metadata
+     * @param brokerMetadata broker metadata
+     * @return list of pulsar message info
      */
     private static List<PulsarMessageInfo> getIndividualMsgsFromBatch(String topic, String msgId, byte[] data,
             Map<String, String> properties, PulsarMessageMetadata metadata, PulsarBrokerEntryMetadata brokerMetadata) {
@@ -799,11 +794,11 @@ public class PulsarUtils {
     /**
      * Copy from deSerializeSingleMessageInBatch method of org.apache.pulsar.common.protocol.Commands class.
      *
-     * @param uncompressedPayload
-     * @param metadata
-     * @param index
-     * @param batchSize
-     * @return
+     * @param uncompressedPayload byte buffer containing uncompressed payload
+     * @param metadata message metadata
+     * @param index index of the message in the batch
+     * @param batchSize batch size
+     * @return byte buffer
      */
     private static ByteBuffer deSerializeSingleMessageInBatch(ByteBuffer uncompressedPayload,
             PulsarMessageMetadata metadata, int index, int batchSize) {
@@ -822,9 +817,9 @@ public class PulsarUtils {
     /**
      * Copy from parseFrom method of org.apache.pulsar.common.api.proto.SingleMessageMetadata class.
      *
-     * @param metadata
-     * @param buffer
-     * @param size
+     * @param metadata message metadata
+     * @param buffer byte buffer
+     * @param size message size
      */
     private static void metaDataParseFrom(PulsarMessageMetadata metadata, ByteBuffer buffer, int size) {
         int endIdx = size + buffer.position();
@@ -883,8 +878,8 @@ public class PulsarUtils {
     /**
      * Copy from readVarInt method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
      *
-     * @param buf
-     * @return
+     * @param buf byte buffer
+     * @return value of int
      */
     private static int readVarInt(ByteBuffer buf) {
         byte tmp = buf.get();
@@ -923,8 +918,8 @@ public class PulsarUtils {
     /**
      * Copy from readVarInt64 method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
      *
-     * @param buf
-     * @return
+     * @param buf byte buffer
+     * @return value of long
      */
     private static long readVarInt64(ByteBuffer buf) {
         int shift = 0;
@@ -941,8 +936,8 @@ public class PulsarUtils {
     /**
      * Copy from getTagType method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
      *
-     * @param tag
-     * @return
+     * @param tag tag number
+     * @return tag type
      */
     private static int getTagType(int tag) {
         return tag & 7;
@@ -951,8 +946,8 @@ public class PulsarUtils {
     /**
      * Copy from skipUnknownField method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
      *
-     * @param tag
-     * @param buffer
+     * @param tag tag number
+     * @param buffer byte buffer
      */
     private static void skipUnknownField(int tag, ByteBuffer buffer) {
         int tagType = getTagType(tag);
@@ -967,21 +962,23 @@ public class PulsarUtils {
                 int len = readVarInt(buffer);
                 buffer.get(new byte[len]);
                 break;
+            case 5:
+                buffer.get(new byte[4]);
+                break;
             case 3:
             case 4:
             default:
-                throw new IllegalArgumentException("Invalid unknonwn tag type: " + tagType);
-            case 5:
-                buffer.get(new byte[4]);
+                throw new IllegalArgumentException("Invalid tag type: " + tagType);
+
         }
     }
 
     /**
      * Copy from parseFrom method of org.apache.pulsar.common.api.proto.KeyValue class.
      *
-     * @param metadata
-     * @param buffer
-     * @param size
+     * @param metadata message metadata
+     * @param buffer byte buffer
+     * @param size message size
      */
     private static void parseFrom(PulsarMessageMetadata metadata, ByteBuffer buffer, int size) {
         if (ObjectUtils.isEmpty(metadata.getProperties())) {

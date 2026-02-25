@@ -448,18 +448,21 @@ public class PulsarOperator {
             int index, InlongStreamInfo streamInfo, int messagePosition, QueryMessageRequest request) {
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try {
-            ResponseEntity<byte[]> httpResponse =
-                    PulsarUtils.examineMessage(restTemplate, pulsarClusterInfo, topicPartition, "latest",
-                            messagePosition);
+            ResponseEntity<byte[]> httpResponse = PulsarUtils.examineMessage(restTemplate, pulsarClusterInfo,
+                    topicPartition, "latest", messagePosition);
             PulsarMessageInfo messageInfo = PulsarUtils.getMessageFromHttpResponse(httpResponse, topicPartition);
+            if (messageInfo == null) {
+                return briefMQMessages;
+            }
+
             Map<String, String> headers = messageInfo.getProperties();
             if (headers == null) {
                 headers = new HashMap<>();
             }
             MessageWrapType messageWrapType = MessageWrapType.forType(streamInfo.getWrapType());
-            if (headers.get(InlongConstants.MSG_ENCODE_VER) != null) {
-                messageWrapType =
-                        MessageWrapType.valueOf(Integer.parseInt(headers.get(InlongConstants.MSG_ENCODE_VER)));
+            String encodeType = headers.get(InlongConstants.MSG_ENCODE_VER);
+            if (StringUtils.isNotBlank(encodeType)) {
+                messageWrapType = MessageWrapType.valueOf(Integer.parseInt(encodeType));
             }
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
             deserializeOperator.decodeMsg(streamInfo, briefMQMessages, messageInfo.getBody(), headers, index, request);
