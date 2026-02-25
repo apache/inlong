@@ -28,6 +28,8 @@ import org.apache.inlong.manager.pojo.audit.AuditAlertCondition;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRule;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRulePageRequest;
 import org.apache.inlong.manager.pojo.audit.AuditAlertRuleRequest;
+import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
+import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.service.core.AuditAlertRuleService;
 
@@ -213,7 +215,8 @@ public class AuditAlertRuleServiceImpl implements AuditAlertRuleService {
 
         // Start pagination
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         // Get from database
         Page<AuditAlertRuleEntity> entityPage = (Page<AuditAlertRuleEntity>) alertRuleMapper.selectByCondition(request);
 
