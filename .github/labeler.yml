@@ -16,51 +16,66 @@
 #
 
 component/agent:
-  - 'inlong-agent/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-agent/**/*'
 
 component/dataproxy:
-  - 'inlong-dataproxy/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-dataproxy/**/*'
 
 component/manager:
-  - 'inlong-manager/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-manager/**/*'
 
 component/sort:
-  - 'inlong-sort/**/*'
-  - 'inlong-sort-standalone/**/*'
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'inlong-sort/**/*'
+      - 'inlong-sort-standalone/**/*'
 
 component/tubemq:
-  - 'inlong-tubemq/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-tubemq/**/*'
 
 component/dashboard:
-  - 'inlong-dashboard/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-dashboard/**/*'
 
 component/audit:
-  - 'inlong-audit/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-audit/**/*'
 
 component/sdk:
-  - 'inlong-sdk/**/*'
+  - changed-files:
+    - any-glob-to-any-file: 'inlong-sdk/**/*'
 
 service/ci:
-  - '.github/actions/**/*'
-  - '.github/workflows/**/*'
-  - '.github/labeler.yml'
-  - '.github/PULL_REQUEST_TEMPLATE.md'
-  - '.github/ISSUE_TEMPLATE/**/*'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/actions/**/*'
+      - '.github/workflows/**/*'
+      - '.github/labeler.yml'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/ISSUE_TEMPLATE/**/*'
 
 service/docker:
-  - '**/Dockerfile'
-  - '**/*-docker.sh'
-  - 'inlong-agent/agent-docker/**/*'
-  - 'inlong-audit/audit-docker/**/*'
-  - 'inlong-dataproxy/dataproxy-docker/**/*'
-  - 'inlong-manager/manager-docker/**/*'
-  - 'inlong-tubemq/tubemq-docker/**/*'
-  - 'docker/docker-compose/**/*'
-  - 'docker/build-docker-images.sh'
-  - 'docker/publish-by-arch.sh'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/Dockerfile'
+      - '**/*-docker.sh'
+      - 'inlong-agent/agent-docker/**/*'
+      - 'inlong-audit/audit-docker/**/*'
+      - 'inlong-dataproxy/dataproxy-docker/**/*'
+      - 'inlong-manager/manager-docker/**/*'
+      - 'inlong-tubemq/tubemq-docker/**/*'
+      - 'docker/docker-compose/**/*'
+      - 'docker/build-docker-images.sh'
+      - 'docker/publish-by-arch.sh'
 
 service/k8s:
-  - '.github/ct.yml'
-  - '.github/kind.yml'
-  - 'docker/kubernetes/**/*'
-  - 'inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/ct.yml'
+      - '.github/kind.yml'
+      - 'docker/kubernetes/**/*'
+      - 'inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'

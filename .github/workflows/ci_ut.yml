@@ -52,6 +52,9 @@ on:
       - 'inlong-tubemq/**'
       - '!**.md'
 
+permissions:
+  contents: read
+
 jobs:
   unit-test:
     name: Unit Test
