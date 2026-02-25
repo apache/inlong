@@ -981,13 +981,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
         InlongStreamInfo inlongStreamInfo = get(request.getGroupId(), request.getStreamId());
-        List<BriefMQMessage> messageList = new ArrayList<>();
         QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupEntity.getMqType());
-        try {
-            messageList = queueOperator.queryLatestMessages(groupInfo, inlongStreamInfo, request);
-        } catch (Exception e) {
-            LOGGER.error("query message error ", e);
-        }
-        return messageList;
+        // Do not catch exception, throws it to caller
+        return queueOperator.queryLatestMessages(groupInfo, inlongStreamInfo, request);
     }
 }

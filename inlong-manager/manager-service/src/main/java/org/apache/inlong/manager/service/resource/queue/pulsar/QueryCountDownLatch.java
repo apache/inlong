@@ -21,13 +21,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * QueryCountDownLatch
+ * QueryCountDownLatch for managing query task and data completion.
+ * <p>
+ * This class provides two types of countdown:
+ * <ul>
+ *   <li>Task countdown: tracks the number of tasks completed (regardless of success or failure)</li>
+ *   <li>Data countdown: tracks the number of data items retrieved</li>
+ * </ul>
+ * The flagLatch is released when either all tasks complete or enough data is collected.
  */
 public class QueryCountDownLatch {
 
-    private CountDownLatch dataLatch;
-    private CountDownLatch taskLatch;
-    private CountDownLatch flagLatch;
+    private final CountDownLatch dataLatch;
+    private final CountDownLatch taskLatch;
+    private final CountDownLatch flagLatch;
 
     public QueryCountDownLatch(int dataSize, int taskSize) {
         this.dataLatch = new CountDownLatch(dataSize);
@@ -35,12 +42,34 @@ public class QueryCountDownLatch {
         this.flagLatch = new CountDownLatch(1);
     }
 
-    public void countDown(int dataDownSize) {
+    /**
+     * Called when a task completes (regardless of success or failure).
+     * This should be called in a finally block to ensure it's always executed.
+     */
+    public void taskCountDown() {
         this.taskLatch.countDown();
+        checkAndRelease();
+    }
+
+    /**
+     * Called when data items are successfully retrieved.
+     *
+     * @param dataDownSize the number of data items retrieved
+     */
+    public void dataCountDown(int dataDownSize) {
         for (int i = 0; i < dataDownSize; i++) {
             this.dataLatch.countDown();
         }
-        if (this.taskLatch.getCount() == 0 || this.dataLatch.getCount() == 0) {
+        checkAndRelease();
+    }
+
+    /**
+     * Check if the flagLatch should be released.
+     * Release when all tasks complete or enough data is collected.
+     */
+    private synchronized void checkAndRelease() {
+        if (this.flagLatch.getCount() > 0
+                && (this.taskLatch.getCount() == 0 || this.dataLatch.getCount() == 0)) {
             this.flagLatch.countDown();
         }
     }

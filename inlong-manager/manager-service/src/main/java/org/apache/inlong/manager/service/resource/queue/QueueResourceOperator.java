@@ -83,11 +83,10 @@ public interface QueueResourceOperator {
      * @param groupInfo inlong group info
      * @param streamInfo inlong stream info
      * @param request query message request
-     * @throws Exception any exception if occurred
      * @return query brief mq message info
      */
     default List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            QueryMessageRequest request) throws Exception {
+            QueryMessageRequest request) {
         return null;
     }
 

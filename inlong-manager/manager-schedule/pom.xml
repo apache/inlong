@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>manager-schedule</artifactId>
+    <name>Apache InLong - Manager Schedule</name>
 
     <properties>
         <quartz.version>2.3.2</quartz.version>
