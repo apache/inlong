@@ -47,6 +47,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -145,21 +147,15 @@ public class PulsarSink extends AbstractSink
 
     private static final PulsarPerformanceTask pulsarPerformanceTask = new PulsarPerformanceTask();
 
-    private static ScheduledExecutorService scheduledExecutorService = Executors
-            .newScheduledThreadPool(1, new HighPriorityThreadFactory("pulsarPerformance-Printer-thread"));
+    private static volatile ScheduledExecutorService scheduledExecutorService;
+
+    private static final AtomicBoolean schedulerStarted = new AtomicBoolean(false);
+
+    private static final AtomicInteger activeInstances = new AtomicInteger(0);
 
     private String topic;
 
     private Context context;
-
-    static {
-        /*
-         * stat pulsar performance
-         */
-        logger.info("init pulsarPerformanceTask");
-        scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
-                PRINT_INTERVAL, TimeUnit.SECONDS);
-    }
 
     public PulsarSink() {
         super();
@@ -199,6 +195,46 @@ public class PulsarSink extends AbstractSink
         }
     }
 
+    /**
+     * Start the performance scheduler if not already started.
+     * Uses compareAndSet to ensure the scheduler is only initialized once across all instances.
+     */
+    private static synchronized void startPerformanceScheduler() {
+        if (!schedulerStarted.compareAndSet(false, true)) {
+            return;
+        }
+        scheduledExecutorService = Executors.newScheduledThreadPool(1,
+                new HighPriorityThreadFactory("pulsarPerformance-Printer-thread"));
+        scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, PRINT_INTERVAL,
+                PRINT_INTERVAL, TimeUnit.SECONDS);
+        logger.info("PulsarPerformanceTask scheduler started");
+    }
+
+    /**
+     * Stop the performance scheduler when the last active instance is stopped.
+     * Uses reference counting to ensure the scheduler is only shut down
+     * when no more active instances remain.
+     */
+    private static synchronized void stopPerformanceScheduler() {
+        if (activeInstances.get() <= 0) {
+            logger.warn("No active instances to stop, skipping scheduler shutdown");
+            return;
+        }
+
+        if (activeInstances.decrementAndGet() > 0) {
+            logger.info("Still have active instances, not shutting down scheduler");
+            return;
+        }
+
+        if (scheduledExecutorService != null && !scheduledExecutorService.isShutdown()) {
+            logger.info("Shutting down pulsarPerformanceTask scheduler");
+            scheduledExecutorService.shutdownNow();
+            scheduledExecutorService = null;
+        }
+        schedulerStarted.set(false);
+        logger.info("PulsarPerformanceTask scheduler stopped");
+    }
+
     private void initTopic() throws Exception {
         long startTime = System.currentTimeMillis();
         if (topic != null) {
@@ -230,6 +266,10 @@ public class PulsarSink extends AbstractSink
                     + i);
             sinkThreadPool[i].start();
         }
+
+        activeInstances.incrementAndGet();
+        startPerformanceScheduler();
+
         logger.debug("meta sink started");
     }
 
@@ -258,9 +298,9 @@ public class PulsarSink extends AbstractSink
             sinkThreadPool = null;
         }
         super.stop();
-        if (!scheduledExecutorService.isShutdown()) {
-            scheduledExecutorService.shutdown();
-        }
+
+        stopPerformanceScheduler();
+
         sinkCounter.stop();
         logger.debug("pulsar sink stopped. Metrics:{}", sinkCounter);
     }
