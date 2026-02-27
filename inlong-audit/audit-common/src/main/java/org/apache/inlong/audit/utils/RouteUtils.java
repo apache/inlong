@@ -30,9 +30,8 @@ import java.util.regex.PatternSyntaxException;
 public class RouteUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteUtils.class);
-    private static final Pattern JDBC_ADDRESS_PATTERN = Pattern.compile("^jdbc:\\w+://([\\w.-]+):(\\d+)");
+    private static final Pattern JDBC_ADDRESS_PATTERN = Pattern.compile("^jdbc:\\w+://([a-zA-Z0-9.-]+):(\\d+)");
     private static final String HOST_PORT_SEPARATOR = ":";
-    private static final int EXPECTED_GROUP_COUNT = 2;
 
     public static boolean isValidRegex(String regex) {
         if (regex == null || regex.isEmpty()) {
@@ -73,8 +72,10 @@ public class RouteUtils {
 
     /**
      * Extracts the host:port address from a JDBC URL.
+     * Both IP addresses and domain names are supported.
      *
      * @param jdbcUrl the JDBC URL, e.g. "jdbc:mysql://127.0.0.1:3306/testdb"
+     *               or "jdbc:mysql://db.example.com:3306/testdb"
      * @return host:port string, or null if the URL is null, blank, or does not match
      */
     public static String extractAddress(String jdbcUrl) {
@@ -83,7 +84,7 @@ public class RouteUtils {
         }
         try {
             Matcher matcher = JDBC_ADDRESS_PATTERN.matcher(jdbcUrl);
-            if (matcher.find() && matcher.groupCount() >= EXPECTED_GROUP_COUNT) {
+            if (matcher.find()) {
                 return matcher.group(1) + HOST_PORT_SEPARATOR + matcher.group(2);
             }
         } catch (Exception e) {
