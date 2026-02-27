@@ -73,6 +73,34 @@ public class RouteUtilsTest {
     }
 
     @Test
+    public void extractAddress_ValidJdbcUrlWithLocalhost() {
+        String jdbcUrl = "jdbc:mysql://localhost:3306/testdb";
+        String result = RouteUtils.extractAddress(jdbcUrl);
+        assertEquals("localhost:3306", result);
+    }
+
+    @Test
+    public void extractAddress_ValidJdbcUrlWithDomainName() {
+        String jdbcUrl = "jdbc:mysql://db.example.com:3306/testdb";
+        String result = RouteUtils.extractAddress(jdbcUrl);
+        assertEquals("db.example.com:3306", result);
+    }
+
+    @Test
+    public void extractAddress_ValidJdbcUrlWithMultiLevelSubdomain() {
+        String jdbcUrl = "jdbc:postgresql://mysql.db.example.com:5432/mydb";
+        String result = RouteUtils.extractAddress(jdbcUrl);
+        assertEquals("mysql.db.example.com:5432", result);
+    }
+
+    @Test
+    public void extractAddress_ValidJdbcUrlWithHyphenatedDomain() {
+        String jdbcUrl = "jdbc:mysql://my-db-server.example.com:3306/testdb";
+        String result = RouteUtils.extractAddress(jdbcUrl);
+        assertEquals("my-db-server.example.com:3306", result);
+    }
+
+    @Test
     public void matchesAuditRoute_EmptyAuditRouteList() {
         List<AuditRoute> auditRouteList = new ArrayList<>();
         boolean result = RouteUtils.matchesAuditRoute("auditId1", "groupId1", auditRouteList);

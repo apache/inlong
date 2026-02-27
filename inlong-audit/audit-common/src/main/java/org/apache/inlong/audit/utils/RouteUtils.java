@@ -19,12 +19,20 @@ package org.apache.inlong.audit.utils;
 
 import org.apache.inlong.audit.entity.AuditRoute;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class RouteUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RouteUtils.class);
+    private static final Pattern JDBC_ADDRESS_PATTERN = Pattern.compile("^jdbc:\\w+://([\\w.-]+):(\\d+)");
+    private static final String HOST_PORT_SEPARATOR = ":";
+    private static final int EXPECTED_GROUP_COUNT = 2;
 
     public static boolean isValidRegex(String regex) {
         if (regex == null || regex.isEmpty()) {
@@ -63,14 +71,23 @@ public class RouteUtils {
         return false;
     }
 
+    /**
+     * Extracts the host:port address from a JDBC URL.
+     *
+     * @param jdbcUrl the JDBC URL, e.g. "jdbc:mysql://127.0.0.1:3306/testdb"
+     * @return host:port string, or null if the URL is null, blank, or does not match
+     */
     public static String extractAddress(String jdbcUrl) {
         if (jdbcUrl == null || jdbcUrl.trim().isEmpty()) {
             return null;
         }
-        Pattern pattern = Pattern.compile("^jdbc:\\w+://([\\d\\.]+):(\\d+)");
-        Matcher matcher = pattern.matcher(jdbcUrl);
-        if (matcher.find()) {
-            return matcher.group(1) + ":" + matcher.group(2);
+        try {
+            Matcher matcher = JDBC_ADDRESS_PATTERN.matcher(jdbcUrl);
+            if (matcher.find() && matcher.groupCount() >= EXPECTED_GROUP_COUNT) {
+                return matcher.group(1) + HOST_PORT_SEPARATOR + matcher.group(2);
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to extract address from JDBC URL: {}", jdbcUrl, e);
         }
         return null;
     }
