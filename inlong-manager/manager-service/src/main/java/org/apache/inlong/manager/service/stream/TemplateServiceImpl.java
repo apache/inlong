@@ -124,14 +124,15 @@ public class TemplateServiceImpl implements TemplateService {
         templateInfo.setFieldList(templateFields);
         List<TenantTemplateEntity> tenantTemplateEntities = tenantTemplateEntityMapper.selectByTemplateName(
                 templateName);
+        List<String> tenantList = new ArrayList<>();
         if (Objects.equals(templateEntity.getVisibleRange(), TemplateVisibleRange.TENANT.name())
                 && CollectionUtils.isNotEmpty(tenantTemplateEntities)) {
-            List<String> tenantList = tenantTemplateEntities.stream()
+            tenantList = tenantTemplateEntities.stream()
                     .map(TenantTemplateEntity::getTenant)
                     .collect(Collectors.toList());
-            checkVis(templateEntity, tenantList, operator);
             templateInfo.setTenantList(tenantList);
         }
+        checkVis(templateEntity, tenantList, operator);
         return templateInfo;
     }
 
