@@ -75,7 +75,7 @@ public class RouteUtils {
      * Both IP addresses and domain names are supported.
      *
      * @param jdbcUrl the JDBC URL, e.g. "jdbc:mysql://127.0.0.1:3306/testdb"
-     *               or "jdbc:mysql://db.example.com:3306/testdb"
+     *               or "jdbc:mysql://domain:3306/testdb"
      * @return host:port string, or null if the URL is null, blank, or does not match
      */
     public static String extractAddress(String jdbcUrl) {
