@@ -30,6 +30,7 @@ import org.apache.inlong.manager.service.module.ModuleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 
 /**
  * Inlong module control layer
@@ -51,6 +54,7 @@ public class ModuleController {
 
     @RequestMapping(value = "/module/save", method = RequestMethod.POST)
     @ApiOperation(value = "Save inlong module")
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ModuleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(moduleService.save(request, operator));
@@ -58,6 +62,7 @@ public class ModuleController {
 
     @RequestMapping(value = "/module/update", method = RequestMethod.POST)
     @ApiOperation(value = "Update inlong module")
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ModuleRequest request) {
         return Response.success(moduleService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
@@ -77,6 +82,7 @@ public class ModuleController {
 
     @RequestMapping(value = "/module/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete module config")
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(moduleService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
