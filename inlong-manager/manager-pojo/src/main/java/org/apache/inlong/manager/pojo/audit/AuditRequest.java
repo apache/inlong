@@ -46,11 +46,20 @@ public class AuditRequest {
     @ApiModelProperty(value = "audit id list")
     private List<String> auditIds;
 
+    @ApiModelProperty(value = "Source type")
+    private String sourceType;
+
+    @ApiModelProperty(value = "Need source audit or not, default is true, means need source audit")
+    private Boolean needSourceAudit = true;
+
     @ApiModelProperty(value = "sink id")
     private Integer sinkId;
 
     @ApiModelProperty(value = "sink type")
     private String sinkType;
+
+    @ApiModelProperty(value = "Need sink audit or not, default is true, means need sink audit")
+    private Boolean needSinkAudit = true;
 
     @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
     private String startDate;
