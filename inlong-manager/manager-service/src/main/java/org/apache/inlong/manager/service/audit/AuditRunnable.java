@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.audit;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.HttpUtils;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -93,7 +93,8 @@ public class AuditRunnable implements Runnable {
             } else {
                 auditSet = getAuditInfoList(request, request.getInlongGroupId(), request.getInlongStreamId(), auditId);
             }
-            auditResultQueue.add(new AuditVO(auditId, auditName, auditSet, auditId2NodeTypeMap.getOrDefault(auditId, null)));
+            auditResultQueue
+                    .add(new AuditVO(auditId, auditName, auditSet, auditId2NodeTypeMap.getOrDefault(auditId, null)));
         } catch (Exception e) {
             LOGGER.error("query audit failed for request={}", request);
             throw new BusinessException("query audit failed");

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditProxy;
@@ -64,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -332,7 +332,7 @@ public class AuditServiceImpl implements AuditService {
 
             return getAuditIds(true, cdcAuditIds, sourceNodeType, sinkNodeType, sourceEntityList);
         } else {
-            return getAuditIds(false, null,null, sinkNodeType, sourceEntityList);
+            return getAuditIds(false, null, null, sinkNodeType, sourceEntityList);
         }
     }
 
