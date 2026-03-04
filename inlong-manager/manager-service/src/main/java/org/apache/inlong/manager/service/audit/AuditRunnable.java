@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -51,21 +52,21 @@ public class AuditRunnable implements Runnable {
     private static final DateTimeFormatter SECOND_DATE_FORMATTER = DateTimeFormat.forPattern(SECOND_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
 
-    private AuditRequest request;
-    private String auditId;
-    private String auditName;
-    private List<AuditVO> auditVOList;
-    private CountDownLatch latch;
-    private RestTemplate restTemplate;
-    private String auditUrl;
-    private Map<String, String> auditIdMap;
-    private Boolean listAll;
+    private final AuditRequest request;
+    private final String auditId;
+    private final String auditName;
+    private final ConcurrentLinkedQueue<AuditVO> auditResultQueue;
+    private final CountDownLatch latch;
+    private final RestTemplate restTemplate;
+    private final String auditUrl;
+    private final Map<String, String> auditId2NodeTypeMap;
+    private final Boolean listAll;
 
     public AuditRunnable(
             AuditRequest request,
             String auditId,
             String auditName,
-            List<AuditVO> auditVOList,
+            ConcurrentLinkedQueue<AuditVO> auditResultQueue,
             CountDownLatch latch,
             RestTemplate restTemplate,
             String auditUrl,
@@ -74,11 +75,11 @@ public class AuditRunnable implements Runnable {
         this.request = request;
         this.auditId = auditId;
         this.auditName = auditName;
-        this.auditVOList = auditVOList;
+        this.auditResultQueue = auditResultQueue;
         this.latch = latch;
         this.restTemplate = restTemplate;
         this.auditUrl = auditUrl;
-        this.auditIdMap = auditIdMap == null ? new HashMap<>() : auditIdMap;
+        this.auditId2NodeTypeMap = auditIdMap == null ? new HashMap<>() : auditIdMap;
         this.listAll = listAll;
     }
 
@@ -92,7 +93,8 @@ public class AuditRunnable implements Runnable {
             } else {
                 auditSet = getAuditInfoList(request, request.getInlongGroupId(), request.getInlongStreamId(), auditId);
             }
-            auditVOList.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
+            auditResultQueue
+                    .add(new AuditVO(auditId, auditName, auditSet, auditId2NodeTypeMap.getOrDefault(auditId, null)));
         } catch (Exception e) {
             LOGGER.error("query audit failed for request={}", request);
             throw new BusinessException("query audit failed");
