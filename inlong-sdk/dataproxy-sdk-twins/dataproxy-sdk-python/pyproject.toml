@@ -19,7 +19,7 @@
 
 [build-system]
 requires = [
-  "scikit-build-core", "pybind11",
+  "scikit-build-core>=0.12", "pybind11",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -45,26 +45,35 @@ Homepage = "https://github.com/apache/inlong"
 Source = "https://github.com/apache/inlong/tree/master/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-python"
 
 [tool.scikit-build]
+minimum-version = "0.12"
+
 # Do NOT run CMake when building sdist.
 sdist.cmake = false
 
 # Make sdist minimal via a strict allowlist.
-# Note: `sdist.include` is additive to the default set and does NOT override `sdist.exclude`.
-# If you want a true allowlist, keep everything in ONE ignore list using `**` + `!` rules.
-# Patterns follow .gitignore syntax (order matters; later rules override earlier ones).
 
-# Exclude unneeded files from dataproxy-sdk-cpp (sources, build intermediates, etc.)
+sdist.inclusion-mode = "manual"
+
+# First exclude all files
 sdist.exclude = [
-  "dataproxy-sdk-cpp/**",
-  "demo/**",
-  "build.sh",
-  "requirements.txt",
+  "**/*",
 ]
 
-# Force-include headers and static libraries required for wheel build
+# Then only include necessary files
+# NOTICE: sdist.include always takes precedence over sdist.exclude
 sdist.include = [
-  "dataproxy-sdk-cpp/src/core/*.h",
-  "dataproxy-sdk-cpp/release/lib/*.a",
-  "dataproxy-sdk-cpp/third_party/lib/*.a",
-  "dataproxy-sdk-cpp/third_party/lib64/*.a",
+  # --- Python binding sources/build config ---
+  "/pyproject.toml",
+  "/CMakeLists.txt",
+  "/inlong_dataproxy.cpp",
+  "/inlong_dataproxy.pyi",
+  "/README.md",
+
+  # Headers referenced by current CMake include_directories
+  "/dataproxy-sdk-cpp/src/core/*.h",
+
+  # Static libraries used by linking
+  "/dataproxy-sdk-cpp/release/lib/*.a",
+  "/dataproxy-sdk-cpp/third_party/lib/*.a",
+  "/dataproxy-sdk-cpp/third_party/lib64/*.a",
 ]
