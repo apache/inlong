@@ -30,7 +30,13 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/l
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib64")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib")
 
-add_subdirectory(pybind11)
+# Prefer local pybind11/ if present for legacy build; otherwise use pybind11 from PyPI via PEP-517.
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/pybind11/CMakeLists.txt")
+    add_subdirectory(pybind11)
+else ()
+    set(PYBIND11_FINDPYTHON ON)
+    find_package(pybind11 CONFIG REQUIRED)
+endif ()
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib")
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/third_party/lib64")
@@ -39,3 +45,10 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib")
 pybind11_add_module(inlong_dataproxy inlong_dataproxy.cpp)
 
 target_link_libraries(inlong_dataproxy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/dataproxy-sdk-cpp/release/lib/dataproxy_sdk.a" liblog4cplusS.a libsnappy.a libcurl.a libssl.a libcrypto.a)
+
+# For scikit-build wheels: install into the Python platlib directory, include target so and other required files like pyi.
+# It is good that cmake removes rpath in so during install.
+if (DEFINED SKBUILD_PLATLIB_DIR)
+    install(TARGETS inlong_dataproxy LIBRARY DESTINATION "${SKBUILD_PLATLIB_DIR}")
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/inlong_dataproxy.pyi" DESTINATION "${SKBUILD_PLATLIB_DIR}")
+endif ()

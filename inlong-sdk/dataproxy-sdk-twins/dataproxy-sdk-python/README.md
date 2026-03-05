@@ -86,6 +86,23 @@ After the build process finished, you can import the package (`import inlong_dat
 
 > **Note**: When the C++ SDK or the version of Python you're using is updated, you'll need to rebuild it using either of the above methods (Native Build or Docker Build).
 
+### Method 3: PEP 517 Build
+
+1. Build the C++ SDK. see [dataproxy-sdk-cpp/README.md](../dataproxy-sdk-cpp/README.md)  
+
+2. Copy `dataproxy-sdk-cpp` dir into `dataproxy-sdk-python`  
+   ```bash
+   cp -r ../dataproxy-sdk-cpp ./
+   ```
+
+3. Go to the `dataproxy-sdk-python` directory, build the Python SDK  
+   ```bash
+   python3 -m pip install build
+   python3 -m build
+   ```
+
+Also, you can refer [dataproxy-sdk-docker/README.md](../dataproxy-sdk-docker/README.md) to build python sdk wheels for manylinux.  
+
 ## Config Parameters
 
 Refer to `demo/config_example.json`.
