@@ -63,10 +63,10 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 
-    @ApiModelProperty(value = "List of DBs to be collected, seperated by ',', supporting regular expressions")
+    @ApiModelProperty(value = "List of DBs to be collected, separated by ',', supporting regular expressions")
     private String databaseWhiteList;
 
-    @ApiModelProperty(value = "List of tables to be collected, seperated by ',',supporting regular expressions")
+    @ApiModelProperty(value = "List of tables to be collected, separated by ',',supporting regular expressions")
     private String tableWhiteList;
 
     @ApiModelProperty("Database time zone, Default is UTC")

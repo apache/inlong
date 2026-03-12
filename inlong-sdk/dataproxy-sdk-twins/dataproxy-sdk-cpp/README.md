@@ -58,7 +58,7 @@ Refer to `release/conf/config_example.json`.
 | name                     | default value                                                      | description                                                                                                |
 |:-------------------------|:-------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------|
 | thread_num               | 10                                                                 | number of network sending threads                                                                          |
-| inlong_group_ids         | ""                                                                 | the list of inlong_group_id, seperated by commas, such as "b_inlong_group_test_01, b_inlong_group_test_02" |
+| inlong_group_ids         | ""                                                                 | the list of inlong_group_id, separated by commas, such as "b_inlong_group_test_01, b_inlong_group_test_02" |
 | enable_groupId_isolation | false                                                              | whether different groupid data using different buffer pools inside the sdk                                 |
 | buffer_num_per_groupId   | 5                                                                  | number of buffer pools of each groupid                                                                     |
 | enable_pack              | true                                                               | whether multiple messages are packed while sending to dataproxy                                            |
