@@ -90,7 +90,7 @@ public class HeartbeatMsg {
     private String nodeGroup;
 
     /**
-     * Ext tag of cluster, key=value pairs seperated by &
+     * Ext tag of cluster, key=value pairs separated by &
      */
     private String extTag;
 
