@@ -60,7 +60,7 @@ public class LogCommand extends AbstractCommand {
             try {
                 // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
                 // sample input: inlongGroupId:test_group
-                if (StringUtils.isNotBlank(input)) {
+                if (StringUtils.isBlank(input)) {
                     System.err.println("input cannot be empty, for example: inlongGroupId:test_group");
                     return;
                 }
