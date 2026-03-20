@@ -668,15 +668,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             streamService.logicDeleteAll(groupId, operator);
         }
 
-        entity.setIsDeleted(entity.getId());
-        entity.setStatus(GroupStatus.CONFIG_DELETED.getCode());
-        entity.setModifier(operator);
-        int rowCount = groupMapper.updateByIdentifierSelective(entity);
-        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("inlong group has already updated for groupId={} curVersion={}", groupId, entity.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
-
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
 
@@ -687,6 +678,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             } catch (Exception e) {
                 LOGGER.warn("failed to delete schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
             }
+        }
+
+        entity.setIsDeleted(entity.getId());
+        entity.setModifier(operator);
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated for groupId={} curVersion={}", groupId, entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);

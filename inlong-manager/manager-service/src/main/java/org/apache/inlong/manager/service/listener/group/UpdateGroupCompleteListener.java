@@ -88,6 +88,7 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
                 break;
             case DELETE:
                 // delete process completed, then delete the group info
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_DELETED.getCode(), operator);
                 groupService.delete(groupId, operator);
                 break;
             default:
