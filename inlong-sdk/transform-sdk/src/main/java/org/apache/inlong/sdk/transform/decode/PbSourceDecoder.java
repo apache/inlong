@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
+import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
+import org.apache.inlong.sdk.transform.process.Context;
+
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.DescriptorValidationException;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
-import org.apache.inlong.sdk.transform.process.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
