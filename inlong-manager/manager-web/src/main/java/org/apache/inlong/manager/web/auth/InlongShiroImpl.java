@@ -77,7 +77,7 @@ public class InlongShiroImpl implements InlongShiro {
     @Autowired
     private InlongTenantService tenantService;
 
-    @Value("${openapi.auth.enabled:false}")
+    @Value("${openapi.auth.enabled:true}")
     private Boolean openAPIAuthEnabled;
 
     @Override
