@@ -86,22 +86,23 @@ func (h heartbeatReq) encode(buffer *bytes.Buffer) []byte {
 
 type batchCallback func()
 type batchReq struct {
-	pool         *sync.Pool
-	workerID     string
-	batchID      string
-	groupID      string
-	streamID     string
-	dataReqs     []*sendDataReq
-	dataSize     int
-	batchTime    time.Time
-	lastSendTime time.Time
-	retries      int
-	bufferPool   bufferpool.BufferPool
-	bytePool     bufferpool.BytePool
-	buffer       *bytes.Buffer
-	callback     batchCallback
-	metrics      *metrics
-	addColumns   string
+	pool               *sync.Pool
+	workerID           string
+	batchID            string
+	groupID            string
+	streamID           string
+	dataReqs           []*sendDataReq
+	dataSize           int
+	batchTime          time.Time
+	lastSendTime       time.Time
+	lastSendServerAddr string
+	retries            int
+	bufferPool         bufferpool.BufferPool
+	bytePool           bufferpool.BytePool
+	buffer             *bytes.Buffer
+	callback           batchCallback
+	metrics            *metrics
+	addColumns         string
 }
 
 func (b *batchReq) append(req *sendDataReq) {

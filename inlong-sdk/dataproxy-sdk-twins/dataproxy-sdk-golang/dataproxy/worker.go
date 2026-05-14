@@ -416,6 +416,10 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 	b.lastSendTime = time.Now()
 	b.encode()
 
+	// record the remote server address at the moment the batch is dispatched
+	conn := w.getConn()
+	b.lastSendServerAddr = conn.RemoteAddr().String()
+
 	// error callback
 	onErr := func(c gnet.Conn, e error, inCallback bool) {
 		defer func() {
@@ -427,7 +431,8 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		}()
 
 		w.metrics.incError(errConnWriteFailed.getStrCode())
-		w.log.Error("send batch failed, err: ", e, ", inCallback: ", inCallback, ", logNum:", len(b.dataReqs))
+		w.log.Error("send batch failed, err: ", e, ", inCallback: ", inCallback, ", logNum:", len(b.dataReqs),
+			", workerID:", w.index, ", batchID:", b.batchID, ", serverAddr:", b.lastSendServerAddr)
 
 		// close already
 		if w.getState() == stateClosed {
@@ -459,9 +464,8 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 	}
 
 	// very important：'cause we use gnet, we must call AsyncWrite to send data in goroutines that are different from gnet.OnTraffic() callback
-	conn := w.getConn()
 	if b.retries > 0 {
-		w.log.Debug("retry batch to conn:", conn.RemoteAddr(), ", workerID:", w.index, ", batchID:", b.batchID, ", logNum:", len(b.dataReqs))
+		w.log.Debug("retry batch to conn:", b.lastSendServerAddr, ", workerID:", w.index, ", batchID:", b.batchID, ", logNum:", len(b.dataReqs))
 	}
 	err := conn.AsyncWrite(b.buffer.Bytes(), func(c gnet.Conn, e error) error {
 		if e != nil {
@@ -564,7 +568,8 @@ func (w *worker) handleSendTimeout() {
 	for batchID, batch := range w.unackedBatches {
 		if time.Since(batch.lastSendTime) > w.options.SendTimeout {
 			w.log.Warn("worker[", w.index, "] send timeout, resend it now:", batch.batchID, "batchID:", batchID,
-				",last send time:", batch.lastSendTime.UnixMilli(), ", now:", time.Now().UnixMilli(), "timeout option:", w.options.SendTimeout)
+				", last send time:", batch.lastSendTime.UnixMilli(), ", now:", time.Now().UnixMilli(),
+				", timeout option:", w.options.SendTimeout, ", serverAddr:", batch.lastSendServerAddr)
 			//
 			// w.retryBatches <- batch
 			w.backoffRetry(context.Background(), batch)
@@ -651,7 +656,7 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 		needSwitchConn, isRetryable := retryableServerErrorCodes[rsp.errCode]
 		if needSwitchConn && w.client != nil {
 			w.log.Warn("server error detected, switching connection, errCode:", rsp.errCode,
-				", batchID:", batch.batchID)
+				", batchID:", batch.batchID, ", serverAddr:", batch.lastSendServerAddr)
 			w.updateConn(nil, nil)
 		}
 
@@ -659,8 +664,8 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 		if w.options.RetryOnServerError && isRetryable && batch.retries < w.options.MaxRetries {
 			delete(w.unackedBatches, batchID)
 
-			w.log.Warn("server error, will retry, errCode:", rsp.errCode,
-				", batchID:", batch.batchID, ", retries:", batch.retries)
+			w.log.Warn("server error, will retry, errCode:", rsp.errCode, ", batchID:", batch.batchID,
+				", retries:", batch.retries, ", serverAddr:", batch.lastSendServerAddr)
 
 			w.backoffRetry(context.Background(), batch)
 			return
@@ -674,10 +679,12 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 				", batchID=" + rsp.batchID +
 				", groupID=" + rsp.groupID +
 				", streamID=" + rsp.streamID +
-				", dt=" + rsp.dt,
+				", dt=" + rsp.dt +
+				", serverAddr=" + batch.lastSendServerAddr,
 			serverErrCode: rsp.errCode,
 		}
-		w.log.Error("send succeed but got error code:", rsp.errCode)
+		w.log.Error("send succeed but got error code:", rsp.errCode,
+			", batchID:", batch.batchID, ", serverAddr:", batch.lastSendServerAddr)
 	}
 	batch.done(err)
 	delete(w.unackedBatches, batchID)
