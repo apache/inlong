@@ -19,8 +19,10 @@ package connpool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -253,8 +255,8 @@ func (p *connPool) dialNewConn(ep string) (gnet.Conn, error) {
 func (p *connPool) initConns(count int) error {
 	// create some conns and then put them back to the pool
 	var wg sync.WaitGroup
-	conns := make(chan gnet.Conn, count)
-	errs := make(chan error, count)
+	var successCount atomic.Int32
+	errs := make(chan string, count)
 
 	for i := 0; i < count; i++ {
 		wg.Add(1)
@@ -262,28 +264,34 @@ func (p *connPool) initConns(count int) error {
 			defer wg.Done()
 			conn, err := p.newConn()
 			if err != nil {
-				errs <- err
+				errs <- err.Error()
 				return
 			}
-			conns <- conn
+			p.put(conn, nil, true)
+			successCount.Add(1)
 		}()
 	}
 
 	wg.Wait()
-	close(conns)
 	close(errs)
 
-	for err := range errs {
-		if err != nil {
-			for conn := range conns {
-				_ = conn.Close()
-			}
-			return err
+	succeeded := int(successCount.Load())
+	if failed := count - succeeded; failed > 0 {
+		// aggregate identical errors to avoid spammy logs
+		agg := make(map[string]int, failed)
+		for e := range errs {
+			agg[e]++
 		}
+		items := make([]string, 0, len(agg))
+		for msg, n := range agg {
+			items = append(items, fmt.Sprintf("%dx %s", n, msg))
+		}
+		p.log.Warnf("initConns partial failure, required=%d, succeeded=%d, failed=%d, errors=[%s]",
+			count, succeeded, failed, strings.Join(items, "; "))
 	}
-
-	for conn := range conns {
-		p.put(conn, nil, true)
+	// Only fail initialization when no endpoint is reachable at all
+	if succeeded == 0 {
+		return ErrNoAvailableEndpoint
 	}
 
 	return nil
