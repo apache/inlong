@@ -567,7 +567,8 @@ func (p *connPool) innerWork() {
 	}
 }
 
-func getRemoteAddr(conn gnet.Conn) string {
+// GetRemoteAddr returns the remote address of the connection safely
+func GetRemoteAddr(conn gnet.Conn) string {
 	if conn == nil {
 		return ""
 	}
@@ -620,7 +621,7 @@ loop:
 
 	// close the expired conn and append new conn with the same addr
 	for _, expired := range expiredConns {
-		addr := getRemoteAddr(expired)
+		addr := GetRemoteAddr(expired)
 		p.log.Debug("connection expired, close it, addr:", addr, ", err:", nil)
 		CloseConn(expired, defaultConnCloseDelay)
 		_ = p.appendNewConn(addr)

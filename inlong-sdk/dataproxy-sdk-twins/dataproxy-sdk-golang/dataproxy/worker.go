@@ -30,6 +30,7 @@ import (
 	"go.uber.org/atomic"
 
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
+	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/connpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/syncx"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
@@ -418,7 +419,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 
 	// record the remote server address at the moment the batch is dispatched
 	conn := w.getConn()
-	b.lastSendServerAddr = conn.RemoteAddr().String()
+	b.lastSendServerAddr = connpool.GetRemoteAddr(conn)
 
 	// error callback
 	onErr := func(c gnet.Conn, e error, inCallback bool) {
