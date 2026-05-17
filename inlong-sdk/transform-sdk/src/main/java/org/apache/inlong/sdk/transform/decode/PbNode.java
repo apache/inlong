@@ -52,11 +52,15 @@ public class PbNode {
     // map
     private boolean isMapType = false;
     private boolean hasMapKey = false;
-    private String mapKey;
+    private Object mapKey;
     private FieldDescriptor mapKeyDesc;
     private FieldDescriptor mapValueDesc;
+    // parent path
+    private String parentPath;
+    private String currentPath;
+    private String currentIndexPath;
 
-    public PbNode(Descriptors.Descriptor parentDesc, String nodeString, boolean isLastNode) {
+    public PbNode(Descriptors.Descriptor parentDesc, String parentPath, String nodeString, boolean isLastNode) {
         try {
             if (parentDesc == null) {
                 return;
@@ -74,6 +78,15 @@ public class PbNode {
                     indexString = nodeString.substring(beginIndex + 1, endIndex);
                 }
             }
+            // cache path key
+            this.parentPath = parentPath;
+            if (this.parentPath == null) {
+                this.currentPath = this.name;
+                this.currentIndexPath = nodeString;
+            } else {
+                this.currentPath = this.parentPath + "." + this.name;
+                this.currentIndexPath = this.parentPath + "." + nodeString;
+            }
             // field desc
             this.fieldDesc = parentDesc.findFieldByName(name);
             if (this.fieldDesc == null) {
@@ -87,7 +100,7 @@ public class PbNode {
                 this.mapValueDesc = this.fieldDesc.getMessageType().getFields().get(1);
                 if (indexString != null) {
                     this.hasMapKey = true;
-                    this.mapKey = indexString;
+                    this.mapKey = parseMapKey(indexString, mapKeyDesc);
                 }
                 return;
             }
@@ -114,6 +127,29 @@ public class PbNode {
         }
     }
 
+    private static Object parseMapKey(String indexString, FieldDescriptor mapKeyDesc) {
+        switch (mapKeyDesc.getJavaType()) {
+            case STRING:
+                return indexString;
+            case INT:
+                return NumberUtils.toInt(indexString, 0);
+            case LONG:
+                return NumberUtils.toLong(indexString, 0);
+            case FLOAT:
+                return NumberUtils.toFloat(indexString, 0);
+            case DOUBLE:
+                return NumberUtils.toDouble(indexString, 0);
+            case BOOLEAN:
+                return Boolean.TRUE.toString().equals(indexString);
+            case ENUM:
+                return mapKeyDesc.getEnumType().findValueByName(indexString);
+            case BYTE_STRING:
+            case MESSAGE:
+            default:
+                return indexString;
+        }
+    }
+
     /**
      * parseNodePath
      * @param rootDesc
@@ -126,22 +162,33 @@ public class PbNode {
         }
         List<PbNode> nodes = new ArrayList<>();
         String[] nodeStrings = nodePath.split("\\.");
-        int lastIndex = nodeStrings.length - 1;
+        final int lastIndex = nodeStrings.length - 1;
+        String parentPath = null;
+        StringBuilder currentPathBuilder = new StringBuilder();
         Descriptors.Descriptor current = rootDesc;
         for (int i = 0; i <= lastIndex; i++) {
             if (current == null) {
                 return null;
             }
+            // pbNode
             String nodeString = nodeStrings[i];
-            PbNode pbNode = new PbNode(current, nodeString, (i == lastIndex));
+            PbNode pbNode = new PbNode(current, parentPath, nodeString, (i == lastIndex));
+            if (parentPath == null) {
+                currentPathBuilder.append(nodeString);
+            } else {
+                currentPathBuilder.append(".").append(nodeString);
+            }
+            parentPath = currentPathBuilder.toString();
             if (pbNode.getFieldDesc() == null) {
                 return null;
             }
+            // primitive
             if (pbNode.isPrimitiveType()) {
                 current = null;
                 nodes.add(pbNode);
                 continue;
             } else if (pbNode.isArrayType()) {
+                // array
                 if (pbNode.getFieldDesc().getJavaType() == JavaType.MESSAGE) {
                     current = pbNode.getFieldDesc().getMessageType();
                 } else {
@@ -150,6 +197,7 @@ public class PbNode {
                 nodes.add(pbNode);
                 continue;
             } else if (pbNode.isMapType()) {
+                // map
                 if (pbNode.isHasMapKey()) {
                     if (pbNode.getMapValueDesc().getJavaType() == JavaType.MESSAGE) {
                         current = pbNode.getMapValueDesc().getMessageType();
@@ -162,6 +210,7 @@ public class PbNode {
                 nodes.add(pbNode);
                 continue;
             } else if (pbNode.isStructType()) {
+                // struct
                 current = pbNode.getFieldDesc().getMessageType();
                 nodes.add(pbNode);
                 continue;

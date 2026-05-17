@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,6 +49,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PbSourceData extends AbstractSourceData {
 
     private static final Logger LOG = LoggerFactory.getLogger(PbSourceData.class);
+
+    public static final String ROOT = "$root";
 
     public static final String ROOT_KEY = "$root.";
 
@@ -64,6 +67,9 @@ public class PbSourceData extends AbstractSourceData {
     private List<DynamicMessage> childRoot;
 
     protected Charset srcCharset;
+
+    private Map<DynamicMessage, Map<String, Object>> nodeValueCache = new HashMap<>();
+    private Map<DynamicMessage, Map<String, Map<Object, Object>>> mapNodeCache = new HashMap<>();
 
     /**
      * Constructor
@@ -117,6 +123,7 @@ public class PbSourceData extends AbstractSourceData {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Object getField(int rowNum, String fieldName) {
         try {
+            // check(root);
             if (isContextField(fieldName)) {
                 return getContextField(fieldName);
             }
@@ -202,7 +209,7 @@ public class PbSourceData extends AbstractSourceData {
         }
     }
 
-    protected Object buildStructData(Descriptors.Descriptor messageType, Object nodeValue) {
+    public Object buildStructData(Descriptors.Descriptor messageType, Object nodeValue) {
         // map
         if (PbNode.isMapDescriptor(messageType)) {
             return this.buildMapData(messageType, nodeValue);
@@ -322,7 +329,7 @@ public class PbSourceData extends AbstractSourceData {
                     return "";
                 }
                 // parse other node
-                fieldValue = this.findNodeValue(childNodes, root);
+                fieldValue = this.findNodeValueByCache(childNodes, root);
             }
             return fieldValue;
         } catch (Exception e) {
@@ -364,7 +371,7 @@ public class PbSourceData extends AbstractSourceData {
             return null;
         }
         // parse other node
-        Object fieldValue = this.findNodeValue(childNodes, root);
+        Object fieldValue = this.findNodeValueByCache(childNodes, root);
         return fieldValue;
     }
 
@@ -387,12 +394,111 @@ public class PbSourceData extends AbstractSourceData {
         }
         // parse other node
         DynamicMessage child = childRoot.get(rowNum);
-        Object fieldValue = this.findNodeValue(childNodes, child);
+        Object fieldValue = this.findNodeValueByCache(childNodes, child);
         return fieldValue;
+    }
+
+    public Object findNodeValueByCache(List<PbNode> childNodes, DynamicMessage root) {
+        Map<String, Object> subNodeValueCache = this.nodeValueCache.computeIfAbsent(root,
+                k -> new HashMap<>());
+        Map<String, Map<Object, Object>> subMapNodeCache = this.mapNodeCache.computeIfAbsent(root,
+                k -> new HashMap<>());
+        for (int i = childNodes.size() - 1; i >= 0; i--) {
+            PbNode node = childNodes.get(i);
+            // index path
+            Object subNodeValue = subNodeValueCache.get(node.getCurrentIndexPath());
+            if (subNodeValue != null) {
+                if (i == childNodes.size() - 1) {
+                    return subNodeValue;
+                } else {
+                    if (subNodeValue instanceof DynamicMessage) {
+                        List<PbNode> subChildNodes = childNodes.subList(i + 1, childNodes.size());
+                        return this.findNodeValue(subChildNodes, (DynamicMessage) subNodeValue);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+            // path
+            subNodeValue = subNodeValueCache.get(node.getCurrentPath());
+            if (subNodeValue != null) {
+                if (i == childNodes.size() - 1) {
+                    return subNodeValue;
+                } else {
+                    // primitive
+                    if (node.isPrimitiveType()) {
+                        return null;
+                    }
+                    // struct
+                    if (node.isStructType()) {
+                        List<PbNode> subChildNodes = childNodes.subList(i + 1, childNodes.size());
+                        return this.findNodeValue(subChildNodes, (DynamicMessage) subNodeValue);
+                    }
+                    // array
+                    if (node.isArrayType()) {
+                        if (!node.isHasArrayIndex()) {
+                            return null;
+                        }
+                        if (!(subNodeValue instanceof List)) {
+                            return null;
+                        }
+                        List<?> nodeValueList = (List<?>) subNodeValue;
+                        if (node.getArrayIndex() >= nodeValueList.size()) {
+                            return null;
+                        }
+                        Object newNode = nodeValueList.get(node.getArrayIndex());
+                        if (!(newNode instanceof DynamicMessage)) {
+                            return null;
+                        }
+                        List<PbNode> subChildNodes = childNodes.subList(i + 1, childNodes.size());
+                        return this.findNodeValue(subChildNodes, (DynamicMessage) newNode);
+                    }
+                    // map
+                    if (node.isMapType()) {
+                        if (!node.isHasMapKey()) {
+                            return null;
+                        }
+                        final Object mapNodeValue = subNodeValue;
+                        Map<Object, Object> mapCache = subMapNodeCache.computeIfAbsent(node.getCurrentPath(),
+                                k -> parseMapNode(mapNodeValue, node));
+                        Object fieldValue = mapCache.get(node.getMapKey());
+                        if (fieldValue == null || !(fieldValue instanceof DynamicMessage)) {
+                            return null;
+                        }
+                        List<PbNode> subChildNodes = childNodes.subList(i + 1, childNodes.size());
+                        return this.findNodeValue(subChildNodes, (DynamicMessage) fieldValue);
+                    }
+                    return null;
+                }
+            }
+        }
+        return this.findNodeValue(childNodes, root);
+    }
+
+    private static Map<Object, Object> parseMapNode(Object nodeValue, PbNode node) {
+        if (!(nodeValue instanceof List)) {
+            return new HashMap<>();
+        }
+        List<?> nodeValueList = (List<?>) nodeValue;
+        Map<Object, Object> mapCache = new HashMap<>();
+        for (Object value : nodeValueList) {
+            if (!(value instanceof DynamicMessage)) {
+                continue;
+            }
+            DynamicMessage msg = (DynamicMessage) value;
+            Object keyValue = msg.getField(node.getMapKeyDesc());
+            Object valueValue = msg.getField(node.getMapValueDesc());
+            mapCache.put(keyValue, valueValue);
+        }
+        return mapCache;
     }
 
     // @SuppressWarnings({"rawtypes", "unchecked"})
     public Object findNodeValue(List<PbNode> childNodes, DynamicMessage root) {
+        Map<String, Object> subNodeValueCache = this.nodeValueCache.computeIfAbsent(root,
+                k -> new HashMap<>());
+        Map<String, Map<Object, Object>> subMapNodeCache = this.mapNodeCache.computeIfAbsent(root,
+                k -> new HashMap<>());
         DynamicMessage current = root;
         for (int i = 0; i < childNodes.size(); i++) {
             PbNode node = childNodes.get(i);
@@ -415,10 +521,12 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 // struct
                 if (node.isStructType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     return nodeValue;
                 }
                 // array
                 if (node.isArrayType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     if (!node.isHasArrayIndex()) {
                         return nodeValue;
                     }
@@ -426,29 +534,24 @@ public class PbSourceData extends AbstractSourceData {
                         return null;
                     }
                     List<?> nodeValueList = (List<?>) nodeValue;
-                    return nodeValueList.get(node.getArrayIndex());
+                    if (node.getArrayIndex() >= nodeValueList.size()) {
+                        return null;
+                    }
+                    Object arrayIndexNodeValue = nodeValueList.get(node.getArrayIndex());
+                    subNodeValueCache.put(node.getCurrentIndexPath(), arrayIndexNodeValue);
+                    return arrayIndexNodeValue;
                 }
                 // map
                 if (node.isMapType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     if (!node.isHasMapKey()) {
                         return nodeValue;
                     }
-                    if (!(nodeValue instanceof List)) {
-                        return null;
-                    }
-                    List<?> nodeValueList = (List<?>) nodeValue;
-                    Object fieldValue = null;
-                    for (Object subnodeValue : nodeValueList) {
-                        if (!(subnodeValue instanceof DynamicMessage)) {
-                            continue;
-                        }
-                        DynamicMessage msg = (DynamicMessage) subnodeValue;
-                        String keyValue = String.valueOf(msg.getField(node.getMapKeyDesc()));
-                        if (StringUtils.equals(keyValue, node.getMapKey())) {
-                            fieldValue = msg.getField(node.getMapValueDesc());
-                            break;
-                        }
-                    }
+                    final Object mapNodeValue = nodeValue;
+                    Map<Object, Object> mapCache = subMapNodeCache.computeIfAbsent(node.getCurrentPath(),
+                            k -> parseMapNode(mapNodeValue, node));
+                    Object fieldValue = mapCache.get(node.getMapKey());
+                    subNodeValueCache.put(node.getCurrentIndexPath(), fieldValue);
                     return fieldValue;
                 }
                 return null;
@@ -459,6 +562,7 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 // struct
                 if (node.isStructType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     if (!(nodeValue instanceof DynamicMessage)) {
                         return null;
                     }
@@ -467,6 +571,7 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 // array
                 if (node.isArrayType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     if (!node.isHasArrayIndex()) {
                         return null;
                     }
@@ -474,7 +579,11 @@ public class PbSourceData extends AbstractSourceData {
                         return null;
                     }
                     List<?> nodeValueList = (List<?>) nodeValue;
+                    if (node.getArrayIndex() >= nodeValueList.size()) {
+                        return null;
+                    }
                     Object newNode = nodeValueList.get(node.getArrayIndex());
+                    subNodeValueCache.put(node.getCurrentIndexPath(), newNode);
                     if (!(newNode instanceof DynamicMessage)) {
                         return null;
                     }
@@ -483,25 +592,15 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 // map
                 if (node.isMapType()) {
+                    subNodeValueCache.put(node.getCurrentPath(), nodeValue);
                     if (!node.isHasMapKey()) {
                         return null;
                     }
-                    if (!(nodeValue instanceof List)) {
-                        return null;
-                    }
-                    List<?> nodeValueList = (List<?>) nodeValue;
-                    Object fieldValue = null;
-                    for (Object subnodeValue : nodeValueList) {
-                        if (!(subnodeValue instanceof DynamicMessage)) {
-                            continue;
-                        }
-                        DynamicMessage msg = (DynamicMessage) subnodeValue;
-                        String keyValue = String.valueOf(msg.getField(node.getMapKeyDesc()));
-                        if (StringUtils.equals(keyValue, node.getMapKey())) {
-                            fieldValue = msg.getField(node.getMapValueDesc());
-                            break;
-                        }
-                    }
+                    final Object mapNodeValue = nodeValue;
+                    Map<Object, Object> mapCache = subMapNodeCache.computeIfAbsent(node.getCurrentPath(),
+                            k -> parseMapNode(mapNodeValue, node));
+                    Object fieldValue = mapCache.get(node.getMapKey());
+                    subNodeValueCache.put(node.getCurrentIndexPath(), fieldValue);
                     if (fieldValue == null || !(fieldValue instanceof DynamicMessage)) {
                         return null;
                     }
@@ -512,5 +611,206 @@ public class PbSourceData extends AbstractSourceData {
             }
         }
         return null;
+    }
+
+    /**
+     * Clear the leaf field referenced by {@code childNodes} on a copy of {@code root}.
+     * <p>
+     * Implementation notes (important):
+     * <ul>
+     *   <li>Intermediate nodes are descended by reading the value out of the parent
+     *       builder, creating a sub-builder via {@link DynamicMessage#toBuilder()},
+     *       recursing into it, and then writing the rebuilt sub-message back via
+     *       {@code setField} / {@code setRepeatedField}. We never rely on automatic
+     *       reverse propagation from {@code getFieldBuilder}, which is not consistent
+     *       across protobuf-java versions for {@code DynamicMessage.Builder}.</li>
+     *   <li>Repeated and map entries are NEVER mutated through the list returned by
+     *       {@code getField} (it is an unmodifiable view in many protobuf versions).
+     *       Instead the field is cleared and the kept entries are re-added via
+     *       {@code addRepeatedField}, which is the portable way to "remove" an entry
+     *       from a {@code DynamicMessage.Builder}.</li>
+     * </ul>
+     *
+     * @param childNodes path to the leaf node to clear
+     * @param root       the top-level builder; modifications are applied to it
+     */
+    public void clearNodeValue(List<PbNode> childNodes, DynamicMessage.Builder root) {
+        if (childNodes == null || childNodes.isEmpty() || root == null) {
+            return;
+        }
+        clearNodeValueRec(root, childNodes, 0);
+    }
+
+    /**
+     * Recursive helper. Modifies {@code builder} in place; for nested levels, every
+     * change is written back to {@code builder} via setField/setRepeatedField as we
+     * unwind, so the topmost caller sees the modification.
+     */
+    private void clearNodeValueRec(DynamicMessage.Builder builder, List<PbNode> nodes, int from) {
+        PbNode node = nodes.get(from);
+        FieldDescriptor fd = node.getFieldDesc();
+        if (fd == null) {
+            return;
+        }
+
+        boolean isLast = (from == nodes.size() - 1);
+
+        // ============================== LEAF ==============================
+        if (isLast) {
+            // primitive / struct / repeated-without-index / map-without-key: clearField wipes
+            // the whole field. This is the safe single-call PB API.
+            if (node.isPrimitiveType()
+                    || node.isStructType()
+                    || (node.isArrayType() && !node.isHasArrayIndex())
+                    || (node.isMapType() && !node.isHasMapKey())) {
+                builder.clearField(fd);
+                return;
+            }
+            // repeated with explicit index: rebuild the list without the target element.
+            if (node.isArrayType() && node.isHasArrayIndex()) {
+                removeRepeatedAt(builder, fd, node.getArrayIndex());
+                return;
+            }
+            // map with explicit key: rebuild the entries dropping the matching key.
+            if (node.isMapType() && node.isHasMapKey()) {
+                removeMapEntryByKey(builder, fd, node.getMapKeyDesc(), node.getMapKey());
+                return;
+            }
+            return;
+        }
+
+        // ============================ INTERMEDIATE ============================
+        // primitive intermediate: invalid path, abort
+        if (node.isPrimitiveType()) {
+            return;
+        }
+
+        // struct intermediate: descend into the message field, mutate, then setField back
+        if (node.isStructType()) {
+            if (!builder.hasField(fd)) {
+                return;
+            }
+            Object child = builder.getField(fd);
+            if (!(child instanceof DynamicMessage)) {
+                return;
+            }
+            DynamicMessage.Builder childBuilder = ((DynamicMessage) child).toBuilder();
+            clearNodeValueRec(childBuilder, nodes, from + 1);
+            builder.setField(fd, childBuilder.build());
+            return;
+        }
+
+        // array intermediate (only meaningful with an explicit index): descend into that element
+        if (node.isArrayType()) {
+            if (!node.isHasArrayIndex() || fd.getJavaType() != JavaType.MESSAGE) {
+                return;
+            }
+            int idx = node.getArrayIndex();
+            int count = builder.getRepeatedFieldCount(fd);
+            if (idx < 0 || idx >= count) {
+                return;
+            }
+            Object element = builder.getRepeatedField(fd, idx);
+            if (!(element instanceof DynamicMessage)) {
+                return;
+            }
+            DynamicMessage.Builder eb = ((DynamicMessage) element).toBuilder();
+            clearNodeValueRec(eb, nodes, from + 1);
+            builder.setRepeatedField(fd, idx, eb.build());
+            return;
+        }
+
+        // map intermediate: only meaningful with an explicit key.
+        // Descend into the value of the matching entry, mutate it, and replace the entry.
+        if (node.isMapType()) {
+            if (!node.isHasMapKey()) {
+                return;
+            }
+            FieldDescriptor mapKeyDesc = node.getMapKeyDesc();
+            FieldDescriptor mapValueDesc = node.getMapValueDesc();
+            if (mapKeyDesc == null || mapValueDesc == null
+                    || mapValueDesc.getJavaType() != JavaType.MESSAGE) {
+                return;
+            }
+            int count = builder.getRepeatedFieldCount(fd);
+            for (int i = 0; i < count; i++) {
+                Object entry = builder.getRepeatedField(fd, i);
+                if (!(entry instanceof DynamicMessage)) {
+                    continue;
+                }
+                DynamicMessage entryMsg = (DynamicMessage) entry;
+                Object keyVal = entryMsg.getField(mapKeyDesc);
+                if (keyVal == null || !Objects.equals(node.getMapKey(), keyVal)) {
+                    continue;
+                }
+                Object valObj = entryMsg.getField(mapValueDesc);
+                if (!(valObj instanceof DynamicMessage)) {
+                    return;
+                }
+                DynamicMessage.Builder valBuilder = ((DynamicMessage) valObj).toBuilder();
+                clearNodeValueRec(valBuilder, nodes, from + 1);
+                DynamicMessage.Builder entryBuilder = entryMsg.toBuilder();
+                entryBuilder.setField(mapValueDesc, valBuilder.build());
+                builder.setRepeatedField(fd, i, entryBuilder.build());
+                return;
+            }
+        }
+    }
+
+    /**
+     * Remove the {@code targetIndex}-th element from the given repeated field on
+     * {@code builder}. {@code DynamicMessage.Builder} does not expose
+     * {@code removeRepeatedField} portably across protobuf-java versions, so we
+     * rebuild the field via clearField + addRepeatedField.
+     */
+    private static void removeRepeatedAt(DynamicMessage.Builder builder,
+            FieldDescriptor fd, int targetIndex) {
+        int count = builder.getRepeatedFieldCount(fd);
+        if (targetIndex < 0 || targetIndex >= count) {
+            return;
+        }
+        List<Object> kept = new ArrayList<>(count - 1);
+        for (int i = 0; i < count; i++) {
+            if (i == targetIndex) {
+                continue;
+            }
+            kept.add(builder.getRepeatedField(fd, i));
+        }
+        builder.clearField(fd);
+        for (Object v : kept) {
+            builder.addRepeatedField(fd, v);
+        }
+    }
+
+    /**
+     * Remove the map entry whose key equals {@code targetKey} from the given map field
+     * on {@code builder}. Uses the portable clearField + addRepeatedField approach.
+     */
+    private static void removeMapEntryByKey(DynamicMessage.Builder builder,
+            FieldDescriptor fd, FieldDescriptor mapKeyDesc, Object targetKey) {
+        if (mapKeyDesc == null || targetKey == null) {
+            return;
+        }
+        int count = builder.getRepeatedFieldCount(fd);
+        List<Object> kept = new ArrayList<>(count);
+        boolean removed = false;
+        for (int i = 0; i < count; i++) {
+            Object entry = builder.getRepeatedField(fd, i);
+            if (entry instanceof DynamicMessage) {
+                Object keyVal = ((DynamicMessage) entry).getField(mapKeyDesc);
+                if (Objects.equals(targetKey, keyVal)) {
+                    removed = true;
+                    continue;
+                }
+            }
+            kept.add(entry);
+        }
+        if (!removed) {
+            return;
+        }
+        builder.clearField(fd);
+        for (Object e : kept) {
+            builder.addRepeatedField(fd, e);
+        }
     }
 }

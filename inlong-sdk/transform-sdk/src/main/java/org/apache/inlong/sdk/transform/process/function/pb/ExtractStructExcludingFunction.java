@@ -33,42 +33,50 @@ import com.google.protobuf.DynamicMessage;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import org.apache.flink.table.data.GenericArrayData;
-import org.apache.flink.table.data.GenericRowData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ExtractStructFunction  ->  extract_struct(path, field1, field2, field3...)
+ * ExtractStructExcludingFunction  ->  extract_struct_excluding(path, excludeField1, excludeField2, ...)
  * description:
  * - Only works on protobuf source data; returns NULL if the source is not a PbSourceData.
  * - Returns NULL if 'path' is missing/invalid, or the path cannot be resolved to a
- *   DynamicMessage in the protobuf source data.
- * - Otherwise, returns a GenericRowData whose arity equals the number of declared
- *   fields (field1, field2, ...). For each declared field:
- *     - if the field can be resolved on the located message, the corresponding
- *       position is filled with the resolved value;
- *     - otherwise (field not found, or the parameter is not a column reference),
- *       the corresponding position is set to NULL.
+ *   message-typed node in the protobuf source data.
+ * - Each {@code excludeFieldN} is the name (relative to 'path') of a sub-field that
+ *   should be REMOVED from a copy of the located message before returning. Parameters
+ *   that cannot be resolved on the located message, or are not plain column references,
+ *   are silently ignored. The original record is never mutated.
+ * - When 'path' resolves to:
+ *     - a single message: returns a GenericRowData built from a trimmed copy of that
+ *       message (the excluded fields are cleared);
+ *     - a repeated (array) field of messages: returns a GenericArrayData whose elements
+ *       are the trimmed GenericRowData for every array element.
  */
 @TransformFunction(type = FunctionConstant.PB_TYPE, names = {
-        "extract_struct"}, parameter = "(path, field1,field2,field3...)", descriptions = {
+        "extract_struct_excluding"}, parameter = "(path, excludeField1, excludeField2, ...)", descriptions = {
                 "- Only works on protobuf source data; returns NULL if the source is not a PbSourceData;",
                 "- Returns NULL if 'path' is missing/invalid, or the path cannot be resolved "
-                        + "to a DynamicMessage in the protobuf source data;",
-                "- Otherwise, returns a GenericRowData whose arity equals the number of declared fields. "
-                        + "Each position is filled with the resolved field value, or NULL if the field "
-                        + "cannot be resolved on the located message."
+                        + "to a message-typed node;",
+                "- Each excludeFieldN is the name (relative to 'path') of a sub-field to REMOVE "
+                        + "from a copy of the located message; unknown / non-column-reference "
+                        + "parameters are silently ignored;",
+                "- When 'path' resolves to a single message, returns a trimmed GenericRowData. "
+                        + "When 'path' resolves to a repeated message field, returns a "
+                        + "GenericArrayData whose elements are the trimmed GenericRowData for "
+                        + "every array element. The original record is never mutated."
         }, examples = {
-                "extract_struct($root.person,name,age) = +I(\"Alice\",11)"
+                "extract_struct_excluding($root.person,address,phone) "
+                        + "= <GenericRowData of person without address and phone>"
         })
-public class ExtractStructFunction implements ValueParser {
+public class ExtractStructExcludingFunction implements ValueParser {
 
     private final ValueParser pathParser;
     private final List<ValueParser> fieldParsers;
     private String path;
+    private boolean isKeepMessage = false;
 
-    public ExtractStructFunction(Function expr) {
+    public ExtractStructExcludingFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         this.pathParser = OperatorTools.buildParser(expressions.get(0));
         if (pathParser instanceof ColumnParser) {
@@ -89,6 +97,9 @@ public class ExtractStructFunction implements ValueParser {
             return null;
         }
         PbSourceData pbData = (PbSourceData) sourceData;
+        if (PbSourceData.ROOT.equals(path)) {
+            return buildStruct(pbData, rowIndex, context, pbData.getRoot());
+        }
         // parse path
         List<PbNode> pathChildNodes = pbData.parseStructNodeList(path, pbData.getRootDesc());
         if (pathChildNodes == null || pathChildNodes.size() == 0) {
@@ -110,13 +121,13 @@ public class ExtractStructFunction implements ValueParser {
                 return null;
             }
             List<?> currentNodeList = (List<?>) currentNode;
-            List<GenericRowData> valueResult = new ArrayList<>(currentNodeList.size());
+            List<Object> valueResult = new ArrayList<>(currentNodeList.size());
             for (Object nodeValue : currentNodeList) {
                 if (!(nodeValue instanceof DynamicMessage)) {
                     continue;
                 }
                 DynamicMessage currentValue = (DynamicMessage) nodeValue;
-                GenericRowData item = buildStruct(pbData, rowIndex, context, currentValue);
+                Object item = buildStruct(pbData, rowIndex, context, currentValue);
                 valueResult.add(item);
             }
             GenericArrayData result = new GenericArrayData(valueResult.toArray());
@@ -131,49 +142,41 @@ public class ExtractStructFunction implements ValueParser {
         }
     }
 
-    private GenericRowData buildStruct(PbSourceData pbData, int rowIndex, Context context,
-            DynamicMessage currentValue) {
+    private Object buildStruct(PbSourceData pbData, int rowIndex, Context context,
+            DynamicMessage rawValue) {
+        DynamicMessage.Builder currentValue = rawValue.toBuilder();
         Descriptor currentDesc = currentValue.getDescriptorForType();
-        GenericRowData result = new GenericRowData(fieldParsers.size());
-        int index = 0;
         for (ValueParser parser : fieldParsers) {
             if (parser instanceof ColumnParser) {
                 ColumnParser columnParser = (ColumnParser) parser;
                 String fieldName = columnParser.getFieldName();
                 List<PbNode> childNodes = pbData.parseStructNodeList(fieldName, currentDesc);
                 if (childNodes == null || childNodes.size() == 0) {
-                    result.setField(index++, null);
                     continue;
                 }
-                Object fieldValue = pbData.findNodeValueByCache(childNodes, currentValue);
-                PbNode lastNode = childNodes.get(childNodes.size() - 1);
-                if (lastNode.isArrayType() && !lastNode.isHasArrayIndex()) {
-                    if (!(fieldValue instanceof List)) {
-                        result.setField(index++, null);
-                        continue;
-                    }
-                    List<?> valueList = (List<?>) fieldValue;
-                    List<Object> valueResult = new ArrayList<>(valueList.size());
-                    for (Object value : valueList) {
-                        Object transformedValue = pbData.buildFieldValue(lastNode.getFieldDesc(), value);
-                        valueResult.add(transformedValue);
-                    }
-                    GenericArrayData arrayItem = new GenericArrayData(valueResult.toArray());
-                    result.setField(index++, arrayItem);
-                } else {
-                    Object transformedValue = pbData.buildFieldValue(lastNode.getFieldDesc(), fieldValue);
-                    result.setField(index++, transformedValue);
-                }
-            } else if (parser instanceof ExtractBinaryFunction) {
-                ExtractBinaryFunction extractBinaryFunc = (ExtractBinaryFunction) parser;
-                extractBinaryFunc.setParentRoot(currentValue);
-                extractBinaryFunc.setParentDesc(currentDesc);
-                Object fieldValue = extractBinaryFunc.parse(pbData, rowIndex, context);
-                result.setField(index++, fieldValue);
-            } else {
-                result.setField(index++, null);
+                pbData.clearNodeValue(childNodes, currentValue);
             }
         }
+        if (isKeepMessage()) {
+            return currentValue.build();
+        }
+        Object result = pbData.buildStructData(currentDesc, currentValue.build());
         return result;
+    }
+
+    /**
+     * get isKeepMessage
+     * @return the isKeepMessage
+     */
+    public boolean isKeepMessage() {
+        return isKeepMessage;
+    }
+
+    /**
+     * set isKeepMessage
+     * @param isKeepMessage the isKeepMessage to set
+     */
+    public void setKeepMessage(boolean isKeepMessage) {
+        this.isKeepMessage = isKeepMessage;
     }
 }

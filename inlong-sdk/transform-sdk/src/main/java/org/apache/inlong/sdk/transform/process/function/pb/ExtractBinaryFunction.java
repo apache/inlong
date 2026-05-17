@@ -66,16 +66,12 @@ import java.util.List;
 public class ExtractBinaryFunction implements ValueParser {
 
     private final ValueParser pathParser;
-    private String path;
     private Descriptor parentDesc;
     private DynamicMessage parentRoot;
 
     public ExtractBinaryFunction(Function expr) {
         List<Expression> expressions = expr.getParameters().getExpressions();
         this.pathParser = OperatorTools.buildParser(expressions.get(0));
-        if (pathParser instanceof ColumnParser) {
-            this.path = ((ColumnParser) pathParser).getFieldName();
-        }
     }
 
     @Override
@@ -84,10 +80,28 @@ public class ExtractBinaryFunction implements ValueParser {
         if (!(sourceData instanceof PbSourceData)) {
             return null;
         }
+        if (pathParser instanceof ColumnParser) {
+            return this.parseByColumnParser(sourceData, rowIndex, context);
+        }
+        if (pathParser instanceof ExtractStructExcludingFunction) {
+            ExtractStructExcludingFunction excluding = (ExtractStructExcludingFunction) pathParser;
+            excluding.setKeepMessage(true);
+            Object result = excluding.parse(sourceData, rowIndex, context);
+            return toByteArray(result);
+        }
+        Object result = this.pathParser.parse(sourceData, rowIndex, context);
+        return toByteArray(result);
+    }
+
+    public Object parseByColumnParser(SourceData sourceData, int rowIndex, Context context) {
+        String path = ((ColumnParser) pathParser).getFieldName();
         if (path == null) {
             return null;
         }
         PbSourceData pbData = (PbSourceData) sourceData;
+        if (StringUtils.equals(PbSourceData.ROOT, path)) {
+            return pbData.getRoot().toByteArray();
+        }
         // node list
         List<PbNode> childNodes = null;
         boolean isParentData = false;
@@ -108,7 +122,7 @@ public class ExtractBinaryFunction implements ValueParser {
         // value
         Object currentNode = null;
         if (isParentData) {
-            currentNode = pbData.findNodeValue(childNodes, parentRoot);
+            currentNode = pbData.findNodeValueByCache(childNodes, parentRoot);
         } else {
             currentNode = pbData.findFieldNode(rowIndex, path);
         }
@@ -147,7 +161,7 @@ public class ExtractBinaryFunction implements ValueParser {
         return null;
     }
 
-    private byte[] toByteArray(Object currentNode) {
+    private Object toByteArray(Object currentNode) {
         if (currentNode == null) {
             return null;
         }
@@ -156,6 +170,14 @@ public class ExtractBinaryFunction implements ValueParser {
         }
         if (currentNode instanceof ByteString) {
             return ((ByteString) currentNode).toByteArray();
+        }
+        if (currentNode instanceof List) {
+            List<?> valueList = (List<?>) currentNode;
+            List<Object> fieldResult = new ArrayList<>(valueList.size());
+            for (Object value : valueList) {
+                fieldResult.add(toByteArray(value));
+            }
+            return new GenericArrayData(fieldResult.toArray());
         }
         return String.valueOf(currentNode).getBytes(StandardCharsets.ISO_8859_1);
     }

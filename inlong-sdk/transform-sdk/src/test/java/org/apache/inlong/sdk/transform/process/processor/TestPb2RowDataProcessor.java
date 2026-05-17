@@ -190,6 +190,66 @@ public class TestPb2RowDataProcessor extends AbstractProcessorTestBase {
         Assert.assertEquals(((GenericArrayData) output.get(0).getArray(6)).getBinary(0).length, 32);
         Assert.assertEquals(((GenericArrayData) output.get(0).getArray(6)).getBinary(1).length, 35);
 
-        Assert.assertEquals(output.get(0).getBinary(7).length, 28);
+        Assert.assertEquals(output.get(0).getBinary(7).length, 53);
+    }
+
+    @Test
+    public void testPb2RowData4ExtractStructExcluding() throws Exception {
+        String transformBase64 = this.getPbTestDescription();
+        PbSourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
+        List<FieldInfo> sinkFields = this.getTestFieldList("sid", "packageID", "msgTime");
+        // extract_struct
+        FieldInfo extractStructExcludingField = new FieldInfo("extractStructExcluding");
+        String[] extractStructExcludingFields = new String[]{"msg", "msgTime", "extinfo"};
+        FormatInfo[] extractStructExcludingFieldFormats = new FormatInfo[]{
+                new BinaryFormatInfo(Integer.MAX_VALUE),
+                new LongFormatInfo(),
+                new MapFormatInfo(new StringFormatInfo(), new StringFormatInfo())
+        };
+        RowFormatInfo extractStructExcludingFormat = new RowFormatInfo(extractStructExcludingFields,
+                extractStructExcludingFieldFormats);
+        extractStructExcludingField.setFormatInfo(extractStructExcludingFormat);
+        sinkFields.add(extractStructExcludingField);
+        // rootBinary
+        FieldInfo rootBinary = new FieldInfo("rootBinary");
+        rootBinary.setFormatInfo(new BinaryFormatInfo(Integer.MAX_VALUE));
+        sinkFields.add(rootBinary);
+        // extractStructExcludingBinary
+        FieldInfo extractStructExcludingBinary = new FieldInfo("extractStructExcludingBinary");
+        extractStructExcludingBinary.setFormatInfo(new BinaryFormatInfo(Integer.MAX_VALUE));
+        sinkFields.add(extractStructExcludingBinary);
+        // extractStructBinary
+        FieldInfo extractStructBinary = new FieldInfo("extractStructBinary");
+        extractStructBinary.setFormatInfo(new BinaryFormatInfo(Integer.MAX_VALUE));
+        sinkFields.add(extractStructBinary);
+        // sink
+        RowDataSinkInfo rowSink = new RowDataSinkInfo("UTF-8", sinkFields);
+        // sql
+        String transformSql = "select $root.sid,$root.packageID,$child.msgTime"
+                + ",extract_struct_excluding($root.msgs(0),msg,extinfo) as extractStructExcluding "
+                + ",extract_binary($root) as rootBinary "
+                + ",extract_binary(extract_struct_excluding($root.msgs(0),msg,extinfo)) as extractStructExcludingBinary "
+                + ",extract_binary(extract_struct($root.msgs(0),msg,msgTime)) as extractStructBinary "
+                + " from source";
+        TransformConfig config = new TransformConfig(transformSql);
+        // case1
+        TransformProcessor<String, RowData> processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createPbDecoder(pbSource),
+                        SinkEncoderFactory.createRowEncoder(rowSink));
+        byte[] srcBytes = this.getPbTestData();
+        List<RowData> output = processor.transformForBytes(srcBytes, new HashMap<>());
+        Assert.assertEquals(2, output.size());
+        // 0
+        Assert.assertEquals(output.get(0).getString(0).toString(), "sid");
+        Assert.assertEquals(output.get(0).getString(1).toString(), "1");
+        Assert.assertEquals(output.get(0).getString(2).toString(), "1713243918000");
+
+        Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getBinary(0).length, 0);
+        Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getLong(1), 1713243918000L);
+        Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getMap(2).size(), 0);
+
+        Assert.assertEquals(output.get(0).getBinary(4).length, 78);
+        Assert.assertEquals(output.get(0).getBinary(5).length, 7);
+        Assert.assertEquals(output.get(0).getBinary(6).length, 60);
     }
 }
