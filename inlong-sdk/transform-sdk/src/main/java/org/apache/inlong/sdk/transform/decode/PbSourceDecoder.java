@@ -86,7 +86,7 @@ public class PbSourceDecoder extends SourceDecoder<String> {
             this.rowsNodePath = sourceInfo.getRowsNodePath();
             this.childNodes = PbNode.parseNodePath(rootDesc, rowsNodePath);
             if (this.childNodes != null && this.childNodes.size() > 0) {
-                this.childDesc = this.childNodes.get(this.childNodes.size() - 1).getMessageType();
+                this.childDesc = this.childNodes.get(this.childNodes.size() - 1).getFieldDesc().getMessageType();
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -127,7 +127,7 @@ public class PbSourceDecoder extends SourceDecoder<String> {
                             break;
                         }
                     }
-                    if (!node.isArray()) {
+                    if (!node.isArrayType()) {
                         if (!(nodeValue instanceof DynamicMessage)) {
                             // error data
                             return new PbSourceData(root, rootDesc, columnNodeMap, srcCharset);

@@ -35,4 +35,6 @@ public class FunctionConstant {
 
     public static final String TEMPORAL_TYPE = "temporal";
 
+    public static final String PB_TYPE = "pb";
+
 }

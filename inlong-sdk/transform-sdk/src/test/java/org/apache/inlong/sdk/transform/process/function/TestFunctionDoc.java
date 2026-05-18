@@ -32,7 +32,7 @@ public class TestFunctionDoc extends AbstractFunctionStringTestBase {
     @Test
     public void TestFunctionDoc() {
         Map<String, Set<FunctionInfo>> functionDocMap = FunctionTools.getFunctionDoc();
-        Assert.assertEquals(8, functionDocMap.size());
+        Assert.assertEquals(9, functionDocMap.size());
         System.out.println(new Gson().toJson(functionDocMap));
     }
 }

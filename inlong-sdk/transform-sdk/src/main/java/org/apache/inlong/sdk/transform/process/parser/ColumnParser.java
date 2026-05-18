@@ -51,4 +51,11 @@ public class ColumnParser implements ValueParser {
         return sourceData.getField(rowIndex, fieldName);
     }
 
+    /**
+     * get fieldName
+     * @return the fieldName
+     */
+    public String getFieldName() {
+        return fieldName;
+    }
 }

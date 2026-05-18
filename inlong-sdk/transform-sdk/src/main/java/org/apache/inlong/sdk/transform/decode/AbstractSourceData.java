@@ -29,11 +29,11 @@ public abstract class AbstractSourceData implements SourceData {
 
     protected Context context;
 
-    protected boolean isContextField(String fieldName) {
+    public boolean isContextField(String fieldName) {
         return fieldName.startsWith(CTX_KEY);
     }
 
-    protected String getContextField(String fieldName) {
+    public String getContextField(String fieldName) {
         if (context == null) {
             return "";
         }
