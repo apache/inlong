@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"math"
+	"net"
 	"sync"
 	"time"
 
@@ -213,7 +214,12 @@ func (c *client) initWorkers() error {
 }
 
 func (c *client) Dial(addr string, ctx any) (gnet.Conn, error) {
-	return c.netClient.DialContext("tcp", addr, ctx)
+	// Use net.DialTimeout to bound the TCP handshake duration
+	raw, err := net.DialTimeout("tcp", addr, c.options.ConnTimeout)
+	if err != nil {
+		return nil, err
+	}
+	return c.netClient.EnrollContext(raw, ctx)
 }
 
 func (c *client) Send(ctx context.Context, msg Message) error {
