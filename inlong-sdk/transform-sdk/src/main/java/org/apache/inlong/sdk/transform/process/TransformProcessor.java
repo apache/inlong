@@ -116,6 +116,11 @@ public class TransformProcessor<I, O> {
                         fieldName = exprItem.toString();
                     } else {
                         fieldName = exprItem.getAlias().getName();
+                        // Strip surrounding backticks if present
+                        if (fieldName != null && fieldName.length() >= 2
+                                && fieldName.startsWith("`") && fieldName.endsWith("`")) {
+                            fieldName = fieldName.substring(1, fieldName.length() - 1);
+                        }
                     }
                     if (!this.checkSelectField(fieldName)) {
                         throw new JSQLParserException(

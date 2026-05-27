@@ -27,6 +27,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import com.google.protobuf.DynamicMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
@@ -35,8 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,8 +71,8 @@ public class PbSourceData extends AbstractSourceData {
 
     protected Charset srcCharset;
 
-    private Map<DynamicMessage, Map<String, Object>> nodeValueCache = new HashMap<>();
-    private Map<DynamicMessage, Map<String, Map<Object, Object>>> mapNodeCache = new HashMap<>();
+    private Map<DynamicMessage, Map<String, Object>> nodeValueCache = new IdentityHashMap<>();
+    private Map<DynamicMessage, Map<String, Map<Object, Object>>> mapNodeCache = new IdentityHashMap<>();
 
     /**
      * Constructor
@@ -158,7 +161,10 @@ public class PbSourceData extends AbstractSourceData {
                     List<Object> valueList = (List) fieldValue;
                     List<Object> result = new ArrayList<>(valueList.size());
                     for (Object value : valueList) {
-                        result.add(this.buildFieldValue(lastNode.getFieldDesc(), value));
+                        Object itemValue = this.buildFieldValue(lastNode.getFieldDesc(), value);
+                        if (itemValue != null) {
+                            result.add(itemValue);
+                        }
                     }
                     return new GenericArrayData(result.toArray());
                 }
@@ -184,12 +190,38 @@ public class PbSourceData extends AbstractSourceData {
         }
         switch (fieldDesc.getJavaType()) {
             case STRING:
+                if (nodeValue instanceof BinaryStringData) {
+                    return nodeValue;
+                }
+                if (nodeValue instanceof String) {
+                    return new BinaryStringData((String) nodeValue);
+                }
+                return new BinaryStringData(String.valueOf(nodeValue));
             case INT:
+                if (nodeValue instanceof Integer) {
+                    return nodeValue;
+                }
+                return NumberUtils.toInt(String.valueOf(nodeValue), 0);
             case LONG:
+                if (nodeValue instanceof Long) {
+                    return nodeValue;
+                }
+                return NumberUtils.toLong(String.valueOf(nodeValue), 0);
             case FLOAT:
+                if (nodeValue instanceof Float) {
+                    return nodeValue;
+                }
+                return NumberUtils.toFloat(String.valueOf(nodeValue), 0);
             case DOUBLE:
+                if (nodeValue instanceof Double) {
+                    return nodeValue;
+                }
+                return NumberUtils.toDouble(String.valueOf(nodeValue), 0);
             case BOOLEAN:
-                return nodeValue;
+                if (nodeValue instanceof Boolean) {
+                    return nodeValue;
+                }
+                return Boolean.TRUE.toString().equals(String.valueOf(nodeValue));
             case ENUM:
                 if (nodeValue instanceof EnumValueDescriptor) {
                     EnumValueDescriptor enumDesc = (EnumValueDescriptor) nodeValue;
@@ -197,15 +229,17 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 return null;
             case BYTE_STRING:
-                if (nodeValue instanceof ByteString) {
+                if (nodeValue instanceof byte[]) {
+                    return nodeValue;
+                } else if (nodeValue instanceof ByteString) {
                     return ((ByteString) nodeValue).toByteArray();
                 } else {
-                    return nodeValue;
+                    return String.valueOf(nodeValue).getBytes(StandardCharsets.ISO_8859_1);
                 }
             case MESSAGE:
                 return this.buildStructData(fieldDesc.getMessageType(), nodeValue);
             default:
-                return String.valueOf(nodeValue);
+                return nodeValue;
         }
     }
 
@@ -269,7 +303,9 @@ public class PbSourceData extends AbstractSourceData {
             DynamicMessage subnodeValue = (DynamicMessage) value;
             Object keyValue = buildFieldValue(keyField, subnodeValue.getField(keyField));
             Object valueValue = buildFieldValue(valueField, subnodeValue.getField(valueField));
-            result.put(keyValue, valueValue);
+            if (keyValue != null && valueValue != null) {
+                result.put(keyValue, valueValue);
+            }
         }
         return new GenericMapData(result);
     }
@@ -307,7 +343,7 @@ public class PbSourceData extends AbstractSourceData {
     }
 
     public Object findFieldNode(int rowNum, String fieldName) {
-        Object fieldValue = "";
+        Object fieldValue = null;
         try {
             if (StringUtils.startsWith(fieldName, ROOT_KEY)) {
                 fieldValue = this.findRootField(fieldName);
@@ -326,7 +362,7 @@ public class PbSourceData extends AbstractSourceData {
                 }
                 // error config
                 if (childNodes.size() == 0) {
-                    return "";
+                    return null;
                 }
                 // parse other node
                 fieldValue = this.findNodeValueByCache(childNodes, root);
@@ -377,7 +413,7 @@ public class PbSourceData extends AbstractSourceData {
 
     private Object findChildField(int rowNum, String srcFieldName) {
         if (this.childRoot == null || this.childDesc == null) {
-            return "";
+            return null;
         }
         List<PbNode> childNodes = this.columnNodeMap.get(srcFieldName);
         if (childNodes == null) {
@@ -390,7 +426,7 @@ public class PbSourceData extends AbstractSourceData {
         }
         // error config
         if (childNodes.size() == 0) {
-            return "";
+            return null;
         }
         // parse other node
         DynamicMessage child = childRoot.get(rowNum);
@@ -423,7 +459,47 @@ public class PbSourceData extends AbstractSourceData {
             subNodeValue = subNodeValueCache.get(node.getCurrentPath());
             if (subNodeValue != null) {
                 if (i == childNodes.size() - 1) {
-                    return subNodeValue;
+                    // primitive
+                    if (node.isPrimitiveType()) {
+                        return subNodeValue;
+                    }
+                    // struct
+                    if (node.isStructType()) {
+                        return subNodeValue;
+                    }
+                    // array
+                    if (node.isArrayType()) {
+                        if (!node.isHasArrayIndex()) {
+                            return subNodeValue;
+                        }
+                        if (!(subNodeValue instanceof List)) {
+                            return null;
+                        }
+                        List<?> nodeValueList = (List<?>) subNodeValue;
+                        if (node.getArrayIndex() >= nodeValueList.size()) {
+                            return null;
+                        }
+                        Object newNode = nodeValueList.get(node.getArrayIndex());
+                        if (!(newNode instanceof DynamicMessage)) {
+                            return null;
+                        }
+                        return newNode;
+                    }
+                    // map
+                    if (node.isMapType()) {
+                        if (!node.isHasMapKey()) {
+                            return subNodeValue;
+                        }
+                        final Object mapNodeValue = subNodeValue;
+                        Map<Object, Object> mapCache = subMapNodeCache.computeIfAbsent(node.getCurrentPath(),
+                                k -> parseMapNode(mapNodeValue, node));
+                        Object fieldValue = mapCache.get(node.getMapKey());
+                        if (fieldValue == null || !(fieldValue instanceof DynamicMessage)) {
+                            return null;
+                        }
+                        return fieldValue;
+                    }
+                    return null;
                 } else {
                     // primitive
                     if (node.isPrimitiveType()) {

@@ -23,8 +23,8 @@ import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.data.binary.BinaryStringData;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
@@ -139,7 +139,7 @@ public class FieldToRowDataUtils {
                     FieldToRowDataConverter keyConverter = createFieldRowConverter(((MapType) fieldType).getKeyType());
                     FieldToRowDataConverter valueConverter = createFieldRowConverter(
                             ((MapType) fieldType).getValueType());
-                    Map map = (Map) obj;
+                    Map<?, ?> map = (Map<?, ?>) obj;
                     Map<Object, Object> internalMap = new HashMap<>();
                     for (Object k : map.keySet()) {
                         internalMap.put(keyConverter.convert(k),
@@ -279,10 +279,16 @@ public class FieldToRowDataUtils {
             if (obj == null) {
                 return null;
             }
-            if (obj instanceof byte[]) {
-                return StringData.fromString(new String((byte[]) obj));
+            if (obj instanceof BinaryStringData) {
+                return obj;
             }
-            return StringData.fromString(String.valueOf(obj));
+            if (obj instanceof String) {
+                return new BinaryStringData((String) obj);
+            }
+            if (obj instanceof byte[]) {
+                return new BinaryStringData(new String((byte[]) obj));
+            }
+            return new BinaryStringData(String.valueOf(obj));
         } catch (RuntimeException e) {
             if (isIgnoreError()) {
                 return null;
@@ -428,7 +434,7 @@ public class FieldToRowDataUtils {
             if (obj instanceof List<?>) {
                 return new GenericArrayData(((List<?>) obj).toArray());
             }
-            return new GenericArrayData(new Object[]{obj});
+            return null;
         } catch (RuntimeException e) {
             if (isIgnoreError()) {
                 return null;
@@ -448,9 +454,7 @@ public class FieldToRowDataUtils {
             if (obj instanceof Map<?, ?>) {
                 return new GenericMapData((Map<?, ?>) obj);
             }
-            Map<Object, Object> mapObj = new HashMap<>();
-            mapObj.put(obj, obj);
-            return new GenericMapData(mapObj);
+            return null;
         } catch (RuntimeException e) {
             if (isIgnoreError()) {
                 return null;
@@ -467,9 +471,7 @@ public class FieldToRowDataUtils {
             if (obj instanceof GenericRowData) {
                 return obj;
             }
-            GenericRowData result = new GenericRowData(1);
-            result.setField(0, obj);
-            return result;
+            return null;
         } catch (RuntimeException e) {
             if (isIgnoreError()) {
                 return null;

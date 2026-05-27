@@ -36,6 +36,7 @@ import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.binary.BinaryStringData;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -98,8 +99,9 @@ public class TestPb2RowDataProcessor extends AbstractProcessorTestBase {
         Assert.assertEquals(output.get(0).getString(1).toString(), "1");
         Assert.assertEquals(output.get(0).getString(2).toString(), "1713243918000");
         Assert.assertEquals(new String(output.get(0).getBinary(3)), "msgValue4");
-        Assert.assertEquals(((GenericMapData) output.get(0).getMap(4)).get("key"), "value");
-        Assert.assertEquals(((GenericMapData) output.get(0).getMap(4)).get("value"), null);
+        Assert.assertEquals(((GenericMapData) output.get(0).getMap(4)).get(new BinaryStringData("key")).toString(),
+                "value");
+        Assert.assertEquals(((GenericMapData) output.get(0).getMap(4)).get(new BinaryStringData("value")), null);
         Assert.assertEquals(new String(((GenericRowData) output.get(0).getRow(5, 3)).getBinary(0)), "msgValue42");
         Assert.assertEquals(((GenericRowData) output.get(0).getRow(5, 3)).getLong(1), 1713243918002L);
         Assert.assertEquals(((GenericRowData) output.get(0).getRow(5, 3)).getMap(2).size(), 1);
@@ -109,8 +111,9 @@ public class TestPb2RowDataProcessor extends AbstractProcessorTestBase {
         Assert.assertEquals(output.get(1).getString(1).toString(), "1");
         Assert.assertEquals(output.get(1).getString(2).toString(), "1713243918002");
         Assert.assertEquals(new String(output.get(1).getBinary(3)), "msgValue42");
-        Assert.assertEquals(((GenericMapData) output.get(1).getMap(4)).get("key2"), "value2");
-        Assert.assertEquals(((GenericMapData) output.get(1).getMap(4)).get("value"), null);
+        Assert.assertEquals(((GenericMapData) output.get(1).getMap(4)).get(new BinaryStringData("key2")).toString(),
+                "value2");
+        Assert.assertEquals(((GenericMapData) output.get(1).getMap(4)).get(new BinaryStringData("value")), null);
         Assert.assertEquals(new String(((GenericRowData) output.get(1).getRow(5, 3)).getBinary(0)), "msgValue42");
         Assert.assertEquals(((GenericRowData) output.get(1).getRow(5, 3)).getLong(1), 1713243918002L);
         Assert.assertEquals(((GenericRowData) output.get(1).getRow(5, 3)).getMap(2).size(), 1);
