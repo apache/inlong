@@ -51,7 +51,7 @@ public class DefaultSinkData implements SinkData {
      */
     @Override
     public Object getField(String fieldName) {
-        return this.currentRow.getOrDefault(fieldName, "");
+        return this.currentRow.get(fieldName);
     }
 
     /**
