@@ -29,6 +29,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = CsvConfig.class, name = DeserializationType.CSV),
         @JsonSubTypes.Type(value = KvConfig.class, name = DeserializationType.KV),
         @JsonSubTypes.Type(value = PbConfig.class, name = DeserializationType.PB),
+        @JsonSubTypes.Type(value = JsonConfig.class, name = DeserializationType.JSON),
 })
 public interface DataTypeConfig extends Serializable {
 
