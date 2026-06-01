@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -288,6 +289,17 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean testConnection(DataNodeRequest request) {
         LOGGER.info("begin test connection for: {}", request);
+
+        // Validate URL to prevent SSRF attacks
+        String url = request.getUrl();
+        if (StringUtils.isNotBlank(url)) {
+            try {
+                UrlVerificationUtils.validateUrlNotInternal(url);
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "SSRF protection: " + e.getMessage());
+            }
+        }
 
         // according to the data node type, test connection
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
