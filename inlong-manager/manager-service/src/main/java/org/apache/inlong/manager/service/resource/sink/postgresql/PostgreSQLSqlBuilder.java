@@ -115,6 +115,12 @@ public class PostgreSQLSqlBuilder {
      * @return SQL String
      */
     public static String buildCreateSchema(final String schemaName, final String user) {
+        if (!schemaName.matches("^[a-zA-Z0-9._]+$")) {
+            throw new IllegalArgumentException("Invalid schema name");
+        }
+        if (!user.matches("^[a-zA-Z0-9._]+$")) {
+            throw new IllegalArgumentException("Invalid user name");
+        }
         return new StringBuilder()
                 .append(" CREATE SCHEMA \"")
                 .append(schemaName)

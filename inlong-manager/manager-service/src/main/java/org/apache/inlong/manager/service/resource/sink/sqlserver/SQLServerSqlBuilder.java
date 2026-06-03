@@ -98,6 +98,9 @@ public class SQLServerSqlBuilder {
      * @return
      */
     public static String buildCreateSchemaSql(String schemaName) {
+        if (!schemaName.matches("^[a-zA-Z0-9._]+$")) {
+            throw new IllegalArgumentException("Invalid schema name");
+        }
         return new StringBuilder()
                 .append("CREATE SCHEMA \"")
                 .append(schemaName)
