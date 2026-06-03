@@ -305,12 +305,14 @@ public class InlongClusterController {
 
     @PostMapping("/cluster/node/testSSHConnection")
     @ApiOperation(value = "Test SSH connection for inlong cluster node")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
     public Response<Boolean> testSSHConnection(@RequestBody ClusterNodeRequest request) {
         return Response.success(clusterService.testSSHConnection(request));
     }
 
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
     public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {
         return Response.success(clusterService.testConnection(request));
     }

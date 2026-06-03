@@ -37,6 +37,7 @@ import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
@@ -940,6 +941,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean testSSHConnection(ClusterNodeRequest request) {
+        // Validate IP to prevent SSRF attacks
+        String ip = request.getIp();
+        if (StringUtils.isNotBlank(ip)) {
+            try {
+                UrlVerificationUtils.validateHostNotInternal(ip);
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "SSRF protection: " + e.getMessage());
+            }
+        }
+
         AgentClusterNodeRequest nodeRequest = (AgentClusterNodeRequest) request;
         try {
             CommandResult commandResult = commandExecutor.execRemote(nodeRequest, "ls");
@@ -1270,6 +1282,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean testConnection(ClusterRequest request) {
         LOGGER.info("begin test connection for: {}", request);
+
+        // Validate URL to prevent SSRF attacks
+        String url = request.getUrl();
+        if (StringUtils.isNotBlank(url)) {
+            try {
+                UrlVerificationUtils.validateUrlNotInternal(url);
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "SSRF protection: " + e.getMessage());
+            }
+        }
 
         // according to the data node type, test connection
         InlongClusterOperator clusterOperator = clusterOperatorFactory.getInstance(request.getType());
