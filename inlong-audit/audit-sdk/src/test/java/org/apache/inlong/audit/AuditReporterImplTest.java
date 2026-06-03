@@ -18,6 +18,7 @@
 package org.apache.inlong.audit;
 
 import org.apache.inlong.audit.util.StatInfo;
+
 import org.junit.Test;
 
 import java.lang.reflect.Field;
