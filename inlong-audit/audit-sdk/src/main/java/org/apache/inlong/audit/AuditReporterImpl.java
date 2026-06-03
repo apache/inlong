@@ -298,16 +298,17 @@ public class AuditReporterImpl implements Serializable {
 
     /**
      * Add audit info by key.
+     *
+     * Use {@link ConcurrentHashMap#computeIfAbsent} to atomically get-or-create
+     * the inner map and the {@link StatInfo} entry, avoiding the race condition
+     * where a concurrent flush/clearExpiredKey removes the entry between
+     * {@code putIfAbsent} and the subsequent {@code get}, which could otherwise
+     * cause a NullPointerException or silent data loss.
      */
     private void addByKey(long isolateKey, String statKey, long count, long size, long delayTime) {
-        if (null == this.preStatMap.get(isolateKey)) {
-            this.preStatMap.putIfAbsent(isolateKey, new ConcurrentHashMap<>());
-        }
-        ConcurrentHashMap<String, StatInfo> statMap = this.preStatMap.get(isolateKey);
-        if (null == statMap.get(statKey)) {
-            statMap.putIfAbsent(statKey, new StatInfo(0L, 0L, 0L));
-        }
-        StatInfo stat = statMap.get(statKey);
+        ConcurrentHashMap<String, StatInfo> statMap =
+                this.preStatMap.computeIfAbsent(isolateKey, k -> new ConcurrentHashMap<>());
+        StatInfo stat = statMap.computeIfAbsent(statKey, k -> new StatInfo(0L, 0L, 0L));
         stat.count.addAndGet(count);
         stat.size.addAndGet(size);
         stat.delay.addAndGet(delayTime);
