@@ -82,7 +82,8 @@ public class SortConfigUtil {
                 .map(key -> {
                     T lastElement = lastMap.get(key);
                     T currentElement = currentMap.get(key);
-                    Comparator<T> comparator = Comparator.comparing(versionExtractor);
+                    Comparator<T> comparator = Comparator.comparing(versionExtractor,
+                            Comparator.nullsFirst(Comparator.naturalOrder()));
                     return comparator.compare(lastElement, currentElement) < 0 ? currentElement : null;
                 })
                 .filter(Objects::nonNull)
@@ -138,7 +139,8 @@ public class SortConfigUtil {
                 .map(key -> {
                     T lastElement = lastMap.get(key);
                     T currentElement = currentMap.get(key);
-                    Comparator<T> comparator = Comparator.comparing(versionExtractor);
+                    Comparator<T> comparator = Comparator.comparing(versionExtractor,
+                            Comparator.nullsFirst(Comparator.naturalOrder()));
                     return comparator.compare(lastElement, currentElement) >= 0 ? lastElement : null;
                 })
                 .filter(Objects::nonNull)
