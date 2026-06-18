@@ -256,6 +256,10 @@ public class PbSourceData extends AbstractSourceData {
         GenericRowData result = new GenericRowData(messageType.getFields().size());
         int index = 0;
         for (FieldDescriptor fieldDesc : messageType.getFields()) {
+            if (!fieldDesc.isRepeated() && !msgObj.hasField(fieldDesc)) {
+                result.setField(index++, null);
+                continue;
+            }
             Object fieldValue = msgObj.getField(fieldDesc);
             if (fieldValue == null) {
                 result.setField(index++, null);
@@ -301,10 +305,12 @@ public class PbSourceData extends AbstractSourceData {
                 continue;
             }
             DynamicMessage subnodeValue = (DynamicMessage) value;
-            Object keyValue = buildFieldValue(keyField, subnodeValue.getField(keyField));
-            Object valueValue = buildFieldValue(valueField, subnodeValue.getField(valueField));
-            if (keyValue != null && valueValue != null) {
-                result.put(keyValue, valueValue);
+            if (subnodeValue.hasField(keyField) && subnodeValue.hasField(valueField)) {
+                Object keyValue = buildFieldValue(keyField, subnodeValue.getField(keyField));
+                Object valueValue = buildFieldValue(valueField, subnodeValue.getField(valueField));
+                if (keyValue != null && valueValue != null) {
+                    result.put(keyValue, valueValue);
+                }
             }
         }
         return new GenericMapData(result);
@@ -562,9 +568,11 @@ public class PbSourceData extends AbstractSourceData {
                 continue;
             }
             DynamicMessage msg = (DynamicMessage) value;
-            Object keyValue = msg.getField(node.getMapKeyDesc());
-            Object valueValue = msg.getField(node.getMapValueDesc());
-            mapCache.put(keyValue, valueValue);
+            if (msg.hasField(node.getMapKeyDesc()) && msg.hasField(node.getMapValueDesc())) {
+                Object keyValue = msg.getField(node.getMapKeyDesc());
+                Object valueValue = msg.getField(node.getMapValueDesc());
+                mapCache.put(keyValue, valueValue);
+            }
         }
         return mapCache;
     }
@@ -578,6 +586,9 @@ public class PbSourceData extends AbstractSourceData {
         DynamicMessage current = root;
         for (int i = 0; i < childNodes.size(); i++) {
             PbNode node = childNodes.get(i);
+            if (!node.getFieldDesc().isRepeated() && !current.hasField(node.getFieldDesc())) {
+                break;
+            }
             Object nodeValue = current.getField(node.getFieldDesc());
             if (nodeValue == null) {
                 // error data
@@ -815,6 +826,9 @@ public class PbSourceData extends AbstractSourceData {
                     continue;
                 }
                 DynamicMessage entryMsg = (DynamicMessage) entry;
+                if (!entryMsg.hasField(mapKeyDesc) || !entryMsg.hasField(mapValueDesc)) {
+                    continue;
+                }
                 Object keyVal = entryMsg.getField(mapKeyDesc);
                 if (keyVal == null || !Objects.equals(node.getMapKey(), keyVal)) {
                     continue;
@@ -873,6 +887,9 @@ public class PbSourceData extends AbstractSourceData {
         for (int i = 0; i < count; i++) {
             Object entry = builder.getRepeatedField(fd, i);
             if (entry instanceof DynamicMessage) {
+                if (!((DynamicMessage) entry).hasField(mapKeyDesc)) {
+                    continue;
+                }
                 Object keyVal = ((DynamicMessage) entry).getField(mapKeyDesc);
                 if (Objects.equals(targetKey, keyVal)) {
                     removed = true;

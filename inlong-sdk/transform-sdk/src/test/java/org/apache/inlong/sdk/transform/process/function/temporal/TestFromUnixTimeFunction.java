@@ -91,5 +91,15 @@ public class TestFromUnixTimeFunction extends AbstractFunctionTemporalTestBase {
         List<String> output6 = processor6.transform("can|apple|cloud|1753353737123|1|3", new HashMap<>());
         Assert.assertEquals(1, output6.size());
         Assert.assertEquals(output6.get(0), "result=2025-07-24 18:00:00");
+
+        String transformSql7 = "select from_unix_time(now()/1000,'yyyyMMddHH') as partitionTime from source";
+        TransformConfig config7 = new TransformConfig(transformSql7);
+        TransformProcessor<String, String> processor7 = TransformProcessor
+                .create(config7, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        // case7: from_unix_time(now()/1000,'yyyyMMddHH')
+        List<String> output7 = processor7.transform("can|apple|cloud|1753353737123|1|3", new HashMap<>());
+        Assert.assertEquals(1, output7.size());
+        Assert.assertEquals(output7.get(0), "result=2025-07-24 18:00:00");
     }
 }

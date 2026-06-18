@@ -230,7 +230,7 @@ public class TransformProcessor<I, O> {
                 try {
                     Object fieldValue = parser.parse(sourceData, i, context);
                     if (fieldValue == null) {
-                        sinkData.addField(fieldName, "");
+                        sinkData.addField(fieldName, null);
                     } else {
                         sinkData.addField(fieldName, fieldValue);
                     }
