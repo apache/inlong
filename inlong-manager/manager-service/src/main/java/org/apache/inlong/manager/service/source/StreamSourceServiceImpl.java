@@ -385,7 +385,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                 groupId, streamId, operator);
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), operator,
+                "Current user does not have permission to delete source info");
         int sourceCount = sourceMapper.logicalDeleteByRelatedId(groupId, streamId,
                 SourceStatus.TO_BE_ISSUED_DELETE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
