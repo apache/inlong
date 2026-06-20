@@ -17,7 +17,9 @@
 
 package org.apache.inlong.agent.plugin.task.logcollection.local;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.task.logcollection.LogAbstractTask;
@@ -28,6 +30,7 @@ import org.apache.inlong.agent.plugin.utils.regex.PatternUtil;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.file.FileUtils;
+import org.apache.inlong.common.util.PathValidationUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,6 +158,13 @@ public class FileTask extends LogAbstractTask {
         ArrayList<String> directories = PatternUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         String basicStaticPath = directories.get(0);
         LOGGER.info("dataName {} watchPath {}", new Object[]{originPattern, basicStaticPath});
+
+        // Defense-in-depth: validate against allowed directories configured at agent level
+        if (!isWithinAllowedDirs(basicStaticPath)) {
+            LOGGER.error("Path not in allowed dirs, rejecting: {}", basicStaticPath);
+            return;
+        }
+
         /* Remember the failed watcher creations. */
         if (!new File(basicStaticPath).exists()) {
             LOGGER.warn("DIRECTORY_NOT_FOUND_ERROR" + basicStaticPath);
@@ -397,5 +407,22 @@ public class FileTask extends LogAbstractTask {
                 LOGGER.error("Restart a new watcher runs into error: ", e);
             }
         }
+    }
+
+    /**
+     * Check whether the given directory path is within the agent-level allowed directories.
+     * When no allowed dirs are configured (empty), always returns true.
+     */
+    private boolean isWithinAllowedDirs(String dirPath) {
+        String allowedDirsStr = AgentConfiguration.getAgentConf()
+                .get(AgentConstants.AGENT_FILE_ALLOWED_DIRS, AgentConstants.DEFAULT_AGENT_FILE_ALLOWED_DIRS);
+        if (allowedDirsStr == null || allowedDirsStr.trim().isEmpty()) {
+            return true;
+        }
+        Set<String> allowedDirs = Stream.of(allowedDirsStr.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+        return PathValidationUtils.isWithinAllowedDirs(dirPath, allowedDirs);
     }
 }

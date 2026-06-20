@@ -53,7 +53,8 @@ public class EventReportUtils {
         CONFIG_INVALID_RET_CODE(3, "config invalid ret code"),
         CONFIG_INVALID_RESULT(4, "config invalid result maybe visit manager failed"),
         TASK_ADD(5, "task add"),
-        TASK_DELETE(6, "task delete");
+        TASK_DELETE(6, "task delete"),
+        TASK_VALIDATION_FAILED(7, "task validation failed");
 
         private final int code;
         private final String message;

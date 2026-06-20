@@ -33,4 +33,8 @@ public class Constants {
     // Default audit version is -1
     public static final long DEFAULT_AUDIT_VERSION = -1;
 
+    public static final String SLASH = "/";
+
+    public static final char SLASH_CHAR = '/';
+
 }

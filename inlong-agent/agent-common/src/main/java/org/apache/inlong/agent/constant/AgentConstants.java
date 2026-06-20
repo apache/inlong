@@ -143,4 +143,8 @@ public class AgentConstants {
 
     public static final String DEFAULT_KAFKA_SINK_SEND_VALUE_SERIALIZER =
             "org.apache.kafka.common.serialization.ByteArraySerializer";
+
+    // file security: comma-separated list of directories the file agent is allowed to access
+    public static final String AGENT_FILE_ALLOWED_DIRS = "agent.file.allowed.dirs";
+    public static final String DEFAULT_AGENT_FILE_ALLOWED_DIRS = "";
 }
