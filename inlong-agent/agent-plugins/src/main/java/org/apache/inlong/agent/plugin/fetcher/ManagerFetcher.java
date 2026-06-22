@@ -69,6 +69,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_TA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.TaskConstants.DATA_CONFIG_PATTERN_KEY;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
 import static org.apache.inlong.common.constant.Constants.COMMA;
@@ -332,10 +333,13 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             return;
         }
         JsonObject json = GSON.fromJson(extParams, JsonObject.class);
-        if (json == null || !json.has("pattern")) {
+        if (json == null || !json.has(DATA_CONFIG_PATTERN_KEY)) {
             return;
         }
-        String pattern = json.get("pattern").getAsString();
+        String pattern = json.get(DATA_CONFIG_PATTERN_KEY).getAsString();
+        if (StringUtils.isEmpty(pattern)) {
+            throw new IllegalArgumentException("Empty file pattern");
+        }
         if (PathValidationUtils.containsPathTraversal(pattern)) {
             throw new IllegalArgumentException(
                     "Path traversal detected in file pattern: " + pattern);

@@ -101,10 +101,16 @@ public class ManagerFetcherTest {
     }
 
     @Test
-    public void testEmptyPatternShouldPass() {
+    public void testEmptyPatternShouldFail() {
         DataConfig config = buildFileDataConfig("");
-        // Should not throw
-        ManagerFetcher.validateFilePattern(config, NO_RESTRICTION);
+        // Should throw IllegalArgumentException
+        try {
+            ManagerFetcher.validateFilePattern(config, NO_RESTRICTION);
+            Assert.fail("Expected IllegalArgumentException");
+
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains("Empty file pattern"));
+        }
     }
 
     @Test
