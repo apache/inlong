@@ -84,7 +84,7 @@ public class FileTask extends LogAbstractTask {
         super.initTask();
         timeOffset = taskProfile.get(TaskConstants.TASK_FILE_TIME_OFFSET, "");
         retry = taskProfile.isRetry();
-        originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
+        originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(COMMA))
                 .collect(Collectors.toSet());
         if (taskProfile.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
             realTime = true;

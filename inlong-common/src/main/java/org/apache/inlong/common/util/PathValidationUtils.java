@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Set;
 
 import static org.apache.inlong.common.constant.Constants.BACK_SLASH_CHAR;
+import static org.apache.inlong.common.constant.Constants.DOUBLE_DOT;
 import static org.apache.inlong.common.constant.Constants.SLASH;
 import static org.apache.inlong.common.constant.Constants.SLASH_CHAR;
 
@@ -40,13 +41,13 @@ public class PathValidationUtils {
      * @return true if the path contains a traversal segment, false otherwise
      */
     public static boolean containsPathTraversal(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             return false;
         }
         // Normalize backslashes to forward slashes and split into segments
         String normalized = path.replace(BACK_SLASH_CHAR, SLASH_CHAR);
         for (String segment : normalized.split(SLASH)) {
-            if ("..".equals(segment)) {
+            if (DOUBLE_DOT.equals(segment)) {
                 return true;
             }
         }
@@ -71,7 +72,7 @@ public class PathValidationUtils {
         }
         String normalizedPath = path.replace(BACK_SLASH_CHAR, SLASH_CHAR);
         for (String allowedDir : allowedDirs) {
-            if (allowedDir == null || allowedDir.isEmpty()) {
+            if (StringUtils.isEmpty(allowedDir)) {
                 continue;
             }
             String normalizedAllowedDir = allowedDir.replace(BACK_SLASH_CHAR, SLASH_CHAR);

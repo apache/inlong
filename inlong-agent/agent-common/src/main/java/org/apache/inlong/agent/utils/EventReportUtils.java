@@ -39,6 +39,8 @@ import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_EV
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_EXT;
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_STREAM_ID;
+import static org.apache.inlong.common.constant.Constants.HYPHEN;
+import static org.apache.inlong.common.constant.Constants.PIPE;
 
 /**
  * DiagUtils
@@ -102,7 +104,7 @@ public class EventReportUtils {
         dims.put(KEY_INLONG_EVENT_TYPE, eventType);
         dims.put(KEY_INLONG_EVENT_LEVEL, eventLevel);
         dims.put(KEY_INLONG_EVENT_CODE, String.valueOf(evenCode.getCode()));
-        dims.put(KEY_INLONG_EXT, ext.replaceAll("\\|", "-"));
+        dims.put(KEY_INLONG_EXT, ext.replace(PIPE, HYPHEN));
         dims.put(KEY_INLONG_EVENT_DESC, desc);
         metricItemSet.findMetricItem(dims).count.addAndGet(1);
     }

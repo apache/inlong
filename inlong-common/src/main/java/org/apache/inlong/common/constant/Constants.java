@@ -41,4 +41,10 @@ public class Constants {
 
     public static final String COMMA = ",";
 
+    public static final String DOUBLE_DOT = "..";
+
+    public static final String PIPE = "|";
+
+    public static final String HYPHEN = "-";
+
 }
