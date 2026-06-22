@@ -43,6 +43,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
+import static org.apache.inlong.common.constant.Constants.COMMA;
 
 /**
  * Fetch command from Inlong-Manager
@@ -326,7 +328,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             return;
         }
         String extParams = config.getExtParams();
-        if (extParams == null || extParams.isEmpty()) {
+        if (StringUtils.isEmpty(extParams)) {
             return;
         }
         JsonObject json = GSON.fromJson(extParams, JsonObject.class);
@@ -349,10 +351,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * Returns an empty set when the input is null or blank (meaning no restriction).
      */
     static Set<String> parseAllowedDirs(String allowedDirsStr) {
-        if (allowedDirsStr == null || allowedDirsStr.trim().isEmpty()) {
+        if (StringUtils.isBlank(allowedDirsStr)) {
             return Collections.emptySet();
         }
-        return Stream.of(allowedDirsStr.split(","))
+        return Stream.of(allowedDirsStr.split(COMMA))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());

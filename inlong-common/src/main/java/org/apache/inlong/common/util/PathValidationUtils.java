@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
+import static org.apache.inlong.common.constant.Constants.BACK_SLASH_CHAR;
 import static org.apache.inlong.common.constant.Constants.SLASH;
 import static org.apache.inlong.common.constant.Constants.SLASH_CHAR;
 
@@ -43,8 +44,8 @@ public class PathValidationUtils {
             return false;
         }
         // Normalize backslashes to forward slashes and split into segments
-        String normalized = path.replace('\\', '/');
-        for (String segment : normalized.split("/")) {
+        String normalized = path.replace(BACK_SLASH_CHAR, SLASH_CHAR);
+        for (String segment : normalized.split(SLASH)) {
             if ("..".equals(segment)) {
                 return true;
             }
@@ -68,12 +69,12 @@ public class PathValidationUtils {
         if (CollectionUtils.isEmpty(allowedDirs)) {
             return true;
         }
-        String normalizedPath = path.replace('\\', SLASH_CHAR);
+        String normalizedPath = path.replace(BACK_SLASH_CHAR, SLASH_CHAR);
         for (String allowedDir : allowedDirs) {
             if (allowedDir == null || allowedDir.isEmpty()) {
                 continue;
             }
-            String normalizedAllowedDir = allowedDir.replace('\\', SLASH_CHAR);
+            String normalizedAllowedDir = allowedDir.replace(BACK_SLASH_CHAR, SLASH_CHAR);
             if (!normalizedAllowedDir.endsWith(SLASH)) {
                 normalizedAllowedDir += SLASH;
             }

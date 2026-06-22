@@ -32,6 +32,7 @@ import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.file.FileUtils;
 import org.apache.inlong.common.util.PathValidationUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.inlong.common.constant.Constants.COMMA;
 
 /**
  * Watch directory, if new valid files are created, create instance correspondingly.
@@ -416,10 +419,10 @@ public class FileTask extends LogAbstractTask {
     private boolean isWithinAllowedDirs(String dirPath) {
         String allowedDirsStr = AgentConfiguration.getAgentConf()
                 .get(AgentConstants.AGENT_FILE_ALLOWED_DIRS, AgentConstants.DEFAULT_AGENT_FILE_ALLOWED_DIRS);
-        if (allowedDirsStr == null || allowedDirsStr.trim().isEmpty()) {
+        if (StringUtils.isBlank(allowedDirsStr)) {
             return true;
         }
-        Set<String> allowedDirs = Stream.of(allowedDirsStr.split(","))
+        Set<String> allowedDirs = Stream.of(allowedDirsStr.split(COMMA))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());

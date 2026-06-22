@@ -37,4 +37,8 @@ public class Constants {
 
     public static final char SLASH_CHAR = '/';
 
+    public static final char BACK_SLASH_CHAR = '\\';
+
+    public static final String COMMA = ",";
+
 }
