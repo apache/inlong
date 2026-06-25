@@ -101,7 +101,7 @@ public class MetricObserver {
                 listenerList.add(listener);
             } catch (Throwable t) {
                 LOG.error("Fail to init MetricListener:{},error:{}",
-                        listenerType, t.getMessage());
+                        listenerType, t.getMessage(), t);
             }
         }
         return listenerList;
