@@ -107,7 +107,7 @@ public class PbSourceDecoder extends SourceDecoder<String> {
         try {
             // decode
             DynamicMessage.Builder builder = DynamicMessage.newBuilder(rootDesc);
-            DynamicMessage root = builder.mergeFrom(srcBytes).build();
+            DynamicMessage root = builder.mergeFrom(srcBytes).buildPartial();
             // child
             List<DynamicMessage> childRoot = null;
             if (this.childNodes != null && this.childNodes.size() > 0) {

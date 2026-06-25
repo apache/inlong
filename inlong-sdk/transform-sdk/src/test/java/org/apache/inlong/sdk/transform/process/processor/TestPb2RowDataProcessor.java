@@ -247,7 +247,7 @@ public class TestPb2RowDataProcessor extends AbstractProcessorTestBase {
         Assert.assertEquals(output.get(0).getString(1).toString(), "1");
         Assert.assertEquals(output.get(0).getString(2).toString(), "1713243918000");
 
-        Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getBinary(0).length, 0);
+        Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getBinary(0), null);
         Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getLong(1), 1713243918000L);
         Assert.assertEquals(((GenericRowData) output.get(0).getRow(3, 3)).getMap(2).size(), 0);
 
