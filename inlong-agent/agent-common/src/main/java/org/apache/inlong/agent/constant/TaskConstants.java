@@ -237,4 +237,5 @@ public class TaskConstants extends CommonConstants {
      */
     public static final int SYNC_SEND_OPEN = 1;
 
+    public static final String DATA_CONFIG_PATTERN_KEY = "pattern";
 }
