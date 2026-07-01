@@ -20,6 +20,10 @@ package org.apache.inlong.agent.installer;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
+import org.apache.inlong.agent.installer.validator.AllowedRootsResolver;
+import org.apache.inlong.agent.installer.validator.ModuleCommandValidator;
+import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.ParsedSubCmd;
+import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.ValidationResult;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ExcuteLinux;
@@ -53,12 +57,14 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
@@ -81,6 +87,10 @@ public class ModuleManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModuleManager.class);
     public static final int MAX_MODULE_SIZE = 10;
     public static final int CHECK_PROCESS_TIMES = 20;
+    /** Sensitive-word masking pattern; a defensive net that keeps sensitive fields out of
+     * command logs even if a future config path leaks them. */
+    private static final Pattern SENSITIVE_PATTERN = Pattern.compile(
+            "(?i)(password|secret|token|key)\\s*[=:]\\s*\\S+");
     private final InstallerConfiguration conf;
     private final String confPath;
     private final BlockingQueue<ConfigResult> configQueue;
@@ -90,11 +100,13 @@ public class ModuleManager extends AbstractDaemon {
     private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Gson GSON = gsonBuilder.create();
     private HttpManager httpManager;
+    private final ModuleCommandValidator commandValidator;
 
     public ModuleManager() {
         conf = InstallerConfiguration.getInstallerConf();
         confPath = conf.get(AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME) + "/conf/";
         configQueue = new LinkedBlockingQueue<>(CONFIG_QUEUE_CAPACITY);
+        commandValidator = new ModuleCommandValidator(AllowedRootsResolver.build(conf));
         if (!requiredKeys(conf)) {
             throw new RuntimeException("init module manager error, cannot find required key");
         }
@@ -485,16 +497,20 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private void installModule(ModuleConfig module) {
-        LOGGER.info("install module {}({}) with cmd {}", module.getId(), module.getName(), module.getInstallCommand());
-        String ret = ExcuteLinux.exeCmd(module.getInstallCommand());
-        LOGGER.info("install module {}({}) return {} ", module.getId(), module.getName(), ret);
+        LOGGER.info("install module {}({}) with cmd {}", module.getId(), module.getName(),
+                sanitize(module.getInstallCommand()));
+        runValidatedCommand(module, "install", module.getInstallCommand());
     }
 
     private boolean startModule(ModuleConfig module) {
-        LOGGER.info("start module {}({}) with cmd {}", module.getId(), module.getName(), module.getStartCommand());
+        LOGGER.info("start module {}({}) with cmd {}", module.getId(), module.getName(),
+                sanitize(module.getStartCommand()));
         for (int i = 0; i < module.getProcessesNum(); i++) {
-            String ret = ExcuteLinux.exeCmd(module.getStartCommand());
-            LOGGER.info("start module {}({}) proc[{}] return {} ", module.getId(), module.getName(), i, ret);
+            CommandExecResult ret = runValidatedCommand(module, "start[" + i + "]", module.getStartCommand());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("start module {}({}) proc[{}] stdout={}", module.getId(), module.getName(), i,
+                        truncate(ret.stdout));
+            }
         }
         if (isProcessAllStarted(module, CHECK_PROCESS_TIMES)) {
             LOGGER.info("start module {}({}) success", module.getId(), module.getName());
@@ -506,27 +522,26 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private void stopModule(ModuleConfig module) {
-        LOGGER.info("stop module {}({}) with cmd {}", module.getId(), module.getName(), module.getStopCommand());
-        String ret = ExcuteLinux.exeCmd(module.getStopCommand());
-        LOGGER.info("stop module {}({}) return {} ", module.getId(), module.getName(), ret);
+        LOGGER.info("stop module {}({}) with cmd {}", module.getId(), module.getName(),
+                sanitize(module.getStopCommand()));
+        runValidatedCommand(module, "stop", module.getStopCommand());
     }
 
     private void uninstallModule(ModuleConfig module) {
         LOGGER.info("uninstall module {}({}) with cmd {}", module.getId(), module.getName(),
-                module.getUninstallCommand());
-        String ret = ExcuteLinux.exeCmd(module.getUninstallCommand());
-        LOGGER.info("uninstall module {}({}) return {} ", module.getId(), module.getName(), ret);
+                sanitize(module.getUninstallCommand()));
+        runValidatedCommand(module, "uninstall", module.getUninstallCommand());
     }
 
     private boolean isProcessAllStarted(ModuleConfig module, int times) {
         for (int check = 0; check < times; check++) {
             AgentUtils.silenceSleepInSeconds(1);
-            String ret = ExcuteLinux.exeCmd(module.getCheckCommand());
-            if (ret == null) {
+            CommandExecResult ret = runValidatedCommand(module, "check", module.getCheckCommand());
+            if (!ret.success || ret.stdout == null) {
                 LOGGER.error("[{}] get module {}({}) process num failed", check, module.getId(), module.getName());
                 continue;
             }
-            String[] processArray = ret.split("\n");
+            String[] processArray = ret.stdout.split("\n");
             int cnt = 0;
             for (int i = 0; i < processArray.length; i++) {
                 if (processArray[i].length() > 0) {
@@ -539,6 +554,114 @@ public class ModuleManager extends AbstractDaemon {
             }
         }
         return false;
+    }
+
+    // =========================================================================
+    // Unified execution path with validation applied to every command.
+    // =========================================================================
+
+    /**
+     * Result of a single command execution. {@link #success} is {@code true} when every
+     * sub-command exited with code 0; {@link #stdout} carries the stdout of the last
+     * sub-command.
+     */
+    private static final class CommandExecResult {
+
+        final boolean success;
+        final String stdout;
+
+        CommandExecResult(boolean success, String stdout) {
+            this.success = success;
+            this.stdout = stdout;
+        }
+    }
+
+    /**
+     * Validate a raw command from {@link ModuleConfig} through {@link ModuleCommandValidator}
+     * and, on success, execute the resulting sub-commands one by one. On rejection, timeout
+     * or non-zero exit, log the failure and return failure. This method never falls back to
+     * {@code sh -c}.
+     */
+    private CommandExecResult runValidatedCommand(ModuleConfig module, String cmdName, String rawCmd) {
+        ValidationResult vr = commandValidator.validate(rawCmd);
+        if (!vr.isOk()) {
+            // Rejection path: log ERROR with module id/name, cmd name, rule name, offending
+            // sub-command and the original raw command.
+            LOGGER.error("REJECT command moduleId={} moduleName={} cmdName={} rule={} failedSub={} rawCmd={} msg={}",
+                    module.getId(), module.getName(), cmdName, vr.getRuleName(),
+                    sanitize(vr.getFailedSubCmd()), sanitize(rawCmd), vr.getMessage());
+            return new CommandExecResult(false, null);
+        }
+        List<ParsedSubCmd> parsed = vr.getParsed();
+        String lastStdout = "";
+        for (ParsedSubCmd sub : parsed) {
+            long startNs = System.nanoTime();
+            String stdout;
+            if (sub.isPiped()) {
+                // Piped sub-command: chain multiple ProcessBuilder instances on the Java side
+                // via exePipedCmd.
+                stdout = ExcuteLinux.exePipedCmd(sub.getPipeline(), sub.getWorkDir(),
+                        ExcuteLinux.DEFAULT_TIMEOUT_MS);
+            } else {
+                stdout = ExcuteLinux.exeCmd(java.util.Arrays.asList(sub.getArgv()), sub.getWorkDir(),
+                        ExcuteLinux.DEFAULT_TIMEOUT_MS);
+            }
+            long costMs = (System.nanoTime() - startNs) / 1_000_000L;
+
+            if (stdout == null) {
+                // Failure/timeout path: ERROR (stderr summary is already logged inside
+                // ExcuteLinux, truncated).
+                LOGGER.error("FAIL command moduleId={} moduleName={} cmdName={} sub={} costMs={} (stdout=null)",
+                        module.getId(), module.getName(), cmdName, describeSub(sub), costMs);
+                if (!sub.isAllowFailure()) {
+                    return new CommandExecResult(false, null);
+                }
+            } else {
+                // Success path: INFO with argv form and cost, DEBUG with a stdout summary.
+                LOGGER.info("OK command moduleId={} moduleName={} cmdName={} sub={} costMs={}",
+                        module.getId(), module.getName(), cmdName, describeSub(sub), costMs);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("OK command moduleId={} cmdName={} stdout={}",
+                            module.getId(), cmdName, truncate(stdout));
+                }
+                lastStdout = stdout;
+            }
+        }
+        return new CommandExecResult(true, lastStdout);
+    }
+
+    /**
+     * Format a parsed sub-command for logs, e.g. {@code [cmd, arg1, arg2] @ workDir}.
+     */
+    private static String describeSub(ParsedSubCmd sub) {
+        List<List<String>> readable = new ArrayList<>(sub.getPipeline().size());
+        for (String[] seg : sub.getPipeline()) {
+            readable.add(java.util.Arrays.asList(seg));
+        }
+        String pipelineStr = readable.size() == 1 ? readable.get(0).toString() : readable.toString();
+        return sub.getWorkDir() == null
+                ? pipelineStr
+                : (pipelineStr + " @ " + sub.getWorkDir());
+    }
+
+    /** Truncate a stderr/stdout summary to 1KB so it does not swamp INFO logs. */
+    private static String truncate(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s.length() <= 1024 ? s : (s.substring(0, 1024) + "...(truncated)");
+    }
+
+    /**
+     * Best-effort masking of {@code password=xxx} / {@code token: yyy} style values in log
+     * output. The current commands do not carry such tokens, but this keeps a defensive net
+     * in place for future changes.
+     */
+    private static String sanitize(String s) {
+        if (s == null) {
+            return null;
+        }
+        return SENSITIVE_PATTERN.matcher(s).replaceAll("$1=***");
     }
 
     private boolean downloadModule(ModuleConfig module) {

@@ -140,7 +140,12 @@ public class AgentStatusManager {
     public static AtomicLong sendDataLen = new AtomicLong();
     public static AtomicLong sendPackageCount = new AtomicLong();
     private String processStartupTime = format.format(runtimeMXBean.getStartTime());
-    private String systemStartupTime = ExcuteLinux.exeCmd("uptime -s").replaceAll("\r|\n", "");
+    private String systemStartupTime = safeUptime();
+
+    private static String safeUptime() {
+        String r = ExcuteLinux.exeCmd(new String[]{"uptime", "-s"});
+        return r == null ? "" : r.replaceAll("\r|\n", "");
+    }
 
     private AgentStatusManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
