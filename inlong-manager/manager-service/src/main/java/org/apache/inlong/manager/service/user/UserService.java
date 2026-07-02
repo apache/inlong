@@ -85,6 +85,24 @@ public interface UserService {
     void login(UserLoginRequest req);
 
     /**
+     * Check whether the default admin user ({@link
+     * org.apache.inlong.common.util.BasicAuth#DEFAULT_USER}) is still
+     * using the built-in default password (SHA-256 hash of {@code "inlong"}).
+     *
+     * <p>This method is only used by the login response chain to trigger the
+     * "force password change" popup on the frontend.
+     * Returns {@code false} when {@code username} is blank, when it is not
+     * the default admin user, when the user entity does not exist in the
+     * database, when the stored password hash is no longer the default value,
+     * or when any unexpected error occurs.
+     *
+     * @param username the username to check
+     * @return true only when the username equals the default admin user
+     *         and the stored password hash matches SHA-256("inlong")
+     */
+    boolean isDefaultUsernameAndPassword(String username);
+
+    /**
      * Check the given user is the admin or is one of the in charges.
      *
      * @param inCharges incharge list

@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.LoginResponse;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -49,9 +51,20 @@ public class AnnoController {
     private UserService userService;
 
     @PostMapping("/anno/login")
-    public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
+    public Response<LoginResponse> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         userService.login(loginRequest);
-        return Response.success(true);
+        String username = loginRequest.getUsername();
+        // login() already populated LoginUserUtils; fall back to request username if absent
+        UserInfo loginUser = LoginUserUtils.getLoginUser();
+        Integer userId = loginUser == null ? null : loginUser.getId();
+        boolean mustChange = userService.isDefaultUsernameAndPassword(username);
+        LoginResponse body = LoginResponse.builder()
+                .success(true)
+                .username(username)
+                .userId(userId)
+                .mustChangePassword(mustChange)
+                .build();
+        return Response.success(body);
     }
 
     @PostMapping("/anno/register")

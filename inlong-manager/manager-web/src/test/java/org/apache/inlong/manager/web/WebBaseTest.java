@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web;
 
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.LoginResponse;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -101,7 +102,7 @@ public abstract class WebBaseTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String resBodyObj = getResBodyObj(mvcResult, String.class);
+        LoginResponse resBodyObj = getResBodyObj(mvcResult, LoginResponse.class);
         Assertions.assertNotNull(resBodyObj);
 
         Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());
@@ -158,7 +159,7 @@ public abstract class WebBaseTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String resBodyObj = getResBodyObj(mvcResult, String.class);
+        LoginResponse resBodyObj = getResBodyObj(mvcResult, LoginResponse.class);
         Assertions.assertNotNull(resBodyObj);
 
         Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());

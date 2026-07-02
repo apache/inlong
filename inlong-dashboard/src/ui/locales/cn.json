@@ -619,6 +619,7 @@
   "components.Layout.NavWidget.NewPassword": "新密码",
   "components.Layout.NavWidget.ConfirmPassword": "确认密码",
   "components.Layout.NavWidget.Remind": "密码不一致，请重新输入",
+  "components.Layout.NavWidget.MustChangeDefaultPassword": "为了账号安全，您必须先修改默认密码后才能继续使用本平台。",
   "components.Layout.Tenant.Success": "切换成功",
   "components.Layout.UserManual": "用户手册",
   "components.Layout.Feedback": "建议反馈",

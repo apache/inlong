@@ -20,6 +20,7 @@ package org.apache.inlong.manager.web.controller;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.LoginResponse;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
@@ -52,6 +53,31 @@ class AnnoControllerTest extends WebBaseTest {
     @Test
     void testLogin() throws Exception {
         adminLogin();
+    }
+
+    /**
+     * 默认 admin/inlong 登录时，响应体里必须出现 {@code mustChangePassword=true}，
+     * 这是前端弹强制改密窗的触发条件。
+     */
+    @Test
+    void testLoginReturnsMustChangePasswordForDefaultAdmin() throws Exception {
+        UserLoginRequest loginUser = new UserLoginRequest();
+        loginUser.setUsername("admin");
+        loginUser.setPassword("inlong");
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Response<LoginResponse> resp = getResBody(mvcResult, LoginResponse.class);
+        Assertions.assertTrue(resp.isSuccess());
+        Assertions.assertNotNull(resp.getData());
+        Assertions.assertEquals(Boolean.TRUE, resp.getData().getMustChangePassword());
+        Assertions.assertEquals("admin", resp.getData().getUsername());
     }
 
     @Test

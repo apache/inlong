@@ -614,6 +614,7 @@
   "components.Layout.NavWidget.NewPassword": "New password",
   "components.Layout.NavWidget.ConfirmPassword": "Confirm password",
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
+  "components.Layout.NavWidget.MustChangeDefaultPassword": "For security, you must change the default password before continuing.",
   "components.Layout.Tenant.Success": "Success",
   "components.Layout.UserManual": "User manual",
   "components.Layout.Feedback": "Feedback",

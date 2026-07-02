@@ -38,6 +38,7 @@ import NavWidget from './NavWidget';
 import LocaleSelect from './NavWidget/LocaleSelect';
 import Tenant from './Tenant';
 import HintSelect from './NavWidget/HintSelect';
+import ForcePasswordChangeModal from './NavWidget/ForcePasswordChangeModal';
 
 const BasicLayout: React.FC = props => {
   const location = useLocation();
@@ -147,6 +148,8 @@ const BasicLayout: React.FC = props => {
           enableDarkTheme
         />
       )}
+      {/* Force password change modal: shown only when login response indicates mustChangePassword=true */}
+      <ForcePasswordChangeModal />
     </>
   );
 };

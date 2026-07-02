@@ -61,11 +61,27 @@ const Comp: React.FC = () => {
 
   const login = async () => {
     const data = await form.validateFields();
-    await request({
+    // The backend now returns { success, username, userId, mustChangePassword }.
+    // Old clients used to treat `data` as a boolean; the truthy object value
+    // keeps the legacy `if (result)` checks working.
+    const result = await request({
       url: '/anno/login',
       method: 'POST',
       data,
     });
+    if (result && result.mustChangePassword) {
+      // Hand the flag over to the dashboard shell. Using sessionStorage (not
+      // localStorage) so the prompt clears as soon as the tab is closed; the
+      // backend interceptor still blocks every API call until the password is
+      // actually rotated, so there is no risk of bypass.
+      sessionStorage.setItem('inlong.mustChangePassword', '1');
+      if (result.userId != null) {
+        sessionStorage.setItem('inlong.mustChangePasswordUserId', String(result.userId));
+      }
+    } else {
+      sessionStorage.removeItem('inlong.mustChangePassword');
+      sessionStorage.removeItem('inlong.mustChangePasswordUserId');
+    }
     window.location.href = '/';
   };
 

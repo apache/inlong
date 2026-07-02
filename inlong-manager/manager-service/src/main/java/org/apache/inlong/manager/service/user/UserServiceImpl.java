@@ -84,6 +84,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_USER;
+
 /**
  * User service layer implementation
  */
@@ -351,6 +353,24 @@ public class UserServiceImpl implements UserService {
         // login successfully, clear error count
         userLoginLockStatus.setLoginErrorCount(0);
         loginLockStatusMap.put(username, userLoginLockStatus);
+    }
+
+    @Override
+    public boolean isDefaultUsernameAndPassword(String username) {
+        if (StringUtils.isBlank(username) || !DEFAULT_USER.equals(username)) {
+            return false;
+        }
+        try {
+            UserEntity entity = userMapper.selectByName(username);
+            if (entity == null || StringUtils.isBlank(entity.getPassword())) {
+                return false;
+            }
+            String defaultHash = SHAUtils.encrypt("inlong");
+            return defaultHash.equalsIgnoreCase(entity.getPassword());
+        } catch (Exception ex) {
+            LOGGER.warn("default-password probe failed for user {}: {}", username, ex.toString());
+            return false;
+        }
     }
 
     @Override
