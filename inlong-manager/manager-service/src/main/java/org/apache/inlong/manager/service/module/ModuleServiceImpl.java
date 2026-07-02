@@ -52,10 +52,28 @@ public class ModuleServiceImpl implements ModuleService {
     private ModuleConfigEntityMapper moduleConfigEntityMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ModuleCommandValidator commandValidator;
 
     @Override
     public Integer save(ModuleRequest request, String operator) {
         LOGGER.info("begin to save module info: {}", request);
+
+        // Validate commands against whitelist at save time.
+        // STRICT and WARN both block; only OFF skips.
+        ModuleCommandValidator.WhitelistMode mode = commandValidator.getMode();
+        if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
+            String violation = commandValidator.validateAll(
+                    request.getStartCommand(), request.getStopCommand(),
+                    request.getCheckCommand(), request.getInstallCommand(),
+                    request.getUninstallCommand());
+            if (violation != null) {
+                throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
+                        String.format(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
+                                violation));
+            }
+        }
+
         ModuleConfigEntity moduleConfigEntity = CommonBeanUtils.copyProperties(request, ModuleConfigEntity::new);
         try {
             ModuleDTO dto = ModuleDTO.getFromRequest(request, moduleConfigEntity.getExtParams(),
@@ -68,7 +86,8 @@ public class ModuleServiceImpl implements ModuleService {
         }
         moduleConfigEntity.setCreator(operator);
         moduleConfigEntity.setModifier(operator);
-        int id = moduleConfigEntityMapper.insert(moduleConfigEntity);
+        moduleConfigEntityMapper.insert(moduleConfigEntity);
+        int id = moduleConfigEntity.getId();
 
         LOGGER.info("success to save module info: {}", request);
         return id;
@@ -81,6 +100,30 @@ public class ModuleServiceImpl implements ModuleService {
         if (moduleConfigEntity == null) {
             throw new BusinessException(ErrorCodeEnum.MODULE_NOT_FOUND,
                     String.format("Module does not exist with id=%s", request.getId()));
+        }
+
+        // Incremental whitelist validation (mode-aware): only check command fields
+        // that actually changed compared to the stored extParams.
+        ModuleCommandValidator.WhitelistMode mode = commandValidator.getMode();
+        if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
+            ModuleDTO oldDto = null;
+            if (moduleConfigEntity.getExtParams() != null) {
+                oldDto = ModuleDTO.getFromJson(moduleConfigEntity.getExtParams());
+            }
+            String violation = commandValidator.validateChanged(oldDto, request);
+            if (violation != null) {
+                if (mode == ModuleCommandValidator.WhitelistMode.STRICT) {
+                    throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
+                            String.format(
+                                    ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
+                                    violation));
+                } else {
+                    // WARN mode: log only, do not block the update
+                    LOGGER.warn("ModuleCommandValidator: non-whitelisted command in update "
+                            + "(mode=WARN, not blocking): moduleId={}, {}", request.getId(),
+                            violation);
+                }
+            }
         }
         CommonBeanUtils.copyProperties(request, moduleConfigEntity, true);
         try {
