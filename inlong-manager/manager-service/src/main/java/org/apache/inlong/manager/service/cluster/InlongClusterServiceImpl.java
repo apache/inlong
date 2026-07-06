@@ -857,6 +857,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
         Preconditions.expectNotNull(request, "inlong cluster node cannot be empty");
+
+        // Same defense as saveNode: reject unsafe/internal ip before the
+        // install lane can reach the CommandExecutor sink.
+        validateClusterNodeIp(request);
+
         Integer id = request.getId();
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
@@ -958,6 +963,39 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return commandResult.getCode() == 0;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Validate that the cluster node ip/host does not target internal/private
+     * networks before an install request is queued for the CommandExecutor.
+     *
+     * <p>Format-level checks (non-blank, length, no leading '-', character
+     * whitelist) are enforced declaratively on {@link ClusterNodeRequest#ip}
+     * via {@code @NotBlank}, {@code @Length} and {@code @Pattern}, so this
+     * method only carries the semantic SSRF check that cannot be expressed
+     * as an annotation.
+     *
+     * <p>Only enforced for AGENT-type nodes that actually go through the
+     * install lane, and only when {@code isInstall} is true, so existing
+     * flows for other cluster node types remain unaffected.
+     */
+    private void validateClusterNodeIp(ClusterNodeRequest request) {
+        if (request == null || !Boolean.TRUE.equals(request.getIsInstall())) {
+            return;
+        }
+        if (!ClusterType.AGENT.equalsIgnoreCase(request.getType())) {
+            return;
+        }
+        String ip = request.getIp();
+        if (StringUtils.isBlank(ip)) {
+            return;
+        }
+        try {
+            UrlVerificationUtils.validateHostNotInternal(ip);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "SSRF protection: " + e.getMessage());
         }
     }
 

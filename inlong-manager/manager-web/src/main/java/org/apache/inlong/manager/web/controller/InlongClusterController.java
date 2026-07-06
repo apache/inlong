@@ -238,6 +238,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/node/save")
     @ApiOperation(value = "Save cluster node")
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CLUSTER_NODE)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Integer> saveNode(@Validated @RequestBody ClusterNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         request.setCurrentUser(currentUser);
@@ -275,6 +276,7 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.CLUSTER_NODE)
     @ApiOperation(value = "Update cluster node")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         request.setCurrentUser(username);
