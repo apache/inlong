@@ -55,16 +55,14 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Cluster IP")
     @NotBlank(message = "ip cannot be blank")
     @Length(max = 255, message = "ip length must be less than or equal to 255")
-    @Pattern(
-            regexp = "^(?!-)"
-                    + "(?:"
-                    + "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}"
-                    + "|\\[[0-9a-fA-F:]+\\]"
-                    + "|[0-9a-fA-F:]+"
-                    + "|(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)"
-                    + "(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*"
-                    + ")$",
-            message = "ip must be a valid IPv4/IPv6/hostname and must not start with '-'")
+    @Pattern(regexp = "^(?!-)"
+            + "(?:"
+            + "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}"
+            + "|\\[[0-9a-fA-F:]+\\]"
+            + "|[0-9a-fA-F:]+"
+            + "|(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)"
+            + "(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*"
+            + ")$", message = "ip must be a valid IPv4/IPv6/hostname and must not start with '-'")
     private String ip;
 
     @ApiModelProperty(value = "Cluster port")
@@ -74,9 +72,7 @@ public class ClusterNodeRequest {
 
     @ApiModelProperty(value = "Username")
     @Length(max = 64, message = "username length must be less than or equal to 64")
-    @Pattern(
-            regexp = "^$|^[A-Za-z0-9_][A-Za-z0-9_.@-]{0,63}$",
-            message = "username must not start with '-' and can only contain letters, digits, '_', '.', '@' or '-'")
+    @Pattern(regexp = "^$|^[A-Za-z0-9_][A-Za-z0-9_.@-]{0,63}$", message = "username must not start with '-' and can only contain letters, digits, '_', '.', '@' or '-'")
     private String username;
 
     @ApiModelProperty(value = "password")
