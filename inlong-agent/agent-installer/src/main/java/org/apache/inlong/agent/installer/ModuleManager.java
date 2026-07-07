@@ -26,7 +26,7 @@ import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.Parsed
 import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.ValidationResult;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ExcuteLinux;
+import org.apache.inlong.agent.utils.ExecuteLinux;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
@@ -600,11 +600,11 @@ public class ModuleManager extends AbstractDaemon {
             if (sub.isPiped()) {
                 // Piped sub-command: chain multiple ProcessBuilder instances on the Java side
                 // via exePipedCmd.
-                stdout = ExcuteLinux.exePipedCmd(sub.getPipeline(), sub.getWorkDir(),
-                        ExcuteLinux.DEFAULT_TIMEOUT_MS);
+                stdout = ExecuteLinux.exePipedCmd(sub.getPipeline(), sub.getWorkDir(),
+                        ExecuteLinux.DEFAULT_TIMEOUT_MS);
             } else {
-                stdout = ExcuteLinux.exeCmd(java.util.Arrays.asList(sub.getArgv()), sub.getWorkDir(),
-                        ExcuteLinux.DEFAULT_TIMEOUT_MS);
+                stdout = ExecuteLinux.exeCmd(java.util.Arrays.asList(sub.getArgv()), sub.getWorkDir(),
+                        ExecuteLinux.DEFAULT_TIMEOUT_MS);
             }
             long costMs = (System.nanoTime() - startNs) / 1_000_000L;
 

@@ -51,9 +51,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>Piping is emulated by chaining several {@link ProcessBuilder} instances via background
  * threads that copy stdout to the next process's stdin, so no shell is required.</p>
  */
-public class ExcuteLinux {
+public class ExecuteLinux {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExcuteLinux.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExecuteLinux.class);
 
     /** Default command execution timeout in milliseconds. */
     public static final long DEFAULT_TIMEOUT_MS = 60_000L;
@@ -61,7 +61,7 @@ public class ExcuteLinux {
     /** Maximum number of bytes of stderr kept in log output (truncated beyond this). */
     private static final int STDERR_LOG_MAX_BYTES = 1024;
 
-    private ExcuteLinux() {
+    private ExecuteLinux() {
     }
 
     /**

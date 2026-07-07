@@ -23,7 +23,7 @@ import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ExcuteLinux;
+import org.apache.inlong.agent.utils.ExecuteLinux;
 import org.apache.inlong.sdk.dataproxy.common.ProcessResult;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpEventInfo;
 import org.apache.inlong.sdk.dataproxy.sender.tcp.TcpMsgSender;
@@ -143,7 +143,7 @@ public class AgentStatusManager {
     private String systemStartupTime = safeUptime();
 
     private static String safeUptime() {
-        String r = ExcuteLinux.exeCmd(new String[]{"uptime", "-s"});
+        String r = ExecuteLinux.exeCmd(new String[]{"uptime", "-s"});
         return r == null ? "" : r.replaceAll("\r|\n", "");
     }
 

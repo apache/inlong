@@ -333,7 +333,7 @@ public class AgentUtils {
                 uuid = localUuid;
                 return uuid;
             }
-            String result = ExcuteLinux.exeCmd(new String[]{"dmidecode", "-s", "system-uuid"});
+            String result = ExecuteLinux.exeCmd(new String[]{"dmidecode", "-s", "system-uuid"});
             if (StringUtils.isNotEmpty(result)) {
                 result = result.trim();
                 if (result.matches(UUID_REGEX)) {
@@ -345,7 +345,7 @@ public class AgentUtils {
         }
 
         try {
-            String result = ExcuteLinux.exePipedCmd(
+            String result = ExecuteLinux.exePipedCmd(
                     Arrays.asList(
                             new String[]{"dmidecode"},
                             new String[]{"grep", "UUID"}),
