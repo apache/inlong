@@ -71,7 +71,7 @@ public final class ModuleCommandValidator {
 
     /** Substring blacklist for the metacharacter check. */
     private static final String[] META_CHAR_BLACKLIST = new String[]{
-            "`", "$(", "&&", "||", ">>", ">", "<"
+            "`", "$(", "${", "&&", "||", ">>", ">", "<", "\\", "\u0000"
     };
 
     public static final String RULE_DISALLOWED_META_CHAR = "DISALLOWED_META_CHAR";
@@ -167,7 +167,7 @@ public final class ModuleCommandValidator {
 
         if ("sh".equals(cmd) || "bash".equals(cmd)) {
             for (int i = 1; i < argv.length; i++) {
-                if ("-c".equals(argv[i]) || argv[i].startsWith("-c")) {
+                if (argv[i].startsWith("-c")) {
                     return ValidationResult.fail(RULE_FORBIDDEN_SH_C_FLAG, rawSegment,
                             cmd + " must not use -c to run inline scripts");
                 }

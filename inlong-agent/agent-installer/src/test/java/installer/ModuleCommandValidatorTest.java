@@ -182,6 +182,30 @@ public class ModuleCommandValidatorTest {
     }
 
     @Test
+    public void dollarBrace_shouldRejectByMetaChar() {
+        ValidationResult r = validator.validate("echo ${HOME}");
+        assertRejected(r, ModuleCommandValidator.RULE_DISALLOWED_META_CHAR);
+    }
+
+    @Test
+    public void doublePipe_shouldRejectByMetaChar() {
+        ValidationResult r = validator.validate("sh agent.sh stop || rm -rf /");
+        assertRejected(r, ModuleCommandValidator.RULE_DISALLOWED_META_CHAR);
+    }
+
+    @Test
+    public void backslash_shouldRejectByMetaChar() {
+        ValidationResult r = validator.validate("echo hello\\ world");
+        assertRejected(r, ModuleCommandValidator.RULE_DISALLOWED_META_CHAR);
+    }
+
+    @Test
+    public void nullByte_shouldRejectByMetaChar() {
+        ValidationResult r = validator.validate("echo foo\u0000bar");
+        assertRejected(r, ModuleCommandValidator.RULE_DISALLOWED_META_CHAR);
+    }
+
+    @Test
     public void redirect_shouldRejectByMetaChar() {
         ValidationResult r = validator.validate("cat ~/inlong/a > ~/inlong/b");
         assertRejected(r, ModuleCommandValidator.RULE_DISALLOWED_META_CHAR);
