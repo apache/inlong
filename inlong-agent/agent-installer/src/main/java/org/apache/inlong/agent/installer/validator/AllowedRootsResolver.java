@@ -17,14 +17,16 @@
 
 package org.apache.inlong.agent.installer.validator;
 
-import lombok.Getter;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -133,26 +135,91 @@ public final class AllowedRootsResolver {
         if (p == null) {
             return;
         }
-        Path normalized = p.toAbsolutePath().normalize();
-        roots.add(normalized);
+        Path absolute = p.toAbsolutePath();
+        try {
+            roots.add(absolute.toRealPath());
+        } catch (IOException e) {
+            roots.add(absolute.normalize());
+        }
     }
 
     /**
      * Test whether the given path lies under any allowed root (equal to a root also counts).
+     * Uses {@code Path#toRealPath()} when the path exists to defeat symlink-based bypass
+     * attempts. When the path does not exist yet (e.g. a {@code mkdir} target), it walks up
+     * to the nearest existing ancestor, resolves its real path, and splices the non-existent
+     * remainder back on before comparing.
      *
-     * @param p a path; it is made absolute and normalized internally before the comparison.
+     * @param p a path; it is made absolute internally before the comparison.
      */
     public boolean isUnderAllowedRoot(Path p) {
         if (p == null) {
             return false;
         }
-        Path normalized = p.toAbsolutePath().normalize();
+        Path absolute = p.toAbsolutePath();
+
+        // Path exists → resolve symlinks directly.
+        try {
+            Path real = absolute.toRealPath();
+            for (Path root : roots) {
+                if (real.startsWith(root)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (IOException e) {
+            // Path does not exist yet (e.g. mkdir /new/dir). Walk up to the nearest
+            // existing ancestor, resolve its real path, and splice the remainder back.
+        }
+
+        Path existingParent = findExistingParent(absolute);
+        if (existingParent == null) {
+            // No part of the path exists; resort to normalize() only.
+            Path normalized = absolute.normalize();
+            for (Path root : roots) {
+                if (normalized.startsWith(root)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        try {
+            Path realParent = existingParent.toRealPath();
+            Path remainder = existingParent.relativize(absolute);
+            Path resolved = realParent.resolve(remainder).normalize();
+            for (Path root : roots) {
+                if (resolved.startsWith(root)) {
+                    return true;
+                }
+            }
+        } catch (IOException ex) {
+            LOGGER.warn("Cannot resolve real path for existing parent: {}", existingParent, ex);
+        }
+        // Fall back to simple normalize in case the root set itself contains
+        // non-resolved paths (e.g. when a root directory did not exist at
+        // addRoot time and was stored via normalize() only).
+        Path normalized = absolute.normalize();
         for (Path root : roots) {
             if (normalized.startsWith(root)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Walk up the directory tree to find the nearest ancestor that actually exists.
+     *
+     * @param path an absolute path
+     * @return the first existing ancestor, or {@code null} if no part of the path exists
+     */
+    private Path findExistingParent(Path path) {
+        Path current = path;
+        while (current != null && !Files.exists(current)) {
+            current = current.getParent();
+        }
+        return current;
     }
 
 }

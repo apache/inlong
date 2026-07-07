@@ -26,9 +26,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Unit tests for {@link AllowedRootsResolver}. This class is the last line of the shell
@@ -156,7 +160,7 @@ public class AllowedRootsResolverTest {
         Assert.assertTrue("expected " + userHome + "/inlong-agent in " + roots,
                 roots.contains(Paths.get(userHome, "inlong-agent").toAbsolutePath().normalize()));
         Assert.assertTrue("expected java.io.tmpdir in " + roots,
-                roots.contains(Paths.get(tmpDir).toAbsolutePath().normalize()));
+                roots.contains(toRealOrNormalized(Paths.get(tmpDir).toAbsolutePath())));
     }
 
     /**
@@ -213,7 +217,7 @@ public class AllowedRootsResolverTest {
         AllowedRootsResolver resolver = AllowedRootsResolver.build(conf);
         // At minimum the tmpdir default should still be there.
         Assert.assertTrue(resolver.getRoots().contains(
-                Paths.get(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize()));
+                toRealOrNormalized(Paths.get(System.getProperty("java.io.tmpdir")).toAbsolutePath())));
     }
 
     /**
@@ -249,5 +253,150 @@ public class AllowedRootsResolverTest {
         // Should not throw; simply produces the default root set.
         AllowedRootsResolver resolver = AllowedRootsResolver.build(conf);
         Assert.assertFalse(resolver.getRoots().isEmpty());
+    }
+
+    // ------------------------------------------------------------------
+    // Symlink bypass defence
+    // ------------------------------------------------------------------
+
+    /**
+     * When a path exists, {@link AllowedRootsResolver#isUnderAllowedRoot(Path)} must use
+     * {@code Path#toRealPath()} to defeat symlink-based bypass. A symlink inside the allowed
+     * root that points outside must not grant access to the outside target.
+     */
+    @Test
+    public void symlinkBypass_existingPath_shouldBeRejected() throws IOException {
+        Path base = Files.createTempDirectory("allowedroot-test-");
+        try {
+            Path root = base.resolve("safe");
+            Files.createDirectory(root);
+
+            // Create a directory outside the allowed root.
+            Path outside = base.resolve("outside");
+            Files.createDirectory(outside);
+            Files.createFile(outside.resolve("secrets.txt"));
+
+            // Create a symlink inside the root pointing to the outside dir.
+            Path symlink = root.resolve("workspace");
+            Files.createSymbolicLink(symlink, outside);
+
+            AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root);
+
+            // workspace/secrets.txt → outside/secrets.txt (outside root) → must reject.
+            Path evilPath = symlink.resolve("secrets.txt");
+            Assert.assertTrue("should exist for this test", Files.exists(evilPath));
+            Assert.assertFalse("symlink to outside root must be rejected for existing path",
+                    resolver.isUnderAllowedRoot(evilPath));
+        } finally {
+            deleteRecursively(base);
+        }
+    }
+
+    /**
+     * When the target path does not exist yet (e.g. a {@code mkdir} payload) but an ancestor
+     * directory is a symlink pointing outside the allowed root, the resolver must walk up to
+     * the nearest existing parent, resolve its real path, and reject the spliced result.
+     */
+    @Test
+    public void symlinkBypass_nonExistingPath_shouldBeRejected() throws IOException {
+        Path base = Files.createTempDirectory("allowedroot-test-");
+        try {
+            Path root = base.resolve("safe");
+            Files.createDirectory(root);
+
+            // Outside directory acting as the symlink target.
+            Path outside = base.resolve("outside");
+            Files.createDirectory(outside);
+
+            // Symlink inside the allowed root → outside directory.
+            Path symlink = root.resolve("workspace");
+            Files.createSymbolicLink(symlink, outside);
+
+            AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root);
+
+            // workspace/malicious does not exist; workspace → outside → parent resolves
+            // to outside, remainder = malicious, must be rejected.
+            Path nonExistent = symlink.resolve("malicious");
+            Assert.assertFalse("should not exist for this test", Files.exists(nonExistent));
+            Assert.assertFalse("symlink parent pointing outside root must be rejected for non-existing path",
+                    resolver.isUnderAllowedRoot(nonExistent));
+        } finally {
+            deleteRecursively(base);
+        }
+    }
+
+    /**
+     * A non-existent path whose existing ancestors are all genuine (no symlink) and lie
+     * under the allowed root must be accepted &mdash; this is the normal {@code mkdir} case.
+     */
+    @Test
+    public void nonExistingPath_underGenuineRoot_shouldBeAccepted() throws IOException {
+        Path base = Files.createTempDirectory("allowedroot-test-");
+        try {
+            Path root = base.resolve("safe");
+            Files.createDirectory(root);
+
+            AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root);
+
+            // safe/new_dir does not exist, parent "safe" is genuine → must accept.
+            Path newDir = root.resolve("new_dir");
+            Assert.assertFalse("should not exist for this test", Files.exists(newDir));
+            Assert.assertTrue("non-existent path under genuine root must be accepted",
+                    resolver.isUnderAllowedRoot(newDir));
+        } finally {
+            deleteRecursively(base);
+        }
+    }
+
+    /**
+     * When no part of the path exists at all (including every ancestor up to the root),
+     * the resolver falls back to {@link Path#normalize()} and must still reject traversal
+     * attempts.
+     */
+    @Test
+    public void fullyNonExistentPath_shouldFallBackToNormalize() throws IOException {
+        Path base = Files.createTempDirectory("allowedroot-test-");
+        try {
+            Path root = base.resolve("safe");
+            Files.createDirectory(root);
+
+            AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root);
+
+            // /tmp/.../completely/nowhere does not exist and neither does any ancestor.
+            // Fallback to normalize: "../evil" resolves to outside root → reject.
+            Path nonExistent = base.resolve("completely/nowhere/../evil");
+            Assert.assertFalse("should not exist for this test", Files.exists(nonExistent));
+            Assert.assertFalse("path traversal via .. must be rejected in fallback path",
+                    resolver.isUnderAllowedRoot(nonExistent));
+        } finally {
+            deleteRecursively(base);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Helpers
+    // ------------------------------------------------------------------
+
+    /** Resolve to real path when the path exists, otherwise normalize. */
+    private static Path toRealOrNormalized(Path p) {
+        try {
+            return p.toRealPath();
+        } catch (IOException e) {
+            return p.normalize();
+        }
+    }
+
+    private static void deleteRecursively(Path dir) throws IOException {
+        if (Files.exists(dir)) {
+            try (Stream<Path> stream = Files.walk(dir)) {
+                stream.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.delete(p);
+                            } catch (IOException ignored) {
+                            }
+                        });
+            }
+        }
     }
 }
