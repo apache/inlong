@@ -33,4 +33,18 @@ public class Constants {
     // Default audit version is -1
     public static final long DEFAULT_AUDIT_VERSION = -1;
 
+    public static final String SLASH = "/";
+
+    public static final char SLASH_CHAR = '/';
+
+    public static final char BACK_SLASH_CHAR = '\\';
+
+    public static final String COMMA = ",";
+
+    public static final String DOUBLE_DOT = "..";
+
+    public static final String PIPE = "\\|";
+
+    public static final String HYPHEN = "-";
+
 }

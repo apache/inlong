@@ -39,6 +39,8 @@ import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_EV
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_EXT;
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentEventMetricItem.KEY_INLONG_STREAM_ID;
+import static org.apache.inlong.common.constant.Constants.HYPHEN;
+import static org.apache.inlong.common.constant.Constants.PIPE;
 
 /**
  * DiagUtils
@@ -53,7 +55,8 @@ public class EventReportUtils {
         CONFIG_INVALID_RET_CODE(3, "config invalid ret code"),
         CONFIG_INVALID_RESULT(4, "config invalid result maybe visit manager failed"),
         TASK_ADD(5, "task add"),
-        TASK_DELETE(6, "task delete");
+        TASK_DELETE(6, "task delete"),
+        TASK_VALIDATION_FAILED(7, "task validation failed");
 
         private final int code;
         private final String message;
@@ -101,7 +104,7 @@ public class EventReportUtils {
         dims.put(KEY_INLONG_EVENT_TYPE, eventType);
         dims.put(KEY_INLONG_EVENT_LEVEL, eventLevel);
         dims.put(KEY_INLONG_EVENT_CODE, String.valueOf(evenCode.getCode()));
-        dims.put(KEY_INLONG_EXT, ext.replaceAll("\\|", "-"));
+        dims.put(KEY_INLONG_EXT, ext.replace(PIPE, HYPHEN));
         dims.put(KEY_INLONG_EVENT_DESC, desc);
         metricItemSet.findMetricItem(dims).count.addAndGet(1);
     }

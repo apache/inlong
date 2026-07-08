@@ -37,21 +37,29 @@ import org.apache.inlong.common.pojo.agent.AgentResponseCode;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
+import org.apache.inlong.common.util.PathValidationUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FILE_ALLOWED_DIRS;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_FILE_ALLOWED_DIRS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
@@ -61,8 +69,10 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_TA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.TaskConstants.DATA_CONFIG_PATTERN_KEY;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
+import static org.apache.inlong.common.constant.Constants.COMMA;
 
 /**
  * Fetch command from Inlong-Manager
@@ -84,6 +94,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private String uuid;
     private String clusterTag;
     private String clusterName;
+    private final Set<String> allowedDirs;
 
     public ManagerFetcher(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -96,6 +107,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
             clusterTag = conf.get(AGENT_CLUSTER_TAG);
             clusterName = conf.get(AGENT_CLUSTER_NAME);
+            allowedDirs = parseAllowedDirs(conf.get(AGENT_FILE_ALLOWED_DIRS, DEFAULT_AGENT_FILE_ALLOWED_DIRS));
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
         }
@@ -203,8 +215,23 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                                         EvenCodeEnum.CONFIG_UPDATE_SUC.getMessage());
                                 List<TaskProfile> taskProfiles = new ArrayList<>();
                                 taskResult.getDataConfigs().forEach((config) -> {
-                                    TaskProfile profile = TaskProfile.convertToTaskProfile(config);
-                                    taskProfiles.add(profile);
+                                    try {
+                                        validateFilePattern(config, allowedDirs);
+                                        TaskProfile profile = TaskProfile.convertToTaskProfile(config);
+                                        taskProfiles.add(profile);
+                                    } catch (Exception e) {
+                                        LOGGER.error("skip invalid task config taskId={}: {}",
+                                                config.getTaskId(), e.getMessage());
+                                        EventReportUtils.report(
+                                                config.getInlongGroupId(),
+                                                config.getInlongStreamId(),
+                                                AgentUtils.getCurrentTime(),
+                                                EventReportUtils.EVENT_TYPE_CONFIG_UPDATE,
+                                                EventReportUtils.EVENT_LEVEL_ERROR,
+                                                EvenCodeEnum.TASK_VALIDATION_FAILED,
+                                                "taskId=" + config.getTaskId() + " reason=" + e.getMessage(),
+                                                "Agent rejected task config: " + e.getMessage());
+                                    }
                                 });
                                 agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
                                 agentManager.getTaskManager().setTaskResultMd5(taskResult.getMd5());
@@ -289,6 +316,52 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         fileTaskConfig.setDataSeparator("|");
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
+    }
+
+    /**
+     * Validate FILE task pattern to prevent path traversal attack (defense-in-depth).
+     * Also enforces allowed-directory whitelist when configured.
+     * Rejects patterns containing ".." as a complete path segment,
+     * or pointing outside the configured allowed directories.
+     */
+    static void validateFilePattern(DataConfig config, Set<String> allowedDirs) {
+        if (TaskTypeEnum.FILE.getType() != (config.getTaskType())) {
+            return;
+        }
+        String extParams = config.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            return;
+        }
+        JsonObject json = GSON.fromJson(extParams, JsonObject.class);
+        if (json == null || !json.has(DATA_CONFIG_PATTERN_KEY)) {
+            return;
+        }
+        String pattern = json.get(DATA_CONFIG_PATTERN_KEY).getAsString();
+        if (StringUtils.isEmpty(pattern)) {
+            throw new IllegalArgumentException("Empty file pattern");
+        }
+        if (PathValidationUtils.containsPathTraversal(pattern)) {
+            throw new IllegalArgumentException(
+                    "Path traversal detected in file pattern: " + pattern);
+        }
+        if (!PathValidationUtils.isWithinAllowedDirs(pattern, allowedDirs)) {
+            throw new IllegalArgumentException(
+                    "File pattern not in allowed directories: " + pattern);
+        }
+    }
+
+    /**
+     * Parse comma-separated allowed directories string into a Set.
+     * Returns an empty set when the input is null or blank (meaning no restriction).
+     */
+    static Set<String> parseAllowedDirs(String allowedDirsStr) {
+        if (StringUtils.isBlank(allowedDirsStr)) {
+            return Collections.emptySet();
+        }
+        return Stream.of(allowedDirsStr.split(COMMA))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     @Override

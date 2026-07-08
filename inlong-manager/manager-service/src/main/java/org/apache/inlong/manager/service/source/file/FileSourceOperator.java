@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.source.file;
 
 import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.util.PathValidationUtils;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -77,12 +78,25 @@ public class FileSourceOperator extends AbstractSourceOperator {
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         FileSourceRequest sourceRequest = (FileSourceRequest) request;
         try {
+            // Validate file path pattern to prevent path traversal attack
+            validatePathPattern(sourceRequest.getPattern());
             CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
             FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                     String.format("serialize extParams of File SourceDTO failure: %s", e.getMessage()));
+        }
+    }
+
+    /**
+     * Validate file path pattern to prevent path traversal attacks.
+     * Rejects patterns containing ".." as a complete path segment.
+     */
+    private void validatePathPattern(String pattern) {
+        if (PathValidationUtils.containsPathTraversal(pattern)) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    "Path traversal detected in file pattern: " + pattern);
         }
     }
 
