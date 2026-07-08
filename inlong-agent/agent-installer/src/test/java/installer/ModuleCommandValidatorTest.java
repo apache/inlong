@@ -19,6 +19,7 @@ package installer;
 
 import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
 import org.apache.inlong.agent.installer.validator.AllowedRootsResolver;
+import org.apache.inlong.agent.installer.validator.CommandWhitelistResolver;
 import org.apache.inlong.agent.installer.validator.ModuleCommandValidator;
 import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.ParsedSubCmd;
 import org.apache.inlong.agent.installer.validator.ModuleCommandValidator.ValidationResult;
@@ -399,8 +400,8 @@ public class ModuleCommandValidatorTest {
     @After
     public void clearConfigOverrides() {
         InstallerConfiguration conf = InstallerConfiguration.getInstallerConf();
-        conf.set(ModuleCommandValidator.KEY_EXTRA_COMMAND_WHITELIST, "");
-        conf.set(ModuleCommandValidator.KEY_EXTRA_WRITE_LIKE_COMMANDS, "");
+        conf.set(CommandWhitelistResolver.KEY_EXTRA_COMMAND_WHITELIST, "");
+        conf.set(CommandWhitelistResolver.KEY_EXTRA_WRITE_LIKE_COMMANDS, "");
     }
 
     private ModuleCommandValidator newValidatorFromConf() {
@@ -415,7 +416,7 @@ public class ModuleCommandValidatorTest {
 
         // With extraCommandWhitelist=nohup it must pass.
         InstallerConfiguration.getInstallerConf()
-                .set(ModuleCommandValidator.KEY_EXTRA_COMMAND_WHITELIST, "nohup");
+                .set(CommandWhitelistResolver.KEY_EXTRA_COMMAND_WHITELIST, "nohup");
         ModuleCommandValidator v = newValidatorFromConf();
         ValidationResult after = v.validate("nohup java -jar ~/inlong/x.jar");
         Assert.assertTrue("expected ok after adding nohup, got " + after, after.isOk());
@@ -425,7 +426,7 @@ public class ModuleCommandValidatorTest {
     public void configIllegalEntry_shouldBeSkippedButOthersKept() {
         // 'my;cmd' contains ';' and must be dropped; 'python3' is legal and must survive.
         InstallerConfiguration.getInstallerConf()
-                .set(ModuleCommandValidator.KEY_EXTRA_COMMAND_WHITELIST, "my;cmd,python3, echo bad ,ok_name");
+                .set(CommandWhitelistResolver.KEY_EXTRA_COMMAND_WHITELIST, "my;cmd,python3, echo bad ,ok_name");
         ModuleCommandValidator v = newValidatorFromConf();
         Set<String> effective = v.getEffectiveCommandWhitelist();
         Assert.assertFalse("entries containing ';' must be dropped", effective.contains("my;cmd"));
@@ -439,8 +440,8 @@ public class ModuleCommandValidatorTest {
         // Make 'dd' both an allowed argv[0] and a write-like command; a path outside allowed
         // roots must now be rejected via PATH_NOT_UNDER_ALLOWED_ROOT rather than sneak past.
         InstallerConfiguration conf = InstallerConfiguration.getInstallerConf();
-        conf.set(ModuleCommandValidator.KEY_EXTRA_COMMAND_WHITELIST, "dd");
-        conf.set(ModuleCommandValidator.KEY_EXTRA_WRITE_LIKE_COMMANDS, "dd");
+        conf.set(CommandWhitelistResolver.KEY_EXTRA_COMMAND_WHITELIST, "dd");
+        conf.set(CommandWhitelistResolver.KEY_EXTRA_WRITE_LIKE_COMMANDS, "dd");
         ModuleCommandValidator v = newValidatorFromConf();
 
         Assert.assertTrue(v.getEffectiveCommandWhitelist().contains("dd"));
@@ -464,7 +465,7 @@ public class ModuleCommandValidatorTest {
         // 'dd' is listed as write-like but never added to argv[0] whitelist. Behaviour must
         // stay identical to the baseline: 'dd' is rejected on the argv[0] whitelist step.
         InstallerConfiguration.getInstallerConf()
-                .set(ModuleCommandValidator.KEY_EXTRA_WRITE_LIKE_COMMANDS, "dd");
+                .set(CommandWhitelistResolver.KEY_EXTRA_WRITE_LIKE_COMMANDS, "dd");
         ModuleCommandValidator v = newValidatorFromConf();
         Assert.assertFalse(v.getEffectiveCommandWhitelist().contains("dd"));
         // Effective write-like set contains the extra entry (the WARN is a hint, not a filter).
@@ -477,9 +478,9 @@ public class ModuleCommandValidatorTest {
     public void configIntactBaseline_whenNoExtraProvided() {
         // No config touched → effective set must equal baseline exactly.
         ModuleCommandValidator v = newValidatorFromConf();
-        Assert.assertEquals(ModuleCommandValidator.BASELINE_COMMAND_WHITELIST,
+        Assert.assertEquals(CommandWhitelistResolver.BASELINE_COMMAND_WHITELIST,
                 v.getEffectiveCommandWhitelist());
-        Assert.assertEquals(ModuleCommandValidator.BASELINE_WRITE_LIKE_COMMANDS,
+        Assert.assertEquals(CommandWhitelistResolver.BASELINE_WRITE_LIKE_COMMANDS,
                 v.getEffectiveWriteLikeCommands());
     }
 
