@@ -610,7 +610,7 @@ public class ModuleManager extends AbstractDaemon {
 
             if (stdout == null) {
                 // Failure/timeout path: ERROR (stderr summary is already logged inside
-                // ExcuteLinux, truncated).
+                // ExecuteLinux, truncated).
                 LOGGER.error("FAIL command moduleId={} moduleName={} cmdName={} sub={} costMs={} (stdout=null)",
                         module.getId(), module.getName(), cmdName, describeSub(sub), costMs);
                 if (!sub.isAllowFailure()) {

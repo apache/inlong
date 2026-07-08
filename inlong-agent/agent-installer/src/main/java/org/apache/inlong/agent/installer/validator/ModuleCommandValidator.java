@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.installer.validator;
 
+import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
+
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -54,14 +57,51 @@ import java.util.Set;
  */
 public final class ModuleCommandValidator {
 
-    /** First-level command whitelist. */
-    public static final Set<String> COMMAND_WHITELIST = buildImmutableSet(
+    /**
+     * Built-in baseline for the {@code argv[0]} whitelist. Deployments may extend this via
+     * {@link #KEY_EXTRA_COMMAND_WHITELIST} without touching code. See ADR-shell-injection-fix.
+     */
+    public static final Set<String> BASELINE_COMMAND_WHITELIST = buildImmutableSet(
             "cd", "sh", "bash", "ps", "grep", "awk", "kill", "rm", "mkdir", "cp", "mv", "ln",
             "tar", "unzip", "chmod", "chown", "echo", "cat", "test", "[", "true", "false", "java");
 
-    /** Write-oriented commands whose path arguments must live under an allowed root. */
-    public static final Set<String> WRITE_LIKE_COMMANDS = buildImmutableSet(
+    /**
+     * Built-in baseline for write-oriented commands whose path arguments must live under an
+     * allowed root. Extendable via {@link #KEY_EXTRA_WRITE_LIKE_COMMANDS}.
+     */
+    public static final Set<String> BASELINE_WRITE_LIKE_COMMANDS = buildImmutableSet(
             "rm", "cp", "mv", "mkdir", "ln", "chmod", "chown", "tar", "unzip");
+
+    /**
+     * @deprecated kept for backward compatibility only; use {@link #getEffectiveCommandWhitelist()}
+     *     when you need the runtime-effective set. This constant remains an alias to
+     *     {@link #BASELINE_COMMAND_WHITELIST}.
+     */
+    @Deprecated
+    public static final Set<String> COMMAND_WHITELIST = BASELINE_COMMAND_WHITELIST;
+
+    /**
+     * @deprecated kept for backward compatibility only; use {@link #getEffectiveWriteLikeCommands()}
+     *     when you need the runtime-effective set. This constant remains an alias to
+     *     {@link #BASELINE_WRITE_LIKE_COMMANDS}.
+     */
+    @Deprecated
+    public static final Set<String> WRITE_LIKE_COMMANDS = BASELINE_WRITE_LIKE_COMMANDS;
+
+    /** Configuration key for extra {@code argv[0]} whitelist entries (comma separated). */
+    public static final String KEY_EXTRA_COMMAND_WHITELIST = "installer.command.extraCommandWhitelist";
+    /** Configuration key for extra write-like commands that must trigger the allowed-root check. */
+    public static final String KEY_EXTRA_WRITE_LIKE_COMMANDS = "installer.command.extraWriteLikeCommands";
+
+    /**
+     * Illegal characters in a whitelist entry itself. A whitelist name is meant to be a bare
+     * command like {@code nohup} or {@code python3}; anything containing whitespace, a path
+     * separator, or shell metacharacters is rejected up-front so that the config source
+     * cannot become an injection surface.
+     */
+    private static final char[] ILLEGAL_ENTRY_CHARS = new char[]{
+            ' ', '\t', '/', '\\', ';', '|', '&', '>', '<', '$', '`'
+    };
 
     private static Set<String> buildImmutableSet(String... items) {
         Set<String> s = new HashSet<>(items.length * 2);
@@ -69,9 +109,16 @@ public final class ModuleCommandValidator {
         return Collections.unmodifiableSet(s);
     }
 
-    /** Substring blacklist for the metacharacter check. */
+    /**
+     * Substring blacklist for the metacharacter check. Reject anything that a POSIX shell
+     * would interpret specially and that we cannot faithfully re-implement via
+     * {@link ProcessBuilder}. In particular {@code *} and {@code ?} are listed here because
+     * {@link ProcessBuilder} does <em>not</em> perform glob expansion: passing a literal
+     * {@code *} to {@code rm} usually matches no file and silently deletes nothing, which is
+     * strictly more dangerous than an outright rejection.
+     */
     private static final String[] META_CHAR_BLACKLIST = new String[]{
-            "`", "$(", "${", "&&", "||", ">>", ">", "<", "\\", "\u0000"
+            "`", "$(", "${", "&&", "||", ">>", ">", "<", "\\", "\u0000", "*", "?"
     };
 
     public static final String RULE_DISALLOWED_META_CHAR = "DISALLOWED_META_CHAR";
@@ -83,9 +130,55 @@ public final class ModuleCommandValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModuleCommandValidator.class);
 
     private final AllowedRootsResolver allowedRootsResolver;
+    private final Set<String> effectiveCommandWhitelist;
+    private final Set<String> effectiveWriteLikeCommands;
 
+    /** Construct a validator that only uses the built-in baseline whitelists. */
     public ModuleCommandValidator(AllowedRootsResolver allowedRootsResolver) {
+        this(allowedRootsResolver, BASELINE_COMMAND_WHITELIST, BASELINE_WRITE_LIKE_COMMANDS);
+    }
+
+    /**
+     * Construct a validator whose effective whitelists are the baseline sets extended by
+     * configuration entries from the given {@link InstallerConfiguration}.
+     */
+    public ModuleCommandValidator(AllowedRootsResolver allowedRootsResolver, InstallerConfiguration conf) {
+        this(allowedRootsResolver, buildEffective(conf));
+    }
+
+    private ModuleCommandValidator(AllowedRootsResolver allowedRootsResolver, Set<String>[] effective) {
+        this(allowedRootsResolver, effective[0], effective[1]);
+    }
+
+    /**
+     * Load {@code (effectiveArgv0Whitelist, effectiveWriteLikeCommands)} once so the config
+     * source is read exactly once per instance.
+     */
+    @SuppressWarnings("unchecked")
+    private static Set<String>[] buildEffective(InstallerConfiguration conf) {
+        Set<String> argv0 = loadEffectiveCommandWhitelist(conf);
+        Set<String> writeLike = loadEffectiveWriteLikeCommands(conf, argv0);
+        return new Set[]{argv0, writeLike};
+    }
+
+    private ModuleCommandValidator(AllowedRootsResolver allowedRootsResolver,
+            Set<String> effectiveCommandWhitelist, Set<String> effectiveWriteLikeCommands) {
         this.allowedRootsResolver = allowedRootsResolver;
+        this.effectiveCommandWhitelist = Collections.unmodifiableSet(new HashSet<>(effectiveCommandWhitelist));
+        this.effectiveWriteLikeCommands = Collections.unmodifiableSet(new HashSet<>(effectiveWriteLikeCommands));
+        LOGGER.info("ModuleCommandValidator initialized: argv0Whitelist={}, writeLikeCommands={}",
+                new java.util.TreeSet<>(this.effectiveCommandWhitelist),
+                new java.util.TreeSet<>(this.effectiveWriteLikeCommands));
+    }
+
+    /** Effective {@code argv[0]} whitelist actually enforced at runtime. */
+    public Set<String> getEffectiveCommandWhitelist() {
+        return effectiveCommandWhitelist;
+    }
+
+    /** Effective write-like set that triggers the allowed-root check at runtime. */
+    public Set<String> getEffectiveWriteLikeCommands() {
+        return effectiveWriteLikeCommands;
     }
 
     /** Validate a raw command string. */
@@ -98,18 +191,29 @@ public final class ModuleCommandValidator {
         // bypass the check by hiding after ';'.
         String metaHit = firstMetaCharHit(rawCmd);
         if (metaHit != null) {
-            return ValidationResult.fail(RULE_DISALLOWED_META_CHAR, rawCmd,
-                    "hit meta char: " + metaHit);
+            String reason = "hit meta char: " + metaHit;
+            if ("*".equals(metaHit) || "?".equals(metaHit)) {
+                reason = reason + " — glob wildcards are not supported (Agent runs commands"
+                        + " without a shell, so '*' and '?' will NOT be expanded);"
+                        + " please specify explicit file paths";
+            }
+            return ValidationResult.fail(RULE_DISALLOWED_META_CHAR, rawCmd, reason);
         }
         if (rawCmd.indexOf('\n') >= 0 || rawCmd.indexOf('\r') >= 0) {
             return ValidationResult.fail(RULE_DISALLOWED_META_CHAR, rawCmd,
                     "hit line-break char");
         }
 
-        // split by ';' into sub-commands, then by '|' into pipe segments, then
-        // tokenize each segment into argv.
+        // Split by ';' into sub-commands, then by '|' into pipe segments, then tokenize each
+        // segment into argv. Both splitters honour single/double quotes so a ';' or '|'
+        // inside quotes is preserved as a literal character, matching how a POSIX shell
+        // parses the command line.
         List<ParsedSubCmd> subs = new ArrayList<>();
-        String[] segments = rawCmd.split(";");
+        List<String> segments = splitTopLevel(rawCmd, ';');
+        if (segments == null) {
+            return ValidationResult.fail(RULE_EMPTY_COMMAND, rawCmd,
+                    "unterminated quote in raw command");
+        }
         for (String seg : segments) {
             String trimmed = seg == null ? "" : seg.trim();
             if (trimmed.isEmpty()) {
@@ -149,7 +253,7 @@ public final class ModuleCommandValidator {
             }
             String cmd = argv[0];
 
-            if (!COMMAND_WHITELIST.contains(cmd)) {
+            if (!effectiveCommandWhitelist.contains(cmd)) {
                 return ValidationResult.fail(RULE_NOT_IN_WHITELIST, sub.getRawSegment(),
                         "command '" + cmd + "' is not in whitelist");
             }
@@ -189,7 +293,7 @@ public final class ModuleCommandValidator {
             return checkPathUnderRoot(argv[1], rawSegment);
         }
 
-        if (WRITE_LIKE_COMMANDS.contains(cmd)) {
+        if (effectiveWriteLikeCommands.contains(cmd)) {
             for (int i = 1; i < argv.length; i++) {
                 String arg = argv[i];
                 if (arg.startsWith("-") || !looksLikePath(arg)) {
@@ -241,23 +345,29 @@ public final class ModuleCommandValidator {
 
     /**
      * Remove {@code cd DIR} sub-commands from the execution sequence and turn each of them
-     * into the {@link ParsedSubCmd#workDir} of the next sub-command.
+     * into the {@link ParsedSubCmd#workDir} of the sub-commands that follow it.
+     *
+     * <p>Semantics: a {@code cd} affects every subsequent sub-command until the next
+     * {@code cd} is encountered, matching what a POSIX shell does with a single CWD per
+     * session. This means the following raw command runs {@code mkdir} <em>and</em>
+     * {@code tar} both inside {@code /opt/packages}:
+     *
+     * <pre>{@code cd /opt/packages ; mkdir -p inlong-agent ; tar -xzvf pkg.tar.gz -C inlong-agent}</pre>
      */
     public static List<ParsedSubCmd> extractCdAndBind(List<ParsedSubCmd> subs) {
         List<ParsedSubCmd> result = new ArrayList<>(subs.size());
-        File pendingWorkDir = null;
+        File currentWorkDir = null;
         for (ParsedSubCmd sub : subs) {
             String[] argv = sub.getPipeline().get(0);
             if (argv.length >= 1 && "cd".equals(argv[0])) {
                 if (argv.length >= 2) {
                     String expanded = expandTilde(argv[1]);
-                    pendingWorkDir = Paths.get(expanded).toAbsolutePath().normalize().toFile();
+                    currentWorkDir = Paths.get(expanded).toAbsolutePath().normalize().toFile();
                 }
                 continue;
             }
-            if (pendingWorkDir != null) {
-                sub.setWorkDir(pendingWorkDir);
-                pendingWorkDir = null;
+            if (currentWorkDir != null) {
+                sub.setWorkDir(currentWorkDir);
             }
             result.add(sub);
         }
@@ -265,8 +375,12 @@ public final class ModuleCommandValidator {
     }
 
     private static ParsedSubCmd parseSubCmd(String segment) {
-        String[] pipeSegs = segment.split("\\|");
-        List<String[]> pipeline = new ArrayList<>(pipeSegs.length);
+        List<String> pipeSegs = splitTopLevel(segment, '|');
+        if (pipeSegs == null) {
+            // unterminated quote within a sub-command; caller treats null as empty/invalid.
+            return null;
+        }
+        List<String[]> pipeline = new ArrayList<>(pipeSegs.size());
         for (String pipeSeg : pipeSegs) {
             String trimmed = pipeSeg == null ? "" : pipeSeg.trim();
             if (trimmed.isEmpty()) {
@@ -280,6 +394,51 @@ public final class ModuleCommandValidator {
         }
         boolean piped = pipeline.size() > 1;
         return new ParsedSubCmd(pipeline, segment, piped);
+    }
+
+    /**
+     * Quote-aware split of {@code raw} on the top-level {@code delim} character. Characters
+     * inside a single-quoted or double-quoted region are treated as literals and do not
+     * split the string. Returns {@code null} when the input has an unterminated quote so
+     * that the caller can surface a validation error rather than silently mis-parse.
+     *
+     * <p>Unlike {@link String#split(String)}, an empty leading, middle or trailing region is
+     * preserved in the result so that callers can decide how to handle it.
+     */
+    static List<String> splitTopLevel(String raw, char delim) {
+        List<String> out = new ArrayList<>();
+        if (raw == null) {
+            out.add("");
+            return out;
+        }
+        StringBuilder cur = new StringBuilder();
+        char quote = 0;
+        for (int i = 0; i < raw.length(); i++) {
+            char c = raw.charAt(i);
+            if (quote != 0) {
+                cur.append(c);
+                if (c == quote) {
+                    quote = 0;
+                }
+                continue;
+            }
+            if (c == '\'' || c == '"') {
+                quote = c;
+                cur.append(c);
+                continue;
+            }
+            if (c == delim) {
+                out.add(cur.toString());
+                cur.setLength(0);
+                continue;
+            }
+            cur.append(c);
+        }
+        if (quote != 0) {
+            return null;
+        }
+        out.add(cur.toString());
+        return out;
     }
 
     /**
@@ -345,6 +504,71 @@ public final class ModuleCommandValidator {
         }
         return arg.startsWith("/") || arg.startsWith("~") || arg.startsWith("./") || arg.startsWith("../")
                 || arg.contains("/");
+    }
+
+    /** Split a comma-separated config value; blank items are dropped. Illegal entries are dropped with a WARN. */
+    static List<String> parseConfigList(String key, String raw) {
+        List<String> out = new ArrayList<>();
+        if (StringUtils.isBlank(raw)) {
+            return out;
+        }
+        for (String item : raw.split(",")) {
+            String trimmed = item == null ? "" : item.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            String reason = firstIllegalReason(trimmed);
+            if (reason != null) {
+                LOGGER.warn("ModuleCommandValidator: dropping illegal config entry from {}: '{}' ({})",
+                        key, trimmed, reason);
+                continue;
+            }
+            out.add(trimmed);
+        }
+        return out;
+    }
+
+    private static String firstIllegalReason(String entry) {
+        for (char c : ILLEGAL_ENTRY_CHARS) {
+            if (entry.indexOf(c) >= 0) {
+                return "contains forbidden char '" + c + "'";
+            }
+        }
+        for (int i = 0; i < entry.length(); i++) {
+            char c = entry.charAt(i);
+            if (Character.isWhitespace(c)) {
+                return "contains whitespace";
+            }
+        }
+        return null;
+    }
+
+    private static Set<String> loadEffectiveCommandWhitelist(InstallerConfiguration conf) {
+        Set<String> merged = new LinkedHashSet<>(BASELINE_COMMAND_WHITELIST);
+        if (conf != null) {
+            for (String extra : parseConfigList(KEY_EXTRA_COMMAND_WHITELIST,
+                    conf.get(KEY_EXTRA_COMMAND_WHITELIST, ""))) {
+                merged.add(extra);
+            }
+        }
+        return merged;
+    }
+
+    private static Set<String> loadEffectiveWriteLikeCommands(InstallerConfiguration conf,
+            Set<String> effectiveCommandWhitelist) {
+        Set<String> merged = new LinkedHashSet<>(BASELINE_WRITE_LIKE_COMMANDS);
+        if (conf != null) {
+            for (String extra : parseConfigList(KEY_EXTRA_WRITE_LIKE_COMMANDS,
+                    conf.get(KEY_EXTRA_WRITE_LIKE_COMMANDS, ""))) {
+                merged.add(extra);
+                if (!effectiveCommandWhitelist.contains(extra)) {
+                    LOGGER.warn("ModuleCommandValidator: '{}' is listed in {} but not in the effective argv[0] "
+                            + "whitelist; the write-like path check will not fire for it.",
+                            extra, KEY_EXTRA_WRITE_LIKE_COMMANDS);
+                }
+            }
+        }
+        return merged;
     }
 
     /**
