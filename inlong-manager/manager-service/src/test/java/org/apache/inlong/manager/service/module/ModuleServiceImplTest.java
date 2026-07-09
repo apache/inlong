@@ -83,9 +83,9 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         // ErrorCodeEnum wrapper
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"),
                 "API caller should see the wrapped error, got: " + msg);
-        // pinpoint the offending field
-        Assertions.assertTrue(msg.contains("startCommand:"),
-                "must tell the user which field is offending, got: " + msg);
+        // pinpoint the offending command by echoing its raw text
+        Assertions.assertTrue(msg.contains("in [rm /opt/inlong/*.log]"),
+                "must echo the offending command verbatim, got: " + msg);
         // pinpoint the offending char
         Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [*]"),
                 "must tell the user which char triggered rejection, got: " + msg);
@@ -108,7 +108,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
 
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
-        Assertions.assertTrue(msg.contains("installCommand:"), msg);
+        Assertions.assertTrue(msg.contains("in [cp /pkg/a?.tar /opt/]"), msg);
         Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [?]"), msg);
         Assertions.assertTrue(msg.contains("glob wildcards are not supported"), msg);
     }
@@ -125,7 +125,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
 
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
-        Assertions.assertTrue(msg.contains("checkCommand:"), msg);
+        Assertions.assertTrue(msg.contains("in [echo `whoami`]"), msg);
         Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [`]"), msg);
         Assertions.assertFalse(msg.contains("glob wildcards"),
                 "non-glob meta char must NOT carry the glob hint, got: " + msg);
@@ -141,7 +141,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
 
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
-        Assertions.assertTrue(msg.contains("stopCommand:"), msg);
+        Assertions.assertTrue(msg.contains("in [sh -c ls]"), msg);
         Assertions.assertTrue(msg.contains("FORBIDDEN_SH_C_FLAG"), msg);
     }
 
@@ -155,7 +155,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
 
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
-        Assertions.assertTrue(msg.contains("uninstallCommand:"), msg);
+        Assertions.assertTrue(msg.contains("in [python3 uninstall.py]"), msg);
         Assertions.assertTrue(msg.contains("python3"),
                 "must tell the user the offending command name, got: " + msg);
     }

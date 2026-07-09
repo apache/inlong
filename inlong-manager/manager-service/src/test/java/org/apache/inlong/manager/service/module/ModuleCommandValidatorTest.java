@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.module;
 
-import org.apache.inlong.manager.pojo.module.ModuleRequest;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -181,49 +179,4 @@ public class ModuleCommandValidatorTest {
         Assertions.assertTrue(r.contains("bash"), r);
     }
 
-    /* ---------------- validateAll: returns fieldName + offending detail ---------------- */
-
-    @Test
-    public void validateAll_starInStartCommand_shouldReturnFieldQualifiedError() {
-        String r = validator.validateAll(req("rm /a/*.log", "echo stop", "echo check",
-                "echo install", "echo uninstall"));
-        Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("startCommand:"),
-                "must be prefixed with field name 'startCommand:', got: " + r);
-        Assertions.assertTrue(r.contains("DISALLOWED_META_CHAR: [*]"),
-                "must contain the underlying rule + char, got: " + r);
-        Assertions.assertTrue(r.contains("glob wildcards are not supported"),
-                "must contain the user-facing wildcard hint, got: " + r);
-    }
-
-    @Test
-    public void validateAll_questionInInstallCommand_shouldPinpointField() {
-        String r = validator.validateAll(req("echo start", "echo stop", "echo check",
-                "cp /a/b?.txt /c/", "echo uninstall"));
-        Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("installCommand:"), r);
-        Assertions.assertTrue(r.contains("DISALLOWED_META_CHAR: [?]"), r);
-        Assertions.assertTrue(r.contains("glob wildcards are not supported"), r);
-    }
-
-    @Test
-    public void validateAll_allCommandsClean_shouldReturnNull() {
-        Assertions.assertNull(validator.validateAll(req(
-                "echo start", "echo stop", "echo check", "echo install", "echo uninstall")));
-    }
-
-    /**
-     * Test helper — builds a {@link ModuleRequest} carrying only the five command fields
-     * we care about, keeping the call sites in these tests to a single line.
-     */
-    private static ModuleRequest req(String start, String stop, String check,
-            String install, String uninstall) {
-        ModuleRequest r = new ModuleRequest();
-        r.setStartCommand(start);
-        r.setStopCommand(stop);
-        r.setCheckCommand(check);
-        r.setInstallCommand(install);
-        r.setUninstallCommand(uninstall);
-        return r;
-    }
 }

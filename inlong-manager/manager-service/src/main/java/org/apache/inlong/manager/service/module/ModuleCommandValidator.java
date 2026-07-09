@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.service.module;
 
-import lombok.Getter;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.module.ModuleDTO;
 import org.apache.inlong.manager.pojo.module.ModuleRequest;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * Manager-side command whitelist validator. Validates that command names (argv[0]) in module
@@ -145,46 +145,96 @@ public class ModuleCommandValidator {
     }
 
     /**
-     * Incremental validation — only validates command fields that have actually changed
-     * between the existing module config (from DB) and the incoming update request.
-     * <p>
-     * This avoids blocking updates for existing modules that only change non-command
-     * fields (e.g. version number, package id).
+     * Save-time entry point. Runs the full command whitelist check and throws
+     * {@link BusinessException} on the first violation; otherwise returns {@code true}.
+     * Callers do <b>not</b> need to check the mode or wrap the exception themselves.
      *
-     * @param oldDto  the existing ModuleDTO parsed from DB extParams (may be null if
-     *                extParams was empty — all fields are treated as changed)
-     * @param request the incoming update request
-     * @return the offending field name + command, or {@code null} if all changed commands pass
+     * <p>In {@link WhitelistMode#OFF} the check is skipped and {@code true} is returned.
+     * In {@link WhitelistMode#STRICT} and {@link WhitelistMode#WARN} the save path is
+     * always blocking (WARN only softens the update path).
      */
-    public String validateChanged(ModuleDTO oldDto, ModuleRequest request) {
-        if (oldDto == null) {
-            // No existing data — validate everything (same as save)
-            return validateAll(request);
+    public void validateOnSave(ModuleRequest request) {
+        if (whitelistModeConfig == WhitelistMode.OFF || request == null) {
+            return;
         }
-        Function<CommandField, String> oldReader = ModuleCommandAccessors.of(oldDto);
-        Function<CommandField, String> newReader = ModuleCommandAccessors.of(request);
-        // Skip fields whose value is unchanged (both null or equal).
-        return validateFields(newReader,
-                f -> Objects.equals(oldReader.apply(f), newReader.apply(f)));
+        String violation = findFirstViolation(ModuleCommandAccessors.of(request));
+        if (violation != null) {
+            throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
+                    String.format(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
+                            violation));
+        }
     }
 
     /**
-     * Core validation loop: iterate through every {@link CommandField}, read its current
-     * value via {@code accessor}, and run {@link #validate(String)}. Fields for which
-     * {@code skip} returns {@code true} are bypassed (used for incremental validation).
+     * Update-time entry point. Only validates command fields that actually changed
+     * between {@code oldDto} (existing DB row) and the incoming {@code request}.
      *
-     * @return {@code "<label>: <offending>"} on the first failure, or {@code null} if all pass
+     * <ul>
+     *   <li>{@link WhitelistMode#OFF} — skip entirely, return {@code true}.</li>
+     *   <li>{@link WhitelistMode#STRICT} — throw {@link BusinessException} on any
+     *       violation.</li>
+     *   <li>{@link WhitelistMode#WARN} — log a warning and let the update proceed.</li>
+     * </ul>
+     *
+     * @param oldDto  ModuleDTO parsed from stored extParams; {@code null} means "treat
+     *                every field as changed" (behaves like save-time)
+     * @param request the incoming update request
      */
-    private String validateFields(Function<CommandField, String> accessor,
-            Predicate<CommandField> skip) {
-        for (CommandField f : CommandField.values()) {
-            if (skip.test(f)) {
+    public void validateOnUpdate(ModuleDTO oldDto, ModuleRequest request) {
+        if (whitelistModeConfig == WhitelistMode.OFF || request == null) {
+            return;
+        }
+        List<String> toCheck = changedCommands(oldDto, request);
+        String violation = findFirstViolation(toCheck);
+        if (violation == null) {
+            return;
+        }
+        if (whitelistModeConfig == WhitelistMode.STRICT) {
+            throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
+                    String.format(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
+                            violation));
+        }
+        // WARN mode: do not block the update, only surface the reason in logs.
+        LOGGER.warn("ModuleCommandValidator: non-whitelisted command in update "
+                + "(mode=WARN, not blocking): moduleId={}, {}", request.getId(),
+                violation);
+    }
+
+    /**
+     * Compute the sub-list of new-side commands whose value differs from the stored
+     * one, positionally (both accessors return the five command fields in the same
+     * order). A {@code null} {@code oldDto} means "no baseline", so every field is
+     * treated as changed — which mirrors save-time semantics.
+     */
+    private static List<String> changedCommands(ModuleDTO oldDto, ModuleRequest request) {
+        List<String> newCmds = ModuleCommandAccessors.of(request);
+        if (oldDto == null) {
+            return newCmds;
+        }
+        List<String> oldCmds = ModuleCommandAccessors.of(oldDto);
+        List<String> changed = new ArrayList<>(newCmds.size());
+        for (int i = 0; i < newCmds.size(); i++) {
+            String oldRaw = i < oldCmds.size() ? oldCmds.get(i) : null;
+            if (!Objects.equals(oldRaw, newCmds.get(i))) {
+                changed.add(newCmds.get(i));
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Iterate the given commands and return {@code "<reason> in [<raw>]"} for the
+     * first offending one, or {@code null} if all pass. The raw command is echoed
+     * verbatim so operators can immediately locate which configured line triggered
+     * the rejection.
+     */
+    private String findFirstViolation(List<String> commands) {
+        for (String raw : commands) {
+            String reason = validate(raw);
+            if (StringUtils.isBlank(reason)) {
                 continue;
             }
-            String offending = validate(accessor.apply(f));
-            if (StringUtils.isNotBlank(offending)) {
-                return f.label + ": " + offending;
-            }
+            return reason + " in [" + raw + "]";
         }
         return null;
     }
@@ -208,11 +258,9 @@ public class ModuleCommandValidator {
      * {@code null} if valid. The error prefix indicates the rejection reason:
      * {@code DISALLOWED_META_CHAR}, {@code FORBIDDEN_SH_C_FLAG}, or just the offending
      * command name (NOT_IN_WHITELIST).
-     *
-     * @param rawCmd the raw command string (may be null or blank — skipped)
-     * @return error description, or {@code null} if valid
+     * Package-private for the unit tests.
      */
-    public String validate(String rawCmd) {
+    String validate(String rawCmd) {
         if (StringUtils.isBlank(rawCmd)) {
             return null;
         }
@@ -275,22 +323,6 @@ public class ModuleCommandValidator {
             }
         }
         return null;
-    }
-
-    /**
-     * Thoroughly validate all module command fields on a {@link ModuleRequest}. Returns
-     * {@code null} if all commands pass, or a descriptive message such as
-     * {@code "startCommand: python3"} / {@code "startCommand: DISALLOWED_META_CHAR: '*' — ..."}
-     * if one fails.
-     *
-     * <p>Preferred over the 5-argument overload — passing the request object avoids
-     * argument-order mistakes at call sites.
-     */
-    public String validateAll(ModuleRequest request) {
-        if (request == null) {
-            return null;
-        }
-        return validateFields(ModuleCommandAccessors.of(request), f -> false);
     }
 
     /**

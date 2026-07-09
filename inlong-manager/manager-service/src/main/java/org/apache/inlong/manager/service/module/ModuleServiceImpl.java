@@ -59,17 +59,9 @@ public class ModuleServiceImpl implements ModuleService {
     public Integer save(ModuleRequest request, String operator) {
         LOGGER.info("begin to save module info: {}", request);
 
-        // Validate commands against whitelist at save time.
-        // STRICT and WARN both block; only OFF skips.
-        ModuleCommandValidator.WhitelistMode mode = commandValidator.getWhitelistModeConfig();
-        if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
-            String violation = commandValidator.validateAll(request);
-            if (violation != null) {
-                throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
-                        String.format(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
-                                violation));
-            }
-        }
+        // Whitelist check — mode handling and exception wrapping live inside the
+        // validator, so a violation surfaces as a BusinessException directly.
+        commandValidator.validateOnSave(request);
 
         ModuleConfigEntity moduleConfigEntity = CommonBeanUtils.copyProperties(request, ModuleConfigEntity::new);
         try {
@@ -99,29 +91,13 @@ public class ModuleServiceImpl implements ModuleService {
                     String.format("Module does not exist with id=%s", request.getId()));
         }
 
-        // Incremental whitelist validation (mode-aware): only check command fields
-        // that actually changed compared to the stored extParams.
-        ModuleCommandValidator.WhitelistMode mode = commandValidator.getWhitelistModeConfig();
-        if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
-            ModuleDTO oldDto = null;
-            if (moduleConfigEntity.getExtParams() != null) {
-                oldDto = ModuleDTO.getFromJson(moduleConfigEntity.getExtParams());
-            }
-            String violation = commandValidator.validateChanged(oldDto, request);
-            if (violation != null) {
-                if (mode == ModuleCommandValidator.WhitelistMode.STRICT) {
-                    throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
-                            String.format(
-                                    ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
-                                    violation));
-                }
-                // WARN mode: log only, do not block the update
-                LOGGER.warn("ModuleCommandValidator: non-whitelisted command in update "
-                        + "(mode=WARN, not blocking): moduleId={}, {}", request.getId(),
-                        violation);
-
-            }
+        // Incremental whitelist check — the validator internally picks the enforcement
+        // mode (STRICT throws, WARN logs, OFF skips) so no branching is needed here.
+        ModuleDTO oldDto = null;
+        if (moduleConfigEntity.getExtParams() != null) {
+            oldDto = ModuleDTO.getFromJson(moduleConfigEntity.getExtParams());
         }
+        commandValidator.validateOnUpdate(oldDto, request);
         CommonBeanUtils.copyProperties(request, moduleConfigEntity, true);
         try {
             ModuleDTO dto = ModuleDTO.getFromRequest(request, moduleConfigEntity.getExtParams(),
