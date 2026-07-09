@@ -68,7 +68,7 @@ public final class CommandWhitelistResolver {
      * because {@link ProcessBuilder} does not perform glob expansion.
      */
     public static final String[] META_CHAR_BLACKLIST = {
-            "`", "$(", "${", "&&", "||", ">>", ">", "<", "\\", "\u0000"
+            "`", "$(", "${", "&&", "||", ">>", ">", "<", "\\", "\u0000", "*", "?"
     };
 
     /**
