@@ -87,7 +87,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         Assertions.assertTrue(msg.contains("startCommand:"),
                 "must tell the user which field is offending, got: " + msg);
         // pinpoint the offending char
-        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: '*'"),
+        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [*]"),
                 "must tell the user which char triggered rejection, got: " + msg);
         // and — critically — WHY it is rejected
         Assertions.assertTrue(msg.contains("glob wildcards are not supported"),
@@ -109,7 +109,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("installCommand:"), msg);
-        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: '?'"), msg);
+        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [?]"), msg);
         Assertions.assertTrue(msg.contains("glob wildcards are not supported"), msg);
     }
 
@@ -126,7 +126,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         String msg = ex.getMessage();
         Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("checkCommand:"), msg);
-        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: '`'"), msg);
+        Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: [`]"), msg);
         Assertions.assertFalse(msg.contains("glob wildcards"),
                 "non-glob meta char must NOT carry the glob hint, got: " + msg);
     }

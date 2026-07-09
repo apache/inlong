@@ -222,15 +222,17 @@ public class ModuleCommandValidator {
             return null;
         }
 
-        // metacharacter blacklist (whole string, before splitting)
+        // metacharacter blacklist (whole string, before splitting).
+        // Offending chars are wrapped with [] so callers can unambiguously see the boundary,
+        // e.g. "DISALLOWED_META_CHAR: [`]" rather than a bare backtick which is easy to miss.
         String metaHit = firstMetaCharHit(rawCmd);
-        if (metaHit != null) {
+        if (StringUtils.isNotBlank(metaHit)) {
             if (InlongConstants.ASTERISK.equals(metaHit) || InlongConstants.QUESTION_MARK.equals(metaHit)) {
-                return "DISALLOWED_META_CHAR: '" + metaHit
-                        + "' — glob wildcards are not supported (Agent runs commands without a shell,"
-                        + " so '*' and '?' will NOT be expanded); please specify explicit file paths";
+                return "DISALLOWED_META_CHAR: [" + metaHit + "]"
+                        + " — glob wildcards are not supported (Agent runs commands without a shell,"
+                        + " so [*] and [?] will NOT be expanded); please specify explicit file paths";
             }
-            return "DISALLOWED_META_CHAR: '" + metaHit + "'";
+            return "DISALLOWED_META_CHAR: [" + metaHit + "]";
         }
         if (rawCmd.indexOf(InlongConstants.NEW_LINE_CHAR) >= 0
                 || rawCmd.indexOf(InlongConstants.CARRIAGE_RETURN_CHAR) >= 0) {
@@ -271,7 +273,7 @@ public class ModuleCommandValidator {
                 if (("sh".equals(cmdName) || "bash".equals(cmdName)) && argv.size() > 1) {
                     for (int i = 1; i < argv.size(); i++) {
                         if (argv.get(i).startsWith("-c")) {
-                            return "FORBIDDEN_SH_C_FLAG: '" + cmdName + " " + argv.get(i) + "'";
+                            return "FORBIDDEN_SH_C_FLAG: " + cmdName + " " + argv.get(i);
                         }
                     }
                 }

@@ -76,8 +76,8 @@ public class ModuleCommandValidatorTest {
     public void validate_starWildcard_shouldRejectWithGlobHint() {
         String r = validator.validate("rm /opt/inlong/*.log");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '*'"),
-                "should start with DISALLOWED_META_CHAR: '*', got: " + r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [*]"),
+                "should start with DISALLOWED_META_CHAR: [*], got: " + r);
         Assertions.assertTrue(r.contains("glob wildcards are not supported"),
                 "must explain wildcards are not supported, got: " + r);
         Assertions.assertTrue(r.contains("will NOT be expanded"),
@@ -90,8 +90,8 @@ public class ModuleCommandValidatorTest {
     public void validate_questionMarkWildcard_shouldRejectWithGlobHint() {
         String r = validator.validate("ls /opt/inlong/?.txt");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '?'"),
-                "should start with DISALLOWED_META_CHAR: '?', got: " + r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [?]"),
+                "should start with DISALLOWED_META_CHAR: [?], got: " + r);
         Assertions.assertTrue(r.contains("glob wildcards are not supported"),
                 "must explain wildcards are not supported, got: " + r);
     }
@@ -111,7 +111,7 @@ public class ModuleCommandValidatorTest {
     public void validate_backtick_shouldRejectWithoutGlobHint() {
         String r = validator.validate("echo `whoami`");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '`'"), r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [`]"), r);
         Assertions.assertFalse(r.contains("glob wildcards"),
                 "non-glob meta char must NOT get the glob hint, got: " + r);
     }
@@ -120,21 +120,21 @@ public class ModuleCommandValidatorTest {
     public void validate_dollarParen_shouldReject() {
         String r = validator.validate("echo $(whoami)");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '$('"), r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [$(]"), r);
     }
 
     @Test
     public void validate_doubleAmp_shouldReject() {
         String r = validator.validate("echo a && echo b");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '&&'"), r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [&&]"), r);
     }
 
     @Test
     public void validate_redirect_shouldReject() {
         String r = validator.validate("echo hi > /tmp/x");
         Assertions.assertNotNull(r);
-        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: '>'"), r);
+        Assertions.assertTrue(r.startsWith("DISALLOWED_META_CHAR: [>]"), r);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class ModuleCommandValidatorTest {
         Assertions.assertNotNull(r);
         Assertions.assertTrue(r.startsWith("startCommand:"),
                 "must be prefixed with field name 'startCommand:', got: " + r);
-        Assertions.assertTrue(r.contains("DISALLOWED_META_CHAR: '*'"),
+        Assertions.assertTrue(r.contains("DISALLOWED_META_CHAR: [*]"),
                 "must contain the underlying rule + char, got: " + r);
         Assertions.assertTrue(r.contains("glob wildcards are not supported"),
                 "must contain the user-facing wildcard hint, got: " + r);
@@ -202,7 +202,7 @@ public class ModuleCommandValidatorTest {
                 "cp /a/b?.txt /c/", "echo uninstall"));
         Assertions.assertNotNull(r);
         Assertions.assertTrue(r.startsWith("installCommand:"), r);
-        Assertions.assertTrue(r.contains("'?'"), r);
+        Assertions.assertTrue(r.contains("DISALLOWED_META_CHAR: [?]"), r);
         Assertions.assertTrue(r.contains("glob wildcards are not supported"), r);
     }
 

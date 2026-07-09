@@ -170,7 +170,7 @@ public enum ErrorCodeEnum {
     MODULE_NOT_FOUND(6001, "Module does not exist/no operation authority"),
     MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
     MODULE_COMMAND_NOT_IN_WHITELIST(6003,
-            "Module command not in whitelist: '%s'"),
+            "Module command not in whitelist: %s"),
 
     PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
     PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect"),
