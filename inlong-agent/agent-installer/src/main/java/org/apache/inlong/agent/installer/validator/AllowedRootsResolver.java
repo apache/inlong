@@ -95,6 +95,7 @@ public final class AllowedRootsResolver {
         if (StringUtils.isNotBlank(userHome)) {
             addRoot(roots, Paths.get(userHome, "inlong"));
             addRoot(roots, Paths.get(userHome, "inlong-agent"));
+            addRoot(roots, Paths.get(userHome, "tmp"));
         }
 
         // agent.home resolution: -Dagent.home JVM system property first, then the same key
