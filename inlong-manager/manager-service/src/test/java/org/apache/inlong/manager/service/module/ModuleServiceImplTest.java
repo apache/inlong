@@ -35,7 +35,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  * added for the P0 fix).
  *
  * <p>The wrapper format is defined by
- * {@code ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST}: {@code "Command validation failed: '%s'"}.
+ * {@code ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST}: {@code "Module command not in whitelist: '%s'"}.
  */
 public class ModuleServiceImplTest extends ServiceBaseTest {
 
@@ -49,7 +49,8 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
     public void forceStrictMode() {
         // Ensure the test is independent of application-*.properties: force STRICT
         // so the validator blocks rather than logs.
-        ReflectionTestUtils.setField(commandValidator, "whitelistModeConfig", "STRICT");
+        ReflectionTestUtils.setField(commandValidator, "whitelistModeConfig",
+                ModuleCommandValidator.WhitelistMode.STRICT);
     }
 
     private ModuleRequest baseRequest() {
@@ -80,7 +81,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         String msg = ex.getMessage();
         Assertions.assertNotNull(msg);
         // ErrorCodeEnum wrapper
-        Assertions.assertTrue(msg.startsWith("Command validation failed:"),
+        Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"),
                 "API caller should see the wrapped error, got: " + msg);
         // pinpoint the offending field
         Assertions.assertTrue(msg.contains("startCommand:"),
@@ -106,7 +107,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
                 () -> moduleService.save(req, "admin"));
 
         String msg = ex.getMessage();
-        Assertions.assertTrue(msg.startsWith("Command validation failed:"), msg);
+        Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("installCommand:"), msg);
         Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: '?'"), msg);
         Assertions.assertTrue(msg.contains("glob wildcards are not supported"), msg);
@@ -123,7 +124,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
                 () -> moduleService.save(req, "admin"));
 
         String msg = ex.getMessage();
-        Assertions.assertTrue(msg.startsWith("Command validation failed:"), msg);
+        Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("checkCommand:"), msg);
         Assertions.assertTrue(msg.contains("DISALLOWED_META_CHAR: '`'"), msg);
         Assertions.assertFalse(msg.contains("glob wildcards"),
@@ -139,7 +140,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
                 () -> moduleService.save(req, "admin"));
 
         String msg = ex.getMessage();
-        Assertions.assertTrue(msg.startsWith("Command validation failed:"), msg);
+        Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("stopCommand:"), msg);
         Assertions.assertTrue(msg.contains("FORBIDDEN_SH_C_FLAG"), msg);
     }
@@ -153,7 +154,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
                 () -> moduleService.save(req, "admin"));
 
         String msg = ex.getMessage();
-        Assertions.assertTrue(msg.startsWith("Command validation failed:"), msg);
+        Assertions.assertTrue(msg.startsWith("Module command not in whitelist:"), msg);
         Assertions.assertTrue(msg.contains("uninstallCommand:"), msg);
         Assertions.assertTrue(msg.contains("python3"),
                 "must tell the user the offending command name, got: " + msg);
@@ -163,7 +164,8 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void save_modeOff_shouldNotBlockEvenIfCommandsAreDirty() {
-        ReflectionTestUtils.setField(commandValidator, "whitelistModeConfig", "OFF");
+        ReflectionTestUtils.setField(commandValidator, "whitelistModeConfig",
+                ModuleCommandValidator.WhitelistMode.OFF);
         ModuleRequest req = baseRequest();
         req.setStartCommand("rm /opt/*.log");
         // In OFF mode, save must not throw due to validator. It may still throw for
@@ -171,7 +173,7 @@ public class ModuleServiceImplTest extends ServiceBaseTest {
         try {
             moduleService.save(req, "admin");
         } catch (BusinessException e) {
-            Assertions.assertFalse(String.valueOf(e.getMessage()).startsWith("Command validation failed:"),
+            Assertions.assertFalse(String.valueOf(e.getMessage()).startsWith("Module command not in whitelist:"),
                     "OFF mode must not surface the whitelist wrapper, got: " + e.getMessage());
         }
     }

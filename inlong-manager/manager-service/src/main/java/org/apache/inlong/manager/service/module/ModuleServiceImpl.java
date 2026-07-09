@@ -63,10 +63,7 @@ public class ModuleServiceImpl implements ModuleService {
         // STRICT and WARN both block; only OFF skips.
         ModuleCommandValidator.WhitelistMode mode = commandValidator.getMode();
         if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
-            String violation = commandValidator.validateAll(
-                    request.getStartCommand(), request.getStopCommand(),
-                    request.getCheckCommand(), request.getInstallCommand(),
-                    request.getUninstallCommand());
+            String violation = commandValidator.validateAll(request);
             if (violation != null) {
                 throw new BusinessException(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST,
                         String.format(ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
@@ -117,12 +114,12 @@ public class ModuleServiceImpl implements ModuleService {
                             String.format(
                                     ErrorCodeEnum.MODULE_COMMAND_NOT_IN_WHITELIST.getMessage(),
                                     violation));
-                } else {
-                    // WARN mode: log only, do not block the update
-                    LOGGER.warn("ModuleCommandValidator: non-whitelisted command in update "
-                            + "(mode=WARN, not blocking): moduleId={}, {}", request.getId(),
-                            violation);
                 }
+                // WARN mode: log only, do not block the update
+                LOGGER.warn("ModuleCommandValidator: non-whitelisted command in update "
+                        + "(mode=WARN, not blocking): moduleId={}, {}", request.getId(),
+                        violation);
+
             }
         }
         CommonBeanUtils.copyProperties(request, moduleConfigEntity, true);

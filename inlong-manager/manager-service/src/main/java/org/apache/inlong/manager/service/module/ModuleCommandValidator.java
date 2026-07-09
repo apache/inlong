@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.module;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.module.ModuleDTO;
 import org.apache.inlong.manager.pojo.module.ModuleRequest;
 
@@ -33,6 +34,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Manager-side command whitelist validator. Validates that command names (argv[0]) in module
@@ -84,7 +87,7 @@ public class ModuleCommandValidator {
 
     /** Whitelist enforcement mode: STRICT (block), WARN (log only), OFF (skip). */
     @Value("${module.command.whitelistMode:WARN}")
-    private String whitelistModeConfig;
+    private WhitelistMode whitelistModeConfig;
 
     /**
      * Whitelist enforcement mode.
@@ -99,20 +102,6 @@ public class ModuleCommandValidator {
     public enum WhitelistMode {
 
         STRICT, WARN, OFF;
-
-        public static WhitelistMode fromConfig(String val) {
-            if (StringUtils.isBlank(val)) {
-                return WARN;
-            }
-            String upper = val.trim().toUpperCase();
-            try {
-                return valueOf(upper);
-            } catch (IllegalArgumentException e) {
-                LOGGER.warn("ModuleCommandValidator: invalid module.command.whitelistMode '{}',"
-                        + " falling back to STRICT", val);
-                return STRICT;
-            }
-        }
     }
 
     /** Lazily-computed effective whitelist (baseline + config extras). */
@@ -138,7 +127,7 @@ public class ModuleCommandValidator {
             }
             Set<String> merged = new LinkedHashSet<>(BASELINE_WHITELIST);
             if (StringUtils.isNotBlank(extraWhitelist)) {
-                for (String item : extraWhitelist.split(",")) {
+                for (String item : extraWhitelist.split(InlongConstants.COMMA)) {
                     String trimmed = item.trim();
                     if (trimmed.isEmpty()) {
                         continue;
@@ -157,7 +146,7 @@ public class ModuleCommandValidator {
      * Get the current whitelist enforcement mode from configuration.
      */
     public WhitelistMode getMode() {
-        return WhitelistMode.fromConfig(whitelistModeConfig);
+        return whitelistModeConfig;
     }
 
     /**
@@ -175,29 +164,31 @@ public class ModuleCommandValidator {
     public String validateChanged(ModuleDTO oldDto, ModuleRequest request) {
         if (oldDto == null) {
             // No existing data — validate everything (same as save)
-            return validateAll(request.getStartCommand(), request.getStopCommand(),
-                    request.getCheckCommand(), request.getInstallCommand(),
-                    request.getUninstallCommand());
+            return validateAll(request);
         }
+        Function<CommandField, String> oldReader = ModuleCommandAccessors.of(oldDto);
+        Function<CommandField, String> newReader = ModuleCommandAccessors.of(request);
+        // Skip fields whose value is unchanged (both null or equal).
+        return validateFields(newReader,
+                f -> Objects.equals(oldReader.apply(f), newReader.apply(f)));
+    }
 
-        String[] fields = {"startCommand", "stopCommand", "checkCommand", "installCommand", "uninstallCommand"};
-        String[] oldValues = {
-                oldDto.getStartCommand(), oldDto.getStopCommand(), oldDto.getCheckCommand(),
-                oldDto.getInstallCommand(), oldDto.getUninstallCommand()};
-        String[] newValues = {
-                request.getStartCommand(), request.getStopCommand(), request.getCheckCommand(),
-                request.getInstallCommand(), request.getUninstallCommand()};
-
-        for (int i = 0; i < fields.length; i++) {
-            String oldVal = oldValues[i];
-            String newVal = newValues[i];
-            // Skip if unchanged (both null or equal)
-            if (Objects.equals(oldVal, newVal)) {
+    /**
+     * Core validation loop: iterate through every {@link CommandField}, read its current
+     * value via {@code accessor}, and run {@link #validate(String)}. Fields for which
+     * {@code skip} returns {@code true} are bypassed (used for incremental validation).
+     *
+     * @return {@code "<label>: <offending>"} on the first failure, or {@code null} if all pass
+     */
+    private String validateFields(Function<CommandField, String> accessor,
+            Predicate<CommandField> skip) {
+        for (CommandField f : CommandField.values()) {
+            if (skip.test(f)) {
                 continue;
             }
-            String offending = validate(newVal);
-            if (offending != null) {
-                return fields[i] + ": '" + offending + "'";
+            String offending = validate(accessor.apply(f));
+            if (StringUtils.isNotBlank(offending)) {
+                return f.label + ": " + offending;
             }
         }
         return null;
@@ -234,43 +225,42 @@ public class ModuleCommandValidator {
         // metacharacter blacklist (whole string, before splitting)
         String metaHit = firstMetaCharHit(rawCmd);
         if (metaHit != null) {
-            if ("*".equals(metaHit) || "?".equals(metaHit)) {
+            if (InlongConstants.ASTERISK.equals(metaHit) || InlongConstants.QUESTION_MARK.equals(metaHit)) {
                 return "DISALLOWED_META_CHAR: '" + metaHit
                         + "' — glob wildcards are not supported (Agent runs commands without a shell,"
                         + " so '*' and '?' will NOT be expanded); please specify explicit file paths";
             }
             return "DISALLOWED_META_CHAR: '" + metaHit + "'";
         }
-        if (rawCmd.indexOf('\n') >= 0 || rawCmd.indexOf('\r') >= 0) {
+        if (rawCmd.indexOf(InlongConstants.NEW_LINE_CHAR) >= 0
+                || rawCmd.indexOf(InlongConstants.CARRIAGE_RETURN_CHAR) >= 0) {
             return "DISALLOWED_META_CHAR: line-break";
         }
 
         Set<String> whitelist = getEffectiveWhitelist();
 
         // Split by ';' into sub-commands (quote-aware), then by '|' into pipe segments
-        List<String> segments = splitTopLevel(rawCmd, ';');
+        List<String> segments = splitTopLevel(rawCmd, InlongConstants.SEMICOLON_CHAR);
         if (segments == null) {
             return "DISALLOWED_META_CHAR: unterminated quote";
         }
         for (String seg : segments) {
-            String trimmed = seg == null ? "" : seg.trim();
-            if (trimmed.isEmpty()) {
+            if (StringUtils.isBlank(seg)) {
                 continue;
             }
-            List<String> pipeSegs = splitTopLevel(trimmed, '|');
+            List<String> pipeSegs = splitTopLevel(seg, InlongConstants.PIPE_CHAR);
             if (pipeSegs == null) {
                 return "DISALLOWED_META_CHAR: unterminated quote in pipe segment";
             }
             for (String pipeSeg : pipeSegs) {
-                String pipeTrimmed = pipeSeg == null ? "" : pipeSeg.trim();
-                if (pipeTrimmed.isEmpty()) {
+                if (StringUtils.isBlank(pipeSeg)) {
                     continue;
                 }
-                String[] argv = tokenize(pipeTrimmed);
-                if (argv.length == 0) {
+                List<String> argv = tokenize(pipeSeg);
+                if (argv.isEmpty()) {
                     continue;
                 }
-                String cmdName = argv[0];
+                String cmdName = argv.get(0);
 
                 // argv[0] whitelist
                 if (!whitelist.contains(cmdName)) {
@@ -278,10 +268,10 @@ public class ModuleCommandValidator {
                 }
 
                 // forbid sh/bash -c flag (inline script execution)
-                if (("sh".equals(cmdName) || "bash".equals(cmdName)) && argv.length > 1) {
-                    for (int i = 1; i < argv.length; i++) {
-                        if (argv[i].startsWith("-c")) {
-                            return "FORBIDDEN_SH_C_FLAG: '" + cmdName + " " + argv[i] + "'";
+                if (("sh".equals(cmdName) || "bash".equals(cmdName)) && argv.size() > 1) {
+                    for (int i = 1; i < argv.size(); i++) {
+                        if (argv.get(i).startsWith("-c")) {
+                            return "FORBIDDEN_SH_C_FLAG: '" + cmdName + " " + argv.get(i) + "'";
                         }
                     }
                 }
@@ -291,21 +281,19 @@ public class ModuleCommandValidator {
     }
 
     /**
-     * Thoroughly validate all commands in a module request. Returns {@code null} if all
-     * commands pass, or a descriptive message like {@code "startCommand: 'python3'"} if
-     * one fails.
+     * Thoroughly validate all module command fields on a {@link ModuleRequest}. Returns
+     * {@code null} if all commands pass, or a descriptive message such as
+     * {@code "startCommand: python3"} / {@code "startCommand: DISALLOWED_META_CHAR: '*' — ..."}
+     * if one fails.
+     *
+     * <p>Preferred over the 5-argument overload — passing the request object avoids
+     * argument-order mistakes at call sites.
      */
-    public String validateAll(String startCommand, String stopCommand, String checkCommand,
-            String installCommand, String uninstallCommand) {
-        String[] fields = {"startCommand", "stopCommand", "checkCommand", "installCommand", "uninstallCommand"};
-        String[] values = {startCommand, stopCommand, checkCommand, installCommand, uninstallCommand};
-        for (int i = 0; i < fields.length; i++) {
-            String offending = validate(values[i]);
-            if (offending != null) {
-                return fields[i] + ": '" + offending + "'";
-            }
+    public String validateAll(ModuleRequest request) {
+        if (request == null) {
+            return null;
         }
-        return null;
+        return validateFields(ModuleCommandAccessors.of(request), f -> false);
     }
 
     /**
@@ -316,7 +304,6 @@ public class ModuleCommandValidator {
     static List<String> splitTopLevel(String raw, char delim) {
         List<String> out = new ArrayList<>();
         if (raw == null) {
-            out.add("");
             return out;
         }
         StringBuilder cur = new StringBuilder();
@@ -330,7 +317,7 @@ public class ModuleCommandValidator {
                 }
                 continue;
             }
-            if (c == '\'' || c == '"') {
+            if (c == InlongConstants.SINGLE_QUOTE_CHAR || c == InlongConstants.DOUBLE_QUOTE_CHAR) {
                 quote = c;
                 cur.append(c);
                 continue;
@@ -353,7 +340,7 @@ public class ModuleCommandValidator {
      * Whitespace-based tokenizer that honours single/double quotes. (Same logic as the
      * agent-side validator.)
      */
-    private static String[] tokenize(String s) {
+    private static List<String> tokenize(String s) {
         List<String> tokens = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
         char quote = 0;
@@ -367,7 +354,7 @@ public class ModuleCommandValidator {
                 }
                 continue;
             }
-            if (c == '\'' || c == '"') {
+            if (c == InlongConstants.SINGLE_QUOTE_CHAR || c == InlongConstants.DOUBLE_QUOTE_CHAR) {
                 quote = c;
                 continue;
             }
@@ -383,6 +370,6 @@ public class ModuleCommandValidator {
         if (cur.length() > 0) {
             tokens.add(cur.toString());
         }
-        return tokens.toArray(new String[0]);
+        return tokens;
     }
 }

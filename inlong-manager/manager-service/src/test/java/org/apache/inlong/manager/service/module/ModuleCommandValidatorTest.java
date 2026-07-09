@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.module;
 
+import org.apache.inlong.manager.pojo.module.ModuleRequest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,8 @@ public class ModuleCommandValidatorTest {
     public void setUp() {
         validator = new ModuleCommandValidator();
         // Force STRICT so getMode() != OFF and validation actually happens.
-        ReflectionTestUtils.setField(validator, "whitelistModeConfig", "STRICT");
+        ReflectionTestUtils.setField(validator, "whitelistModeConfig",
+                ModuleCommandValidator.WhitelistMode.STRICT);
         ReflectionTestUtils.setField(validator, "extraWhitelist", "");
     }
 
@@ -182,8 +185,8 @@ public class ModuleCommandValidatorTest {
 
     @Test
     public void validateAll_starInStartCommand_shouldReturnFieldQualifiedError() {
-        String r = validator.validateAll("rm /a/*.log", "echo stop", "echo check",
-                "echo install", "echo uninstall");
+        String r = validator.validateAll(req("rm /a/*.log", "echo stop", "echo check",
+                "echo install", "echo uninstall"));
         Assertions.assertNotNull(r);
         Assertions.assertTrue(r.startsWith("startCommand:"),
                 "must be prefixed with field name 'startCommand:', got: " + r);
@@ -195,8 +198,8 @@ public class ModuleCommandValidatorTest {
 
     @Test
     public void validateAll_questionInInstallCommand_shouldPinpointField() {
-        String r = validator.validateAll("echo start", "echo stop", "echo check",
-                "cp /a/b?.txt /c/", "echo uninstall");
+        String r = validator.validateAll(req("echo start", "echo stop", "echo check",
+                "cp /a/b?.txt /c/", "echo uninstall"));
         Assertions.assertNotNull(r);
         Assertions.assertTrue(r.startsWith("installCommand:"), r);
         Assertions.assertTrue(r.contains("'?'"), r);
@@ -205,7 +208,22 @@ public class ModuleCommandValidatorTest {
 
     @Test
     public void validateAll_allCommandsClean_shouldReturnNull() {
-        Assertions.assertNull(validator.validateAll(
-                "echo start", "echo stop", "echo check", "echo install", "echo uninstall"));
+        Assertions.assertNull(validator.validateAll(req(
+                "echo start", "echo stop", "echo check", "echo install", "echo uninstall")));
+    }
+
+    /**
+     * Test helper — builds a {@link ModuleRequest} carrying only the five command fields
+     * we care about, keeping the call sites in these tests to a single line.
+     */
+    private static ModuleRequest req(String start, String stop, String check,
+            String install, String uninstall) {
+        ModuleRequest r = new ModuleRequest();
+        r.setStartCommand(start);
+        r.setStopCommand(stop);
+        r.setCheckCommand(check);
+        r.setInstallCommand(install);
+        r.setUninstallCommand(uninstall);
+        return r;
     }
 }
