@@ -61,7 +61,7 @@ public class ModuleServiceImpl implements ModuleService {
 
         // Validate commands against whitelist at save time.
         // STRICT and WARN both block; only OFF skips.
-        ModuleCommandValidator.WhitelistMode mode = commandValidator.getMode();
+        ModuleCommandValidator.WhitelistMode mode = commandValidator.getWhitelistModeConfig();
         if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
             String violation = commandValidator.validateAll(request);
             if (violation != null) {
@@ -101,7 +101,7 @@ public class ModuleServiceImpl implements ModuleService {
 
         // Incremental whitelist validation (mode-aware): only check command fields
         // that actually changed compared to the stored extParams.
-        ModuleCommandValidator.WhitelistMode mode = commandValidator.getMode();
+        ModuleCommandValidator.WhitelistMode mode = commandValidator.getWhitelistModeConfig();
         if (mode != ModuleCommandValidator.WhitelistMode.OFF) {
             ModuleDTO oldDto = null;
             if (moduleConfigEntity.getExtParams() != null) {

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.module;
 
+import lombok.Getter;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.module.ModuleDTO;
 import org.apache.inlong.manager.pojo.module.ModuleRequest;
@@ -87,6 +88,7 @@ public class ModuleCommandValidator {
 
     /** Whitelist enforcement mode: STRICT (block), WARN (log only), OFF (skip). */
     @Value("${module.command.whitelistMode:WARN}")
+    @Getter
     private WhitelistMode whitelistModeConfig;
 
     /**
@@ -140,13 +142,6 @@ public class ModuleCommandValidator {
                     new java.util.TreeSet<>(effectiveWhitelist));
         }
         return effectiveWhitelist;
-    }
-
-    /**
-     * Get the current whitelist enforcement mode from configuration.
-     */
-    public WhitelistMode getMode() {
-        return whitelistModeConfig;
     }
 
     /**
@@ -305,10 +300,11 @@ public class ModuleCommandValidator {
      */
     static List<String> splitTopLevel(String raw, char delim) {
         List<String> out = new ArrayList<>();
-        if (raw == null) {
+        if (StringUtils.isEmpty(raw)) {
             return out;
         }
         StringBuilder cur = new StringBuilder();
+        // current quote char (0 if not in a quote)
         char quote = 0;
         for (int i = 0; i < raw.length(); i++) {
             char c = raw.charAt(i);
