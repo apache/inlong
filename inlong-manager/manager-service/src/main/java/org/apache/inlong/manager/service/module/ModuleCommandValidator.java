@@ -367,38 +367,44 @@ public class ModuleCommandValidator {
     }
 
     /**
-     * Whitespace-based tokenizer that honours single/double quotes. (Same logic as the
-     * agent-side validator.)
+     * Whitespace-based tokenizer that honours single/double quotes. Uses {@code substring}
+     * to avoid per-character copying into a {@code StringBuilder}.
+     *
+     * <p>For a shell-command whitelist/blacklist validator, mixed quoted/unquoted tokens
+     * (e.g. {@code abc"def"ghi}) are intentionally <b>not</b> supported — it is safer
+     * that way. A quote character always starts a fresh token, and any unquoted run
+     * terminates as soon as a quote character is encountered.
      */
     private static List<String> tokenize(String s) {
         List<String> tokens = new ArrayList<>();
-        StringBuilder cur = new StringBuilder();
-        char quote = 0;
-        for (int i = 0; i < s.length(); i++) {
+        int i = 0;
+        int n = s.length();
+        while (i < n) {
+            while (i < n && Character.isWhitespace(s.charAt(i))) {
+                i++;
+            }
+            if (i >= n) {
+                break;
+            }
             char c = s.charAt(i);
-            if (quote != 0) {
-                if (c == quote) {
-                    quote = 0;
-                } else {
-                    cur.append(c);
-                }
-                continue;
-            }
             if (c == InlongConstants.SINGLE_QUOTE_CHAR || c == InlongConstants.DOUBLE_QUOTE_CHAR) {
-                quote = c;
-                continue;
-            }
-            if (Character.isWhitespace(c)) {
-                if (cur.length() > 0) {
-                    tokens.add(cur.toString());
-                    cur.setLength(0);
+                int start = i + 1;
+                int end = s.indexOf(c, start);
+                if (end < 0) {
+                    tokens.add(s.substring(start));
+                    break;
                 }
-                continue;
+                tokens.add(s.substring(start, end));
+                i = end + 1;
+            } else {
+                int start = i;
+                while (i < n && !Character.isWhitespace(s.charAt(i))
+                        && s.charAt(i) != InlongConstants.SINGLE_QUOTE_CHAR
+                        && s.charAt(i) != InlongConstants.DOUBLE_QUOTE_CHAR) {
+                    i++;
+                }
+                tokens.add(s.substring(start, i));
             }
-            cur.append(c);
-        }
-        if (cur.length() > 0) {
-            tokens.add(cur.toString());
         }
         return tokens;
     }

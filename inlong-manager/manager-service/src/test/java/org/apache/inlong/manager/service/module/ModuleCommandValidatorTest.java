@@ -179,4 +179,25 @@ public class ModuleCommandValidatorTest {
         Assertions.assertTrue(r.contains("bash"), r);
     }
 
+    /* ---------------- tokenizer: mixed quoted/unquoted is intentionally NOT supported ---------------- */
+
+    @Test
+    public void validate_mixedQuotedUnquoted_argv0IsUnquotedPrefix() {
+        // Under the tokenizer, a quote character always starts a fresh token and any
+        // unquoted run terminates as soon as a quote character is encountered.
+        // So `python3"foo" bar` splits into: [python3, foo, bar] — argv[0] is 'python3',
+        // which is NOT in the baseline whitelist and must be rejected verbatim.
+        String r = validator.validate("python3\"foo\" bar");
+        Assertions.assertEquals("python3", r,
+                "argv[0] should be the unquoted prefix 'python3', not the concatenated 'python3foo'");
+    }
+
+    @Test
+    public void validate_mixedQuotedUnquoted_whitelistedPrefix_shouldPass() {
+        // `ps"aux"` splits into [ps, aux] — argv[0] 'ps' is whitelisted, so this passes.
+        // (Note: under the old concat-tokenizer this would have been argv[0]='psaux',
+        // which would have been rejected. The new stricter semantics are intentional.)
+        Assertions.assertNull(validator.validate("ps\"aux\""));
+    }
+
 }
