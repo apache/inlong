@@ -174,6 +174,10 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     public Boolean delete(Integer id) {
         String operator = LoginUserUtils.getLoginUser().getName();
         log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
+        TenantUserRoleEntity exist = tenantUserRoleEntityMapper.selectById(id);
+        Preconditions.expectNotNull(exist, ErrorCodeEnum.RECORD_NOT_FOUND,
+                String.format("tenant user role record not found by id=%s", id));
+        checkTenantAdminPermission(operator, exist.getTenant());
         int success = tenantUserRoleEntityMapper.deleteById(id);
         Preconditions.expectTrue(success == 1, "delete tenant role failed");
         log.info("success delete inlong tenant role id={} by user={}", id, operator);
