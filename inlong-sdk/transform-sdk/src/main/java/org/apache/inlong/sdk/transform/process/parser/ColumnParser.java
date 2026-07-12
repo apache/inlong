@@ -33,13 +33,23 @@ public class ColumnParser implements ValueParser {
     private final String fieldName;
 
     public ColumnParser(Column expr) {
-        this.fieldName = expr.toString();
+        this.fieldName = this.formatFieldName(expr.toString());
     }
 
     public ColumnParser(Function expr) {
-        this.fieldName = expr.toString();
+        this.fieldName = this.formatFieldName(expr.toString());
     }
 
+    private String formatFieldName(String rawFieldName) {
+        String tmpFieldName = rawFieldName;
+        if (tmpFieldName.startsWith("`")) {
+            tmpFieldName = tmpFieldName.substring(1);
+        }
+        if (tmpFieldName.endsWith("`")) {
+            tmpFieldName = tmpFieldName.substring(0, tmpFieldName.length() - 1);
+        }
+        return tmpFieldName;
+    }
     /**
      * parse
      * @param sourceData
