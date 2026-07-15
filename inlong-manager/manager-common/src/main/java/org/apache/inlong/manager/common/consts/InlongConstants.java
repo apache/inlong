@@ -74,9 +74,23 @@ public class InlongConstants {
 
     public static final String AMPERSAND = "&";
 
+    public static final String ASTERISK = "*";
+
     public static final String NEW_LINE = "\n";
 
     public static final String REGEX_WHITESPACE = "\\s";
+
+    public static final char SINGLE_QUOTE_CHAR = '\'';
+
+    public static final char DOUBLE_QUOTE_CHAR = '"';
+
+    public static final char NEW_LINE_CHAR = '\n';
+
+    public static final char CARRIAGE_RETURN_CHAR = '\r';
+
+    public static final char SEMICOLON_CHAR = ';';
+
+    public static final char PIPE_CHAR = '|';
 
     public static final String ADMIN_USER = "admin";
 

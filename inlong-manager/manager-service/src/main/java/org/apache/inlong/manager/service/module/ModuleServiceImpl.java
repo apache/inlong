@@ -52,10 +52,17 @@ public class ModuleServiceImpl implements ModuleService {
     private ModuleConfigEntityMapper moduleConfigEntityMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ModuleCommandValidator commandValidator;
 
     @Override
     public Integer save(ModuleRequest request, String operator) {
         LOGGER.info("begin to save module info: {}", request);
+
+        // Whitelist check — mode handling and exception wrapping live inside the
+        // validator, so a violation surfaces as a BusinessException directly.
+        commandValidator.validateOnSave(request);
+
         ModuleConfigEntity moduleConfigEntity = CommonBeanUtils.copyProperties(request, ModuleConfigEntity::new);
         try {
             ModuleDTO dto = ModuleDTO.getFromRequest(request, moduleConfigEntity.getExtParams(),
@@ -68,7 +75,8 @@ public class ModuleServiceImpl implements ModuleService {
         }
         moduleConfigEntity.setCreator(operator);
         moduleConfigEntity.setModifier(operator);
-        int id = moduleConfigEntityMapper.insert(moduleConfigEntity);
+        moduleConfigEntityMapper.insert(moduleConfigEntity);
+        int id = moduleConfigEntity.getId();
 
         LOGGER.info("success to save module info: {}", request);
         return id;
@@ -82,6 +90,14 @@ public class ModuleServiceImpl implements ModuleService {
             throw new BusinessException(ErrorCodeEnum.MODULE_NOT_FOUND,
                     String.format("Module does not exist with id=%s", request.getId()));
         }
+
+        // Incremental whitelist check — the validator internally picks the enforcement
+        // mode (STRICT throws, WARN logs, OFF skips) so no branching is needed here.
+        ModuleDTO oldDto = null;
+        if (moduleConfigEntity.getExtParams() != null) {
+            oldDto = ModuleDTO.getFromJson(moduleConfigEntity.getExtParams());
+        }
+        commandValidator.validateOnUpdate(oldDto, request);
         CommonBeanUtils.copyProperties(request, moduleConfigEntity, true);
         try {
             ModuleDTO dto = ModuleDTO.getFromRequest(request, moduleConfigEntity.getExtParams(),
