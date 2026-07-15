@@ -32,11 +32,11 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,7 +159,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
-        userService.checkUser(entity.getInCharges(), operator, "Current user does not have permission to delete data node info");
+        userService.checkUser(entity.getInCharges(), operator,
+                "Current user does not have permission to delete data node info");
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(type);
         DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
         LOGGER.debug("success to get data node by name={} type={}", name, type);
