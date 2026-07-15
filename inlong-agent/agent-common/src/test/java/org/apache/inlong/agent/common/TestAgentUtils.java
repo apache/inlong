@@ -98,4 +98,35 @@ public class TestAgentUtils {
         String ip = AgentUtils.fetchLocalIp();
         Assert.assertNotEquals("127.0.0.1", ip);
     }
+
+    @Test
+    public void testUuidRegex() throws Exception {
+        java.lang.reflect.Field field = AgentUtils.class.getDeclaredField("UUID_REGEX");
+        field.setAccessible(true);
+        String regex = (String) field.get(null);
+
+        // valid standard UUIDs (mixed case)
+        Assert.assertTrue("standard lowercase should match",
+                java.util.regex.Pattern.matches(regex, "25a76f3a-f83c-49af-8bd8-f921d1887dcf"));
+        Assert.assertTrue("standard uppercase should match",
+                java.util.regex.Pattern.matches(regex, "550E8400-E29B-41D4-A716-446655440000"));
+        Assert.assertTrue("mixed case should match",
+                java.util.regex.Pattern.matches(regex, "550e8400-E29b-41d4-a716-446655440000"));
+
+        // invalid cases
+        Assert.assertFalse("empty string should not match",
+                java.util.regex.Pattern.matches(regex, ""));
+        Assert.assertFalse("plain string should not match",
+                java.util.regex.Pattern.matches(regex, "not-a-uuid"));
+        Assert.assertFalse("too short should not match",
+                java.util.regex.Pattern.matches(regex, "550e8400-e29b-41d4-a716-44665544"));
+        Assert.assertFalse("missing hyphens should not match",
+                java.util.regex.Pattern.matches(regex, "550e8400e29b41d4a716446655440000"));
+        Assert.assertFalse("extra segment should not match",
+                java.util.regex.Pattern.matches(regex, "25a76f3a-f83c-49af-8bd8-f921d1887dcf-extra"));
+        Assert.assertFalse("non-hex chars should not match",
+                java.util.regex.Pattern.matches(regex, "550e8g00-e29b-41d4-a716-446655440000"));
+        Assert.assertFalse("newline prefix should not match",
+                java.util.regex.Pattern.matches(regex, "\n550e8400-e29b-41d4-a716-446655440000"));
+    }
 }

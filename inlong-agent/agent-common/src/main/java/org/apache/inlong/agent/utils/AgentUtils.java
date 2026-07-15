@@ -37,6 +37,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -314,6 +315,9 @@ public class AgentUtils {
         return AgentConfiguration.getAgentConf().get(AgentConstants.AGENT_LOCAL_IP, getLocalIp());
     }
 
+    private static final String UUID_REGEX =
+            "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$";
+
     /**
      * Check agent uuid from manager
      */
@@ -329,15 +333,36 @@ public class AgentUtils {
                 uuid = localUuid;
                 return uuid;
             }
-            String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-            if (StringUtils.isNotEmpty(result)
-                    && StringUtils.containsIgnoreCase(result, "UUID")) {
-                uuid = result.split(":")[1].trim();
-                return uuid;
+            String result = ExecuteLinux.exeCmd(new String[]{"dmidecode", "-s", "system-uuid"});
+            if (StringUtils.isNotEmpty(result)) {
+                result = result.trim();
+                if (result.matches(UUID_REGEX)) {
+                    return result;
+                }
             }
         } catch (Exception e) {
             LOGGER.error("fetch uuid error", e);
         }
+
+        try {
+            String result = ExecuteLinux.exePipedCmd(
+                    Arrays.asList(
+                            new String[]{"dmidecode"},
+                            new String[]{"grep", "UUID"}),
+                    null, 0);
+            if (StringUtils.isNotEmpty(result) && StringUtils.containsIgnoreCase(result, "UUID")) {
+                String[] parts = result.split(":");
+                if (parts.length >= 2) {
+                    String fallbackUuid = parts[1].trim();
+                    if (fallbackUuid.matches(UUID_REGEX)) {
+                        return fallbackUuid;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("dmidecode | grep UUID failed", e);
+        }
+
         return uuid;
     }
 
