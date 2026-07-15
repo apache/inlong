@@ -32,6 +32,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -58,6 +59,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     private DataNodeEntityMapper dataNodeMapper;
     @Autowired
     private DataNodeOperatorFactory operatorFactory;
+    @Autowired
+    private UserService userService;
 
     @Override
     public Integer save(DataNodeRequest request, String operator) {
@@ -112,6 +115,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException("data node not found");
         }
+        userService.checkUser(entity.getInCharges(), currentUser,
+                "Current user does not have permission to get data node info");
         String dataNodeType = entity.getType();
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
         DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
@@ -125,6 +130,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
+        userService.checkUser(entity.getInCharges(), opInfo.getName(),
+                "Current user does not have permission to get data node info");
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
         return dataNodeOperator.getFromEntity(entity);
     }
@@ -145,13 +152,31 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
+    public DataNodeInfo get(String name, String type, String operator) {
+        DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(name, type);
+        if (entity == null) {
+            String errMsg = String.format("data node not found by name=%s, type=%s", name, type);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        userService.checkUser(entity.getInCharges(), operator,
+                "Current user does not have permission to delete data node info");
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(type);
+        DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+        LOGGER.debug("success to get data node by name={} type={}", name, type);
+        return dataNodeInfo;
+    }
+
+    @Override
     public PageResult<DataNodeInfo> list(DataNodePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
         PageResult<DataNodeInfo> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
-                    return dataNodeOperator.getFromEntity(entity);
+                    DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+                    dataNodeInfo.setToken(null);
+                    return dataNodeInfo;
                 });
         LOGGER.debug("success to list data node by {}", request);
         return pageResult;
@@ -166,7 +191,9 @@ public class DataNodeServiceImpl implements DataNodeService {
         return nodeEntities.stream()
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
-                    return dataNodeOperator.getFromEntity(entity);
+                    DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+                    dataNodeInfo.setToken(null);
+                    return dataNodeInfo;
                 }).collect(Collectors.toList());
     }
 
@@ -182,6 +209,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         // check whether modify unmodifiable parameters
         chkUnmodifiableParams(curEntity, request);
+        userService.checkUser(curEntity.getInCharges(), operator,
+                "Current user does not have permission to update data node info");
 
         // after the update operation, `curEntity` will be updated to the latest info by the MyBatis cache mechanism,
         // so we need to get an `oldEntity` by copying `curEntity` before the update operation.
@@ -216,6 +245,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
+        userService.checkUser(entity.getInCharges(), operator,
+                "Current user does not have permission to update data node info");
         request.setId(entity.getId());
         Boolean result = this.update(request, operator);
         LOGGER.info("success to update data node by key: {}", request);
@@ -235,6 +266,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
                 ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
+        userService.checkUser(entity.getInCharges(), opInfo.getName(),
+                "Current user does not have permission to delete data node info");
         // delete record
         entity.setIsDeleted(entity.getId());
         entity.setModifier(opInfo.getName());
@@ -250,6 +283,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     private Boolean delete(DataNodeEntity entity, String operator) {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
+        userService.checkUser(entity.getInCharges(), operator,
+                "Current user does not have permission to delete data node info");
         int rowCount = dataNodeMapper.updateById(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("data node has already updated, data node name={}, type={}, current version ={}",

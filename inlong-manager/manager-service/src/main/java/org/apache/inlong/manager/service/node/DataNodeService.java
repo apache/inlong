@@ -76,6 +76,8 @@ public interface DataNodeService {
      */
     DataNodeInfo get(String name, String type);
 
+    DataNodeInfo get(String name, String type, String operator);
+
     /**
      * Paging query nodes according to conditions.
      *

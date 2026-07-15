@@ -86,7 +86,7 @@ public class DataNodeController {
             @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
     })
     public Response<DataNodeInfo> getByKey(@RequestParam String name, @RequestParam String type) {
-        return Response.success(dataNodeService.get(name, type));
+        return Response.success(dataNodeService.get(name, type, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/node/list")
