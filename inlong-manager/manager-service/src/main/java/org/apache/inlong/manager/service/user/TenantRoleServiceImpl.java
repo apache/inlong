@@ -84,6 +84,8 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         Preconditions.expectNotBlank(request.getRoleCode(),
                 "Failed to save tenant user role, role code should not be blank");
 
+        checkTenantAdminPermission(operator, tenantName);
+
         InlongTenantEntity tenant = tenantMapper.selectByName(tenantName);
         Preconditions.expectNotNull(tenant, TENANT_NOT_EXIST, String.format(TENANT_NOT_EXIST.getMessage(), tenantName));
 
@@ -100,6 +102,12 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         Preconditions.expectNotNull(exist, ErrorCodeEnum.RECORD_NOT_FOUND,
                 String.format("tenant user role record not found by id=%s", request.getId()));
 
+        checkTenantAdminPermission(operator, exist.getTenant());
+        if (request.getTenant() != null && !request.getTenant().equals(exist.getTenant())) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
+                    "tenant of a tenant-role binding cannot be changed during update");
+        }
+
         TenantUserRoleEntity entity = CommonBeanUtils.copyProperties(request, TenantUserRoleEntity::new);
         entity.setModifier(operator);
         int rowCount = tenantUserRoleEntityMapper.updateById(entity);
@@ -110,6 +118,31 @@ public class TenantRoleServiceImpl implements TenantRoleService {
                             request.getId(), request.getVersion(), rowCount));
         }
         return true;
+    }
+
+    private void checkTenantAdminPermission(String operator, String tenant) {
+        if (operator == null || tenant == null) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
+                    "operator or tenant cannot be null when checking tenant admin permission");
+        }
+        // Inlong-level admins/services bypass per-tenant checks by design.
+        InlongRoleInfo inlongRole = inlongRoleService.getByUsername(operator);
+        if (inlongRole != null && inlongRole.getRoleCode() != null) {
+            String code = inlongRole.getRoleCode();
+            if (UserRoleCode.INLONG_ADMIN.equals(code) || UserRoleCode.INLONG_SERVICE.equals(code)) {
+                return;
+            }
+        }
+        TenantUserRoleEntity roleEntity =
+                tenantUserRoleEntityMapper.selectByUsernameAndTenant(operator, tenant);
+        if (roleEntity == null
+                || Integer.valueOf(1).equals(roleEntity.getDisabled())
+                || !UserRoleCode.TENANT_ADMIN.equals(roleEntity.getRoleCode())) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
+                    String.format(
+                            "current user [%s] is not a TENANT_ADMIN of tenant [%s]",
+                            operator, tenant));
+        }
     }
 
     @Override
@@ -141,6 +174,10 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     public Boolean delete(Integer id) {
         String operator = LoginUserUtils.getLoginUser().getName();
         log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
+        TenantUserRoleEntity exist = tenantUserRoleEntityMapper.selectById(id);
+        Preconditions.expectNotNull(exist, ErrorCodeEnum.RECORD_NOT_FOUND,
+                String.format("tenant user role record not found by id=%s", id));
+        checkTenantAdminPermission(operator, exist.getTenant());
         int success = tenantUserRoleEntityMapper.deleteById(id);
         Preconditions.expectTrue(success == 1, "delete tenant role failed");
         log.info("success delete inlong tenant role id={} by user={}", id, operator);
@@ -149,12 +186,20 @@ public class TenantRoleServiceImpl implements TenantRoleService {
 
     @Override
     public Integer saveDefault(String username, String operator) {
-        // make default public tenant permission
-        TenantRoleRequest tenantRoleRequest = new TenantRoleRequest();
-        tenantRoleRequest.setTenant(DEFAULT_TENANT);
-        tenantRoleRequest.setRoleCode(UserRoleCode.TENANT_OPERATOR);
-        tenantRoleRequest.setUsername(username);
-        return this.save(tenantRoleRequest, operator);
+        Preconditions.expectNotBlank(username, "username should not be blank");
+        InlongTenantEntity tenant = tenantMapper.selectByName(DEFAULT_TENANT);
+        Preconditions.expectNotNull(tenant, TENANT_NOT_EXIST,
+                String.format(TENANT_NOT_EXIST.getMessage(), DEFAULT_TENANT));
+
+        TenantUserRoleEntity entity = new TenantUserRoleEntity();
+        entity.setUsername(username);
+        entity.setTenant(DEFAULT_TENANT);
+        entity.setRoleCode(UserRoleCode.TENANT_OPERATOR);
+        entity.setDisabled(0);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        tenantUserRoleEntityMapper.insert(entity);
+        return entity.getId();
     }
 
 }
