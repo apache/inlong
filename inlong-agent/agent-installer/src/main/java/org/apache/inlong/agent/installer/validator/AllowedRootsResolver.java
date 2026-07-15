@@ -132,24 +132,51 @@ public final class AllowedRootsResolver {
         return new AllowedRootsResolver(roots);
     }
 
+    /**
+     * Store a root in two forms:
+     *  1) lexical form ({@code normalize()}, does not follow symlinks)
+     *  2) real form ({@code toRealPath()}, follows symlinks)
+     * If the root does not yet exist, splice the non-existent remainder onto the real path
+     * of the nearest existing ancestor to obtain the real form.
+     * Keeping both forms lets later comparisons succeed regardless of which form the
+     * path under test arrives in.
+     */
     private static void addRoot(Set<Path> roots, Path p) {
         if (p == null) {
             return;
         }
         Path absolute = p.toAbsolutePath();
+        roots.add(absolute.normalize());
         try {
             roots.add(absolute.toRealPath());
         } catch (IOException e) {
-            roots.add(absolute.normalize());
+            Path existingAncestor = absolute;
+            while (existingAncestor != null && !Files.exists(existingAncestor)) {
+                existingAncestor = existingAncestor.getParent();
+            }
+            if (existingAncestor != null) {
+                try {
+                    Path realAncestor = existingAncestor.toRealPath();
+                    Path remainder = existingAncestor.relativize(absolute);
+                    roots.add(realAncestor.resolve(remainder).normalize());
+                } catch (IOException ignored) {
+                    // Real path unresolvable; keep only the lexical form.
+                }
+            }
         }
     }
 
     /**
      * Test whether the given path lies under any allowed root (equal to a root also counts).
-     * Uses {@code Path#toRealPath()} when the path exists to defeat symlink-based bypass
-     * attempts. When the path does not exist yet (e.g. a {@code mkdir} target), it walks up
-     * to the nearest existing ancestor, resolves its real path, and splices the non-existent
-     * remainder back on before comparing.
+     * Three branches:
+     *  ① Path fully exists: compare via {@code toRealPath()}; most reliable.
+     *  ② Path partially non-existent (e.g. mkdir target): splice the real path of the
+     *     nearest existing ancestor with the non-existent remainder and compare.
+     *     If no match and a symlink was followed on the way up (realParent differs from
+     *     the lexical form), treat it as a symlink escape and reject outright; the
+     *     lexical fallback is skipped.
+     *  ③ Fully non-existent, or step ② without following a symlink: fall back to a
+     *     lexical comparison via {@code normalize()}.
      *
      * @param p a path; it is made absolute internally before the comparison.
      */
@@ -159,7 +186,7 @@ public final class AllowedRootsResolver {
         }
         Path absolute = p.toAbsolutePath();
 
-        // Path exists → resolve symlinks directly.
+        // ① Path exists: resolve symlinks and compare directly.
         try {
             Path real = absolute.toRealPath();
             for (Path root : roots) {
@@ -169,13 +196,12 @@ public final class AllowedRootsResolver {
             }
             return false;
         } catch (IOException e) {
-            // Path does not exist yet (e.g. mkdir /new/dir). Walk up to the nearest
-            // existing ancestor, resolve its real path, and splice the remainder back.
+            // Path does not exist yet; fall through to ② / ③.
         }
 
         Path existingParent = findExistingParent(absolute);
         if (existingParent == null) {
-            // No part of the path exists; resort to normalize() only.
+            // No part of the path exists; only a lexical comparison is possible.
             Path normalized = absolute.normalize();
             for (Path root : roots) {
                 if (normalized.startsWith(root)) {
@@ -185,6 +211,8 @@ public final class AllowedRootsResolver {
             return false;
         }
 
+        // ② Splice the real path of the nearest existing ancestor with the remainder.
+        boolean realPathDiffers = false;
         try {
             Path realParent = existingParent.toRealPath();
             Path remainder = existingParent.relativize(absolute);
@@ -194,12 +222,18 @@ public final class AllowedRootsResolver {
                     return true;
                 }
             }
+            // Was a symlink followed on the way up? If so, skip the lexical fallback
+            // to prevent symlink escape.
+            realPathDiffers = !realParent.equals(existingParent.normalize());
         } catch (IOException ex) {
             LOGGER.warn("Cannot resolve real path for existing parent: {}", existingParent, ex);
         }
-        // Fall back to simple normalize in case the root set itself contains
-        // non-resolved paths (e.g. when a root directory did not exist at
-        // addRoot time and was stored via normalize() only).
+        if (realPathDiffers) {
+            return false;
+        }
+
+        // ③ Lexical fallback: covers the case where the root was stored only in
+        // normalized form (e.g. it did not exist at addRoot() time).
         Path normalized = absolute.normalize();
         for (Path root : roots) {
             if (normalized.startsWith(root)) {
@@ -213,7 +247,7 @@ public final class AllowedRootsResolver {
      * Walk up the directory tree to find the nearest ancestor that actually exists.
      *
      * @param path an absolute path
-     * @return the first existing ancestor, or {@code null} if no part of the path exists
+     * @return the nearest existing ancestor, or {@code null} if no part of the path exists
      */
     private Path findExistingParent(Path path) {
         Path current = path;

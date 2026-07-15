@@ -373,6 +373,129 @@ public class AllowedRootsResolverTest {
         }
     }
 
+    /**
+     * {@code ofPaths} with no argument, a {@code null} array, or a {@code null} element must
+     * all succeed and simply produce an empty root set (or skip the null element). Prevents a
+     * future refactor from dropping the defensive null-checks.
+     */
+    @Test
+    public void ofPaths_nullAndEmptyInputs_shouldNotThrow() {
+        Assert.assertTrue("no argument should yield empty roots",
+                AllowedRootsResolver.ofPaths().getRoots().isEmpty());
+        Assert.assertTrue("null Path[] should yield empty roots",
+                AllowedRootsResolver.ofPaths((Path[]) null).getRoots().isEmpty());
+
+        Path root = Paths.get(System.getProperty("java.io.tmpdir"), "inlong-test-root");
+        AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root, null);
+        Assert.assertTrue("non-null element must still be honoured",
+                resolver.isUnderAllowedRoot(root.resolve("child")));
+    }
+
+    /**
+     * A root that does not yet exist on disk (only the lexical form was stored) must still
+     * match itself. This pins the "branch ③ lexical fallback" positive case.
+     */
+    @Test
+    public void isUnderAllowedRoot_rootItselfWhenRootMissing_shouldMatch() {
+        Path root = Paths.get(System.getProperty("java.io.tmpdir"),
+                "inlong-nonexistent-root-" + System.nanoTime());
+        Assert.assertFalse("precondition: root must not exist", Files.exists(root));
+
+        AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(root);
+        Assert.assertTrue("root itself must match even when it does not yet exist",
+                resolver.isUnderAllowedRoot(root));
+    }
+
+    /**
+     * A relative path input must be resolved against the current working directory before
+     * the containment check. Guards against a refactor that accidentally compares raw
+     * relative paths against absolute roots.
+     */
+    @Test
+    public void isUnderAllowedRoot_relativePath_shouldBeResolvedAgainstCwd() {
+        Path cwd = Paths.get("").toAbsolutePath();
+        AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(cwd);
+
+        Path relative = Paths.get("relative-child-" + System.nanoTime());
+        Assert.assertFalse(relative.isAbsolute());
+        Assert.assertTrue("relative path must resolve under the CWD root",
+                resolver.isUnderAllowedRoot(relative));
+    }
+
+    /**
+     * End-to-end check that a root injected via {@code installer.command.extraAllowedRoots}
+     * is not only present in {@code getRoots()} but also accepted by
+     * {@link AllowedRootsResolver#isUnderAllowedRoot(Path)}.
+     */
+    @Test
+    public void build_extraAllowedRoots_shouldBeUsedByIsUnderAllowedRoot() {
+        String extraRoot = Paths.get(System.getProperty("java.io.tmpdir"),
+                "extra-root-" + System.nanoTime()).toAbsolutePath().normalize().toString();
+        InstallerConfiguration conf = InstallerConfiguration.getInstallerConf();
+        conf.set(AllowedRootsResolver.KEY_EXTRA_ALLOWED_ROOTS, extraRoot);
+
+        AllowedRootsResolver resolver = AllowedRootsResolver.build(conf);
+        Assert.assertTrue("child of extra root must be accepted",
+                resolver.isUnderAllowedRoot(Paths.get(extraRoot, "child")));
+    }
+
+    /**
+     * A CSV made entirely of commas and blanks must not add any spurious root. Exercises the
+     * inner {@code for} loop's per-item {@code isNotBlank} guard, which the existing
+     * "blankValue" test does not reach (that one is short-circuited by the outer check).
+     */
+    @Test
+    public void build_extraAllowedRoots_allBlankItems_shouldAddNoRoot() {
+        System.clearProperty(AgentConstants.AGENT_HOME);
+        InstallerConfiguration conf = InstallerConfiguration.getInstallerConf();
+        conf.set(AgentConstants.AGENT_HOME, null);
+
+        // Baseline: no extra roots configured.
+        conf.set(AllowedRootsResolver.KEY_EXTRA_ALLOWED_ROOTS, null);
+        Set<Path> baseline = AllowedRootsResolver.build(conf).getRoots();
+
+        // Same config, but the extra-roots CSV is all blanks/commas.
+        conf.set(AllowedRootsResolver.KEY_EXTRA_ALLOWED_ROOTS, ",, , ,");
+        Set<Path> withBlankCsv = AllowedRootsResolver.build(conf).getRoots();
+
+        Assert.assertEquals("CSV of only blanks/commas must not add roots",
+                baseline, withBlankCsv);
+    }
+
+    /**
+     * A root whose canonical location differs from its lexical form (e.g. on macOS
+     * {@code /tmp} is a symlink to {@code /private/tmp}) must still match children queried
+     * via either form. This regression-guards the cross-platform issue where addRoot stores
+     * both the normalized and real path forms.
+     */
+    @Test
+    public void isUnderAllowedRoot_rootBehindSymlink_shouldMatchViaEitherForm() throws IOException {
+        Path base = Files.createTempDirectory("allowedroot-symlink-root-");
+        try {
+            Path realDir = base.resolve("real");
+            Files.createDirectory(realDir);
+            Path linkDir = base.resolve("link");
+            try {
+                Files.createSymbolicLink(linkDir, realDir);
+            } catch (UnsupportedOperationException | IOException e) {
+                // Filesystem does not support symlinks; nothing to verify.
+                return;
+            }
+
+            // Register the root via the symlinked path.
+            AllowedRootsResolver resolver = AllowedRootsResolver.ofPaths(linkDir);
+
+            Files.createFile(linkDir.resolve("file.txt"));
+
+            Assert.assertTrue("child queried via symlink path must match",
+                    resolver.isUnderAllowedRoot(linkDir.resolve("file.txt")));
+            Assert.assertTrue("child queried via real path must also match",
+                    resolver.isUnderAllowedRoot(realDir.resolve("file.txt")));
+        } finally {
+            deleteRecursively(base);
+        }
+    }
+
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
