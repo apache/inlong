@@ -173,7 +173,9 @@ public class DataNodeServiceImpl implements DataNodeService {
         PageResult<DataNodeInfo> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
-                    return dataNodeOperator.getFromEntity(entity);
+                    DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+                    dataNodeInfo.setToken(null);
+                    return dataNodeInfo;
                 });
         LOGGER.debug("success to list data node by {}", request);
         return pageResult;
@@ -188,7 +190,9 @@ public class DataNodeServiceImpl implements DataNodeService {
         return nodeEntities.stream()
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
-                    return dataNodeOperator.getFromEntity(entity);
+                    DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
+                    dataNodeInfo.setToken(null);
+                    return dataNodeInfo;
                 }).collect(Collectors.toList());
     }
 
