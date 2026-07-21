@@ -80,9 +80,9 @@ public class TestKv2RowDataProcessor extends AbstractProcessorTestBase {
         // sql
         String transformSql =
                 "select audit_data_time as audit_data_time,from_unix_time($ctx.msgTime/1000) as tdbank_imp_date,"
-                + "uin as uin,uuid as uuid,recotime as recotime,abt as abt,ct as ct,cv as cv,`from` as `from`,"
-                + "itemid as itemid,songtime as songtime,trace as trace,itemfeature as itemfeature,"
-                + "userfeature as userfeature,extras as extras,pos as pos from source";
+                        + "uin as uin,uuid as uuid,recotime as recotime,abt as abt,ct as ct,cv as cv,`from` as `from`,"
+                        + "itemid as itemid,songtime as songtime,trace as trace,itemfeature as itemfeature,"
+                        + "userfeature as userfeature,extras as extras,pos as pos from source";
         // case1
         TransformProcessor<String, RowData> processor = TransformProcessor.create(
                 new TransformConfig(transformSql),
@@ -90,7 +90,7 @@ public class TestKv2RowDataProcessor extends AbstractProcessorTestBase {
                 SinkEncoderFactory.createRowEncoder(new RowDataSinkInfo("UTF-8", sinkFields)));
         String strCsv =
                 "pos=19&itemfeature=itemfeature1&uin=1370000000&userfeature=&itemid=620000000&uuid=5800000000"
-                + "&recotime=1780000000&extras=recall&ct=1&abt=abt1&trace=trace1&cv=200600&from=2&songtime=209";
+                        + "&recotime=1780000000&extras=recall&ct=1&abt=abt1&trace=trace1&cv=200600&from=2&songtime=209";
         HashMap<String, Object> extParams = new HashMap<>();
         extParams.put("msgTime", 1784030508000L);
         List<RowData> output = processor.transform(strCsv, extParams);
