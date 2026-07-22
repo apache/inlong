@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.transform.process.Context;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class JsonSourceData extends AbstractSourceData {
      * @return
      */
     @Override
-    public String getField(int rowNum, String fieldName) {
+    public Object getField(int rowNum, String fieldName) {
         try {
             if (isContextField(fieldName)) {
                 return getContextField(fieldName);
@@ -86,7 +87,7 @@ public class JsonSourceData extends AbstractSourceData {
             }
             // parse
             if (childNodes.size() == 0) {
-                return "";
+                return null;
             }
             // first node
             JsonNode firstNode = childNodes.get(0);
@@ -97,27 +98,27 @@ public class JsonSourceData extends AbstractSourceData {
                 if (rowNum < childRoot.size()) {
                     current = childRoot.get(rowNum);
                 } else {
-                    return "";
+                    return null;
                 }
             } else {
                 // error data
-                return "";
+                return null;
             }
             if (current == null) {
                 // error data
-                return "";
+                return null;
             }
             // parse other node
             for (int i = 1; i < childNodes.size(); i++) {
                 JsonNode node = childNodes.get(i);
                 if (!current.isJsonObject()) {
                     // error data
-                    return "";
+                    return null;
                 }
                 JsonElement newElement = current.getAsJsonObject().get(node.getName());
                 if (newElement == null) {
                     // error data
-                    return "";
+                    return null;
                 }
                 // node is not array
                 if (!node.isArray()) {
@@ -128,12 +129,29 @@ public class JsonSourceData extends AbstractSourceData {
                 current = getElementFromArray(node, newElement);
                 if (current == null) {
                     // error data
-                    return "";
+                    return null;
                 }
             }
-            return current.getAsString();
+            if (current.isJsonPrimitive()) {
+                JsonPrimitive jsonPrim = (JsonPrimitive) current;
+                if (jsonPrim.isString()) {
+                    return jsonPrim.getAsString();
+                } else if (jsonPrim.isBoolean()) {
+                    return jsonPrim.getAsBoolean();
+                } else if (jsonPrim.isNumber()) {
+                    return jsonPrim.getAsNumber();
+                }
+                return jsonPrim.toString();
+            }
+            if (current.isJsonNull()) {
+                return null;
+            }
+            if (current.isJsonArray() || current.isJsonObject()) {
+                return current;
+            }
+            return current;
         } catch (Exception e) {
-            return "";
+            return null;
         }
     }
 
