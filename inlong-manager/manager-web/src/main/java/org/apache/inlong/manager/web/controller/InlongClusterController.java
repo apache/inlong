@@ -48,7 +48,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -89,6 +88,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/tag/get/{id}")
     @ApiOperation(value = "Get cluster tag by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getTag(id, currentUser));
@@ -96,6 +96,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/tag/list")
     @ApiOperation(value = "List cluster tags")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.isInlongAdminOrTenantAdmin());
@@ -132,6 +133,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/tenant/tag/list")
     @ApiOperation(value = "List tenant cluster tags")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<PageResult<TenantClusterTagInfo>> listTenantTag(@RequestBody TenantClusterTagPageRequest request) {
         return Response.success(clusterService.listTenantTag(request));
     }
@@ -162,7 +164,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/save")
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CLUSTER)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.save(request, currentUser));
@@ -171,6 +173,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.get(id, currentUser));
@@ -178,6 +181,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "List clusters")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(
@@ -248,6 +252,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/node/get/{id}")
     @ApiOperation(value = "Get cluster node by id")
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getNode(id, currentUser));
@@ -255,6 +260,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/node/list")
     @ApiOperation(value = "List cluster nodes by pagination")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.listNode(request, currentUser));
@@ -287,6 +293,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CLUSTER_NODE)
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -295,26 +302,28 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CLUSTER_NODE)
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> unloadNode(@PathVariable Integer id) {
         return Response.success(clusterService.unloadNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/cluster/node/getManagerSSHPublicKey", method = RequestMethod.GET)
     @ApiOperation(value = "Obtain the SSH public key from the manager to install the agent.")
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<String> getManagerSSHPublicKey() {
         return Response.success(clusterService.getManagerSSHPublicKey());
     }
 
     @PostMapping("/cluster/node/testSSHConnection")
     @ApiOperation(value = "Test SSH connection for inlong cluster node")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> testSSHConnection(@RequestBody ClusterNodeRequest request) {
         return Response.success(clusterService.testSSHConnection(request));
     }
 
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {
         return Response.success(clusterService.testConnection(request));
     }
@@ -323,6 +332,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Start inlong cluster process")
     @OperationLog(operation = OperationType.START, operationTarget = OperationTarget.CLUSTER)
     @ApiImplicitParam(name = "clusterTag", value = "Inlong cluster tag", dataTypeClass = String.class)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> startProcess(@PathVariable String clusterTag,
             @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
