@@ -248,6 +248,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/node/get/{id}")
     @ApiOperation(value = "Get cluster node by id")
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getNode(id, currentUser));
@@ -287,6 +288,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CLUSTER_NODE)
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -295,6 +297,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CLUSTER_NODE)
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> unloadNode(@PathVariable Integer id) {
         return Response.success(clusterService.unloadNode(id, LoginUserUtils.getLoginUser().getName()));
     }
