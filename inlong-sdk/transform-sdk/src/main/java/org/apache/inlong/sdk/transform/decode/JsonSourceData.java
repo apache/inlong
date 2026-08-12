@@ -79,12 +79,37 @@ public class JsonSourceData extends AbstractSourceData {
             if (isContextField(fieldName)) {
                 return getContextField(fieldName);
             }
-            // split field name
-            List<JsonNode> childNodes = new ArrayList<>();
-            String[] nodeStrings = fieldName.split("\\.");
-            for (String nodeString : nodeStrings) {
-                childNodes.add(new JsonNode(nodeString));
+            JsonElement current = getFieldByElement(rowNum, fieldName);
+            if (current == null) {
+                return current;
             }
+            if (current.isJsonNull()) {
+                return null;
+            }
+            if (current.isJsonPrimitive()) {
+                JsonPrimitive jsonPrim = (JsonPrimitive) current;
+                if (jsonPrim.isString()) {
+                    return jsonPrim.getAsString();
+                } else if (jsonPrim.isBoolean()) {
+                    return jsonPrim.getAsBoolean();
+                } else if (jsonPrim.isNumber()) {
+                    return jsonPrim.getAsNumber();
+                }
+                return jsonPrim.toString();
+            }
+            if (current.isJsonArray() || current.isJsonObject()) {
+                return current;
+            }
+            return current;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JsonElement getFieldByElement(int rowNum, String fieldName) {
+        try {
+            // split field name
+            List<JsonNode> childNodes = parseNodeList(fieldName);
             // parse
             if (childNodes.size() == 0) {
                 return null;
@@ -132,27 +157,20 @@ public class JsonSourceData extends AbstractSourceData {
                     return null;
                 }
             }
-            if (current.isJsonPrimitive()) {
-                JsonPrimitive jsonPrim = (JsonPrimitive) current;
-                if (jsonPrim.isString()) {
-                    return jsonPrim.getAsString();
-                } else if (jsonPrim.isBoolean()) {
-                    return jsonPrim.getAsBoolean();
-                } else if (jsonPrim.isNumber()) {
-                    return jsonPrim.getAsNumber();
-                }
-                return jsonPrim.toString();
-            }
-            if (current.isJsonNull()) {
-                return null;
-            }
-            if (current.isJsonArray() || current.isJsonObject()) {
-                return current;
-            }
             return current;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static List<JsonNode> parseNodeList(String srcFieldName) {
+        // split field name
+        List<JsonNode> childNodes = new ArrayList<>();
+        String[] nodeStrings = srcFieldName.split("\\.");
+        for (String nodeString : nodeStrings) {
+            childNodes.add(new JsonNode(nodeString));
+        }
+        return childNodes;
     }
 
     private JsonElement getElementFromArray(JsonNode node, JsonElement curElement) {
