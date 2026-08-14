@@ -38,6 +38,8 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.table.data.GenericArrayData;
+import org.apache.flink.table.data.GenericRowData;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -183,6 +185,10 @@ public class TransformProcessor<I, O> {
                     Object fieldValue = parser.parse(sourceData, i, context);
                     if (fieldValue == null) {
                         sinkData.addField(fieldName, "");
+                    } else if (fieldValue instanceof GenericRowData
+                            || fieldValue instanceof GenericArrayData) {
+                        sinkData.addField(fieldName, fieldValue);
+                        context.put(fieldName, fieldValue);
                     } else {
                         sinkData.addField(fieldName, fieldValue.toString());
                         context.put(fieldName, fieldValue);

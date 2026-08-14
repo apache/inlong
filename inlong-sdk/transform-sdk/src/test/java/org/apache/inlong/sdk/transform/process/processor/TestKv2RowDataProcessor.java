@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process.processor;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimestampFormatInfo;
 import org.apache.inlong.sdk.transform.decode.SourceDecoderFactory;
 import org.apache.inlong.sdk.transform.encode.SinkEncoderFactory;
@@ -91,6 +92,35 @@ public class TestKv2RowDataProcessor extends AbstractProcessorTestBase {
         String strCsv =
                 "pos=19&itemfeature=itemfeature1&uin=1370000000&userfeature=&itemid=620000000&uuid=5800000000"
                         + "&recotime=1780000000&extras=recall&ct=1&abt=abt1&trace=trace1&cv=200600&from=2&songtime=209";
+        HashMap<String, Object> extParams = new HashMap<>();
+        extParams.put("msgTime", 1784030508000L);
+        List<RowData> output = processor.transform(strCsv, extParams);
+        Assert.assertEquals(1, output.size());
+    }
+
+    @Test
+    public void testKv2RowData4Base64() throws Exception {
+        List<FieldInfo> sourceFields = this.getTestFieldList("content");
+        sourceFields.get(0).setFormatInfo(new StringFormatInfo());
+        final KvSourceInfo kvSource = KvSourceInfo.builder().charset("UTF-8")
+                .entryDelimiter('&')
+                .kvDelimiter('=')
+                .escapeChar('\\')
+                .build();
+        List<FieldInfo> sinkFields = this.getTestFieldList("content",
+                "decoded_content");
+        sinkFields.get(0).setFormatInfo(new StringFormatInfo());
+        sinkFields.get(1).setFormatInfo(new StringFormatInfo());
+        // sql
+        String transformSql =
+                "select content as content,from_base64(content) as decoded_content from source";
+        // case1
+        TransformProcessor<String, RowData> processor = TransformProcessor.create(
+                new TransformConfig(transformSql),
+                SourceDecoderFactory.createKvDecoder(kvSource),
+                SinkEncoderFactory.createRowEncoder(new RowDataSinkInfo("UTF-8", sinkFields)));
+        String strCsv =
+                "content=8J+OicKg5Zeo77yBUvCfjY5uZ1LCoArlvojpq5jlhbTorqTor4bkvaDvvIHmiJHmmK/kvaDnmoTkuJPlsZ7ohb7orq/op4bpopHnpo/liKnlrpjvvIzotoXlpJrnpo/liKnlt7LlpIflpb3wn5GHCgrwn5SU5oqi5YWI5p2D55uK772c5YaF5a655LiK5paw44CB5piO5pif5Yqo5oCB5o+Q5YmN6YCa55+lCvCfjJ/kuJPlsZ7npo/liKnvvZznrb7lkI3nhafjgIHnur/kuIvmtLvliqjkuJPlsZ7pgJrpgZMK8J+SsOi2heWAvOS8mOaDoO+9nOS8muWRmOeJueaDoOOAgeWFjei0ueaKveixquekvAoK8J+OgeingemdouWFiOmAgeS9oOS4gOS7veaWsOS6uuekvApodHRwczovL3Z1cmwucXEuY29tL1Q4NVhVMFNHCgrigJTigJTigJTigJTigJTigJTigJTigJTigJTigJTigJTigJQK8J+SgeKAjeKZgO+4j+aciemXrumimOWSqOivojI05bCP5pe25pm66IO95a6i5pyN77yBCmh0dHBzOi8vYS52dXJsMy52aXAvSHJ6d2VQelIK";
         HashMap<String, Object> extParams = new HashMap<>();
         extParams.put("msgTime", 1784030508000L);
         List<RowData> output = processor.transform(strCsv, extParams);

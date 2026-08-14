@@ -30,6 +30,7 @@ import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.MapType;
+import org.apache.flink.table.types.logical.RowType;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -38,7 +39,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +84,7 @@ public class FieldToRowDataUtils {
         converterMap.put(LogicalTypeRoot.TIMESTAMP_WITH_TIME_ZONE, (obj) -> parseTimestampWithLocalTimeZone(obj));
         converterMap.put(LogicalTypeRoot.DECIMAL, (obj) -> parseDecimal(obj));
         converterMap.put(LogicalTypeRoot.BINARY, (obj) -> parseBinary(obj));
-        converterMap.put(LogicalTypeRoot.ARRAY, (obj) -> parseArray(obj));
         converterMap.put(LogicalTypeRoot.MAP, (obj) -> parseMap(obj));
-        converterMap.put(LogicalTypeRoot.ROW, (obj) -> parseRow(obj));
     }
 
     private static final ThreadLocal<Map<String, SimpleDateFormat>> formatLocal = new ThreadLocal<>();
@@ -125,13 +123,54 @@ public class FieldToRowDataUtils {
         }
         switch (type) {
             case ARRAY:
+                final ArrayType aType = (ArrayType) fieldType;
+                final FieldToRowDataConverter elemConverter =
+                        createFieldRowConverter(aType.getElementType());
                 return obj -> {
-                    final Object[] array = (Object[]) obj;
-                    FieldToRowDataConverter elementConverter = createFieldRowConverter(
-                            ((ArrayType) fieldType).getElementType());
-                    Object[] converted = Arrays.stream(array)
-                            .map(elementConverter::convert)
-                            .toArray();
+                    Object[] source;
+                    if (obj instanceof GenericArrayData) {
+                        GenericArrayData gArr = (GenericArrayData) obj;
+                        LogicalType elemType = aType.getElementType();
+                        if (elemType.getTypeRoot() == LogicalTypeRoot.ROW) {
+                            int numFields = ((RowType) elemType).getFieldCount();
+                            source = new Object[gArr.size()];
+                            for (int i = 0; i < gArr.size(); i++) {
+                                source[i] = gArr.isNullAt(i)
+                                        ? null
+                                        : gArr.getRow(i, numFields);
+                            }
+                        } else {
+                            // Non-ROW element: try to extract and convert each element;
+                            // fall back to pass-through if element types don't match
+                            try {
+                                Object[] extracted = new Object[gArr.size()];
+                                for (int i = 0; i < gArr.size(); i++) {
+                                    if (gArr.isNullAt(i)) {
+                                        extracted[i] = null;
+                                    } else {
+                                        extracted[i] = extractElement(gArr, i, elemType);
+                                    }
+                                }
+                                source = extracted;
+                            } catch (ClassCastException e) {
+                                // Elements don't match declared type (e.g. GenericRowData
+                                // in a VARCHAR array); return as-is for backward compatibility
+                                return obj;
+                            }
+                        }
+                    } else if (obj instanceof Object[]) {
+                        source = (Object[]) obj;
+                    } else if (obj instanceof List<?>) {
+                        source = ((List<?>) obj).toArray();
+                    } else {
+                        return null;
+                    }
+                    Object[] converted = new Object[source.length];
+                    for (int i = 0; i < source.length; i++) {
+                        converted[i] = source[i] == null
+                                ? null
+                                : elemConverter.convert(source[i]);
+                    }
                     return new GenericArrayData(converted);
                 };
             case MAP:
@@ -148,10 +187,60 @@ public class FieldToRowDataUtils {
                     return new GenericMapData(internalMap);
                 };
             case ROW:
+                final RowType rowType = (RowType) fieldType;
+                final List<RowType.RowField> rowFields = rowType.getFields();
+                final FieldToRowDataConverter[] fieldConverters =
+                        new FieldToRowDataConverter[rowFields.size()];
+                for (int i = 0; i < rowFields.size(); i++) {
+                    fieldConverters[i] = createFieldRowConverter(rowFields.get(i).getType());
+                }
+                return obj -> {
+                    if (!(obj instanceof GenericRowData)) {
+                        return null;
+                    }
+                    GenericRowData input = (GenericRowData) obj;
+                    GenericRowData output = new GenericRowData(fieldConverters.length);
+                    for (int i = 0; i < fieldConverters.length; i++) {
+                        output.setField(i,
+                                fieldConverters[i].convert(input.getField(i)));
+                    }
+                    return output;
+                };
             case MULTISET:
             case RAW:
             default:
                 throw new UnsupportedOperationException("Unsupported type:" + fieldType);
+        }
+    }
+
+    private static Object extractElement(GenericArrayData array, int pos, LogicalType type) {
+        switch (type.getTypeRoot()) {
+            case ARRAY:
+                return array.getArray(pos);
+            case ROW:
+                return array.getRow(pos, ((RowType) type).getFieldCount());
+            case VARCHAR:
+            case CHAR:
+                return array.getString(pos);
+            case BOOLEAN:
+                return array.getBoolean(pos);
+            case TINYINT:
+                return array.getByte(pos);
+            case SMALLINT:
+                return array.getShort(pos);
+            case INTEGER:
+                return array.getInt(pos);
+            case BIGINT:
+                return array.getLong(pos);
+            case FLOAT:
+                return array.getFloat(pos);
+            case DOUBLE:
+                return array.getDouble(pos);
+            case BINARY:
+            case VARBINARY:
+                return array.getBinary(pos);
+            default:
+                return array.getBinary(pos);
         }
     }
 
@@ -423,26 +512,6 @@ public class FieldToRowDataUtils {
         }
     }
 
-    private static Object parseArray(Object obj) {
-        try {
-            if (obj == null) {
-                return null;
-            }
-            if (obj instanceof GenericArrayData) {
-                return obj;
-            }
-            if (obj instanceof List<?>) {
-                return new GenericArrayData(((List<?>) obj).toArray());
-            }
-            return null;
-        } catch (RuntimeException e) {
-            if (isIgnoreError()) {
-                return null;
-            }
-            throw e;
-        }
-    }
-
     private static Object parseMap(Object obj) {
         try {
             if (obj == null) {
@@ -453,23 +522,6 @@ public class FieldToRowDataUtils {
             }
             if (obj instanceof Map<?, ?>) {
                 return new GenericMapData((Map<?, ?>) obj);
-            }
-            return null;
-        } catch (RuntimeException e) {
-            if (isIgnoreError()) {
-                return null;
-            }
-            throw e;
-        }
-    }
-
-    private static Object parseRow(Object obj) {
-        try {
-            if (obj == null) {
-                return null;
-            }
-            if (obj instanceof GenericRowData) {
-                return obj;
             }
             return null;
         } catch (RuntimeException e) {

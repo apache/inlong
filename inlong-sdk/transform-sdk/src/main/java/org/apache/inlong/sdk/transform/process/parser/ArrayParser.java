@@ -21,6 +21,9 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.Context;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.sf.jsqlparser.expression.ArrayExpression;
 
 import java.util.List;
@@ -50,6 +53,28 @@ public class ArrayParser implements ValueParser {
             List<?> leftObj = (List<?>) leftValue;
             Number rightObj = (Number) rightValue;
             return leftObj.get(rightObj.intValue());
+        }
+        if (leftValue instanceof JsonArray && rightValue instanceof Number) {
+            JsonArray leftObj = (JsonArray) leftValue;
+            Number rightObj = (Number) rightValue;
+            JsonElement result = leftObj.get(rightObj.intValue());
+            if (result.isJsonNull()) {
+                return null;
+            }
+            if (result.isJsonPrimitive()) {
+                JsonPrimitive jsonPrim = (JsonPrimitive) result;
+                if (jsonPrim.isString()) {
+                    return jsonPrim.getAsString();
+                } else if (jsonPrim.isBoolean()) {
+                    return jsonPrim.getAsBoolean();
+                } else if (jsonPrim.isNumber()) {
+                    return jsonPrim.getAsNumber();
+                }
+                return jsonPrim.toString();
+            }
+            if (result.isJsonArray() || result.isJsonObject()) {
+                return result;
+            }
         }
         return null;
     }
