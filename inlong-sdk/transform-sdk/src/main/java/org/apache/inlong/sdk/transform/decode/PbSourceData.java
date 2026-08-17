@@ -59,6 +59,8 @@ public class PbSourceData extends AbstractSourceData {
 
     public static final String CHILD_KEY = "$child.";
 
+    public static final String CHILD_INDEX_KEY = "$childIndex";
+
     private Descriptors.Descriptor rootDesc;
 
     private Descriptors.Descriptor childDesc;
@@ -129,6 +131,9 @@ public class PbSourceData extends AbstractSourceData {
             // check(root);
             if (isContextField(fieldName)) {
                 return getContextField(fieldName);
+            }
+            if (StringUtils.equals(CHILD_INDEX_KEY, fieldName)) {
+                return rowNum;
             }
             Object fieldValue = findFieldNode(rowNum, fieldName);
             List<PbNode> childNodes = this.columnNodeMap.get(fieldName);

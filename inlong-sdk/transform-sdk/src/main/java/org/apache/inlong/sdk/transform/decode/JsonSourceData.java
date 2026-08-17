@@ -38,6 +38,8 @@ public class JsonSourceData extends AbstractSourceData {
 
     public static final String CHILD_KEY = "$child";
 
+    public static final String CHILD_INDEX_KEY = "$childIndex";
+
     private JsonObject root;
 
     private JsonArray childRoot;
@@ -78,6 +80,9 @@ public class JsonSourceData extends AbstractSourceData {
         try {
             if (isContextField(fieldName)) {
                 return getContextField(fieldName);
+            }
+            if (StringUtils.equals(CHILD_INDEX_KEY, fieldName)) {
+                return rowNum;
             }
             JsonElement current = getFieldByElement(rowNum, fieldName);
             if (current == null) {
@@ -126,8 +131,9 @@ public class JsonSourceData extends AbstractSourceData {
                     return null;
                 }
             } else {
-                // error data
-                return null;
+                // default root node
+                current = root;
+                childNodes.add(0, new JsonNode(ROOT_KEY));
             }
             if (current == null) {
                 // error data
