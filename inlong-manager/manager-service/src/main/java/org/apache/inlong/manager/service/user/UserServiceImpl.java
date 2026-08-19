@@ -163,8 +163,13 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectById(userId);
         Preconditions.expectNotNull(entity, "User not exists with id " + userId);
         UserEntity curUser = userMapper.selectByName(currentUser);
-        Preconditions.expectTrue(TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(curUser.getAccountType())
-                || Objects.equals(entity.getName(), currentUser),
+        Preconditions.expectNotNull(curUser, "Current user not exists");
+
+        UserInfo loginUser = LoginUserUtils.getLoginUser();
+        boolean isInlongAdmin = loginUser != null && loginUser.getRoles() != null
+                && loginUser.getRoles().contains(UserRoleCode.INLONG_ADMIN);
+        boolean isSelf = Objects.equals(entity.getName(), currentUser);
+        Preconditions.expectTrue(isInlongAdmin || isSelf,
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -174,7 +179,9 @@ public class UserServiceImpl implements UserService {
         result.setAccountType(entity.getAccountType());
         result.setVersion(entity.getVersion());
 
-        if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
+        if (isSelf
+                && StringUtils.isNotBlank(entity.getSecretKey())
+                && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
                 // decipher according to stored key version
                 // note that if the version is null then the string is treated as unencrypted plain text
