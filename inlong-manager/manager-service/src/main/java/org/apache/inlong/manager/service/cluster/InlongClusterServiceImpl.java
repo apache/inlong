@@ -808,7 +808,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public List<ClusterNodeResponse> listNodeByGroupId(String groupId, String clusterType, String protocolType) {
         LOGGER.debug("begin to get cluster nodes for groupId={}, clusterType={}, protocol={}",
                 groupId, clusterType, protocolType);
-
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            LOGGER.error("inlong group not found by groupId={}", groupId);
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        String username = LoginUserUtils.getLoginUser().getName();
+        userService.checkUser(groupEntity.getInCharges(), username,
+                "Current user does not have permission to get cluster info");
         List<InlongClusterNodeEntity> nodeEntities = getClusterNodes(groupId, clusterType, protocolType);
         if (CollectionUtils.isEmpty(nodeEntities)) {
             LOGGER.debug("not any cluster node for groupId={}, clusterType={}, protocol={}",
@@ -817,6 +824,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         List<ClusterNodeResponse> result = CommonBeanUtils.copyListProperties(nodeEntities, ClusterNodeResponse::new);
+        result.forEach(node -> {
+            node.setUsername(null);
+            node.setPassword(null);
+        });
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to get nodes for groupId={}, clusterType={}, protocol={}, result size={}",
                     groupId, clusterType, protocolType, result);
