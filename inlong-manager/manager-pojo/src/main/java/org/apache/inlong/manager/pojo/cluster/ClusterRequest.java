@@ -63,6 +63,7 @@ public abstract class ClusterRequest {
     @ApiModelProperty(value = "Cluster tags, separated by commas")
     @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "clusterTags cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")
+    @Pattern(regexp = "^[a-zA-Z0-9_,.-]+$", message = "clusterTags contains invalid characters")
     private String clusterTags;
 
     @ApiModelProperty(value = "Cluster url")
