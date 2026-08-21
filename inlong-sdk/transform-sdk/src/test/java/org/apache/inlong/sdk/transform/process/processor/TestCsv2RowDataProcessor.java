@@ -49,6 +49,7 @@ import java.util.List;
  * sink produces zero rows.
  */
 public class TestCsv2RowDataProcessor extends AbstractProcessorTestBase {
+
     @Test
     public void testCsv2RowDataHitHY50AndEventCode() throws Exception {
         List<FieldInfo> sourceFields = this.getTestFieldList(
@@ -82,8 +83,8 @@ public class TestCsv2RowDataProcessor extends AbstractProcessorTestBase {
         List<RowData> output = processor.transform(testData, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("2026-08-20 12:48:56.929", output.get(0).getString(0).toString());
-        Assert.assertEquals("extinfo=127.0.0.1",      output.get(0).getString(1).toString());
-        Assert.assertEquals("OnPageEnter",            output.get(0).getString(2).toString());
+        Assert.assertEquals("extinfo=127.0.0.1", output.get(0).getString(1).toString());
+        Assert.assertEquals("OnPageEnter", output.get(0).getString(2).toString());
         Assert.assertEquals("welfare_milestone_operations", output.get(0).getString(3).toString());
     }
 
@@ -116,8 +117,8 @@ public class TestCsv2RowDataProcessor extends AbstractProcessorTestBase {
                 SinkEncoderFactory.createRowEncoder(rowSink));
 
         // Note: this record does NOT satisfy the WHERE clause:
-        //  - event_code = 'OnPageMod'  (not 'OnPageEnter')
-        //  - HY50 in the decoded map = 'ActivityPage' (not 'welfare_milestone_operations')
+        // - event_code = 'OnPageMod' (not 'OnPageEnter')
+        // - HY50 in the decoded map = 'ActivityPage' (not 'welfare_milestone_operations')
         // event_value only carries a single URL-encoded HY50 KV entry.
         String testData = "2026-08-20 12:48:56.929"
                 + "|extinfo=127.0.0.1"
