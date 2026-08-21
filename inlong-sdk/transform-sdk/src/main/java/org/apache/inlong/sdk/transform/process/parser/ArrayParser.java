@@ -23,10 +23,12 @@ import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.sf.jsqlparser.expression.ArrayExpression;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * ArrayParser
@@ -54,10 +56,36 @@ public class ArrayParser implements ValueParser {
             Number rightObj = (Number) rightValue;
             return leftObj.get(rightObj.intValue());
         }
+        if (leftValue instanceof Map<?, ?>) {
+            Map<?, ?> leftObj = (Map<?, ?>) leftValue;
+            return leftObj.get(rightValue);
+        }
         if (leftValue instanceof JsonArray && rightValue instanceof Number) {
             JsonArray leftObj = (JsonArray) leftValue;
             Number rightObj = (Number) rightValue;
             JsonElement result = leftObj.get(rightObj.intValue());
+            if (result.isJsonNull()) {
+                return null;
+            }
+            if (result.isJsonPrimitive()) {
+                JsonPrimitive jsonPrim = (JsonPrimitive) result;
+                if (jsonPrim.isString()) {
+                    return jsonPrim.getAsString();
+                } else if (jsonPrim.isBoolean()) {
+                    return jsonPrim.getAsBoolean();
+                } else if (jsonPrim.isNumber()) {
+                    return jsonPrim.getAsNumber();
+                }
+                return jsonPrim.toString();
+            }
+            if (result.isJsonArray() || result.isJsonObject()) {
+                return result;
+            }
+        }
+        if (leftValue instanceof JsonObject && rightValue instanceof String) {
+            JsonObject leftObj = (JsonObject) leftValue;
+            String rightObj = (String) rightValue;
+            JsonElement result = leftObj.get(rightObj);
             if (result.isJsonNull()) {
                 return null;
             }
