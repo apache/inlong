@@ -95,9 +95,10 @@ public interface StreamSourceService {
      * Paging query source information based on conditions.
      *
      * @param request paging request.
+     * @param operator Operator's name.
      * @return source list
      */
-    PageResult<? extends StreamSource> listByCondition(SourcePageRequest request);
+    PageResult<? extends StreamSource> listByCondition(SourcePageRequest request, String operator);
 
     /**
      * Paging query source information based on conditions.

@@ -83,7 +83,7 @@ public class StreamSourceController {
     @RequestMapping(value = "/source/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream sources by paginating")
     public Response<PageResult<? extends StreamSource>> listByCondition(@RequestBody SourcePageRequest request) {
-        return Response.success(sourceService.listByCondition(request));
+        return Response.success(sourceService.listByCondition(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/update", method = RequestMethod.POST)
