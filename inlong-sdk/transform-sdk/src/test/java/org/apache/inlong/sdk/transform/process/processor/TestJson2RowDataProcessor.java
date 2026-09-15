@@ -45,7 +45,7 @@ public class TestJson2RowDataProcessor extends AbstractProcessorTestBase {
         List<FieldInfo> sinkFields = this.getTestFieldList("audit_data_time", "session_begin_time", "session_id",
                 "business", "product_id", "channel",
                 "agent_id", "archive_p1", "archive_p2",
-                "archive_p3", "archive_p4", "array_field");
+                "archive_p3", "archive_p4", "array_field", "from");
         // sql
         String transformSql = "select '' as audit_data_time,"
                 + "$root.session_begin_time as session_begin_time,"
@@ -58,7 +58,7 @@ public class TestJson2RowDataProcessor extends AbstractProcessorTestBase {
                 + "$root.archive_p2 as archive_p2,"
                 + "$root.archive_p3 as archive_p3,"
                 + "$root.archive_p4 as archive_p4,"
-                + "$root.array_field as array_field from source";
+                + "$root.array_field as array_field,$root.from as `from` from source";
         // case1
         TransformProcessor<String, RowData> processor = TransformProcessor.create(
                 new TransformConfig(transformSql),
@@ -67,7 +67,7 @@ public class TestJson2RowDataProcessor extends AbstractProcessorTestBase {
         String strJson =
                 "{\"session_id\":\"1782780884\",\"session_begin_time\":\"2026-06-30 08:54:56\",\"business\":\"pay\","
                         + "\"product_id\":\"1314\",\"channel\":\"todo\",\"agent_id\":\"095d2\",\"archive_p1\":\"money\","
-                        + "\"archive_p2\":\"product\",\"archive_p3\":\"short”\",\"archive_p4\":\"\",\"array_field\":[{\"isArray\":true}]}";
+                        + "\"archive_p2\":\"product\",\"archive_p3\":\"short”\",\"archive_p4\":\"\",\"array_field\":[{\"isArray\":true}],\"from\":\"china\"}";
         List<RowData> output = processor.transform(strJson, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals(output.get(0).getString(9).toString(), "short”");
