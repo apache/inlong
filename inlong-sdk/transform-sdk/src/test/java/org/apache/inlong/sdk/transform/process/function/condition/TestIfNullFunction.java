@@ -91,5 +91,16 @@ public class TestIfNullFunction extends AbstractFunctionConditionTestBase {
         output = processor.transform(data, new HashMap<>());
         Assert.assertEquals(1, output.size());
         Assert.assertEquals("result=", output.get(0));
+
+        // case6: ifnull(null, numeric2) -- true NULL literal
+        transformSql = "select ifnull(null,numeric2) from source";
+        config = new TransformConfig(transformSql);
+        processor = TransformProcessor
+                .create(config, SourceDecoderFactory.createCsvDecoder(csvSource),
+                        SinkEncoderFactory.createKvEncoder(kvSink));
+        data = "5|3|3|5";
+        output = processor.transform(data, new HashMap<>());
+        Assert.assertEquals(1, output.size());
+        Assert.assertEquals("result=3", output.get(0));
     }
 }
