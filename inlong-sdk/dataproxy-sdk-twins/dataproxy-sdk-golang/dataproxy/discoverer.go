@@ -158,10 +158,20 @@ func (d *dataProxyDiscoverer) lookup() {
 		d.log.Infof("update server endpoint list %s: %v", d.url, allEndpointAddrStr)
 	}
 
-	d.RLock()
-	defer d.RUnlock()
 	if len(addEndpoints) > 0 || len(delEndpoints) > 0 {
+		// Copy the handler list while holding the lock, then invoke callbacks after
+		// releasing it, to avoid calling external code while holding the lock: if a
+		// handler calls back into AddEventHandler/DelEventHandler/GetEndpoints
+		// (which need Lock/RLock) from within OnEndpointUpdate, the same goroutine
+		// re-entering the RWMutex would deadlock
+		d.RLock()
+		handlers := make([]discoverer.EventHandler, 0, len(d.eventHandlers))
 		for h := range d.eventHandlers {
+			handlers = append(handlers, h)
+		}
+		d.RUnlock()
+
+		for _, h := range handlers {
 			h.OnEndpointUpdate(allEndpoints, addEndpoints, delEndpoints)
 		}
 	}
