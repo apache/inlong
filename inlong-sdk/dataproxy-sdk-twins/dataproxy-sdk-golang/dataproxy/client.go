@@ -257,8 +257,9 @@ func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
 
 func (c *client) getWorker() (*worker, error) {
 	workerNum := uint64(len(c.workers))
-	start := c.curWorkerIndex.Load()
-	c.curWorkerIndex.Add(1)
+	// Use the return value of the atomic increment as the starting index, ensuring
+	// concurrent callers each get a distinct sequence number.
+	start := c.curWorkerIndex.Add(1) - 1
 
 	for i := uint64(0); i < workerNum; i++ {
 		w := c.workers[(start+i)%workerNum]
