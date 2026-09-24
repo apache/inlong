@@ -215,7 +215,27 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (request.getEnableZookeeper() == null) {
             request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
         }
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
+
+        if (request.getEnableCreateResource() == null) {
+            request.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
+        }
+
+        if (request.getInlongGroupMode() == null) {
+            request.setInlongGroupMode(InlongConstants.STANDARD_MODE);
+        }
+
+        String mqType = request.getMqType();
+        if (InlongConstants.STANDARD_MODE.equals(request.getInlongGroupMode())
+                && InlongConstants.ENABLE_CREATE_RESOURCE.equals(request.getEnableCreateResource())) {
+            String clusterTag = request.getInlongClusterTag();
+            List<InlongClusterEntity> clusterEntities = clusterEntityMapper.selectByKey(clusterTag, null, mqType);
+            if (CollectionUtils.isEmpty(clusterEntities)) {
+                throw new BusinessException(String.format("cannot find any cluster by tag %s and type %s",
+                        clusterTag, mqType));
+            }
+        }
+
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(mqType);
         groupId = instance.saveOpt(request, operator);
 
         // save ext info
