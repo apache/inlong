@@ -87,6 +87,7 @@ func (h heartbeatReq) encode(buffer *bytes.Buffer) []byte {
 type batchCallback func()
 type batchReq struct {
 	pool               *sync.Pool
+	finished           bool
 	workerID           string
 	batchID            string
 	groupID            string
@@ -111,6 +112,13 @@ func (b *batchReq) append(req *sendDataReq) {
 }
 
 func (b *batchReq) done(err error) {
+	// Idempotency guard: if the batch has already been done, return immediately
+	// to avoid releasing resources or invoking callbacks more than once.
+	if b.finished {
+		return
+	}
+	b.finished = true
+
 	errorCode := getErrorCode(err)
 	for i, req := range b.dataReqs {
 		req.done(err, errorCode)
