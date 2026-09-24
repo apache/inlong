@@ -449,7 +449,13 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 			// can not call w.updateConn() in callback, updateConn() may open new conn, which will call gent.Client.Dial()
 			// gent.Client.Dial() and this callback are run in a same goroutine, it will be blocked
 			w.updateConnAsync(errConnWriteFailed)
-			w.sendFailedBatches <- &sendFailedBatchReq{batch: b, retry: retryOnFail}
+			// There is a TOCTOU window between checking state and sending: sendFailedBatches
+			// may already have been closed by closeAll() by the time we send. safeSend
+			// guards against the resulting panic as a fallback; a failed send means the
+			// channel has been closed, so we mark the batch as done to release its resources
+			if !safeSend(w, w.sendFailedBatches, &sendFailedBatchReq{batch: b, retry: retryOnFail}) {
+				b.done(errConnWriteFailed)
+			}
 			return
 		}
 
@@ -538,9 +544,15 @@ func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 				return
 			}
 
-			// put the batch into the retry channel
+			// Put the batch into the retry channel. There is a TOCTOU window between checking state
+			// and sending: retryBatches may already have been closed by closeAll() by
+			// the time we send. safeSend guards against the resulting panic as a
+			// fallback; a failed send means the channel has been closed, so we mark the
+			// batch as done to release its resources
 			w.log.Debug("put to retry...")
-			w.retryBatches <- batch
+			if !safeSend(w, w.retryBatches, batch) {
+				batch.done(errSendTimeout)
+			}
 		case <-ctx.Done():
 			// in the case the process exit, just end up the batch sending routine
 			batch.done(errSendTimeout)
@@ -634,12 +646,26 @@ func (w *worker) handleSendHeartbeat() {
 	}
 }
 
+// safeSend sends v on ch, using recover as a fallback to guard against the
+// panic caused by sending on an already-closed channel
+func safeSend[T any](w *worker, ch chan T, v T) (sent bool) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			// Sending on an already-closed channel during shutdown; discard the data
+			w.log.Warn("send to closed channel during close, drop it, workerID:", w.index, ", recover:", rec)
+			sent = false
+		}
+	}()
+	ch <- v
+	return true
+}
+
 func (w *worker) onRsp(rsp *batchRsp) {
 	// close already
 	if w.getState() == stateClosed {
 		return
 	}
-	w.responseBatches <- rsp
+	safeSend(w, w.responseBatches, rsp)
 }
 
 func (w *worker) handleRsp(rsp *batchRsp) {
