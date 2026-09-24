@@ -122,7 +122,7 @@ func (c *client) initAll() error {
 }
 
 func (c *client) initDiscoverer() error {
-	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.Logger, c.options.Auth)
+	dis, err := NewDiscoverer(c.options.URL, c.options.GroupID, c.options.UpdateInterval, c.options.DiscovererRequestTimeout, c.options.Logger, c.options.Auth)
 	if err != nil {
 		return err
 	}

@@ -39,7 +39,7 @@ type Auth interface {
 }
 
 // NewDiscoverer news a DataProxy discoverer
-func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger.Logger, auth Auth) (discoverer.Discoverer, error) {
+func NewDiscoverer(url, groupID string, lookupInterval, requestTimeout time.Duration, log logger.Logger, auth Auth) (discoverer.Discoverer, error) {
 	if url == "" {
 		return nil, errors.New("URL is not given")
 	}
@@ -57,6 +57,7 @@ func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger
 		url:             url,
 		groupID:         groupID,
 		lookupInterval:  lookupInterval,
+		requestTimeout:  requestTimeout,
 		endpointList:    make([]discoverer.Endpoint, 0),
 		endpointListMap: make(map[string]discoverer.Endpoint),
 		eventHandlers:   make(map[discoverer.EventHandler]struct{}),
@@ -75,6 +76,7 @@ type dataProxyDiscoverer struct {
 	url             string
 	groupID         string
 	lookupInterval  time.Duration
+	requestTimeout  time.Duration
 	endpointList    discoverer.EndpointList
 	endpointListStr string
 	endpointListMap map[string]discoverer.Endpoint
@@ -194,9 +196,10 @@ func (d *dataProxyDiscoverer) update() {
 // get gets endpoint list from DataProxy service registry
 func (d *dataProxyDiscoverer) get(retry int) (*cluster, error) {
 	reqURL := fmt.Sprintf("%s/%s?protocolType=tcp", d.url, d.groupID)
-	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(d.requestTimeout)
 	req := client.R()
 	if d.auth != nil {
+		d.log.Debug("start to get auth token")
 		key, token, err := d.auth.GetToken(context.Background(), d.groupID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get auth token. %w", err)
@@ -204,6 +207,7 @@ func (d *dataProxyDiscoverer) get(retry int) (*cluster, error) {
 		req = req.SetHeader(key, token)
 	}
 
+	d.log.Debug("start to get server endpoint list")
 	httpRsp, err := req.Post(reqURL)
 	if err != nil {
 		d.log.Error("get server endpoint list failed:", err)

@@ -189,3 +189,13 @@ func WithMaxConnLifetime(lifetime time.Duration) Option {
 		o.MaxConnLifetime = lifetime
 	}
 }
+
+// WithDiscovererRequestTimeout sets DiscovererRequestTimeout
+func WithDiscovererRequestTimeout(t time.Duration) Option {
+	return func(o *Options) {
+		if t <= 0 {
+			return
+		}
+		o.DiscovererRequestTimeout = t
+	}
+}
