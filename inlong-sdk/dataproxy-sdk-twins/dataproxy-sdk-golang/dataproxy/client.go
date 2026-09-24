@@ -230,6 +230,7 @@ func (c *client) Send(ctx context.Context, msg Message) error {
 
 	worker, err := c.getWorker()
 	if err != nil {
+		c.metrics.incMessage(workerBusy.getStrCode())
 		return ErrNoAvailableWorker
 	}
 	return worker.send(ctx, msg)
@@ -249,6 +250,7 @@ func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
 		if cb != nil {
 			cb(msg, ErrNoAvailableWorker)
 		}
+		c.metrics.incMessage(workerBusy.getStrCode())
 		return
 	}
 
