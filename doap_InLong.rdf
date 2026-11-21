@@ -28,7 +28,7 @@
     <license rdf:resource="https://spdx.org/licenses/Apache-2.0" />
     <name>Apache InLong</name>
     <homepage rdf:resource="https://inlong.apache.org" />
-    <asfext:pmc rdf:resource="https://inlong.apache.org" />
+    <asfext:pmc rdf:resource="http://attic.apache.org" />
     <shortdesc>Apache InLong - a one-stop, full-scenario integration framework for massive data</shortdesc>
     <description>Apache InLong is a one-stop, full-scenario integration framework for massive data that supports Data Ingestion, Data Synchronization, and Data Subscription, and it provides automatic, safe, reliable, and high-performance data transmission capabilities to facilitate the construction of streaming-based data analysis, modeling, and applications.</description>
     <bug-database rdf:resource="https://github.com/apache/inlong/issues" />
@@ -36,6 +36,7 @@
     <download-page rdf:resource="https://inlong.apache.org/downloads" />
     <programming-language>Java</programming-language>
     <category rdf:resource="https://projects.apache.org/category/big-data" />
+    <category rdf:resource="https://projects.apache.org/category/retired" />
     <repository>
       <SVNRepository>
         <location rdf:resource="https://dist.apache.org/repos/dist/release/inlong/"/>
