@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
@@ -87,6 +88,7 @@ public class OceanBaseSinkDTO extends BaseStreamSink {
         OceanBaseSinkDTO dto =
                 StringUtils.isNotBlank(extParams) ? OceanBaseSinkDTO.getFromJson(extParams) : new OceanBaseSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setJdbcUrl(filterSensitive(request.getJdbcUrl()));
         return dto;
     }
 
@@ -221,4 +223,17 @@ public class OceanBaseSinkDTO extends BaseStreamSink {
         }
         return resultUrl.toString();
     }
+
+    /**
+     * Filter sensitive params, see {@link MySQLSensitiveUrlUtils#filterSensitive(String)}.
+     * The OceanBase JDBC URL follows the same MySQL-protocol-compatible syntax as the MySQL sink,
+     * so the same sensitive-parameter filtering (e.g. autoDeserialize, allowLoadLocalInfile) applies.
+     *
+     * @param url str may have some sensitive params
+     * @return str without sensitive param
+     */
+    public static String filterSensitive(String url) {
+        return MySQLSensitiveUrlUtils.filterSensitive(url);
+    }
+
 }
